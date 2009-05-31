@@ -20,18 +20,24 @@ abstract class Step extends HttpServlet {
     def apply(realPath: String): Option[Params]= 
       re.findFirstMatchIn(realPath) match {
         case Some(matches) => {
-          Some(Map()++(names.map(_.substring(1)) zip matches.subgroups))
+          Some(Map()++(names zip matches.subgroups))
         }
         case None => None 
       }
   }
     
-  val Routes = Map[String,HashSet[Route]]("GET"->new HashSet[Route](), "POST"->new HashSet[Route]())
+  val Routes = Map[String,HashSet[Route]](
+    "GET"->new HashSet[Route](), 
+    "POST"->new HashSet[Route](),
+    "PUT"->new HashSet[Route](), 
+    "DELETE"->new HashSet[Route]()
+  )
+
   val paramsMap = new DynamicVariable[Params](null)
   var contentType = "text/html"
 
   def params(name:String):String = paramsMap.value(name)
-  
+
   override def service(request:HttpServletRequest, response: HttpServletResponse) {
 
         val realParams = new MapWrapper[String, Array[String]]() {

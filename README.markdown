@@ -111,7 +111,7 @@ While Step can be run standalone, you can also package it up in a .jar for use i
 
 Props
 =====
-I'd like to thank [this awesome dude](http://www.riffraff.info/) for the inspirational blog post, and Mark Harrah for help on the sbt mailing list and for creating sbt.  Ant+Ivy by itself was a total bitch.
+I'd like to thank [Gabriele Renzi](http://www.riffraff.info/) for the inspirational blog post and continual help, and Mark Harrah for help on the sbt mailing list and for creating sbt. Ant+Ivy by itself was a total bitch.
 
 Todo
 ====

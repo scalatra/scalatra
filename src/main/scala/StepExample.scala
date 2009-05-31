@@ -8,14 +8,14 @@ class StepExample extends Step {
 
   get("/date/:year/:month/:day") {
     <ul>
-      <li>Year: {params("year")}</li>
-      <li>Month: {params("month")}</li>
-      <li>Day: {params("day")}</li>
+      <li>Year: {params(":year")}</li>
+      <li>Month: {params(":month")}</li>
+      <li>Day: {params(":day")}</li>
     </ul>
   }
 
   get("/form") {
-    <form action='/post' method='POST'>
+    <form action='post' method='POST'>
       Post something: <input name='submission' type='text'/>
       <input type='submit'/>
     </form>

@@ -1,34 +1,35 @@
 package com.thinkminimo.step
 import scala.xml.Node
 
-object Template {
-
-  def style() = 
-    """
-    pre { border: 1px solid black; padding: 10px; } 
-    body { font-family: Helvetica, sans-serif; } 
-    h1 { color: #8b2323 }"
-    """
-
-  def page(title:String, content:Seq[Node]) = {
-    <html>
-      <head>
-        <title>{ title }</title>
-        <style>{ Template.style }</style>
-      </head>
-      <body>
-        <h1>{ title }</h1>
-        { content }
-        <hr/>
-        <a href='/date/2009/12/26'>date example</a>
-        <a href='/form'>form example</a>
-        <a href='/'>hello world</a>
-      </body>
-    </html>
-  }
-}
 
 class TemplateExample extends Step {
+
+  object Template {
+
+    def style() = 
+      """
+      pre { border: 1px solid black; padding: 10px; } 
+      body { font-family: Helvetica, sans-serif; } 
+      h1 { color: #8b2323 }"
+      """
+
+    def page(title:String, content:Seq[Node]) = {
+      <html>
+        <head>
+          <title>{ title }</title>
+          <style>{ Template.style }</style>
+        </head>
+        <body>
+          <h1>{ title }</h1>
+          { content }
+          <hr/>
+          <a href='/date/2009/12/26'>date example</a>
+          <a href='/form'>form example</a>
+          <a href='/'>hello world</a>
+        </body>
+      </html>
+    }
+  }
 
   before() {
     contentType = "text/html"
@@ -37,9 +38,9 @@ class TemplateExample extends Step {
   get("/date/:year/:month/:day") {
     Template.page("Step: Date Example", 
     <ul>
-      <li>Year: {params("year")}</li>
-      <li>Month: {params("month")}</li>
-      <li>Day: {params("day")}</li>
+      <li>Year: {params(":year")}</li>
+      <li>Month: {params(":month")}</li>
+      <li>Day: {params(":day")}</li>
     </ul>
     <pre>Route: /date/:year/:month/:day</pre>
     )
