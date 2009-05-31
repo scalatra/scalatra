@@ -3,7 +3,7 @@ package com.thinkminimo.step
 class StepExample extends Step {
 
   before() {
-    content_type = "text/html"
+    contentType = "text/html"
   }
 
   get("/date/:year/:month/:day") {
