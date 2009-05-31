@@ -4,7 +4,6 @@ import scala.xml.Node
 object Template {
 
   def style() = 
-    //triple-quote heredoc syntax
     """
     pre { border: 1px solid black; padding: 10px; } 
     body { font-family: Helvetica, sans-serif; } 

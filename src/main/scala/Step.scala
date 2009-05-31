@@ -50,7 +50,7 @@ abstract class Step extends HttpServlet {
             }
             case None => false
          }) match {
-          case None => response.getWriter.println("requesting"+ request.getRequestURI+" but only have " + Routes)
+          case None => response.getWriter.println("Requesting "+ request.getRequestURI+" but only have " + Routes)
           case Some(pair) => None
         }
         

@@ -4,12 +4,12 @@
   "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
 <web-app>
   <servlet>
-    <servlet-name>StepExample</servlet-name>
-    <servlet-class>com.thinkminimo.step.StepExample</servlet-class>
+    <servlet-name>TemplateExample</servlet-name>
+    <servlet-class>com.thinkminimo.step.TemplateExample</servlet-class>
   </servlet>
- 
+
   <servlet-mapping>
-    <servlet-name>StepExample</servlet-name>
+    <servlet-name>TemplateExample</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
 </web-app>
