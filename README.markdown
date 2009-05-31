@@ -58,8 +58,8 @@ Quick Start
 
 3.   __Run sbt__
 
-  In the directory you downloaded step to, run `sbt`.
-  sbt will download core dependencies, and Scala itself if it needs too.
+    In the directory you downloaded step to, run `sbt`.
+    sbt will download core dependencies, and Scala itself if it needs too.
 
 4.   __Download dependencies__
 
