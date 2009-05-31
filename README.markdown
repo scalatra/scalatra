@@ -14,7 +14,7 @@ Example
 
       // send a text/html content type back each time
       before() {
-        content_type = "text/html"
+        contentType = "text/html"
       }
 
       // parse matching requests, saving things prefixed with ':' as params
