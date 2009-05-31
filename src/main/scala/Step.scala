@@ -90,7 +90,6 @@ abstract class Step extends HttpServlet {
         } else {
           val requestMap =  toMap(request.getParameterMap) ++ matchedRoute._1.parseParams(request.getRequestURI) 
           paramsMap.withValue(requestMap.asInstanceOf[reqParams]) {
-            println(matchedRoute._2())
             response.getWriter.println(matchedRoute._2());
           }
         }
