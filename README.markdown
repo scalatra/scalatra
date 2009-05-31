@@ -48,28 +48,28 @@ Example
 
 Quick Start
 ===========
-*   __Java__
+1.   __Install Java__
 
     You'll need Java installed; I have it running with 1.5
 
-*   __Install simple-build-tool__
+2.   __Install simple-build-tool__
 
     Step uses sbt, a fantastic tool for building Scala programs.  For instructions, see [the sbt site](http://code.google.com/p/simple-build-tool/wiki/Setup)
 
-*   __Run sbt__
+3.   __Run sbt__
 
   In the directory you downloaded step to, run `sbt`.
   sbt will download core dependencies, and Scala itself if it needs too.
 
-*   __Download dependencies__
+4.   __Download dependencies__
 
     At the sbt prompt, type `update`.  This will download the Servlet API and Jetty.
 
-*   __Try it out__
+5.   __Try it out__
 
     At the sbt prompt, type `jetty-run`.  This will run step with the example on port 8080.
 
-*   __navigate to http://localhost:8080__
+6.   __Navigate to http://localhost:8080__
 
     You should see "Hello world."  You can poke around the example code in src/main/scala/StepExample.scala
     to see what's going on.
