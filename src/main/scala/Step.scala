@@ -51,7 +51,7 @@ abstract class Step extends HttpServlet {
               before()_
               response.setContentType(contentType)
               paramsMap.withValue(args ++ realParams){
-                response.getWriter.println(route.action())
+                response.getWriter.print(route.action())
               }
               true
             }
