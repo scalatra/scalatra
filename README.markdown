@@ -5,20 +5,31 @@ Step is a tiny Scala web framework inspired by [Sinatra](http://www.sinatrarb.co
 
 It could probably use a lot of work; it's my first Scala project. I welcome comments, pull requests, and issues.  It supports the following methods:
 
-* _before_
-  Run some block before a request is returned.
-* _get_
-  Respond to a GET request.
-  Specify the route to match, with parameters to store prefixed with : like Sinatra.
-  "/match/this/path/and/save/:this" would match that GET request, and provide you with a
-  params("this") in your block.
-* _post_
-  Respond to a POST request.
-  Posted variables are available in the `params` hash.
-* _delete_
-  Respond to a DELETE request.
-* _put_
-  Respond to a PUT request.
+*   __before__
+
+    Run some block before a request is returned.
+
+*   __get__
+
+    Respond to a GET request.
+
+    Specify the route to match, with parameters to store prefixed with : like Sinatra.
+    "/match/this/path/and/save/:this" would match that GET request, and provide you with a
+    params("this") in your block.
+
+*   __post__
+
+    Respond to a POST request.
+
+    Posted variables are available in the `params` hash.
+
+*   __delete__
+
+    Respond to a DELETE request.
+
+*   __put__
+
+    Respond to a PUT request.
 
 Here's what using it looks like:
 
@@ -61,20 +72,31 @@ Here's what using it looks like:
 
 Quick Start
 ===========
-* _Java_
-  You'll need Java installed; I have it running with 1.5
-* _Install simple-build-tool_
-  Step uses sbt, a fantastic tool for building Scala programs.  For instructions, see [the sbt site](http://code.google.com/p/simple-build-tool/wiki/Setup)
-* _Run sbt_
+*   __Java__
+
+    You'll need Java installed; I have it running with 1.5
+
+*   __Install simple-build-tool__
+
+    Step uses sbt, a fantastic tool for building Scala programs.  For instructions, see [the sbt site](http://code.google.com/p/simple-build-tool/wiki/Setup)
+
+*   __Run sbt__
+
   In the directory you downloaded step to, run `sbt`.
   sbt will download core dependencies, and Scala itself if it needs too.
-* _Download dependencies_
-  At the sbt prompt, type `update`.  This will download the Servlet API and Jetty.
-* _Try it out_
-  At the sbt prompt, type `jetty-run`.  This will run step with the example on port 8080.
-* _navigate to http://localhost:8080_
-  You should see "Hello world."  You can poke around the example code in src/main/scala/StepExample.scala
-  to see what's going on.
+
+*   __Download dependencies__
+
+    At the sbt prompt, type `update`.  This will download the Servlet API and Jetty.
+
+*   __Try it out__
+
+    At the sbt prompt, type `jetty-run`.  This will run step with the example on port 8080.
+
+*   __navigate to http://localhost:8080__
+
+    You should see "Hello world."  You can poke around the example code in src/main/scala/StepExample.scala
+    to see what's going on.
 
 Miscellaneous
 =============
