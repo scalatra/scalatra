@@ -8,10 +8,11 @@ import scala.collection.mutable.HashSet
 import scala.collection.jcl.MapWrapper
 
 abstract class Step extends HttpServlet {
+
   type Params = Map[String,String]
   type Action = Any=>String
   
-  class Route(val path:String,val action:Action) {
+  class Route(val path:String, val action:Action) {
     private val pattern = ":\\w+"  
 
     val names = new Regex(pattern).findAllIn(path).toList
