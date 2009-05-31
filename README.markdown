@@ -118,3 +118,4 @@ Todo
 * tests
 * docs
 * more tests
+* regex and 'splat' support ala Sinatra?
