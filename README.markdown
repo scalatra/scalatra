@@ -3,35 +3,10 @@ About
 
 Step is a tiny Scala web framework inspired by [Sinatra](http://www.sinatrarb.com/) and originally based on some code I found on an [awesome blog post](http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework).
 
-It could probably use a lot of work; it's my first Scala project. I welcome comments, pull requests, and issues.  It supports the following methods:
+It could probably use a lot of work; it's my first Scala project. I welcome comments, pull requests, and issues.
 
-*   __before__
-
-    Run some block before a request is returned.
-
-*   __get__
-
-    Respond to a GET request.
-
-    Specify the route to match, with parameters to store prefixed with : like Sinatra.
-    "/match/this/path/and/save/:this" would match that GET request, and provide you with a
-    params("this") in your block.
-
-*   __post__
-
-    Respond to a POST request.
-
-    Posted variables are available in the `params` hash.
-
-*   __delete__
-
-    Respond to a DELETE request.
-
-*   __put__
-
-    Respond to a PUT request.
-
-Here's what using it looks like:
+Example
+=======
 
     package com.thinkminimo.step
 
@@ -70,6 +45,7 @@ Here's what using it looks like:
       }
     }
 
+
 Quick Start
 ===========
 *   __Java__
@@ -97,6 +73,37 @@ Quick Start
 
     You should see "Hello world."  You can poke around the example code in src/main/scala/StepExample.scala
     to see what's going on.
+
+
+Supported Methods
+=================
+
+*   __before__
+
+    Run some block before a request is returned.
+
+*   __get__
+
+    Respond to a GET request.
+
+    Specify the route to match, with parameters to store prefixed with : like Sinatra.
+    "/match/this/path/and/save/:this" would match that GET request, and provide you with a
+    params("this") in your block.
+
+*   __post__
+
+    Respond to a POST request.
+
+    Posted variables are available in the `params` hash.
+
+*   __delete__
+
+    Respond to a DELETE request.
+
+*   __put__
+
+    Respond to a PUT request.
+
 
 Miscellaneous
 =============
