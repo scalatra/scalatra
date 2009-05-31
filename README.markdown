@@ -20,9 +20,9 @@ Example
       // parse matching requests, saving things prefixed with ':' as params
       get("/date/:year/:month/:day") {
         <ul>
-          <li>Year: {params("year")}</li>
-          <li>Month: {params("month")}</li>
-          <li>Day: {params("day")}</li>
+          <li>Year: {params(":year")}</li>
+          <li>Month: {params(":month")}</li>
+          <li>Day: {params(":day")}</li>
         </ul>
       }
 
