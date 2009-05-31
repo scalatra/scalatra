@@ -59,7 +59,7 @@ abstract class Step extends HttpServlet {
   def before()(fun: =>Any) = fun
   def get(path:String)(fun: =>Any) = Routes("GET") += new Route(path,x=>fun.toString)
   def post(path:String)(fun: =>Any) = Routes("POST") += new Route(path,x=>fun.toString)
-  def post(path:String)(fun: =>Any) = Routes("PUT") += new Route(path,x=>fun.toString)
-  def post(path:String)(fun: =>Any) = Routes("DELETE") += new Route(path,x=>fun.toString)
+  def put(path:String)(fun: =>Any) = Routes("PUT") += new Route(path,x=>fun.toString)
+  def delete(path:String)(fun: =>Any) = Routes("DELETE") += new Route(path,x=>fun.toString)
   
 }
