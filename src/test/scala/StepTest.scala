@@ -76,4 +76,13 @@ class StepSuite extends FunSuite {
     response.parse(tester.getResponses(request.generate()))
     assert(response.getContent === "yes")
   }
+
+  test("POST /post/something/val with posted_value=yes should return 'yessomething'") {
+    request.setMethod("POST")
+    request.setURI("/post/something/val")
+    request.addHeader("Content-Type", "application/x-www-form-urlencoded")
+    request.setContent("posted_value=yes")
+    response.parse(tester.getResponses(request.generate()))
+    assert(response.getContent === "yessomething")
+  }
 }
