@@ -63,11 +63,11 @@ Quick Start
 
 4.   __Download dependencies__
 
-    At the sbt prompt, type `update`.  This will download the Servlet API and Jetty.
+    At the sbt prompt, type `update`.  This will download required dependencies.
 
 5.   __Try it out__
 
-    At the sbt prompt, type `jetty-run`.  This will run step with the example on port 8080.
+    At the sbt prompt, type `jetty-run`.  This will run step with the example servlet on port 8080.
 
 6.   __Navigate to http://localhost:8080__
 
@@ -88,7 +88,7 @@ Supported Methods
 
     Specify the route to match, with parameters to store prefixed with : like Sinatra.
     "/match/this/path/and/save/:this" would match that GET request, and provide you with a
-    params("this") in your block.
+    params(":this") in your block.
 
 *   __post__
 
@@ -104,10 +104,13 @@ Supported Methods
 
     Respond to a PUT request.
 
+Testing
+=======
+A test suite can be found in `src/test/scala`.  Inside StepTest.scala is a small testing servlet along with some assertions.  If you've made changes to Step itself and you'd like to make sure that this testing servlet still works, you can type `test` at the sbt prompt.
 
 Miscellaneous
 =============
-While Step can be run standalone, you can also package it up in a .jar for use in other projects.  At the sbt prompt, type `package`.  For more information, see the [sbt site](http://code.google.com/p/simple-build-tool/)
+While Step can be run standalone for testing and meddling, you can also package it up in a .jar for use in other projects.  At the sbt prompt, type `package`.  Step's only dependency is a recent version of the servlet API. For more information, see the [sbt site](http://code.google.com/p/simple-build-tool/)
 
 Props
 =====
@@ -115,7 +118,7 @@ I'd like to thank [Gabriele Renzi](http://www.riffraff.info/) for the inspiratio
 
 Todo
 ====
-* tests
 * docs
 * more tests
 * regex and 'splat' support ala Sinatra?
+* get the servlet working when it's not the root context
