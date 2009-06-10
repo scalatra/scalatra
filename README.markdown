@@ -13,7 +13,7 @@ Example
     class StepExample extends Step {
 
       // send a text/html content type back each time
-      before() {
+      before {
         contentType = "text/html"
       }
 
@@ -82,7 +82,7 @@ Supported Methods
 
     Run some block before a request is returned.
 
-*   __get__
+*   __get(`path`)__
 
     Respond to a GET request.
 
@@ -90,17 +90,17 @@ Supported Methods
     "/match/this/path/and/save/:this" would match that GET request, and provide you with a
     params(":this") in your block.
 
-*   __post__
+*   __post(`path`)__
 
     Respond to a POST request.
 
     Posted variables are available in the `params` hash.
 
-*   __delete__
+*   __delete(`path`)__
 
     Respond to a DELETE request.
 
-*   __put__
+*   __put(`path`)__
 
     Respond to a PUT request.
 
