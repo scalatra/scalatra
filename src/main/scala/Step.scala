@@ -29,6 +29,8 @@ abstract class Step extends HttpServlet
 
     def apply(realPath: String): Option[Params] =
       re findFirstMatchIn realPath map (x => Map(names zip x.subgroups : _*))
+
+    override def toString():String = path
   }
 
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
@@ -44,7 +46,7 @@ abstract class Step extends HttpServlet
           response.getWriter print route.action()
         }
       } 
-      route(request.getRequestURI) map exec isDefined
+      route(request.getPathInfo) map exec isDefined
     }
     
     if (Routes(request.getMethod) find isMatchingRoute isEmpty)
