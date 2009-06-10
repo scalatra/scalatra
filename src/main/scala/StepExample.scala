@@ -2,7 +2,7 @@ package com.thinkminimo.step
 
 class StepExample extends Step {
 
-  before() {
+  before {
     contentType = "text/html"
   }
 

@@ -31,7 +31,7 @@ class TemplateExample extends Step {
     }
   }
 
-  before() {
+  before {
     contentType = "text/html"
   }
 

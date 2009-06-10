@@ -40,7 +40,7 @@ abstract class Step extends HttpServlet
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
-        before()_
+        before _
         response setContentType contentType
         paramsMap.withValue(args ++ realParams) {
           response.getWriter print route.action()
@@ -55,7 +55,7 @@ abstract class Step extends HttpServlet
   }
   
   def params(name: String): String = paramsMap value name
-  def before()(fun: => Any) = fun
+  def before(fun: => Any) = fun
   val List(get, post, put, delete) = protocols map routeSetter  
 
   // functional programming means never having to repeat yourself
