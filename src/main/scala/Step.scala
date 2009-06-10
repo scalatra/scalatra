@@ -46,6 +46,7 @@ abstract class Step extends HttpServlet
           response.getWriter print route.action()
         }
       } 
+      //getPathInfo returns everything after the context path, so step will work if non-root
       route(request.getPathInfo) map exec isDefined
     }
     
