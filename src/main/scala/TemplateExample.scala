@@ -10,7 +10,7 @@ class TemplateExample extends Step {
       """
       pre { border: 1px solid black; padding: 10px; } 
       body { font-family: Helvetica, sans-serif; } 
-      h1 { color: #8b2323 }"
+      h1 { color: #8b2323 }
       """
 
     def page(title:String, content:Seq[Node]) = {
@@ -26,6 +26,8 @@ class TemplateExample extends Step {
           <a href='/date/2009/12/26'>date example</a>
           <a href='/form'>form example</a>
           <a href='/'>hello world</a>
+          <a href='/login'>login</a>
+          <a href='/logout'>logout</a>
         </body>
       </html>
     }
@@ -60,6 +62,46 @@ class TemplateExample extends Step {
     Template.page("Step: Form Post Result",
     <p>You posted: {params("submission")}</p>
     <pre>Route: /post</pre>
+    )
+  }
+
+  get("/login") {
+    (session("first"), session("last")) match {
+      case (Some(first:String), Some(last:String)) =>
+        Template.page("Step: Session Example",
+        <pre>You have logged in as: {first + "-" + last}</pre>
+        <pre>Route: /login</pre>
+        )
+      case x:AnyRef =>
+        Template.page("Step: Session Example" + x.toString,
+        <form action='/login' method='POST'>
+        First Name: <input name='first' type='text'/>
+        Last Name: <input name='last' type='text'/>
+        <input type='submit'/>
+        </form>
+        <pre>Route: /login</pre>
+        )
+    }
+  }
+
+  post("/login") {
+    (params("first"), params("last")) match {
+      case (first:String, last:String) => {
+        session("first") = first
+	session("last") = last
+        Template.page("Step: Session Example",
+        <pre>You have just logged in as: {first + " " + last}</pre>
+        <pre>Route: /login</pre>
+        )
+      }
+    }
+  }
+
+  get("/logout") {
+    session.invalidate
+    Template.page("Step: Session Example",
+    <pre>You have logged out</pre>
+    <pre>Route: /logout</pre>
     )
   }
 
