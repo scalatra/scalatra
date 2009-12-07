@@ -9,5 +9,5 @@ class StepProject(info: ProjectInfo) extends DefaultWebProject(info)
 
   val jettytester = "org.mortbay.jetty" % "jetty-servlet-tester" % "7.0.0pre3" % "test->default"
   val scalatest = "org.scala-tools.testing" % "scalatest" % "0.9.5" % "test->default"
-  val servlet = "javax.servlet" % "servlet-api" % "2.5" % "provided->default"
+  val servlet = "org.mortbay.jetty" % "servlet-api" % "3.0.pre1" % "provided->default"
 }
