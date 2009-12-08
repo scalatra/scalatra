@@ -29,6 +29,21 @@ class TestServlet extends Step {
   post("/post/:test/val") {
     params("posted_value")+params(":test")
   }
+
+  get("/session") {
+    session("val") match {
+      case Some(v:String) => v
+      case _ => "None"
+    }
+  }
+
+  post("/session") {
+    session("val") = params("val")
+    session("val") match {
+      case Some(v:String) => v
+      case _ => "None"
+    }
+  }
 }
 
 class StepSuite extends FunSuite {
@@ -84,5 +99,42 @@ class StepSuite extends FunSuite {
     request.setContent("posted_value=yes")
     response.parse(tester.getResponses(request.generate()))
     assert(response.getContent === "yessomething")
+  }
+
+  test("GET /session with no session should return 'None'") {
+    request.setMethod("GET")
+    request.setURI("/session")
+    response.parse(tester.getResponses(request.generate))
+    assert(response.getContent === "None")
+  }
+
+  test("POST /session with val=yes should return 'yes'") {
+    request.setMethod("POST")
+    request.setURI("/session")
+    request.addHeader("Content-Type", "application/x-www-form-urlencoded")
+    request.setContent("val=yes")
+    response.parse(tester.getResponses(request.generate))
+    assert(response.getContent === "yes")
+  }
+
+  test("GET /session with the session should return the data set in POST /session") {
+    val data = "session_value"
+
+    request.setMethod("POST")
+    request.setURI("/session")
+    request.addHeader("Content-Type", "application/x-www-form-urlencoded")
+    request.setContent("val=" + data)
+    response.parse(tester.getResponses(request.generate))
+    assert(response.getContent === data)
+
+    // keep the previous session and check if the data remains
+    request.setMethod("GET")
+    request.setURI("/session")
+    request.setHeader(
+      "Cookie",
+      response.getHeaderValues("Set-Cookie").nextElement.toString
+    )
+    response.parse(tester.getResponses(request.generate))
+    assert(response.getContent === data)
   }
 }
