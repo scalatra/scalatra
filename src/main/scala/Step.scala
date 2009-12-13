@@ -23,6 +23,7 @@ abstract class Step extends HttpServlet
   val paramsMap   = new DynamicVariable[Params](null)
   var contentType = "text/html"
   val _session    = new DynamicVariable[Session](null)
+  val _response   = new DynamicVariable[HttpServletResponse](null)
   
   class Route(val path: String, val action: Action) {
     val pattern = """:\w+"""
@@ -44,10 +45,12 @@ abstract class Step extends HttpServlet
       def exec(args: Params) = {
         before _
         response setContentType contentType
-	_session.withValue(request) {
-          paramsMap.withValue(args ++ realParams) {
-            response.getWriter print route.action()
-          }
+	_response.withValue(response) {
+	  _session.withValue(request) {
+            paramsMap.withValue(args ++ realParams) {
+              response.getWriter print route.action()
+            }
+	  }
 	}
       } 
       //getPathInfo returns everything after the context path, so step will work if non-root
@@ -60,6 +63,7 @@ abstract class Step extends HttpServlet
   
   def params(name: String): String = paramsMap value name
   def session = _session value
+  def status(code:Int) { (_response value) setStatus code }
   def before(fun: => Any) = fun
   val List(get, post, put, delete) = protocols map routeSetter  
 

@@ -4,6 +4,7 @@ import javax.servlet.http._
 import org.mortbay.jetty.testing.HttpTester
 import org.mortbay.jetty.testing.ServletTester
 import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
 
 class TestServlet extends Step {
   get("/") {
@@ -44,9 +45,14 @@ class TestServlet extends Step {
       case _ => "None"
     }
   }
+
+  get("/no_content") {
+    status(204)
+    ""
+  }
 }
 
-class StepSuite extends FunSuite {
+class StepSuite extends FunSuite with ShouldMatchers {
 
   val tester = new ServletTester()
   val response = new HttpTester()
@@ -136,5 +142,12 @@ class StepSuite extends FunSuite {
     )
     response.parse(tester.getResponses(request.generate))
     assert(response.getContent === data)
+  }
+
+  test("GET /no_content should return 204(HttpServletResponse.SC_NO_CONTENT)") {
+    request.setMethod("GET")
+    request.setURI("/no_content")
+    response.parse(tester.getResponses(request.generate))
+    response.getStatus should equal (204)
   }
 }
