@@ -64,6 +64,7 @@ abstract class Step extends HttpServlet
   def params(name: String): String = paramsMap value name
   def session = _session value
   def status(code:Int) { (_response value) setStatus code }
+  def redirect(uri:String) { (_response value) sendRedirect uri }
   def before(fun: => Any) = fun
   val List(get, post, put, delete) = protocols map routeSetter  
 

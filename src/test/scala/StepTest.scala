@@ -50,6 +50,14 @@ class TestServlet extends Step {
     status(204)
     ""
   }
+
+  get("/redirect") {
+    redirect("/redirected")
+  }
+
+  get("/redirected") {
+    "redirected"
+  }
 }
 
 class StepSuite extends FunSuite with ShouldMatchers {
@@ -149,5 +157,12 @@ class StepSuite extends FunSuite with ShouldMatchers {
     request.setURI("/no_content")
     response.parse(tester.getResponses(request.generate))
     response.getStatus should equal (204)
+  }
+
+  test("GET /redirect redirects to /redirected") {
+    request.setMethod("GET")
+    request.setURI("/redirect")
+    response.parse(tester.getResponses(request.generate))
+    assert(response.getHeader("Location") endsWith "/redirected")
   }
 }
