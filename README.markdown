@@ -144,4 +144,4 @@ I'd also like to thank Yusuke Kuoka [mumoshu](http://github.com/mumoshu) for add
 Todo
 ====
 * more tests
-* regex and 'splat' support ala Sinatra?
+* 'splat' support ala Sinatra?
