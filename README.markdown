@@ -60,6 +60,7 @@ Example
         session("val") match {
           case Some(v:String) => v
           case _ => "No session var set"
+        }
       }
     }
 
