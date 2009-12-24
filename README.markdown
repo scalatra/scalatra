@@ -43,6 +43,24 @@ Example
       get("/") {
         <h1>Hello world!</h1>
       }
+
+      // send redirect headers
+      get("/see_ya") {
+        redirect("http://google.com")
+      }
+
+      // set a session var
+      get("/set/:session_val") {
+        session("val") = params("session_val")
+        <h1>Session var set</h1>
+      }
+
+      // see session var
+      get("/see") {
+        session("val") match {
+          case Some(v:String) => v
+          case _ => "No session var set"
+      }
     }
 
 
@@ -104,6 +122,10 @@ Supported Methods
 
     Respond to a PUT request.
 
+Sessions
+========
+Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at src/test/scala/StepTest.scala
+
 Testing
 =======
 A test suite can be found in `src/test/scala`.  Inside StepTest.scala is a small testing servlet along with some assertions.  If you've made changes to Step itself and you'd like to make sure that this testing servlet still works, you can type `test` at the sbt prompt.
@@ -116,9 +138,9 @@ Props
 =====
 I'd like to thank [Gabriele Renzi](http://www.riffraff.info/) for the inspirational blog post and continual help, and Mark Harrah for help on the sbt mailing list and for creating sbt. Ant+Ivy by itself was a total bitch.
 
+I'd also like to thank Yusuke Kuoka [mumoshu](http://github.com/mumoshu) for adding sessions support.
+
 Todo
 ====
-* docs
 * more tests
 * regex and 'splat' support ala Sinatra?
-* get the servlet working when it's not the root context
