@@ -165,4 +165,18 @@ class StepSuite extends FunSuite with ShouldMatchers {
     response.parse(tester.getResponses(request.generate))
     assert(response.getHeader("Location") endsWith "/redirected")
   }
+
+  test("POST /post/test with posted_value=<multi-byte str> should return the multi-byte str") {
+    val urlEncodedMultiByteStr = java.net.URLEncoder.encode("こんにちは", "UTF-8")
+
+    request.setMethod("POST")
+    request.setURI("/post/test")
+    request.addHeader("Content-Type", "application/x-www-form-urlencoded")
+    request.setContent("posted_value=" + urlEncodedMultiByteStr)
+    // The generated response should be decoded with UTF-8,
+    // Though jetty.HttpTester always try to decode it with ISO_8859-1 causing an error.
+    // Here, we have to transform the response from UTF-8 to ISO_8859-1 managing HttpTester.parse to work.
+    response.parse(new String(tester.getResponses(request.generate()).getBytes("UTF-8"), "ISO_8859-1"))
+    assert(response.getContent === "こんにちは")
+  }
 }

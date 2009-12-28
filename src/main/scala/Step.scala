@@ -21,7 +21,8 @@ abstract class Step extends HttpServlet
 {
   val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
   val paramsMap   = new DynamicVariable[Params](null)
-  var contentType = "text/html"
+  var contentType = "text/html; charset=utf-8"
+  var characterEncoding = "UTF-8"
   val _session    = new DynamicVariable[Session](null)
   val _response   = new DynamicVariable[HttpServletResponse](null)
   
@@ -37,6 +38,10 @@ abstract class Step extends HttpServlet
   }
 
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
+    // As default, the servlet tries to decode params with ISO_8859-1.
+    // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
+    request.setCharacterEncoding(characterEncoding)
+    
     val realParams = new MapWrapper[String, Array[String]]() {
       def underlying = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
     }.map { case (k,v) => (k, v(0)) }
