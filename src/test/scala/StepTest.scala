@@ -174,7 +174,7 @@ class StepSuite extends FunSuite with ShouldMatchers {
     request.addHeader("Content-Type", "application/x-www-form-urlencoded")
     request.setContent("posted_value=" + urlEncodedMultiByteStr)
     // The generated response should be decoded with UTF-8,
-    // Though jetty.HttpTester always try to decode it with ISO_8859-1 causing an error.
+    // but the HttpTester always try to decode it with ISO_8859-1, causing an error.
     // Here, we have to transform the response from UTF-8 to ISO_8859-1 managing HttpTester.parse to work.
     response.parse(new String(tester.getResponses(request.generate()).getBytes("UTF-8"), "ISO_8859-1"))
     assert(response.getContent === "こんにちは")
