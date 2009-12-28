@@ -184,7 +184,7 @@ class StepSuite extends FunSuite with ShouldMatchers {
     assert(response.getContent === "こんにちは")
   }
 
-  test("Referer is set") {
+  test("GET /print_referer should return Referer") {
     request.setMethod("GET")
     request.setURI("/print_referer")
     request.setHeader("Referer", "somewhere")
