@@ -62,6 +62,10 @@ class TestServlet extends Step {
   get("/print_referer") {
     request referer
   }
+
+  get("/print_host") {
+    "host:" + request.host + ",port:" + request.port
+  }
 }
 
 class StepSuite extends FunSuite with ShouldMatchers {
@@ -191,5 +195,22 @@ class StepSuite extends FunSuite with ShouldMatchers {
     request.setContent("")
     response.parse(tester.getResponses(request.generate))
     response.getContent should equal ("somewhere")
+  }
+
+  test("GET /print_host should return the host's name/port") {
+    request.setVersion("HTTP/1.0")
+    request.setMethod("GET")
+    request.setURI("/print_host")
+    request.setHeader("Host", "localhost:80")
+    response.parse(tester.getResponses(request.generate))
+    response.getContent should equal ("host:localhost,port:80")
+
+    request.setHeader("Host", "hoge.com:1234")
+    response.parse(tester.getResponses(request.generate))
+    response.getContent should equal ("host:hoge.com,port:1234")
+    
+    request.setHeader("Host", "1.2.3.4")
+    response.parse(tester.getResponses(request.generate))
+    response.getContent should equal ("host:1.2.3.4,port:")
   }
 }

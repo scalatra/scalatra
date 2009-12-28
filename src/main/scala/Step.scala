@@ -9,6 +9,9 @@ import scala.collection.jcl.MapWrapper
 import Session._
 
 case class StepRequest(r: HttpServletRequest) {
+  val p = new Regex("([^:]*):?(.*)")
+
+  val List(host, port) = r.getHeader("Host") match { case null => List("",""); case p(x,y) => List(x,y) }
   def referer = r.getHeader("Referer")
 }
 
