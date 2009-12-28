@@ -58,6 +58,10 @@ class TestServlet extends Step {
   get("/redirected") {
     "redirected"
   }
+
+  get("/print_referer") {
+    request referer
+  }
 }
 
 class StepSuite extends FunSuite with ShouldMatchers {
@@ -178,5 +182,14 @@ class StepSuite extends FunSuite with ShouldMatchers {
     // Here, we have to transform the response from UTF-8 to ISO_8859-1 managing HttpTester.parse to work.
     response.parse(new String(tester.getResponses(request.generate()).getBytes("UTF-8"), "ISO_8859-1"))
     assert(response.getContent === "こんにちは")
+  }
+
+  test("Referer is set") {
+    request.setMethod("GET")
+    request.setURI("/print_referer")
+    request.setHeader("Referer", "somewhere")
+    request.setContent("")
+    response.parse(tester.getResponses(request.generate))
+    response.getContent should equal ("somewhere")
   }
 }

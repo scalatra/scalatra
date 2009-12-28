@@ -8,6 +8,10 @@ import scala.collection.mutable.HashSet
 import scala.collection.jcl.MapWrapper
 import Session._
 
+case class StepRequest(r: HttpServletRequest) {
+  def referer = r.getHeader("Referer")
+}
+
 object Step
 {
   type Params = Map[String, String]
@@ -25,6 +29,9 @@ abstract class Step extends HttpServlet
   var characterEncoding = "UTF-8"
   val _session    = new DynamicVariable[Session](null)
   val _response   = new DynamicVariable[HttpServletResponse](null)
+  val _request    = new DynamicVariable[StepRequest](null)
+
+  implicit def requestToStepRequest(r: HttpServletRequest) = StepRequest(r)
   
   class Route(val path: String, val action: Action) {
     val pattern = """:\w+"""
@@ -50,11 +57,13 @@ abstract class Step extends HttpServlet
       def exec(args: Params) = {
         before _
         response setContentType contentType
-	_response.withValue(response) {
-	  _session.withValue(request) {
-            paramsMap.withValue(args ++ realParams) {
-              response.getWriter print route.action()
-            }
+	_request.withValue(request) {
+	  _response.withValue(response) {
+	    _session.withValue(request) {
+              paramsMap.withValue(args ++ realParams) {
+		response.getWriter print route.action()
+              }
+	    }
 	  }
 	}
       } 
@@ -70,6 +79,7 @@ abstract class Step extends HttpServlet
   def session = _session value
   def status(code:Int) { (_response value) setStatus code }
   def redirect(uri:String) { (_response value) sendRedirect uri }
+  def request = _request value
   def before(fun: => Any) = fun
   val List(get, post, put, delete) = protocols map routeSetter  
 
