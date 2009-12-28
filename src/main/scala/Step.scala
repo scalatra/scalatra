@@ -74,14 +74,15 @@ abstract class Step extends HttpServlet
     if (Routes(request.getMethod) find isMatchingRoute isEmpty)
       response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
   }
-  
+
+  def before(fun: => Any) = fun
   def params(name: String): String = paramsMap value name
-  def session = _session value
-  def status(code:Int) { (_response value) setStatus code }
   def redirect(uri:String) { (_response value) sendRedirect uri }
   def request = _request value
-  def before(fun: => Any) = fun
-  val List(get, post, put, delete) = protocols map routeSetter  
+  def session = _session value
+  def status(code:Int) { (_response value) setStatus code }
+
+  val List(get, post, put, delete) = protocols map routeSetter
 
   // functional programming means never having to repeat yourself
   private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
