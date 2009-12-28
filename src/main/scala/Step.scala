@@ -41,7 +41,7 @@ abstract class Step extends HttpServlet
     def apply(realPath: String): Option[Params] =
       re findFirstMatchIn realPath map (x => Map(names zip x.subgroups : _*))
 
-    override def toString():String = path
+    override def toString() = path
   }
 
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
@@ -76,11 +76,11 @@ abstract class Step extends HttpServlet
   }
 
   def before(fun: => Any) = fun
-  def params(name: String): String = paramsMap value name
-  def redirect(uri:String) { (_response value) sendRedirect uri }
+  def params(name: String) = paramsMap value name
+  def redirect(uri: String) = (_response value) sendRedirect uri
   def request = _request value
   def session = _session value
-  def status(code:Int) { (_response value) setStatus code }
+  def status(code: Int) = (_response value) setStatus code
 
   val List(get, post, put, delete) = protocols map routeSetter
 
