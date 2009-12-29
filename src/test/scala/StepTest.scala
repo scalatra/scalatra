@@ -68,7 +68,7 @@ class TestServlet extends Step {
   }
 }
 
-class StepSuite extends FunSuite with ShouldMatchers {
+class StepTest extends FunSuite with ShouldMatchers {
 
   val tester = new ServletTester()
   val response = new HttpTester()
