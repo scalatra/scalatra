@@ -59,12 +59,13 @@ abstract class Step extends HttpServlet
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
         before _
-        response setContentType contentType
 	_request.withValue(request) {
 	  _response.withValue(response) {
 	    _session.withValue(request) {
               paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
-		response.getWriter print route.action()
+		val res = route.action()
+		response setContentType contentType
+		response.getWriter print (res)
               }
 	    }
 	  }

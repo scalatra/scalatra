@@ -69,6 +69,16 @@ class TestServlet extends Step {
   get("/print_host") {
     "host:" + request.host + ",port:" + request.port
   }
+
+  get("/content_type/json") {
+    contentType = "application/json; charset=utf-8"
+    """{msg: "test"}"""
+  }
+
+  get("/content_type/html") {
+    contentType = "text/html; charset=utf-8"
+    "test"
+  }
 }
 
 class StepTest extends FunSuite with ShouldMatchers {
@@ -224,5 +234,25 @@ class StepTest extends FunSuite with ShouldMatchers {
     request.setContent("")
     response.parse(tester.getResponses(request.generate()))
     response.getContent should equal ("posted_value is null")
+  }
+
+  test("content-type test") {
+    request.setMethod("GET")
+    request.setContent("")
+
+    // default is "text/html"
+    request.setURI("/")
+    response.parse(tester.getResponses(request.generate))
+    response.getHeader("Content-Type") should equal ("text/html; charset=utf-8")
+
+    // set content-type to "application/json"
+    request.setURI("/content_type/json")
+    response.parse(tester.getResponses(request.generate))
+    response.getHeader("Content-Type") should equal ("application/json; charset=utf-8")
+
+    // set content-type to "text/html" again
+    request.setURI("/content_type/html")
+    response.parse(tester.getResponses(request.generate))
+    response.getHeader("Content-Type") should equal ("text/html; charset=utf-8")
   }
 }
