@@ -63,7 +63,7 @@ abstract class Step extends HttpServlet
 	_request.withValue(request) {
 	  _response.withValue(response) {
 	    _session.withValue(request) {
-              paramsMap.withValue(args ++ realParams) {
+              paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
 		response.getWriter print route.action()
               }
 	    }
@@ -79,7 +79,7 @@ abstract class Step extends HttpServlet
   }
 
   def before(fun: => Any) = fun
-  def params(name: String) = paramsMap value name
+  def params = paramsMap value
   def redirect(uri: String) = (_response value) sendRedirect uri
   def request = _request value
   def session = _session value
