@@ -24,7 +24,10 @@ class TestServlet extends Step {
   }
 
   post("/post/test") {
-    params("posted_value")
+    params("posted_value") match {
+      case null => "posted_value is null"
+      case s => s
+    }
   }
 
   post("/post/:test/val") {
@@ -212,5 +215,14 @@ class StepSuite extends FunSuite with ShouldMatchers {
     request.setHeader("Host", "1.2.3.4")
     response.parse(tester.getResponses(request.generate))
     response.getContent should equal ("host:1.2.3.4,port:")
+  }
+
+  test("POST /post/test without params return \"posted_value is null\"") {
+    request.setMethod("POST")
+    request.setURI("/post/test")
+    request.addHeader("Content-Type", "application/x-www-form-urlencoded")
+    request.setContent("")
+    response.parse(tester.getResponses(request.generate()))
+    response.getContent should equal ("posted_value is null")
   }
 }
