@@ -127,8 +127,28 @@ Sessions
 ========
 Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at src/test/scala/StepTest.scala
 
-Testing
-=======
+Testing Your Step Applications
+==============================
+Step includes StepSuite - a framework for writing the suite of tests for your Step application.
+It's an extension of FunSuite with some utility functions to request your app for responses and referring the responses in ease.
+Here's an example of StepSuite.
+
+    class TheStepAppTests extends StepSuite with ShouldMatchers {
+      // `TheStepApp` is your app which extends Step
+      route(classOf[TheStepApp], "/*")
+
+      test("simple get") {
+        get("/path/to/something") {
+          status should equal (200)
+          body should include ("hi!")
+        }
+      }
+    }
+
+It supports HTTP GET/POST tests with or without request parameters and sessions. Referring StepSuiteTest.scala would be helpful to understand tests with StepSuite.
+
+Testing Step
+============
 A test suite can be found in `src/test/scala`.  Inside StepTest.scala is a small testing servlet along with some assertions.  If you've made changes to Step itself and you'd like to make sure that this testing servlet still works, you can type `test` at the sbt prompt.
 
 Miscellaneous
