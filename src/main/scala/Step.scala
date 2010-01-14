@@ -5,7 +5,7 @@ import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
-import scala.collection.jcl.MapWrapper
+import scala.collection.JavaConversions._
 import Session._
 
 case class StepRequest(r: HttpServletRequest) {
@@ -52,9 +52,8 @@ abstract class Step extends HttpServlet
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
     request.setCharacterEncoding(characterEncoding)
     
-    val realParams = new MapWrapper[String, Array[String]]() {
-      def underlying = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
-    }.map { case (k,v) => (k, v(0)) }
+    val realParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
+      .map { case (k,v) => (k, v(0)) }
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
@@ -90,7 +89,7 @@ abstract class Step extends HttpServlet
 
   // functional programming means never having to repeat yourself
   private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
-    def g(path: String, fun: => Any) = Routes(protocol) += new Route(path, x => fun.toString)
+    def g(path: String, fun: => Any): Unit = Routes(protocol) += new Route(path, x => fun.toString)
     (g _).curry
   }  
 }
