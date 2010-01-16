@@ -58,7 +58,7 @@ abstract class Step extends HttpServlet
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
-        before _
+        doBefore()
 	_request.withValue(request) {
 	  _response.withValue(response) {
 	    _session.withValue(request) {
@@ -79,7 +79,9 @@ abstract class Step extends HttpServlet
       response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
   }
 
-  def before(fun: => Any) = fun
+  private var doBefore: () => Unit = { () => () }
+  def before(fun: => Any) = doBefore = { () => fun; () }
+  
   def params = paramsMap value
   def redirect(uri: String) = (_response value) sendRedirect uri
   def request = _request value

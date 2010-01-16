@@ -81,6 +81,16 @@ class TestServlet extends Step {
   }
 }
 
+object TestBeforeServlet {
+  // Ick.  Is there a better way to make this visible to both the servlet and the test?
+  var beforeCount = 0
+}
+class TestBeforeServlet extends Step {
+  before { TestBeforeServlet.beforeCount += 1 }
+
+  get("/") { "foo" }
+}
+
 class StepTest extends FunSuite with ShouldMatchers {
 
   val tester = new ServletTester()
@@ -88,8 +98,10 @@ class StepTest extends FunSuite with ShouldMatchers {
   val request = new HttpTester()
   request.setVersion("HTTP/1.0")
   tester.addServlet(classOf[TestServlet], "/*")
+  val testBeforeServletHolder = tester.addServlet(classOf[TestBeforeServlet], "/test-before/*")
+  testBeforeServletHolder.setInitOrder(1) // Force load on startup
   tester.start()
-
+  
   test("GET / should return 'root'") {
     request.setMethod("GET")
     request.setURI("/")
@@ -254,5 +266,19 @@ class StepTest extends FunSuite with ShouldMatchers {
     request.setURI("/content_type/html")
     response.parse(tester.getResponses(request.generate))
     response.getHeader("Content-Type") should equal ("text/html; charset=utf-8")
+  }
+  
+  test("before is called exactly once per request") {
+    TestBeforeServlet.beforeCount should equal (0) 
+
+    request.setMethod("GET")
+    request.setContent("")
+    request.setURI("/test-before/")
+    
+    tester.getResponses(request.generate)
+    TestBeforeServlet.beforeCount should equal (1) 
+
+    tester.getResponses(request.generate)
+    TestBeforeServlet.beforeCount should equal (2)
   }
 }
