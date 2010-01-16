@@ -28,7 +28,14 @@ abstract class Step extends HttpServlet
 {
   val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
   val paramsMap   = new DynamicVariable[Params](null)
-  var contentType = "text/html; charset=utf-8"
+
+  val defaultContentType = "text/html; charset=utf-8"
+  def contentType = response.getContentType match {
+    case null => defaultContentType
+    case x:String => x
+  }
+  def contentType_=(value: String): Unit = response.setContentType(value)
+		  
   var characterEncoding = "UTF-8"
   val _session    = new DynamicVariable[Session](null)
   val _response   = new DynamicVariable[HttpServletResponse](null)
@@ -58,18 +65,18 @@ abstract class Step extends HttpServlet
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
-        doBefore()
-	_request.withValue(request) {
-	  _response.withValue(response) {
-	    _session.withValue(request) {
+        _request.withValue(request) {
+	      _response.withValue(response) {
+	     	_session.withValue(request) {
               paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
-		val res = route.action()
-		response setContentType contentType
-		response.getWriter print (res)
+                doBefore()
+                val res = route.action()
+                response setContentType contentType
+                response.getWriter print (res)
               }
-	    }
-	  }
-	}
+            }
+          }
+        }
       } 
       //getPathInfo returns everything after the context path, so step will work if non-root
       route(request.getPathInfo) map exec isDefined
@@ -85,6 +92,7 @@ abstract class Step extends HttpServlet
   def params = paramsMap value
   def redirect(uri: String) = (_response value) sendRedirect uri
   def request = _request value
+  def response = _response value
   def session = _session value
   def status(code: Int) = (_response value) setStatus code
 

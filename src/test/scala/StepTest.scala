@@ -1,6 +1,9 @@
 package com.thinkminimo.step
 
+import scala.actors.Actor
+import scala.actors.TIMEOUT
 import javax.servlet.http._
+import org.mortbay.jetty.LocalConnector
 import org.mortbay.jetty.testing.HttpTester
 import org.mortbay.jetty.testing.ServletTester
 import org.scalatest.FunSuite
@@ -78,6 +81,39 @@ class TestServlet extends Step {
   get("/content_type/html") {
     contentType = "text/html; charset=utf-8"
     "test"
+  }
+  
+  import Actor._
+  val conductor = actor {
+    loop {
+      reactWithin(10000) {
+        case 1 =>
+          val firstSender = sender
+          reactWithin(10000) {
+            case 2 =>
+              firstSender ! 1
+            case TIMEOUT =>
+              firstSender ! "timed out"
+            }
+        case TIMEOUT =>
+          sender ! "timed out"
+      }
+    }
+  }
+  
+  override def init () { conductor.start() }
+  override def destroy() { conductor.exit() } 
+  
+  get("/content_type/concurrent/1") {
+    contentType = "1"
+    // Wait for second request to complete
+    (conductor !! 1)()
+  }
+  
+  get("/content_type/concurrent/2") {
+    contentType = "2"
+    // Let first request complete
+    conductor ! 2
   }
 }
 
@@ -280,5 +316,39 @@ class StepTest extends FunSuite with ShouldMatchers {
 
     tester.getResponses(request.generate)
     TestBeforeServlet.beforeCount should equal (2)
+  }
+  
+  test("contentType is threadsafe") {
+    import Actor._
+    import concurrent.MailBox
+  
+    val mailbox = new MailBox()
+  
+    def makeRequest(i: Int) = actor {
+      val req = new HttpTester
+      req.setVersion("HTTP/1.0")
+      req.setMethod("GET")
+      req.setURI("/content_type/concurrent/"+i)
+      
+      // Execute in own thread in servlet with LocalConnector
+      val conn = tester.createLocalConnector()
+      val res = new HttpTester
+      res.parse(tester.getResponses(req.generate(), conn))
+      mailbox.send((i, res.getHeader("Content-Type")))
+    }
+
+    makeRequest(1)
+    makeRequest(2)
+    var numReceived = 0
+    while (numReceived < 2) {
+      mailbox.receiveWithin(10000) {
+        case (i, contentType: String) =>
+          contentType.split(";")(0) should be (i.toString)
+          numReceived += 1
+
+        case TIMEOUT =>
+          fail("Timed out")
+      }
+    }
   }
 }
