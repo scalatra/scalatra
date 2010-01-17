@@ -115,6 +115,10 @@ class TestServlet extends Step {
     // Let first request complete
     conductor ! 2
   }
+  
+  get("/binary/test") {
+	"test".getBytes
+  }
 }
 
 object TestBeforeServlet {
@@ -350,5 +354,13 @@ class StepTest extends FunSuite with ShouldMatchers {
           fail("Timed out")
       }
     }
+  }
+  
+  test("render binary response when action returns a byte array") {
+    request.setMethod("GET")
+    request.setURI("/binary/test")
+    request.setContent("")
+    response.parse(tester.getResponses(request.generate()))
+    response.getContent should equal ("test")
   }
 }

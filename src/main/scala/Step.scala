@@ -18,7 +18,7 @@ case class StepRequest(r: HttpServletRequest) {
 object Step
 {
   type Params = Map[String, String]
-  type Action = Any => String
+  type Action = () => Any
   
   val protocols = List("GET", "POST", "PUT", "DELETE")
 }
@@ -72,7 +72,12 @@ abstract class Step extends HttpServlet
                 doBefore()
                 val res = route.action()
                 response setContentType contentType
-                response.getWriter print (res)
+                res match {
+                  case bytes: Array[Byte] =>
+                    response.getOutputStream.write(bytes)
+                  case x: Any  =>
+                    response.getWriter.print(x.toString)
+                }
               }
             }
           }
@@ -100,7 +105,7 @@ abstract class Step extends HttpServlet
 
   // functional programming means never having to repeat yourself
   private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
-    def g(path: String, fun: => Any) = Routes(protocol) += new Route(path, x => fun.toString)
+    def g(path: String, fun: => Any) = Routes(protocol) += new Route(path, () => fun)
     (g _).curry
   }  
 }
