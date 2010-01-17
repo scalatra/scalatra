@@ -30,10 +30,7 @@ abstract class Step extends HttpServlet
   val paramsMap   = new DynamicVariable[Params](null)
 
   val defaultContentType = "text/html; charset=utf-8"
-  def contentType = response.getContentType match {
-    case null => defaultContentType
-    case x:String => x
-  }
+  def contentType = response.getContentType
   def contentType_=(value: String): Unit = response.setContentType(value)
 		  
   var characterEncoding = "UTF-8"
@@ -70,14 +67,7 @@ abstract class Step extends HttpServlet
 	     	_session.withValue(request) {
               paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
                 doBefore()
-                val res = route.action()
-                response setContentType contentType
-                res match {
-                  case bytes: Array[Byte] =>
-                    response.getOutputStream.write(bytes)
-                  case x: Any  =>
-                    response.getWriter.print(x.toString)
-                }
+                renderResponse(route.action())
               }
             }
           }
@@ -93,6 +83,18 @@ abstract class Step extends HttpServlet
 
   private var doBefore: () => Unit = { () => () }
   def before(fun: => Any) = doBefore = { () => fun; () }
+
+  def renderResponse(actionResult: Any) {
+    if (contentType == null)
+      contentType = defaultContentType
+	
+    actionResult match {
+      case bytes: Array[Byte] =>
+        response.getOutputStream.write(bytes)
+      case x: Any  =>
+        response.getWriter.print(x.toString)
+	}
+  }
   
   def params = paramsMap value
   def redirect(uri: String) = (_response value) sendRedirect uri
