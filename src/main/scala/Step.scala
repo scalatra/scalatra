@@ -87,7 +87,16 @@ abstract class Step extends HttpServlet
   def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentType = inferContentType(actionResult)
-	
+    renderResponseBody(actionResult)	
+  }
+  
+  def inferContentType(actionResult: Any): String = actionResult match {
+    case _: NodeSeq => "text/html; charset="+characterEncoding
+    case _: Array[Byte] => "application/octet-stream"
+    case _ => "text/plain; charset="+characterEncoding
+  }
+  
+  def renderResponseBody(actionResult: Any) {
     actionResult match {
       case bytes: Array[Byte] =>
         response.getOutputStream.write(bytes)
@@ -96,12 +105,6 @@ abstract class Step extends HttpServlet
       case x: Any  =>
         response.getWriter.print(x.toString)
 	}
-  }
-  
-  def inferContentType(actionResult: Any): String = actionResult match {
-    case _: NodeSeq => "text/html; charset="+characterEncoding
-    case _: Array[Byte] => "application/octet-stream"
-    case _ => "text/plain; charset="+characterEncoding
   }
   
   def params = paramsMap value
