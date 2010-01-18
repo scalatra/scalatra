@@ -132,6 +132,10 @@ class TestServlet extends Step {
   get("/content-type/implicit/text-element") {
     Text("test")
   }
+
+  get("/returns-unit") {
+    ()
+  }
 }
 
 object TestBeforeServlet {
@@ -391,5 +395,12 @@ class StepTest extends FunSuite with ShouldMatchers {
     request.setURI("/content-type/implicit/text-element")
     response.parse(tester.getResponses(request.generate()))
     response.getHeader("Content-Type") should equal ("text/html; charset=utf-8")
+  }
+
+  test("Do not output response body if action returns Unit") {
+    request.setMethod("GET")
+    request.setURI("/returns-unit")
+    response.parse(tester.getResponses(request.generate()))
+    response.getContent should equal (null)
   }
 }

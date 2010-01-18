@@ -91,6 +91,8 @@ abstract class Step extends HttpServlet
     actionResult match {
       case bytes: Array[Byte] =>
         response.getOutputStream.write(bytes)
+      case _: Unit =>
+        // If an action returns Unit, it assumes responsibility for the response
       case x: Any  =>
         response.getWriter.print(x.toString)
 	}
