@@ -2,6 +2,7 @@ package com.thinkminimo.step
 
 import scala.actors.Actor
 import scala.actors.TIMEOUT
+import scala.xml.Text
 import javax.servlet.http._
 import org.mortbay.jetty.LocalConnector
 import org.mortbay.jetty.testing.HttpTester
@@ -118,6 +119,18 @@ class TestServlet extends Step {
   
   get("/binary/test") {
 	"test".getBytes
+  }
+  
+  get("/content-type/implicit/string") {
+    "test"
+  }
+  
+  get("/content-type/implicit/byte-array") {
+    "test".getBytes
+  }
+
+  get("/content-type/implicit/text-element") {
+    Text("test")
   }
 }
 
@@ -292,11 +305,6 @@ class StepTest extends FunSuite with ShouldMatchers {
     request.setMethod("GET")
     request.setContent("")
 
-    // default is "text/html"
-    request.setURI("/")
-    response.parse(tester.getResponses(request.generate))
-    response.getHeader("Content-Type") should equal ("text/html; charset=utf-8")
-
     // set content-type to "application/json"
     request.setURI("/content_type/json")
     response.parse(tester.getResponses(request.generate))
@@ -362,5 +370,26 @@ class StepTest extends FunSuite with ShouldMatchers {
     request.setContent("")
     response.parse(tester.getResponses(request.generate()))
     response.getContent should equal ("test")
+  }
+  
+  test("Default contentType of a string is text/plain") {
+    request.setMethod("GET")
+    request.setURI("/content-type/implicit/string")
+    response.parse(tester.getResponses(request.generate()))
+    response.getHeader("Content-Type") should equal ("text/plain; charset=utf-8")
+  }
+
+  test("Default contentType of a byte array is application/octet-stream") {
+    request.setMethod("GET")
+    request.setURI("/content-type/implicit/byte-array")
+    response.parse(tester.getResponses(request.generate()))
+    response.getHeader("Content-Type") should equal ("application/octet-stream")
+  }
+
+  test("Default contentType of a text element is text/html") {
+    request.setMethod("GET")
+    request.setURI("/content-type/implicit/text-element")
+    response.parse(tester.getResponses(request.generate()))
+    response.getHeader("Content-Type") should equal ("text/html; charset=utf-8")
   }
 }

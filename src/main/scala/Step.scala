@@ -6,6 +6,7 @@ import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
 import scala.collection.jcl.MapWrapper
+import scala.xml.NodeSeq
 import Session._
 
 case class StepRequest(r: HttpServletRequest) {
@@ -29,7 +30,6 @@ abstract class Step extends HttpServlet
   val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
   val paramsMap   = new DynamicVariable[Params](null)
 
-  val defaultContentType = "text/html; charset=utf-8"
   def contentType = response.getContentType
   def contentType_=(value: String): Unit = response.setContentType(value)
 		  
@@ -86,7 +86,7 @@ abstract class Step extends HttpServlet
 
   def renderResponse(actionResult: Any) {
     if (contentType == null)
-      contentType = defaultContentType
+      contentType = inferContentType(actionResult)
 	
     actionResult match {
       case bytes: Array[Byte] =>
@@ -94,6 +94,12 @@ abstract class Step extends HttpServlet
       case x: Any  =>
         response.getWriter.print(x.toString)
 	}
+  }
+  
+  def inferContentType(actionResult: Any): String = actionResult match {
+    case _: NodeSeq => "text/html; charset="+characterEncoding
+    case _: Array[Byte] => "application/octet-stream"
+    case _ => "text/plain; charset="+characterEncoding
   }
   
   def params = paramsMap value
