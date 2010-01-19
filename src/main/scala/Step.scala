@@ -5,7 +5,7 @@ import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
-import scala.collection.jcl.MapWrapper
+import scala.collection.jcl.Conversions._
 import scala.xml.NodeSeq
 import Session._
 
@@ -56,9 +56,8 @@ abstract class Step extends HttpServlet
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
     request.setCharacterEncoding(characterEncoding)
     
-    val realParams = new MapWrapper[String, Array[String]]() {
-      def underlying = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
-    }.map { case (k,v) => (k, v(0)) }
+    val realParams = Map(request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
+      .map { case (k,v) => (k, v(0)) }.toSeq :_*)
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
@@ -73,9 +72,11 @@ abstract class Step extends HttpServlet
     _request.withValue(request) {
       _response.withValue(response) {
         _session.withValue(request) {
-          doBefore()
-          if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-            response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
+          paramsMap.withValue(realParams withDefaultValue(null)) {
+            doBefore()
+            if (Routes(request.getMethod) find isMatchingRoute isEmpty)
+              response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
+          }
         }
       }
     }
