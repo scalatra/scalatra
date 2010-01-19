@@ -86,6 +86,8 @@ abstract class Step extends HttpServlet
   def before(fun: => Any) = doBefore = { () => fun; () }
 
   private var doNotFound: Action = () => {
+    // TODO - We should return a 405 if the route matches a different method
+    response.setStatus(404)
     response.getWriter println "Requesting %s but only have %s".format(request.r.getRequestURI, Routes)
   }
   def notFound(fun: => Any) = doNotFound = { () => fun }
