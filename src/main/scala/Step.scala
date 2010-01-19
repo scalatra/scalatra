@@ -62,23 +62,23 @@ abstract class Step extends HttpServlet
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
-        _request.withValue(request) {
-	      _response.withValue(response) {
-	     	_session.withValue(request) {
-              paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
-                doBefore()
-                renderResponse(route.action())
-              }
-            }
-          }
+        paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
+          renderResponse(route.action())
         }
       } 
       //getPathInfo returns everything after the context path, so step will work if non-root
       route(request.getPathInfo) map exec isDefined
     }
     
-    if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-      response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
+    _request.withValue(request) {
+      _response.withValue(response) {
+        _session.withValue(request) {
+          doBefore()
+          if (Routes(request.getMethod) find isMatchingRoute isEmpty)
+            response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
+        }
+      }
+    }
   }
 
   private var doBefore: () => Unit = { () => () }
