@@ -62,6 +62,13 @@ Example
           case _ => "No session var set"
         }
       }
+
+      // Actions that return byte arrays render a binary response
+      get("/report.pdf") {
+        contentType = "application/pdf"
+        val pdf = generatePdf()
+        pdf.toBytes
+      }
     }
 
 

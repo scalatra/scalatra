@@ -6,6 +6,7 @@ import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
 import scala.collection.JavaConversions._
+import scala.xml.NodeSeq
 import Session._
 
 case class StepRequest(r: HttpServletRequest) {
@@ -18,7 +19,7 @@ case class StepRequest(r: HttpServletRequest) {
 object Step
 {
   type Params = Map[String, String]
-  type Action = Any => String
+  type Action = () => Any
   
   val protocols = List("GET", "POST", "PUT", "DELETE")
 }
@@ -28,7 +29,10 @@ abstract class Step extends HttpServlet
 {
   val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
   val paramsMap   = new DynamicVariable[Params](null)
-  var contentType = "text/html; charset=utf-8"
+
+  def contentType = response.getContentType
+  def contentType_=(value: String): Unit = response.setContentType(value)
+		  
   var characterEncoding = "UTF-8"
   val _session    = new DynamicVariable[Session](null)
   val _response   = new DynamicVariable[HttpServletResponse](null)
@@ -57,18 +61,16 @@ abstract class Step extends HttpServlet
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
-        before _
-	_request.withValue(request) {
-	  _response.withValue(response) {
-	    _session.withValue(request) {
+        _request.withValue(request) {
+	      _response.withValue(response) {
+	     	_session.withValue(request) {
               paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
-		val res = route.action()
-		response setContentType contentType
-		response.getWriter print (res)
+                doBefore()
+                renderResponse(route.action())
               }
-	    }
-	  }
-	}
+            }
+          }
+        }
       } 
       //getPathInfo returns everything after the context path, so step will work if non-root
       route(request.getPathInfo) map exec isDefined
@@ -78,10 +80,36 @@ abstract class Step extends HttpServlet
       response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
   }
 
-  def before(fun: => Any) = fun
+  private var doBefore: () => Unit = { () => () }
+  def before(fun: => Any) = doBefore = { () => fun; () }
+
+  def renderResponse(actionResult: Any) {
+    if (contentType == null)
+      contentType = inferContentType(actionResult)
+    renderResponseBody(actionResult)	
+  }
+  
+  def inferContentType(actionResult: Any): String = actionResult match {
+    case _: NodeSeq => "text/html; charset="+characterEncoding
+    case _: Array[Byte] => "application/octet-stream"
+    case _ => "text/plain; charset="+characterEncoding
+  }
+  
+  def renderResponseBody(actionResult: Any) {
+    actionResult match {
+      case bytes: Array[Byte] =>
+        response.getOutputStream.write(bytes)
+      case _: Unit =>
+        // If an action returns Unit, it assumes responsibility for the response
+      case x: Any  =>
+        response.getWriter.print(x.toString)
+	}
+  }
+  
   def params = paramsMap value
   def redirect(uri: String) = (_response value) sendRedirect uri
   def request = _request value
+  def response = _response value
   def session = _session value
   def status(code: Int) = (_response value) setStatus code
 
@@ -89,7 +117,7 @@ abstract class Step extends HttpServlet
 
   // functional programming means never having to repeat yourself
   private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
-    def g(path: String, fun: => Any): Unit = Routes(protocol) += new Route(path, x => fun.toString)
+    def g(path: String, fun: => Any) { Routes(protocol) += new Route(path, () => fun) }
     (g _).curry
   }  
 }
