@@ -75,7 +75,7 @@ abstract class Step extends HttpServlet
           paramsMap.withValue(realParams withDefaultValue(null)) {
             doBefore()
             if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-              response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
+              renderResponse(doNotFound())
           }
         }
       }
@@ -85,6 +85,11 @@ abstract class Step extends HttpServlet
   private var doBefore: () => Unit = { () => () }
   def before(fun: => Any) = doBefore = { () => fun; () }
 
+  private var doNotFound: Action = () => {
+    response.getWriter println "Requesting %s but only have %s".format(request.r.getRequestURI, Routes)
+  }
+  def notFound(fun: => Any) = doNotFound = { () => fun }
+  
   def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentType = inferContentType(actionResult)
