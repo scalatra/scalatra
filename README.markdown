@@ -69,6 +69,11 @@ Example
         val pdf = generatePdf()
         pdf.toBytes
       }
+
+      notFound {
+        response.setStatus(404)
+        "Not found"
+      }
     }
 
 

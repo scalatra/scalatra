@@ -57,32 +57,41 @@ abstract class Step extends HttpServlet
     request.setCharacterEncoding(characterEncoding)
     
     val realParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
-      .map { case (k,v) => (k, v(0)) }
+      .map { case (k,v) => (k, v(0)) }.toMap
     
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
-        _request.withValue(request) {
-	      _response.withValue(response) {
-	     	_session.withValue(request) {
-              paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
-                doBefore()
-                renderResponse(route.action())
-              }
-            }
-          }
+        paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
+          renderResponse(route.action())
         }
       } 
       //getPathInfo returns everything after the context path, so step will work if non-root
       route(request.getPathInfo) map exec isDefined
     }
     
-    if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-      response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
+    _request.withValue(request) {
+      _response.withValue(response) {
+        _session.withValue(request) {
+          paramsMap.withValue(realParams withDefaultValue(null)) {
+            doBefore()
+            if (Routes(request.getMethod) find isMatchingRoute isEmpty)
+              renderResponse(doNotFound())
+          }
+        }
+      }
+    }
   }
 
   private var doBefore: () => Unit = { () => () }
   def before(fun: => Any) = doBefore = { () => fun; () }
 
+  private var doNotFound: Action = () => {
+    // TODO - We should return a 405 if the route matches a different method
+    response.setStatus(404)
+    response.getWriter println "Requesting %s but only have %s".format(request.r.getRequestURI, Routes)
+  }
+  def notFound(fun: => Any) = doNotFound = { () => fun }
+  
   def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentType = inferContentType(actionResult)
