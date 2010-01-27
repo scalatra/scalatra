@@ -9,10 +9,17 @@ import scala.collection.jcl.Conversions._
 import scala.xml.NodeSeq
 import Session._
 
-case class StepRequest(r: HttpServletRequest) {
-  val p = new Regex("([^:]*):?(.*)")
+object StepRequest {
+  val HostPortRegex = new Regex("([^:]*):?(.*)")
+}
 
-  val List(host, port) = r.getHeader("Host") match { case null => List("",""); case p(x,y) => List(x,y) }
+case class StepRequest(r: HttpServletRequest) extends HttpServletRequestWrapper(r) {
+  import StepRequest._
+
+  lazy val List(host, port) = r.getHeader("Host") match {
+    case null => List("","");
+    case HostPortRegex(x,y) => List(x,y)
+  }
   def referer = r.getHeader("Referer")
 }
 
@@ -88,7 +95,7 @@ abstract class Step extends HttpServlet
   private var doNotFound: Action = () => {
     // TODO - We should return a 405 if the route matches a different method
     response.setStatus(404)
-    response.getWriter println "Requesting %s but only have %s".format(request.r.getRequestURI, Routes)
+    response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
   }
   def notFound(fun: => Any) = doNotFound = { () => fun }
   
