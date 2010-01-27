@@ -16,7 +16,10 @@ object StepRequest {
 case class StepRequest(r: HttpServletRequest) extends HttpServletRequestWrapper(r) {
   import StepRequest._
 
-  val List(host, port) = r.getHeader("Host") match { case null => List("",""); case HostPortRegex(x,y) => List(x,y) }
+  lazy val List(host, port) = r.getHeader("Host") match {
+    case null => List("","");
+    case HostPortRegex(x,y) => List(x,y)
+  }
   def referer = r.getHeader("Referer")
 }
 
