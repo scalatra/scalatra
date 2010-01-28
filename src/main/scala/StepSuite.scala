@@ -49,10 +49,7 @@ class StepSuite extends FunSuite {
 
     val res = new HttpTester()
 
-    // HttpTester.parse always try to decode the string as ISO8859
-    // It causes NullPointerException when string isn't encoded in ISO8859
-    // To avoid this, we have to encode the string with ISO8859 before parsing
-    res.parse(new String(tester.getResponses(req.generate).getBytes("UTF-8"), "ISO_8859-1"))
+    res.parse(tester.getResponses(req.generate))
     res.setContent(res.getContent match {
       case null => ""
       case content => content
