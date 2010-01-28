@@ -85,7 +85,7 @@ Quick Start
 
 2.   __Install simple-build-tool__
 
-    Step uses sbt, a fantastic tool for building Scala programs.  For instructions, see [the sbt site](http://code.google.com/p/simple-build-tool/wiki/Setup)
+    Step uses sbt, a fantastic tool for building Scala programs.  For instructions, see [the sbt site](http://code.google.com/p/simple-build-tool/wiki/Setup).  The [0.6.x](http://code.google.com/p/simple-build-tool/wiki/0_6_Summary) series is required for Scala 2.8 support.
 
 3.   __Run sbt__
 
