@@ -134,6 +134,6 @@ abstract class Step extends HttpServlet
   // functional programming means never having to repeat yourself
   private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
     def g(path: String, fun: => Any) { Routes(protocol) += new Route(path, () => fun) }
-    (g _).curry
+    (g _).curried
   }  
 }
