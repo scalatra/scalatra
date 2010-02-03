@@ -9,20 +9,6 @@ import scala.collection.jcl.Conversions._
 import scala.xml.NodeSeq
 import Session._
 
-object StepRequest {
-  val HostPortRegex = new Regex("([^:]*):?(.*)")
-}
-
-case class StepRequest(r: HttpServletRequest) extends HttpServletRequestWrapper(r) {
-  import StepRequest._
-
-  lazy val List(host, port) = r.getHeader("Host") match {
-    case null => List("","");
-    case HostPortRegex(x,y) => List(x,y)
-  }
-  def referer = r.getHeader("Referer")
-}
-
 object Step
 {
   type Params = Map[String, String]
