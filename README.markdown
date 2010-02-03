@@ -141,11 +141,12 @@ Session support has recently been added.  To see how to use sessions in your Ste
 
 Testing Your Step Applications
 ==============================
-Step includes StepSuite - a framework for writing the suite of tests for your Step application.
-It's an extension of FunSuite with some utility functions to request your app for responses and referring the responses in ease.
-Here's an example of StepSuite.
+Step includes StepTests - a framework for writing the unit tests for your Step application.  It's a trait with some utility functions to send requests to your app and examine the response.  It can be mixed into the test framework of your choosing.  StepTests supports HTTP GET/POST tests with or without request parameters and sessions.  For more examples, please refer to src/test/scala.
 
-    class TheStepAppTests extends StepSuite with ShouldMatchers {
+ScalaTest example
+-----------------
+
+    class TheStepAppTests extends FunSuite with ShouldMatchers with StepTests {
       // `TheStepApp` is your app which extends Step
       route(classOf[TheStepApp], "/*")
 
@@ -157,7 +158,21 @@ Here's an example of StepSuite.
       }
     }
 
-It supports HTTP GET/POST tests with or without request parameters and sessions. Referring StepSuiteTest.scala would be helpful to understand tests with StepSuite.
+Specs example
+-------------
+
+    object TheStepAppTests extends Specification with StepTests {
+      route(classOf[TheStepApp], "/*")
+      
+      "TheStepApp when using GET" should {
+        "/path/to/something should return 'hi!'" in {
+          get("/") {
+            status mustEqual(200)
+            body mustEqual("hi!")
+          }
+        }
+      }
+    }
 
 Testing Step
 ============

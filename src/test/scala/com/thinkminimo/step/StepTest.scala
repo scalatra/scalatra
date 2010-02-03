@@ -67,7 +67,7 @@ class StepTest extends StepSuite with ShouldMatchers {
   
   test("GET / should return 'root'") {
     get("/") {
-      "root"
+      body should equal ("root")
     }
   }
 
