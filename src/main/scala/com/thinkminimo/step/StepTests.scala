@@ -4,6 +4,7 @@ import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
 import org.mortbay.jetty.testing.HttpTester
 import org.mortbay.jetty.testing.ServletTester
+import org.mortbay.jetty.Handler
 
 trait StepTests {
   implicit def httpTesterToStepHttpTester(t: HttpTester) = new StepHttpTester(t)
@@ -54,6 +55,8 @@ trait StepTests {
 
   // map a servlet to the path
   def route(servlet: Class[_], path: String) = tester.addServlet(servlet, path)
+
+  def routeFilter(filter: Class[_], path: String) = tester.addFilter(filter, path, Handler.DEFAULT)
 
   def get(uri: String)(f: => Unit): Unit = withResponse(httpRequest("GET", uri), f)
   def get(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
