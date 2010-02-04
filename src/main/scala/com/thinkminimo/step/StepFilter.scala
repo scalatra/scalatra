@@ -21,7 +21,7 @@ trait StepFilter extends Filter with StepKernel {
 
   // What goes in servletPath and what goes in pathInfo depends on how the underlying servlet is mapped.
   // Unlike the Step servlet, we'll use both here by default.  Don't like it?  Override it.
-  protected def requestPath = request.getServletPath + request.getPathInfo
+  protected def requestPath = request.getServletPath + (if (request.getPathInfo != null) request.getPathInfo else "")
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)
 

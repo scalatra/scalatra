@@ -15,8 +15,12 @@ abstract class Step extends HttpServlet with StepKernel
 
   override def service(request: HttpServletRequest, response: HttpServletResponse) = handle(request, response)
 
-  // getPathInfo returns everything after the context path, so step will work if non-root
-  protected def requestPath = request.getPathInfo
+  // pathInfo is for path-mapped servlets (i.e., the mapping ends in "/*").  Path-mapped Stgep servlets will work even
+  // if the servlet is not mapped to the context root.  Routes should contain everything matched by the "/*".
+  //
+  // If the servlet mapping is not path-mapped, then we fall back to the servletPath.  Routes should have a leading
+  // slash and include everything between the context route and the query string.
+  protected def requestPath = if (request.getPathInfo != null) request.getPathInfo else request.getServletPath
 
   protected var doNotFound: Action = () => {
     // TODO - We should return a 405 if the route matches a different method
