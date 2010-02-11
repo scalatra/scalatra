@@ -3,7 +3,7 @@ About
 
 Step is a tiny Scala web framework inspired by [Sinatra](http://www.sinatrarb.com/) and originally based on some code I found on an [awesome blog post](http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework).
 
-It could probably use a lot of work; it's my first Scala project. I welcome comments, pull requests, and issues.
+Comments, issues, and pull requests are welcome.  Please also see the new [step-user](http://groups.google.com/group/step-user) mailing list.
 
 Example
 =======

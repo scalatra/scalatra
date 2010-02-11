@@ -5,7 +5,6 @@ import org.scalatest.matchers.ShouldMatchers
 class StepSuiteTestServlet extends Step {
   before {
     contentType = "text/html; charset=utf-8"
-    characterEncoding = "utf-8"
   }
 
   get("/") {

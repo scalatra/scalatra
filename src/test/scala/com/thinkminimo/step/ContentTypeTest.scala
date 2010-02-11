@@ -19,7 +19,12 @@ class ContentTypeTestServlet extends Step {
   get("/implicit/string") {
     "test"
   }
-  
+
+  get("/implicit/string/iso-8859-1") {
+    response.setCharacterEncoding("iso-8859-1")
+    "test"
+  }
+
   get("/implicit/byte-array") {
     "test".getBytes
   }
@@ -49,7 +54,7 @@ class ContentTypeTestServlet extends Step {
       }
     }
   }
-  
+
   get("/concurrent/1") {
     contentType = "1"
     // Wait for second request to complete
@@ -61,7 +66,11 @@ class ContentTypeTestServlet extends Step {
     // Let first request complete
     conductor ! 2
   }
-  
+
+  get("/default-charset") {
+    contentType = "text/xml"
+  }
+
   override def init () { conductor.start() }
   override def destroy() { conductor ! 'exit } 
 }
@@ -79,7 +88,7 @@ class ContentTypeTest extends StepSuite with ShouldMatchers {
       header("Content-Type") should equal ("text/html; charset=utf-8")
     }
   }
-  
+
   test("contentType of a string defaults to text/plain") {
     get("/implicit/string") {
       header("Content-Type") should equal ("text/plain; charset=utf-8")
@@ -88,7 +97,7 @@ class ContentTypeTest extends StepSuite with ShouldMatchers {
 
   test("contentType of a byte array defaults to application/octet-stream") {
     get("/implicit/byte-array") {
-      header("Content-Type") should equal ("application/octet-stream")
+      header("Content-Type") should startWith ("application/octet-stream")
     }
   }
 
@@ -97,7 +106,13 @@ class ContentTypeTest extends StepSuite with ShouldMatchers {
       header("Content-Type") should equal ("text/html; charset=utf-8")
     }
   }
-  
+
+  test("implicit content type does not override charset") {
+    get("/implicit/string/iso-8859-1") {
+      header("Content-Type") should equal ("text/plain; charset=iso-8859-1")
+    }
+  }
+
   test("contentType is threadsafe") {
     import Actor._
     import concurrent.MailBox
@@ -129,6 +144,12 @@ class ContentTypeTest extends StepSuite with ShouldMatchers {
         case TIMEOUT =>
           fail("Timed out")
       }
+    }
+  }
+
+  test("charset is set to default when only content type is explicitly set") {
+    get("/default-charset") {
+      header("Content-Type") should equal ("text/xml; charset=utf-8")
     }
   }
 }
