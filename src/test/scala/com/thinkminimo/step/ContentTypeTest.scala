@@ -57,7 +57,11 @@ class ContentTypeTestServlet extends Step {
     // Let first request complete
     conductor ! 2
   }
-  
+
+  get("/default-charset") {
+    contentType = "text/xml"
+  }
+
   override def init () { conductor.start() }
   override def destroy() { conductor.exit() } 
 }
@@ -84,7 +88,7 @@ class ContentTypeTest extends StepSuite with ShouldMatchers {
 
   test("contentType of a byte array defaults to application/octet-stream") {
     get("/implicit/byte-array") {
-      header("Content-Type") should equal ("application/octet-stream")
+      header("Content-Type") should startWith ("application/octet-stream")
     }
   }
 
@@ -125,6 +129,12 @@ class ContentTypeTest extends StepSuite with ShouldMatchers {
         case TIMEOUT =>
           fail("Timed out")
       }
+    }
+  }
+
+  test("charset is set to default when only content type is explicitly set") {
+    get("/default-charset") {
+      header("Content-Type") should equal ("text/xml; charset=utf-8")
     }
   }
 }

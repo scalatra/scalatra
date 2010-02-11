@@ -61,6 +61,8 @@ trait StepKernel
       route(requestPath) map exec isDefined
     }
 
+    response.setCharacterEncoding(characterEncoding)
+
     _request.withValue(request) {
       _response.withValue(response) {
         _session.withValue(request) {
