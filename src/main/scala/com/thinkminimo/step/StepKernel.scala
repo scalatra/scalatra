@@ -26,7 +26,7 @@ trait StepKernel
   def contentType = response.getContentType
   def contentType_=(value: String): Unit = response.setContentType(value)
 
-  var characterEncoding = "UTF-8"
+  val defaultCharacterEncoding = "UTF-8"
   val _session    = new DynamicVariable[Session](null)
   val _response   = new DynamicVariable[HttpServletResponse](null)
   val _request    = new DynamicVariable[StepRequest](null)
@@ -47,7 +47,7 @@ trait StepKernel
   def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
-    request.setCharacterEncoding(characterEncoding)
+    request.setCharacterEncoding(defaultCharacterEncoding)
 
     val realParams = Map(request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
       .map { case (k,v) => (k, v(0)) }.toSeq :_*)
@@ -61,7 +61,7 @@ trait StepKernel
       route(requestPath) map exec isDefined
     }
 
-    response.setCharacterEncoding(characterEncoding)
+    response.setCharacterEncoding(defaultCharacterEncoding)
 
     _request.withValue(request) {
       _response.withValue(response) {
