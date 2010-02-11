@@ -91,9 +91,9 @@ trait StepKernel
   }
 
   def inferContentType(actionResult: Any): String = actionResult match {
-    case _: NodeSeq => "text/html; charset="+characterEncoding
+    case _: NodeSeq => "text/html"
     case _: Array[Byte] => "application/octet-stream"
-    case _ => "text/plain; charset="+characterEncoding
+    case _ => "text/plain"
   }
 
   def renderResponseBody(actionResult: Any) {
