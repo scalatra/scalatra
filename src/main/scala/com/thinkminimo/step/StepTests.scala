@@ -5,6 +5,7 @@ import java.net.URLEncoder.encode
 import org.mortbay.jetty.testing.HttpTester
 import org.mortbay.jetty.testing.ServletTester
 import org.mortbay.jetty.Handler
+import java.nio.charset.Charset
 
 trait StepTests {
   implicit def httpTesterToStepHttpTester(t: HttpTester) = new StepHttpTester(t)
@@ -21,7 +22,7 @@ trait StepTests {
   private def httpRequest(method: String, uri: String, params: Map[String, String], headers: Map[String, String]) = {
     def req = {
       val paramStr = params.map(t => List(t._1, t._2).map(encode(_, "UTF-8")).mkString("=")).mkString("&")
-      val r = new HttpTester()
+      val r = new HttpTester(Charset.defaultCharset.name)
 
       r.setVersion("HTTP/1.0")
       r.setMethod(method)
@@ -38,7 +39,7 @@ trait StepTests {
 
     tester.start()
 
-    val res = new HttpTester()
+    val res = new HttpTester(Charset.defaultCharset.name)
 
     res.parse(tester.getResponses(req.generate))
     res.setContent(res.getContent match {
