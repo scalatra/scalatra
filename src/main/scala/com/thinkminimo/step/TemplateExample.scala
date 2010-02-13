@@ -2,7 +2,7 @@ package com.thinkminimo.step
 import scala.xml.Node
 
 
-class TemplateExample extends Step {
+class TemplateExample extends Step with UrlSupport {
 
   object Template {
 
@@ -23,11 +23,11 @@ class TemplateExample extends Step {
           <h1>{ title }</h1>
           { content }
           <hr/>
-          <a href='/date/2009/12/26'>date example</a>
-          <a href='/form'>form example</a>
-          <a href='/'>hello world</a>
-          <a href='/login'>login</a>
-          <a href='/logout'>logout</a>
+          <a href={url("/date/2009/12/26")}>date example</a>
+          <a href={url("/form")}>form example</a>
+          <a href={url("/")}>hello world</a>
+          <a href={url("/login")}>login</a>
+          <a href={url("/logout")}>logout</a>
         </body>
       </html>
     }
@@ -50,7 +50,7 @@ class TemplateExample extends Step {
 
   get("/form") {
     Template.page("Step: Form Post Example",
-    <form action='/post' method='POST'>
+    <form action={url("/post")} method='POST'>
       Post something: <input name='submission' type='text'/>
       <input type='submit'/>
     </form>
@@ -74,7 +74,7 @@ class TemplateExample extends Step {
         )
       case x:AnyRef =>
         Template.page("Step: Session Example" + x.toString,
-        <form action='/login' method='POST'>
+        <form action={url("/login")} method='POST'>
         First Name: <input name='first' type='text'/>
         Last Name: <input name='last' type='text'/>
         <input type='submit'/>
@@ -114,4 +114,6 @@ class TemplateExample extends Step {
     <pre>Route: /</pre>
     )
   }
+
+  protected def contextPath = request.getContextPath   
 }
