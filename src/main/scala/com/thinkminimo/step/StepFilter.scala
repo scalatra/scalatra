@@ -7,8 +7,8 @@ import javax.servlet._
 trait StepFilter extends Filter with StepKernel {
   import StepKernel._
 
-  val _filterChain = new DynamicVariable[FilterChain](null)
-  def filterChain = _filterChain.value
+  private val _filterChain = new DynamicVariable[FilterChain](null)
+  protected def filterChain = _filterChain.value
 
   def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) = {
     val httpRequest = request.asInstanceOf[HttpServletRequest]

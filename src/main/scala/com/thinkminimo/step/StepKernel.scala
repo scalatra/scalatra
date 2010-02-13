@@ -20,20 +20,20 @@ import StepKernel._
 
 trait StepKernel
 {
-  val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
-  val paramsMap   = new DynamicVariable[Params](null)
+  protected val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
+  private val paramsMap   = new DynamicVariable[Params](null)
 
-  def contentType = response.getContentType
-  def contentType_=(value: String): Unit = response.setContentType(value)
+  protected def contentType = response.getContentType
+  protected def contentType_=(value: String): Unit = response.setContentType(value)
 
-  val defaultCharacterEncoding = "UTF-8"
-  val _session    = new DynamicVariable[Session](null)
-  val _response   = new DynamicVariable[HttpServletResponse](null)
-  val _request    = new DynamicVariable[StepRequest](null)
+  protected val defaultCharacterEncoding = "UTF-8"
+  private val _session    = new DynamicVariable[Session](null)
+  private val _response   = new DynamicVariable[HttpServletResponse](null)
+  private val _request    = new DynamicVariable[StepRequest](null)
 
-  implicit def requestToStepRequest(r: HttpServletRequest) = StepRequest(r)
+  private implicit def requestToStepRequest(r: HttpServletRequest) = StepRequest(r)
 
-  class Route(val path: String, val action: Action) {
+  protected class Route(val path: String, val action: Action) {
     val pattern = """:\w+"""
     val names = new Regex(pattern) findAllIn path toList
     val re = new Regex("^%s$" format path.replaceAll(pattern, "(.*?)"))
@@ -44,7 +44,7 @@ trait StepKernel
     override def toString() = path
   }
 
-  def handle(request: HttpServletRequest, response: HttpServletResponse) {
+  protected def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
     request.setCharacterEncoding(defaultCharacterEncoding)
@@ -79,24 +79,24 @@ trait StepKernel
   protected def requestPath: String
 
   private var doBefore: () => Unit = { () => () }
-  def before(fun: => Any) = doBefore = { () => fun; () }
+  protected def before(fun: => Any) = doBefore = { () => fun; () }
 
   protected var doNotFound: Action
-  def notFound(fun: => Any) = doNotFound = { () => fun }
+  protected def notFound(fun: => Any) = doNotFound = { () => fun }
 
-  def renderResponse(actionResult: Any) {
+  protected def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentType = inferContentType(actionResult)
     renderResponseBody(actionResult)
   }
 
-  def inferContentType(actionResult: Any): String = actionResult match {
+  protected def inferContentType(actionResult: Any): String = actionResult match {
     case _: NodeSeq => "text/html"
     case _: Array[Byte] => "application/octet-stream"
     case _ => "text/plain"
   }
 
-  def renderResponseBody(actionResult: Any) {
+  protected def renderResponseBody(actionResult: Any) {
     actionResult match {
       case bytes: Array[Byte] =>
         response.getOutputStream.write(bytes)
@@ -107,14 +107,14 @@ trait StepKernel
 	  }
   }
 
-  def params = paramsMap value
-  def redirect(uri: String) = (_response value) sendRedirect uri
-  def request = _request value
-  def response = _response value
-  def session = _session value
-  def status(code: Int) = (_response value) setStatus code
+  protected def params = paramsMap value
+  protected def redirect(uri: String) = (_response value) sendRedirect uri
+  protected def request = _request value
+  protected def response = _response value
+  protected def session = _session value
+  protected def status(code: Int) = (_response value) setStatus code
 
-  val List(get, post, put, delete) = protocols map routeSetter
+  protected val List(get, post, put, delete) = protocols map routeSetter
 
   // functional programming means never having to repeat yourself
   private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
