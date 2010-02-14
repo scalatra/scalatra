@@ -4,6 +4,8 @@ import scala.actors.{Actor, TIMEOUT}
 import scala.xml.Text
 import org.scalatest.matchers.ShouldMatchers
 import org.mortbay.jetty.testing.HttpTester
+import java.net.URLEncoder
+import java.nio.charset.Charset
 
 class ContentTypeTestServlet extends Step {
   get("/json") {
@@ -65,6 +67,10 @@ class ContentTypeTestServlet extends Step {
 
   get("/default-charset") {
     contentType = "text/xml"
+  }
+
+  post("/echo") {
+    params("echo")
   }
 
   override def init () { conductor.start() }
@@ -147,6 +153,22 @@ class ContentTypeTest extends StepSuite with ShouldMatchers {
     get("/default-charset") {
       header("Content-Type") should equal ("text/xml; charset=utf-8")
     }
+  }
+
+  test("does not override request character encoding when explicitly set") {
+    val charset = "iso-8859-5"
+    val message = "Здравствуйте!"
+
+    val req = new HttpTester(Charset.defaultCharset.name)
+    req.setVersion("HTTP/1.0")
+    req.setMethod("POST")
+    req.setURI("/echo")
+    req.setHeader("Content-Type", "application/x-www-form-urlencoded; charset="+charset)
+    req.setContent("echo="+URLEncoder.encode(message, charset))
+
+    val res = new HttpTester(Charset.defaultCharset.name)
+    res.parse(tester.getResponses(req.generate()))
+    res.getContent should equal(message)
   }
 }
 

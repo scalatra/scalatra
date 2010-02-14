@@ -47,7 +47,8 @@ trait StepKernel
   protected def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
-    request.setCharacterEncoding(defaultCharacterEncoding)
+    if (request.getCharacterEncoding == null)
+      request.setCharacterEncoding(defaultCharacterEncoding)
 
     val realParams = Map(request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
       .map { case (k,v) => (k, v(0)) }.toSeq :_*)
