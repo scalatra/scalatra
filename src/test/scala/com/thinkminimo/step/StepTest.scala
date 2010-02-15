@@ -23,9 +23,9 @@ class StepTestServlet extends Step {
   }
 
   post("/post/test") {
-    params("posted_value") match {
-      case null => "posted_value is null"
-      case s => s
+    params.get("posted_value") match {
+      case None => "posted_value is null"
+      case Some(s) => s
     }
   }
 
