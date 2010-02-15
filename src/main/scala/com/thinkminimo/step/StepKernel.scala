@@ -11,7 +11,7 @@ import Session._
 
 object StepKernel
 {
-  type Params = Map[String, String]
+  type MultiParams = Map[String, Seq[String]]
   type Action = () => Any
 
   val protocols = List("GET", "POST", "PUT", "DELETE")
@@ -21,7 +21,6 @@ import StepKernel._
 trait StepKernel
 {
   protected val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
-  private val paramsMap   = new DynamicVariable[Params](null)
 
   protected def contentType = response.getContentType
   protected def contentType_=(value: String): Unit = response.setContentType(value)
@@ -38,8 +37,8 @@ trait StepKernel
     val names = new Regex(pattern) findAllIn path toList
     val re = new Regex("^%s$" format path.replaceAll(pattern, "(.*?)"))
 
-    def apply(realPath: String): Option[Params] =
-      re findFirstMatchIn realPath map (x => Map(names zip x.subgroups : _*))
+    def apply(realPath: String): Option[MultiParams] =
+      re findFirstMatchIn realPath map (x => Map(names zip (x.subgroups map { Seq(_) })  : _*))
 
     override def toString() = path
   }
@@ -50,12 +49,12 @@ trait StepKernel
     if (request.getCharacterEncoding == null)
       request.setCharacterEncoding(defaultCharacterEncoding)
 
-    val realParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
-      .map { case (k,v) => (k, v(0)) }.toMap
+    val realMultiParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
+      .transform { (k, v) => v: Seq[String] }
 
     def isMatchingRoute(route: Route) = {
-      def exec(args: Params) = {
-        paramsMap.withValue(args ++ realParams) {
+      def exec(args: MultiParams) = {
+        _multiParams.withValue(args ++ realMultiParams withDefaultValue(Seq.empty)) {
           renderResponse(route.action())
         }
       }
@@ -67,7 +66,7 @@ trait StepKernel
     _request.withValue(request) {
       _response.withValue(response) {
         _session.withValue(request) {
-          paramsMap.withValue(realParams) {
+          _multiParams.withValue(Map() ++ realMultiParams withDefaultValue(Seq.empty)) {
             doBefore()
             if (Routes(request.getMethod) find isMatchingRoute isEmpty)
               renderResponse(doNotFound())
@@ -108,7 +107,21 @@ trait StepKernel
 	  }
   }
 
-  protected def params = paramsMap value
+  private val _multiParams = new DynamicVariable[MultiParams](Map()) {
+    // Whenever we set _multiParams, set a view for _params as well
+    override def withValue[S](newval: MultiParams)(thunk: => S) = {
+      super.withValue(newval) {
+        _params.withValue(newval filter { case(k, v) => !v.isEmpty } transform { (k, v) => v.first }) {
+          thunk
+        }
+      }
+    }
+  }
+  protected def multiParams: MultiParams = _multiParams value
+
+  private val _params = new DynamicVariable[Map[String, String]](Map())
+  protected def params = _params value
+
   protected def redirect(uri: String) = (_response value) sendRedirect uri
   protected def request = _request value
   protected def response = _response value
