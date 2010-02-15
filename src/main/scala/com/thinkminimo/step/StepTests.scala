@@ -17,9 +17,9 @@ trait StepTests {
 
   private def httpRequest(method: String, uri: String): HttpTester =
     httpRequest(method, uri, Map.empty, Map.empty)
-  private def httpRequest(method: String, uri: String, params: Map[String, String]): HttpTester =
+  private def httpRequest(method: String, uri: String, params: Iterable[(String, String)]): HttpTester =
     httpRequest(method, uri, params, Map.empty)
-  private def httpRequest(method: String, uri: String, params: Map[String, String], headers: Map[String, String]) = {
+  private def httpRequest(method: String, uri: String, params: Iterable[(String, String)], headers: Map[String, String]) = {
     def req = {
       val paramStr = params.map(t => List(t._1, t._2).map(encode(_, "UTF-8")).mkString("=")).mkString("&")
       val r = new HttpTester(Charset.defaultCharset.name)
@@ -61,14 +61,14 @@ trait StepTests {
 
   def get(uri: String)(f: => Unit): Unit = withResponse(httpRequest("GET", uri), f)
   def get(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
-    get(uri, Map(params :_*), Map[String, String]())(f)
-  def get(uri: String, params: Map[String, String], headers: Map[String, String])(f: => Unit) =
+    get(uri, params, Map[String, String]())(f)
+  def get(uri: String, params: Iterable[(String, String)], headers: Map[String, String])(f: => Unit) =
     withResponse(httpRequest("GET", uri, params, headers), f)
   def post(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
-    post(uri, Map(params :_*))(f)
-  def post(uri: String, params: Map[String,String])(f: => Unit): Unit =
+    post(uri, params)(f)
+  def post(uri: String, params: Iterable[(String,String)])(f: => Unit): Unit =
     post(uri, params, Map[String, String]())(f)
-  def post(uri: String, params: Map[String,String], headers: Map[String, String])(f: => Unit) =
+  def post(uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => Unit) =
     withResponse(httpRequest("POST", uri, params, Map("Content-Type" -> "application/x-www-form-urlencoded") ++ headers), f)
   // @todo support POST multipart/form-data for file uploads
   // @todo def put
