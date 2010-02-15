@@ -55,7 +55,7 @@ trait StepKernel
 
     def isMatchingRoute(route: Route) = {
       def exec(args: Params) = {
-        paramsMap.withValue(args ++ realParams withDefaultValue(null)) {
+        paramsMap.withValue(args ++ realParams) {
           renderResponse(route.action())
         }
       }
@@ -67,7 +67,7 @@ trait StepKernel
     _request.withValue(request) {
       _response.withValue(response) {
         _session.withValue(request) {
-          paramsMap.withValue(realParams withDefaultValue(null)) {
+          paramsMap.withValue(realParams) {
             doBefore()
             if (Routes(request.getMethod) find isMatchingRoute isEmpty)
               renderResponse(doNotFound())

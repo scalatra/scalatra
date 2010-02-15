@@ -8,9 +8,9 @@ class FilterTestServlet extends Step {
 
   before { 
     beforeCount += 1
-    params("body") match {
-      case x:String => response.getWriter.write(x)
-      case null => 
+    params.get("body") match {
+      case Some(x) => response.getWriter.write(x)
+      case None => 
     }
   }
   
