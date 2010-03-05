@@ -9,10 +9,7 @@ object Session {
 class Session(request:HttpServletRequest) {
   def session = request.getSession(false) match {
     case null => None
-    case (s:HttpSession) => {
-      s.setMaxInactiveInterval(600)
-      Some(s)
-    }
+    case (s:HttpSession) => Some(s)
   }
   def apply(key:String) = session match {
     case Some(s:HttpSession) =>
