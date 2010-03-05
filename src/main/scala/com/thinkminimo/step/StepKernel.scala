@@ -111,7 +111,7 @@ trait StepKernel
     // Whenever we set _multiParams, set a view for _params as well
     override def withValue[S](newval: MultiParams)(thunk: => S) = {
       super.withValue(newval) {
-        _params.withValue(newval filter { case(k, v) => !v.isEmpty } transform { (k, v) => v.first }) {
+        _params.withValue(newval filter { case(k, v) => !v.isEmpty } transform { (k, v) => v.head }) {
           thunk
         }
       }
