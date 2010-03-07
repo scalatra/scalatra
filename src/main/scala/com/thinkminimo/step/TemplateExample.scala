@@ -1,6 +1,6 @@
 package com.thinkminimo.step
-import scala.xml.Node
 
+import xml.{Text, Node}
 
 class TemplateExample extends Step with UrlSupport {
 
@@ -108,7 +108,7 @@ class TemplateExample extends Step with UrlSupport {
   get("/") {
     Template.page("Step: Hello World",
     <h2>Hello world!</h2>
-    <p>Referer: { request referer }</p>
+    <p>Referer: { (request referer) map { Text(_) } getOrElse { <i>none</i> }}</p>
     <pre>Route: /</pre>
     )
   }

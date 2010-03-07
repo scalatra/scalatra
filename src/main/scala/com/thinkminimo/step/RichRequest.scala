@@ -12,6 +12,9 @@ case class RichRequest(r: HttpServletRequest) {
   @deprecated
   def port = Integer.toString(r.getServerPort)
 
-  def referer = r.getHeader("Referer")
+  def referer = r.getHeader("Referer") match {
+    case s: String => Some(s)
+    case null => None
+  }
 }
 

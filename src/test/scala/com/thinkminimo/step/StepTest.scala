@@ -46,7 +46,7 @@ class StepTestServlet extends Step {
   }
 
   get("/print_referer") {
-    request referer
+    (request referer) getOrElse ("NONE")
   }
 
   get("/binary/test") {
@@ -119,6 +119,12 @@ class StepTest extends StepSuite with ShouldMatchers {
   test("GET /print_referer should return Referer") {
     get("/print_referer", Map.empty[String, String], Map("Referer" -> "somewhere")) {
       body should equal ("somewhere")
+    }
+  }
+
+  test("GET /print_referer should return NONE when no referer") {
+    get("/print_referer") {
+      body should equal ("NONE")
     }
   }
 
