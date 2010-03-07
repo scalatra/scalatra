@@ -17,6 +17,10 @@ class SessionTestServlet extends Step {
       case _ => "None"
     }
   }
+
+  get("/session-option") {
+    sessionOption map { _ => "Some" } getOrElse "None"
+  }
 }
 
 class SessionTest extends StepSuite with ShouldMatchers {
@@ -42,6 +46,24 @@ class SessionTest extends StepSuite with ShouldMatchers {
       }
       get("/session") {
         body should equal (data)        
+      }
+    }
+  }
+
+  test("sessionOption should be None when no session exists") {
+    session {
+      get("/session-option") {
+        body should equal ("None")
+      }
+    }
+  }
+
+  test("sessionOption should be Some when a session is active") {
+    session {
+      post("/session") {}
+
+      get("/session-option") {
+        body should equal("Some")
       }
     }
   }

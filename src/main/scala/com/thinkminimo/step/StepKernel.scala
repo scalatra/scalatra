@@ -7,7 +7,6 @@ import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
-import Session._
 
 object StepKernel
 {
@@ -26,11 +25,11 @@ trait StepKernel
   protected def contentType_=(value: String): Unit = response.setContentType(value)
 
   protected val defaultCharacterEncoding = "UTF-8"
-  private val _session    = new DynamicVariable[Session](null)
   private val _response   = new DynamicVariable[HttpServletResponse](null)
-  private val _request    = new DynamicVariable[StepRequest](null)
+  private val _request    = new DynamicVariable[HttpServletRequest](null)
 
-  private implicit def requestToStepRequest(r: HttpServletRequest) = StepRequest(r)
+  protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
+  protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
 
   protected class Route(val path: String, val action: Action) {
     val pattern = """:\w+"""
@@ -65,12 +64,10 @@ trait StepKernel
 
     _request.withValue(request) {
       _response.withValue(response) {
-        _session.withValue(request) {
-          _multiParams.withValue(Map() ++ realMultiParams withDefaultValue(Seq.empty)) {
-            doBefore()
-            if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-              renderResponse(doNotFound())
-          }
+        _multiParams.withValue(Map() ++ realMultiParams withDefaultValue(Seq.empty)) {
+          doBefore()
+          if (Routes(request.getMethod) find isMatchingRoute isEmpty)
+            renderResponse(doNotFound())
         }
       }
     }
@@ -125,7 +122,11 @@ trait StepKernel
   protected def redirect(uri: String) = (_response value) sendRedirect uri
   protected def request = _request value
   protected def response = _response value
-  protected def session = _session value
+  protected def session = request.getSession
+  protected def sessionOption = request.getSession(false) match {
+    case s: HttpSession => Some(s)
+    case null => None
+  }
   protected def status(code: Int) = (_response value) setStatus code
 
   protected val List(get, post, put, delete) = protocols map routeSetter

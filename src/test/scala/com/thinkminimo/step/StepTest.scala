@@ -46,11 +46,7 @@ class StepTestServlet extends Step {
   }
 
   get("/print_referer") {
-    request referer
-  }
-
-  get("/print_host") {
-    "host:" + request.host + ",port:" + request.port
+    (request referer) getOrElse ("NONE")
   }
 
   get("/binary/test") {
@@ -126,17 +122,9 @@ class StepTest extends StepSuite with ShouldMatchers {
     }
   }
 
-  test("GET /print_host should return the host's name/port") {
-	get("/print_host", Map.empty[String, String], Map("Host" -> "localhost:80")) {
-      body should equal("host:localhost,port:80")
-	}
-
-    get("/print_host", Map.empty[String, String], Map("Host" -> "hoge.com:1234")) {
-      body should equal("host:hoge.com,port:1234")
-    }
-    
-    get("/print_host", Map.empty[String, String], Map("Host" -> "1.2.3.4")) {
-      body should equal("host:1.2.3.4,port:")
+  test("GET /print_referer should return NONE when no referer") {
+    get("/print_referer") {
+      body should equal ("NONE")
     }
   }
 

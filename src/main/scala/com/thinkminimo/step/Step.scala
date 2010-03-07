@@ -7,7 +7,6 @@ import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
-import Session._
 
 abstract class Step extends HttpServlet with StepKernel
 {
