@@ -3,12 +3,12 @@ package com.thinkminimo.step
 import util.matching.Regex
 import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
 
-object StepRequest {
+object RichRequest {
   val HostPortRegex = new Regex("([^:]*):?(.*)")
 }
 
-case class StepRequest(r: HttpServletRequest) extends HttpServletRequestWrapper(r) {
-  import StepRequest._
+case class RichRequest(r: HttpServletRequest) {
+  import RichRequest._
 
   lazy val List(host, port) = r.getHeader("Host") match {
     case null => List("","");

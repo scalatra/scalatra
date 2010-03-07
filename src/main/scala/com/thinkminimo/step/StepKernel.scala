@@ -28,9 +28,9 @@ trait StepKernel
   protected val defaultCharacterEncoding = "UTF-8"
   private val _session    = new DynamicVariable[Session](null)
   private val _response   = new DynamicVariable[HttpServletResponse](null)
-  private val _request    = new DynamicVariable[StepRequest](null)
+  private val _request    = new DynamicVariable[HttpServletRequest](null)
 
-  private implicit def requestToStepRequest(r: HttpServletRequest) = StepRequest(r)
+  protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
 
   protected class Route(val path: String, val action: Action) {
     val pattern = """:\w+"""
