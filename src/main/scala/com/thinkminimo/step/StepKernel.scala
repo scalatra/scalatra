@@ -53,7 +53,7 @@ trait StepKernel
 
     def isMatchingRoute(route: Route) = {
       def exec(args: MultiParams) = {
-        _multiParams.withValue(args ++ realMultiParams withDefaultValue(Seq.empty)) {
+        _multiParams.withValue(args ++ realMultiParams) {
           renderResponse(route.action())
         }
       }
@@ -64,7 +64,7 @@ trait StepKernel
 
     _request.withValue(request) {
       _response.withValue(response) {
-        _multiParams.withValue(Map() ++ realMultiParams withDefaultValue(Seq.empty)) {
+        _multiParams.withValue(Map() ++ realMultiParams) {
           doBefore()
           if (Routes(request.getMethod) find isMatchingRoute isEmpty)
             renderResponse(doNotFound())
@@ -108,13 +108,13 @@ trait StepKernel
     // Whenever we set _multiParams, set a view for _params as well
     override def withValue[S](newval: MultiParams)(thunk: => S) = {
       super.withValue(newval) {
-        _params.withValue(newval filter { case(k, v) => !v.isEmpty } transform { (k, v) => v.head }) {
+        _params.withValue(newval transform { (k, v) => v.head }) {
           thunk
         }
       }
     }
   }
-  protected def multiParams: MultiParams = _multiParams value
+  protected def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
 
   private val _params = new DynamicVariable[Map[String, String]](Map())
   protected def params = _params value
