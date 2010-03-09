@@ -10,7 +10,7 @@ class TemplateExample extends Step with UrlSupport {
 
   get("/") {
 	val content = "this is some fake content for the web page"
-	render("index.scaml",("content"-> content))
+	Template.render("index.scaml",("content"-> content))
     )
   }
 
