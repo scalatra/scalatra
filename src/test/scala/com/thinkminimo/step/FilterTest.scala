@@ -1,6 +1,6 @@
 package com.thinkminimo.step
 
-import org.scalatest.BeforeAndAfter
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.ShouldMatchers
 
 class FilterTestServlet extends Step {
@@ -21,7 +21,7 @@ class FilterTestServlet extends Step {
   post("/reset-before-counter") { beforeCount = 0 }
 }
 
-class FilterTest extends StepSuite with BeforeAndAfter with ShouldMatchers {
+class FilterTest extends StepSuite with BeforeAndAfterEach with ShouldMatchers {
   route(classOf[FilterTestServlet], "/*")
   
   override def beforeEach() {
