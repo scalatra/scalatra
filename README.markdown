@@ -135,6 +135,10 @@ Supported Methods
 
     Respond to a PUT request.
 
+*   __after__
+
+    Run some block after the matching get/post/delete/put block is run.
+
 Sessions
 ========
 Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at src/test/scala/StepTest.scala
