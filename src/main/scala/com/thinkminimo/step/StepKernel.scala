@@ -4,9 +4,9 @@ import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
-import scala.collection.mutable.HashSet
 import scala.collection.jcl.Conversions._
 import scala.xml.NodeSeq
+import collection.mutable.{ListBuffer, HashSet}
 
 object StepKernel
 {
@@ -64,7 +64,7 @@ trait StepKernel
     _request.withValue(request) {
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
-          doBefore()
+          beforeFilters foreach { _() }
           if (Routes(request.getMethod) find isMatchingRoute isEmpty)
             renderResponse(doNotFound())
         }
@@ -74,8 +74,8 @@ trait StepKernel
 
   protected def requestPath: String
 
-  private var doBefore: () => Unit = { () => () }
-  protected def before(fun: => Any) = doBefore = { () => fun; () }
+  private val beforeFilters = new ListBuffer[() => Any]
+  protected def before(fun: => Any) = beforeFilters += { () => fun }
 
   protected var doNotFound: Action
   protected def notFound(fun: => Any) = doNotFound = { () => fun }

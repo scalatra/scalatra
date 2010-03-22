@@ -21,8 +21,21 @@ class FilterTestServlet extends Step {
   post("/reset-before-counter") { beforeCount = 0 }
 }
 
+class MultipleBeforeFilterTestServlet extends Step {
+  before {
+    response.getWriter.print("one\n")
+  }
+
+  before {
+    response.getWriter.print("two\n")
+  }
+
+  get("/") {}
+}
+
 class FilterTest extends StepSuite with BeforeAndAfterEach with ShouldMatchers {
   route(classOf[FilterTestServlet], "/*")
+  route(classOf[MultipleBeforeFilterTestServlet], "/multiple-before-filters/*")
   
   override def beforeEach() {
 	post("/reset-before-counter") {}
@@ -46,6 +59,12 @@ class FilterTest extends StepSuite with BeforeAndAfterEach with ShouldMatchers {
   test("before can see query parameters") {
     get("/", "body" -> "foo") {
       body should equal ("foo")
+    }
+  }
+
+  test("supports multiple before filters") {
+    get("/multiple-before-filters/") {
+      body should equal ("one\ntwo\n")
     }
   }
 }
