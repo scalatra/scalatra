@@ -7,7 +7,7 @@ import org.mortbay.jetty.testing.{ServletTester, HttpTester}
 
 class RequestBodyTestServlet extends Step {
   get("/request-body") {
-    Source.fromInputStream(request.getInputStream).getLines.mkString
+    Source.fromInputStream(request.getInputStream).getLines().mkString
   }
 }
 
