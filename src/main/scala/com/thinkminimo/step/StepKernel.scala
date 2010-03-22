@@ -67,6 +67,7 @@ trait StepKernel
           beforeFilters foreach { _() }
           if (Routes(request.getMethod) find isMatchingRoute isEmpty)
             renderResponse(doNotFound())
+          afterFilters foreach { _() }
         }
       }
     }
@@ -76,6 +77,9 @@ trait StepKernel
 
   private val beforeFilters = new ListBuffer[() => Any]
   protected def before(fun: => Any) = beforeFilters += { () => fun }
+
+  private val afterFilters = new ListBuffer[() => Any]
+  protected def after(fun: => Any) = afterFilters += { () => fun }
 
   protected var doNotFound: Action
   protected def notFound(fun: => Any) = doNotFound = { () => fun }
