@@ -64,10 +64,14 @@ trait StepKernel
     _request.withValue(request) {
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
-          beforeFilters foreach { _() }
-          if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-            renderResponse(doNotFound())
-          afterFilters foreach { _() }
+          try {
+            beforeFilters foreach { _() }
+            if (Routes(request.getMethod) find isMatchingRoute isEmpty)
+              renderResponse(doNotFound())
+          }
+          finally {
+            afterFilters foreach { _() }
+          }
         }
       }
     }

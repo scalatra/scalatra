@@ -28,7 +28,11 @@ class FilterTestServlet extends Step {
   get("/before-counter") { beforeCount }
 
   get("/after-counter") { afterCount }
-  
+
+  get("/demons-be-here") {
+    throw new RuntimeException
+  }
+
   post("/reset-counters") {
     beforeCount = 0
     afterCount = 0
@@ -110,6 +114,13 @@ class FilterTest extends StepSuite with BeforeAndAfterEach with ShouldMatchers {
   test("after can see query parameters") {
     get("/", "after" -> "foo") {
       body should equal ("foo")
+    }
+  }
+
+  test("after is called even if route handler throws exception") {
+    get("/demons-be-here") {}
+    get("/after-counter") {
+      body should equal("2")
     }
   }
 }
