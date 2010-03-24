@@ -165,5 +165,4 @@ class StepTest extends StepSuite with ShouldMatchers {
       response.getHeader("testHeader") should equal("testHeader")
     }
   }
-
 }
