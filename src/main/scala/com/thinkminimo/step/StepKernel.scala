@@ -57,6 +57,7 @@ trait StepKernel
           renderResponse(route.action())
             } catch {
               case StatusException(code, msg) => {
+                _response.value.reset
                 _response.value.sendError(code, msg)
               }
             }
