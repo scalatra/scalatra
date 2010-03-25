@@ -135,6 +135,10 @@ Supported Methods
 
     Respond to a PUT request.
 
+*   __error__
+
+    Run some block when an error is caught.  The error is available in the variable `caughtException`.
+
 *   __after__
 
     Run some block after the matching get/post/delete/put block is run.

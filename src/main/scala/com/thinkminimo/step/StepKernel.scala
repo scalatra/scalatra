@@ -69,6 +69,12 @@ trait StepKernel
             if (Routes(request.getMethod) find isMatchingRoute isEmpty)
               renderResponse(doNotFound())
           }
+          catch {
+            case e => _caughtException.withValue(e) {
+              status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+              renderResponse(errorHandler()) 
+            }
+          }
           finally {
             afterFilters foreach { _() }
           }
@@ -87,6 +93,11 @@ trait StepKernel
 
   protected var doNotFound: Action
   protected def notFound(fun: => Any) = doNotFound = { () => fun }
+
+  private var errorHandler: Action = { () => throw caughtException }
+  protected def error(fun: => Any) = errorHandler = { () => fun }
+  private val _caughtException = new DynamicVariable[Throwable](null)
+  protected def caughtException = _caughtException.value
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
