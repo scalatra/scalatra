@@ -56,12 +56,9 @@ trait StepKernel
           try {
             renderResponse(route.action())
           } catch {
-            case StatusException(code, msg) => {
-              msg match {
-                case Some(x) => response.sendError(code, x)
-                case None => response.sendError(code)
-              }
-            }
+            case StatusException(Some(code), Some(msg)) => response.sendError(code, msg)
+            case StatusException(Some(code), None) => response.sendError(code)
+            case StatusException(None, _) =>
           }
         }
       }
@@ -155,8 +152,9 @@ trait StepKernel
     case null => None
   }
   protected def status(code: Int) = (_response value) setStatus code
-  protected def halt(code: Int, msg: String) = throw new StatusException(code, Some(msg))
-  protected def halt(code: Int) = throw new StatusException(code, None)
+  protected def halt(code: Int, msg: String) = throw new StatusException(Some(code), Some(msg))
+  protected def halt(code: Int) = throw new StatusException(Some(code), None)
+  protected def halt() = throw new StatusException(None, None)
 
   protected val List(get, post, put, delete) = protocols map routeSetter
 
@@ -167,4 +165,4 @@ trait StepKernel
   }
 }
 
-case class StatusException(val code: Int, val msg: Option[String]) extends Throwable
+case class StatusException(val code: Option[Int], val msg: Option[String]) extends Throwable

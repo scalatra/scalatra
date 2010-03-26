@@ -1,6 +1,7 @@
 package com.thinkminimo.step
 
 import org.scalatest.matchers.ShouldMatchers
+import javax.servlet.http.HttpServletResponse
 
 class HaltTestServlet extends Step {
   get("/halts-response") {
@@ -12,6 +13,12 @@ class HaltTestServlet extends Step {
   get("/halt-no-message") {
     halt(418) // I'm a teapot
     "This response MAY be short and stout."
+  }
+
+  get("/halt-no-status") {
+    status(HttpServletResponse.SC_ACCEPTED)
+    halt()
+    "this content must not be returned"
   }
 }
 
@@ -36,6 +43,13 @@ class HaltTest extends StepSuite with ShouldMatchers {
     get("/halt-no-message") {
       status should equal(418)
       body should not include "short and stout"
+    }
+  }
+
+  test("halt without status halts without affecting the status") {
+    get("/halt-no-status") {
+      status should equal (HttpServletResponse.SC_ACCEPTED)
+      body should not include ("this content must not be returned")
     }
   }
 }
