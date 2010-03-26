@@ -53,7 +53,13 @@ trait StepKernel
     def isMatchingRoute(route: Route) = {
       def exec(args: MultiParams) = {
         _multiParams.withValue(args ++ realMultiParams) {
+          try {
           renderResponse(route.action())
+            } catch {
+              case StatusException(code, msg) => {
+                _response.value.sendError(code, msg)
+              }
+            }
         }
       }
       route(requestPath) map exec isDefined
@@ -116,10 +122,10 @@ trait StepKernel
       case bytes: Array[Byte] =>
         response.getOutputStream.write(bytes)
       case _: Unit =>
-        // If an action returns Unit, it assumes responsibility for the response
+      // If an action returns Unit, it assumes responsibility for the response
       case x: Any  =>
         response.getWriter.print(x.toString)
-	  }
+    }
   }
 
   private val _multiParams = new DynamicVariable[MultiParams](Map()) {
@@ -141,6 +147,7 @@ trait StepKernel
   protected def request = _request value
   protected def response = _response value
   protected def session = request.getSession
+  protected def halt(code: Int, msg: String) = throw new StatusException(code, msg)
   protected def sessionOption = request.getSession(false) match {
     case s: HttpSession => Some(s)
     case null => None
@@ -155,3 +162,5 @@ trait StepKernel
     (g _).curry
   }
 }
+
+case class StatusException(val code: Int, val msg: String) extends Throwable

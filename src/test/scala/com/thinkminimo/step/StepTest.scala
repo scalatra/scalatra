@@ -56,11 +56,17 @@ class StepTestServlet extends Step {
   get("/returns-unit") {
     ()
   }
+
+  get("/halts-response") {
+    response.setHeader("testHeader", "testHeader")
+    halt(501, "Not implemented (for test)")
+    "this content must not be returned"
+  }
 }
 
 class StepTest extends StepSuite with ShouldMatchers {
   route(classOf[StepTestServlet], "/*")
-  
+
   test("GET / should return 'root'") {
     get("/") {
       body should equal ("root")
@@ -112,7 +118,7 @@ class StepTest extends StepSuite with ShouldMatchers {
 
   test("POST /post/test with posted_value=<multi-byte str> should return the multi-byte str") {
     post("/post/test", "posted_value" -> "こんにちは") {
-      body should equal ("こんにちは")      
+      body should equal ("こんにちは")
     }
   }
 
@@ -133,7 +139,7 @@ class StepTest extends StepSuite with ShouldMatchers {
       body should equal ("posted_value is null")
     }
   }
-  
+
   test("render binary response when action returns a byte array") {
     get("/binary/test") {
       body should equal("test")
@@ -143,6 +149,20 @@ class StepTest extends StepSuite with ShouldMatchers {
   test("Do not output response body if action returns Unit") {
     get("/returns-unit") {
       body should equal ("")
+    }
+  }
+
+  test("GET /halts-response halts processing of the action") {
+    get("/halts-response") {
+      status should equal(501)
+      body should not equal("this content must not be returned")
+      body.contains("Not implemented (for test)")
+    }
+  }
+
+  test("GET /halts-response - halt doesn't clear headers") {
+    get("/halts-response") {
+      response.getHeader("testHeader") should equal("testHeader")
     }
   }
 }
