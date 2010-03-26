@@ -71,9 +71,9 @@ trait StepKernel
               result = doNotFound()
           }
           catch {
-            case StatusException(Some(code), Some(msg)) => response.sendError(code, msg)
-            case StatusException(Some(code), None) => response.sendError(code)
-            case StatusException(None, _) =>
+            case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
+            case HaltException(Some(code), None) => response.sendError(code)
+            case HaltException(None, _) =>
             case e => _caughtThrowable.withValue(e) {
               status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
               result = errorHandler() 
@@ -151,9 +151,11 @@ trait StepKernel
     case null => None
   }
   protected def status(code: Int) = (_response value) setStatus code
-  protected def halt(code: Int, msg: String) = throw new StatusException(Some(code), Some(msg))
-  protected def halt(code: Int) = throw new StatusException(Some(code), None)
-  protected def halt() = throw new StatusException(None, None)
+
+  protected def halt(code: Int, msg: String) = throw new HaltException(Some(code), Some(msg))
+  protected def halt(code: Int) = throw new HaltException(Some(code), None)
+  protected def halt() = throw new HaltException(None, None)
+  private case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
 
   protected val List(get, post, put, delete) = protocols map routeSetter
 
@@ -163,5 +165,3 @@ trait StepKernel
     (g _).curry
   }
 }
-
-case class StatusException(val code: Option[Int], val msg: Option[String]) extends Throwable
