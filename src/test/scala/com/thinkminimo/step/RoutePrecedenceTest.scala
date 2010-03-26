@@ -20,6 +20,34 @@ class RoutePrecedenceTestChildServlet extends RoutePrecedenceTestBaseServlet {
   get("/hide-route") {
     "visible"
   }
+
+  get("/pass") {
+    response.getWriter.write("3")
+  }
+
+  get("/pass") {
+    response.getWriter.write("1")
+    pass()
+    response.getWriter.write("2")
+  }
+
+  get("/pass-to-not-found") {
+    response.getWriter.write("a")
+    pass()
+    response.getWriter.write("b")
+  }
+
+  get("/do-not-pass") {
+    response.getWriter.write("2")
+  }
+
+  get("/do-not-pass") {
+    response.getWriter.write("1")
+  }
+
+  notFound {
+    response.getWriter.write("c")
+  }
 }
 
 class RoutePrecedenceTest extends StepSuite with ShouldMatchers {
@@ -38,6 +66,24 @@ class RoutePrecedenceTest extends StepSuite with ShouldMatchers {
      */
     get("/hide-route") {
       "visible"
+    }
+  }
+
+  test("pass immediately passes to next matching route") {
+    get("/pass") {
+      body should equal ("13")
+    }
+  }
+
+  test("pass invokes notFound action if no more matching routes") {
+    get("/pass-to-not-found") {
+      body should equal ("ac")
+    }
+  }
+
+  test("does not keep executing routes without pass") {
+    get("/do-not-pass") {
+      body should equal ("1")
     }
   }
 }

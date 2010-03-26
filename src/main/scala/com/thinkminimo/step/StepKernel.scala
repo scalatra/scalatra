@@ -36,8 +36,20 @@ trait StepKernel
     val names = new Regex(pattern) findAllIn path toList
     val re = new Regex("^%s$" format path.replaceAll(pattern, "(.*?)"))
 
-    def apply(realPath: String): Option[MultiParams] =
+    def apply(realPath: String): Option[Any] = extractMultiParams(realPath) flatMap { invokeAction(_) }
+
+    private def extractMultiParams(realPath: String) =
       re findFirstMatchIn realPath map (x => Map(names zip (x.subgroups map { Seq(_) })  : _*))
+
+    private def invokeAction(routeParams: MultiParams) =
+      _multiParams.withValue(multiParams ++ routeParams) {
+        try {
+          Some(action.apply())
+        }
+        catch {
+          case e: PassException => None
+        }
+      }
 
     override def toString() = path
   }
@@ -51,15 +63,6 @@ trait StepKernel
     val realMultiParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
     var result: Any = ()
 
-    def isMatchingRoute(route: Route) = {
-      def exec(args: MultiParams) = {
-        _multiParams.withValue(args ++ realMultiParams) {
-          result = route.action()
-        }
-      }
-      route(requestPath) map exec isDefined
-    }
-
     response.setCharacterEncoding(defaultCharacterEncoding)
 
     _request.withValue(request) {
@@ -67,8 +70,7 @@ trait StepKernel
         _multiParams.withValue(Map() ++ realMultiParams) {
           try {
             beforeFilters foreach { _() }
-            if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-              result = doNotFound()
+            result = Routes(request.getMethod).projection.flatMap { _(requestPath) }.firstOption.getOrElse(doNotFound())
           }
           catch {
             case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
@@ -87,7 +89,7 @@ trait StepKernel
       }
     }
   }
-
+  
   protected def requestPath: String
 
   private val beforeFilters = new ListBuffer[() => Any]
@@ -156,6 +158,9 @@ trait StepKernel
   protected def halt(code: Int) = throw new HaltException(Some(code), None)
   protected def halt() = throw new HaltException(None, None)
   private case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
+
+  protected def pass() = throw new PassException
+  private class PassException extends RuntimeException
 
   protected val List(get, post, put, delete) = protocols map routeSetter
 
