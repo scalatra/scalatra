@@ -26,6 +26,10 @@ class HaltTestServlet extends Step {
       halt(503)
     }
   }
+
+  after {
+    response.setHeader("After-Block-Ran", "true")
+  }
 }
 
 class HaltTest extends StepSuite with ShouldMatchers {
@@ -62,6 +66,17 @@ class HaltTest extends StepSuite with ShouldMatchers {
   test("can halt out of begin filter") {
     get("/halts-response", "haltBefore" -> "true") {
       status should equal(503)
+    }
+  }
+
+  test("after filter runs after halt") {
+    /*
+     * This behavior is not entirely intuitive, but it's what Sinatra does.  If you're using your after filters for
+     * logging, then it's a good thing.  If you're using your after filters to modify the response, then this might
+     * bite you.
+     */
+    get("/halt-no-status") {
+      response.getHeader("After-Block-Ran") should equal ("true")
     }
   }
 }
