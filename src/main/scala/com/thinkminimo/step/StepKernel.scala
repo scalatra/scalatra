@@ -54,12 +54,12 @@ trait StepKernel
       def exec(args: MultiParams) = {
         _multiParams.withValue(args ++ realMultiParams) {
           try {
-          renderResponse(route.action())
-            } catch {
-              case StatusException(code, msg) => {
-                _response.value.sendError(code, msg)
-              }
+            renderResponse(route.action())
+          } catch {
+            case StatusException(code, msg) => {
+              _response.value.sendError(code, msg)
             }
+          }
         }
       }
       route(requestPath) map exec isDefined
