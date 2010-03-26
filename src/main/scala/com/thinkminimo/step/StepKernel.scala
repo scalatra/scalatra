@@ -49,11 +49,12 @@ trait StepKernel
       request.setCharacterEncoding(defaultCharacterEncoding)
 
     val realMultiParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
+    var result: Any = ()
 
     def isMatchingRoute(route: Route) = {
       def exec(args: MultiParams) = {
         _multiParams.withValue(args ++ realMultiParams) {
-          renderResponse(route.action())
+          result = route.action()
         }
       }
       route(requestPath) map exec isDefined
@@ -67,7 +68,7 @@ trait StepKernel
           try {
             beforeFilters foreach { _() }
             if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-              renderResponse(doNotFound())
+              result = doNotFound()
           }
           catch {
             case StatusException(Some(code), Some(msg)) => response.sendError(code, msg)
@@ -75,11 +76,12 @@ trait StepKernel
             case StatusException(None, _) =>
             case e => _caughtThrowable.withValue(e) {
               status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-              renderResponse(errorHandler()) 
+              result = errorHandler() 
             }
           }
           finally {
             afterFilters foreach { _() }
+            renderResponse(result)
           }
         }
       }
