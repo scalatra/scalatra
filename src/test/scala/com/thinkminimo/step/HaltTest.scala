@@ -38,8 +38,8 @@ class HaltTest extends StepSuite with ShouldMatchers {
   test("GET /halts-response halts processing of the action") {
     get("/halts-response") {
       status should equal(501)
-      body should not equal("this content must not be returned")
-      body.contains("Not implemented (for test)")
+      body should not include ("this content must not be returned")
+      body should include ("Not implemented (for test)")
     }
   }
 
