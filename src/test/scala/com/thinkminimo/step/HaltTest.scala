@@ -8,6 +8,11 @@ class HaltTestServlet extends Step {
     halt(501, "Not implemented (for test)")
     "this content must not be returned"
   }
+
+  get("/halt-no-message") {
+    halt(418) // I'm a teapot
+    "This response MAY be short and stout."
+  }
 }
 
 class HaltTest extends StepSuite with ShouldMatchers {
@@ -24,6 +29,13 @@ class HaltTest extends StepSuite with ShouldMatchers {
   test("GET /halts-response - halt doesn't clear headers") {
     get("/halts-response") {
       response.getHeader("testHeader") should equal("testHeader")
+    }
+  }
+
+  test("halt without a message halts") {
+    get("/halt-no-message") {
+      status should equal(418)
+      body should not include "short and stout"
     }
   }
 }
