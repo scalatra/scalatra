@@ -50,11 +50,12 @@ trait StepKernel
 
     val realMultiParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
       .transform { (k, v) => v: Seq[String] }
+    var result: Any = ()
 
     def isMatchingRoute(route: Route) = {
       def exec(args: MultiParams) = {
         _multiParams.withValue(args ++ realMultiParams) {
-          renderResponse(route.action())
+          result = route.action()
         }
       }
       route(requestPath) map exec isDefined
@@ -68,10 +69,20 @@ trait StepKernel
           try {
             beforeFilters foreach { _() }
             if (Routes(request.getMethod) find isMatchingRoute isEmpty)
-              renderResponse(doNotFound())
+              result = doNotFound()
+          }
+          catch {
+            case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
+            case HaltException(Some(code), None) => response.sendError(code)
+            case HaltException(None, _) =>
+            case e => _caughtThrowable.withValue(e) {
+              status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+              result = errorHandler() 
+            }
           }
           finally {
             afterFilters foreach { _() }
+            renderResponse(result)
           }
         }
       }
@@ -88,6 +99,11 @@ trait StepKernel
 
   protected var doNotFound: Action
   protected def notFound(fun: => Any) = doNotFound = { () => fun }
+
+  private var errorHandler: Action = { () => throw caughtThrowable }
+  protected def error(fun: => Any) = errorHandler = { () => fun }
+  private val _caughtThrowable = new DynamicVariable[Throwable](null)
+  protected def caughtThrowable = _caughtThrowable.value
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
@@ -106,10 +122,10 @@ trait StepKernel
       case bytes: Array[Byte] =>
         response.getOutputStream.write(bytes)
       case _: Unit =>
-        // If an action returns Unit, it assumes responsibility for the response
+      // If an action returns Unit, it assumes responsibility for the response
       case x: Any  =>
         response.getWriter.print(x.toString)
-	  }
+    }
   }
 
   private val _multiParams = new DynamicVariable[MultiParams](Map()) {
@@ -136,6 +152,11 @@ trait StepKernel
     case null => None
   }
   protected def status(code: Int) = (_response value) setStatus code
+
+  protected def halt(code: Int, msg: String) = throw new HaltException(Some(code), Some(msg))
+  protected def halt(code: Int) = throw new HaltException(Some(code), None)
+  protected def halt() = throw new HaltException(None, None)
+  private case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
 
   protected val List(get, post, put, delete) = protocols map routeSetter
 

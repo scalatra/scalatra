@@ -14,7 +14,7 @@ abstract class Step extends HttpServlet with StepKernel
 
   override def service(request: HttpServletRequest, response: HttpServletResponse) = handle(request, response)
 
-  // pathInfo is for path-mapped servlets (i.e., the mapping ends in "/*").  Path-mapped Stgep servlets will work even
+  // pathInfo is for path-mapped servlets (i.e., the mapping ends in "/*").  Path-mapped Step servlets will work even
   // if the servlet is not mapped to the context root.  Routes should contain everything matched by the "/*".
   //
   // If the servlet mapping is not path-mapped, then we fall back to the servletPath.  Routes should have a leading

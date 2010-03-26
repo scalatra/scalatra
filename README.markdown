@@ -3,7 +3,7 @@ About
 
 Step is a tiny Scala web framework inspired by [Sinatra](http://www.sinatrarb.com/) and originally based on some code I found on an [awesome blog post](http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework).
 
-Comments, issues, and pull requests are welcome.  Please also see the new [step-user](http://groups.google.com/group/step-user) mailing list.
+Comments, issues, and pull requests are welcome.  Please also see the new [step-user](http://groups.google.com/group/step-user) mailing list, or drop in on IRC at #stepframework on irc.freenode.org
 
 Example
 =======
@@ -134,6 +134,10 @@ Supported Methods
 *   __put(`path`)__
 
     Respond to a PUT request.
+
+*   __error__
+
+    Run some block when an error is caught.  The error is available in the variable `caughtThrowable`.
 
 *   __after__
 
