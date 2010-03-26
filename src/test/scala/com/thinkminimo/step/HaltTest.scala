@@ -20,6 +20,12 @@ class HaltTestServlet extends Step {
     halt()
     "this content must not be returned"
   }
+
+  before {
+    if (params.isDefinedAt("haltBefore")) {
+      halt(503)
+    }
+  }
 }
 
 class HaltTest extends StepSuite with ShouldMatchers {
@@ -50,6 +56,12 @@ class HaltTest extends StepSuite with ShouldMatchers {
     get("/halt-no-status") {
       status should equal (HttpServletResponse.SC_ACCEPTED)
       body should not include ("this content must not be returned")
+    }
+  }
+
+  test("can halt out of begin filter") {
+    get("/halts-response", "haltBefore" -> "true") {
+      status should equal(503)
     }
   }
 }

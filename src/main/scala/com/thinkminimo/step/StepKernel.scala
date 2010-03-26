@@ -53,13 +53,7 @@ trait StepKernel
     def isMatchingRoute(route: Route) = {
       def exec(args: MultiParams) = {
         _multiParams.withValue(args ++ realMultiParams) {
-          try {
-            renderResponse(route.action())
-          } catch {
-            case StatusException(Some(code), Some(msg)) => response.sendError(code, msg)
-            case StatusException(Some(code), None) => response.sendError(code)
-            case StatusException(None, _) =>
-          }
+          renderResponse(route.action())
         }
       }
       route(requestPath) map exec isDefined
@@ -76,6 +70,9 @@ trait StepKernel
               renderResponse(doNotFound())
           }
           catch {
+            case StatusException(Some(code), Some(msg)) => response.sendError(code, msg)
+            case StatusException(Some(code), None) => response.sendError(code)
+            case StatusException(None, _) =>
             case e => _caughtThrowable.withValue(e) {
               status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
               renderResponse(errorHandler()) 
