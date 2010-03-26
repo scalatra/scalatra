@@ -6,7 +6,7 @@ import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.jcl.Conversions._
 import scala.xml.NodeSeq
-import collection.mutable.{ListBuffer, HashSet}
+import collection.mutable.{ListBuffer, Map => MMap}
 
 object StepKernel
 {
@@ -19,7 +19,7 @@ import StepKernel._
 
 trait StepKernel
 {
-  protected val Routes      = Map(protocols map (_ -> new HashSet[Route]): _*)
+  protected val Routes = MMap(protocols map (_ -> List[Route]()): _*)
 
   protected def contentType = response.getContentType
   protected def contentType_=(value: String): Unit = response.setContentType(value)
@@ -161,7 +161,7 @@ trait StepKernel
 
   // functional programming means never having to repeat yourself
   private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
-    def g(path: String, fun: => Any) = Routes(protocol) += new Route(path, () => fun)
+    def g(path: String, fun: => Any) = Routes(protocol) = new Route(path, () => fun) :: Routes(protocol) 
     (g _).curry
   }
 }
