@@ -8,7 +8,7 @@ class ErrorHandlerTestServlet extends Step {
   }
 
   error {
-    "handled " + caughtException.getClass.getName
+    "handled " + caughtThrowable.getClass.getName
   }
 }
 

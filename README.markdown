@@ -137,7 +137,7 @@ Supported Methods
 
 *   __error__
 
-    Run some block when an error is caught.  The error is available in the variable `caughtException`.
+    Run some block when an error is caught.  The error is available in the variable `caughtThrowable`.
 
 *   __after__
 

@@ -70,7 +70,7 @@ trait StepKernel
               renderResponse(doNotFound())
           }
           catch {
-            case e => _caughtException.withValue(e) {
+            case e => _caughtThrowable.withValue(e) {
               status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
               renderResponse(errorHandler()) 
             }
@@ -94,10 +94,10 @@ trait StepKernel
   protected var doNotFound: Action
   protected def notFound(fun: => Any) = doNotFound = { () => fun }
 
-  private var errorHandler: Action = { () => throw caughtException }
+  private var errorHandler: Action = { () => throw caughtThrowable }
   protected def error(fun: => Any) = errorHandler = { () => fun }
-  private val _caughtException = new DynamicVariable[Throwable](null)
-  protected def caughtException = _caughtException.value
+  private val _caughtThrowable = new DynamicVariable[Throwable](null)
+  protected def caughtThrowable = _caughtThrowable.value
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
