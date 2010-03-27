@@ -56,6 +56,10 @@ class StepTestServlet extends Step {
   get("/returns-unit") {
     ()
   }
+
+  get("/trailing-slash-is-optional/?") {
+    "matched trailing slash route"
+  }
  }
 
 class StepTest extends StepSuite with ShouldMatchers {
@@ -143,6 +147,16 @@ class StepTest extends StepSuite with ShouldMatchers {
   test("Do not output response body if action returns Unit") {
     get("/returns-unit") {
       body should equal ("")
+    }
+  }
+
+  test("optional trailing slash if route ends in '/?'") {
+    get("/trailing-slash-is-optional") {
+      body should equal ("matched trailing slash route")
+    }
+
+    get("/trailing-slash-is-optional/") {
+      body should equal ("matched trailing slash route")
     }
   }
 }
