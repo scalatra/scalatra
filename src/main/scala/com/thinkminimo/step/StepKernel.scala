@@ -34,7 +34,7 @@ trait StepKernel
   protected class Route(val path: String, val action: Action) {
     val pattern = """:\w+"""
     val names = new Regex(pattern) findAllIn path toList
-    val re = new Regex("^%s$" format path.replaceAll(pattern, "(.*?)"))
+    val re = new Regex("^%s$" format path.replaceAll(pattern, "(.+?)"))
 
     def apply(realPath: String): Option[Any] = extractMultiParams(realPath) flatMap { invokeAction(_) }
 
