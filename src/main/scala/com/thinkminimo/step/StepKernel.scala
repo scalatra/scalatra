@@ -70,7 +70,7 @@ trait StepKernel
         _multiParams.withValue(Map() ++ realMultiParams) {
           try {
             beforeFilters foreach { _() }
-            result = Routes(request.getMethod).projection.flatMap { _(requestPath) }.firstOption.getOrElse(doNotFound())
+            result = Routes(request.getMethod).toStream.flatMap { _(requestPath) }.firstOption.getOrElse(doNotFound())
           }
           catch {
             case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
