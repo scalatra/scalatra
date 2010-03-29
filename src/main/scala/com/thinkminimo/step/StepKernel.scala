@@ -11,7 +11,7 @@ import collection.mutable.{ListBuffer, Map => MMap}
 object StepKernel
 {
   type MultiParams = Map[String, Seq[String]]
-  type ParamExtractor = () => Option[MultiParams]
+  type RouteMatcher = () => Option[MultiParams]
   type Action = () => Any
 
   val protocols = List("GET", "POST", "PUT", "DELETE")
@@ -32,8 +32,8 @@ trait StepKernel
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
 
-  protected class Route(val paramExtractor: ParamExtractor, val action: Action) {
-    def apply(realPath: String): Option[Any] = paramExtractor() flatMap { invokeAction(_) }
+  protected class Route(val routeMatcher: RouteMatcher, val action: Action) {
+    def apply(realPath: String): Option[Any] = routeMatcher() flatMap { invokeAction(_) }
 
     private def invokeAction(routeParams: MultiParams) =
       _multiParams.withValue(multiParams ++ routeParams) {
@@ -45,21 +45,21 @@ trait StepKernel
         }
       }
 
-    override def toString() = paramExtractor.toString
+    override def toString() = routeMatcher.toString
   }
 
-  protected implicit def string2ParamExtractor(path: String): ParamExtractor = {
+  protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
     val pattern = """:\w+"""
     val names = new Regex(pattern) findAllIn path toList
     val re = new Regex("^%s$" format path.replaceAll(pattern, "(.+?)"))
     // By overriding toString, we can list the available routes in the default notFound handler.
-    new ParamExtractor {
+    new RouteMatcher {
       def apply() = re findFirstMatchIn requestPath map (x => Map(names zip (x.subgroups map { Seq(_) })  : _*))
       override def toString = path
     }
   }
 
-  protected implicit def booleanBlock2ParamExtractor(matcher: => Boolean): ParamExtractor =
+  protected implicit def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
     () => { if (matcher) Some(Map.empty) else None }
   
   protected def handle(request: HttpServletRequest, response: HttpServletResponse) {
@@ -172,9 +172,9 @@ trait StepKernel
   protected val List(get, post, put, delete) = protocols map routeSetter
 
   // functional programming means never having to repeat yourself
-  private def routeSetter(protocol: String): ParamExtractor => (=> Any) => Unit = {
-    def g(paramExtractor: ParamExtractor, fun: => Any) =
-      Routes(protocol) = new Route(paramExtractor, () => fun) :: Routes(protocol) 
+  private def routeSetter(protocol: String): RouteMatcher => (=> Any) => Unit = {
+    def g(routeMatcher: RouteMatcher, fun: => Any) =
+      Routes(protocol) = new Route(routeMatcher, () => fun) :: Routes(protocol) 
     (g _).curry
   }
 }
