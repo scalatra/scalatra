@@ -61,16 +61,15 @@ trait StepKernel
       request.setCharacterEncoding(defaultCharacterEncoding)
 
     val realMultiParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
-    var result: Any = ()
 
     response.setCharacterEncoding(defaultCharacterEncoding)
 
     _request.withValue(request) {
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
-          try {
+          val result = try {
             beforeFilters foreach { _() }
-            result = Routes(request.getMethod).toStream.flatMap { _(requestPath) }.firstOption.getOrElse(doNotFound())
+            Routes(request.getMethod).toStream.flatMap { _(requestPath) }.firstOption.getOrElse(doNotFound())
           }
           catch {
             case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
@@ -78,13 +77,13 @@ trait StepKernel
             case HaltException(None, _) =>
             case e => _caughtThrowable.withValue(e) {
               status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-              result = errorHandler() 
+              errorHandler()
             }
           }
           finally {
             afterFilters foreach { _() }
-            renderResponse(result)
           }
+          renderResponse(result)
         }
       }
     }
