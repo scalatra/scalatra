@@ -11,6 +11,7 @@ import collection.mutable.{ListBuffer, Map => MMap}
 object StepKernel
 {
   type MultiParams = Map[String, Seq[String]]
+  type ParamExtractor = () => Option[MultiParams]
   type Action = () => Any
 
   val protocols = List("GET", "POST", "PUT", "DELETE")
@@ -31,15 +32,8 @@ trait StepKernel
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
 
-  protected class Route(val path: String, val action: Action) {
-    val pattern = """:\w+"""
-    val names = new Regex(pattern) findAllIn path toList
-    val re = new Regex("^%s$" format path.replaceAll(pattern, "(.+?)"))
-
-    def apply(realPath: String): Option[Any] = extractMultiParams(realPath) flatMap { invokeAction(_) }
-
-    private def extractMultiParams(realPath: String) =
-      re findFirstMatchIn realPath map (x => Map(names zip (x.subgroups map { Seq(_) })  : _*))
+  protected class Route(val paramExtractor: ParamExtractor, val action: Action) {
+    def apply(realPath: String): Option[Any] = paramExtractor() flatMap { invokeAction(_) }
 
     private def invokeAction(routeParams: MultiParams) =
       _multiParams.withValue(multiParams ++ routeParams) {
@@ -51,9 +45,23 @@ trait StepKernel
         }
       }
 
-    override def toString() = path
+    override def toString() = paramExtractor.toString
   }
 
+  protected implicit def string2ParamExtractor(path: String): ParamExtractor = {
+    val pattern = """:\w+"""
+    val names = new Regex(pattern) findAllIn path toList
+    val re = new Regex("^%s$" format path.replaceAll(pattern, "(.+?)"))
+    // By overriding toString, we can list the available routes in the default notFound handler.
+    new ParamExtractor {
+      def apply() = re findFirstMatchIn requestPath map (x => Map(names zip (x.subgroups map { Seq(_) })  : _*))
+      override def toString = path
+    }
+  }
+
+  protected implicit def booleanBlock2ParamExtractor(matcher: => Boolean): ParamExtractor =
+    () => { if (matcher) Some(Map.empty) else None }
+  
   protected def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
@@ -164,8 +172,9 @@ trait StepKernel
   protected val List(get, post, put, delete) = protocols map routeSetter
 
   // functional programming means never having to repeat yourself
-  private def routeSetter(protocol: String): (String) => (=> Any) => Unit = {
-    def g(path: String, fun: => Any) = Routes(protocol) = new Route(path, () => fun) :: Routes(protocol) 
+  private def routeSetter(protocol: String): ParamExtractor => (=> Any) => Unit = {
+    def g(paramExtractor: ParamExtractor, fun: => Any) =
+      Routes(protocol) = new Route(paramExtractor, () => fun) :: Routes(protocol) 
     (g _).curry
   }
 }
