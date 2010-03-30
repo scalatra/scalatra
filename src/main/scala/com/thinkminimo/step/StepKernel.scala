@@ -48,7 +48,7 @@ trait StepKernel
     override def toString() = routeMatcher.toString
   }
 
-  protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
+  private def string2RouteMatcher(path: String): RouteMatcher = {
     // TODO put this out of its misery
     val (re, names) = {
       var names = new ListBuffer[String]
@@ -88,7 +88,7 @@ trait StepKernel
     }
   }
 
-  protected implicit def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
+  private def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
     () => { if (matcher) Some(Map.empty) else None }
   
   protected def handle(request: HttpServletRequest, response: HttpServletResponse) {
@@ -198,12 +198,37 @@ trait StepKernel
   protected def pass() = throw new PassException
   private class PassException extends RuntimeException
 
-  protected val List(get, post, put, delete) = protocols map routeSetter
+  protected def get(path: String)(action: => Any) = addPathRoute("GET", path, action)
+  protected def get(condition: => Boolean)(action: => Any) = addConditionRoute("GET", condition, action)
+  protected def get(path: String, condition: => Boolean)(action: => Any) =
+    addPathAndConditionRoute("GET", path, condition, action)
 
-  // functional programming means never having to repeat yourself
-  private def routeSetter(protocol: String): RouteMatcher => (=> Any) => Unit = {
-    def g(routeMatcher: RouteMatcher, fun: => Any) =
-      Routes(protocol) = new Route(routeMatcher, () => fun) :: Routes(protocol) 
-    (g _).curry
+  protected def post(path: String)(action: => Any) = addPathRoute("POST", path, action)
+  protected def post(condition: => Boolean)(action: => Any) = addConditionRoute("POST", condition, action)
+  protected def post(path: String, condition: => Boolean)(action: => Any) =
+    addPathAndConditionRoute("POST", path, condition, action)
+
+  protected def put(path: String)(action: => Any) = addPathRoute("PUT", path, action)
+  protected def put(condition: => Boolean)(action: => Any) = addConditionRoute("PUT", condition, action)
+  protected def put(path: String, condition: => Boolean)(action: => Any) =
+    addPathAndConditionRoute("PUT", path, condition, action)
+
+  protected def delete(path: String)(action: => Any) = addPathRoute("DELETE", path, action)
+  protected def delete(condition: => Boolean)(action: => Any) = addConditionRoute("DELETE", condition, action)
+  protected def delete(path: String, condition: => Boolean)(action: => Any) =
+    addPathAndConditionRoute("DELETE", path, condition, action)
+
+  private def addPathRoute(protocol: String, path: String, action: => Any): Unit =
+    addRoute(protocol, string2RouteMatcher(path), action)
+
+  private def addConditionRoute(protocol: String, condition: => Boolean, action: => Any): Unit =
+    addRoute(protocol, booleanBlock2RouteMatcher(condition), action)
+
+  private def addPathAndConditionRoute(protocol: String, path: String, condition: => Boolean, action: => Any): Unit = {
+    val routeMatcher = () => if (condition) string2RouteMatcher(path).apply() else None
+    addRoute(protocol, routeMatcher, action)
   }
+
+  private def addRoute(protocol: String, routeMatcher: RouteMatcher, action: => Any): Unit =
+    Routes(protocol) = new Route(routeMatcher, () => action) :: Routes(protocol) 
 }

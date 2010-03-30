@@ -49,6 +49,14 @@ class RouteTestServlet extends Step {
   get("/test(bar)") {
     "test(bar)"
   }
+
+  get("/conditional") {
+    "false"
+  }
+
+  get("/conditional", params.getOrElse("condition", "false") == "true") {
+    "true"
+  }
 }
 
 class RouteTest extends StepSuite with ShouldMatchers {
@@ -130,6 +138,16 @@ class RouteTest extends StepSuite with ShouldMatchers {
   test("literally matches () in paths") {
     get("/test(bar)") {
       body should equal ("test(bar)")
+    }
+  }
+
+  test("supports conditional path routes") {
+    get("/conditional", "condition" -> "true") {
+      body should equal ("true")
+    }
+
+    get("/conditional") {
+      body should equal ("false")
     }
   }
 }
