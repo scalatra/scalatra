@@ -51,10 +51,16 @@ trait StepKernel
   protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
     val pattern = """:\w+"""
     val names = new Regex(pattern) findAllIn path toList
-    val re = new Regex("^%s$" format path.replaceAll(pattern, "(.+?)"))
+    val re = new Regex("^%s$" format path.replaceAll(pattern, "([^/?]+)"))
     // By overriding toString, we can list the available routes in the default notFound handler.
     new RouteMatcher {
-      def apply() = re findFirstMatchIn requestPath map (x => Map(names zip (x.subgroups map { Seq(_) })  : _*))
+      def apply() = (re findFirstMatchIn requestPath)
+        .map { reMatch => names zip reMatch.subgroups }
+        .map { pairs =>
+          // filter out nulls (i.e., unset optional parameters) and build a multimap
+          Map(pairs flatMap { case (k, v) => if (v != null) Some(k, Seq(v)) else None } : _*)
+        }
+      
       override def toString = path
     }
   }
