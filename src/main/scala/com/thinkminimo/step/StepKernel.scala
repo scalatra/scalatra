@@ -88,6 +88,15 @@ trait StepKernel
     }
   }
 
+  private def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
+    def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
+      case Nil => Map.empty
+      case xs => Map(":captures" -> xs)
+    }}
+    
+    override def toString = regex.toString
+  }
+
   private def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
     () => { if (matcher) Some(Map.empty) else None }
   
@@ -199,33 +208,53 @@ trait StepKernel
   private class PassException extends RuntimeException
 
   protected def get(path: String)(action: => Any) = addPathRoute("GET", path, action)
+  protected def get(regex: Regex)(action: => Any) = addRegexRoute("GET", regex, action)
   protected def get(condition: => Boolean)(action: => Any) = addConditionRoute("GET", condition, action)
   protected def get(path: String, condition: => Boolean)(action: => Any) =
     addPathAndConditionRoute("GET", path, condition, action)
+  protected def get(regex: Regex, condition: => Boolean)(action: => Any) =
+    addRegexAndConditionRoute("GET", regex, condition, action)
 
   protected def post(path: String)(action: => Any) = addPathRoute("POST", path, action)
+  protected def post(regex: Regex)(action: => Any) = addRegexRoute("POST", regex, action)
   protected def post(condition: => Boolean)(action: => Any) = addConditionRoute("POST", condition, action)
   protected def post(path: String, condition: => Boolean)(action: => Any) =
     addPathAndConditionRoute("POST", path, condition, action)
+  protected def post(regex: Regex, condition: => Boolean)(action: => Any) =
+    addRegexAndConditionRoute("POST", regex, condition, action)
 
   protected def put(path: String)(action: => Any) = addPathRoute("PUT", path, action)
+  protected def put(regex: Regex)(action: => Any) = addRegexRoute("PUT", regex, action)
   protected def put(condition: => Boolean)(action: => Any) = addConditionRoute("PUT", condition, action)
   protected def put(path: String, condition: => Boolean)(action: => Any) =
     addPathAndConditionRoute("PUT", path, condition, action)
+  protected def put(regex: Regex, condition: => Boolean)(action: => Any) =
+    addRegexAndConditionRoute("PUT", regex, condition, action)
 
   protected def delete(path: String)(action: => Any) = addPathRoute("DELETE", path, action)
+  protected def delete(regex: Regex)(action: => Any) = addRegexRoute("DELETE", regex, action)
   protected def delete(condition: => Boolean)(action: => Any) = addConditionRoute("DELETE", condition, action)
   protected def delete(path: String, condition: => Boolean)(action: => Any) =
     addPathAndConditionRoute("DELETE", path, condition, action)
+  protected def delete(regex: Regex, condition: => Boolean)(action: => Any) =
+    addRegexAndConditionRoute("DELETE", regex, condition, action)
 
   private def addPathRoute(protocol: String, path: String, action: => Any): Unit =
     addRoute(protocol, string2RouteMatcher(path), action)
+
+  private def addRegexRoute(protocol: String, regex: Regex, action: => Any): Unit =
+    addRoute(protocol, regex2RouteMatcher(regex), action)
 
   private def addConditionRoute(protocol: String, condition: => Boolean, action: => Any): Unit =
     addRoute(protocol, booleanBlock2RouteMatcher(condition), action)
 
   private def addPathAndConditionRoute(protocol: String, path: String, condition: => Boolean, action: => Any): Unit = {
     val routeMatcher = () => if (condition) string2RouteMatcher(path).apply() else None
+    addRoute(protocol, routeMatcher, action)
+  }
+
+  private def addRegexAndConditionRoute(protocol: String, regex: Regex, condition: => Boolean, action: => Any): Unit = {
+    val routeMatcher = () => if (condition) regex2RouteMatcher(regex).apply() else None
     addRoute(protocol, routeMatcher, action)
   }
 

@@ -57,6 +57,22 @@ class RouteTestServlet extends Step {
   get("/conditional", params.getOrElse("condition", "false") == "true") {
     "true"
   }
+
+  get("""^\/fo(.*)/ba(.*)""".r) {
+    multiParams.getOrElse(":captures", Seq.empty) mkString (":")
+  }
+
+  get("""^/foo.../bar$""".r) {
+    "regex match"
+  }
+
+  get("""/reg(ular)?-ex(pression)?""".r) {
+    "regex: false"
+  }
+
+  get("""/reg(ular)?-ex(pression)?""".r, params.getOrElse("condition", "false") == "true") {
+    "regex: true"
+  }
 }
 
 class RouteTest extends StepSuite with ShouldMatchers {
@@ -148,6 +164,28 @@ class RouteTest extends StepSuite with ShouldMatchers {
 
     get("/conditional") {
       body should equal ("false")
+    }
+  }
+
+  test("supports regular expressions") {
+    get("/foooom/bar") {
+      body should equal ("regex match")
+    }
+  }
+
+  test("makes regular expression captures available in params(\":captures\")") {
+    get("/foorooomma/baf") {
+      body should equal ("orooomma:f")
+    }
+  }
+
+  test("supports conditional regex routes") {
+    get("/regular-expression", "condition" -> "true") {
+      body should equal ("regex: true")
+    }
+
+    get("/regular-expression", "condition" -> "false") {
+      body should equal ("regex: false")
     }
   }
 }
