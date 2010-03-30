@@ -13,6 +13,18 @@ class RouteTestServlet extends Step {
   get("/optional/?:foo?/?:bar?") {
     (for (key <- List(":foo", ":bar") if params.isDefinedAt(key)) yield key+"="+params(key)).mkString(";")
   }
+
+  get("/single-splat/*") {
+    multiParams.getOrElse(":splat", Seq.empty).mkString(":")
+  }
+
+  get("/mixing-multiple-splats/*/foo/*/*") {
+    multiParams.getOrElse(":splat", Seq.empty).mkString(":")
+  }
+
+  get("/mix-named-and-splat-params/:foo/*") {
+    params(":foo")+":"+params(":splat")
+  }
 }
 
 class RouteTest extends StepSuite with ShouldMatchers {
@@ -37,4 +49,27 @@ class RouteTest extends StepSuite with ShouldMatchers {
       body should equal ("")
     }
   }
+
+  test("supports single splat params") {
+    get("/single-splat/foo") {
+      body should equal ("foo")
+    }
+
+    get("/single-splat/foo/bar/baz") {
+      body should equal ("foo/bar/baz")
+    }
+  }
+
+  test("supports mixing multiple splat params") {
+    get("/mixing-multiple-splats/bar/foo/bling/baz/boom") {
+      body should equal ("bar:bling:baz/boom")
+    }
+  }
+
+  test("supports mixing named and splat params") {
+    get("/mix-named-and-splat-params/foo/bar/baz") {
+      body should equal ("foo:bar/baz")
+    }
+  }
+
 }

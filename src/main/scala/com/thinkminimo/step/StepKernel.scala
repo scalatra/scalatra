@@ -6,7 +6,7 @@ import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.jcl.Conversions._
 import scala.xml.NodeSeq
-import collection.mutable.{ListBuffer, Map => MMap}
+import collection.mutable.{ListBuffer, HashMap, Map => MMap}
 
 object StepKernel
 {
@@ -49,16 +49,36 @@ trait StepKernel
   }
 
   protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
-    val pattern = """:\w+"""
-    val names = new Regex(pattern) findAllIn path toList
-    val re = new Regex("^%s$" format path.replaceAll(pattern, "([^/?]+)"))
+    // TODO put this out of its misery
+    val (re, names) = {
+      var names = new ListBuffer[String]
+      var pos = 0
+      var regex = new StringBuffer("^")
+      """:\w+|\*""".r.findAllIn(path).matchData foreach { md =>
+        regex.append(path.substring(pos, md.start))
+        md.toString match {
+          case "*" =>
+            names += ":splat"
+            regex.append("(.*?)")
+          case x =>
+            names += x
+            regex.append("([^/?]+)")
+        }
+        pos = md.end
+      }
+      regex.append(path.substring(pos))
+      regex.append("$")
+      (regex.toString.r, names.toList)
+    }
+
     // By overriding toString, we can list the available routes in the default notFound handler.
     new RouteMatcher {
       def apply() = (re findFirstMatchIn requestPath)
         .map { reMatch => names zip reMatch.subgroups }
         .map { pairs =>
-          // filter out nulls (i.e., unset optional parameters) and build a multimap
-          Map(pairs flatMap { case (k, v) => if (v != null) Some(k, Seq(v)) else None } : _*)
+          val multiParams = new HashMap[String, ListBuffer[String]]
+          pairs foreach { case (k, v) => if (v != null) multiParams.getOrElseUpdate(k, new ListBuffer) += v }
+          Map() ++ multiParams
         }
       
       override def toString = path
