@@ -25,6 +25,30 @@ class RouteTestServlet extends Step {
   get("/mix-named-and-splat-params/:foo/*") {
     params(":foo")+":"+params(":splat")
   }
+
+  get("/dot-in-named-param/:foo/:bar") {
+    params(":foo")
+  }
+
+  get("/dot-outside-named-param/:file.:ext") {
+    List(":file", ":ext") foreach { x => response.setHeader(x, params(x)) }
+  }
+
+  get("/literal.dot.in.path") {
+    "matched literal dot"
+  }
+
+  get("/test$") {
+    "test$"
+  }
+
+  get("/te+st") {
+    "te+st"
+  }
+
+  get("/test(bar)") {
+    "test(bar)"
+  }
 }
 
 class RouteTest extends StepSuite with ShouldMatchers {
@@ -72,4 +96,40 @@ class RouteTest extends StepSuite with ShouldMatchers {
     }
   }
 
+  test("matches a dot ('.') as part of a named param") {
+    get("/dot-in-named-param/user@example.com/name") {
+      body should equal("user@example.com")
+    }
+  }
+  
+  test("matches a literal dot ('.') outside of named params") {
+    get("/dot-outside-named-param/pony.jpg") {
+      header("file") should equal ("pony")
+      header("ext") should equal ("jpg")
+    }
+  }
+
+  test("literally matches . in paths") {
+    get("/literal.dot.in.path") {
+      body should equal("matched literal dot")
+    }
+  }
+
+  test("literally matches $ in paths") {
+    get("/test$") {
+      body should equal ("test$")
+    }
+  }
+
+  test("literally matches + in paths") {
+    get("/te+st") {
+      body should equal ("te+st")
+    }
+  }
+
+  test("literally matches () in paths") {
+    get("/test(bar)") {
+      body should equal ("test(bar)")
+    }
+  }
 }

@@ -54,12 +54,15 @@ trait StepKernel
       var names = new ListBuffer[String]
       var pos = 0
       var regex = new StringBuffer("^")
-      """:\w+|\*""".r.findAllIn(path).matchData foreach { md =>
+      val specialCharacters = List('.', '+', '(', ')')
+      """:\w+|[\*\.\+\(\)\$]""".r.findAllIn(path).matchData foreach { md =>
         regex.append(path.substring(pos, md.start))
         md.toString match {
           case "*" =>
             names += ":splat"
             regex.append("(.*?)")
+          case "." | "+" | "(" | ")" | "$" =>
+            regex.append("\\").append(md.toString)
           case x =>
             names += x
             regex.append("([^/?]+)")
