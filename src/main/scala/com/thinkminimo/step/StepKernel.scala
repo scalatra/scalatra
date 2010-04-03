@@ -174,20 +174,18 @@ trait StepKernel
     }
   }
 
-  private val _multiParams = new DynamicVariable[MultiParams](Map()) {
-    // Whenever we set _multiParams, set a view for _params as well
-    override def withValue[S](newval: MultiParams)(thunk: => S) = {
-      super.withValue(newval) {
-        _params.withValue(newval transform { (k, v) => v.first }) {
-          thunk
-        }
-      }
-    }
-  }
+  private val _multiParams = new DynamicVariable[Map[String, Seq[String]]](Map())
   protected def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
-
-  private val _params = new DynamicVariable[Map[String, String]](Map())
-  protected def params = _params value
+  /*
+   * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
+   * in request.getParameters, and we shouldn't either.
+   */
+  private val _params = new collection.Map[String, String] {
+    def get(key: String) = multiParams.get(key) map { _.first }
+    def size = multiParams.size
+    def elements = multiParams map { case(k, v) => (k, v.first) } elements
+  }
+  protected def params = _params
 
   protected def redirect(uri: String) = (_response value) sendRedirect uri
   protected def request = _request value
