@@ -116,7 +116,7 @@ trait StepKernel
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
             beforeFilters foreach { _() }
-            Routes(request.getMethod).toStream.flatMap { _(requestPath) }.firstOption.getOrElse(doNotFound())
+            Routes(request.getMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
           }
           catch {
             case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
@@ -184,7 +184,7 @@ trait StepKernel
   protected val _params = new collection.Map[String, String] {
     def get(key: String) = multiParams.get(key) flatMap { _.headOption }
     override def size = multiParams.size
-    override def iterator = multiParams map { case(k, v) => (k, v.first) } iterator
+    override def iterator = multiParams map { case(k, v) => (k, v.head) } iterator
     override def -(key: String) = Map() ++ this - key
     override def +[B1 >: String](kv: (String, B1)) = Map() ++ this + kv
   }
