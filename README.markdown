@@ -102,8 +102,7 @@ Quick Start
 
 6.   __Navigate to http://localhost:8080__
 
-    You should see "Hello world."  You can poke around the example code in src/main/scala/StepExample.scala
-    to see what's going on.
+    You should see "Hello world."  You can poke around the example code in src/main/scala/TemplateExample.scala to see what's going on.
 
 
 Supported Methods
