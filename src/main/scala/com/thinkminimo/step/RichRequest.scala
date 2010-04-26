@@ -1,6 +1,5 @@
 package com.thinkminimo.step
 
-import util.matching.Regex
 import javax.servlet.http._
 
 case class RichRequest(r: HttpServletRequest) {
