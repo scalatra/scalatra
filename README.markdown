@@ -195,8 +195,3 @@ Props
 I'd like to thank [Gabriele Renzi](http://www.riffraff.info/) for the inspirational blog post and continual help, and Mark Harrah for help on the sbt mailing list and for creating sbt. Ant+Ivy by itself was a total bitch.
 
 I'd also like to thank [Yusuke Kuoka](http://github.com/mumoshu) for adding sessions and header support, and [Miso Korkiakoski](http://github.com/mwing) for various patches.
-
-Todo
-====
-* more tests
-* 'splat' support ala Sinatra?
