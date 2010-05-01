@@ -18,7 +18,7 @@ case class RichRequest(r: HttpServletRequest) {
   }
 
   def body:String = {
-    Source.fromInputStream(r.getInputStream).getLines.mkString
+    Source.fromInputStream(r.getInputStream).mkString
   }
 
 }
