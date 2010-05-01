@@ -13,7 +13,7 @@ class StepProject(info: ProjectInfo) extends DefaultWebProject(info)
 
   def scalatestVersion(scalaVersion: String) = {
     val qualifier = scalaVersion match {
-      case "2.8.0.Beta1" => "scala-2.8.0.Beta1-with-test-interfaces-0.3"
+      case "2.8.0.Beta1" => "2.8.0.Beta1-with-test-interfaces-0.3"
       case x => x
     } 
     "1.0.1-for-scala-"+qualifier+"-SNAPSHOT"
