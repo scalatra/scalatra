@@ -102,7 +102,7 @@ Quick Start
 
 6.   __Navigate to http://localhost:8080__
 
-    You should see "Hello world."  You can poke around the example code in src/main/scala/TemplateExample.scala to see what's going on.
+    You should see "Hello world."  You can poke around the example code in example/src/main/scala/TemplateExample.scala to see what's going on.
 
 
 Supported Methods
@@ -144,7 +144,7 @@ Supported Methods
 
 Sessions
 ========
-Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at src/test/scala/StepTest.scala
+Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at core/src/test/scala/StepTest.scala
 
 Testing Your Step Applications
 ==============================

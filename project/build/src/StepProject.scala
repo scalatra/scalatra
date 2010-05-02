@@ -1,15 +1,17 @@
 import sbt._
 
-class StepProject(info: ProjectInfo) extends DefaultWebProject(info)
+class StepProject(info: ProjectInfo) extends ParentProject(info)
 {
-  import BasicScalaProject._
+  override def shouldCheckOutputDirectories = false
 
-  override def useMavenConfigurations = true
-  override def packageAction = packageTask(mainClasses +++ mainResources, outputPath, defaultJarName, packageOptions).dependsOn(compile) describedAs PackageDescription
+  lazy val core = project("core", "step", new CoreProject(_)) 
+  class CoreProject(info: ProjectInfo) extends DefaultProject(info) {
+    val jettytester = "org.mortbay.jetty" % "jetty-servlet-tester" % "6.1.22" % "provided->default"
+    val scalatest = "org.scalatest" % "scalatest" % scalatestVersion(crossScalaVersionString) % "provided->default"
+    val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
+  } 
 
-  val jettytester = "org.mortbay.jetty" % "jetty-servlet-tester" % "6.1.22" % "provided->default"
-  val scalatest = "org.scalatest" % "scalatest" % scalatestVersion(crossScalaVersionString) % "provided->default"
-  val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
+  lazy val example = project("example", "step-example", new DefaultWebProject(_), core)
 
   def scalatestVersion(scalaVersion: String) = {
     val qualifier = scalaVersion match {
