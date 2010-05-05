@@ -5,7 +5,9 @@ import java.net.URLEncoder.encode
 import org.mortbay.jetty.testing.HttpTester
 import org.mortbay.jetty.testing.ServletTester
 import org.mortbay.jetty.Handler
+import org.mortbay.jetty.servlet.ServletHolder
 import java.nio.charset.Charset
+import javax.servlet.http.HttpServlet
 
 trait StepTests {
   implicit def httpTesterToStepHttpTester(t: HttpTester) = new StepHttpTester(t)
@@ -56,6 +58,8 @@ trait StepTests {
 
   // map a servlet to the path
   def route(servlet: Class[_], path: String) = tester.addServlet(servlet, path)
+
+  def route(servlet: HttpServlet, path: String) = tester.getContext().addServlet(new ServletHolder(servlet), path)
 
   def routeFilter(filter: Class[_], path: String) = tester.addFilter(filter, path, Handler.DEFAULT)
 
