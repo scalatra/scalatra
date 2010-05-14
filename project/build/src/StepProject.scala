@@ -4,14 +4,20 @@ class StepProject(info: ProjectInfo) extends ParentProject(info)
 {
   override def shouldCheckOutputDirectories = false
 
+  val jettyGroupId = "org.mortbay.jetty"
+  val jettyVersion = "6.1.22"
+
   lazy val core = project("core", "step", new CoreProject(_)) 
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) {
-    val jettytester = "org.mortbay.jetty" % "jetty-servlet-tester" % "6.1.22" % "provided->default"
+    val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
     val scalatest = "org.scalatest" % "scalatest" % scalatestVersion(crossScalaVersionString) % "provided->default"
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
   } 
 
-  lazy val example = project("example", "step-example", new DefaultWebProject(_), core)
+  lazy val example = project("example", "step-example", new ExampleProject(_), core)
+  class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) {
+    val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
+  }
 
   def scalatestVersion(scalaVersion: String) = {
     scalaVersion match {

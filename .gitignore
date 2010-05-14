@@ -2,4 +2,10 @@
 lib_managed/
 project/boot/
 project/build/target/
+project/plugins/project/build.properties
+src_managed/
 target/
+*.eml
+*.iml
+*.ipr
+*.iws
