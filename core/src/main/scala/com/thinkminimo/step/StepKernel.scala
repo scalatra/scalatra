@@ -18,7 +18,7 @@ object StepKernel
 }
 import StepKernel._
 
-trait StepKernel
+trait StepKernel extends Handler
 {
   protected val Routes = MMap(protocols map (_ -> List[Route]()): _*)
 
@@ -100,7 +100,7 @@ trait StepKernel
   private def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
     () => { if (matcher) Some(Map.empty) else None }
   
-  protected def handle(request: HttpServletRequest, response: HttpServletResponse) {
+  def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
     if (request.getCharacterEncoding == null)
