@@ -10,7 +10,7 @@ class StepProject(info: ProjectInfo) extends ParentProject(info)
   lazy val core = project("core", "step", new CoreProject(_)) 
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) {
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
-    val scalatest = "org.scalatest" % "scalatest" % "1.0" % "provided->default"
+    val scalatest = "org.scalatest" % "scalatest" % scalatestVersion(crossScalaVersionString) % "provided->default"
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
   } 
 
@@ -18,4 +18,17 @@ class StepProject(info: ProjectInfo) extends ParentProject(info)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) {
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
   }
+
+  def scalatestVersion(scalaVersion: String) = {
+    scalaVersion match {
+      case "2.8.0.Beta1" => 
+        "1.0.1-for-scala-2.8.0.Beta1-with-test-interfaces-0.3-SNAPSHOT"
+      case "2.8.0.RC1" =>
+        "1.0.1-for-scala-2.8.0.RC1-SNAPSHOT"
+      case "2.8.0.RC2" =>
+        "1.2-for-scala-2.8.0.RC2-SNAPSHOT"
+    } 
+  }
+
+  val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 }

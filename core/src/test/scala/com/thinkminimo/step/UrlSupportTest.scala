@@ -16,7 +16,7 @@ class UrlSupportTest extends FunSuite with ShouldMatchers {
     val _response = new DynamicVariable[HttpServletResponse]({
       val response = mock(classOf[HttpServletResponse])
       when(response.encodeURL(anyString)).thenAnswer(new Answer[String] {
-        def answer(invocation: InvocationOnMock) = invocation.getArguments.first.asInstanceOf[String]
+        def answer(invocation: InvocationOnMock) = invocation.getArguments.head.asInstanceOf[String]
       })
       response
     })

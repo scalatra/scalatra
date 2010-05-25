@@ -5,7 +5,7 @@ import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
-import scala.collection.jcl.Conversions._
+import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 
 abstract class Step extends HttpServlet with StepKernel

@@ -6,10 +6,10 @@ import io.Source
 case class RichRequest(r: HttpServletRequest) {
   import RichRequest._
 
-  @deprecated
+  @deprecated(message = "Use HttpServletRequest.getServerName() instead")
   def host = r.getServerName
 
-  @deprecated
+  @deprecated(message = "Use HttpServletRequest.getServerPort() instead")
   def port = Integer.toString(r.getServerPort)
 
   def referer = r.getHeader("Referer") match {

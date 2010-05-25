@@ -44,9 +44,13 @@ class ContentTypeTestServlet extends Step {
           reactWithin(10000) {
             case 2 =>
               firstSender ! 1
+            case 'exit =>
+              exit()
             case TIMEOUT =>
               firstSender ! "timed out"
             }
+        case 'exit =>
+          exit()
         case TIMEOUT =>
           sender ! "timed out"
       }
@@ -74,7 +78,7 @@ class ContentTypeTestServlet extends Step {
   }
 
   override def init () { conductor.start() }
-  override def destroy() { conductor.exit() }
+  override def destroy() { conductor ! 'exit } 
 }
 
 class ContentTypeTest extends StepSuite with ShouldMatchers {

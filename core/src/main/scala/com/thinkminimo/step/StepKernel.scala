@@ -4,7 +4,7 @@ import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
-import scala.collection.jcl.Conversions._
+import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 import collection.mutable.{ListBuffer, HashMap, Map => MMap}
 
@@ -106,7 +106,8 @@ trait StepKernel
     if (request.getCharacterEncoding == null)
       request.setCharacterEncoding(defaultCharacterEncoding)
 
-    val realMultiParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]]
+    val realMultiParams = request.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
+      .transform { (k, v) => v: Seq[String] }
 
     response.setCharacterEncoding(defaultCharacterEncoding)
 
@@ -115,7 +116,7 @@ trait StepKernel
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
             beforeFilters foreach { _() }
-            Routes(request.getMethod).toStream.flatMap { _(requestPath) }.firstOption.getOrElse(doNotFound())
+            Routes(request.getMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
           }
           catch {
             case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
@@ -180,10 +181,12 @@ trait StepKernel
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
    */
-  private val _params = new collection.Map[String, String] {
-    def get(key: String) = multiParams.get(key) map { _.first }
-    def size = multiParams.size
-    def elements = multiParams map { case(k, v) => (k, v.first) } elements
+  protected val _params = new collection.Map[String, String] {
+    def get(key: String) = multiParams.get(key) flatMap { _.headOption }
+    override def size = multiParams.size
+    override def iterator = multiParams map { case(k, v) => (k, v.head) } iterator
+    override def -(key: String) = Map() ++ this - key
+    override def +[B1 >: String](kv: (String, B1)) = Map() ++ this + kv
   }
   protected def params = _params
 
