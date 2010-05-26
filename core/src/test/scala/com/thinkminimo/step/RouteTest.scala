@@ -11,27 +11,27 @@ class RouteTestServlet extends Step {
   }
 
   get("/optional/?:foo?/?:bar?") {
-    (for (key <- List(":foo", ":bar") if params.isDefinedAt(key)) yield key+"="+params(key)).mkString(";")
+    (for (key <- List("foo", "bar") if params.isDefinedAt(key)) yield key+"="+params(key)).mkString(";")
   }
 
   get("/single-splat/*") {
-    multiParams.getOrElse(":splat", Seq.empty).mkString(":")
+    multiParams.getOrElse("splat", Seq.empty).mkString(":")
   }
 
   get("/mixing-multiple-splats/*/foo/*/*") {
-    multiParams.getOrElse(":splat", Seq.empty).mkString(":")
+    multiParams.getOrElse("splat", Seq.empty).mkString(":")
   }
 
   get("/mix-named-and-splat-params/:foo/*") {
-    params(":foo")+":"+params(":splat")
+    params("foo")+":"+params("splat")
   }
 
   get("/dot-in-named-param/:foo/:bar") {
-    params(":foo")
+    params("foo")
   }
 
   get("/dot-outside-named-param/:file.:ext") {
-    List(":file", ":ext") foreach { x => response.setHeader(x, params(x)) }
+    List("file", "ext") foreach { x => response.setHeader(x, params(x)) }
   }
 
   get("/literal.dot.in.path") {
@@ -59,7 +59,7 @@ class RouteTestServlet extends Step {
   }
 
   get("""^\/fo(.*)/ba(.*)""".r) {
-    multiParams.getOrElse(":captures", Seq.empty) mkString (":")
+    multiParams.getOrElse("captures", Seq.empty) mkString (":")
   }
 
   get("""^/foo.../bar$""".r) {
@@ -86,11 +86,11 @@ class RouteTest extends StepSuite with ShouldMatchers {
 
   test("supports optional named params") {
     get("/optional/hello/world") {
-      body should equal (":foo=hello;:bar=world")
+      body should equal ("foo=hello;bar=world")
     }
 
     get("/optional/hello") {
-      body should equal (":foo=hello")
+      body should equal ("foo=hello")
     }
 
     get("/optional") {
@@ -173,7 +173,7 @@ class RouteTest extends StepSuite with ShouldMatchers {
     }
   }
 
-  test("makes regular expression captures available in params(\":captures\")") {
+  test("makes regular expression captures available in params(\"captures\")") {
     get("/foorooomma/baf") {
       body should equal ("orooomma:f")
     }

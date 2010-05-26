@@ -11,12 +11,12 @@ class ParamsTestServlet extends Step {
   import ParamsTestServlet._
 
   get("/multiParams/:key") {
-    multiParams(params(":key")).mkString("[",",","]")
+    multiParams(params("key")).mkString("[",",","]")
   }
 
   get("/params/:key") {
     try {
-      params(params(":key"))
+      params(params("key"))
     }
     catch {
       case _: NoSuchElementException => NoSuchElement

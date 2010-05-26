@@ -20,9 +20,9 @@ Example
       // parse matching requests, saving things prefixed with ':' as params
       get("/date/:year/:month/:day") {
         <ul>
-          <li>Year: {params(":year")}</li>
-          <li>Month: {params(":month")}</li>
-          <li>Day: {params(":day")}</li>
+          <li>Year: {params("year")}</li>
+          <li>Month: {params("month")}</li>
+          <li>Day: {params("day")}</li>
         </ul>
       }
 
@@ -118,7 +118,7 @@ Supported Methods
 
     Specify the route to match, with parameters to store prefixed with : like Sinatra.
     "/match/this/path/and/save/:this" would match that GET request, and provide you with a
-    params(":this") in your block.
+    params("this") in your block.
 
 *   __post(`path`)__
 

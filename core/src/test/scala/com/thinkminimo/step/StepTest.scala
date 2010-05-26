@@ -11,11 +11,11 @@ class StepTestServlet extends Step {
   }
 
   get("/this/:test/should/:pass") {
-    params(":test")+params(":pass")
+    params("test")+params("pass")
   }
 
   get("/xml/:must/:val") {
-    <h1>{ params(":must")+params(":val") }</h1>
+    <h1>{ params("must")+params("val") }</h1>
   }
 
   get("/number") {
@@ -30,7 +30,7 @@ class StepTestServlet extends Step {
   }
 
   post("/post/:test/val") {
-    params("posted_value")+params(":test")
+    params("posted_value")+params("test")
   }
 
   get("/no_content") {
@@ -66,7 +66,7 @@ class StepTestServlet extends Step {
   }
 
   get("/people/:person") {
-    params.getOrElse(":person", "<no person>")
+    params.getOrElse("person", "<no person>")
   }
 }
 

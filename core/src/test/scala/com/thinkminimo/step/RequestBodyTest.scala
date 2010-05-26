@@ -11,7 +11,7 @@ class RequestBodyTestServlet extends Step {
   }
 
   get("/request-body/:method") {
-    request.body + params(":method")
+    request.body + params("method")
   }
 }
 

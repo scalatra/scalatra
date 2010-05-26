@@ -59,12 +59,12 @@ trait StepKernel
         regex.append(path.substring(pos, md.start))
         md.toString match {
           case "*" =>
-            names += ":splat"
+            names += "splat"
             regex.append("(.*?)")
           case "." | "+" | "(" | ")" | "$" =>
             regex.append("\\").append(md.toString)
           case x =>
-            names += x
+            names += x.substring(1) // strip leading colon
             regex.append("([^/?]+)")
         }
         pos = md.end
@@ -91,7 +91,7 @@ trait StepKernel
   private def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
       case Nil => Map.empty
-      case xs => Map(":captures" -> xs)
+      case xs => Map("captures" -> xs)
     }}
     
     override def toString = regex.toString

@@ -40,9 +40,9 @@ class TemplateExample extends Step with UrlSupport {
   get("/date/:year/:month/:day") {
     Template.page("Step: Date Example", 
     <ul>
-      <li>Year: {params(":year")}</li>
-      <li>Month: {params(":month")}</li>
-      <li>Day: {params(":day")}</li>
+      <li>Year: {params("year")}</li>
+      <li>Month: {params("month")}</li>
+      <li>Day: {params("day")}</li>
     </ul>
     <pre>Route: /date/:year/:month/:day</pre>
     )
