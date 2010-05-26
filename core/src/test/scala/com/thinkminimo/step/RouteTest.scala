@@ -73,6 +73,18 @@ class RouteTestServlet extends Step {
   get("""/reg(ular)?-ex(pression)?""".r, params.getOrElse("condition", "false") == "true") {
     "regex: true"
   }
+
+  post() {
+    "I match any post!"
+  }
+
+  get("/fail", false, () => { throw new RuntimeException("shouldn't execute"); None }) {
+    "shouldn't return"
+  }
+
+  notFound {
+    "not found"
+  }
 }
 
 class RouteTest extends StepSuite with ShouldMatchers {
@@ -186,6 +198,18 @@ class RouteTest extends StepSuite with ShouldMatchers {
 
     get("/regular-expression", "condition" -> "false") {
       body should equal ("regex: false")
+    }
+  }
+
+  test("a route with no matchers matches all requests to that method") {
+    post("/an-arbitrary-path") {
+      body should equal ("I match any post!")
+    }
+  }
+
+  test("matchers should not execute if one before it fails") {
+    get("/fail") {
+      body should equal ("not found")
     }
   }
 }

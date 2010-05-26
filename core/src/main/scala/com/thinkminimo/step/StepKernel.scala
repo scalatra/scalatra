@@ -11,7 +11,6 @@ import collection.mutable.{ListBuffer, HashMap, Map => MMap}
 object StepKernel
 {
   type MultiParams = Map[String, Seq[String]]
-  type RouteMatcher = () => Option[MultiParams]
   type Action = () => Any
 
   val protocols = List("GET", "POST", "PUT", "DELETE")
@@ -32,8 +31,8 @@ trait StepKernel extends Handler
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
 
-  protected class Route(val routeMatcher: RouteMatcher, val action: Action) {
-    def apply(realPath: String): Option[Any] = routeMatcher() flatMap { invokeAction(_) }
+  protected class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
+    def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
 
     private def invokeAction(routeParams: MultiParams) =
       _multiParams.withValue(multiParams ++ routeParams) {
@@ -45,10 +44,10 @@ trait StepKernel extends Handler
         }
       }
 
-    override def toString() = routeMatcher.toString
+    override def toString() = routeMatchers.toString
   }
 
-  private def string2RouteMatcher(path: String): RouteMatcher = {
+  protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
     // TODO put this out of its misery
     val (re, names) = {
       var names = new ListBuffer[String]
@@ -88,7 +87,7 @@ trait StepKernel extends Handler
     }
   }
 
-  private def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
+  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
       case Nil => Map.empty
       case xs => Map("captures" -> xs)
@@ -97,8 +96,8 @@ trait StepKernel extends Handler
     override def toString = regex.toString
   }
 
-  private def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
-    () => { if (matcher) Some(Map.empty) else None }
+  protected implicit def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
+    () => { if (matcher) Some(Map[String, Seq[String]]()) else None }
   
   def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
@@ -208,57 +207,10 @@ trait StepKernel extends Handler
   protected def pass() = throw new PassException
   private class PassException extends RuntimeException
 
-  protected def get(path: String)(action: => Any) = addPathRoute("GET", path, action)
-  protected def get(regex: Regex)(action: => Any) = addRegexRoute("GET", regex, action)
-  protected def get(condition: => Boolean)(action: => Any) = addConditionRoute("GET", condition, action)
-  protected def get(path: String, condition: => Boolean)(action: => Any) =
-    addPathAndConditionRoute("GET", path, condition, action)
-  protected def get(regex: Regex, condition: => Boolean)(action: => Any) =
-    addRegexAndConditionRoute("GET", regex, condition, action)
-
-  protected def post(path: String)(action: => Any) = addPathRoute("POST", path, action)
-  protected def post(regex: Regex)(action: => Any) = addRegexRoute("POST", regex, action)
-  protected def post(condition: => Boolean)(action: => Any) = addConditionRoute("POST", condition, action)
-  protected def post(path: String, condition: => Boolean)(action: => Any) =
-    addPathAndConditionRoute("POST", path, condition, action)
-  protected def post(regex: Regex, condition: => Boolean)(action: => Any) =
-    addRegexAndConditionRoute("POST", regex, condition, action)
-
-  protected def put(path: String)(action: => Any) = addPathRoute("PUT", path, action)
-  protected def put(regex: Regex)(action: => Any) = addRegexRoute("PUT", regex, action)
-  protected def put(condition: => Boolean)(action: => Any) = addConditionRoute("PUT", condition, action)
-  protected def put(path: String, condition: => Boolean)(action: => Any) =
-    addPathAndConditionRoute("PUT", path, condition, action)
-  protected def put(regex: Regex, condition: => Boolean)(action: => Any) =
-    addRegexAndConditionRoute("PUT", regex, condition, action)
-
-  protected def delete(path: String)(action: => Any) = addPathRoute("DELETE", path, action)
-  protected def delete(regex: Regex)(action: => Any) = addRegexRoute("DELETE", regex, action)
-  protected def delete(condition: => Boolean)(action: => Any) = addConditionRoute("DELETE", condition, action)
-  protected def delete(path: String, condition: => Boolean)(action: => Any) =
-    addPathAndConditionRoute("DELETE", path, condition, action)
-  protected def delete(regex: Regex, condition: => Boolean)(action: => Any) =
-    addRegexAndConditionRoute("DELETE", regex, condition, action)
-
-  private def addPathRoute(protocol: String, path: String, action: => Any): Unit =
-    addRoute(protocol, string2RouteMatcher(path), action)
-
-  private def addRegexRoute(protocol: String, regex: Regex, action: => Any): Unit =
-    addRoute(protocol, regex2RouteMatcher(regex), action)
-
-  private def addConditionRoute(protocol: String, condition: => Boolean, action: => Any): Unit =
-    addRoute(protocol, booleanBlock2RouteMatcher(condition), action)
-
-  private def addPathAndConditionRoute(protocol: String, path: String, condition: => Boolean, action: => Any): Unit = {
-    val routeMatcher = () => if (condition) string2RouteMatcher(path).apply() else None
-    addRoute(protocol, routeMatcher, action)
-  }
-
-  private def addRegexAndConditionRoute(protocol: String, regex: Regex, condition: => Boolean, action: => Any): Unit = {
-    val routeMatcher = () => if (condition) regex2RouteMatcher(regex).apply() else None
-    addRoute(protocol, routeMatcher, action)
-  }
-
-  private def addRoute(protocol: String, routeMatcher: RouteMatcher, action: => Any): Unit =
-    Routes(protocol) = new Route(routeMatcher, () => action) :: Routes(protocol) 
+  protected def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("GET", routeMatchers, action)
+  protected def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("POST", routeMatchers, action)
+  protected def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
+  protected def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
+  private def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
+    Routes(protocol) = new Route(routeMatchers, () => action) :: Routes(protocol)
 }
