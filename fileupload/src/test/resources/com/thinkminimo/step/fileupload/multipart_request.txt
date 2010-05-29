@@ -1,0 +1,32 @@
+POST /multipart HTTP/1.0
+Content-Type: multipart/form-data; boundary=---------------------------768277191987740441310253794
+Content-Length: 816
+
+-----------------------------768277191987740441310253794
+Content-Disposition: form-data; name="string"
+
+foo
+-----------------------------768277191987740441310253794
+Content-Disposition: form-data; name="file"; filename="1.txt"
+Content-Type: text/plain
+
+one
+
+-----------------------------768277191987740441310253794
+Content-Disposition: form-data; name="file-none"; filename=""
+Content-Type: application/octet-stream
+
+
+-----------------------------768277191987740441310253794
+Content-Disposition: form-data; name="file-multi"; filename="2.txt"
+Content-Type: text/plain
+
+two
+
+-----------------------------768277191987740441310253794
+Content-Disposition: form-data; name="file-multi"; filename="3.txt"
+Content-Type: text/plain
+
+three
+
+-----------------------------768277191987740441310253794--

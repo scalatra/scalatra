@@ -14,7 +14,13 @@ class StepProject(info: ProjectInfo) extends ParentProject(info)
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
   } 
 
-  lazy val example = project("example", "step-example", new ExampleProject(_), core)
+  lazy val fileupload = project("fileupload", "step-fileupload", new FileuploadProject(_), core) 
+  class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) {
+    val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1" % "compile"
+    val commonsIo = "commons-io" % "commons-io" % "1.4" % "compile"
+  } 
+
+  lazy val example = project("example", "step-example", new ExampleProject(_), core, fileupload)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) {
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
   }

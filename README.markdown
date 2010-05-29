@@ -146,6 +146,10 @@ Sessions
 ========
 Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at core/src/test/scala/StepTest.scala
 
+Upload Support
+==============
+File uploads are now supported.  Mix in `com.thinkminimo.step.fileupload.FileUploadSupport` from the fileupload subproject to add `fileParams` and `fileMultiParams` methods in your Step application.  File upload support depends on commons-upload and commons-io.  
+
 Testing Your Step Applications
 ==============================
 Step includes StepTests - a framework for writing the unit tests for your Step application.  It's a trait with some utility functions to send requests to your app and examine the response.  It can be mixed into the test framework of your choosing.  StepTests supports HTTP GET/POST tests with or without request parameters and sessions.  For more examples, please refer to src/test/scala.

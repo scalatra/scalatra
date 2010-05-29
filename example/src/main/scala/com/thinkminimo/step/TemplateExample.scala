@@ -1,8 +1,10 @@
 package com.thinkminimo.step
 
 import xml.{Text, Node}
+import org.apache.commons.io.IOUtils
+import fileupload.FileUploadSupport 
 
-class TemplateExample extends Step with UrlSupport {
+class TemplateExample extends Step with UrlSupport with FileUploadSupport {
 
   object Template {
 
@@ -25,6 +27,7 @@ class TemplateExample extends Step with UrlSupport {
           <hr/>
           <a href={url("/date/2009/12/26")}>date example</a>
           <a href={url("/form")}>form example</a>
+          <a href={url("/upload")}>upload</a>
           <a href={url("/")}>hello world</a>
           <a href={url("/login")}>login</a>
           <a href={url("/logout")}>logout</a>
@@ -111,6 +114,21 @@ class TemplateExample extends Step with UrlSupport {
     <p>Referer: { (request referer) map { Text(_) } getOrElse { <i>none</i> }}</p>
     <pre>Route: /</pre>
     )
+  }
+
+  get("/upload") {
+    Template.page("Step: Session Example",
+    <form method="post" enctype="multipart/form-data">
+      Upload a file.  Its contents will be displayed in the browser.<br />
+      <label>File: <input type="file" name="file" /></label><br />
+      <input type="submit" />
+    </form>
+    )
+  }
+
+  post("/upload") {
+    contentType = "text/plain"
+    fileParams.get("file") foreach { file => IOUtils.copy(file.getInputStream, response.getOutputStream) }
   }
 
   protected def contextPath = request.getContextPath   
