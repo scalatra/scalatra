@@ -31,8 +31,8 @@ class StepProject(info: ProjectInfo) extends ParentProject(info)
         "1.0.1-for-scala-2.8.0.Beta1-with-test-interfaces-0.3-SNAPSHOT"
       case "2.8.0.RC1" =>
         "1.0.1-for-scala-2.8.0.RC1-SNAPSHOT"
-      case "2.8.0.RC2" =>
-        "1.2-for-scala-2.8.0.RC2-SNAPSHOT"
+      case x =>
+        "1.2-for-scala-"+x+"-SNAPSHOT"
     } 
   }
 
