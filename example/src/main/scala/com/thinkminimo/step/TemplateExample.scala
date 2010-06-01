@@ -4,7 +4,7 @@ import xml.{Text, Node}
 import org.apache.commons.io.IOUtils
 import fileupload.FileUploadSupport 
 
-class TemplateExample extends Step with UrlSupport with FileUploadSupport {
+class TemplateExample extends Step with UrlSupport with FileUploadSupport with FlashMapSupport {
 
   object Template {
 
@@ -29,6 +29,7 @@ class TemplateExample extends Step with UrlSupport with FileUploadSupport {
           <a href={url("/form")}>form example</a>
           <a href={url("/upload")}>upload</a>
           <a href={url("/")}>hello world</a>
+          <a href={url("/flash-map/form")}>flash scope</a>
           <a href={url("/login")}>login</a>
           <a href={url("/logout")}>logout</a>
         </body>
@@ -129,6 +130,27 @@ class TemplateExample extends Step with UrlSupport with FileUploadSupport {
   post("/upload") {
     contentType = "text/plain"
     fileParams.get("file") foreach { file => IOUtils.copy(file.getInputStream, response.getOutputStream) }
+  }
+
+  get("/flash-map/form") {
+    Template.page("Step: Flash Map Example",
+    <span>Supports the post-then-redirect pattern</span><br />
+    <form method="post">
+      <label>Message: <input type="text" name="message" /></label><br />
+      <input type="submit" />
+    </form>
+    )
+  }
+
+  post("/flash-map/form") {
+    flash("message") = params.getOrElse("message", "")
+    redirect("/flash-map/result")
+  }
+
+  get("/flash-map/result") {
+    Template.page("Step: Flash  Example",
+    <span>Message = {flash.getOrElse("message", "")}</span>
+    )
   }
 
   protected def contextPath = request.getContextPath   
