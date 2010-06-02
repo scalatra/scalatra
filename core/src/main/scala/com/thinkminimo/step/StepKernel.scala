@@ -191,8 +191,8 @@ trait StepKernel extends Handler
   protected def params = _params
 
   protected def redirect(uri: String) = (_response value) sendRedirect uri
-  protected def request = _request value
-  protected def response = _response value
+  protected implicit def request = _request value
+  protected implicit def response = _response value
   protected def session = request.getSession
   protected def sessionOption = request.getSession(false) match {
     case s: HttpSession => Some(s)

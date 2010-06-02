@@ -1,9 +1,9 @@
 package com.thinkminimo.step.scalate
 
-import java.io.{StringWriter, PrintWriter}
 import javax.servlet.ServletContext
-import org.fusesource.scalate.{DefaultRenderContext, Template, TemplateEngine}
-import org.fusesource.scalate.servlet.ServletResourceLoader
+import org.fusesource.scalate.TemplateEngine
+import org.fusesource.scalate.servlet.{ServletRenderContext, ServletResourceLoader}
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 trait ScalateSupport {
   self: {def servletContext: ServletContext} =>
@@ -15,15 +15,8 @@ trait ScalateSupport {
     result
   }
 
-  def renderTemplate(templateName: String, variables: (String, Any)*): java.io.StringWriter = {
-    val template = templateEngine.load(templateName)
-    val buffer = new StringWriter
-    val context = new DefaultRenderContext(templateEngine, new PrintWriter(buffer))
-    for (variable <- variables) {
-      val (key, value) = variable
-      context.attributes(key) = value
-    }
-    template.render(context)
-    buffer
+  def renderTemplate(path: String, attributes: (String, Any)*)
+                    (implicit request: HttpServletRequest, response: HttpServletResponse) {
+    new ServletRenderContext(templateEngine, request, response, servletContext).render(path, Map(attributes : _*))
   }
 }
