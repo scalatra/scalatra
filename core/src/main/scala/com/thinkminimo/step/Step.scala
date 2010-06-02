@@ -26,4 +26,6 @@ abstract class Step extends HttpServlet with StepKernel
     response.setStatus(404)
     response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
   }
+
+  implicit def servletContext = getServletContext
 }
