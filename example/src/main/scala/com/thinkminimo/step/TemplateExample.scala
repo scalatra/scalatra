@@ -117,6 +117,11 @@ class TemplateExample extends Step with UrlSupport with FileUploadSupport with F
     )
   }
 
+  get("/scalate") {
+  	val content = "this is some fake content for the web page"
+	  scalate.Template.render("index.scaml",("content"-> content))
+  }
+
   get("/upload") {
     Template.page("Step: Session Example",
     <form method="post" enctype="multipart/form-data">
