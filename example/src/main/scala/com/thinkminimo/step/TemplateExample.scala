@@ -2,9 +2,10 @@ package com.thinkminimo.step
 
 import xml.{Text, Node}
 import org.apache.commons.io.IOUtils
-import fileupload.FileUploadSupport 
+import fileupload.FileUploadSupport
+import scalate.ScalateSupport
 
-class TemplateExample extends Step with UrlSupport with FileUploadSupport with FlashMapSupport {
+class TemplateExample extends Step with UrlSupport with FileUploadSupport with FlashMapSupport with ScalateSupport {
 
   object Template {
 
@@ -119,7 +120,7 @@ class TemplateExample extends Step with UrlSupport with FileUploadSupport with F
 
   get("/scalate") {
   	val content = "this is some fake content for the web page"
-	  scalate.Template.render("index.scaml",("content"-> content))
+	  renderTemplate("index.scaml",("content"-> content))
   }
 
   get("/upload") {
