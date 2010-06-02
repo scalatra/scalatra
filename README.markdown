@@ -146,9 +146,72 @@ Sessions
 ========
 Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at core/src/test/scala/StepTest.scala
 
-Upload Support
-==============
-File uploads are now supported.  Mix in `com.thinkminimo.step.fileupload.FileUploadSupport` from the fileupload subproject to add `fileParams` and `fileMultiParams` methods in your Step application.  File upload support depends on commons-upload and commons-io.  
+Flash scope
+===========
+Flash scope is available by mixing in FlashScopeSupport, which provides a mutable map named `flash`.  Values put into flash scope during the current request are stored in the session through the next request and then discarded.  This is particularly useful for messages when using the [Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
+
+File Upload Support
+===================
+File uploads are now supported.
+
+File upload dependencies
+------------------------
+- step-fileupload.jar
+- commons-fileupload.jar
+- commons-io.jar
+
+Usage
+-----
+* Mix in `com.thinkminimo.step.fileupload.FileUploadSupport`.
+* Be sure that your form has an enctype of `multipart/form-data`
+* Uploaded files will be available in a map of `fileParams` or `fileMultiParams`
+
+Example
+-------
+
+    import com.thinkmimino.step.Step
+    import com.thinkmimino.step.fileupload.FileUploadSupport
+
+    class MyApp extends Step with FileUploadSupport {
+      get("/") {
+        <form method="post" enctype="multipart/form-data">
+          <input type="file" name="foo" />
+          <input type="button" />
+        </form>
+      }
+
+      post("/") {
+        processFile(fileParams("file"))
+      }
+    }
+
+Scalate Integration
+===================
+Step has experimental support for integration with [Scalate](http://scalate.fusesource.org).
+
+Scalate Dependencies
+--------------------
+- step-scalate.jar
+- scalate-core-1.2.jar
+- a [slf4j binding](http://www.slf4j.org/manual.html#binding); I like logback
+
+Setup
+-----
+* Mix in ScalateSupport
+* Create template in src/main/webapp
+* Call renderTemplate with a path to the template (relative to webapp) and attributes
+
+Example
+-------
+
+    import com.thinkmimino.step.Step
+    import com.thinkmimino.step.scalate.ScalateSupport
+
+    class MyApp extends Step with ScalateSupport {
+      get("/") {
+        renderTemplate("index.scaml", "content" -> "yada yada yada")
+      }
+    }
 
 Testing Your Step Applications
 ==============================
