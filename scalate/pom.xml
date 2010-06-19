@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.thinkminimo.step</groupId>
+    <artifactId>step-project</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+  
+  <groupId>com.thinkminimo.step</groupId>
+  <artifactId>step-scalate</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
+
+  <name>step-scalate</name>
+  <description>Supplies the optional Step Scalate support</description>
+
+  <dependencies>
+    
+    <!-- compile scope dependencies -->
+    <dependency>
+      <!-- not really needed, but it helps IDEA setup the project easier -->
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-compiler</artifactId>
+      <version>${scala-version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.thinkminimo.step</groupId>
+      <artifactId>step</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.fusesource.scalate</groupId>
+      <artifactId>scalate-core</artifactId>
+      <version>1.2-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet-api-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+
+</project>
