@@ -22,13 +22,13 @@ class StepProject(info: ProjectInfo) extends ParentProject(info)
 
   lazy val scalate = project("scalate", "step-scalate", new ScalateProject(_), core)
   class ScalateProject(info: ProjectInfo) extends DefaultProject(info) {
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.2-scala-next-SNAPSHOT"
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.2-SNAPSHOT"
   }
 
   lazy val example = project("example", "step-example", new ExampleProject(_), core, fileupload, scalate)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) {
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
-    val logback = "ch.qos.logback" % "logback-classic" % "0.9.21" % "runtime" // Scalate needs a slf4j binding.
+    val sfl4jnop = "org.slf4j" % "slf4j-nop" % "1.5.11" % "runtime" // Scalate needs a slf4j binding.
   }
 
   def scalatestVersion(scalaVersion: String) = {
