@@ -264,3 +264,4 @@ Props
 - [Yusuke Kuoka](http://github.com/mumoshu) for adding sessions and header support
 - [Miso Korkiakoski](http://github.com/mwing) for various patches.
 - [Ivan Willig](http://github.com/iwillig) for his work on [Scalate](http://scalate.fusesource.org/) integration.
+- [Hiram Chirino](http://hiramchirino.com) for Maven integration.
