@@ -33,6 +33,7 @@ class TemplateExample extends Step with UrlSupport with FileUploadSupport with F
           <a href={url("/flash-map/form")}>flash scope</a>
           <a href={url("/login")}>login</a>
           <a href={url("/logout")}>logout</a>
+          <a href={url("/filter-example")}>filter demo</a>
         </body>
       </html>
     }
