@@ -25,6 +25,12 @@ trait StepFilter extends Filter with StepKernel {
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)
 
-  def init(p1: FilterConfig) = {}
+  // must be a var because we don't know its value until the servlet container calls init 
+  protected var servletContext: ServletContext = _
+
+  def init(filterConfig: FilterConfig) = {
+    servletContext = filterConfig.getServletContext
+  }
+
   def destroy = {}
 }
