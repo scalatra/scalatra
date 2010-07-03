@@ -1,16 +1,16 @@
 About
 =====
 
-Step is a tiny Scala web framework inspired by [Sinatra](http://www.sinatrarb.com/) and originally based on some code I found on an [awesome blog post](http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework).
+Scalatra is a tiny Scala web framework inspired by [Sinatra](http://www.sinatrarb.com/) and originally based on some code I found on an [awesome blog post](http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework).  
 
-Comments, issues, and pull requests are welcome.  Please also see the new [step-user](http://groups.google.com/group/step-user) mailing list, or drop in on IRC at #stepframework on irc.freenode.org
+Comments, issues, and pull requests are welcome.  Please also see the [scalatra-user](http://groups.google.com/group/scalatra-user) mailing list, or drop in on IRC at #scalatra on irc.freenode.org
 
 Example
 =======
 
-    package com.thinkminimo.step
+    package org.scalatra
 
-    class StepExample extends Step {
+    class ScalatraExample extends ScalatraServlet {
 
       // send a text/html content type back each time
       before {
@@ -85,11 +85,11 @@ Quick Start
 
 2.   __Install simple-build-tool__
 
-    Step uses sbt (0.7 or above), a fantastic tool for building Scala programs.  For instructions, see [the sbt site](http://code.google.com/p/simple-build-tool/wiki/Setup)
+    Scalatra uses sbt (0.7 or above), a fantastic tool for building Scala programs.  For instructions, see [the sbt site](http://code.google.com/p/simple-build-tool/wiki/Setup)
 
 3.   __Run sbt__
 
-    In the directory you downloaded step to, run `sbt`.
+    In the directory you downloaded Scalatra to, run `sbt`.
     sbt will download core dependencies, and Scala itself if it needs to.
 
 4.   __Download dependencies__
@@ -98,7 +98,7 @@ Quick Start
 
 5.   __Try it out__
 
-    At the sbt prompt, type `jetty-run`.  This will run step with the example servlet on port 8080.
+    At the sbt prompt, type `jetty-run`.  This will run Scalatra with the example servlet on port 8080.
 
 6.   __Navigate to http://localhost:8080__
 
@@ -144,7 +144,7 @@ Supported Methods
 
 Sessions
 ========
-Session support has recently been added.  To see how to use sessions in your Step apps, check out the test servlet, at core/src/test/scala/StepTest.scala
+Session support has recently been added.  To see how to use sessions in your Scalatra apps, check out the test servlet, at core/src/test/scala/ScalatraTest.scala
 
 Flash scope
 ===========
@@ -156,23 +156,23 @@ File uploads are now supported.
 
 File upload dependencies
 ------------------------
-- step-fileupload.jar
+- scalatra-fileupload.jar
 - commons-fileupload.jar
 - commons-io.jar
 
 Usage
 -----
-* Mix in `com.thinkminimo.step.fileupload.FileUploadSupport`.
+* Mix in `com.thinkminimo.scalatra.fileupload.FileUploadSupport`.
 * Be sure that your form has an enctype of `multipart/form-data`
 * Uploaded files will be available in a map of `fileParams` or `fileMultiParams`
 
 Example
 -------
 
-    import com.thinkmimino.step.Step
-    import com.thinkmimino.step.fileupload.FileUploadSupport
+    import org.scalatra.ScalatraServlet
+    import org.scalatra.fileupload.FileUploadSupport
 
-    class MyApp extends Step with FileUploadSupport {
+    class MyApp extends ScalatraServlet with FileUploadSupport {
       get("/") {
         <form method="post" enctype="multipart/form-data">
           <input type="file" name="foo" />
@@ -187,11 +187,11 @@ Example
 
 Scalate Integration
 ===================
-Step has experimental support for integration with [Scalate](http://scalate.fusesource.org).
+Scalatra has experimental support for integration with [Scalate](http://scalate.fusesource.org).
 
 Scalate Dependencies
 --------------------
-- step-scalate.jar
+- scalatra-scalate.jar
 - scalate-core-1.2.jar
 - a [slf4j binding](http://www.slf4j.org/manual.html#binding); I like logback
 
@@ -204,25 +204,25 @@ Setup
 Example
 -------
 
-    import com.thinkmimino.step.Step
-    import com.thinkmimino.step.scalate.ScalateSupport
+    import org.scalatra.ScalatraServlet
+    import org.scalatra.scalate.ScalateSupport
 
-    class MyApp extends Step with ScalateSupport {
+    class MyApp extends ScalatraServlet with ScalateSupport {
       get("/") {
         renderTemplate("index.scaml", "content" -> "yada yada yada")
       }
     }
 
-Testing Your Step Applications
-==============================
-Step includes StepTests - a framework for writing the unit tests for your Step application.  It's a trait with some utility functions to send requests to your app and examine the response.  It can be mixed into the test framework of your choosing.  StepTests supports HTTP GET/POST tests with or without request parameters and sessions.  For more examples, please refer to src/test/scala.
+Testing Your Scalatra Applications
+==================================
+Scalatra includes ScalatraTests - a framework for writing the unit tests for your Scalatra application.  It's a trait with some utility functions to send requests to your app and examine the response.  It can be mixed into the test framework of your choosing.  ScalatraTests supports HTTP GET/POST tests with or without request parameters and sessions.  For more examples, please refer to src/test/scala.
 
 ScalaTest example
 -----------------
 
-    class TheStepAppTests extends FunSuite with ShouldMatchers with StepTests {
-      // `TheStepApp` is your app which extends Step
-      route(classOf[TheStepApp], "/*")
+    class MyScalatraServletTests extends FunSuite with ShouldMatchers with ScalatraTests {
+      // `MyScalatraServlet` is your app which extends ScalatraServlet
+      route(classOf[MyScalatraServlet], "/*")
 
       test("simple get") {
         get("/path/to/something") {
@@ -235,10 +235,10 @@ ScalaTest example
 Specs example
 -------------
 
-    object TheStepAppTests extends Specification with StepTests {
-      route(classOf[TheStepApp], "/*")
+    object MyScalatraServletTests extends Specification with ScalatraTests {
+      route(classOf[MyScalatraServlet], "/*")
       
-      "TheStepApp when using GET" should {
+      "MyScalatraServlet when using GET" should {
         "/path/to/something should return 'hi!'" in {
           get("/") {
             status mustEqual(200)
@@ -248,13 +248,21 @@ Specs example
       }
     }                      
 
-Testing Step
-============
-A test suite can be found in `src/test/scala`.  Inside StepTest.scala is a small testing servlet along with some assertions.  If you've made changes to Step itself and you'd like to make sure that this testing servlet still works, you can type `test` at the sbt prompt.
+Testing Scalatra
+================
+A test suite can be found in `core/src/test/scala`.  If you've made changes to Scalatra itself and you'd like to make sure that this testing servlet still works, you can type `test` at the sbt prompt.
 
 Miscellaneous
 =============
-While Step can be run standalone for testing and meddling, you can also package it up in a .jar for use in other projects.  At the sbt prompt, type `package`.  Step's only dependency is a recent version of the servlet API. For more information, see the [sbt site](http://code.google.com/p/simple-build-tool/)
+While Scalatra can be run standalone for testing and meddling, you can also package it up in a .jar for use in other projects.  At the sbt prompt, type `package`.  Scalatra's only dependency is a recent version of the servlet API. For more information, see the [sbt site](http://code.google.com/p/simple-build-tool/)
+
+Migrating from Step to Scalatra
+===============================
+Scalatra was renamed from Step to Scalatra to avoid a naming conflict with (an unrelated web framework)[http://sourceforge.net/stepframework].  scalatra-1.2.0 is identical to step-1.2.0 with the following exceptions:
+
+1. The package has changed from `com.thinkminimo.step` to `org.scalatra`.
+1. The `Step` class has been renamed to `ScalatraServlet`.
+1. All other `Step*` classes have been renamed to `Scalatra*`.
 
 Props
 =====
@@ -264,4 +272,4 @@ Props
 - [Yusuke Kuoka](http://github.com/mumoshu) for adding sessions and header support
 - [Miso Korkiakoski](http://github.com/mwing) for various patches.
 - [Ivan Willig](http://github.com/iwillig) for his work on [Scalate](http://scalate.fusesource.org/) integration.
-- [Hiram Chirino](http://hiramchirino.com) for Maven integration.
+- [Hiram Chirino](http://hiramchirino.com) for Maven integration and the new name.

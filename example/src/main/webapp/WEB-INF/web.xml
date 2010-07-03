@@ -6,7 +6,7 @@
 
   <servlet>
     <servlet-name>TemplateExample</servlet-name>
-    <servlet-class>com.thinkminimo.step.TemplateExample</servlet-class>
+    <servlet-class>org.scalatra.TemplateExample</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -22,13 +22,13 @@
   </servlet-mapping>
 
   <!-- 
-    Demonstrates how to use Step as a filter rather than as a Servlet.
-    Typically, you would run Step as either a servlet or a filter, but
+    Demonstrates how to use Scalatra as a filter rather than as a Servlet.
+    Typically, you would run Scalatra as either a servlet or a filter, but
     not both in the same app.  
   -->
   <filter>
     <filter-name>FilterExample</filter-name>
-    <filter-class>com.thinkminimo.step.FilterExample</filter-class>
+    <filter-class>org.scalatra.FilterExample</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>FilterExample</filter-name>

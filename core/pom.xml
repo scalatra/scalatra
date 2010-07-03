@@ -1,66 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>com.thinkminimo.step</groupId>
-    <artifactId>step-project</artifactId>
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.scalatra</groupId>
+    <artifactId>scalatra_2.8.0.RC6</artifactId>
+    <packaging>jar</packaging>
     <version>2.0.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>com.thinkminimo.step</groupId>
-  <artifactId>step</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
-
-  <name>step</name>
-  <description>The core Step library</description>
-
-  <dependencies>
-    
-    <!-- compile scope dependencies -->
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <version>${scala-version}</version>
-    </dependency>
-    
-    <dependency>
-      <!-- not really needed, but it helps IDEA setup the project easier -->
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-compiler</artifactId>
-      <version>${scala-version}</version>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${servlet-api-version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty-servlet-tester</artifactId>
-      <version>${jetty-version}</version>
-      <optional>true</optional>
-    </dependency> 
-
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest</artifactId>
-      <version>${scalatest-version}</version>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- testing scope dependencies -->
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito-version}</version>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
-
+    <parent>
+        <groupId>org.scalatra</groupId>
+        <artifactId>scalatra-project</artifactId>
+        <version>$2.0.0-SNAPSHOT</version>
+    </parent>
+    <name>scalatra</name>
+    <description>The core Scalatra library</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-servlet-tester</artifactId>
+            <version>6.1.22</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest</artifactId>
+            <version>1.2-for-scala-2.8.0.RC6-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.8.0.RC6</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

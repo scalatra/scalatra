@@ -1,70 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>com.thinkminimo.step</groupId>
-    <artifactId>step-project</artifactId>
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.scalatra</groupId>
+    <artifactId>scalatra-fileupload_2.8.0.RC6</artifactId>
+    <packaging>jar</packaging>
     <version>2.0.0-SNAPSHOT</version>
-  </parent>
-  
-  <groupId>com.thinkminimo.step</groupId>
-  <artifactId>step-fileupload</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
-
-  <name>step-fileupload</name>
-  <description>Supplies the optional Step file upload support</description>
-
-  <dependencies>
-    
-    <!-- compile scope dependencies -->
-    <dependency>
-      <!-- not really needed, but it helps IDEA setup the project easier -->
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-compiler</artifactId>
-      <version>${scala-version}</version>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>com.thinkminimo.step</groupId>
-      <artifactId>step</artifactId>
-      <version>2.0.0-SNAPSHOT</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>${servlet-api-version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>1.2.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>1.4</version>
-    </dependency>
-
-    <!-- testing scope dependencies -->
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest</artifactId>
-      <version>${scalatest-version}</version>
-      <scope>test</scope>
-    </dependency> 
-    <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty-servlet-tester</artifactId>
-      <version>${jetty-version}</version>
-      <scope>test</scope>
-    </dependency> 
-
-  </dependencies>
-
+    <parent>
+        <groupId>org.scalatra</groupId>
+        <artifactId>scalatra-project</artifactId>
+        <version>$2.0.0-SNAPSHOT</version>
+    </parent>
+    <name>scalatra-fileupload</name>
+    <description>Supplies the optional Scalatra file upload support</description>
+    <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.4</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatra</groupId>
+            <artifactId>scalatra_2.8.0.RC6</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.8.0.RC6</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>
