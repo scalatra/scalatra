@@ -6,7 +6,7 @@
 
   <servlet>
     <servlet-name>TemplateExample</servlet-name>
-    <servlet-class>com.thinkminimo.step.TemplateExample</servlet-class>
+    <servlet-class>org.scalatra.TemplateExample</servlet-class>
   </servlet>
 
   <servlet-mapping>
