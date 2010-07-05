@@ -133,6 +133,11 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
 
     <developers>
       <developer>
+        <id>riffraff</id>
+        <name>Gabriele Renzi</name>
+        <url>http://www.riffraff.info</url>
+      </developer>
+      <developer>
         <id>alandipert</id>
         <name>Alan Dipert</name>
         <url>http://alan.dipert.org</url>
