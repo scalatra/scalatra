@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.scalatra</groupId>
     <artifactId>scalatra-parent_2.8.0.RC6</artifactId>
-    <packaging>pom</packaging>
     <version>2.0.0-SNAPSHOT</version>
-    <name>Scalatra Project</name>
+    <packaging>pom</packaging>
+    <name>scalatra-parent</name>
+    <description>Step Project POM</description>
     <prerequisites>
         <maven>2.2.1</maven>
     </prerequisites>
@@ -13,16 +14,26 @@
         <!-- build settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler.fork>false</compiler.fork>
-        <release-altGitURL>scm:git:ssh://git@github.com:alandipert/scalatra.git</release-altGitURL>
+        <release-altGitURL>scm:git:ssh://git@github.com:alandipert/step.git</release-altGitURL>
+        <!-- dependency versions -->
+        <scala-version>2.8.0.RC6</scala-version>
         <!-- maven plugin versions -->
         <surefire-version>2.5</surefire-version>
         <scala-plugin-version>2.13.1</scala-plugin-version>
     </properties>
+    <url>http://www.scalatra.org/</url>
     <inceptionYear>2009</inceptionYear>
     <organization>
         <name>Scalatra Project</name>
-        <url>http://github.com/alandipert/scalatra</url>
+        <url>http://www.scalatra.org/</url>
     </organization>
+    <licenses>
+        <license>
+            <name>BSD</name>
+            <url>http://github.com/alandipert/step/raw/HEAD/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <mailingLists>
         <mailingList>
             <name>Scalatra user group</name>
@@ -33,10 +44,10 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:git:git://github.com/alandipert/scalatra.git</connection>
+        <connection>scm:git:git://github.com/alandipert/step.git</connection>
         <!-- Work around for issue: http://jira.codehaus.org/browse/SCM-444 -->
         <developerConnection>${release-altGitURL}</developerConnection>
-        <url>http://github.com/alandipert/scalatra</url>
+        <url>http://github.com/alandipert/step</url>
     </scm>
     <distributionManagement>
         <repository>
@@ -49,14 +60,13 @@
             <name>Sonatype Nexus Snapshots</name>
             <url>http://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
-        <!-- 
-        <site>
-          <id>scalatra.github.org</id>
-          <url>dav:http://scalatra.github.org/</url>
-        </site> 
-      -->
     </distributionManagement>
     <developers>
+        <developer>
+            <id>riffraff</id>
+            <name>Gabriele Renzi</name>
+            <url>http://www.riffraff.info</url>
+        </developer>
         <developer>
             <id>alandipert</id>
             <name>Alan Dipert</name>
@@ -81,8 +91,6 @@
     </modules>
     <build>
         <defaultGoal>install</defaultGoal>
-        <sourceDirectory>src/main/scala</sourceDirectory>
-        <testSourceDirectory>src/test/scala</testSourceDirectory>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
@@ -119,9 +127,9 @@
                 <version>${surefire-version}</version>
                 <configuration>
                     <!-- we must turn off the use of system class loader so our tests can find 
-                stuff - otherwise scala compiler can't find stuff -->
+                  stuff - otherwise scala compiler can't find stuff -->
                     <useSystemClassLoader>false</useSystemClassLoader>
-                    <forkMode>pertest</forkMode>
+                    <!--<forkMode>pertest</forkMode>-->
                     <childDelegation>false</childDelegation>
                     <useFile>true</useFile>
                     <failIfNoTests>false</failIfNoTests>
@@ -164,25 +172,25 @@
                 </configuration>
             </plugin>
             <!--
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.6</version>
-            <configuration>
-              <detectLinks>true</detectLinks>
-              <linksource>true</linksource>
-            </configuration>
-            <reportSets>
-              <reportSet>
-                <reports>
-                  <report>javadoc</report>
-                  &lt;!&ndash;<report>aggregate</report>&ndash;&gt;
-                  <report>test-javadoc</report>
-                </reports>
-              </reportSet>
-            </reportSets>
-          </plugin>
-        -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>2.6</version>
+              <configuration>
+                <detectLinks>true</detectLinks>
+                <linksource>true</linksource>
+              </configuration>
+              <reportSets>
+                <reportSet>
+                  <reports>
+                    <report>javadoc</report>
+                    &lt;!&ndash;<report>aggregate</report>&ndash;&gt;
+                    <report>test-javadoc</report>
+                  </reports>
+                </reportSet>
+              </reportSets>
+            </plugin>
+          -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -236,8 +244,8 @@
     </reporting>
     <profiles>
         <!-- poms deployed to maven central CANNOT have a repositories
-           section defined.  This download profile lets you 
-           download dependencies other repos during development time. -->
+             section defined.  This download profile lets you 
+             download dependencies other repos during development time. -->
         <profile>
             <id>download</id>
             <repositories>
@@ -329,8 +337,8 @@
                                 <phase>compile</phase>
                                 <configuration>
                                     <tasks>
-                                        <mkdir dir="${project.build.directory}/apidocs"></mkdir>
-                                        <echo message="comming soon." file="${project.build.directory}/apidocs/readme.txt"></echo>
+                                        <mkdir dir="${{project.build.directory}}/apidocs"></mkdir>
+                                        <echo message="comming soon." file="${{project.build.directory}}/apidocs/readme.txt"></echo>
                                     </tasks>
                                 </configuration>
                                 <goals>
@@ -359,9 +367,9 @@
             </build>
         </profile>
         <!--
-        To generate a graph of the project dependencies, run: mvn -P graph
-        graph:project
-      -->
+          To generate a graph of the project dependencies, run: mvn -P graph
+          graph:project
+        -->
         <profile>
             <id>graph</id>
             <build>
@@ -375,26 +383,4 @@
             </build>
         </profile>
     </profiles>
-    <dependencies>
-        <dependency>
-            <groupId>org.scalatra</groupId>
-            <artifactId>scalatra-scalate_2.8.0.RC6</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scalatra</groupId>
-            <artifactId>scalatra-example_2.8.0.RC6</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scalatra</groupId>
-            <artifactId>scalatra_2.8.0.RC6</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scalatra</groupId>
-            <artifactId>scalatra-fileupload_2.8.0.RC6</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
 </project>
