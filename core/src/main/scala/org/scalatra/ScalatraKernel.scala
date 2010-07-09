@@ -17,7 +17,7 @@ object ScalatraKernel
 }
 import ScalatraKernel._
 
-trait ScalatraKernel extends Handler
+trait ScalatraKernel extends Handler with Initializable
 {
   protected val Routes = MMap(protocols map (_ -> List[Route]()): _*)
 
@@ -213,4 +213,10 @@ trait ScalatraKernel extends Handler
   protected def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
   private def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
     Routes(protocol) = new Route(routeMatchers, () => action) :: Routes(protocol)
+
+  protected var servletContext: ServletContext = _
+
+  def init(config: Config) {
+    servletContext = config.getServletContext
+  }
 }

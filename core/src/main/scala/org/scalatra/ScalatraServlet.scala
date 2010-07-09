@@ -27,5 +27,8 @@ abstract class ScalatraServlet extends HttpServlet with ScalatraKernel
     response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
   }
 
-  implicit def servletContext = getServletContext
+  override def init(config: ServletConfig) = {
+    super.init(config)
+    init(config:Config)
+  }
 }

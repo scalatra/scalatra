@@ -25,12 +25,7 @@ trait ScalatraFilter extends Filter with ScalatraKernel {
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)
 
-  // must be a var because we don't know its value until the servlet container calls init 
-  protected var servletContext: ServletContext = _
-
-  def init(filterConfig: FilterConfig) = {
-    servletContext = filterConfig.getServletContext
-  }
+  def init(filterConfig: FilterConfig) = init(filterConfig:Config) 
 
   def destroy = {}
 }
