@@ -9,7 +9,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
 
   val jettyGroupId = "org.mortbay.jetty"
   val jettyVersion = "6.1.22"
-
+  val slf4jVersion = "1.6.0"
 
   trait ScalatraSubProject extends BasicManagedProject {
     def description: String
@@ -69,7 +69,8 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject {
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
-    val sfl4jnop = "org.slf4j" % "slf4j-nop" % "1.5.11" % "runtime" // Scalate needs a slf4j binding.
+    val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "runtime" 
+    val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val description = "An example Scalatra application"
   }
 
