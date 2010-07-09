@@ -2,7 +2,7 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.scalatra</groupId>
-    <artifactId>scalatra-parent_2.8.0.RC6</artifactId>
+    <artifactId>scalatra-parent_2.8.0.RC7</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>scalatra-parent</name>
@@ -16,7 +16,7 @@
         <compiler.fork>false</compiler.fork>
         <release-altGitURL>scm:git:ssh://git@github.com:alandipert/step.git</release-altGitURL>
         <!-- dependency versions -->
-        <scala-version>2.8.0.RC6</scala-version>
+        <scala-version>2.8.0.RC7</scala-version>
         <!-- maven plugin versions -->
         <surefire-version>2.5</surefire-version>
         <scala-plugin-version>2.13.1</scala-plugin-version>
