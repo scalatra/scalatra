@@ -162,7 +162,7 @@ File upload dependencies
 
 Usage
 -----
-* Mix in `com.thinkminimo.scalatra.fileupload.FileUploadSupport`.
+* Mix in `org.scalatra.fileupload.FileUploadSupport`.
 * Be sure that your form has an enctype of `multipart/form-data`
 * Uploaded files will be available in a map of `fileParams` or `fileMultiParams`
 
@@ -176,7 +176,7 @@ Example
       get("/") {
         <form method="post" enctype="multipart/form-data">
           <input type="file" name="foo" />
-          <input type="button" />
+          <input type="submit" />
         </form>
       }
 
