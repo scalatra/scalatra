@@ -1,4 +1,4 @@
-package org.scalatra
+package org.scalatra.test
 
 import org.mortbay.jetty.testing.HttpTester
 

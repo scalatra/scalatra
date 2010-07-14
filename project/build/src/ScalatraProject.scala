@@ -48,7 +48,6 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
 
   lazy val core = project("core", "scalatra", new CoreProject(_)) 
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
-    override val scalatest = "org.scalatest" % "scalatest" % scalatestVersion(crossScalaVersionString) % "provided"
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
     val description = "The core Scalatra library"
   }

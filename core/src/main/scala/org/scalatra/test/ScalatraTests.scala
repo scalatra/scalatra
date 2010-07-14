@@ -1,4 +1,4 @@
-package org.scalatra
+package org.scalatra.test
 
 import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
@@ -9,6 +9,10 @@ import org.mortbay.jetty.servlet.ServletHolder
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 
+/**
+ * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
+ * either <code>org.scalatest.Suite</code> or <code>org.specs.Specification</code>. 
+ */
 trait ScalatraTests {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
