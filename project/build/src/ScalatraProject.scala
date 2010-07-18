@@ -12,6 +12,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   trait ScalatraSubProject extends BasicManagedProject {
     def description: String
     def skipDeploy: Boolean = false
+    def extraPlugins: NodeSeq = Seq.empty
 
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
     val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
@@ -43,6 +44,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
                 <skip>{skipDeploy}</skip>
               </configuration>
             </plugin>
+            {extraPlugins}
           </plugins>
         </build>
       </project>
@@ -69,6 +71,12 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
     val description = "An example Scalatra application"
     override val skipDeploy = true // Do not deploy to Maven repo
+    override val extraPlugins = 
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>{jettyVersion}</version>
+      </plugin>
   }
 
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
