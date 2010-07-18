@@ -4,6 +4,8 @@ import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import io.Source
 import org.mortbay.jetty.testing.{ServletTester, HttpTester}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 class RequestBodyTestServlet extends ScalatraServlet {
   get("/request-body") {
@@ -15,6 +17,7 @@ class RequestBodyTestServlet extends ScalatraServlet {
   }
 }
 
+@RunWith(classOf[JUnitRunner])
 class RequestBodyTest extends FunSuite with ShouldMatchers {
   val tester = new ServletTester
   tester.addServlet(classOf[RequestBodyTestServlet], "/")
