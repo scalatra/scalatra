@@ -206,6 +206,18 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
               </execution>
             </executions>
           </plugin>
+
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
   
