@@ -5,6 +5,8 @@ import org.scalatest.FunSuite
 import org.mortbay.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
 import org.scalatra.ScalatraServlet
+import org.scalatest.junit.JUnitRunner
+import org.junit.runner.RunWith
 
 class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
   post("/multipart") {
@@ -19,6 +21,7 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
   }
 }
 
+@RunWith(classOf[JUnitRunner])
 class FileUploadSupportTest extends FunSuite with ShouldMatchers {
   val tester = new ServletTester
 

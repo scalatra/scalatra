@@ -1,7 +1,6 @@
 import sbt._
 
 import scala.xml._
-import scala.xml.transform._
 
 class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
 {
@@ -13,10 +12,13 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
 
   trait ScalatraSubProject extends BasicManagedProject {
     def description: String
+    def skipDeploy: Boolean = false
+    def extraPlugins: NodeSeq = Seq.empty
 
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
     val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
-    val scalatest = "org.scalatest" % "scalatest" % scalatestVersion(crossScalaVersionString) % "test"
+    val scalatest = "org.scalatest" % "scalatest" % "1.2" % "test"
+    val junit = "junit" % "junit" % "4.8.1" % "test"
 
     override def pomPostProcess(pom: Node) =
       <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -34,9 +36,19 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
         <description>{description}</description>
         {pom \ "properties"}
         {pom \ "dependencies"}
+        <build>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-deploy-plugin</artifactId>
+              <configuration>
+                <skip>{skipDeploy}</skip>
+              </configuration>
+            </plugin>
+            {extraPlugins}
+          </plugins>
+        </build>
       </project>
-
-    def basedir = ".."+info.projectPath
 
     override def makePomConfiguration = 
       new MakePomConfiguration(deliverProjectDependencies,
@@ -63,6 +75,16 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.2-SNAPSHOT"
     val description = "Supplies the optional Scalatra Scalate support"
+    override val extraPlugins = 
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- No tests here, by design.  *.java instead of *.scala also intentional. --> 
+            <exclude>**/TestScalateScalatraFilter.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
   }
 
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
@@ -71,20 +93,13 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "runtime" 
     val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val description = "An example Scalatra application"
-  }
-
-  def scalatestVersion(scalaVersion: String) = {
-    scalaVersion match {
-      case "2.8.0.Beta1" =>
-        "1.0.1-for-scala-2.8.0.Beta1-with-test-interfaces-0.3-SNAPSHOT"
-      case "2.8.0.RC1" =>
-        "1.0.1-for-scala-2.8.0.RC1-SNAPSHOT"
-      case "2.8.0" =>
-	// Temporary until ScalaTest is released for 2.8.0
-        "1.2-for-scala-2.8.0.RC7-SNAPSHOT"
-      case x =>
-        "1.2-for-scala-"+x+"-SNAPSHOT"
-    } 
+    override val skipDeploy = true // Do not deploy to Maven repo
+    override val extraPlugins = 
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>{jettyVersion}</version>
+      </plugin>
   }
 
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
@@ -106,15 +121,8 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       </prerequisites>
   
       <properties>
-        <!-- build settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.fork>false</compiler.fork>
-        <release-altGitURL>scm:git:ssh://git@github.com:alandipert/step.git</release-altGitURL>
-        <!-- dependency versions -->
         <scala-version>{crossScalaVersionString}</scala-version>
-        <!-- maven plugin versions -->
-        <surefire-version>2.5</surefire-version>
-        <scala-plugin-version>2.13.1</scala-plugin-version>
       </properties>
   
       <url>http://www.scalatra.org/</url>
@@ -145,8 +153,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   
       <scm>
         <connection>scm:git:git://github.com/alandipert/step.git</connection>
-        <!-- Work around for issue: http://jira.codehaus.org/browse/SCM-444 -->
-        <developerConnection>${{release-altGitURL}}</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com:alandipert/step.git</developerConnection>
         <url>http://github.com/alandipert/step</url>
       </scm>
   
@@ -194,21 +201,11 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       </modules>
   
       <build>
-        <defaultGoal>install</defaultGoal>
-  
-        <extensions>
-          <extension>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-webdav-jackrabbit</artifactId>
-            <version>1.0-beta-6</version>
-          </extension>
-        </extensions>
-
         <plugins>
           <plugin>
             <groupId>org.scala-tools</groupId>
             <artifactId>maven-scala-plugin</artifactId>
-            <version>${{scala-plugin-version}}</version>
+            <version>2.14</version>
             <executions>
               <execution>
                 <goals>
@@ -229,136 +226,35 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
             </configuration>
           </plugin>
 
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${{surefire-version}}</version>
-            <configuration>
-              <!-- we must turn off the use of system class loader so our tests can find 
-                  stuff - otherwise scala compiler can't find stuff -->
-              <useSystemClassLoader>false</useSystemClassLoader>
-              <!--<forkMode>pertest</forkMode>-->
-              <childDelegation>false</childDelegation>
-              <useFile>true</useFile>
-              <failIfNoTests>false</failIfNoTests>
-            </configuration>
-          </plugin>
-  
+          <!-- We want to sign the artifact, the POM, and all attached artifacts -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-release-plugin</artifactId>
-            <version>2.0</version>
-            <configuration>
-              <autoVersionSubmodules>true</autoVersionSubmodules>
-              <allowTimestampedSnapshots>false</allowTimestampedSnapshots>
-              <preparationGoals>clean install</preparationGoals>
-              <goals>deploy</goals>
-              <arguments>-Prelease</arguments>
-            </configuration>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
-  
+
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-scm-plugin</artifactId>
-            <version>1.3</version>
-            <dependencies>
-              <dependency>
-                <groupId>org.apache.maven.scm</groupId>
-                <artifactId>maven-scm-provider-gitexe</artifactId>
-                <version>1.3</version>
-              </dependency>
-            </dependencies>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
-          
+
         </plugins>
       </build>
-  
-      <reporting>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jxr-maven-plugin</artifactId>
-            <version>2.0-beta-1</version>
-            <configuration>
-              <aggregate>true</aggregate>
-            </configuration>
-          </plugin>
-  
-          <!--
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <version>2.6</version>
-              <configuration>
-                <detectLinks>true</detectLinks>
-                <linksource>true</linksource>
-              </configuration>
-              <reportSets>
-                <reportSet>
-                  <reports>
-                    <report>javadoc</report>
-                    &lt;!&ndash;<report>aggregate</report>&ndash;&gt;
-                    <report>test-javadoc</report>
-                  </reports>
-                </reportSet>
-              </reportSets>
-            </plugin>
-          -->
-  
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-project-info-reports-plugin</artifactId>
-            <version>2.1.1</version>
-            <reportSets>
-              <reportSet>
-                <reports>
-                  <report>index</report>
-                  <report>summary</report>
-                  <report>plugins</report>
-                  <report>dependencies</report>
-                  <report>dependency-convergence</report>
-                  <report>dependency-management</report>
-                  <report>license</report>
-                  <report>mailing-list</report>
-                  <report>project-team</report>
-                  <report>issue-tracking</report>
-                  <report>cim</report>
-                </reports>
-              </reportSet>
-            </reportSets>
-            <configuration>
-              <webAccessUrl>http://github.com/scalate/scalate</webAccessUrl>
-            </configuration>
-          </plugin>
-  
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-report-plugin</artifactId>
-            <version>2.5</version>
-            <reportSets>
-              <reportSet>
-                <reports>
-                  <report>report-only</report>
-                </reports>
-              </reportSet>
-            </reportSets>
-          </plugin>
-  
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-site-plugin</artifactId>
-            <version>2.1</version>
-            <configuration>
-              <generateSitemap>true</generateSitemap>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>taglist-maven-plugin</artifactId>
-          </plugin>
-  
-        </plugins>
-  
-      </reporting>
   
       <profiles>
         <!-- poms deployed to maven central CANNOT have a repositories
@@ -369,7 +265,6 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
           {pom \ "repositories"}
   
           <pluginRepositories>
-            <!-- 
             <pluginRepository>
               <id>scalatools.releases</id>
               <url>http://scala-tools.org/repo-releases</url>
@@ -382,133 +277,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
               <snapshots><enabled>true</enabled></snapshots>
               <releases><enabled>false</enabled></releases>
             </pluginRepository>
-            -->
           </pluginRepositories>
-        </profile>
-  
-        <!-- use a profile for generating the maven site since we require a snapshot version for 2.8.0 Scala -->
-        <profile>
-          <id>site</id>
-          <properties>
-            <!-- this snapshot release works with 2.8.0-beta1 -->
-            <scala-plugin-version>2.13.2-SNAPSHOT</scala-plugin-version>
-          </properties>
-          <reporting>
-            <plugins>
-              <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <configuration>
-                  <scalaVersion>${{scala-version}}</scalaVersion>
-                </configuration>
-              </plugin>
-            </plugins>
-          </reporting>
-        </profile>
-  
-        <profile>
-          <id>release</id>
-          <build>
-            <plugins>
-              <!-- We want to sign the artifact, the POM, and all attached artifacts -->
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.0</version>
-                <configuration>
-                  <passphrase>${{gpg.passphrase}}</passphrase>
-                </configuration>
-                <executions>
-                  <execution>
-                    <goals>
-                      <goal>sign</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-  
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.1.1</version>
-                <executions>
-                  <execution>
-                    <id>attach-sources</id>
-                    <goals>
-                      <goal>jar-no-fork</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-  
-              <!-- temporary work around until scala doc works with 2.8:  Generate empty javadoc artifacts -->
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                
-                <!-- copied dependency from scalate-website as this plugin might zap it -->
-                <dependencies>
-                  <dependency>
-                    <groupId>org.markdownj</groupId>
-                    <artifactId>markdownj</artifactId>
-                    <version>${{markdownj-version}}</version>
-                  </dependency>
-                </dependencies>
-                
-                <executions>
-                  <execution>
-                    <id>javadoc-work-around</id>
-                    <phase>compile</phase>
-                    <configuration>
-                      <tasks>
-                        <mkdir dir="${{project.build.directory}}/apidocs" />
-                        <echo file="${{project.build.directory}}/apidocs/readme.txt" message="comming soon." />
-                      </tasks>
-                    </configuration>
-                    <goals>
-                      <goal>run</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-  
-              <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.6</version>
-                
-                <configuration>
-                  <encoding>${{project.build.sourceEncoding}}</encoding>
-                </configuration>
-                
-                <executions>
-                  <execution>
-                    <id>attach-javadocs</id>
-                    <goals>
-                      <goal>jar</goal>
-                    </goals>
-                  </execution>
-                </executions>
-              </plugin>
-            </plugins>
-          </build>
-        </profile>
-        
-        <!--
-          To generate a graph of the project dependencies, run: mvn -P graph
-          graph:project
-        -->
-        <profile>
-          <id>graph</id>
-          <build>
-            <plugins>
-              <plugin>
-                <groupId>org.fusesource.mvnplugins</groupId>
-                <artifactId>maven-graph-plugin</artifactId>
-                <version>1.5</version>
-              </plugin>
-            </plugins>
-          </build>
         </profile>
       </profiles>
     </project>

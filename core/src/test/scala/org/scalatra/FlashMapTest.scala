@@ -2,7 +2,10 @@ package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import org.scalatest.junit.JUnitRunner
+import org.junit.runner.RunWith
 
+@RunWith(classOf[JUnitRunner])
 class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
   var flash: FlashMap = _
 

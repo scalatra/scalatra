@@ -105,6 +105,14 @@ Quick Start
     You should see "Hello world."  You can poke around the example code in example/src/main/scala/TemplateExample.scala to see what's going on.
 
 
+Maven Repository
+================
+
+To make usage of Scalatra as a dependency convenient, Maven hosting is now available courtesy of [Sonatype](https://docs.sonatype.com/display/NX/OSS+Repository+Hosting).
+
+* [Releases](https://oss.sonatype.org/content/repositories/releases)
+* [Snapshots](https://oss.sonatype.org/content/repositories/snapshots)
+
 Supported Methods
 =================
 
