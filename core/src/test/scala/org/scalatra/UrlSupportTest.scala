@@ -8,7 +8,10 @@ import org.mockito.Mockito._
 import org.mockito.Matchers._
 import org.mockito.stubbing.Answer
 import org.mockito.invocation.InvocationOnMock
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class UrlSupportTest extends FunSuite with ShouldMatchers {
   private val urlSupport = new UrlSupport {
     def contextPath = "/context"

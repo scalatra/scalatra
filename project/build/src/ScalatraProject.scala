@@ -16,6 +16,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
     val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
     val scalatest = "org.scalatest" % "scalatest" % "1.0" % "test"
+    val junit = "junit" % "junit" % "4.8.1" % "test"
 
     override def pomPostProcess(pom: Node) =
       <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -58,6 +59,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   lazy val core = project("core", "scalatra", new CoreProject(_)) 
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
     override val scalatest = "org.scalatest" % "scalatest" % "1.0" % "provided"
+    override val junit = "junit" % "junit" % "4.8.1" % "provided"
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
     val description = "The core Scalatra library"
   } 
