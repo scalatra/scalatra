@@ -44,6 +44,60 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
                 <skip>{skipDeploy}</skip>
               </configuration>
             </plugin>
+            <!-- Workaround maven-scala-plugin issue #34 -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <dependencies>
+                <dependency>
+                  <groupId>org.scala-lang</groupId>
+                  <artifactId>scala-compiler</artifactId>
+                  <version>{crossScalaVersionString}</version>
+                </dependency>
+                <dependency>
+                  <groupId>org.scala-lang</groupId>
+                  <artifactId>scala-library</artifactId>
+                  <version>{crossScalaVersionString}</version>
+                </dependency>
+              </dependencies>
+              <executions>
+                <execution>
+                  <id>scaladoc-work-around</id>
+                  <phase>compile</phase>
+                  <configuration>
+                    <tasks>
+                      <mkdir dir="${scaladoc.dir}" />
+                      <taskdef resource="scala/tools/ant/antlib.xml" />
+                      <scaladoc srcdir="src/main/scala" destdir="${scaladoc.dir}" classpathref="maven.compile.classpath">
+                        <include name="**/*.scala" />
+                      </scaladoc>
+                    </tasks>
+                  </configuration>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+    
+            <!-- Workaround not having a scaladoc:jar -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jar-plugin</artifactId>
+              
+              <executions>
+                <execution>
+                  <id>attach-scaladoc</id>
+                  <configuration>
+                    <classesDirectory>${{scaladoc.dir}}</classesDirectory>
+                    <classifier>scaladoc</classifier>
+                  </configuration>
+                  <goals>
+                    <goal>jar</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
             {extraPlugins}
           </plugins>
         </build>
@@ -99,6 +153,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala-version>{crossScalaVersionString}</scala-version>
+        <scaladoc.dir>${{project.build.directory}}/scaladoc</scaladoc.dir>
       </properties>
   
       <url>http://www.scalatra.org/</url>
