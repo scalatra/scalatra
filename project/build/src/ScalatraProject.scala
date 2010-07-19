@@ -44,60 +44,6 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
                 <skip>{skipDeploy}</skip>
               </configuration>
             </plugin>
-            <!-- Workaround maven-scala-plugin issue #34 -->
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-antrun-plugin</artifactId>
-              <dependencies>
-                <dependency>
-                  <groupId>org.scala-lang</groupId>
-                  <artifactId>scala-compiler</artifactId>
-                  <version>{crossScalaVersionString}</version>
-                </dependency>
-                <dependency>
-                  <groupId>org.scala-lang</groupId>
-                  <artifactId>scala-library</artifactId>
-                  <version>{crossScalaVersionString}</version>
-                </dependency>
-              </dependencies>
-              <executions>
-                <execution>
-                  <id>scaladoc-work-around</id>
-                  <phase>compile</phase>
-                  <configuration>
-                    <tasks>
-                      <mkdir dir="${scaladoc.dir}" />
-                      <taskdef resource="scala/tools/ant/antlib.xml" />
-                      <scaladoc srcdir="src/main/scala" destdir="${scaladoc.dir}" classpathref="maven.compile.classpath">
-                        <include name="**/*.scala" />
-                      </scaladoc>
-                    </tasks>
-                  </configuration>
-                  <goals>
-                    <goal>run</goal>
-                  </goals>
-                </execution>
-              </executions>
-            </plugin>
-    
-            <!-- Workaround not having a scaladoc:jar -->
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-jar-plugin</artifactId>
-              
-              <executions>
-                <execution>
-                  <id>attach-scaladoc</id>
-                  <configuration>
-                    <classesDirectory>${{scaladoc.dir}}</classesDirectory>
-                    <classifier>scaladoc</classifier>
-                  </configuration>
-                  <goals>
-                    <goal>jar</goal>
-                  </goals>
-                </execution>
-              </executions>
-            </plugin>
             {extraPlugins}
           </plugins>
         </build>
@@ -242,6 +188,17 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
                   <goal>testCompile</goal>
                 </goals>
               </execution>
+              <execution>
+                <id>doc</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>doc</goal>
+                </goals>
+                <configuration>
+                  <reportOutputDirectory>${{project.build.directory}}</reportOutputDirectory>
+                  <outputDirectory>apidocs</outputDirectory>
+                </configuration>                
+              </execution>                    
             </executions>
             <configuration>
               <scaladocClassName>scala.tools.nsc.ScalaDoc</scaladocClassName>
@@ -270,6 +227,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
             </executions>
           </plugin>
 
+          <!-- attach a source jar -->
           <plugin>
             <artifactId>maven-source-plugin</artifactId>
             <executions>
@@ -281,6 +239,25 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
               </execution>
             </executions>
           </plugin>
+
+          <!-- attach a javadoc jar -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.6</version>
+            <configuration>
+              <encoding>${{project.build.sourceEncoding}}</encoding>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
         </plugins>
       </build>
   
