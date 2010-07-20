@@ -1,6 +1,7 @@
 import sbt._
 
 import scala.xml._
+import scala.util.Sorting._
 
 class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
 {
@@ -35,7 +36,9 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
         <name>{name}</name>
         <description>{description}</description>
         {pom \ "properties"}
-        {pom \ "dependencies"}
+        <dependencies>
+          {sortDependencies(pom \ "dependencies" \ "dependency")}
+        </dependencies>
         <build>
           <plugins>
             <plugin>
@@ -137,7 +140,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       <licenses>
         <license>
           <name>BSD</name>
-          <url>http://github.com/alandipert/step/raw/HEAD/LICENSE</url>
+          <url>http://github.com/scalatra/scalatra/raw/HEAD/LICENSE</url>
           <distribution>repo</distribution>
         </license>
       </licenses>
@@ -153,9 +156,9 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       </mailingLists>
   
       <scm>
-        <connection>scm:git:git://github.com/alandipert/step.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:alandipert/step.git</developerConnection>
-        <url>http://github.com/alandipert/step</url>
+        <connection>scm:git:git://github.com/scalatra/scalatra.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:scalatra/scalatra.git</developerConnection>
+        <url>http://github.com/scalatra/scalatra</url>
       </scm>
   
       <distributionManagement>
@@ -316,4 +319,9 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   def crossScalaName(name: String) = name+"_"+crossScalaVersionString
 
   override def pomPath = "pom.xml"
+
+  def sortDependencies(deps: Seq[Node]) = {
+    def sortKey(dep: Node) = (dep \ "artifactId")(0).text
+    stableSort(deps, {(x: Node, y:Node) => sortKey(x) < sortKey(y)})
+  }
 }

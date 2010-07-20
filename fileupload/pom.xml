@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.scalatra</groupId>
-        <artifactId>scalatra-parent_2.8.0</artifactId>
+        <artifactId>scalatra-project_2.8.0</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
     <groupId>org.scalatra</groupId>
@@ -13,6 +13,12 @@
     <name>scalatra-fileupload</name>
     <description>Supplies the optional Scalatra file upload support</description>
     <dependencies>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.1</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -26,9 +32,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.2.1</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.8.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -38,28 +50,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5-20081211</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.scalatra</groupId>
             <artifactId>scalatra_2.8.0</artifactId>
             <version>2.0.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>2.8.0</version>
-            <scope>compile</scope>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5-20081211</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
@@ -70,58 +70,6 @@
                 <configuration>
                     <skip>false</skip>
                 </configuration>
-            </plugin>
-            <!-- Workaround maven-scala-plugin issue #34 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.scala-lang</groupId>
-                        <artifactId>scala-compiler</artifactId>
-                        <version>2.8.0</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.scala-lang</groupId>
-                        <artifactId>scala-library</artifactId>
-                        <version>2.8.0</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>scaladoc-work-around</id>
-                        <phase>compile</phase>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${scaladoc.dir}"></mkdir>
-                                <taskdef resource="scala/tools/ant/antlib.xml"></taskdef>
-                                <scaladoc srcdir="src/main/scala" destdir="${scaladoc.dir}" classpathref="maven.compile.classpath">
-                                    <include name="**/*.scala"></include>
-                                </scaladoc>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Workaround not having a scaladoc:jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-scaladoc</id>
-                        <configuration>
-                            <classesDirectory>${scaladoc.dir}</classesDirectory>
-                            <classifier>scaladoc</classifier>
-                        </configuration>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
