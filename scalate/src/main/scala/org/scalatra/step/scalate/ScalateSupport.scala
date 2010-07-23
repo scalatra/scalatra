@@ -10,7 +10,11 @@ import org.fusesource.scalate.servlet.{ServletRenderContext, ServletResourceLoad
 import org.fusesource.scalate.util.ClassPathBuilder
 
 trait ScalateSupport {
-  self: {def servletContext: ServletContext} =>
+  self: {
+    def servletContext: ServletContext
+    def request: HttpServletRequest
+    def response: HttpServletResponse
+  } =>
 
   // Laziness lets the servlet context initialize itself first.
   //
@@ -50,9 +54,12 @@ trait ScalateSupport {
 
       builder.classPath
     }
+
+    override def createRenderContext(out: PrintWriter) =
+      ScalateSupport.this.createRenderContext(request, response)
   }
 
-  def createRenderContext(implicit req: HttpServletRequest, res: HttpServletResponse) = 
+  def createRenderContext(implicit req: HttpServletRequest, res: HttpServletResponse): ServletRenderContext = 
     new ServletRenderContext(templateEngine, req, res, servletContext)
 
   def renderTemplate(path: String, attributes: (String, Any)*)
