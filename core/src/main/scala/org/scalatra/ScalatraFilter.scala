@@ -4,7 +4,7 @@ import scala.util.DynamicVariable
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import javax.servlet._
 
-trait ScalatraFilter extends Filter with ScalatraKernel {
+trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   import ScalatraKernel._
 
   private val _filterChain = new DynamicVariable[FilterChain](null)
@@ -25,7 +25,16 @@ trait ScalatraFilter extends Filter with ScalatraKernel {
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)
 
-  def init(filterConfig: FilterConfig) = init(filterConfig:Config) 
+  protected var servletContext: ServletContext = _
+
+  type Config = FilterConfig
+
+  // see Initializable.initialize for why
+  def init(filterConfig: FilterConfig) = initialize(filterConfig) 
+
+  def initialize(config: FilterConfig): Unit = {
+    servletContext = config.getServletContext    
+  }
 
   def destroy = {}
 }

@@ -8,7 +8,10 @@ import scala.collection.mutable.HashSet
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 
-abstract class ScalatraServlet extends HttpServlet with ScalatraKernel
+abstract class ScalatraServlet 
+  extends HttpServlet 
+  with ScalatraKernel 
+  with Initializable
 {
   import ScalatraKernel._
 
@@ -27,8 +30,14 @@ abstract class ScalatraServlet extends HttpServlet with ScalatraKernel
     response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
   }
 
+  protected def servletContext: ServletContext = getServletContext
+
+  type Config = ServletConfig
+
   override def init(config: ServletConfig) = {
     super.init(config)
-    init(config:Config)
+    initialize(config) // see Initializable.initialize for why
   }
+
+  def initialize(config: ServletConfig): Unit = {}
 }
