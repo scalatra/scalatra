@@ -1,14 +1,11 @@
 package org.scalatra
 package scalate
 
-import scala.tools.nsc.Global
-import java.io.{File, PrintWriter}
-import javax.servlet.ServletContext
+import java.io.PrintWriter
+import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.fusesource.scalate.{Binding, RenderContext, TemplateEngine}
-import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import org.fusesource.scalate.servlet.{ServletRenderContext, ServletResourceLoader, ServletTemplateEngine}
-import org.fusesource.scalate.util.ClassPathBuilder
+import org.fusesource.scalate.TemplateEngine
+import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 
 trait ScalateSupport extends Initializable {
   self: {
@@ -18,49 +15,34 @@ trait ScalateSupport extends Initializable {
   } =>
 
   protected var templateEngine: TemplateEngine = _
+
   abstract override def initialize(config: Config) {
-    templateEngine = new TemplateEngine {
-      bindings = List(Binding("context", classOf[ServletRenderContext].getName, true, isImplicit = true))  
-
-      // If the scalate.workingdir is not set, then just configure the working
-      // directory under WEB_INF/_scalate
-      if ( System.getProperty("scalate.workingdir", "").length == 0 ) {
-        val path = servletContext.getRealPath("WEB-INF")
-        if (path != null) {
-          workingDirectory = new File(path, "_scalate")
-        }
-      }
-  
-      classpath = buildClassPath
-      resourceLoader = new ServletResourceLoader(servletContext)
-      layoutStrategy = new DefaultLayoutStrategy(this, TemplateEngine.templateTypes.map("/WEB-INF/scalate/layouts/default." + _):_*)
-
-      private def buildClassPath(): String = {
-
-        val builder = new ClassPathBuilder
-
-        // Add containers class path
-        builder.addPathFrom(getClass)
-               .addPathFrom(classOf[ServletContext])
-               .addPathFrom(classOf[Product])
-               .addPathFrom(classOf[Global])
-
-        // Always include WEB-INF/classes and all the JARs in WEB-INF/lib just in case
-        builder.addClassesDir(servletContext.getRealPath("/WEB-INF/classes"))
-               .addLibDir(servletContext.getRealPath("/WEB-INF/lib"))
-
-        builder.classPath
-      }
-
-      override def createRenderContext(out: PrintWriter) =
-        ScalateSupport.this.createRenderContext(request, response)
-    }
+    super.initialize(config)
+    templateEngine = createTemplateEngine(config)
   }
 
-  def createRenderContext(implicit req: HttpServletRequest, res: HttpServletResponse): ServletRenderContext = 
-    new ServletRenderContext(templateEngine, req, res, servletContext)
+  protected def createTemplateEngine(config: Config) = 
+    config match {
+      case servletConfig: ServletConfig =>
+        new ServletTemplateEngine(servletConfig) with CreatesServletRenderContext
+      case filterConfig: FilterConfig =>
+        new ServletTemplateEngine(filterConfig) with CreatesServletRenderContext
+      case _ =>
+        // Don't know how to convert your Config to something that
+        // ServletTemplateEngine can accept, so fall back to a TemplateEngine
+        new TemplateEngine with CreatesServletRenderContext
+    }
 
-  def renderTemplate(path: String, attributes: (String, Any)*)
-                    (implicit request: HttpServletRequest, response: HttpServletResponse) = 
+  trait CreatesServletRenderContext {
+    this: TemplateEngine =>
+
+    override def createRenderContext(out: PrintWriter) =
+      ScalateSupport.this.createRenderContext
+  }
+
+  def createRenderContext: ServletRenderContext = 
+    new ServletRenderContext(templateEngine, request, response, servletContext)
+
+  def renderTemplate(path: String, attributes: (String, Any)*) = 
     createRenderContext.render(path, Map(attributes : _*))
 }
