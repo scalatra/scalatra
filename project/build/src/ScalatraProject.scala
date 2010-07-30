@@ -93,7 +93,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject {
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
-    val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "runtime" 
+    val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
     val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val description = "An example Scalatra application"
     override val skipDeploy = true // Do not deploy to Maven repo
