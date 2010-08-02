@@ -13,7 +13,6 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
 
   trait ScalatraSubProject extends BasicManagedProject {
     def description: String
-    def skipDeploy: Boolean = false
     def extraPlugins: NodeSeq = Seq.empty
 
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
@@ -39,18 +38,6 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
         <dependencies>
           {sortDependencies(pom \ "dependencies" \ "dependency")}
         </dependencies>
-        <build>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-deploy-plugin</artifactId>
-              <configuration>
-                <skip>{skipDeploy}</skip>
-              </configuration>
-            </plugin>
-            {extraPlugins}
-          </plugins>
-        </build>
       </project>
 
     override def makePomConfiguration = 
@@ -94,7 +81,10 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
     val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val description = "An example Scalatra application"
-    override val skipDeploy = true // Do not deploy to Maven repo
+    override def publishLocalAction = Empty
+    override def deliverLocalAction = Empty
+    override def publishAction = Empty
+    override def deliverAction = Empty
     override val extraPlugins = 
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
