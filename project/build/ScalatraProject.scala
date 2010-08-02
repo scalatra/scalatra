@@ -11,7 +11,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   val jettyVersion = "6.1.22"
   val slf4jVersion = "1.6.0"
 
-  trait ScalatraSubProject extends BasicManagedProject {
+  trait ScalatraSubProject extends BasicScalaProject with BasicPackagePaths {
     def description: String
     def extraPlugins: NodeSeq = Seq.empty
 
@@ -44,6 +44,14 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       new MakePomConfiguration(deliverProjectDependencies,
         Some(Configurations.defaultMavenConfigurations),
         pomExtra, pomPostProcess, pomIncludeRepository)
+
+    override def packageDocsJar = defaultJarPath("-javadoc.jar")
+    override def packageSrcJar= defaultJarPath("-sources.jar")
+    // If these aren't lazy, then the build crashes looking for
+    // ${moduleName}/project/build.properties.
+    lazy val sourceArtifact = Artifact.sources(artifactID)
+    lazy val docsArtifact = Artifact.javadoc(artifactID)
+    override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageDocs, packageSrc)
   }
 
   lazy val core = project("core", "scalatra", new CoreProject(_)) 
@@ -85,6 +93,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
     override def deliverLocalAction = Empty
     override def publishAction = Empty
     override def deliverAction = Empty
+    override def artifacts = Set.empty
     override val extraPlugins = 
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
