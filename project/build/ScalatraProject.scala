@@ -57,8 +57,6 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       new MakePomConfiguration(deliverProjectDependencies,
         Some(Configurations.defaultMavenConfigurations),
         pomExtra, pomPostProcess, pomIncludeRepository)
-
-    override def pomPath = "pom.xml"
   }
 
   lazy val core = project("core", "scalatra", new CoreProject(_)) 
@@ -317,8 +315,6 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
     </project>
 
   def crossScalaName(name: String) = name+"_"+crossScalaVersionString
-
-  override def pomPath = "pom.xml"
 
   def sortDependencies(deps: Seq[Node]) = {
     def sortKey(dep: Node) = (dep \ "artifactId")(0).text
