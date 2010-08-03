@@ -114,7 +114,7 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
       <packaging>pom</packaging>
       
       <name>{name}</name>
-      <description>Step Project POM</description>
+      <description>Scalatra Project POM</description>
   
       <prerequisites>
         <maven>2.2.1</maven>
