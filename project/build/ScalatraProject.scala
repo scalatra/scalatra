@@ -29,7 +29,7 @@ class ScalatraProject(info: ProjectInfo)
     override def pomExtra = (
       <parent>
         <groupId>{organization}</groupId>
-        <artifactId>{artifactID}</artifactId>
+        <artifactId>{ScalatraProject.this.artifactID}</artifactId>
         <version>{version}</version>
       </parent>
       <name>{name}</name>
