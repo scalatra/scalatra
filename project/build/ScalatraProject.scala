@@ -158,5 +158,5 @@ class ScalatraProject(info: ProjectInfo)
 
   override def managedStyle = ManagedStyle.Maven
   val publishTo = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-  Credentials(Path.userHome / ".ivy2" / ".credentials", log)
+  Credentials(Path.userHome / ".ivy2" / "credentials" / "oss.sonatype.org", log)
 }
