@@ -134,7 +134,7 @@ class ScalatraProject(info: ProjectInfo)
   )
 
   override def pomPostProcess(pom: Node) = 
-    pom match { 
+    super.pomPostProcess(pom) match { 
       case Elem(prefix, label, attr, scope, c @ _*) =>
         val children = c flatMap {
           case Elem(_, "repositories", _, _, repos @ _*) =>
