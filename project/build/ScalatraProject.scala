@@ -2,8 +2,11 @@ import sbt._
 
 import scala.xml._
 import scala.util.Sorting._
+import com.rossabaker.sbt.gpg._
 
-class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
+class ScalatraProject(info: ProjectInfo) 
+  extends ParentProject(info)
+  with GpgPlugin
 {
   override def shouldCheckOutputDirectories = false
 
@@ -11,7 +14,11 @@ class ScalatraProject(info: ProjectInfo) extends ParentProject(info)
   val jettyVersion = "6.1.22"
   val slf4jVersion = "1.6.0"
 
-  trait ScalatraSubProject extends BasicScalaProject with BasicPackagePaths {
+  trait ScalatraSubProject 
+    extends BasicScalaProject 
+    with BasicPackagePaths 
+    with GpgPlugin
+  {
     def description: String
 
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
