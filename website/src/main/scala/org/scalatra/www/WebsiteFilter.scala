@@ -14,7 +14,7 @@ class WebsiteFilter
       case s if s.endsWith("/") => s + "index"
       case s => s
     }
-    val templatePath = templateBase + ".scaml"
+    val templatePath = "/WEB-INF/scalate/templates/" + templateBase + ".scaml"
     servletContext.getResource(templatePath) match {
       case url: URL => 
         contentType = "text/html"
