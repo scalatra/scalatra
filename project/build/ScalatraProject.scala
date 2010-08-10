@@ -77,6 +77,16 @@ class ScalatraProject(info: ProjectInfo)
     override def artifacts = Set.empty
   }
 
+  lazy val website = project("website", "scalatra-website", new WebsiteProject(_), core, scalate)
+  class WebsiteProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject {
+    override val jettyPort = 8081
+    val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
+    val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
+    val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
+    val markdown = "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4" % "runtime"
+    val description = "Runs www.scalatra.org"
+  }
+
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 
