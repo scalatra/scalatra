@@ -5,7 +5,7 @@ import java.net.URLEncoder.encode
 import org.mortbay.jetty.testing.HttpTester
 import org.mortbay.jetty.testing.ServletTester
 import org.mortbay.jetty.{Handler => JettyHandler}
-import org.mortbay.jetty.servlet.ServletHolder
+import org.mortbay.jetty.servlet.{DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 
@@ -96,4 +96,8 @@ trait ScalatraTests {
   def header = response.header
   // shorthand for response.status
   def status = response.status
+
+  // Add a default servlet.  If there is no underlying servlet, then
+  // filters just return 404.
+  route(classOf[DefaultServlet], "/")
 }

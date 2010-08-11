@@ -23,6 +23,10 @@ class ScalatraFilterTestFilter extends ScalatraFilter {
   get("/exact-match/filtered") {
     "filter"
   }
+
+  get("/status-202") {
+    status(202)
+  }
 }
 
 class ScalatraFilterTestPathMappedServlet extends ScalatraServlet {
@@ -123,3 +127,20 @@ class ScalatraFilterTest extends ScalatraSuite with ShouldMatchers {
     }
   }
 }
+
+class ScalatraFilterWithoutServletMappingTest 
+  extends ScalatraSuite 
+  with ShouldMatchers 
+{
+  routeFilter(classOf[ScalatraFilterTestFilter], "/*")
+
+  // Based on http://gist.github.com/519565, http://gist.github.com/519566.
+  // Was instead giving a 404.
+  test("should match even when no servlet is mapped") {
+    get("/status-202") {
+      status should equal (202)
+    }
+  }
+}
+
+
