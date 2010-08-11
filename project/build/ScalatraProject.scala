@@ -14,6 +14,16 @@ class ScalatraProject(info: ProjectInfo)
   val jettyVersion = "6.1.22"
   val slf4jVersion = "1.6.0"
 
+  trait UnpublishedProject
+    extends BasicScalaProject
+  {
+    override def publishLocalAction = Empty
+    override def deliverLocalAction = Empty
+    override def publishAction = Empty
+    override def deliverAction = Empty
+    override def artifacts = Set.empty
+  }
+
   trait ScalatraSubProject 
     extends BasicScalaProject 
     with BasicPackagePaths 
@@ -65,20 +75,15 @@ class ScalatraProject(info: ProjectInfo)
   }
 
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
-  class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject {
+  class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject with UnpublishedProject {
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
     val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val description = "An example Scalatra application"
-    override def publishLocalAction = Empty
-    override def deliverLocalAction = Empty
-    override def publishAction = Empty
-    override def deliverAction = Empty
-    override def artifacts = Set.empty
   }
 
   lazy val website = project("website", "scalatra-website", new WebsiteProject(_), core, scalate)
-  class WebsiteProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject {
+  class WebsiteProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject with UnpublishedProject {
     override val jettyPort = 8081
     val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
