@@ -154,7 +154,9 @@ class ScalatraProject(info: ProjectInfo)
                    download dependencies other repos during development time. -->
               <profile>
                 <id>download</id>
-                {repos}
+                <repositories>
+                  {repos}
+                </repositories>
               </profile>
             </profiles>
           case Elem(_, "dependencies", _, _, _ @ _*) =>
