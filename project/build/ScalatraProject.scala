@@ -169,7 +169,11 @@ class ScalatraProject(info: ProjectInfo)
     }
 
   override def managedStyle = ManagedStyle.Maven
-  val publishTo = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  val publishTo = 
+    if (version.toString.endsWith("-SNAPSHOT"))
+      "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots" 
+    else 
+      "Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
   Credentials(Path.userHome / ".ivy2" / "credentials" / "oss.sonatype.org", log)
 
   override def deliverProjectDependencies = Nil
