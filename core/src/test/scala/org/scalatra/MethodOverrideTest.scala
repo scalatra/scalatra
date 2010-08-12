@@ -9,7 +9,7 @@ class MethodOverrideTestServlet extends ScalatraServlet with MethodOverride {
 }
 
 class MethodOverrideTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[MethodOverrideTestServlet], "/*")
+  addServlet(classOf[MethodOverrideTestServlet], "/*")
 
   test("should override method with _method parameter on post") {
     post("/foo", "_method" -> "put") {

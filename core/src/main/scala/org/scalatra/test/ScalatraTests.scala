@@ -8,6 +8,7 @@ import org.mortbay.jetty.{Handler => JettyHandler}
 import org.mortbay.jetty.servlet.{DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
+import javax.servlet.Filter
 
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
@@ -60,12 +61,31 @@ trait ScalatraTests {
     if(_useSession.value) _session.value ++= Map("Cookie" -> r.getHeader("Set-Cookie"))
   }
 
-  // map a servlet to the path
-  def route(servlet: Class[_], path: String) = tester.addServlet(servlet, path)
+  @deprecated("use addServlet(Class, String) or addFilter(Class, String)")
+  def route(klass: Class[_], path: String) = klass match {
+    case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
+      addServlet(servlet.asInstanceOf[Class[_ <: HttpServlet]], path)
+    case filter if classOf[Filter].isAssignableFrom(filter) =>
+      addFilter(filter.asInstanceOf[Class[_ <: Filter]], path)
+    case _ =>
+      throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
+  }
 
-  def route(servlet: HttpServlet, path: String) = tester.getContext().addServlet(new ServletHolder(servlet), path)
+  @deprecated("renamed to addServlet")
+  def route(servlet: HttpServlet, path: String) = addServlet(servlet, path)
 
-  def routeFilter(filter: Class[_], path: String) = tester.addFilter(filter, path, JettyHandler.DEFAULT)
+  def addServlet(servlet: HttpServlet, path: String) =
+    tester.getContext().addServlet(new ServletHolder(servlet), path)
+
+  def addServlet(servlet: Class[_ <: HttpServlet], path: String) = 
+    tester.addServlet(servlet, path)
+
+  def addFilter(filter: Class[_ <: Filter], path: String) = 
+    tester.addFilter(filter, path, JettyHandler.DEFAULT)
+
+  @deprecated("renamed to addFilter")
+  def routeFilter(filter: Class[_ <: Filter], path: String) = 
+    addFilter(filter, path)
 
   def get(uri: String)(f: => Unit): Unit = withResponse(httpRequest("GET", uri), f)
   def get(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
@@ -99,5 +119,5 @@ trait ScalatraTests {
 
   // Add a default servlet.  If there is no underlying servlet, then
   // filters just return 404.
-  route(classOf[DefaultServlet], "/")
+  addServlet(classOf[DefaultServlet], "/")
 }

@@ -88,7 +88,7 @@ class RouteTestServlet extends ScalatraServlet {
 }
 
 class RouteTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[RouteTestServlet], "/*")
+  addServlet(classOf[RouteTestServlet], "/*")
 
   test("routes can be a boolean expression") {
     get("/whatever", "booleanTest" -> "true") {

@@ -13,7 +13,7 @@ class ErrorHandlerTestServlet extends ScalatraServlet {
 }
 
 class ErrorHandlerTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[ErrorHandlerTestServlet], "/*")
+  addServlet(classOf[ErrorHandlerTestServlet], "/*")
 
   test("result of error handler should be rendered") {
     get("/") {

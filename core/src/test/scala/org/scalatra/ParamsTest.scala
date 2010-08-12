@@ -26,7 +26,7 @@ class ParamsTestServlet extends ScalatraServlet {
 }
 
 class ParamsTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[ParamsTestServlet], "/*")
+  addServlet(classOf[ParamsTestServlet], "/*")
 
   test("supports multiple parameters") {
     get("/multiParams/numbers", "numbers" -> "one", "numbers" -> "two", "numbers" -> "three") {

@@ -82,7 +82,7 @@ class ContentTypeTestServlet extends ScalatraServlet {
 }
 
 class ContentTypeTest extends ScalatraSuite with ShouldMatchers {
-  val servletHolder = route(classOf[ContentTypeTestServlet], "/*")
+  val servletHolder = addServlet(classOf[ContentTypeTestServlet], "/*")
   servletHolder.setInitOrder(1) // force load on startup
 
   test("content-type test") {

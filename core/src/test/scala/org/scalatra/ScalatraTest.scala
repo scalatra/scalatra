@@ -71,7 +71,7 @@ class ScalatraTestServlet extends ScalatraServlet {
 }
 
 class ScalatraTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[ScalatraTestServlet], "/*")
+  addServlet(classOf[ScalatraTestServlet], "/*")
 
   test("GET / should return 'root'") {
     get("/") {

@@ -40,7 +40,7 @@ class ScalatraSuiteTestServlet extends ScalatraServlet {
 }
 
 class ScalatraSuiteTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[ScalatraSuiteTestServlet], "/*")
+  addServlet(classOf[ScalatraSuiteTestServlet], "/*")
 
   test("route test") {
     get("/") {

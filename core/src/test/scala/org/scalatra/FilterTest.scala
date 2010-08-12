@@ -62,8 +62,8 @@ class MultipleFilterTestServlet extends ScalatraServlet {
 }
 
 class FilterTest extends ScalatraSuite with BeforeAndAfterEach with ShouldMatchers {
-  route(classOf[FilterTestServlet], "/*")
-  route(classOf[MultipleFilterTestServlet], "/multiple-filters/*")
+  addServlet(classOf[FilterTestServlet], "/*")
+  addServlet(classOf[MultipleFilterTestServlet], "/multiple-filters/*")
   
   override def beforeEach() {
     post("/reset-counters") {}

@@ -51,7 +51,7 @@ class RoutePrecedenceTestChildServlet extends RoutePrecedenceTestBaseServlet {
 }
 
 class RoutePrecedenceTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[RoutePrecedenceTestChildServlet], "/*")
+  addServlet(classOf[RoutePrecedenceTestChildServlet], "/*")
 
   test("Routes in child should override routes in base") {
     get("/override-route") {

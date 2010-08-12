@@ -230,7 +230,7 @@ ScalaTest example
 
     class MyScalatraServletTests extends FunSuite with ShouldMatchers with ScalatraTests {
       // `MyScalatraServlet` is your app which extends ScalatraServlet
-      route(classOf[MyScalatraServlet], "/*")
+      addServlet(classOf[MyScalatraServlet], "/*")
 
       test("simple get") {
         get("/path/to/something") {
@@ -244,7 +244,7 @@ Specs example
 -------------
 
     object MyScalatraServletTests extends Specification with ScalatraTests {
-      route(classOf[MyScalatraServlet], "/*")
+      addServlet(classOf[MyScalatraServlet], "/*")
       
       "MyScalatraServlet when using GET" should {
         "/path/to/something should return 'hi!'" in {

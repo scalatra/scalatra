@@ -24,7 +24,7 @@ class SessionTestServlet extends ScalatraServlet {
 }
 
 class SessionTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[SessionTestServlet], "/*")
+  addServlet(classOf[SessionTestServlet], "/*")
 
   test("GET /session with no session should return 'None'") {
     get("/session") {

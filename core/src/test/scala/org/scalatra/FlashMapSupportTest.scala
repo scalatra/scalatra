@@ -19,7 +19,7 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
 }
 
 class FlashMapSupportTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[FlashMapSupportTestServlet], "/*")
+  addServlet(classOf[FlashMapSupportTestServlet], "/*")
 
   test("should sweep flash map at end of request") {
     session {

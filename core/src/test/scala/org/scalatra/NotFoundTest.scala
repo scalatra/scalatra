@@ -11,8 +11,8 @@ class CustomNotFoundTestServlet extends ScalatraServlet {
 }
 
 class NotFoundTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[DefaultNotFoundTestServlet], "/default/*")
-  route(classOf[CustomNotFoundTestServlet], "/custom/*")
+  addServlet(classOf[DefaultNotFoundTestServlet], "/default/*")
+  addServlet(classOf[CustomNotFoundTestServlet], "/custom/*")
   
   test("executes notFound block") {
     get("/custom/intentionally-not-mapped") {

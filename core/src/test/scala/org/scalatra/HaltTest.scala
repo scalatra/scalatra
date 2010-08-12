@@ -33,7 +33,7 @@ class HaltTestServlet extends ScalatraServlet {
 }
 
 class HaltTest extends ScalatraSuite with ShouldMatchers {
-  route(classOf[HaltTestServlet], "/*")
+  addServlet(classOf[HaltTestServlet], "/*")
 
   test("GET /halts-response halts processing of the action") {
     get("/halts-response") {

@@ -70,14 +70,14 @@ class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
 }
 
 class ScalatraFilterTest extends ScalatraSuite with ShouldMatchers {
-  routeFilter(classOf[ScalatraFilterTestFilter], "/*")
+  addFilter(classOf[ScalatraFilterTestFilter], "/*")
 
   // See SRV.11.2 of Servlet 2.5 spec for the gory details of servlet mappings
-  route(classOf[ScalatraFilterTestPathMappedServlet], "/path-mapped/*")
-  route(classOf[ScalatraFilterTestExtensionMappedServlet], "*.do")
-  route(classOf[ScalatraFilterTestDefaultServlet], "/")
-  route(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/filtered")
-  route(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/unfiltered")
+  addServlet(classOf[ScalatraFilterTestPathMappedServlet], "/path-mapped/*")
+  addServlet(classOf[ScalatraFilterTestExtensionMappedServlet], "*.do")
+  addServlet(classOf[ScalatraFilterTestDefaultServlet], "/")
+  addServlet(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/filtered")
+  addServlet(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/unfiltered")
 
   test("should filter matching request to path-mapped servlet") {
     get("/path-mapped/filtered") {
@@ -132,7 +132,7 @@ class ScalatraFilterWithoutServletMappingTest
   extends ScalatraSuite 
   with ShouldMatchers 
 {
-  routeFilter(classOf[ScalatraFilterTestFilter], "/*")
+  addFilter(classOf[ScalatraFilterTestFilter], "/*")
 
   // Based on http://gist.github.com/519565, http://gist.github.com/519566.
   // Was instead giving a 404.
