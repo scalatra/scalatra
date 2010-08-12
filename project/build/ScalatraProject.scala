@@ -7,6 +7,7 @@ import com.rossabaker.sbt.gpg._
 class ScalatraProject(info: ProjectInfo) 
   extends ParentProject(info)
   with GpgPlugin
+  with ChecksumPlugin
 {
   override def shouldCheckOutputDirectories = false
 
@@ -28,6 +29,7 @@ class ScalatraProject(info: ProjectInfo)
     extends BasicScalaProject 
     with BasicPackagePaths 
     with GpgPlugin
+    with ChecksumPlugin
   {
     def description: String
 
