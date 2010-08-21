@@ -4,9 +4,7 @@ import org.specs._
 import mock.Mockito
 import org.mockito.Matchers._
 import runner.{ScalaTest, JUnit}
-import javax.servlet.http.HttpSession
-
-
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
 
 object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest {
   detailedDiffs
@@ -18,7 +16,12 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     session.getAttribute(Scentry.scentryAuthKey) returns "6789"
     var invalidateCalled = false
     session.invalidate answers { _ => invalidateCalled = true }
-    val context = ScalatraKernelProxy(session, smartMock[scala.collection.Map[String, String]], s => "redirected to: " + s)
+    val context = ScalatraKernelProxy(
+      session,
+      smartMock[scala.collection.Map[String, String]],
+      s => "redirected to: " + s,
+      smartMock[HttpServletRequest],
+      smartMock[HttpServletResponse])
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)})
     var beforeFetchCalled = false
     var afterFetchCalled = false
