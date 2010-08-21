@@ -195,7 +195,7 @@ trait ScalatraKernel extends Handler
   protected def session = request.getSession
   protected def sessionOption = request.getSession(false) match {
     case s: HttpSession => Some(s)
-    case null => Non
+    case null => None
   }
   protected def status(code: Int) = (_response value) setStatus code
 

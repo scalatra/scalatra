@@ -34,7 +34,7 @@ trait CookieSupport {
     def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
       val cookie = new Cookie(name, value)
       if (options.domain != null && options.domain.trim.length > 0) cookie.setDomain(options.domain)
-      if (options.path != null && options.path.trim.length > 0)cookie.setPath(options.path)
+      if (options.path != null && options.path.trim.length > 0) cookie.setPath(options.path)
       cookie.setMaxAge(options.maxAge)
       if(options.secure) cookie.setSecure(true)
       if(options.comment != null && options.comment.trim.length > 0) cookie.setComment(options.comment)

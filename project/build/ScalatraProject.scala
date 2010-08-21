@@ -62,8 +62,14 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val core = project("core", "scalatra", new CoreProject(_)) 
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
-    val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
+    val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "The core Scalatra library"
+  }
+
+  lazy val scentry = project("scentry", "scalatra-auth", new ScentryProject(_), core)
+  class ScentryProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+    val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
+    val description = "Supplies optional Scalatra authentication support"
   }
 
   lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core)
@@ -149,6 +155,11 @@ class ScalatraProject(info: ProjectInfo)
         <id>chirino</id>
         <name>Hiram Chirino</name>
         <url>http://hiramchirino.com/blog/</url>
+      </developer>
+      <developer>
+        <id>casualjim</id>
+        <name>Ivan Porto Carrero</name>
+        <url>http://flanders.co.nz/</url>
       </developer>
     </developers>
   )
