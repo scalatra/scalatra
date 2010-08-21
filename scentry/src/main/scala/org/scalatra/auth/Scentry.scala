@@ -21,7 +21,7 @@ object Scentry {
 
 
 }
-protected[auth] class Scentry[UserType <: AnyRef](
+class Scentry[UserType <: AnyRef](
         app: ScalatraKernelProxy,
         serialize: PartialFunction[UserType, String],
         deserialize: PartialFunction[String, UserType] ) {
@@ -83,13 +83,10 @@ protected[auth] class Scentry[UserType <: AnyRef](
           case _ => acc
         }
        } else acc
-    }.headOption match {
-      case Some((stratName, usr)) =>  {
-        _winningStrategy = Some(stratName)
-        runCallbacks(_.valid_?) { _.afterAuthenticate }
-        user = usr
-      }
-      case _ =>
+    }.headOption foreach { case (stratName, usr) =>  
+      _winningStrategy = Some(stratName)
+      runCallbacks(_.valid_?) { _.afterAuthenticate }
+      user = usr
     }
   }
 
