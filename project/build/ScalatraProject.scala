@@ -190,12 +190,26 @@ class ScalatraProject(info: ProjectInfo)
     }
 
   override def managedStyle = ManagedStyle.Maven
-  val publishTo = 
-    if (version.toString.endsWith("-SNAPSHOT"))
-      "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots" 
-    else 
-      "Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-  Credentials(Path.userHome / ".ivy2" / "credentials" / "oss.sonatype.org", log)
+  val publishTo = {
+    val local = System.getenv("SOCIALINSIGHT_HOME")
+    if(local == null || local.trim.length == 0 || local == ".") {
+      Credentials(Path.userHome / ".ivy2" / "credentials" / "oss.sonatype.org", log)
+      if (version.toString.endsWith("-SNAPSHOT"))
+        "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+      else
+        "Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+    } else {
+      System.setProperty("gpg.skip", "true")
+      Credentials(Path.userHome / ".ivy2" / ".credentials", log)
+      if(version.toString.endsWith("-SNAPSHOT"))
+        "Mojolly Snapshots" at "http://maven/content/repositories/thirdparty-snapshots/"
+      else
+        "Mojolly Releases" at "http://maven/content/repositories/thirdparty-releases/"
+
+    }
+
+  }
+
 
   override def deliverProjectDependencies = Nil
 }

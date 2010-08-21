@@ -2,8 +2,8 @@ package org.scalatra.auth
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import util.DynamicVariable
-import org.scalatra.{Initializable, Handler, ScalatraKernel}
 import javax.servlet.{FilterConfig, ServletConfig}
+import org.scalatra.{CookieSupport, Initializable, Handler, ScalatraKernel}
 
 trait ScentryConfig {
   val login = "/login"
@@ -12,7 +12,7 @@ trait ScentryConfig {
   val failureUrl = "/unauthenticated"
 }
 
-trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable {
+trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable with CookieSupport {
   self : ScalatraKernel =>
 
   type UserType = TypeForUser
@@ -31,7 +31,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable {
   }
 
   abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
-    val app = ScalatraKernelProxy(session, params, redirect _, request, response)
+    val app = ScalatraKernelProxy(session, params, uri => redirect(uri), request, response, cookies)
     _scentry.withValue(new Scentry[UserType](app, toSession, fromSession)) {
       registerStrategiesFromConfig
       registerAuthStrategies
@@ -51,6 +51,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable {
     val strategy = Class.forName(strategyClassName).newInstance.asInstanceOf[ScentryStrategy[UserType]]
     strategy registerWith scentry
   }
+
 
 
   /**

@@ -10,23 +10,7 @@ case class CookieOptions(
         secure  : Boolean = false,
         comment : String  = "")
 
-trait CookieSupport {
-
-  self: {
-    def servletContext: ServletContext
-    def request: HttpServletRequest
-    def response: HttpServletResponse
-  } =>
-
-  protected implicit def cookieWrapper(cookieColl: Array[Cookie]) = new RichCookies(cookieColl)
-
-  protected def cookies = request.getCookies match {
-    case null => Array[Cookie]()
-    case x => x
-  }
-
-
-  class RichCookies(cookieColl: Array[Cookie]) {
+class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) {
     def apply(key: String) = cookieColl.find(_.getName == key) match {
       case Some(cookie) => Some(cookie.getValue)
       case _ => None
@@ -43,4 +27,18 @@ trait CookieSupport {
       cookie
     }
   }
+
+trait CookieSupport {
+
+  self: ScalatraKernel =>
+
+  protected implicit def cookieWrapper(cookieColl: Array[Cookie]) = new RichCookies(cookieColl, response)
+
+  protected def cookies = request.getCookies match {
+    case null => Array[Cookie]()
+    case x => x
+  }
+
+
+
 }

@@ -1,7 +1,7 @@
 package org.scalatra.auth
 
-import org.scalatra.RouteMatcher
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet, HttpSession}
+import javax.servlet.http._
+import org.scalatra.{RichCookies, RouteMatcher}
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,6 +17,7 @@ class ScalatraKernelProxy {
   private var _redirect: String => Unit = _
   private var _request: () => HttpServletRequest = _
   private var _response: () => HttpServletResponse = _
+  private var _cookies: () => RichCookies = _
 
   def session = _session()
   private[auth] def session_=(sess: => HttpSession) = {
@@ -36,17 +37,21 @@ class ScalatraKernelProxy {
   def request_=(req: => HttpServletRequest) = _request = () => req
   def response_=(res: => HttpServletResponse) = _response = () => res
 
+  def cookies = _cookies()
+  def cookies_=(cookieJar: => RichCookies) = _cookies = () => cookieJar
+
 }
 
 object ScalatraKernelProxy {
   def apply(session: => HttpSession, params: => collection.Map[String, String], redirect: String => Unit,
-            request: => HttpServletRequest, response: => HttpServletResponse ) ={
+            request: => HttpServletRequest, response: => HttpServletResponse, cookies: => RichCookies ) ={
     val ctxt = new ScalatraKernelProxy
     ctxt.session = session
     ctxt.params = params
     ctxt.redirect_=(redirect)
     ctxt.response = response
     ctxt.request = request
+    ctxt.cookies = cookies
     ctxt
   }
 
