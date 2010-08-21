@@ -1,6 +1,7 @@
 package org.scalatra.auth
 
-import javax.servlet.http.HttpSession
+import org.scalatra.RouteMatcher
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet, HttpSession}
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,29 +11,29 @@ import javax.servlet.http.HttpSession
  * 
  */
 
-class AuthenticationContext {
+class ScalatraKernelProxy {
   private var _session: () => HttpSession = _
   private var _params: () => collection.Map[String, String] = _
   private var _redirect: String => Unit = _
 
   def session = _session()
-  def session_=(sess: => HttpSession) = {
+  private[auth] def session_=(sess: => HttpSession) = {
     _session = () => sess
   }
 
   def params = _params()
-  def params_=(paramsBag: => collection.Map[String, String]) = {
+  private[auth] def params_=(paramsBag: => collection.Map[String, String]) = {
     _params = () => paramsBag
   }
 
   def redirect(uri: String) = _redirect(uri)
-  def redirect_=(redirectFunction: String => Unit) = _redirect = redirectFunction
+  private[auth] def redirect_=(redirectFunction: String => Unit) = _redirect = redirectFunction
 
 }
 
-object AuthenticationContext {
+object ScalatraKernelProxy {
   def apply(session: => HttpSession, params: => collection.Map[String, String], redirect: String => Unit) ={
-    val ctxt = new AuthenticationContext
+    val ctxt = new ScalatraKernelProxy
     ctxt.session = session
     ctxt.params = params
     ctxt.redirect_=(redirect)

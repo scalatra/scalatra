@@ -16,21 +16,27 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler {
   self : ScalatraKernel =>
 
   type UserType = TypeForUser
+  type ScentryConfiguration <: ScentryConfig
+
   protected def fromSession: PartialFunction[String, UserType]
   protected def toSession: PartialFunction[UserType, String]
-  type ScentryConfiguration <: ScentryConfig
   protected val scentryConfig: ScentryConfiguration
 
   private val _scentry = new DynamicVariable[Scentry[UserType]](null)
 
-
   abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
-    val ctxt = AuthenticationContext(session, params, redirect _)
-    _scentry.withValue(new Scentry[UserType](ctxt, toSession, fromSession)) {
+    val app = ScalatraKernelProxy(session, params, redirect _)
+    _scentry.withValue(new Scentry[UserType](app, toSession, fromSession)) {
+      registerStrategies
       super.handle(servletRequest, servletResponse)
     }
   }
 
+  /**
+   * Override this method to register authentication strategies specific to this servlet.
+   *     scentry.registerStrategy('UserPassword, app => new UserPasswordStrategy(app))
+   */
+  protected def registerStrategies = {}
   protected def scentry = _scentry.value
   protected def scentryOption = Option(scentry)
   protected def user = scentry.user

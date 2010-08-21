@@ -18,7 +18,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     session.getAttribute(Scentry.scentryAuthKey) returns "6789"
     var invalidateCalled = false
     session.invalidate answers { _ => invalidateCalled = true }
-    val context = AuthenticationContext(session, smartMock[scala.collection.Map[String, String]], s => "redirected to: " + s)
+    val context = ScalatraKernelProxy(session, smartMock[scala.collection.Map[String, String]], s => "redirected to: " + s)
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)})
     var beforeFetchCalled = false
     var afterFetchCalled = false
@@ -58,37 +58,37 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
         override def afterAuthenticate = afterAuthenticateCalled = true
       }
     "allow registration of global strategies" in {
-      Scentry.registerStrategy('Bogus, (warden: Scentry[User]) =>  s)
-      Scentry.globalStrategies('Bogus).asInstanceOf[Scentry[User]#StrategyFactory](theScentry) must be_==(s)
+      Scentry.registerStrategy('Bogus, app =>  s)
+      Scentry.globalStrategies('Bogus).asInstanceOf[Scentry[User]#StrategyFactory](context) must be_==(s)
     }
 
     "allow registration of local strategies" in {
-      theScentry.registerStrategy('LocalFoo, (warden: Scentry[User]) => s)
+      theScentry.registerStrategy('LocalFoo, app => s)
       theScentry.strategies('LocalFoo) must be_==(s)
     }
 
     "return both global and local strategies from instance" in {
-      Scentry.registerStrategy('Bogus, (warden: Scentry[User]) =>  s)
-      theScentry.registerStrategy('LocalFoo, (warden: Scentry[User]) => s)
+      Scentry.registerStrategy('Bogus, app =>  s)
+      theScentry.registerStrategy('LocalFoo, app => s)
       theScentry.strategies.size must be_==(2)
     }
 
     "run all fetch user callbacks" in {
-      theScentry.registerStrategy('LocalFoo, (warden: Scentry[User]) => s)
+      theScentry.registerStrategy('LocalFoo, app => s)
       theScentry.user must be_==(User("6789"))
       beforeFetchCalled must be_==(true)
       afterFetchCalled must be_==(true)
     }
 
     "run all set user callbacks" in {
-      theScentry.registerStrategy('LocalFoo, (warden: Scentry[User]) => s)
+      theScentry.registerStrategy('LocalFoo, app => s)
       (theScentry.user = User("6789")) must be_==("6789")
       beforeSetUserCalled must be_==(true)
       afterSetUserCalled must be_==(true)
     }
 
     "run all logout callbacks" in {
-      theScentry.registerStrategy('LocalFoo, (warden: Scentry[User]) => s)
+      theScentry.registerStrategy('LocalFoo, app => s)
       theScentry.logout
       beforeLogoutCalled must be_==(true)
       afterLogoutCalled must be_==(true)
@@ -96,7 +96,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     }
 
     "run all login callbacks on successful authentication" in {
-      theScentry.registerStrategy('LocalFoo, (warden: Scentry[User]) => s)
+      theScentry.registerStrategy('LocalFoo, app => s)
       theScentry.authenticate()
       beforeAuthenticateCalled must be_==(true)
       afterAuthenticateCalled must be_==(true)
@@ -105,15 +105,15 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     }
 
     "run only the before authentication on unsuccessful authentication" in {
-      theScentry.registerStrategy('LocalBar, (warden: Scentry[User]) => sUnsuccess)
+      theScentry.registerStrategy('LocalBar, app => sUnsuccess)
       theScentry.authenticate()
       beforeAuthenticateCalled must be_==(true)
       afterAuthenticateCalled must be_==(false)
     }
 
     "run only the strategy specified by the name" in {
-      theScentry.registerStrategy('LocalFoo, (warden: Scentry[User]) => s)
-      theScentry.registerStrategy('LocalBar, (warden: Scentry[User]) => sUnsuccess)
+      theScentry.registerStrategy('LocalFoo, app => s)
+      theScentry.registerStrategy('LocalBar, app => sUnsuccess)
       theScentry.authenticate('LocalBar)
       beforeAuthenticateCalled must be_==(true)
       afterAuthenticateCalled must be_==(false)

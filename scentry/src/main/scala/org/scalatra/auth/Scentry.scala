@@ -5,7 +5,7 @@ import scala.PartialFunction
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = Scentry[UserType] => ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ScalatraKernelProxy => ScentryStrategy[UserType]
 
   private val _globalStrategies = new HashMap[Symbol, StrategyFactory[_ <: AnyRef]]()
 
@@ -21,13 +21,13 @@ object Scentry {
 
 
 }
-class Scentry[UserType <: AnyRef](
-        app: AuthenticationContext,
+protected[auth] class Scentry[UserType <: AnyRef](
+        app: ScalatraKernelProxy,
         serialize: PartialFunction[UserType, String],
         deserialize: PartialFunction[String, UserType] ) {
 
-  type StrategyType <: ScentryStrategy[UserType]
-  type StrategyFactory = Scentry[UserType] => ScentryStrategy[UserType]
+  type StrategyType = ScentryStrategy[UserType]
+  type StrategyFactory = ScalatraKernelProxy => StrategyType
 
   import Scentry._
   private val _strategies = new HashMap[Symbol, StrategyFactory]()
@@ -40,24 +40,24 @@ class Scentry[UserType <: AnyRef](
     _strategies += (name -> strategyFactory)
 
   def strategies: MMap[Symbol, ScentryStrategy[UserType]] =
-    (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](this)) }
+    (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
   private var _winningStrategy: Option[Symbol] = None
   def winningStrategy = _winningStrategy
 
   def user = {
-    runCallbacks { _.beforeFetch }
+    runCallbacks() { _.beforeFetch }
     val key = session.getAttribute(scentryAuthKey).asInstanceOf[String]
     val res = fromSession(key)
-    runCallbacks { _.afterFetch }
+    runCallbacks() { _.afterFetch }
     res
   }
 
   def user_=(v: UserType) = {
-    strategies foreach { case (_, v) if v.valid_? => v.beforeSetUser }
+    runCallbacks() { _.beforeSetUser }
     val res = toSession(v)
     session.setAttribute(scentryAuthKey, res)
-    strategies foreach { case (_, v) if v.valid_? => v.afterSetUser }
+    runCallbacks() { _.afterSetUser }
     res
   }
 
@@ -76,7 +76,7 @@ class Scentry[UserType <: AnyRef](
   def authenticate(names: Symbol*): Unit = {
     (List[(Symbol, UserType)]() /: strategies) { (acc, stratKv) =>
       val (nm, strat) = stratKv
-      runCallbacks { _.beforeAuthenticate }
+      runCallbacks(_.valid_?) { _.beforeAuthenticate }
       if(acc.isEmpty && strat.valid_? && (names.isEmpty || names.contains(nm))) {
         strat.authenticate_! match {
           case Some(usr)  => (nm, usr) :: acc
@@ -86,7 +86,7 @@ class Scentry[UserType <: AnyRef](
     }.headOption match {
       case Some((stratName, usr)) =>  {
         _winningStrategy = Some(stratName)
-        runCallbacks { _.afterAuthenticate }
+        runCallbacks(_.valid_?) { _.afterAuthenticate }
         user = usr
       }
       case _ =>
@@ -94,12 +94,12 @@ class Scentry[UserType <: AnyRef](
   }
 
   def logout = {
-    runCallbacks { _.beforeLogout }
+    runCallbacks() { _.beforeLogout }
     session.invalidate
-    runCallbacks { _.afterLogout }
+    runCallbacks() { _.afterLogout }
   }
 
-  private def runCallbacks(which: ScentryStrategy[UserType] => Unit ) {
-    strategies foreach { case (_, v) if v.valid_? => which(v)}
+  private def runCallbacks(guard: StrategyType => Boolean = s => true)(which: StrategyType => Unit) {
+    strategies foreach { case (_, v) if guard(v) => which(v)}
   }
 }
