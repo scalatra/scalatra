@@ -13,13 +13,13 @@ object ScalatraKernel
   type MultiParams = Map[String, Seq[String]]
   type Action = () => Any
 
-  val protocols = List("GET", "POST", "PUT", "DELETE")
+  val httpMethods = List("GET", "POST", "PUT", "DELETE")
 }
 import ScalatraKernel._
 
 trait ScalatraKernel extends Handler
 {
-  protected val Routes = MMap(protocols map (_ -> List[Route]()): _*)
+  protected val Routes = MMap(httpMethods map (_ -> List[Route]()): _*)
 
   protected def contentType = response.getContentType
   protected def contentType_=(value: String): Unit = response.setContentType(value)
@@ -195,7 +195,7 @@ trait ScalatraKernel extends Handler
   protected def session = request.getSession
   protected def sessionOption = request.getSession(false) match {
     case s: HttpSession => Some(s)
-    case null => None
+    case null => Non
   }
   protected def status(code: Int) = (_response value) setStatus code
 

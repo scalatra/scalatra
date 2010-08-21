@@ -8,6 +8,7 @@ class ScalatraProject(info: ProjectInfo)
   extends ParentProject(info)
   with GpgPlugin
   with ChecksumPlugin
+  with IdeaProject
 {
   override def shouldCheckOutputDirectories = false
 
@@ -30,12 +31,14 @@ class ScalatraProject(info: ProjectInfo)
     with BasicPackagePaths 
     with GpgPlugin
     with ChecksumPlugin
+    with IdeaProject
   {
     def description: String
 
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
     val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
     val scalatest = "org.scalatest" % "scalatest" % "1.2" % "test"
+    val specs = "org.scala-tools.testing" %% "specs" % "1.6.5"  % "test"
     val junit = "junit" % "junit" % "4.8.1" % "test"
 
     override def pomExtra = (
