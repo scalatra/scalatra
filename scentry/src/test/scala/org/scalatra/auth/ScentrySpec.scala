@@ -44,14 +44,14 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
           successStrategyCalled = true
           Some(User("12345"))
         }
-        override def beforeFetch = beforeFetchCalled = true
-        override def afterFetch = afterFetchCalled = true
-        override def beforeSetUser = beforeSetUserCalled = true
-        override def afterSetUser = afterSetUserCalled = true
-        override def beforeLogout = beforeLogoutCalled = true
-        override def afterLogout = afterLogoutCalled = true
+        override def beforeFetch[IdType](id: IdType) = beforeFetchCalled = true
+        override def afterFetch(user: User) = afterFetchCalled = true
+        override def beforeSetUser(user: User) = beforeSetUserCalled = true
+        override def afterSetUser(user: User) = afterSetUserCalled = true
+        override def beforeLogout(user: User) = beforeLogoutCalled = true
+        override def afterLogout(user: User) = afterLogoutCalled = true
         override def beforeAuthenticate = beforeAuthenticateCalled = true
-        override def afterAuthenticate = afterAuthenticateCalled = true
+        override def afterAuthenticate(winningStrategy: Symbol, user: User) = afterAuthenticateCalled = true
       }
 
     val sUnsuccess = new ScentryStrategy[User] {
@@ -61,7 +61,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
           None
         }
         override def beforeAuthenticate = beforeAuthenticateCalled = true
-        override def afterAuthenticate = afterAuthenticateCalled = true
+        override def afterAuthenticate(winningStrategy: Symbol, user: User) = afterAuthenticateCalled = true
       }
     "allow registration of global strategies" in {
       Scentry.registerStrategy('Bogus, app =>  s)

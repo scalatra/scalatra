@@ -43,36 +43,36 @@ trait ScentryStrategy[UserType <: AnyRef] {
   /**
    * Perform stuff after authentication only run when the module is valid
    */
-  def afterAuthenticate {}
+  def afterAuthenticate(winningStrategy: Symbol, user: UserType) {}
 
   /**
    * Perform stuff before setting the user in the session
    */
-  def beforeSetUser {}
+  def beforeSetUser(user: UserType) {}
 
   /**
    * Perform stuff after setting the user in the session
    */
-  def afterSetUser {}
+  def afterSetUser(user: UserType) {}
 
   /**
    * Perform stuff before fetching and serializing the user from session
    */
-  def beforeFetch {}
+  def beforeFetch[IdType](userId: IdType) {}
 
   /**
    * Perform stuff after fetching and serializing the user from session
    */
-  def afterFetch {}
+  def afterFetch(user: UserType) {}
 
   /**
    * Perform stuff before logging the user out and invalidating the session
    */
-  def beforeLogout {}
+  def beforeLogout(user: UserType) {}
 
   /**
-   * Perform stuff after logging hte user out and invalidating the session
+   * Perform stuff after logging the user out and invalidating the session
    */
-  def afterLogout {}
+  def afterLogout(user: UserType) {}
 
 }

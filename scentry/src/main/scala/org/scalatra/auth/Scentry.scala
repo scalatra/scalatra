@@ -31,6 +31,7 @@ class Scentry[UserType <: AnyRef](
 
   import Scentry._
   private val _strategies = new HashMap[Symbol, StrategyFactory]()
+  private var _user: UserType = null.asInstanceOf[UserType]
 
   def session = app.session
   def params = app.params
@@ -42,23 +43,27 @@ class Scentry[UserType <: AnyRef](
   def strategies: MMap[Symbol, ScentryStrategy[UserType]] =
     (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
-  private var _winningStrategy: Option[Symbol] = None
-  def winningStrategy = _winningStrategy
-
-  def user = {
-    runCallbacks() { _.beforeFetch }
+  def user = if (_user != null) _user else { 
     val key = session.getAttribute(scentryAuthKey).asInstanceOf[String]
-    val res = fromSession(key)
-    runCallbacks() { _.afterFetch }
-    res
+    if (key != null && key.trim.length > 0 ) {
+      runCallbacks() { _.beforeFetch(key) }
+      val res = fromSession(key)
+      if (res != null) runCallbacks() { _.afterFetch(res) }
+      _user = res
+      res
+    }
+    else null
   }
 
   def user_=(v: UserType) = {
-    runCallbacks() { _.beforeSetUser }
-    val res = toSession(v)
-    session.setAttribute(scentryAuthKey, res)
-    runCallbacks() { _.afterSetUser }
-    res
+    _user = v
+    if (v != null) {
+      runCallbacks() { _.beforeSetUser(v) }
+      val res = toSession(v)
+      session.setAttribute(scentryAuthKey, res)
+      runCallbacks() { _.afterSetUser(v) }
+      res
+    } else v
   }
 
   def fromSession = deserialize orElse missingDeserializer
@@ -83,17 +88,18 @@ class Scentry[UserType <: AnyRef](
           case _ => acc
         }
        } else acc
-    }.headOption foreach { case (stratName, usr) =>  
-      _winningStrategy = Some(stratName)
-      runCallbacks(_.valid_?) { _.afterAuthenticate }
+    }.headOption foreach { case (stratName, usr) =>
+      runCallbacks() { _.afterAuthenticate(stratName, usr) }
       user = usr
     }
   }
 
   def logout = {
-    runCallbacks() { _.beforeLogout }
+    val usr = user.asInstanceOf[UserType]
+    runCallbacks() { _.beforeLogout(usr) }
+    if (_user != null) _user = null.asInstanceOf[UserType]
     session.invalidate
-    runCallbacks() { _.afterLogout }
+    runCallbacks() { _.afterLogout(usr) }
   }
 
   private def runCallbacks(guard: StrategyType => Boolean = s => true)(which: StrategyType => Unit) {
