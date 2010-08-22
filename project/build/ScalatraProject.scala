@@ -48,8 +48,7 @@ class ScalatraProject(info: ProjectInfo)
         <version>{version}</version>
       </parent>
       <name>{name}</name>
-      <description>{description}</description>
-    )
+      <description>{description}</description>)
 
     override def packageDocsJar = defaultJarPath("-javadoc.jar")
     override def packageSrcJar= defaultJarPath("-sources.jar")
@@ -161,8 +160,7 @@ class ScalatraProject(info: ProjectInfo)
         <name>Ivan Porto Carrero</name>
         <url>http://flanders.co.nz/</url>
       </developer>
-    </developers>
-  )
+    </developers>)
 
   override def pomPostProcess(pom: Node) = 
     super.pomPostProcess(pom) match { 

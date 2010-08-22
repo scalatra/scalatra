@@ -43,7 +43,7 @@ class Scentry[UserType <: AnyRef](
   def strategies: MMap[Symbol, ScentryStrategy[UserType]] =
     (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
-  def user = if (_user != null) _user else { 
+  def user : UserType = if (_user != null) _user else { 
     val key = session.getAttribute(scentryAuthKey).asInstanceOf[String]
     if (key != null && key.trim.length > 0 ) {
       runCallbacks() { _.beforeFetch(key) }
@@ -52,7 +52,7 @@ class Scentry[UserType <: AnyRef](
       _user = res
       res
     }
-    else null
+    else null.asInstanceOf[UserType]
   }
 
   def user_=(v: UserType) = {
@@ -103,6 +103,9 @@ class Scentry[UserType <: AnyRef](
   }
 
   private def runCallbacks(guard: StrategyType => Boolean = s => true)(which: StrategyType => Unit) {
-    strategies foreach { case (_, v) if guard(v) => which(v)}
+    strategies foreach {
+      case (_, v) if guard(v) => which(v)
+      case _ => // guard failed
+    }
   }
 }

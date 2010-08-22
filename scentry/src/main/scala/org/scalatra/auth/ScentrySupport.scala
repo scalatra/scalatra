@@ -39,13 +39,17 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
     }
   }
 
-  private def readStrategiesFromConfig(config: Config) = _strategiesFromConfig = ((config match {
-    case servletConfig: ServletConfig =>
-      servletConfig.getInitParameter("scentry.strategies")
-    case filterConfig: FilterConfig =>
-      filterConfig.getInitParameter("scentry.strategies")
-    case _ => ""
-  }) split ";").toList
+  private def readStrategiesFromConfig(config: Config) = _strategiesFromConfig = {
+    val strats = (config match {
+      case servletConfig: ServletConfig => {
+        servletConfig.getInitParameter("scentry.strategies")
+      }
+      case filterConfig: FilterConfig =>
+        filterConfig.getInitParameter("scentry.strategies")
+      case _ => ""
+    })
+    if(strats != null && strats.trim.length > 0) (strats split ";").toList else Nil
+  }
 
   private def registerStrategiesFromConfig = _strategiesFromConfig foreach { strategyClassName =>
     val strategy = Class.forName(strategyClassName).newInstance.asInstanceOf[ScentryStrategy[UserType]]
@@ -62,12 +66,12 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   }
 
-  protected def scentry = _scentry.value
-  protected def scentryOption = Option(scentry)
-  protected def user = scentry.user
+  protected def scentry: Scentry[UserType] = _scentry.value
+  protected def scentryOption: Option[Scentry[UserType]] = Option(scentry)
+  protected def user: UserType = scentry.user
   protected def user_=(user: UserType) = scentry.user = user
-  protected def authenticated_? = session(Scentry.scentryAuthKey).isDefined
-  protected def unAuthenticated_? = !authenticated_?
+  protected def authenticated_? : Boolean = session(Scentry.scentryAuthKey).isDefined
+  protected def unAuthenticated_? : Boolean = !authenticated_?
 
   protected def authenticate() = {
     scentry.authenticate()

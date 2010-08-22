@@ -24,7 +24,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
       s => "redirected to: " + s,
       smartMock[HttpServletRequest],
       response,
-      new RichCookies(Array[Cookie](), response) )
+      Array[Cookie]())
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)})
     var beforeFetchCalled = false
     var afterFetchCalled = false

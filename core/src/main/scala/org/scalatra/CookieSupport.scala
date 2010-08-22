@@ -10,6 +10,7 @@ case class CookieOptions(
         secure  : Boolean = false,
         comment : String  = "")
 
+
 class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) {
     def apply(key: String) = cookieColl.find(_.getName == key) match {
       case Some(cookie) => Some(cookie.getValue)
@@ -25,6 +26,9 @@ class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) {
 
       response addCookie cookie
       cookie
+    }
+    def set(name: String, value: String, options: CookieOptions = CookieOptions()) = {
+      this.update(name, value, options)
     }
   }
 
