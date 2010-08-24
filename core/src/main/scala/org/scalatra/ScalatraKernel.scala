@@ -48,30 +48,7 @@ trait ScalatraKernel extends Handler
   }
 
   protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
-    // TODO put this out of its misery
-    val (re, names) = {
-      var names = new ListBuffer[String]
-      var pos = 0
-      var regex = new StringBuffer("^")
-      val specialCharacters = List('.', '+', '(', ')')
-      """:\w+|[\*\.\+\(\)\$]""".r.findAllIn(path).matchData foreach { md =>
-        regex.append(path.substring(pos, md.start))
-        md.toString match {
-          case "*" =>
-            names += "splat"
-            regex.append("(.*?)")
-          case "." | "+" | "(" | ")" | "$" =>
-            regex.append("\\").append(md.toString)
-          case x =>
-            names += x.substring(1) // strip leading colon
-            regex.append("([^/?]+)")
-        }
-        pos = md.end
-      }
-      regex.append(path.substring(pos))
-      regex.append("$")
-      (regex.toString.r, names.toList)
-    }
+    val (re, names) = PathPatternParser.parseFrom(path)
 
     // By overriding toString, we can list the available routes in the default notFound handler.
     new RouteMatcher {
