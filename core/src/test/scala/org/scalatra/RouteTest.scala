@@ -4,6 +4,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 class RouteTestServlet extends ScalatraServlet {
   get(params.getOrElse("booleanTest", "false") == "true") {

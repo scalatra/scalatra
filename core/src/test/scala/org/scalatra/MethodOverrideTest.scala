@@ -1,6 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 class MethodOverrideTestServlet extends ScalatraServlet with MethodOverride {
   put("/foo") { "PUT" }

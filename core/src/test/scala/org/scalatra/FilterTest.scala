@@ -2,6 +2,7 @@ package org.scalatra
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 class FilterTestServlet extends ScalatraServlet {
   var beforeCount = 0

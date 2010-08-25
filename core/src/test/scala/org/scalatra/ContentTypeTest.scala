@@ -6,6 +6,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.mortbay.jetty.testing.HttpTester
 import java.net.URLEncoder
 import java.nio.charset.Charset
+import test.scalatest.ScalatraSuite
 
 class ContentTypeTestServlet extends ScalatraServlet {
   get("/json") {

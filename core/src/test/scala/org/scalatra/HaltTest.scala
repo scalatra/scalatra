@@ -2,6 +2,7 @@ package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
 import javax.servlet.http.HttpServletResponse
+import test.scalatest.ScalatraSuite
 
 class HaltTestServlet extends ScalatraServlet {
   get("/halts-response") {

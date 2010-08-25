@@ -1,6 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 class SessionTestServlet extends ScalatraServlet {
   get("/session") {

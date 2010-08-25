@@ -1,7 +1,7 @@
-package org.scalatra
+package org.scalatra.test
+package scalatest
 
 import org.scalatest.FunSuite
-import test.ScalatraTests
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 

@@ -2,6 +2,7 @@ package org.scalatra
 
 import java.util.NoSuchElementException
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 object ParamsTestServlet {
   val NoSuchElement = "No Such Element"

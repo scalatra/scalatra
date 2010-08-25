@@ -48,6 +48,17 @@ class ScalatraProject(info: ProjectInfo)
       <description>{description}</description>
     )
 
+    override def pomPostProcess(pom: Node) = {
+      def rescopeOptional(nodes: NodeSeq): NodeSeq =
+        nodes flatMap { _ match {
+          case <scope>{scope}</scope> if scope.toString == "optional" => <scope>compile</scope>
+          case Elem(prefix, label, attribs, scope, children @ _*) =>
+            Elem(prefix, label, attribs, scope, rescopeOptional(children) : _*)
+          case other => other
+        }}
+      rescopeOptional(pom)(0)
+    }
+
     override def packageDocsJar = defaultJarPath("-javadoc.jar")
     override def packageSrcJar= defaultJarPath("-sources.jar")
     // If these aren't lazy, then the build crashes looking for
@@ -59,6 +70,8 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val core = project("core", "scalatra", new CoreProject(_)) 
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+    override val scalatest = "org.scalatest" % "scalatest" % "1.2" % "optional"
+    override val junit = "junit" % "junit" % "4.8.1" % "optional"
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
     val description = "The core Scalatra library"
   }
@@ -150,7 +163,7 @@ class ScalatraProject(info: ProjectInfo)
     </developers>
   )
 
-  override def pomPostProcess(pom: Node) = 
+  override def pomPostProcess(pom: Node) =
     super.pomPostProcess(pom) match { 
       case Elem(prefix, label, attr, scope, c @ _*) =>
         val children = c flatMap {

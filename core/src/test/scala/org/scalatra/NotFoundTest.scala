@@ -1,6 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 class DefaultNotFoundTestServlet extends ScalatraServlet
 class CustomNotFoundTestServlet extends ScalatraServlet {

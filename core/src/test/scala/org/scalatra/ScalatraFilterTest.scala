@@ -1,6 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 /*
  * There are four types of servlet mappings: path, extension, default, and exact-match.  Test them all, as they can all

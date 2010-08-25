@@ -4,6 +4,7 @@ import scala.actors.Actor
 import scala.actors.TIMEOUT
 import scala.xml.Text
 import org.scalatest.matchers.ShouldMatchers
+import test.scalatest.ScalatraSuite
 
 class ScalatraTestServlet extends ScalatraServlet {
   get("/") {
