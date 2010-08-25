@@ -12,7 +12,7 @@ import javax.servlet.Filter
 
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
- * either <code>org.scalatest.Suite</code> or <code>org.specs.Specification</code>. 
+ * either <code>org.scalatra.test.scalatest.ScalatraSuite</code> or <code>org.specs.Specification</code>. 
  */
 trait ScalatraTests {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
@@ -21,6 +21,9 @@ trait ScalatraTests {
   private val _response = new DynamicVariable[HttpTester](new HttpTester)
   private val _session = new DynamicVariable(Map[String,String]())
   private val _useSession = new DynamicVariable(false)
+
+  protected def start() = tester.start()
+  protected def stop() = tester.stop()
 
   private def httpRequest(method: String, uri: String): HttpTester =
     httpRequest(method, uri, Map.empty, Map.empty)
@@ -43,8 +46,6 @@ trait ScalatraTests {
       (headers ++ _session.value).foreach(t => r.setHeader(t._1, t._2))
       r
     }
-
-    tester.start()
 
     val res = new HttpTester(Charset.defaultCharset.name)
 
