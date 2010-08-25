@@ -16,12 +16,12 @@ class ScalatraProject(info: ProjectInfo)
   val slf4jVersion = "1.6.0"
 
   trait UnpublishedProject
-    extends BasicScalaProject
+    extends BasicManagedProject
   {
-    override def publishLocalAction = Empty
-    override def deliverLocalAction = Empty
-    override def publishAction = Empty
-    override def deliverAction = Empty
+    override def publishLocalAction = task { None }
+    override def deliverLocalAction = task { None }
+    override def publishAction = task { None }
+    override def deliverAction = task { None }
     override def artifacts = Set.empty
   }
 
