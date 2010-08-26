@@ -33,7 +33,6 @@ class ScalatraProject(info: ProjectInfo)
   {
     def description: String
 
-    val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
     val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
     override def pomExtra = (
@@ -100,6 +99,7 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val test = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubProject {
     val description = "Scalatra test framework"
+    val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "compile"
   })
 
   lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubProject {
