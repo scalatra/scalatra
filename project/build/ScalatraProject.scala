@@ -72,6 +72,7 @@ class ScalatraProject(info: ProjectInfo)
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
     override val scalatest = "org.scalatest" % "scalatest" % "1.2" % "optional"
     override val junit = "junit" % "junit" % "4.8.1" % "optional"
+    val specs = "org.scala-tools.testing" %% "specs" % "1.6.5" % "optional"
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
     val description = "The core Scalatra library"
   }
