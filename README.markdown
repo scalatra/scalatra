@@ -223,12 +223,21 @@ Example
 
 Testing Your Scalatra Applications
 ==================================
-Scalatra includes ScalatraTests - a framework for writing the unit tests for your Scalatra application.  It's a trait with some utility functions to send requests to your app and examine the response.  It can be mixed into the test framework of your choosing.  ScalatraTests supports HTTP GET/POST tests with or without request parameters and sessions.  For more examples, please refer to src/test/scala.
 
-ScalaTest example
------------------
+Scalatra includes a test framework for writing the unit tests for your Scalatra application.  The framework lets you send requests to your app and examine the response.  It can be mixed into the test framework of your choosing; integration with [ScalaTest](http://www.scalatest.org/) and [Specs](http://code.google.com/p/specs/) is already provided.  ScalatraTests supports HTTP GET/POST tests with or without request parameters and sessions.  For more examples, please refer to core/src/test/scala.
 
-    class MyScalatraServletTests extends FunSuite with ShouldMatchers with ScalatraTests {
+ScalaTest
+---------
+
+### Dependencies
+
+- scalatra-scalatest
+
+### Code
+
+Mix in ShouldMatchers or MustMatchers to your taste...
+
+    class MyScalatraServletTests extends ScalatraSuite with ShouldMatchers {
       // `MyScalatraServlet` is your app which extends ScalatraServlet
       addServlet(classOf[MyScalatraServlet], "/*")
 
@@ -240,10 +249,16 @@ ScalaTest example
       }
     }
 
-Specs example
--------------
+Specs
+-----
 
-    object MyScalatraServletTests extends Specification with ScalatraTests {
+### Dependencies
+
+- scalatra-specs
+
+### Example
+
+    object MyScalatraServletTests extends ScalatraSpecification {
       addServlet(classOf[MyScalatraServlet], "/*")
       
       "MyScalatraServlet when using GET" should {
@@ -256,9 +271,14 @@ Specs example
       }
     }                      
 
-Testing Scalatra
-================
-A test suite can be found in `core/src/test/scala`.  If you've made changes to Scalatra itself and you'd like to make sure that this testing servlet still works, you can type `test` at the sbt prompt.
+Other test frameworks
+---------------------
+
+### Dependencies
+- scalatra-test
+
+### Usage guide
+Create an instance of org.scalatra.test.ScalatraTests.  Be sure to call `start()` and `stop()` before and after your test suite.
 
 Miscellaneous
 =============

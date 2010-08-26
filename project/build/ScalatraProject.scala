@@ -35,8 +35,6 @@ class ScalatraProject(info: ProjectInfo)
 
     val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "provided"
     val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
-    val scalatest = "org.scalatest" % "scalatest" % "1.2" % "test"
-    val junit = "junit" % "junit" % "4.8.1" % "test"
 
     override def pomExtra = (
       <parent>
@@ -48,17 +46,6 @@ class ScalatraProject(info: ProjectInfo)
       <description>{description}</description>
     )
 
-    override def pomPostProcess(pom: Node) = {
-      def rescopeOptional(nodes: NodeSeq): NodeSeq =
-        nodes flatMap { _ match {
-          case <scope>{scope}</scope> if scope.toString == "optional" => <scope>compile</scope>
-          case Elem(prefix, label, attribs, scope, children @ _*) =>
-            Elem(prefix, label, attribs, scope, rescopeOptional(children) : _*)
-          case other => other
-        }}
-      rescopeOptional(pom)(0)
-    }
-
     override def packageDocsJar = defaultJarPath("-javadoc.jar")
     override def packageSrcJar= defaultJarPath("-sources.jar")
     // If these aren't lazy, then the build crashes looking for
@@ -68,26 +55,29 @@ class ScalatraProject(info: ProjectInfo)
     override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageDocs, packageSrc)
   }
 
-  lazy val core = project("core", "scalatra", new CoreProject(_)) 
+  lazy val core = project("core", "scalatra", new CoreProject(_), scalatest)
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
-    override val scalatest = "org.scalatest" % "scalatest" % "1.2" % "optional"
-    override val junit = "junit" % "junit" % "4.8.1" % "optional"
-    val specs = "org.scala-tools.testing" %% "specs" % "1.6.5" % "optional"
     val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
     val description = "The core Scalatra library"
+    override def deliverProjectDependencies =
+      super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
   }
 
-  lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core)
+  lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core, scalatest)
   class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1" % "compile"
     val commonsIo = "commons-io" % "commons-io" % "1.4" % "compile"
     val description = "Supplies the optional Scalatra file upload support"
+    override def deliverProjectDependencies =
+      super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
   }
 
-  lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core)
+  lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core, scalatest)
   class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.2"
     val description = "Supplies the optional Scalatra Scalate support"
+    override def deliverProjectDependencies =
+      super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
   }
 
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
@@ -107,6 +97,21 @@ class ScalatraProject(info: ProjectInfo)
     val markdown = "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4" % "runtime"
     val description = "Runs www.scalatra.org"
   }
+
+  lazy val test = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubProject {
+    val description = "Scalatra test framework"
+  })
+
+  lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubProject {
+    val scalatest = "org.scalatest" % "scalatest" % "1.2" % "compile"
+    val junit = "junit" % "junit" % "4.8.1" % "compile"
+    val description = "ScalaTest support for the Scalatra test framework"
+  }, test)
+
+  lazy val specs = project("specs", "scalatra-specs", new DefaultProject(_) with ScalatraSubProject {
+    val specs = "org.scala-tools.testing" %% "specs" % "1.6.5" % "optional"
+    val description = "Specs support for the Scalatra test framework"
+  }, test)
 
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
