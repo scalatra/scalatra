@@ -40,6 +40,22 @@ class FilterTestServlet extends ScalatraServlet {
   }
 }
 
+// Ugh... what should we call this?  Sinatra calls before/after "filter", which is not related to a
+// javax.servlet.Filter.
+class FilterTestFilter extends ScalatraFilter {
+  var beforeCount = 0
+
+  before {
+    beforeCount += 1
+    response.setHeader("filterBeforeCount", beforeCount.toString)
+  }
+
+  post("/reset-counters") {
+    beforeCount = 0
+    pass
+  }
+}
+
 class MultipleFilterTestServlet extends ScalatraServlet {
   before {
     response.getWriter.print("one\n")
@@ -65,16 +81,22 @@ class MultipleFilterTestServlet extends ScalatraServlet {
 class FilterTest extends ScalatraSuite with BeforeAndAfterEach with ShouldMatchers {
   addServlet(classOf[FilterTestServlet], "/*")
   addServlet(classOf[MultipleFilterTestServlet], "/multiple-filters/*")
+  addFilter(classOf[FilterTestFilter], "/*")
   
   override def beforeEach() {
     post("/reset-counters") {}
   }
   
-  test("before is called exactly once per request") {
+  test("before is called exactly once per request to a servlet") {
     get("/before-counter") { body should equal("1") }
     get("/before-counter") { body should equal("2") }
   }
-  
+
+  test("before is called exactly once per request to a filter") {
+    get("/before-counter") { header("filterBeforeCount") should equal ("1") }
+    get("/before-counter") { header("filterBeforeCount") should equal ("2") }
+  }
+
   test("before is called when route is not found") {
     get("/this-route-does-not-exist") {
       // Should be 1, but we can't see it yet
