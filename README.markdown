@@ -280,6 +280,15 @@ Other test frameworks
 ### Usage guide
 Create an instance of org.scalatra.test.ScalatraTests.  Be sure to call `start()` and `stop()` before and after your test suite.
 
+Authentication
+==============
+
+There is a new authentication middleware in the scentry directory, to be documented soon.  See an example at [usage example](http://gist.github.com/552980).
+
+To use it from an SBT project, add the following to your project:
+
+    val auth = "org.scalatra" %% "scalatra-auth" % "2.0.0-SNAPSHOT"
+
 Miscellaneous
 =============
 While Scalatra can be run standalone for testing and meddling, you can also package it up in a .jar for use in other projects.  At the sbt prompt, type `package`.  Scalatra's only dependency is a recent version of the servlet API. For more information, see the [sbt site](http://code.google.com/p/simple-build-tool/)
@@ -303,4 +312,4 @@ Props
 - [Ivan Willig](http://github.com/iwillig) for his work on [Scalate](http://scalate.fusesource.org/) integration.
 - [Hiram Chirino](http://hiramchirino.com) for Maven integration and the new name.
 - [Phil Wills](http://github.com/philwills) for the path parser cleanup.
-- [Ivan Porto Carrero](http://flanders.co.nz) for the authorization framework.
+- [Ivan Porto Carrero](http://flanders.co.nz) for the authentication framework.
