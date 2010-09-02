@@ -297,7 +297,7 @@ Props
 
 - [Gabriele Renzi](http://www.riffraff.info/) for the inspirational blog post and continual help
 - [Ross A. Baker](http://www.rossabaker.com/) for porting to 2.8 and loads of other patches and help
-- Mark Harrah for help on the sbt mailing list and for creating sbt. Ant+Ivy by itself was a total bitch.
+- [Mark Harrah](http://github.com/harrah) for help on the sbt mailing list and for creating sbt. Ant+Ivy by itself was a total bitch.
 - [Yusuke Kuoka](http://github.com/mumoshu) for adding sessions and header support
 - [Miso Korkiakoski](http://github.com/mwing) for various patches.
 - [Ivan Willig](http://github.com/iwillig) for his work on [Scalate](http://scalate.fusesource.org/) integration.
