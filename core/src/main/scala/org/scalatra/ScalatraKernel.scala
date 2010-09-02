@@ -13,13 +13,13 @@ object ScalatraKernel
   type MultiParams = Map[String, Seq[String]]
   type Action = () => Any
 
-  val protocols = List("GET", "POST", "PUT", "DELETE")
+  val httpMethods = List("GET", "POST", "PUT", "DELETE")
 }
 import ScalatraKernel._
 
 trait ScalatraKernel extends Handler
 {
-  protected val Routes = MMap(protocols map (_ -> List[Route]()): _*)
+  protected val Routes = MMap(httpMethods map (_ -> List[Route]()): _*)
 
   protected def contentType = response.getContentType
   protected def contentType_=(value: String): Unit = response.setContentType(value)
@@ -31,7 +31,7 @@ trait ScalatraKernel extends Handler
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
 
-  protected class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
+  protected[scalatra] class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
     def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
 
     private def invokeAction(routeParams: MultiParams) =

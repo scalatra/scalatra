@@ -8,6 +8,7 @@ class ScalatraProject(info: ProjectInfo)
   extends ParentProject(info)
   with GpgPlugin
   with ChecksumPlugin
+  with IdeaProject
 {
   override def shouldCheckOutputDirectories = false
 
@@ -30,6 +31,7 @@ class ScalatraProject(info: ProjectInfo)
     with BasicPackagePaths 
     with GpgPlugin
     with ChecksumPlugin
+    with IdeaProject
   {
     def description: String
 
@@ -42,8 +44,7 @@ class ScalatraProject(info: ProjectInfo)
         <version>{version}</version>
       </parent>
       <name>{name}</name>
-      <description>{description}</description>
-    )
+      <description>{description}</description>)
 
     override def packageDocsJar = defaultJarPath("-javadoc.jar")
     override def packageSrcJar= defaultJarPath("-sources.jar")
@@ -54,12 +55,18 @@ class ScalatraProject(info: ProjectInfo)
     override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageDocs, packageSrc)
   }
 
-  lazy val core = project("core", "scalatra", new CoreProject(_), scalatest)
+  lazy val core = project("core", "scalatra", new CoreProject(_), scalatest, specs)
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
-    val mockito = "org.mockito" % "mockito-core" % "1.8.2" % "test"
+    val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "The core Scalatra library"
     override def deliverProjectDependencies =
       super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
+  }
+
+  lazy val scentry = project("scentry", "scalatra-auth", new ScentryProject(_), core)
+  class ScentryProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+    val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
+    val description = "Supplies optional Scalatra authentication support"
   }
 
   lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core, scalatest)
@@ -166,8 +173,12 @@ class ScalatraProject(info: ProjectInfo)
         <name>Hiram Chirino</name>
         <url>http://hiramchirino.com/blog/</url>
       </developer>
-    </developers>
-  )
+      <developer>
+        <id>casualjim</id>
+        <name>Ivan Porto Carrero</name>
+        <url>http://flanders.co.nz/</url>
+      </developer>
+    </developers>)
 
   override def pomPostProcess(pom: Node) =
     super.pomPostProcess(pom) match { 
@@ -195,12 +206,26 @@ class ScalatraProject(info: ProjectInfo)
     }
 
   override def managedStyle = ManagedStyle.Maven
-  val publishTo = 
-    if (version.toString.endsWith("-SNAPSHOT"))
-      "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots" 
-    else 
-      "Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-  Credentials(Path.userHome / ".ivy2" / "credentials" / "oss.sonatype.org", log)
+  val publishTo = {
+    val local = System.getenv("SOCIALINSIGHT_HOME")
+    if(local == null || local.trim.length == 0 || local == ".") {
+      Credentials(Path.userHome / ".ivy2" / "credentials" / "oss.sonatype.org", log)
+      if (version.toString.endsWith("-SNAPSHOT"))
+        "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+      else
+        "Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+    } else {
+      System.setProperty("gpg.skip", "true")
+      Credentials(Path.userHome / ".ivy2" / ".credentials", log)
+      if(version.toString.endsWith("-SNAPSHOT"))
+        "Mojolly Snapshots" at "http://maven/content/repositories/thirdparty-snapshots/"
+      else
+        "Mojolly Releases" at "http://maven/content/repositories/thirdparty-releases/"
+
+    }
+
+  }
+
 
   override def deliverProjectDependencies = Nil
 }

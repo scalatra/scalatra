@@ -6,7 +6,7 @@ import org.specs.specification._
 
 trait ScalatraSpecification extends Specification with ScalatraTests {
   new SpecContext {
-    beforeSpec(start())
-    afterSpec(stop())
+    beforeSpec({println("STARTING!"); start()})
+    afterSpec({println("STOPPING!"); stop()})
   }
 }
