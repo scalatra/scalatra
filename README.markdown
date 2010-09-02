@@ -303,3 +303,4 @@ Props
 - [Ivan Willig](http://github.com/iwillig) for his work on [Scalate](http://scalate.fusesource.org/) integration.
 - [Hiram Chirino](http://hiramchirino.com) for Maven integration and the new name.
 - [Phil Wills](http://github.com/philwills) for the path parser cleanup.
+- [Ivan Porto Carrero](http://flanders.co.nz) for the authorization framework.
