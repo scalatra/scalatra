@@ -8,7 +8,6 @@ class ScalatraProject(info: ProjectInfo)
   extends ParentProject(info)
   with GpgPlugin
   with ChecksumPlugin
-  with IdeaProject
 {
   override def shouldCheckOutputDirectories = false
 
@@ -31,7 +30,6 @@ class ScalatraProject(info: ProjectInfo)
     with BasicPackagePaths 
     with GpgPlugin
     with ChecksumPlugin
-    with IdeaProject
   {
     def description: String
 
