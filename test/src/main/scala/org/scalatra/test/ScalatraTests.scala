@@ -5,10 +5,10 @@ import java.net.URLEncoder.encode
 import org.mortbay.jetty.testing.HttpTester
 import org.mortbay.jetty.testing.ServletTester
 import org.mortbay.jetty.{Handler => JettyHandler}
-import org.mortbay.jetty.servlet.{DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 import javax.servlet.Filter
+import org.mortbay.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
 
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
@@ -80,6 +80,9 @@ trait ScalatraTests {
 
   def addServlet(servlet: Class[_ <: HttpServlet], path: String) = 
     tester.addServlet(servlet, path)
+
+  def addFilter(filter: Filter, path: String) = 
+    tester.getContext().addFilter(new FilterHolder(filter), path, JettyHandler.DEFAULT)
 
   def addFilter(filter: Class[_ <: Filter], path: String) = 
     tester.addFilter(filter, path, JettyHandler.DEFAULT)
