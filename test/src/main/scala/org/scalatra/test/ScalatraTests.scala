@@ -38,7 +38,9 @@ trait ScalatraTests {
       r.setMethod(method)
       r.setURI(uri)
       method.toLowerCase match {
-	case "get" => r.setURI(uri + "?" + paramStr)
+	case "get" => {
+	    r.setURI(uri + (if (paramStr == "") "" else "?") + paramStr)
+  }
 	case "post" => r.setContent(paramStr)
 	// @todo case "put"
 	// @todo case "delete"
