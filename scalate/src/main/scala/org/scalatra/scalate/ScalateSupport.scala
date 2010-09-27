@@ -36,7 +36,7 @@ trait ScalateSupport extends Initializable {
   trait CreatesServletRenderContext {
     this: TemplateEngine =>
 
-    override def createRenderContext(out: PrintWriter) =
+    override def createRenderContext(uri: String, out: PrintWriter) =
       ScalateSupport.this.createRenderContext
   }
 
