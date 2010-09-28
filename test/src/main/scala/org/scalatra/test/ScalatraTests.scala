@@ -124,4 +124,7 @@ trait ScalatraTests {
   // Add a default servlet.  If there is no underlying servlet, then
   // filters just return 404.
   addServlet(classOf[DefaultServlet], "/")
+
+  // So servletContext.getRealPath doesn't crash.
+  tester.setResourceBase("./src/main/webapp")
 }
