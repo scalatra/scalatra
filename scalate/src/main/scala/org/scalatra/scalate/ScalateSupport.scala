@@ -6,6 +6,7 @@ import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
+import java.lang.Throwable
 
 trait ScalateSupport extends ScalatraKernel {
   self: {
@@ -45,4 +46,19 @@ trait ScalateSupport extends ScalatraKernel {
 
   def renderTemplate(path: String, attributes: (String, Any)*) = 
     createRenderContext.render(path, Map(attributes : _*))
+
+  override protected def handleError(e: Throwable) =
+    try {
+      super.handleError(e)
+    }
+    catch {
+      case e => renderErrorPage(e)
+    }
+
+  protected def renderErrorPage(e: Throwable) = {
+    val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
+    val renderContext = createRenderContext
+    renderContext.setAttribute("javax.servlet.error.exception", Some(e))
+    templateEngine.layout(errorPage, renderContext)
+  }
 }

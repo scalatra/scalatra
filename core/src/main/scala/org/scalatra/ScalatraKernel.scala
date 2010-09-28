@@ -100,10 +100,7 @@ trait ScalatraKernel extends Handler with Initializable
             case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
             case HaltException(Some(code), None) => response.sendError(code)
             case HaltException(None, _) =>
-            case e => _caughtThrowable.withValue(e) {
-              status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-              errorHandler()
-            }
+            case e => handleError(e)
           }
           finally {
             afterFilters foreach { _() }
@@ -125,8 +122,13 @@ trait ScalatraKernel extends Handler with Initializable
   protected var doNotFound: Action
   protected def notFound(fun: => Any) = doNotFound = { () => fun }
 
+  protected def handleError(e: Throwable): Any = {
+    status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+    _caughtThrowable.withValue(e) { errorHandler() }
+  }
   private var errorHandler: Action = { () => throw caughtThrowable }
   protected def error(fun: => Any) = errorHandler = { () => fun }
+  
   private val _caughtThrowable = new DynamicVariable[Throwable](null)
   protected def caughtThrowable = _caughtThrowable.value
 
