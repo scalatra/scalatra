@@ -39,5 +39,5 @@ abstract class ScalatraServlet
     initialize(config) // see Initializable.initialize for why
   }
 
-  def initialize(config: ServletConfig): Unit = {}
+  override def initialize(config: ServletConfig): Unit = super.initialize(config)
 }

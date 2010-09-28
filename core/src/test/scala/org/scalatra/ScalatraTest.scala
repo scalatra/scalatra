@@ -69,10 +69,15 @@ class ScalatraTestServlet extends ScalatraServlet {
   get("/people/:person") {
     params.getOrElse("person", "<no person>")
   }
+
+  get("/init-param/:name") {
+    initParameter(params("name")).toString
+  }
 }
 
 class ScalatraTest extends ScalatraSuite with ShouldMatchers {
-  addServlet(classOf[ScalatraTestServlet], "/*")
+  val filterHolder = addServlet(classOf[ScalatraTestServlet], "/*")
+  filterHolder.setInitParameter("bofh-excuse", "decreasing electron flux")
 
   test("GET / should return 'root'") {
     get("/") {
@@ -172,6 +177,18 @@ class ScalatraTest extends ScalatraSuite with ShouldMatchers {
   test("named parameter doesn't match if empty") {
     get("/people/") {
       body should equal ("people")
+    }
+  }
+
+  test("init parameter returns Some if set") {
+    get("/init-param/bofh-excuse") {
+      body should equal ("Some(decreasing electron flux)")
+    }
+  }
+
+  test("init parameter returns None if not set") {
+    get("/init-param/derp") {
+      body should equal ("None")
     }
   }
 }

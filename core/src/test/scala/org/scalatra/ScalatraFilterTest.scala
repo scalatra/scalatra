@@ -28,6 +28,10 @@ class ScalatraFilterTestFilter extends ScalatraFilter {
   get("/status-202") {
     status(202)
   }
+
+  get("/init-param/:name") {
+    initParameter(params("name")).toString
+  }
 }
 
 class ScalatraFilterTestPathMappedServlet extends ScalatraServlet {
@@ -71,7 +75,8 @@ class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
 }
 
 class ScalatraFilterTest extends ScalatraSuite with ShouldMatchers {
-  addFilter(classOf[ScalatraFilterTestFilter], "/*")
+  val filterHolder = addFilter(classOf[ScalatraFilterTestFilter], "/*")
+  filterHolder.setInitParameter("cat-who-is-biting-me", "Pete")
 
   // See SRV.11.2 of Servlet 2.5 spec for the gory details of servlet mappings
   addServlet(classOf[ScalatraFilterTestPathMappedServlet], "/path-mapped/*")
@@ -125,6 +130,18 @@ class ScalatraFilterTest extends ScalatraSuite with ShouldMatchers {
   test("should pass through unmatched request to exact-match-mapped servlet") {
     get("/exact-match/unfiltered") {
       body should equal("exact match")
+    }
+  }
+
+  test("init parameter returns Some if set") {
+    get("/init-param/cat-who-is-biting-me") {
+      body should equal ("Some(Pete)")
+    }
+  }
+
+  test("init parameter returns None if not set") {
+    get("/init-param/derp") {
+      body should equal ("None")
     }
   }
 }

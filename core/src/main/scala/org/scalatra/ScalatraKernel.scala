@@ -17,7 +17,7 @@ object ScalatraKernel
 }
 import ScalatraKernel._
 
-trait ScalatraKernel extends Handler
+trait ScalatraKernel extends Handler with Initializable
 {
   protected val Routes = MMap(httpMethods map (_ -> List[Route]()): _*)
 
@@ -190,4 +190,13 @@ trait ScalatraKernel extends Handler
   protected def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
   private def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
     Routes(protocol) = new Route(routeMatchers, () => action) :: Routes(protocol)
+
+  private var config: Config = _
+  def initialize(config: Config) = this.config = config
+
+  protected def initParameter(name: String): Option[String] = config match {
+    case config: ServletConfig => Option(config.getInitParameter(name))
+    case config: FilterConfig => Option(config.getInitParameter(name))
+    case _ => None
+  }
 }

@@ -32,7 +32,8 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   // see Initializable.initialize for why
   def init(filterConfig: FilterConfig) = initialize(filterConfig) 
 
-  def initialize(config: FilterConfig): Unit = {
+  override def initialize(config: FilterConfig): Unit = {
+    super.initialize(config)
     servletContext = config.getServletContext    
   }
 
