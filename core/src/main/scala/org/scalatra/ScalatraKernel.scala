@@ -14,6 +14,8 @@ object ScalatraKernel
   type Action = () => Any
 
   val httpMethods = List("GET", "POST", "PUT", "DELETE")
+
+  val EnvironmentKey = "org.scalatra.environment"
 }
 import ScalatraKernel._
 
@@ -199,4 +201,7 @@ trait ScalatraKernel extends Handler with Initializable
     case config: FilterConfig => Option(config.getInitParameter(name))
     case _ => None
   }
+
+  def environment: String = System.getProperty(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("development"))
+  def isDevelopmentMode = environment.toLowerCase.startsWith("dev")
 }
