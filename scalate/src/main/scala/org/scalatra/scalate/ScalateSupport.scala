@@ -7,11 +7,9 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 
-trait ScalateSupport extends Initializable {
+trait ScalateSupport extends ScalatraKernel {
   self: {
     def servletContext: ServletContext
-    def request: HttpServletRequest
-    def response: HttpServletResponse
   } =>
 
   protected var templateEngine: TemplateEngine = _
@@ -24,20 +22,22 @@ trait ScalateSupport extends Initializable {
   protected def createTemplateEngine(config: Config) = 
     config match {
       case servletConfig: ServletConfig =>
-        new ServletTemplateEngine(servletConfig) with CreatesServletRenderContext
+        new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
       case filterConfig: FilterConfig =>
-        new ServletTemplateEngine(filterConfig) with CreatesServletRenderContext
+        new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine
       case _ =>
         // Don't know how to convert your Config to something that
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
-        new TemplateEngine with CreatesServletRenderContext
+        new TemplateEngine with ScalatraTemplateEngine
     }
 
-  trait CreatesServletRenderContext {
+  trait ScalatraTemplateEngine {
     this: TemplateEngine =>
 
     override def createRenderContext(uri: String, out: PrintWriter) =
       ScalateSupport.this.createRenderContext
+
+    override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
   }
 
   def createRenderContext: ServletRenderContext = 
