@@ -25,53 +25,37 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
   }
 }
 
-// TODO Understand Specs idiom to configure the ServletTester.  doBeforeSpec?  doAroundExpectations?  Nothing worked.
-object CookieSupportSpec extends Specification with ScalatraTests {
+object CookieSupportSpec extends ScalatraSpecification {
   val oneWeek = 7 * 24 * 3600
 
-  def withServletTester(f: =>Any) = {
-    addServlet(classOf[CookieSupportServlet], "/*")
-    start()
-    f
-    println("STOP")
-    stop()
-  }
+  addServlet(classOf[CookieSupportServlet], "/*")
 
   "GET /getcookie with no cookies set should return 'None'" in {
-    withServletTester {
-      get("/getcookie") {
-        body must be_==("None")
-      }
-      stop()
+    get("/getcookie") {
+      body must be_==("None")
     }
   }
 
   "POST /setcookie with a value should return OK" in {
-    withServletTester {
-      post("/setcookie", "cookieval" -> "The value") {
-        response.getHeader("Set-Cookie") must beMatching("somecookie=\"The value\"")
-      }
+    post("/setcookie", "cookieval" -> "The value") {
+      response.getHeader("Set-Cookie") must beMatching("somecookie=\"The value\"")
     }
   }
 
   "GET /getcookie with a cookie should set return the cookie value" in {
-    withServletTester {
-      session {
-        post("/setcookie", "cookieval" -> "The value") {
-          body must be_==("OK")
-        }
-        get("/getcookie") {
-          body must be_==("The value")
-        }
+    session {
+      post("/setcookie", "cookieval" -> "The value") {
+        body must be_==("OK")
+      }
+      get("/getcookie") {
+        body must be_==("The value")
       }
     }
   }
 
   "POST /setexpiringcookie should set the max age of the cookie" in {
-    withServletTester {
-      post("/setexpiringcookie", "cookieval" -> "The value", "maxAge" -> oneWeek.toString) {
-        response.getHeader("Set-Cookie") must beMatching("thecookie=\"The value\";Expires")
-      }
+    post("/setexpiringcookie", "cookieval" -> "The value", "maxAge" -> oneWeek.toString) {
+      response.getHeader("Set-Cookie") must beMatching("thecookie=\"The value\";Expires")
     }
   }
 }

@@ -17,7 +17,7 @@ import org.mortbay.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
 trait ScalatraTests {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
-  val tester = new ServletTester()
+  def tester: ServletTester
   private val _response = new DynamicVariable[HttpTester](new HttpTester)
   private val _session = new DynamicVariable(Map[String,String]())
   private val _useSession = new DynamicVariable(false)
