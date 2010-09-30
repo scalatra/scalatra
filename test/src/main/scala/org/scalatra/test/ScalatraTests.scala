@@ -25,26 +25,18 @@ trait ScalatraTests {
   protected def start() = tester.start()
   protected def stop() = tester.stop()
 
-  private def httpRequest(method: String, uri: String): HttpTester =
-    httpRequest(method, uri, Map.empty, Map.empty)
-  private def httpRequest(method: String, uri: String, params: Iterable[(String, String)]): HttpTester =
-    httpRequest(method, uri, params, Map.empty)
-  private def httpRequest(method: String, uri: String, params: Iterable[(String, String)], headers: Map[String, String]) = {
-    def req = {
-      val paramStr = params.map(t => List(t._1, t._2).map(encode(_, "UTF-8")).mkString("=")).mkString("&")
-      val r = new HttpTester(Charset.defaultCharset.name)
+  private def toQueryString(params: Traversable[(String, String)]) =
+    params.map(t => List(t._1, t._2).map(encode(_, "UTF-8")).mkString("=")).mkString("&")
 
+  private def httpRequest(method: String, uri: String, queryParams: Iterable[(String, String)] = Map.empty,
+                          headers: Map[String, String] = Map.empty, body: String = null) = {
+    val req = {
+      val r = new HttpTester(Charset.defaultCharset.name)
       r.setVersion("HTTP/1.0")
       r.setMethod(method)
-      r.setURI(uri)
-      method.toLowerCase match {
-	case "get" => {
-	    r.setURI(uri + (if (paramStr == "") "" else "?") + paramStr)
-  }
-	case "post" => r.setContent(paramStr)
-	// @todo case "put"
-	// @todo case "delete"
-      }
+      val queryString = toQueryString(queryParams)
+      r.setURI(uri + (if (queryString == "") "" else "?") + queryString)
+      r.setContent(body)
       (headers ++ _session.value).foreach(t => r.setHeader(t._1, t._2))
       r
     }
@@ -80,30 +72,34 @@ trait ScalatraTests {
   def addServlet(servlet: HttpServlet, path: String) =
     tester.getContext().addServlet(new ServletHolder(servlet), path)
 
-  def addServlet(servlet: Class[_ <: HttpServlet], path: String) = 
+  def addServlet(servlet: Class[_ <: HttpServlet], path: String) =
     tester.addServlet(servlet, path)
 
-  def addFilter(filter: Filter, path: String) = 
+  def addFilter(filter: Filter, path: String) =
     tester.getContext().addFilter(new FilterHolder(filter), path, JettyHandler.DEFAULT)
 
-  def addFilter(filter: Class[_ <: Filter], path: String) = 
+  def addFilter(filter: Class[_ <: Filter], path: String) =
     tester.addFilter(filter, path, JettyHandler.DEFAULT)
 
   @deprecated("renamed to addFilter")
-  def routeFilter(filter: Class[_ <: Filter], path: String) = 
+  def routeFilter(filter: Class[_ <: Filter], path: String) =
     addFilter(filter, path)
 
   def get(uri: String)(f: => Unit): Unit = withResponse(httpRequest("GET", uri), f)
   def get(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
     get(uri, params, Map[String, String]())(f)
-  def get(uri: String, params: Iterable[(String, String)], headers: Map[String, String])(f: => Unit) =
+  def get(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)
+         (f: => Unit) =
     withResponse(httpRequest("GET", uri, params, headers), f)
+
   def post(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
     post(uri, params)(f)
   def post(uri: String, params: Iterable[(String,String)])(f: => Unit): Unit =
     post(uri, params, Map[String, String]())(f)
-  def post(uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => Unit) =
-    withResponse(httpRequest("POST", uri, params, Map("Content-Type" -> "application/x-www-form-urlencoded") ++ headers), f)
+  def post(uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => Unit): Unit =
+    post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded") ++ headers)(f)
+  def post(uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => Unit) =
+    withResponse(httpRequest("POST", uri, Seq.empty, headers, body), f)
   // @todo support POST multipart/form-data for file uploads
   // @todo def put
   // @todo def delete
