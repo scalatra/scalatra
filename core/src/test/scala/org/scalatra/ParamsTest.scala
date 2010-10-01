@@ -2,7 +2,7 @@ package org.scalatra
 
 import java.util.NoSuchElementException
 import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 object ParamsTestServlet {
   val NoSuchElement = "No Such Element"
@@ -26,7 +26,7 @@ class ParamsTestServlet extends ScalatraServlet {
   }
 }
 
-class ParamsTest extends ScalatraSuite with ShouldMatchers {
+class ParamsTest extends ScalatraFunSuite with ShouldMatchers {
   addServlet(classOf[ParamsTestServlet], "/*")
 
   test("supports multiple parameters") {

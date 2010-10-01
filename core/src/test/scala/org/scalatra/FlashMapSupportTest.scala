@@ -1,7 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   post("/message") {
@@ -19,7 +19,7 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   }
 }
 
-class FlashMapSupportTest extends ScalatraSuite with ShouldMatchers {
+class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
   addServlet(classOf[FlashMapSupportTestServlet], "/*")
 
   test("should sweep flash map at end of request") {
