@@ -237,7 +237,7 @@ ScalaTest
 
 Mix in ShouldMatchers or MustMatchers to your taste...
 
-    class MyScalatraServletTests extends ScalatraSuite with ShouldMatchers {
+    class MyScalatraServletTests extends ScalatraFunSuite with ShouldMatchers {
       // `MyScalatraServlet` is your app which extends ScalatraServlet
       addServlet(classOf[MyScalatraServlet], "/*")
 
