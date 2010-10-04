@@ -3,6 +3,9 @@ import Process._
 import scala.xml._
 import com.rossabaker.sbt.gpg._
 import java.io.File
+import java.io.FileInputStream
+import java.security.MessageDigest
+import java.security.DigestInputStream
 
 // TODO make independent of GpgPlugin
 trait ChecksumPlugin extends BasicManagedProject with GpgPlugin {
@@ -47,11 +50,24 @@ trait ChecksumPlugin extends BasicManagedProject with GpgPlugin {
       case "sha1" => None
       case _ =>
         Stream("md5", "sha1").flatMap { ext =>
-          val lines = (List(ext+"sum", path).mkString(" "): ProcessBuilder).lines
-          val checksum = lines.head.split(" ")(0)
-          val outfile = path+"."+ext
-          log.info("Writing checksum to "+outfile)
-          FileUtilities.write(new File(outfile), checksum, log)
+          val md = MessageDigest.getInstance(ext);
+          val is = new FileInputStream(path asFile);
+          try {
+            // inefficient and ugly 
+            val dis = new DigestInputStream(is, md);
+            while ( dis.read != -1) {
+              // this updates the associated digest
+            }
+            val data = dis.getMessageDigest.digest
+            val checksum = data map (x => Integer.toHexString(x & 0xff)) mkString
+            
+            val outfile = path+"."+ext
+            log.info("Writing checksum to "+outfile)
+            FileUtilities.write(new File(outfile), checksum, log)
+          }
+          finally {
+            is close;
+          }
         }.firstOption
     }
   }
