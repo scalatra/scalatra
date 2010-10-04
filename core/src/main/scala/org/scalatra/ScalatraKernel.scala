@@ -162,6 +162,7 @@ trait ScalatraKernel extends Handler with Initializable
    * in request.getParameters, and we shouldn't either.
    */
   protected val _params = new collection.Map[String, String] {
+    def apply(key: Symbol): String = apply(key.name)
     def get(key: String) = multiParams.get(key) flatMap { _.headOption }
     override def size = multiParams.size
     override def iterator = multiParams map { case(k, v) => (k, v.head) } iterator
