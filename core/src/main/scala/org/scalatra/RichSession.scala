@@ -2,7 +2,7 @@ package org.scalatra
 
 import javax.servlet.http._
 
-class RichSession(session: HttpSession) {
+class RichSession(session: HttpSession) extends MapWithIndifferentAccess[Option[AnyRef]] {
   def apply(key:String) = session.getAttribute(key) match {
     case null => None
     case v: Any => Some(v)

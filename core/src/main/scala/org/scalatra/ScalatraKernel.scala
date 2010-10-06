@@ -40,7 +40,7 @@ trait ScalatraKernel extends Handler with Initializable
   private val _request    = new DynamicVariable[HttpServletRequest](null)
 
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
-  protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s) with MapWithIndifferentAccess[Option[AnyRef]]
+  protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
 
   protected[scalatra] class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
     def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
