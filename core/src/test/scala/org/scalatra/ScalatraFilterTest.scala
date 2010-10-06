@@ -1,7 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 /*
  * There are four types of servlet mappings: path, extension, default, and exact-match.  Test them all, as they can all
@@ -74,7 +74,7 @@ class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
   }
 }
 
-class ScalatraFilterTest extends ScalatraSuite with ShouldMatchers {
+class ScalatraFilterTest extends ScalatraFunSuite with ShouldMatchers {
   val filterHolder = addFilter(classOf[ScalatraFilterTestFilter], "/*")
   filterHolder.setInitParameter("cat-who-is-biting-me", "Pete")
 
@@ -147,7 +147,7 @@ class ScalatraFilterTest extends ScalatraSuite with ShouldMatchers {
 }
 
 class ScalatraFilterWithoutServletMappingTest 
-  extends ScalatraSuite 
+  extends ScalatraFunSuite 
   with ShouldMatchers 
 {
   addFilter(classOf[ScalatraFilterTestFilter], "/*")

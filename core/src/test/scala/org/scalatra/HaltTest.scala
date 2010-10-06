@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
 import javax.servlet.http.HttpServletResponse
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 class HaltTestServlet extends ScalatraServlet {
   get("/halts-response") {
@@ -33,7 +33,7 @@ class HaltTestServlet extends ScalatraServlet {
   }
 }
 
-class HaltTest extends ScalatraSuite with ShouldMatchers {
+class HaltTest extends ScalatraFunSuite with ShouldMatchers {
   addServlet(classOf[HaltTestServlet], "/*")
 
   test("GET /halts-response halts processing of the action") {

@@ -1,7 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 class ScalatraSuiteTestServlet extends ScalatraServlet {
   before {
@@ -40,7 +40,7 @@ class ScalatraSuiteTestServlet extends ScalatraServlet {
   }
 }
 
-class ScalatraSuiteTest extends ScalatraSuite with ShouldMatchers {
+class ScalatraSuiteTest extends ScalatraFunSuite with ShouldMatchers {
   addServlet(classOf[ScalatraSuiteTestServlet], "/*")
 
   test("route test") {

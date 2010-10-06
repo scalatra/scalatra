@@ -1,13 +1,15 @@
 package org.scalatra.test
 package scalatest
 
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 import org.mortbay.jetty.testing.ServletTester
+import org.scalatest.{Suite, BeforeAndAfterAll}
 
 @RunWith(classOf[JUnitRunner])
-class ScalatraSuite extends FunSuite with ScalatraTests with BeforeAndAfterAll {
+trait ScalatraSuite extends ScalatraTests with BeforeAndAfterAll {
+  this: Suite =>
+
   lazy val tester = new ServletTester
 
   override protected def beforeAll(): Unit = start()

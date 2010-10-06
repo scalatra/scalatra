@@ -1,7 +1,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 class EnvironmentFilter extends ScalatraFilter {
   get("/*/environment") {
@@ -13,7 +13,7 @@ class EnvironmentFilter extends ScalatraFilter {
   }
 }
 
-class EnvironmentFilterTest extends ScalatraSuite with ShouldMatchers {
+class EnvironmentFilterTest extends ScalatraFunSuite with ShouldMatchers {
   val devFilterHolder = addFilter(classOf[EnvironmentFilter], "/dev/*")
 
   val prodFilterHolder = addFilter(classOf[EnvironmentFilter], "/prod/*")

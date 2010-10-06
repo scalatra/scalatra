@@ -6,7 +6,7 @@ import org.scalatest.matchers.ShouldMatchers
 import org.mortbay.jetty.testing.HttpTester
 import java.net.URLEncoder
 import java.nio.charset.Charset
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 class ContentTypeTestServlet extends ScalatraServlet {
   get("/json") {
@@ -82,7 +82,7 @@ class ContentTypeTestServlet extends ScalatraServlet {
   override def destroy() { conductor ! 'exit } 
 }
 
-class ContentTypeTest extends ScalatraSuite with ShouldMatchers {
+class ContentTypeTest extends ScalatraFunSuite with ShouldMatchers {
   val servletHolder = addServlet(classOf[ContentTypeTestServlet], "/*")
   servletHolder.setInitOrder(1) // force load on startup
 

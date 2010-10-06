@@ -4,7 +4,7 @@
 package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraFunSuite
 
 class RouteTestServlet extends ScalatraServlet {
   get(params.getOrElse("booleanTest", "false") == "true") {
@@ -88,7 +88,7 @@ class RouteTestServlet extends ScalatraServlet {
   }
 }
 
-class RouteTest extends ScalatraSuite with ShouldMatchers {
+class RouteTest extends ScalatraFunSuite with ShouldMatchers {
   addServlet(classOf[RouteTestServlet], "/*")
 
   test("routes can be a boolean expression") {
