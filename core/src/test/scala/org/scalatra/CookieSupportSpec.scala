@@ -8,10 +8,11 @@ import test.specs.ScalatraSpecification
 class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
   get("/getcookie") {
-    cookies("somecookie") match {
-      case Some(v:String) => v
-      case _ => "None"
-    }
+    cookies("somecookie") getOrElse("None")
+  }
+
+  get("/getcookiesym") {
+    cookies('somecookie) getOrElse("None")
   }
 
   post("/setcookie") {
@@ -21,7 +22,6 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
   post("/setexpiringcookie") {
     cookies.update("thecookie", params("cookieval"), CookieOptions(maxAge = params("maxAge").toInt))
-
   }
 }
 
@@ -49,6 +49,17 @@ object CookieSupportSpec extends ScalatraSpecification {
       }
       get("/getcookie") {
         body must be_==("The value")
+      }
+    }
+  }
+  
+  "accessing coookie value via symbol should work" in {
+    session {
+      post("/setcookie", "cookieval" -> "The value via symbol") {
+        body must be_==("OK")
+      }
+      get("/getcookiesym") {
+        body must be_==("The value via symbol")
       }
     }
   }

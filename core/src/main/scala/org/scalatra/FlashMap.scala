@@ -8,7 +8,7 @@ object FlashMap {
   def apply(): FlashMap = new FlashMap
 }
 
-class FlashMap extends MMap[String, Any] {
+class FlashMap extends MMap[String, Any] with MapWithIndifferentAccess[Any] {
   private var _now = MMap[String, Any]()
   private var next = MMap[String, Any]()
 

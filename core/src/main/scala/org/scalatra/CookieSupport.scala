@@ -11,18 +11,20 @@ case class CookieOptions(
         comment : String  = "")
 
 
-class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) {
+class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) extends MapWithIndifferentAccess[Option[String]] {
     def apply(key: String) = cookieColl.find(_.getName == key) match {
       case Some(cookie) => Some(cookie.getValue)
       case _ => None
     }
+
+    def isNotBlank(s:String): Boolean = s != null && s.trim.length > 0
     def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
       val cookie = new Cookie(name, value)
-      if (options.domain != null && options.domain.trim.length > 0) cookie.setDomain(options.domain)
-      if (options.path != null && options.path.trim.length > 0) cookie.setPath(options.path)
+      if (isNotBlank(options.domain)) cookie.setDomain(options.domain)
+      if (isNotBlank(options.path)) cookie.setPath(options.path)
+      if (options.secure) cookie.setSecure(true)
+      if (isNotBlank(options.comment)) cookie.setComment(options.comment)
       cookie.setMaxAge(options.maxAge)
-      if(options.secure) cookie.setSecure(true)
-      if(options.comment != null && options.comment.trim.length > 0) cookie.setComment(options.comment)
 
       response addCookie cookie
       cookie

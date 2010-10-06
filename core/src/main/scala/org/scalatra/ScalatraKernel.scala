@@ -8,9 +8,17 @@ import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 import collection.mutable.{ListBuffer, HashMap, Map => MMap}
 
+trait MapWithIndifferentAccess[V] { 
+ def apply(key:String):V
+ def get(key: Symbol): V = apply(key)
+ def apply(key: Symbol): V = apply(key.name)
+ //def apply(keys: Symbol*): Seq[V] = keys map get _
+}
+
 object ScalatraKernel
 {
   type MultiParams = Map[String, Seq[String]]
+  
   type Action = () => Any
 
   val httpMethods = List("GET", "POST", "PUT", "DELETE")
@@ -18,6 +26,7 @@ object ScalatraKernel
   val EnvironmentKey = "org.scalatra.environment"
 }
 import ScalatraKernel._
+
 
 trait ScalatraKernel extends Handler with Initializable
 {
@@ -31,7 +40,7 @@ trait ScalatraKernel extends Handler with Initializable
   private val _request    = new DynamicVariable[HttpServletRequest](null)
 
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
-  protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
+  protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s) with MapWithIndifferentAccess[Option[AnyRef]]
 
   protected[scalatra] class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
     def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
@@ -161,8 +170,7 @@ trait ScalatraKernel extends Handler with Initializable
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
    */
-  protected val _params = new collection.Map[String, String] {
-    def apply(key: Symbol): String = apply(key.name)
+  protected val _params = new collection.Map[String, String] with MapWithIndifferentAccess[String] {
     def get(key: String) = multiParams.get(key) flatMap { _.headOption }
     override def size = multiParams.size
     override def iterator = multiParams map { case(k, v) => (k, v.head) } iterator
