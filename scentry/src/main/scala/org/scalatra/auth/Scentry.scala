@@ -2,6 +2,7 @@ package org.scalatra.auth
 
 import collection.mutable.{ HashMap, Map => MMap }
 import scala.PartialFunction
+import org.scalatra.auth.ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
 
 object Scentry {
 
@@ -32,8 +33,17 @@ class Scentry[UserType <: AnyRef](
   import Scentry._
   private val _strategies = new HashMap[Symbol, StrategyFactory]()
   private var _user: UserType = null.asInstanceOf[UserType]
+  private var _store: ScentryAuthStore = new SessionAuthStore(app.session)
 
-  def session = app.session
+  def setStore(newStore: ScentryAuthStore) = _store = newStore
+  def store = _store
+  def proxy = app
+
+  def authenticated_? = {
+    _user != null || ( store.get != null && store.get.trim.length > 0)
+  }
+
+  //def session = app.session
   def params = app.params
   def redirect(uri: String) = app.redirect(uri)
 
@@ -44,7 +54,7 @@ class Scentry[UserType <: AnyRef](
     (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
   def user : UserType = if (_user != null) _user else { 
-    val key = session.getAttribute(scentryAuthKey).asInstanceOf[String]
+    val key = store.get
     if (key != null && key.trim.length > 0 ) {
       runCallbacks() { _.beforeFetch(key) }
       val res = fromSession(key)
@@ -60,7 +70,7 @@ class Scentry[UserType <: AnyRef](
     if (v != null) {
       runCallbacks() { _.beforeSetUser(v) }
       val res = toSession(v)
-      session.setAttribute(scentryAuthKey, res)
+      store.set(res)
       runCallbacks() { _.afterSetUser(v) }
       res
     } else v
@@ -98,7 +108,7 @@ class Scentry[UserType <: AnyRef](
     val usr = user.asInstanceOf[UserType]
     runCallbacks() { _.beforeLogout(usr) }
     if (_user != null) _user = null.asInstanceOf[UserType]
-    session.invalidate
+    store.invalidate
     runCallbacks() { _.afterLogout(usr) }
   }
 
