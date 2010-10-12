@@ -57,10 +57,7 @@ Example
 
       // see session var
       get("/see") {
-        session("val") match {
-          case Some(v:String) => v
-          case _ => "No session var set"
-        }
+        session.getOrElse("val", "No session var set")
       }
 
       // Actions that return byte arrays render a binary response
