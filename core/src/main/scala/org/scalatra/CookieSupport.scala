@@ -2,7 +2,7 @@ package org.scalatra
 
 import javax.servlet.http.{HttpServletResponse, Cookie => ServletCookie}
 import collection._
-import java.net.URLEncoder
+import java.net.{URLDecoder, URLEncoder}
 
 case class CookieOptions(
         domain  : String  = "",
@@ -57,7 +57,7 @@ object Cookie {
 class RichCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
 
   def get(key: String) = cookieColl.find(_.getName == key) match {
-      case Some(cookie) => Some(cookie.getValue)
+      case Some(cookie) => Some(URLDecoder.decode(cookie.getValue, "UTF-8"))
       case _ => None
   }
 

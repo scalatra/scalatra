@@ -32,11 +32,6 @@ class CookieSpec extends Specification with ScalaTest {
       cookie.toCookieString must_== "cookiename=value1; Max-Age=86700"
     }
 
-//    "set the expires attribute when the options expires is set" in {
-//      val cookie = Cookie("cookiename", "value1", CookieOptions(expires=Some(new Date)))
-//      cookie.toCookieString must_== "cookiename=value1; Max-Age=86700"
-//    }
-
     "set the comment when a comment is given" in {
       val cookie = Cookie("cookiename", "value1", CookieOptions(comment="This is the comment"))
       cookie.toCookieString must_== "cookiename=value1; Comment=This is the comment"
