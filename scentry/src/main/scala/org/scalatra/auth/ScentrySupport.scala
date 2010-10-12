@@ -70,7 +70,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   protected def scentryOption: Option[Scentry[UserType]] = Option(scentry)
   protected def user: UserType = scentry.user
   protected def user_=(user: UserType) = scentry.user = user
-  protected def authenticated_? : Boolean = session(Scentry.scentryAuthKey).isDefined
+  protected def authenticated_? : Boolean = session.get(Scentry.scentryAuthKey).isDefined
   protected def unAuthenticated_? : Boolean = !authenticated_?
 
   protected def authenticate() = {
