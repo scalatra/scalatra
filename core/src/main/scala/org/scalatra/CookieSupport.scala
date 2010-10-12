@@ -1,45 +1,87 @@
 package org.scalatra
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie}
-import javax.servlet.ServletContext
+import javax.servlet.http.{HttpServletResponse, Cookie => ServletCookie}
+import collection._
+import java.net.URLEncoder
 
 case class CookieOptions(
         domain  : String  = "",
         path    : String  = "",
         maxAge  : Int     = -1,
         secure  : Boolean = false,
-        comment : String  = "")
+        comment : String  = "",
+        httpOnly: Boolean = false,
+        encoding: String  = "UTF-8")
 
+case class Cookie(name: String, value: Seq[String], options: CookieOptions) {
 
-class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) {
-    def apply(key: String) = cookieColl.find(_.getName == key) match {
+  private class RicherString(orig: String) {
+    def blank_? = orig == null || orig.trim.isEmpty
+    def nonBlank_? = orig != null && !orig.trim.isEmpty
+  }
+
+  private implicit def string2RicherString(orig: String) = new RicherString(orig)
+
+  def toCookieString = {
+    val sb = new StringBuffer
+    sb append (URLEncoder.encode(name, options.encoding)) append "="
+    sb append (value.map(URLEncoder.encode(_, options.encoding)).mkString("&"))
+
+    if(options.domain.nonBlank_?) sb.append("; Domain=").append(
+      if (!options.domain.startsWith(".")) "." + options.domain else options.domain
+    )
+
+    if(options.path.nonBlank_?) sb append "; Path=" append (if(!options.path.startsWith("/")) {
+      "/" + options.path
+    } else { options.path })
+
+    if(options.comment.nonBlank_?) sb append ("; Comment=") append options.comment
+
+    if(options.maxAge > -1) sb append "; Max-Age=" append options.maxAge
+
+    if (options.secure) sb append "; Secure"
+    if (options.httpOnly) sb append "; HttpOnly"
+    sb.toString
+  }
+}
+
+object Cookie {
+
+  def apply(name: String, value: String*): Cookie = new Cookie(name, value, CookieOptions())
+
+  def apply(name: String, value: String, options: CookieOptions = CookieOptions()): Cookie =
+    Cookie(name, Array(value), options)
+
+}
+
+class RichCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
+
+  def get(key: String) = cookieColl.find(_.getName == key) match {
       case Some(cookie) => Some(cookie.getValue)
       case _ => None
-    }
-    def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
-      val cookie = new Cookie(name, value)
-      if (options.domain != null && options.domain.trim.length > 0) cookie.setDomain(options.domain)
-      if (options.path != null && options.path.trim.length > 0) cookie.setPath(options.path)
-      cookie.setMaxAge(options.maxAge)
-      if(options.secure) cookie.setSecure(true)
-      if(options.comment != null && options.comment.trim.length > 0) cookie.setComment(options.comment)
-
-      response addCookie cookie
-      cookie
-    }
-    def set(name: String, value: String, options: CookieOptions = CookieOptions()) = {
-      this.update(name, value, options)
-    }
   }
+
+  def apply(key: String) = get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
+
+  def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
+    val cookie = Cookie(name, value, options)
+    response.addHeader("Set-Cookie", cookie.toCookieString)
+    cookie
+  }
+
+  def set(name: String, value: String, options: CookieOptions = CookieOptions()) = {
+    this.update(name, value, options)
+  }
+}
 
 trait CookieSupport {
 
   self: ScalatraKernel =>
 
-  protected implicit def cookieWrapper(cookieColl: Array[Cookie]) = new RichCookies(cookieColl, response)
+  protected implicit def cookieWrapper(cookieColl: Array[ServletCookie]) = new RichCookies(cookieColl, response)
 
   protected def cookies = request.getCookies match {
-    case null => Array[Cookie]()
+    case null => Array[ServletCookie]()
     case x => x
   }
 

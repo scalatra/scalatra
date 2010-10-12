@@ -18,7 +18,7 @@ object ScentryAuthStore {
     private lazy val cookies: RichCookies = new RichCookies(app.cookies, app.response)
 
     def get: String = {
-      cookies(Scentry.scentryAuthKey) getOrElse ""
+      cookies(Scentry.scentryAuthKey)
     }
     def set(value: String) {
       app.response.addHeader(SET_COOKIE, buildCookieString(value))
@@ -53,7 +53,7 @@ object ScentryAuthStore {
   class CookieAuthStore(cookies: => RichCookies, secureOnly: Boolean = false) extends ScentryAuthStore {
 
     def get: String = {
-      cookies(Scentry.scentryAuthKey) getOrElse ""
+      cookies(Scentry.scentryAuthKey)
     }
     def set(value: String): Unit = {
       cookies.set(Scentry.scentryAuthKey, value, CookieOptions(secure = secureOnly))
