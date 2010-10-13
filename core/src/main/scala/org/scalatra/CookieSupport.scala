@@ -31,9 +31,10 @@ case class Cookie(name: String, value: Seq[String], options: CookieOptions) {
       if (!options.domain.startsWith(".")) "." + options.domain else options.domain
     )
 
-    if(options.path.nonBlank_?) sb append "; Path=" append (if(!options.path.startsWith("/")) {
-      "/" + options.path
-    } else { options.path })
+    val pth = if(options.path.blank_?) Cookie.contextPath else options.path
+    if(pth.nonBlank_?) sb append "; Path=" append (if(!pth.startsWith("/")) {
+      "/" + pth
+    } else { pth })
 
     if(options.comment.nonBlank_?) sb append ("; Comment=") append options.comment
 
@@ -46,6 +47,12 @@ case class Cookie(name: String, value: Seq[String], options: CookieOptions) {
 }
 
 object Cookie {
+
+  private var _contextPath: () => String = () => ""
+  def requestContextPath(pth: => String) {
+    _contextPath = () => pth
+  }
+  def contextPath = _contextPath()
 
   def apply(name: String, value: String*): Cookie = new Cookie(name, value, CookieOptions())
 
@@ -84,6 +91,8 @@ trait CookieSupport {
     case null => Array[ServletCookie]()
     case x => x
   }
+
+  Cookie.requestContextPath( request.getContextPath)
 
 
 
