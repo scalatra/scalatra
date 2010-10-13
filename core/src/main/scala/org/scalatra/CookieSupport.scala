@@ -65,33 +65,46 @@ class RichCookies(cookieColl: Array[ServletCookie], response: HttpServletRespons
 
   def get(key: String) = cookieColl.find(_.getName == key) match {
       case Some(cookie) => {
-        Some(URLDecoder.decode(cookie.getValue, "UTF-8").split("&"))
+        val result = URLDecoder.decode(cookie.getValue, "UTF-8").split("&")
+        if(result.length > 0) {
+          if(result.length == 1) {
+            Some(result.head)
+          } else Some(result)
+        } else None
       }
       case _ => None
   }
-
-  def getFirst(key: String) = {
-    val cookieOption = get(key)
-    if(cookieOption.isDefined && cookieOption.get.length > 0) {
-      cookieOption.get.headOption
-    } else None
-  }
+//
+//  def getFirst(key: String) = {
+//    val cookieOption = get(key)
+//    if(cookieOption.isDefined && cookieOption.get.length > 0) {
+//      cookieOption.get.headOption
+//    } else None
+//  }
 
   def apply(key: String) = get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
 
-  def update(name: String, value: Seq[String], options: CookieOptions=CookieOptions()) = {
+  def update(name: String, value: Seq[String], options: CookieOptions=CookieOptions()): Cookie = {
     val cookie = Cookie(name, value, options)
     response.addHeader("Set-Cookie", cookie.toCookieString)
     cookie
   }
-  def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
+  def update(name: String, value: String): Cookie = {
+    update(name, List(value), CookieOptions())
+  }
+
+  def update(name: String, value: String, options: CookieOptions): Cookie = {
     update(name, List(value), options)
   }
 
-  def set(name: String, value: Seq[String], options: CookieOptions = CookieOptions()) = {
+  def set(name: String, value: Seq[String], options: CookieOptions = CookieOptions()): Cookie = {
     update(name, value, options)
   }
-  def set(name: String, value: String, options: CookieOptions = CookieOptions()) = {
+
+  def set(name: String, value: String): Cookie = {
+    update(name, value, CookieOptions())
+  }
+  def set(name: String, value: String, options: CookieOptions): Cookie = {
     this.update(name, value, options)
   }
 }

@@ -54,7 +54,7 @@ object ScentryAuthStore {
   class CookieAuthStore(cookies: => RichCookies, secureOnly: Boolean = false) extends ScentryAuthStore {
 
     def get: String = {
-      cookies.getFirst(Scentry.scentryAuthKey) getOrElse ""
+      cookies(Scentry.scentryAuthKey).toString
     }
     def set(value: String): Unit = {
       cookies.set(Scentry.scentryAuthKey, value, CookieOptions(secure = secureOnly))
