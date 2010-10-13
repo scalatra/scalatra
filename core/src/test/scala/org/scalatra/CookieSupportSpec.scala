@@ -8,7 +8,7 @@ import test.specs.ScalatraSpecification
 class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
   get("/getcookie") {
-    cookies.get("somecookie") match {
+    cookies.getFirst("somecookie") match {
       case Some(v:String) => v
       case _ => "None"
     }

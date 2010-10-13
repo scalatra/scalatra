@@ -64,18 +64,33 @@ object Cookie {
 class RichCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
 
   def get(key: String) = cookieColl.find(_.getName == key) match {
-      case Some(cookie) => Some(URLDecoder.decode(cookie.getValue, "UTF-8"))
+      case Some(cookie) => {
+        Some(URLDecoder.decode(cookie.getValue, "UTF-8").split("&"))
+      }
       case _ => None
+  }
+
+  def getFirst(key: String) = {
+    val cookieOption = get(key)
+    if(cookieOption.isDefined && cookieOption.get.length > 0) {
+      cookieOption.get.headOption
+    } else None
   }
 
   def apply(key: String) = get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
 
-  def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
+  def update(name: String, value: Seq[String], options: CookieOptions=CookieOptions()) = {
     val cookie = Cookie(name, value, options)
     response.addHeader("Set-Cookie", cookie.toCookieString)
     cookie
   }
+  def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
+    update(name, List(value), options)
+  }
 
+  def set(name: String, value: Seq[String], options: CookieOptions = CookieOptions()) = {
+    update(name, value, options)
+  }
   def set(name: String, value: String, options: CookieOptions = CookieOptions()) = {
     this.update(name, value, options)
   }
@@ -92,7 +107,13 @@ trait CookieSupport {
     case x => x
   }
 
-  Cookie.requestContextPath( request.getContextPath)
+  private def ctxtPath = {
+    //mainly here because it's being used outside a web context in the unit tests
+    if(request != null && request.getContextPath != null) {
+      request.getContextPath
+    } else { "" }
+  }
+  Cookie.requestContextPath(ctxtPath)
 
 
 
