@@ -1,11 +1,10 @@
 package org.scalatra
 
-import javax.servlet.http._
-import io.Source
+import javax.servlet.http.HttpServletRequest
+import scala.collection.mutable.Map
+import scala.io.Source
 
 case class RichRequest(r: HttpServletRequest) {
-  import RichRequest._
-
   @deprecated(message = "Use HttpServletRequest.getServerName() instead")
   def host = r.getServerName
 
@@ -21,5 +20,6 @@ case class RichRequest(r: HttpServletRequest) {
     Source.fromInputStream(r.getInputStream).mkString
   }
 
+  def attributes: Map[String, AnyRef] = new AttributesMap { def attributes = r }
 }
 
