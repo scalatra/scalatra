@@ -5,7 +5,7 @@ import test.scalatest.ScalatraFunSuite
 
 class RequestAttributesTest extends ScalatraFunSuite with ShouldMatchers with AttributesTest {
   addServlet(new AttributesServlet {
-    def attributesMap = request.attributes
+    def attributesMap = request
   }, "/*")
 }
 
