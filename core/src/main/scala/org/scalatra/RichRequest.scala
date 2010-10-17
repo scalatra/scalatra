@@ -2,6 +2,7 @@ package org.scalatra
 
 import javax.servlet.http._
 import io.Source
+import scala.collection.{Map => CMap}
 
 case class RichRequest(r: HttpServletRequest) {
   import RichRequest._
@@ -21,5 +22,7 @@ case class RichRequest(r: HttpServletRequest) {
     Source.fromInputStream(r.getInputStream).mkString
   }
 
+  def multiCookies: CMap[String, Seq[String]] =
+    r.getCookies.toSeq groupBy { _.getName } transform { case(k, v) => v map { _.getValue }} withDefaultValue Seq.empty
 }
 
