@@ -24,5 +24,7 @@ case class RichRequest(r: HttpServletRequest) {
 
   def multiCookies: CMap[String, Seq[String]] =
     r.getCookies.toSeq groupBy { _.getName } transform { case(k, v) => v map { _.getValue }} withDefaultValue Seq.empty
+
+  def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
 }
 
