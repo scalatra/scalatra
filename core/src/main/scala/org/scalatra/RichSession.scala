@@ -1,6 +1,7 @@
 package org.scalatra
 
 import javax.servlet.http._
+import util.MapWithIndifferentAccess
 
 class RichSession(session: HttpSession) extends MapWithIndifferentAccess[Option[AnyRef]] {
   def apply(key:String) = session.getAttribute(key) match {

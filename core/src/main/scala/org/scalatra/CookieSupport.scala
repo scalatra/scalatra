@@ -2,6 +2,7 @@ package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie}
 import javax.servlet.ServletContext
+import util.MapWithIndifferentAccess
 
 case class CookieOptions(
         domain  : String  = "",

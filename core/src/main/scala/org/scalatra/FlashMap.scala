@@ -1,8 +1,8 @@
 package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
-import util.DynamicVariable
 import collection.mutable.{Map => MMap}
+import util.MapWithIndifferentAccess
 
 object FlashMap {
   def apply(): FlashMap = new FlashMap

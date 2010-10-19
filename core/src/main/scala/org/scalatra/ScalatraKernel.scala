@@ -7,13 +7,8 @@ import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 import collection.mutable.{ListBuffer, HashMap, Map => MMap}
+import util.MapWithIndifferentAccess
 
-trait MapWithIndifferentAccess[V] { 
- def apply(key:String):V
- def get(key: Symbol): V = apply(key)
- def apply(key: Symbol): V = apply(key.name)
- //def apply(keys: Symbol*): Seq[V] = keys map get _
-}
 
 object ScalatraKernel
 {
