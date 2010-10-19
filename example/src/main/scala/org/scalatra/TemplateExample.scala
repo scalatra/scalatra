@@ -72,7 +72,7 @@ class TemplateExample extends ScalatraServlet with UrlSupport with FileUploadSup
   }
 
   get("/login") {
-    (session("first"), session("last")) match {
+    (session.get("first"), session.get("last")) match {
       case (Some(first:String), Some(last:String)) =>
         Template.page("Scalatra: Session Example",
         <pre>You have logged in as: {first + "-" + last}</pre>

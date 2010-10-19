@@ -5,18 +5,12 @@ import test.scalatest.ScalatraFunSuite
 
 class SessionTestServlet extends ScalatraServlet {
   get("/session") {
-    session("val") match {
-      case Some(v:String) => v
-      case _ => "None"
-    }
+    session.getOrElse("val", "None")
   }
 
   post("/session") {
     session("val") = params("val")
-    session("val") match {
-      case Some(v:String) => v
-      case _ => "None"
-    }
+    session.getOrElse("val", "None")
   }
 
   get("/session-option") {
