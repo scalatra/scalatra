@@ -40,7 +40,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
 
     val s = new ScentryStrategy[User] {
         protected val app = context
-        def authenticate_! ={
+        def authenticate() ={
           successStrategyCalled = true
           Some(User("12345"))
         }
@@ -56,7 +56,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
 
     val sUnsuccess = new ScentryStrategy[User] {
         protected val app = context
-        def authenticate_! = {
+        def authenticate() = {
           failingStrategyCalled = true
           None
         }
