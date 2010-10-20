@@ -22,6 +22,8 @@ case class RichRequest(r: HttpServletRequest) {
     Source.fromInputStream(r.getInputStream).mkString
   }
 
+  def isAjax: Boolean = r.getHeader("X-Requested-With") != null
+
   def multiCookies: CMap[String, Seq[String]] =
     r.getCookies.toSeq groupBy { _.getName } transform { case(k, v) => v map { _.getValue }} withDefaultValue Seq.empty
 
