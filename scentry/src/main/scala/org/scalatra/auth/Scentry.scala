@@ -17,11 +17,8 @@ object Scentry {
   def clearGlobalStrategies = _globalStrategies.clear
 
   val scentryAuthKey = "scentry.auth.default.user"
-
-
-
-
 }
+
 class Scentry[UserType <: AnyRef](
         app: ScalatraKernelProxy,
         serialize: PartialFunction[UserType, String],
@@ -40,7 +37,7 @@ class Scentry[UserType <: AnyRef](
   def proxy = app
 
   def isAuthenticated = {
-    _user != null || ( store.get != null && store.get.trim.length > 0)
+    user != null
   }
   @deprecated("use isAuthenticated")
   def authenticated_? = isAuthenticated
