@@ -36,6 +36,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
+  protected implicit def servletContextWrapper(sc: ServletContext) = new RichServletContext(sc)
 
   protected[scalatra] class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
     def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }

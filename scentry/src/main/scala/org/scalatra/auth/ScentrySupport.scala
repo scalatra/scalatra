@@ -33,6 +33,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
     val app = ScalatraKernelProxy(session, params, uri => redirect(uri), request, response, cookies)
     _scentry.withValue(new Scentry[UserType](app, toSession, fromSession)) {
+      configureScentry
       registerStrategiesFromConfig
       registerAuthStrategies
       super.handle(servletRequest, servletResponse)
@@ -56,7 +57,9 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
     strategy registerWith scentry
   }
 
+  protected def configureScentry = {
 
+  }
 
   /**
    * Override this method to register authentication strategies specific to this servlet.
@@ -70,14 +73,18 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   protected def scentryOption: Option[Scentry[UserType]] = Option(scentry)
   protected def user: UserType = scentry.user
   protected def user_=(user: UserType) = scentry.user = user
-  protected def authenticated_? : Boolean = session(Scentry.scentryAuthKey).isDefined
-  protected def unAuthenticated_? : Boolean = !authenticated_?
+  protected def isAuthenticated : Boolean = scentry.isAuthenticated
+  @deprecated("use isAuthenticated")
+  protected def authenticated_? : Boolean = isAuthenticated
+  @deprecated("use !isAuthenticated")
+  protected def unAuthenticated_? : Boolean = !isAuthenticated
 
   protected def authenticate() = {
     scentry.authenticate()
   }
 
-  protected def logOut_! = scentry.logout
+  protected def logOut() = scentry.logout()
 
-
+  @deprecated("use logOut()")
+  protected def logOut_! = logOut()
 }

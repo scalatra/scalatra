@@ -2,7 +2,6 @@ package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie}
 import javax.servlet.ServletContext
-import util.MapWithIndifferentAccess
 
 case class CookieOptions(
         domain  : String  = "",
@@ -12,11 +11,12 @@ case class CookieOptions(
         comment : String  = "")
 
 
-class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) extends MapWithIndifferentAccess[Option[String]] {
+class RichCookies(cookieColl: Array[Cookie], response: HttpServletResponse) {
     def apply(key: String) = cookieColl.find(_.getName == key) match {
       case Some(cookie) => Some(cookie.getValue)
       case _ => None
     }
+    def apply(key: Symbol): Option[String] = apply(key.name)
 
     def isNotBlank(s:String): Boolean = s != null && s.trim.length > 0
     def update(name: String, value: String, options: CookieOptions = CookieOptions()) = {
