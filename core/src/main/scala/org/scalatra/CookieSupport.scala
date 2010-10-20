@@ -16,8 +16,8 @@ case class CookieOptions(
 case class Cookie(name: String, value: Seq[String], options: CookieOptions) {
 
   private class RicherString(orig: String) {
-    def blank_? = orig == null || orig.trim.isEmpty
-    def nonBlank_? = orig != null && !orig.trim.isEmpty
+    def isBlank = orig == null || orig.trim.isEmpty
+    def isNonBlank = orig != null && !orig.trim.isEmpty
   }
 
   private implicit def string2RicherString(orig: String) = new RicherString(orig)
@@ -27,16 +27,16 @@ case class Cookie(name: String, value: Seq[String], options: CookieOptions) {
     sb append (URLEncoder.encode(name, options.encoding)) append "="
     sb append (value.map(URLEncoder.encode(_, options.encoding)).mkString("&"))
 
-    if(options.domain.nonBlank_?) sb.append("; Domain=").append(
+    if(options.domain.isNonBlank) sb.append("; Domain=").append(
       if (!options.domain.startsWith(".")) "." + options.domain else options.domain
     )
 
-    val pth = if(options.path.blank_?) Cookie.contextPath else options.path
-    if(pth.nonBlank_?) sb append "; Path=" append (if(!pth.startsWith("/")) {
+    val pth = if(options.path.isBlank) Cookie.contextPath else options.path
+    if(pth.isNonBlank) sb append "; Path=" append (if(!pth.startsWith("/")) {
       "/" + pth
     } else { pth })
 
-    if(options.comment.nonBlank_?) sb append ("; Comment=") append options.comment
+    if(options.comment.isNonBlank) sb append ("; Comment=") append options.comment
 
     if(options.maxAge > -1) sb append "; Max-Age=" append options.maxAge
 
@@ -61,11 +61,16 @@ object Cookie {
 
 }
 
-class RichCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
+class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
 
-  def get(key: String) = cookieColl.find(_.getName == key) match {
+  private val cookies = new mutable.HashMap[String, String]()
+  cookieColl.foreach { ck =>
+    cookies += (ck.getName -> ck.getValue)
+  }
+
+  def get(key: String) = cookies.get(key) match {
       case Some(cookie) => {
-        val result = URLDecoder.decode(cookie.getValue, "UTF-8").split("&")
+        val result = URLDecoder.decode(cookie, "UTF-8").split("&")
         if(result.length > 0) {
           if(result.length == 1) {
             Some(result.head)
@@ -74,18 +79,12 @@ class RichCookies(cookieColl: Array[ServletCookie], response: HttpServletRespons
       }
       case _ => None
   }
-//
-//  def getFirst(key: String) = {
-//    val cookieOption = get(key)
-//    if(cookieOption.isDefined && cookieOption.get.length > 0) {
-//      cookieOption.get.headOption
-//    } else None
-//  }
 
   def apply(key: String) = get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
 
   def update(name: String, value: Seq[String], options: CookieOptions=CookieOptions()): Cookie = {
     val cookie = Cookie(name, value, options)
+    cookies += name -> value.mkString("&")
     response.addHeader("Set-Cookie", cookie.toCookieString)
     cookie
   }
@@ -107,13 +106,30 @@ class RichCookies(cookieColl: Array[ServletCookie], response: HttpServletRespons
   def set(name: String, value: String, options: CookieOptions): Cookie = {
     this.update(name, value, options)
   }
+
+  def delete(name: String) {
+    cookies -= name
+    response.addHeader("Set-Cookie", Cookie(name, "", CookieOptions(maxAge = 0)).toCookieString)
+  }
+
+  def +=(keyValuePair: (String, String))(options: CookieOptions) = {
+    update(keyValuePair._1, keyValuePair._2, options)
+  }
+
+  def +=(keyValuePair: (String, String)) = {
+    update(keyValuePair._1, keyValuePair._2)
+  }
+
+  def -=(key: String) {
+    delete(key)
+  }
 }
 
 trait CookieSupport {
 
   self: ScalatraKernel =>
 
-  protected implicit def cookieWrapper(cookieColl: Array[ServletCookie]) = new RichCookies(cookieColl, response)
+  protected implicit def cookieWrapper(cookieColl: Array[ServletCookie]) = new SweetCookies(cookieColl, response)
 
   protected def cookies = request.getCookies match {
     case null => Array[ServletCookie]()

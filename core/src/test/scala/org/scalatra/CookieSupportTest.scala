@@ -1,9 +1,7 @@
 package org.scalatra
 
-import org.specs._
-import org.specs.mock.Mockito
-import test.ScalatraTests
-import test.specs.ScalatraSpecification
+import test.scalatest.ScalatraFunSuite
+import org.scalatest.matchers.MustMatchers
 
 class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
@@ -25,37 +23,37 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
   }
 }
 
-object CookieSupportSpec extends ScalatraSpecification {
+object CookieSupportTest extends ScalatraFunSuite with MustMatchers {
   val oneWeek = 7 * 24 * 3600
 
   addServlet(classOf[CookieSupportServlet], "/*")
 
-  "GET /getcookie with no cookies set should return 'None'" in {
+  test("GET /getcookie with no cookies set should return 'None'") {
     get("/getcookie") {
-      body must be_==("None")
+      body must equal("None")
     }
   }
 
-  "POST /setcookie with a value should return OK" in {
+  test("POST /setcookie with a value should return OK") {
     post("/setcookie", "cookieval" -> "The value") {
-      response.getHeader("Set-Cookie") must_== "somecookie=The+value"
+      response.getHeader("Set-Cookie") must equal("somecookie=The+value")
     }
   }
 
-  "GET /getcookie with a cookie should set return the cookie value" in {
+  test("GET /getcookie with a cookie should set return the cookie value") {
     session {
       post("/setcookie", "cookieval" -> "The value") {
-        body must be_==("OK")
+        body must equal("OK")
       }
       get("/getcookie") {
-        body must be_==("The value")
+        body must equal("The value")
       }
     }
   }
 
-  "POST /setexpiringcookie should set the max age of the cookie" in {
+  test("POST /setexpiringcookie should set the max age of the cookie") {
     post("/setexpiringcookie", "cookieval" -> "The value", "maxAge" -> oneWeek.toString) {
-      response.getHeader("Set-Cookie") must_== "thecookie=The+value; Max-Age=604800"
+      response.getHeader("Set-Cookie") must equal("thecookie=The+value; Max-Age=604800")
     }
   }
 }

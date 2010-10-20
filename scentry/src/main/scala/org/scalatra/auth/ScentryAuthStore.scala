@@ -1,7 +1,7 @@
 package org.scalatra.auth
 
 import javax.servlet.http.{HttpSession}
-import org.scalatra.{CookieOptions, RichCookies}
+import org.scalatra.{CookieOptions, SweetCookies}
 
 object ScentryAuthStore {
 
@@ -11,11 +11,11 @@ object ScentryAuthStore {
     def invalidate: Unit
   }
 
-  class HttpOnlyCookieAuthStore(cookies: => RichCookies, secureOnly: Boolean = false) extends CookieAuthStore(cookies, secureOnly) {
+  class HttpOnlyCookieAuthStore(cookies: => SweetCookies, secureOnly: Boolean = false) extends CookieAuthStore(cookies, secureOnly) {
 
 
 //    private val SET_COOKIE = "Set-Cookie"
-//    private lazy val cookies: RichCookies = new RichCookies(app.cookies, app.response)
+//    private lazy val cookies: SweetCookies = new SweetCookies(app.cookies, app.response)
 
 //    def get: String = {
 //      cookies.getFirst(Scentry.scentryAuthKey)
@@ -51,7 +51,7 @@ object ScentryAuthStore {
 
   }
 
-  class CookieAuthStore(cookies: => RichCookies, secureOnly: Boolean = false) extends ScentryAuthStore {
+  class CookieAuthStore(cookies: => SweetCookies, secureOnly: Boolean = false) extends ScentryAuthStore {
 
     def get: String = {
       cookies(Scentry.scentryAuthKey).toString

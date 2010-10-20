@@ -1,7 +1,7 @@
 package org.scalatra.auth
 
 import javax.servlet.http._
-import org.scalatra.{RichRequest, RichSession, RichCookies, RouteMatcher}
+import org.scalatra.{RichRequest, RichSession, SweetCookies, RouteMatcher}
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,7 +15,7 @@ class ScalatraKernelProxy {
 
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
   protected implicit def requestWrapper(s: HttpServletRequest) = new RichRequest(s)
-  protected implicit def cookieWrapper(s: Array[Cookie]) = new RichCookies(s, response)
+  protected implicit def cookieWrapper(s: Array[Cookie]) = new SweetCookies(s, response)
 
   private var _session: () => HttpSession = _
   private var _params: () => collection.Map[String, String] = _

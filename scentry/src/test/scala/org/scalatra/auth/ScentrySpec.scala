@@ -4,7 +4,6 @@ import org.specs._
 import mock.Mockito
 import org.mockito.Matchers._
 import runner.{ScalaTest, JUnit}
-import org.scalatra.RichCookies
 import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest, HttpSession}
 
 object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest {
