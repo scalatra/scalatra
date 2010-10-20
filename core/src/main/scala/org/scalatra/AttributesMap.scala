@@ -3,12 +3,12 @@ package org.scalatra
 import scala.collection.mutable.Map
 import scala.collection.JavaConversions._
 import java.util.Enumeration
-import util.MapWithIndifferentAccess
+import util.MutableMapWithIndifferentAccess
 
 /**
  * Adapts attributes from the Servlet API to a standard Scala mutable map.
  */
-trait AttributesMap extends Map[String, AnyRef] with MapWithIndifferentAccess[AnyRef] {
+trait AttributesMap extends Map[String, AnyRef] with MutableMapWithIndifferentAccess[AnyRef] {
   protected def attributes: Attributes
 
   def get(key:String) = attributes.getAttribute(key) match {

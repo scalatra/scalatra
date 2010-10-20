@@ -19,6 +19,10 @@ class SessionTestServlet extends ScalatraServlet {
   get("/session-symbol") {
     session.getOrElse('val, "failure!")
   }
+
+  post("/session-symbol-update") {
+    session('val) = "set with symbol"
+  }
 }
 
 class SessionTest extends ScalatraFunSuite with ShouldMatchers {
@@ -74,6 +78,15 @@ class SessionTest extends ScalatraFunSuite with ShouldMatchers {
 
       get("/session-option") {
         body should equal("Some")
+      }
+    }
+  }
+
+  test("can update session with symbol") {
+    session {
+      post("/session-symbol-update") {}
+      get("/session-symbol") {
+        body should equal ("set with symbol")
       }
     }
   }
