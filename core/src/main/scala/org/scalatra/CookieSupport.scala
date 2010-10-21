@@ -1,8 +1,9 @@
 package org.scalatra
 
-import javax.servlet.http.{HttpServletResponse, Cookie => ServletCookie}
 import collection._
 import java.util.Locale
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
+import util.DynamicVariable
 
 case class CookieOptions(
         domain  : String  = "",
@@ -116,20 +117,24 @@ class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletRespon
   }
 }
 
-trait CookieSupport {
+trait CookieSupport extends Handler {
 
   self: ScalatraKernel =>
 
-  protected implicit def cookieWrapper(cookieColl: Array[ServletCookie]) = new SweetCookies(cookieColl, response)
+  implicit def cookieOptions: CookieOptions = _cookieOptions.value
 
-  implicit lazy val cookieOptions: CookieOptions = CookieOptions(path=request.getContextPath)
+  protected def cookies = _cookies.value
 
-  protected def cookies = request.getCookies match {
-    case null => Array[ServletCookie]()
-    case x => x
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+    _cookies.withValue(new SweetCookies(req.getCookies, res)) {
+      _cookieOptions.withValue(CookieOptions(path = req.getContextPath)) {
+        super.handle(req, res)
+      }
+    }
   }
 
-
+  private val _cookies = new DynamicVariable[SweetCookies](null)
+  private val _cookieOptions = new DynamicVariable[CookieOptions](CookieOptions())
 
 
 }

@@ -5,6 +5,7 @@ import mock.Mockito
 import org.mockito.Matchers._
 import runner.{ScalaTest, JUnit}
 import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest, HttpSession}
+import org.scalatra.SweetCookies
 
 object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest {
   detailedDiffs
@@ -17,13 +18,15 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     var invalidateCalled = false
     session.invalidate answers { _ => invalidateCalled = true }
     val response = smartMock[HttpServletResponse]
+    val req = smartMock[HttpServletRequest]
+    req.getCookies returns Array[Cookie]()
     val context = ScalatraKernelProxy(
       session,
       smartMock[scala.collection.Map[String, String]],
       s => "redirected to: " + s,
-      smartMock[HttpServletRequest],
+      req,
       response,
-      Array[Cookie]())
+      new SweetCookies(req.getCookies, response))
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)})
     var beforeFetchCalled = false
     var afterFetchCalled = false
