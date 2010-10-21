@@ -57,14 +57,25 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
   }
 }
 
+object SweetCookies {
+  private var _cookies: mutable.HashMap[String, String] = null
+
+  private def fillCookieJar(cookieColl: Array[ServletCookie]) = {
+    if(_cookies == null) {
+      _cookies = new mutable.HashMap[String, String]()
+      cookieColl.foreach { ck =>
+        _cookies += (ck.getName -> ck.getValue)
+      }
+      _cookies
+    } else _cookies
+  }
+}
 
 class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
 
+  import SweetCookies._
   private implicit def string2RicherString(orig: String) = new RicherString(orig)
-  private val cookies = new mutable.HashMap[String, String]()
-  cookieColl.foreach { ck =>
-    cookies += (ck.getName -> ck.getValue)
-  }
+  private val cookies = fillCookieJar(cookieColl)
 
   def get(key: String) = cookies.get(key)
 
