@@ -2,7 +2,7 @@ package org.scalatra
 
 import javax.servlet.http.{HttpServletResponse, Cookie => ServletCookie}
 import collection._
-import java.net.{URLDecoder, URLEncoder}
+import java.util.Locale
 
 case class CookieOptions(
         domain  : String  = "",
@@ -13,7 +13,7 @@ case class CookieOptions(
         httpOnly: Boolean = false,
         encoding: String  = "UTF-8")
 
-case class Cookie(name: String, value: Seq[String], options: CookieOptions) {
+case class Cookie(name: String, value: String, options: CookieOptions = CookieOptions()) {
 
   private class RicherString(orig: String) {
     def isBlank = orig == null || orig.trim.isEmpty
@@ -22,13 +22,23 @@ case class Cookie(name: String, value: Seq[String], options: CookieOptions) {
 
   private implicit def string2RicherString(orig: String) = new RicherString(orig)
 
+  def toServletCookie = {
+    val sCookie = new ServletCookie(name, value)
+    if(options.domain.isNonBlank) sCookie.setDomain(options.domain)
+    if(options.path.isNonBlank) sCookie.setPath(options.path)
+    sCookie.setMaxAge(options.maxAge)
+    if(options.secure) sCookie.setSecure(options.secure)
+    if(options.comment.isNonBlank) sCookie.setComment(options.comment)
+    sCookie
+  }
+
   def toCookieString = {
     val sb = new StringBuffer
-    sb append (URLEncoder.encode(name, options.encoding)) append "="
-    sb append (value.map(URLEncoder.encode(_, options.encoding)).mkString("&"))
+    sb append name append "="
+    sb append value
 
     if(options.domain.isNonBlank) sb.append("; Domain=").append(
-      if (!options.domain.startsWith(".")) "." + options.domain else options.domain
+      (if (!options.domain.startsWith(".")) "." + options.domain else options.domain).toLowerCase(Locale.ENGLISH)
     )
 
     val pth = if(options.path.isBlank) Cookie.contextPath else options.path
@@ -54,11 +64,6 @@ object Cookie {
   }
   def contextPath = _contextPath()
 
-  def apply(name: String, value: String*): Cookie = new Cookie(name, value, CookieOptions())
-
-  def apply(name: String, value: String, options: CookieOptions = CookieOptions()): Cookie =
-    Cookie(name, Array(value), options)
-
 }
 
 class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
@@ -68,42 +73,24 @@ class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletRespon
     cookies += (ck.getName -> ck.getValue)
   }
 
-  def get(key: String) = cookies.get(key) match {
-      case Some(cookie) => {
-        val result = URLDecoder.decode(cookie, "UTF-8").split("&")
-        if(result.length > 0) {
-          if(result.length == 1) {
-            Some(result.head)
-          } else Some(result)
-        } else None
-      }
-      case _ => None
+  def get(key: String) = cookies.get(key)
+
+  def apply(key: String) = cookies.get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
+
+  def update(name: String, value: String, options: CookieOptions=CookieOptions()): Cookie = {
+    val sCookie = new ServletCookie(name, value)
+    if(options.domain.isNonBlank) sCookie.setDomain(options.domain)
+    if(options.path.isNonBlank) sCookie.setPath(options.path)
+    sCookie.setMaxAge(options.maxAge)
+    if(options.secure) sCookie.setSecure(options.secure)
+    if(options.comment.isNonBlank) sCookie.setComment(options.comment)
+    cookies += name -> value
+    //response.addHeader("Set-Cookie", cookie.toCookieString)
+    response.addCookie(sCookie)
+    sCookie
   }
 
-  def apply(key: String) = get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
-
-  def update(name: String, value: Seq[String], options: CookieOptions=CookieOptions()): Cookie = {
-    val cookie = Cookie(name, value, options)
-    cookies += name -> value.mkString("&")
-    response.addHeader("Set-Cookie", cookie.toCookieString)
-    cookie
-  }
-  def update(name: String, value: String): Cookie = {
-    update(name, List(value), CookieOptions())
-  }
-
-  def update(name: String, value: String, options: CookieOptions): Cookie = {
-    update(name, List(value), options)
-  }
-
-  def set(name: String, value: Seq[String], options: CookieOptions = CookieOptions()): Cookie = {
-    update(name, value, options)
-  }
-
-  def set(name: String, value: String): Cookie = {
-    update(name, value, CookieOptions())
-  }
-  def set(name: String, value: String, options: CookieOptions): Cookie = {
+  def set(name: String, value: String, options: CookieOptions=CookieOptions()): Cookie = {
     this.update(name, value, options)
   }
 
