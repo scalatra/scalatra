@@ -21,7 +21,7 @@ object ScentryAuthStore {
 //      cookies.getFirst(Scentry.scentryAuthKey)
 //    }
     override def set(value: String) {
-      cookies.set(Scentry.scentryAuthKey, value, CookieOptions(secure = secureOnly, httpOnly = true))
+      cookies.set(Scentry.scentryAuthKey, value)( CookieOptions(secure = secureOnly, httpOnly = true))
     }
 
 //    def invalidate {
@@ -57,10 +57,10 @@ object ScentryAuthStore {
       cookies(Scentry.scentryAuthKey).toString
     }
     def set(value: String): Unit = {
-      cookies.set(Scentry.scentryAuthKey, value, CookieOptions(secure = secureOnly))
+      cookies.set(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly))
     }
     def invalidate: Unit = {
-      cookies.set(Scentry.scentryAuthKey, "", CookieOptions(maxAge = 0))
+      cookies.set(Scentry.scentryAuthKey, "")( CookieOptions(maxAge = 0))
     }
   }
 

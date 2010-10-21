@@ -18,7 +18,7 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
   }
 
   post("/setexpiringcookie") {
-    cookies.update("thecookie", params("cookieval"), CookieOptions(maxAge = params("maxAge").toInt))
+    cookies.update("thecookie", params("cookieval"))(CookieOptions(maxAge = params("maxAge").toInt))
 
   }
 }

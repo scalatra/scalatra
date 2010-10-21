@@ -13,22 +13,23 @@ case class CookieOptions(
         httpOnly: Boolean = false,
         encoding: String  = "UTF-8")
 
-case class Cookie(name: String, value: String, options: CookieOptions = CookieOptions()) {
-
-  private class RicherString(orig: String) {
+private[scalatra] class RicherString(orig: String) {
     def isBlank = orig == null || orig.trim.isEmpty
     def isNonBlank = orig != null && !orig.trim.isEmpty
   }
+case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
+
+
 
   private implicit def string2RicherString(orig: String) = new RicherString(orig)
 
   def toServletCookie = {
     val sCookie = new ServletCookie(name, value)
-    if(options.domain.isNonBlank) sCookie.setDomain(options.domain)
-    if(options.path.isNonBlank) sCookie.setPath(options.path)
-    sCookie.setMaxAge(options.maxAge)
-    if(options.secure) sCookie.setSecure(options.secure)
-    if(options.comment.isNonBlank) sCookie.setComment(options.comment)
+    if(cookieOptions.domain.isNonBlank) sCookie.setDomain(cookieOptions.domain)
+    if(cookieOptions.path.isNonBlank) sCookie.setPath(cookieOptions.path)
+    sCookie.setMaxAge(cookieOptions.maxAge)
+    if(cookieOptions.secure) sCookie.setSecure(cookieOptions.secure)
+    if(cookieOptions.comment.isNonBlank) sCookie.setComment(cookieOptions.comment)
     sCookie
   }
 
@@ -37,37 +38,29 @@ case class Cookie(name: String, value: String, options: CookieOptions = CookieOp
     sb append name append "="
     sb append value
 
-    if(options.domain.isNonBlank) sb.append("; Domain=").append(
-      (if (!options.domain.startsWith(".")) "." + options.domain else options.domain).toLowerCase(Locale.ENGLISH)
+    if(cookieOptions.domain.isNonBlank) sb.append("; Domain=").append(
+      (if (!cookieOptions.domain.startsWith(".")) "." + cookieOptions.domain else cookieOptions.domain).toLowerCase(Locale.ENGLISH)
     )
 
-    val pth = if(options.path.isBlank) Cookie.contextPath else options.path
+    val pth = cookieOptions.path
     if(pth.isNonBlank) sb append "; Path=" append (if(!pth.startsWith("/")) {
       "/" + pth
     } else { pth })
 
-    if(options.comment.isNonBlank) sb append ("; Comment=") append options.comment
+    if(cookieOptions.comment.isNonBlank) sb append ("; Comment=") append cookieOptions.comment
 
-    if(options.maxAge > -1) sb append "; Max-Age=" append options.maxAge
+    if(cookieOptions.maxAge > -1) sb append "; Max-Age=" append cookieOptions.maxAge
 
-    if (options.secure) sb append "; Secure"
-    if (options.httpOnly) sb append "; HttpOnly"
+    if (cookieOptions.secure) sb append "; Secure"
+    if (cookieOptions.httpOnly) sb append "; HttpOnly"
     sb.toString
   }
 }
 
-object Cookie {
-
-  private var _contextPath: () => String = () => ""
-  def requestContextPath(pth: => String) {
-    _contextPath = () => pth
-  }
-  def contextPath = _contextPath()
-
-}
 
 class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
 
+  private implicit def string2RicherString(orig: String) = new RicherString(orig)
   private val cookies = new mutable.HashMap[String, String]()
   cookieColl.foreach { ck =>
     cookies += (ck.getName -> ck.getValue)
@@ -77,30 +70,30 @@ class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletRespon
 
   def apply(key: String) = cookies.get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
 
-  def update(name: String, value: String, options: CookieOptions=CookieOptions()): Cookie = {
+  def update(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
     val sCookie = new ServletCookie(name, value)
-    if(options.domain.isNonBlank) sCookie.setDomain(options.domain)
-    if(options.path.isNonBlank) sCookie.setPath(options.path)
-    sCookie.setMaxAge(options.maxAge)
-    if(options.secure) sCookie.setSecure(options.secure)
-    if(options.comment.isNonBlank) sCookie.setComment(options.comment)
+    if(cookieOptions.domain.isNonBlank) sCookie.setDomain(cookieOptions.domain)
+    if(cookieOptions.path.isNonBlank) sCookie.setPath(cookieOptions.path)
+    sCookie.setMaxAge(cookieOptions.maxAge)
+    if(cookieOptions.secure) sCookie.setSecure(cookieOptions.secure)
+    if(cookieOptions.comment.isNonBlank) sCookie.setComment(cookieOptions.comment)
     cookies += name -> value
     //response.addHeader("Set-Cookie", cookie.toCookieString)
     response.addCookie(sCookie)
     sCookie
   }
 
-  def set(name: String, value: String, options: CookieOptions=CookieOptions()): Cookie = {
-    this.update(name, value, options)
+  def set(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
+    this.update(name, value)(cookieOptions)
   }
 
   def delete(name: String) {
     cookies -= name
-    response.addHeader("Set-Cookie", Cookie(name, "", CookieOptions(maxAge = 0)).toCookieString)
+    response.addHeader("Set-Cookie", Cookie(name, "")(CookieOptions(maxAge = 0)).toCookieString)
   }
 
   def +=(keyValuePair: (String, String))(options: CookieOptions) = {
-    update(keyValuePair._1, keyValuePair._2, options)
+    update(keyValuePair._1, keyValuePair._2)(options)
   }
 
   def +=(keyValuePair: (String, String)) = {
@@ -118,18 +111,13 @@ trait CookieSupport {
 
   protected implicit def cookieWrapper(cookieColl: Array[ServletCookie]) = new SweetCookies(cookieColl, response)
 
+  implicit val cookieOptions: CookieOptions = CookieOptions(path=request.getContextPath)
+
   protected def cookies = request.getCookies match {
     case null => Array[ServletCookie]()
     case x => x
   }
 
-  private def ctxtPath = {
-    //mainly here because it's being used outside a web context in the unit tests
-    if(request != null && request.getContextPath != null) {
-      request.getContextPath
-    } else { "" }
-  }
-  Cookie.requestContextPath(ctxtPath)
 
 
 
