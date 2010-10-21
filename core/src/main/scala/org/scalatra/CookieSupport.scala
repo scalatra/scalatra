@@ -111,7 +111,7 @@ trait CookieSupport {
 
   protected implicit def cookieWrapper(cookieColl: Array[ServletCookie]) = new SweetCookies(cookieColl, response)
 
-  implicit val cookieOptions: CookieOptions = CookieOptions(path=request.getContextPath)
+  implicit lazy val cookieOptions: CookieOptions = CookieOptions(path=request.getContextPath)
 
   protected def cookies = request.getCookies match {
     case null => Array[ServletCookie]()
