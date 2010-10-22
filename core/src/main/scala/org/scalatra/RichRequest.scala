@@ -3,6 +3,7 @@ package org.scalatra
 import scala.collection.{Map => CMap}
 import scala.io.Source
 import javax.servlet.http.HttpServletRequest
+import util.MultiMapHeadView
 
 case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   @deprecated(message = "Use HttpServletRequest.getServerName() instead")

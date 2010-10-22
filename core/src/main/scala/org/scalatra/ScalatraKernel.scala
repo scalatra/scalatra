@@ -7,8 +7,7 @@ import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 import collection.mutable.{ListBuffer, HashMap, Map => MMap}
-import util.MapWithIndifferentAccess
-
+import util.{MapWithIndifferentAccess, MultiMapHeadView}
 
 object ScalatraKernel
 {
