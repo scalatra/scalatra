@@ -104,8 +104,8 @@ class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletRespon
     response.addHeader("Set-Cookie", Cookie(name, "")(CookieOptions(maxAge = 0)).toCookieString)
   }
 
-  def +=(keyValuePair: (String, String))(options: CookieOptions) = {
-    update(keyValuePair._1, keyValuePair._2)(options)
+  def +=(keyValuePair: (String, String))(implicit cookieOptions: CookieOptions) = {
+    update(keyValuePair._1, keyValuePair._2)(cookieOptions)
   }
 
   def +=(keyValuePair: (String, String)) = {
