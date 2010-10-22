@@ -10,7 +10,7 @@ trait CSRFTokenSupport { self: ScalatraKernel =>
 
   before {
     if (WRITE_METHODS.contains(request.getMethod.toUpperCase(Locale.ENGLISH)) &&
-            session(CSRF_KEY) != params.get(CSRF_KEY))
+            session.get(CSRF_KEY) != params.get(CSRF_KEY))
       halt(403, "Request tampering detected!")
     prepareCSRFToken
   }

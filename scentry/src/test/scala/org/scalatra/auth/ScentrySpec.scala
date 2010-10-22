@@ -1,4 +1,5 @@
-package org.scalatra.auth
+package org.scalatra
+package auth
 
 import org.specs._
 import mock.Mockito
@@ -26,7 +27,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
       s => "redirected to: " + s,
       req,
       response,
-      new SweetCookies(req.getCookies, response))
+      new SweetCookies(new RichRequest(req).cookies, response))
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)})
     var beforeFetchCalled = false
     var afterFetchCalled = false
@@ -42,7 +43,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
 
     val s = new ScentryStrategy[User] {
         protected val app = context
-        def authenticate_! ={
+        def authenticate() ={
           successStrategyCalled = true
           Some(User("12345"))
         }
@@ -58,7 +59,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
 
     val sUnsuccess = new ScentryStrategy[User] {
         protected val app = context
-        def authenticate_! = {
+        def authenticate() = {
           failingStrategyCalled = true
           None
         }

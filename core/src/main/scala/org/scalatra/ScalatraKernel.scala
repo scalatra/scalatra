@@ -7,10 +7,13 @@ import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 import collection.mutable.{ListBuffer, HashMap, Map => MMap}
+import util.MapWithIndifferentAccess
+
 
 object ScalatraKernel
 {
   type MultiParams = Map[String, Seq[String]]
+  
   type Action = () => Any
 
   val httpMethods = List("GET", "POST", "PUT", "DELETE")
@@ -18,6 +21,7 @@ object ScalatraKernel
   val EnvironmentKey = "org.scalatra.environment"
 }
 import ScalatraKernel._
+
 
 trait ScalatraKernel extends Handler with Initializable
 {
@@ -32,6 +36,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
+  protected implicit def servletContextWrapper(sc: ServletContext) = new RichServletContext(sc)
 
   protected[scalatra] class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
     def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
@@ -161,7 +166,7 @@ trait ScalatraKernel extends Handler with Initializable
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
    */
-  protected val _params = new MultiMapHeadView[String, String] {
+  protected val _params = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
     protected def multiMap = multiParams
   }
   protected def params = _params

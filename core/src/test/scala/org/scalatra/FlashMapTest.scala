@@ -85,4 +85,12 @@ class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach 
     flash.now("foo") = "baz"
     flash.get("foo") should equal (Some("baz"))
   }
+
+  test("is accessible via symbols") {
+    val fsh = FlashMap()
+    fsh("foo") = "bar"
+    fsh.sweep
+    fsh("foo") should equal ("bar")
+    fsh('foo) should equal ("bar")
+  }
 }

@@ -1,7 +1,7 @@
 package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import util.DynamicVariable
+import scala.util.DynamicVariable
 
 object FlashMapSupport {
   val sessionKey = FlashMapSupport.getClass.getName+".key"

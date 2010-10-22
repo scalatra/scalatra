@@ -3,7 +3,7 @@ package org.scalatra
 import collection._
 import java.util.Locale
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
-import util.DynamicVariable
+import scala.util.DynamicVariable
 
 case class CookieOptions(
         domain  : String  = "",
@@ -19,9 +19,6 @@ private[scalatra] class RicherString(orig: String) {
     def isNonBlank = orig != null && !orig.trim.isEmpty
   }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
-
-
-
   private implicit def string2RicherString(orig: String) = new RicherString(orig)
 
   def toServletCookie = {
