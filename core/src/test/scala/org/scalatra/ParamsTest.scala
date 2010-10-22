@@ -24,6 +24,14 @@ class ParamsTestServlet extends ScalatraServlet {
       case e => throw e
     }
   }
+
+  get("/symbol/:sym") {
+    params('sym)
+  }
+
+  get("/twoSymbols/:sym1/:sym2") {
+    params('sym1)+" and "+ params('sym2)
+  }
 }
 
 class ParamsTest extends ScalatraFunSuite with ShouldMatchers {
@@ -51,6 +59,18 @@ class ParamsTest extends ScalatraFunSuite with ShouldMatchers {
   test("params on unknown key throws NoSuchElementException") {
     get ("/params/oops") {
       body should equal (ParamsTestServlet.NoSuchElement)
+    }
+  }
+
+  test("can use symbols as keys for retrieval")  {
+    get("/symbol/hello") {
+      body should equal ("hello")
+    }
+  }
+
+  test("can use symbols multiple times ")  {
+    get("/twoSymbols/hello/world") {
+      body should equal ("hello and world")
     }
   }
 }

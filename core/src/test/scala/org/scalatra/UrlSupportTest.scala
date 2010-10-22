@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
-import util.DynamicVariable
+import scala.util.DynamicVariable
 import javax.servlet.http.HttpServletResponse
 import org.mockito.Mockito._
 import org.mockito.Matchers._

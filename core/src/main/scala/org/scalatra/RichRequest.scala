@@ -1,12 +1,11 @@
 package org.scalatra
 
-import javax.servlet.http._
-import io.Source
 import scala.collection.{Map => CMap}
+import scala.io.Source
+import javax.servlet.http.HttpServletRequest
+import util.MultiMapHeadView
 
-case class RichRequest(r: HttpServletRequest) {
-  import RichRequest._
-
+case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   @deprecated(message = "Use HttpServletRequest.getServerName() instead")
   def host = r.getServerName
 
@@ -25,8 +24,13 @@ case class RichRequest(r: HttpServletRequest) {
   def isAjax: Boolean = r.getHeader("X-Requested-With") != null
 
   def multiCookies: CMap[String, Seq[String]] =
-    r.getCookies.toSeq groupBy { _.getName } transform { case(k, v) => v map { _.getValue }} withDefaultValue Seq.empty
+    Option(r.getCookies).getOrElse(Array()).toSeq.
+      groupBy { _.getName }.
+      transform { case(k, v) => v map { _.getValue }}.
+      withDefaultValue(Seq.empty)
 
   def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
+
+  protected def attributes = r
 }
 

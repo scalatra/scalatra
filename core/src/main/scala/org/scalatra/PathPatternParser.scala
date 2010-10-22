@@ -1,6 +1,6 @@
 package org.scalatra
 
-import util.parsing.combinator.RegexParsers
+import scala.util.parsing.combinator.RegexParsers
 
 object PathPatternParser extends RegexParsers {
   def parseFrom(path: String) = {

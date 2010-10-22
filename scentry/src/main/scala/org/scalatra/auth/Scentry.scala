@@ -17,11 +17,8 @@ object Scentry {
   def clearGlobalStrategies = _globalStrategies.clear
 
   val scentryAuthKey = "scentry.auth.default.user"
-
-
-
-
 }
+
 class Scentry[UserType <: AnyRef](
         app: ScalatraKernelProxy,
         serialize: PartialFunction[UserType, String],
@@ -39,9 +36,11 @@ class Scentry[UserType <: AnyRef](
   def store = _store
   def proxy = app
 
-  def authenticated_? = {
-    _user != null || ( store.get != null && store.get.trim.length > 0)
+  def isAuthenticated = {
+    user != null
   }
+  @deprecated("use isAuthenticated")
+  def authenticated_? = isAuthenticated
 
   //def session = app.session
   def params = app.params
@@ -91,9 +90,9 @@ class Scentry[UserType <: AnyRef](
   def authenticate(names: Symbol*): Unit = {
     (List[(Symbol, UserType)]() /: strategies) { (acc, stratKv) =>
       val (nm, strat) = stratKv
-      runCallbacks(_.valid_?) { _.beforeAuthenticate }
-      if(acc.isEmpty && strat.valid_? && (names.isEmpty || names.contains(nm))) {
-        strat.authenticate_! match {
+      runCallbacks(_.isValid) { _.beforeAuthenticate }
+      if(acc.isEmpty && strat.isValid && (names.isEmpty || names.contains(nm))) {
+        strat.authenticate() match {
           case Some(usr)  => (nm, usr) :: acc
           case _ => acc
         }
@@ -104,7 +103,7 @@ class Scentry[UserType <: AnyRef](
     }
   }
 
-  def logout = {
+  def logout() = {
     val usr = user.asInstanceOf[UserType]
     runCallbacks() { _.beforeLogout(usr) }
     if (_user != null) _user = null.asInstanceOf[UserType]

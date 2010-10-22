@@ -13,18 +13,12 @@ class ScalatraSuiteTestServlet extends ScalatraServlet {
   }
 
   get("/session") {
-    session("name") match {
-      case Some(n: String) => n
-      case _ => "error!"
-    }
+    session.getOrElse("name", "error!")
   }
 
   post("/session") {
     session("name") = params("name")
-    session("name") match {
-      case Some(n: String) => n
-      case _ => "error!"
-    }
+    session.getOrElse("name", "error!")
   }
 
   get("/redirect") {

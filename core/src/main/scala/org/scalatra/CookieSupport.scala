@@ -3,7 +3,7 @@ package org.scalatra
 import collection._
 import java.util.Locale
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
-import util.DynamicVariable
+import scala.util.DynamicVariable
 
 case class CookieOptions(
         domain  : String  = "",
@@ -19,9 +19,6 @@ private[scalatra] class RicherString(orig: String) {
     def isNonBlank = orig != null && !orig.trim.isEmpty
   }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
-
-
-
   private implicit def string2RicherString(orig: String) = new RicherString(orig)
 
   def toServletCookie = {
@@ -58,25 +55,10 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
   }
 }
 
-object SweetCookies {
-  private var _cookies: mutable.HashMap[String, String] = null
-
-  private def fillCookieJar(cookieColl: Array[ServletCookie]) = {
-    if(_cookies == null) {
-      _cookies = new mutable.HashMap[String, String]()
-      cookieColl.foreach { ck =>
-        _cookies += (ck.getName -> ck.getValue)
-      }
-      _cookies
-    } else _cookies
-  }
-}
-
-class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletResponse) {
-
-  import SweetCookies._
+class SweetCookies(private val reqCookies: Map[String, String], private val response: HttpServletResponse) {
   private implicit def string2RicherString(orig: String) = new RicherString(orig)
-  private val cookies = fillCookieJar(cookieColl)
+
+  private lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
   def get(key: String) = cookies.get(key)
 
@@ -118,7 +100,6 @@ class SweetCookies(cookieColl: Array[ServletCookie], response: HttpServletRespon
 }
 
 trait CookieSupport extends Handler {
-
   self: ScalatraKernel =>
 
   implicit def cookieOptions: CookieOptions = _cookieOptions.value
@@ -126,7 +107,7 @@ trait CookieSupport extends Handler {
   protected def cookies = _cookies.value
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    _cookies.withValue(new SweetCookies(req.getCookies, res)) {
+    _cookies.withValue(new SweetCookies(req.cookies, res)) {
       _cookieOptions.withValue(CookieOptions(path = req.getContextPath)) {
         super.handle(req, res)
       }

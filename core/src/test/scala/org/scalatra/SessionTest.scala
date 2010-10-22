@@ -5,22 +5,23 @@ import test.scalatest.ScalatraFunSuite
 
 class SessionTestServlet extends ScalatraServlet {
   get("/session") {
-    session("val") match {
-      case Some(v:String) => v
-      case _ => "None"
-    }
+    session.getOrElse("val", "None")
   }
 
   post("/session") {
     session("val") = params("val")
-    session("val") match {
-      case Some(v:String) => v
-      case _ => "None"
-    }
+    session.getOrElse("val", "None")
   }
 
   get("/session-option") {
     sessionOption map { _ => "Some" } getOrElse "None"
+  }
+  get("/session-symbol") {
+    session.getOrElse('val, "failure!")
+  }
+
+  post("/session-symbol-update") {
+    session('val) = "set with symbol"
   }
 }
 
@@ -40,12 +41,24 @@ class SessionTest extends ScalatraFunSuite with ShouldMatchers {
   }
 
   test("GET /session with the session should return the data set in POST /session") {
-    val data = "session_value"
+    val data = "some data going in as symbol"
     session {
       post("/session", "val" -> data) {
         body should equal (data)
       }
       get("/session") {
+        body should equal (data)        
+      }
+    }
+  }
+
+  test("GET /session with the session should return the data set in POST /session even via symbol") {
+    val data = "session_value"
+    session {
+      post("/session", "val" -> data) {
+        body should equal (data)
+      }
+      get("/session-symbol") {
         body should equal (data)        
       }
     }
@@ -65,6 +78,15 @@ class SessionTest extends ScalatraFunSuite with ShouldMatchers {
 
       get("/session-option") {
         body should equal("Some")
+      }
+    }
+  }
+
+  test("can update session with symbol") {
+    session {
+      post("/session-symbol-update") {}
+      get("/session-symbol") {
+        body should equal ("set with symbol")
       }
     }
   }
