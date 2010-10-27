@@ -19,7 +19,11 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
   post("/setexpiringcookie") {
     cookies.update("thecookie", params("cookieval"))(CookieOptions(maxAge = params("maxAge").toInt))
+  }
 
+  post("/maplikeset") {
+    cookies += ("somecookie" -> params("cookieval"))
+    "OK"
   }
 }
 
@@ -62,6 +66,14 @@ class CookieSupportTest extends ScalatraFunSuite with MustMatchers {
   test("cookie path defaults to context path") {
     post("/foo/setcookie", "cookieval" -> "whatever") {
       response.getHeader("Set-Cookie") must endWith (";Path=/foo")
+    }
+  }
+
+  test("cookie path defaults to context path when using a maplike setter") {
+    post("/foo/maplikeset", "cookieval" -> "whatever") {
+      val hdr = response.getHeader("Set-Cookie")
+      hdr must startWith ("""somecookie=whatever;""")
+      hdr must endWith (";Path=/foo")
     }
   }
 }

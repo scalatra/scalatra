@@ -1,7 +1,7 @@
 package org.scalatra.auth
 
-import javax.servlet.http.{HttpSession}
-import org.scalatra.{CookieOptions, SweetCookies}
+import javax.servlet.http.{HttpServletResponse, HttpSession}
+import org.scalatra.{Cookie, CookieOptions, SweetCookies}
 
 object ScentryAuthStore {
 
@@ -11,43 +11,14 @@ object ScentryAuthStore {
     def invalidate: Unit
   }
 
-  class HttpOnlyCookieAuthStore(cookies: => SweetCookies, secureOnly: Boolean = false) extends CookieAuthStore(cookies, secureOnly) {
+  class HttpOnlyCookieAuthStore(app: => ScalatraKernelProxy, secureOnly: Boolean = false) extends CookieAuthStore(app.cookies, secureOnly) {
 
 
-//    private val SET_COOKIE = "Set-Cookie"
-//    private lazy val cookies: SweetCookies = new SweetCookies(app.cookies, app.response)
+    private val SET_COOKIE = "Set-Cookie"
 
-//    def get: String = {
-//      cookies.getFirst(Scentry.scentryAuthKey)
-//    }
     override def set(value: String) {
-      cookies.set(Scentry.scentryAuthKey, value)( CookieOptions(secure = secureOnly, httpOnly = true))
+      app.response.addHeader(SET_COOKIE, Cookie(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly, httpOnly = true)).toCookieString)
     }
-
-//    def invalidate {
-//      app.response.addHeader(SET_COOKIE, buildInvalidateCookieString)
-//    }
-
-//    private def buildCookieString(value: String) = {
-//      val sb = new StringBuffer
-//      sb append Scentry.scentryAuthKey
-//      sb append "="
-//      sb append value
-//      // I couldn't figure out how to use the classes for this so building my own string. It's been around for years now
-//      sb append "; HttpOnly"
-//      if (secureOnly) sb append "; secure"
-//      sb.toString
-//    }
-//
-//    private def buildInvalidateCookieString = {
-//      val sb = new StringBuffer
-//      sb append Scentry.scentryAuthKey
-//      sb append "="
-//      // I couldn't figure out how to use the classes for this so building my own string. It's been around for years now
-//      sb append "; HttpOnly; Max-Age=0"
-//      if (secureOnly) sb append "; secure"
-//      sb.toString
-//    }
 
   }
 
@@ -60,7 +31,7 @@ object ScentryAuthStore {
       cookies.set(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly))
     }
     def invalidate: Unit = {
-      cookies.set(Scentry.scentryAuthKey, "")( CookieOptions(maxAge = 0))
+      cookies -= Scentry.scentryAuthKey
     }
   }
 

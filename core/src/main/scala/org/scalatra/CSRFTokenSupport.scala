@@ -1,16 +1,13 @@
 package org.scalatra
 
 import java.security.{ MessageDigest, SecureRandom }
-import java.util.Locale
 
 trait CSRFTokenSupport { self: ScalatraKernel =>
 
-  private val WRITE_METHODS = "POST" :: "PUT" :: "DELETE" :: Nil
-  private val CSRF_KEY = "csrfToken"
+  private val CSRF_KEY = ScalatraKernel.csrfKey
 
   before {
-    if (WRITE_METHODS.contains(request.getMethod.toUpperCase(Locale.ENGLISH)) &&
-            session.get(CSRF_KEY) != params.get(CSRF_KEY))
+    if (request.isWrite && session.get(CSRF_KEY) != params.get(CSRF_KEY))
       halt(403, "Request tampering detected!")
     prepareCSRFToken
   }
