@@ -4,6 +4,7 @@ import collection._
 import java.util.Locale
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
 import scala.util.DynamicVariable
+import util.RicherString._
 
 case class CookieOptions(
         domain  : String  = "",
@@ -14,13 +15,7 @@ case class CookieOptions(
         httpOnly: Boolean = false,
         encoding: String  = "UTF-8")
 
-private[scalatra] class RicherString(orig: String) {
-    def isBlank = orig == null || orig.trim.isEmpty
-    def isNonBlank = orig != null && !orig.trim.isEmpty
-  }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
-  private implicit def string2RicherString(orig: String) = new RicherString(orig)
-
   def toServletCookie = {
     val sCookie = new ServletCookie(name, value)
     if(cookieOptions.domain.isNonBlank) sCookie.setDomain(cookieOptions.domain)
@@ -56,8 +51,6 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
 }
 
 class SweetCookies(private val reqCookies: Map[String, String], private val response: HttpServletResponse) {
-  private implicit def string2RicherString(orig: String) = new RicherString(orig)
-
   private lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
   def get(key: String) = cookies.get(key)
