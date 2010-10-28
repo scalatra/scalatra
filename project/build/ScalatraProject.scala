@@ -205,7 +205,7 @@ class ScalatraProject(info: ProjectInfo)
 
   override def managedStyle = ManagedStyle.Maven
   val publishTo = {
-    val local = System.getenv("SOCIALINSIGHT_HOME")
+    val local = System.getenv("MOJOLLY_HOME")
     if(local == null || local.trim.length == 0 || local == ".") {
       Credentials(Path.userHome / ".ivy2" / "credentials" / "oss.sonatype.org", log)
       if (version.toString.endsWith("-SNAPSHOT"))
@@ -218,11 +218,12 @@ class ScalatraProject(info: ProjectInfo)
       if(version.toString.endsWith("-SNAPSHOT"))
         "Mojolly Snapshots" at "http://maven/content/repositories/thirdparty-snapshots/"
       else
-        "Mojolly Releases" at "http://maven/content/repositories/thirdparty-releases/"
+        "Mojolly Releases" at "http://maven/content/repositories/thirdparty/"
 
     }
 
   }
+  val scalatraRepo = publishTo
 
 
   override def deliverProjectDependencies = Nil
