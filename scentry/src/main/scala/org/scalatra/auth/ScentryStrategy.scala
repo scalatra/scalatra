@@ -1,13 +1,12 @@
 package org.scalatra.auth
 
-import org.scalatra.{RichSession, RichRequest, RichCookies}
+import org.scalatra.{RichSession, RichRequest, SweetCookies}
 import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
 trait ScentryStrategy[UserType <: AnyRef] {
 
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
   protected implicit def requestWrapper(s: HttpServletRequest) = new RichRequest(s)
-  protected implicit def cookieWrapper(s: Array[Cookie]) = new RichCookies(s, app.response)
 
   protected val app: ScalatraKernelProxy
   def name: Symbol = 'NameMe
