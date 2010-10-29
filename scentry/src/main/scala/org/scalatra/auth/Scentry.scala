@@ -3,6 +3,7 @@ package org.scalatra.auth
 import collection.mutable.{ HashMap, Map => MMap }
 import scala.PartialFunction
 import org.scalatra.auth.ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
+import org.scalatra.util.RicherString
 
 object Scentry {
 
@@ -23,6 +24,8 @@ class Scentry[UserType <: AnyRef](
         app: ScalatraKernelProxy,
         serialize: PartialFunction[UserType, String],
         deserialize: PartialFunction[String, UserType] ) {
+
+  import RicherString._
 
   type StrategyType = ScentryStrategy[UserType]
   type StrategyFactory = ScalatraKernelProxy => StrategyType
@@ -54,7 +57,7 @@ class Scentry[UserType <: AnyRef](
 
   def user : UserType = if (_user != null) _user else { 
     val key = store.get
-    if (key != null && key.trim.length > 0 ) {
+    if (key.isNonBlank) {
       runCallbacks() { _.beforeFetch(key) }
       val res = fromSession(key)
       if (res != null) runCallbacks() { _.afterFetch(res) }
