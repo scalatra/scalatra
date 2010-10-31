@@ -61,8 +61,8 @@ class ScalatraProject(info: ProjectInfo)
       super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
   }
 
-  lazy val scentry = project("scentry", "scalatra-auth", new ScentryProject(_), core)
-  class ScentryProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+  lazy val auth = project("auth", "scalatra-auth", new AuthProject(_), core)
+  class AuthProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
     val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "Supplies optional Scalatra authentication support"
   }
