@@ -280,7 +280,7 @@ Create an instance of org.scalatra.test.ScalatraTests.  Be sure to call `start()
 Authentication
 ==============
 
-There is a new authentication middleware in the scentry directory, to be documented soon.  See an example at [usage example](http://gist.github.com/552980).
+There is a new authentication middleware in the auth directory, to be documented soon.  See an example at [usage example](http://gist.github.com/660701).
 
 To use it from an SBT project, add the following to your project:
 
