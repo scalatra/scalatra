@@ -1,3 +1,4 @@
+import collection.mutable.LinkedHashSet
 import sbt._
 
 import scala.xml._
@@ -53,12 +54,42 @@ class ScalatraProject(info: ProjectInfo)
     override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageDocs, packageSrc)
   }
 
-  lazy val core = project("core", "scalatra", new CoreProject(_), scalatest, specs)
-  class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+  /**
+   * Used to depend on our test modules in the test configuration, so they're not on the compile classpath.
+   * Surely there's a better way...
+   */
+  trait ScalatraTestDependencies extends BasicManagedProject {
+    def testProjectDependencies = List(scalatest, specs)
+
+    abstract override def dependencies = super.dependencies.toList ++ testProjectDependencies
+
+    override def deliverProjectDependencies: Iterable[ModuleID] = {
+      val testDependencyIds = testProjectDependencies.map(_.projectID).toList
+      super.deliverProjectDependencies.toList -- testDependencyIds ++ (testDependencyIds map { _ % "test" })
+    }
+
+    override def fullClasspath(config: Configuration): PathFinder = Path.lazyPathFinder {
+      def classpath(projects: Iterable[Project], config: Configuration) = projects flatMap {
+        case sp: ClasspathProject => sp.projectClasspath(config).get
+        case _ => Nil
+      }
+      val nonTestTopologicalSort = Dag.topologicalSort[Project](this) {
+        case p: ScalatraTestDependencies => p.dependencies -- testProjectDependencies
+        case p: Project => p.dependencies
+      }
+      val set = new LinkedHashSet[Path]
+      set ++= classpath(nonTestTopologicalSort, config)
+      if (config == Configurations.Test) {
+        set ++= classpath(topologicalSort -- nonTestTopologicalSort, Configurations.Compile)
+      }
+      set.toList
+    }
+  }
+
+  lazy val core = project("core", "scalatra", new CoreProject(_))
+  class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with ScalatraTestDependencies {
     val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "The core Scalatra library"
-    override def deliverProjectDependencies =
-      super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
   }
 
   lazy val auth = project("auth", "scalatra-auth", new AuthProject(_), core)
@@ -67,21 +98,17 @@ class ScalatraProject(info: ProjectInfo)
     val description = "Supplies optional Scalatra authentication support"
   }
 
-  lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core, scalatest)
-  class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+  lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core)
+  class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with ScalatraTestDependencies {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1" % "compile"
     val commonsIo = "commons-io" % "commons-io" % "1.4" % "compile"
     val description = "Supplies the optional Scalatra file upload support"
-    override def deliverProjectDependencies =
-      super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
   }
 
-  lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core, scalatest)
-  class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+  lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core)
+  class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with ScalatraTestDependencies {
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.3.1"
     val description = "Supplies the optional Scalatra Scalate support"
-    override def deliverProjectDependencies =
-      super.deliverProjectDependencies.toList - scalatest.projectID ++ Seq(scalatest.projectID % "test")
   }
 
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
@@ -224,7 +251,6 @@ class ScalatraProject(info: ProjectInfo)
 
   }
   val scalatraRepo = publishTo
-
 
   override def deliverProjectDependencies = Nil
 }
