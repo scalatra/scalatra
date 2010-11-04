@@ -286,6 +286,20 @@ To use it from an SBT project, add the following to your project:
 
     val auth = "org.scalatra" %% "scalatra-auth" % "2.0.0-SNAPSHOT"
 
+ScalatraServlet vs. ScalatraFilter
+==================================
+
+The main difference is the default behavior when a route is not found.  A filter will delegate to the next filter or servlet in the chain (as configured by web.xml), whereas a ScalatraServlet will return a 404 response.
+
+Another difference is that ScalatraFilter matches routes relative to the WAR's context path.  ScalatraServlet matches routes relative to the servlet path.  This allows you to mount multiple servlets under in different namespaces in the same WAR.
+
+Use ScalatraFilter if:
+- You are migrating a legacy application inside the same URL space
+- You want to serve static content from the WAR rather than a dedicated web server
+
+Use ScalatraServlet if:
+- You want to match routes with a prefix deeper than the context path.
+
 Miscellaneous
 =============
 While Scalatra can be run standalone for testing and meddling, you can also package it up in a .jar for use in other projects.  At the sbt prompt, type `package`.  Scalatra's only dependency is a recent version of the servlet API. For more information, see the [sbt site](http://code.google.com/p/simple-build-tool/)
