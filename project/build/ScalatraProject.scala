@@ -1,8 +1,6 @@
-import collection.mutable.LinkedHashSet
 import sbt._
 
 import scala.xml._
-import scala.util.Sorting._
 import com.rossabaker.sbt.gpg._
 
 class ScalatraProject(info: ProjectInfo) 
@@ -54,59 +52,40 @@ class ScalatraProject(info: ProjectInfo)
     override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageDocs, packageSrc)
   }
 
-  /**
-   * Used to depend on our test modules in the test configuration, so they're not on the compile classpath.
-   * Surely there's a better way...
-   */
-  trait ScalatraTestDependencies extends BasicManagedProject {
-    def testProjectDependencies = List(scalatest, specs)
+  // Thanks, Mark: http://groups.google.com/group/simple-build-tool/msg/c32741357ac58f18
+  trait TestWith extends BasicScalaProject {
+    def testWithCompileClasspath: Seq[BasicScalaProject] = Nil
+    def testWithTestClasspath: Seq[BasicScalaProject] = Nil
+    override def testCompileAction = super.testCompileAction dependsOn((testWithTestClasspath.map(_.testCompile) ++ testWithCompileClasspath.map(_.compile)) : _*)
+    override def testClasspath = (super.testClasspath /: (testWithTestClasspath.map(_.testClasspath) ++  testWithCompileClasspath.map(_.compileClasspath) ))(_ +++ _)
+    override def deliverProjectDependencies = super.deliverProjectDependencies ++ testWithTestClasspath.map(_.projectID % "test")
+  }
 
-    abstract override def dependencies = super.dependencies.toList ++ testProjectDependencies
-
-    override def deliverProjectDependencies: Iterable[ModuleID] = {
-      val testDependencyIds = testProjectDependencies.map(_.projectID).toList
-      super.deliverProjectDependencies.toList -- testDependencyIds ++ (testDependencyIds map { _ % "test" })
-    }
-
-    override def fullClasspath(config: Configuration): PathFinder = Path.lazyPathFinder {
-      def classpath(projects: Iterable[Project], config: Configuration) = projects flatMap {
-        case sp: ClasspathProject => sp.projectClasspath(config).get
-        case _ => Nil
-      }
-      val nonTestTopologicalSort = Dag.topologicalSort[Project](this) {
-        case p: ScalatraTestDependencies => p.dependencies -- testProjectDependencies
-        case p: Project => p.dependencies
-      }
-      val set = new LinkedHashSet[Path]
-      set ++= classpath(nonTestTopologicalSort, config)
-      if (config == Configurations.Test) {
-        set ++= classpath(topologicalSort -- nonTestTopologicalSort, Configurations.Compile)
-      }
-      set.toList
-    }
+  trait TestWithScalatraTest extends TestWith {
+    override def testWithTestClasspath = List(scalatest, specs)
   }
 
   lazy val core = project("core", "scalatra", new CoreProject(_))
-  class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with ScalatraTestDependencies {
+  class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
     val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "The core Scalatra library"
   }
 
   lazy val auth = project("auth", "scalatra-auth", new AuthProject(_), core)
-  class AuthProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject {
+  class AuthProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
     val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "Supplies optional Scalatra authentication support"
   }
 
   lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core)
-  class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with ScalatraTestDependencies {
+  class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1" % "compile"
     val commonsIo = "commons-io" % "commons-io" % "1.4" % "compile"
     val description = "Supplies the optional Scalatra file upload support"
   }
 
   lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core)
-  class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with ScalatraTestDependencies {
+  class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.3.1"
     val description = "Supplies the optional Scalatra Scalate support"
   }
