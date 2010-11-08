@@ -299,27 +299,27 @@ Scalatra provides optional support for file uploads with <a href="http://commons
 
 2. Extend your application with `FileUploadSupport`
 
-      import org.scalatra.ScalatraServlet
-      import org.scalatra.fileupload.FileUploadSupport
+        import org.scalatra.ScalatraServlet
+        import org.scalatra.fileupload.FileUploadSupport
 
-      class MyApp extends ScalatraServlet with FileUploadSupport {
-        // ...
-      }
+        class MyApp extends ScalatraServlet with FileUploadSupport {
+          // ...
+        }
 
 3. Be sure that your form is of type `multipart/form-data`:
 
-      get("/") {
-        <form method="post" enctype="multipart/form-data">
-          <input type="file" name="foo" />
-          <input type="submit" />
-        </form>
-      }
+        get("/") {
+          <form method="post" enctype="multipart/form-data">
+            <input type="file" name="foo" />
+            <input type="submit" />
+          </form>
+        }
 
 4. Your files are available through the `fileParams` or `fileMultiParams` maps:
 
-      post("/") {
-        processFile(fileParams("file"))
-      }
+        post("/") {
+          processFile(fileParams("file"))
+        }
 
 ## Testing Your Scalatra Applications
 
