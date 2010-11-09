@@ -420,7 +420,12 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 ### Use ScalatraServlet if:
 - You want to match routes with a prefix deeper than the context path.
 
-## Migrations
+## Migration Guide
+
+### scalatra-2.0.0.M1 to scalatra-2.0.0.M2
+
+1. Session has been retrofitted to a Map interface.  `get` now returns an option instead of the value.
+2. ScalaTest support has been split off into `scalatra-scalatest` module.  ScalatraSuite moved to `org.scalatest.test.scalatest` package, and no longer extends FunSuite in order to permit mixing in a BDD trait.  You may either use ScalatraFunSuite or explicitly extend FunSuite yourself.
 
 ### Step to Scalatra
 
@@ -429,10 +434,6 @@ Scalatra was renamed from Step to Scalatra to avoid a naming conflict with (an u
 1. The package has changed from `com.thinkminimo.step` to `org.scalatra`.
 1. The `Step` class has been renamed to `ScalatraServlet`.
 1. All other `Step*` classes have been renamed to `Scalatra*`.
-
-### scalatra-2.0.0.M1 to scalatra-2.0.0.M2
-
-1. Session has been retrofitted to a Map interface.  `get` now returns an option instead of the value.
 
 ## Credits
 
