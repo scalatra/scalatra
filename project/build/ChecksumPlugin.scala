@@ -59,7 +59,7 @@ trait ChecksumPlugin extends BasicManagedProject with GpgPlugin {
               // this updates the associated digest
             }
             val data = dis.getMessageDigest.digest
-            val checksum = data map (x => Integer.toHexString(x & 0xff)) mkString
+            val checksum = data map (x => "%02x".format(x)) mkString
             
             val outfile = path+"."+ext
             log.info("Writing checksum to "+outfile)
