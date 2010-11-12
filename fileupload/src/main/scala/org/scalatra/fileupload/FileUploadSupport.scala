@@ -1,34 +1,50 @@
-package org.scalatra.fileupload
+package org.scalatra
+package fileupload
 
-import org.scalatra.Handler
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.fileupload.{FileItemFactory, FileItem}
 import org.apache.commons.fileupload.disk.DiskFileItemFactory
 import collection.JavaConversions._
-import util.DynamicVariable
+import scala.util.DynamicVariable
 import java.util.{List => JList, HashMap => JHashMap}
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
+import collection.Iterable
+import java.lang.String
 
-trait FileUploadSupport extends Handler {
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    if (ServletFileUpload.isMultipartContent(req)) {
-      val upload = new ServletFileUpload(fileItemFactory)
-      val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
-      val (fileMap, formMap) = items.foldRight((Map[String, List[FileItem]](), Map[String, List[String]]())) { (item, acc) =>
-        val (fileMap, formMap) = acc
-        if (item.isFormField)
-          (fileMap, formMap + ((item.getFieldName, item.getString :: formMap.getOrElse(item.getFieldName, List[String]()))))
-        else
-          (fileMap + ((item.getFieldName, item :: fileMap.getOrElse(item.getFieldName, List[FileItem]()))), formMap)
-      }
-      _fileMultiParams.withValue(fileMap) {
-        super.handle(wrapRequest(req, formMap), res)
-      }
-    } else {
-      _fileMultiParams.withValue(Map()) {
-        super.handle(req, res)
+trait FileUploadSupport extends ScalatraKernel {
+  override protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
+    Routes(protocol) = new FileUploadRoute(routeMatchers, () => action) :: Routes(protocol)
+
+  class FileUploadRoute(routeMatchers: Iterable[RouteMatcher], action: ScalatraKernel.Action) extends Route(routeMatchers, action) {
+    override def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
+
+    private def invokeAction(routeParams: ScalatraKernel.MultiParams) = {
+      val (multipartFileParams, multipartFormParams) = extractMultipartParams
+      
+      _multiParams.withValue(multiParams ++ routeParams ++ multipartFormParams) {
+        _fileMultiParams.withValue(multipartFileParams) {
+          try {
+            Some(action.apply())
+          }
+          catch {
+            case e: PassException => None
+          }
+        }
       }
     }
+
+    def extractMultipartParams : (Map[String, List[FileItem]], Map[String, List[String]]) =
+      if (ServletFileUpload.isMultipartContent(request)) {
+        val upload = new ServletFileUpload(fileItemFactory)
+        val items = upload.parseRequest(request).asInstanceOf[JList[FileItem]]
+        items.foldRight((Map[String, List[FileItem]](), Map[String, List[String]]())) { (item, acc) =>
+          val (fileMap, formMap) = acc
+          if (item.isFormField)
+            (fileMap, formMap + ((item.getFieldName, item.getString :: formMap.getOrElse(item.getFieldName, List[String]()))))
+          else
+            (fileMap + ((item.getFieldName, item :: fileMap.getOrElse(item.getFieldName, List[FileItem]()))), formMap)
+        }
+      } else (Map(), Map())
   }
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) =
