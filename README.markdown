@@ -447,7 +447,7 @@ Scalatra was renamed from Step to Scalatra to avoid a naming conflict with (an u
 
 ### Other contributors
 
-- [The Sinatra Project](http://sinatrarb.com/), whose excellent framework, test suite, and documentation we've shamelessly copied.
+- [The Sinatra Project](http://www.sinatrarb.com/), whose excellent framework, test suite, and documentation we've shamelessly copied.
 - [Mark Harrah](http://github.com/harrah) for his support on the SBT mailing list.
 - [Yusuke Kuoka](http://github.com/mumoshu) for adding sessions and header support
 - [Miso Korkiakoski](http://github.com/mwing) for various patches.
