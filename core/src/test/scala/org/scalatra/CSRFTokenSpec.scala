@@ -4,7 +4,7 @@ import org.scalatra._
 
 import test.specs.ScalatraSpecification
 
-class CsrfTokenServlet extends ScalatraServlet with CSRFTokenSupport {
+class CSRFTokenServlet extends ScalatraServlet with CSRFTokenSupport {
   get("/renderForm") {
     """<html>
       <body>
@@ -20,7 +20,7 @@ class CsrfTokenServlet extends ScalatraServlet with CSRFTokenSupport {
 
 object CSRFTokenSpec extends ScalatraSpecification {
 
-  addServlet(classOf[CsrfTokenServlet], "/*")
+  addServlet(classOf[CSRFTokenServlet], "/*")
 
 
   "the get request should include the CSRF token" in {
@@ -50,6 +50,23 @@ object CSRFTokenSpec extends ScalatraSpecification {
         body mustNot be_==("SUCCESS")
       }
     }
+  }
+
+  "the token should remain valid across multiple request" in {
+    var token = ""
+    session {
+      get("/renderForm") {
+        token = ("value=\"(\\w+)\"".r findFirstMatchIn body).get.subgroups.head
+      }
+      get("/renderForm") {
+        val token2 = ("value=\"(\\w+)\"".r findFirstMatchIn body).get.subgroups.head
+        token must be_==(token2)
+      }
+      post("/renderForm", "csrfToken" -> token) {
+        body must be_==("SUCCESS")
+      }
+    }
+
   }
 
 }

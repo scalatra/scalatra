@@ -1,6 +1,7 @@
 package org.scalatra
 
-import java.security.{ MessageDigest, SecureRandom }
+
+import java.security.SecureRandom
 
 trait CSRFTokenSupport { self: ScalatraKernel =>
 
@@ -13,8 +14,7 @@ trait CSRFTokenSupport { self: ScalatraKernel =>
   }
 
   protected def prepareCSRFToken = {
-    val token = generateCSRFToken
-    session(CSRF_KEY) = token
+    session.getOrElseUpdate(CSRF_KEY, generateCSRFToken)
   }
 
   private def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
@@ -23,9 +23,8 @@ trait CSRFTokenSupport { self: ScalatraKernel =>
   }).toString
 
   protected def generateCSRFToken = {
-    val digest = MessageDigest.getInstance("MD5")
     val tokenVal = new Array[Byte](20)
     (new SecureRandom).nextBytes(tokenVal)
-    hexEncode(digest.digest(tokenVal))
+    hexEncode(tokenVal)
   }
 }
