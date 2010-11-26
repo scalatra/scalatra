@@ -6,11 +6,11 @@ import test.specs.ScalatraSpecification
 
 class CSRFTokenServlet extends ScalatraServlet with CSRFTokenSupport {
   get("/renderForm") {
-    """<html>
+    <html>
       <body>
-        <form method="post"><input type="hidden" name="csrfToken" value="%s" /></form>
+        <form method="post"><input type="hidden" name={csrfKey} value={csrfToken} /></form>
       </body>
-    </html>""" format session("csrfToken")
+    </html>
   }
 
   post("/renderForm") {

@@ -5,16 +5,17 @@ import java.security.SecureRandom
 
 trait CSRFTokenSupport { self: ScalatraKernel =>
 
-  private val CSRF_KEY = ScalatraKernel.csrfKey
+  protected def csrfKey = ScalatraKernel.csrfKey
+  protected def csrfToken = session(csrfKey).asInstanceOf[String]
 
   before {
-    if (request.isWrite && session.get(CSRF_KEY) != params.get(CSRF_KEY))
+    if (request.isWrite && session.get(csrfKey) != params.get(csrfKey))
       halt(403, "Request tampering detected!")
     prepareCSRFToken
   }
 
   protected def prepareCSRFToken = {
-    session.getOrElseUpdate(CSRF_KEY, generateCSRFToken)
+    session.getOrElseUpdate(csrfKey, generateCSRFToken)
   }
 
   private def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
