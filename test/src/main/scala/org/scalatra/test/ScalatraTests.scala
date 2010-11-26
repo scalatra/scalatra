@@ -54,7 +54,8 @@ trait ScalatraTests {
 
   private def withResponse(r: HttpTester, f: => Unit) = {
     _response.withValue(r)(f)
-    if(_useSession.value) _session.value ++= Map("Cookie" -> r.getHeader("Set-Cookie"))
+    if(_useSession.value && r.getHeader("Set-Cookie") != null)
+      _session.value ++= Map("Cookie" -> r.getHeader("Set-Cookie"))
   }
 
   @deprecated("use addServlet(Class, String) or addFilter(Class, String)")

@@ -100,12 +100,16 @@ class ScalatraSuiteTest extends ScalatraFunSuite with ShouldMatchers {
     }
     session {
       post("/session", "name" -> name) {
-	status should equal (200)
-	body should include (name)
+        status should equal (200)
+        body should include (name)
       }
       get("/session") {
-	status should equal (200)
-	body should include (name)
+        status should equal (200)
+        body should include (name)
+      }
+      get("/session") {
+        status should equal (200)
+        body should include (name)
       }
     }
   }
