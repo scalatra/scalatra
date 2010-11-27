@@ -161,7 +161,7 @@ trait ScalatraKernel extends Handler with Initializable
     }
   }
 
-  private val _multiParams = new DynamicVariable[Map[String, Seq[String]]](Map())
+  protected[scalatra] val _multiParams = new DynamicVariable[Map[String, Seq[String]]](Map())
   protected def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
   /*
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
@@ -188,13 +188,13 @@ trait ScalatraKernel extends Handler with Initializable
   private case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
 
   protected def pass() = throw new PassException
-  private class PassException extends RuntimeException
+  protected[scalatra] class PassException extends RuntimeException
 
   protected def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("GET", routeMatchers, action)
   protected def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("POST", routeMatchers, action)
   protected def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
   protected def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
-  private def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
+  protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
     Routes(protocol) = new Route(routeMatchers, () => action) :: Routes(protocol)
 
   private var config: Config = _
