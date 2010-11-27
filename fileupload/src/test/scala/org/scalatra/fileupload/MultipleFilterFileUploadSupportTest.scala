@@ -17,6 +17,7 @@ class MultipleFilterFileUploadSupportTest extends ScalatraFunSuite with ShouldMa
 
   test("keeps input parameters on multipart request") {
     val request = IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
+      .replace("${PATH}", "/multipart")
     val response = new HttpTester
     response.parse(tester.getResponses(request))
 

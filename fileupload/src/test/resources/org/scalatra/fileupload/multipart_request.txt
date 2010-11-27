@@ -1,4 +1,4 @@
-POST /multipart HTTP/1.0
+POST ${PATH} HTTP/1.0
 Content-Type: multipart/form-data; boundary=---------------------------768277191987740441310253794
 Content-Length: 816
 

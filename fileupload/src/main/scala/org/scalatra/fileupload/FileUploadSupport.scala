@@ -12,40 +12,35 @@ import collection.Iterable
 import java.lang.String
 
 trait FileUploadSupport extends ScalatraKernel {
-  override protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
-    Routes(protocol) = new FileUploadRoute(routeMatchers, () => action) :: Routes(protocol)
+  import FileUploadSupport._
 
-  class FileUploadRoute(routeMatchers: Iterable[RouteMatcher], action: ScalatraKernel.Action) extends Route(routeMatchers, action) {
-    override def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
-
-    private def invokeAction(routeParams: ScalatraKernel.MultiParams) = {
-      val (multipartFileParams, multipartFormParams) = extractMultipartParams
-      
-      _multiParams.withValue(multiParams ++ routeParams ++ multipartFormParams) {
-        _fileMultiParams.withValue(multipartFileParams) {
-          try {
-            Some(action.apply())
-          }
-          catch {
-            case e: PassException => None
-          }
-        }
-      }
-    }
-
-    def extractMultipartParams : (Map[String, List[FileItem]], Map[String, List[String]]) =
-      if (ServletFileUpload.isMultipartContent(request)) {
-        val upload = new ServletFileUpload(fileItemFactory)
-        val items = upload.parseRequest(request).asInstanceOf[JList[FileItem]]
-        items.foldRight((Map[String, List[FileItem]](), Map[String, List[String]]())) { (item, acc) =>
-          val (fileMap, formMap) = acc
-          if (item.isFormField)
-            (fileMap, formMap + ((item.getFieldName, item.getString :: formMap.getOrElse(item.getFieldName, List[String]()))))
-          else
-            (fileMap + ((item.getFieldName, item :: fileMap.getOrElse(item.getFieldName, List[FileItem]()))), formMap)
-        }
-      } else (Map(), Map())
+  override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
+    val bodyParams = extractMultipartParams(req)
+    super.handle(wrapRequest(req, bodyParams.formParams), resp)
   }
+
+  private def extractMultipartParams(req: HttpServletRequest): BodyParams =
+    // First look for it cached on the request, because we can't parse it twice.  See GH-16.
+    req.get(BodyParamsKey).asInstanceOf[Option[BodyParams]] match {
+      case Some(bodyParams) =>
+        bodyParams
+      case None =>
+        val bodyParams =
+          if (ServletFileUpload.isMultipartContent(req)) {
+            val upload = new ServletFileUpload(fileItemFactory)
+            val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
+            items.foldRight(BodyParams(Map.empty, Map.empty)) { (item, params) =>
+              if (item.isFormField)
+                BodyParams(params.fileParams, params.formParams + ((item.getFieldName, item.getString :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
+              else
+                BodyParams(params.fileParams + ((item.getFieldName, item :: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
+              }
+          }
+          else
+            BodyParams(Map.empty, Map.empty)
+        req(BodyParamsKey) = bodyParams
+        bodyParams
+    }
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) =
     new HttpServletRequestWrapper(req) {
@@ -53,12 +48,11 @@ trait FileUploadSupport extends ScalatraKernel {
       override def getParameterNames = formMap.keysIterator
       override def getParameterValues(name: String) = formMap.get(name) map { _.toArray } getOrElse null
       override def getParameterMap = new JHashMap[String, Array[String]] ++ (formMap transform { (k, v) => v.toArray })
-    } 
+    }
 
   protected def fileItemFactory: FileItemFactory = new DiskFileItemFactory
 
-  private val _fileMultiParams = new DynamicVariable[Map[String, Seq[FileItem]]](Map())
-  protected def fileMultiParams: Map[String, Seq[FileItem]] = (_fileMultiParams.value).withDefaultValue(Seq.empty)
+  protected def fileMultiParams: FileMultiParams = extractMultipartParams(request).fileParams
 
   protected val _fileParams = new collection.Map[String, FileItem] {
     def get(key: String) = fileMultiParams.get(key) flatMap { _.headOption }
@@ -69,3 +63,11 @@ trait FileUploadSupport extends ScalatraKernel {
   }
   protected def fileParams = _fileParams
 }
+
+object FileUploadSupport {
+  case class BodyParams(fileParams: FileMultiParams, formParams: Map[String, List[String]])
+  type FileMultiParams = Map[String, List[FileItem]]
+  private val BodyParamsKey = "org.scalatra.fileupload.bodyParams"
+}
+
+
