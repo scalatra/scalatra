@@ -1,7 +1,8 @@
 package org.scalatra
 
 import scala.annotation.tailrec
-import java.io.{InputStream, OutputStream}
+import java.io._
+import util.using
 
 /**
  * A collection of I/O ulility methods.
@@ -26,5 +27,30 @@ package object io {
     }
     loop()
     in.close()
+  }
+
+  /**
+   * Creates a temp file, passes it to a block, and removes the temp file on the block's completion.
+   *
+   * @tparam A the return type of the block
+   * @param content The content of the file
+   * @param prefix The prefix of the temp file; must be at least three characters long
+   * @param suffix The suffix of the temp file
+   * @param directory The directory of the temp file; a system dependent temp directory if None
+   * @param f the block
+   * @return the result of f
+   */
+  def withTempFile[A](content: String, prefix: String = "scalatra", suffix: String = ".tmp",  directory: Option[File] = None)(f: File => A) = {
+    val tmp = File.createTempFile(prefix, suffix, directory.getOrElse(null))
+    try {
+      using(new BufferedWriter(new FileWriter(tmp))) { out =>
+        out.write(content)
+        out.flush()
+      }
+      f(tmp)
+    }
+    finally {
+      tmp.delete()
+    }
   }
 }
