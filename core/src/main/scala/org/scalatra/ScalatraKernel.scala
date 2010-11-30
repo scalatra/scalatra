@@ -7,7 +7,9 @@ import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 import collection.mutable.{ListBuffer, HashMap, Map => MMap}
-import util.{MapWithIndifferentAccess, MultiMapHeadView}
+import util.{MapWithIndifferentAccess, MultiMapHeadView, using}
+import io.copy
+import java.io.{File, FileInputStream}
 
 object ScalatraKernel
 {
@@ -154,6 +156,8 @@ trait ScalatraKernel extends Handler with Initializable
     actionResult match {
       case bytes: Array[Byte] =>
         response.getOutputStream.write(bytes)
+      case file: File =>
+        using(new FileInputStream(file)) { in => copy(in, response.getOutputStream) }
       case _: Unit =>
       // If an action returns Unit, it assumes responsibility for the response
       case x: Any  =>

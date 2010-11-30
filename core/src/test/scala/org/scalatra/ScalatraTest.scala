@@ -5,6 +5,8 @@ import scala.actors.TIMEOUT
 import scala.xml.Text
 import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
+import java.io.File
+import io.withTempFile
 
 class ScalatraTestServlet extends ScalatraServlet {
   get("/") {
@@ -52,6 +54,10 @@ class ScalatraTestServlet extends ScalatraServlet {
 
   get("/binary/test") {
     "test".getBytes
+  }
+
+  get("/file") {
+    new File(params("filename"))
   }
 
   get("/returns-unit") {
@@ -155,6 +161,15 @@ class ScalatraTest extends ScalatraFunSuite with ShouldMatchers {
   test("render binary response when action returns a byte array") {
     get("/binary/test") {
       body should equal("test")
+    }
+  }
+
+  test("render a file when returned by an action") {
+    val fileContent = "file content"
+    withTempFile(fileContent) { f =>
+      get("/file", "filename" -> f.getAbsolutePath) {
+        body should equal (fileContent)
+      }
     }
   }
 
