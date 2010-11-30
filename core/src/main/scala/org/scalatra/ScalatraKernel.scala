@@ -102,7 +102,7 @@ trait ScalatraKernel extends Handler with Initializable
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
             beforeFilters foreach { _() }
-            Routes(request.getMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
+            Routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
           }
           catch {
             case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
@@ -117,6 +117,11 @@ trait ScalatraKernel extends Handler with Initializable
         }
       }
     }
+  }
+
+  private def effectiveMethod = request.getMethod.toUpperCase match {
+    case "HEAD" => "GET"
+    case x => x
   }
   
   protected def requestPath: String
