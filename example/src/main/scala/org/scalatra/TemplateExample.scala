@@ -5,7 +5,7 @@ import org.apache.commons.io.IOUtils
 import fileupload.FileUploadSupport
 import scalate.ScalateSupport
 
-class TemplateExample extends ScalatraServlet with UrlSupport with FileUploadSupport with FlashMapSupport with ScalateSupport {
+class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadSupport*/ with FlashMapSupport with ScalateSupport {
 
   object Template {
 
@@ -134,10 +134,12 @@ class TemplateExample extends ScalatraServlet with UrlSupport with FileUploadSup
     )
   }
 
+  /*
   post("/upload") {
     contentType = "text/plain"
     fileParams.get("file") foreach { file => IOUtils.copy(file.getInputStream, response.getOutputStream) }
   }
+  */
 
   get("/flash-map/form") {
     Template.page("Scalatra: Flash Map Example",
@@ -160,5 +162,9 @@ class TemplateExample extends ScalatraServlet with UrlSupport with FileUploadSup
     )
   }
 
-  protected def contextPath = request.getContextPath   
+  protected def contextPath = request.getContextPath
+
+  post("/echo") {
+    java.net.URLEncoder.encode(params("echo"), "UTF-8")
+  }
 }

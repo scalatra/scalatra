@@ -10,8 +10,8 @@ class ScalatraProject(info: ProjectInfo)
 {
   override def shouldCheckOutputDirectories = false
 
-  val jettyGroupId = "org.mortbay.jetty"
-  val jettyVersion = "6.1.22"
+  val jettyGroupId = "org.eclipse.jetty"
+  val jettyVersion = "7.2.0.v20101020"
   val slf4jVersion = "1.6.0"
 
   trait UnpublishedProject
@@ -32,7 +32,7 @@ class ScalatraProject(info: ProjectInfo)
   {
     def description: String
 
-    val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
+    val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
     override def pomExtra = (
       <parent>
@@ -92,7 +92,7 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject with UnpublishedProject {
-    val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
+    val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
     val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val description = "An example Scalatra application"
@@ -101,7 +101,7 @@ class ScalatraProject(info: ProjectInfo)
   lazy val website = project("website", "scalatra-website", new WebsiteProject(_), core, scalate)
   class WebsiteProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject with UnpublishedProject {
     override val jettyPort = 8081
-    val jetty6 = jettyGroupId % "jetty" % jettyVersion % "test"
+    val jetty6 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
     val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val markdown = "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4" % "runtime"
@@ -110,7 +110,7 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val test = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubProject {
     val description = "Scalatra test framework"
-    val jettytester = jettyGroupId % "jetty-servlet-tester" % jettyVersion % "compile"
+    val jettytester = jettyGroupId % "test-jetty-servlet" % jettyVersion % "compile"
   })
 
   lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubProject {

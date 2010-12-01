@@ -3,7 +3,7 @@ package org.scalatra.test.specs
 import org.scalatra.test.ScalatraTests
 import org.specs._
 import scala.util.DynamicVariable
-import org.mortbay.jetty.testing.ServletTester
+import org.eclipse.jetty.testing.ServletTester
 
 /**
  * A Specification that starts the tester before the specification and stops it afterward.

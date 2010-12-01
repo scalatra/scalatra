@@ -3,7 +3,7 @@ package org.scalatra
 import scala.actors.{Actor, TIMEOUT}
 import scala.xml.Text
 import org.scalatest.matchers.ShouldMatchers
-import org.mortbay.jetty.testing.HttpTester
+import org.eclipse.jetty.testing.HttpTester
 import java.net.URLEncoder
 import java.nio.charset.Charset
 import test.scalatest.ScalatraFunSuite
@@ -88,35 +88,35 @@ class ContentTypeTest extends ScalatraFunSuite with ShouldMatchers {
 
   test("content-type test") {
     get("/json") {
-      header("Content-Type") should equal ("application/json; charset=utf-8")
+      response.mediaType should equal (Some("application/json"))
     }
 
     get("/html") {
-      header("Content-Type") should equal ("text/html; charset=utf-8")
+      response.mediaType should equal (Some("text/html"))
     }
   }
 
   test("contentType of a string defaults to text/plain") {
     get("/implicit/string") {
-      header("Content-Type") should equal ("text/plain; charset=utf-8")
+      response.mediaType should equal (Some("text/plain"))
     }
   }
 
   test("contentType of a byte array defaults to application/octet-stream") {
     get("/implicit/byte-array") {
-      header("Content-Type") should startWith ("application/octet-stream")
+      response.mediaType should equal (Some("application/octet-stream"))
     }
   }
 
   test("contentType of a text element defaults to text/html") {
     get("/implicit/text-element") {
-      header("Content-Type") should equal ("text/html; charset=utf-8")
+      response.mediaType should equal (Some("text/html"))
     }
   }
 
   test("implicit content type does not override charset") {
     get("/implicit/string/iso-8859-1") {
-      header("Content-Type") should equal ("text/plain; charset=iso-8859-1")
+      response.charset should equal (Some("ISO-8859-1"))
     }
   }
 
@@ -136,7 +136,7 @@ class ContentTypeTest extends ScalatraFunSuite with ShouldMatchers {
       val conn = tester.createLocalConnector()
       val res = new HttpTester
       res.parse(tester.getResponses(req.generate(), conn))
-      mailbox.send((i, res.getHeader("Content-Type")))
+      mailbox.send((i, res.mediaType))
     }
 
     makeRequest(1)
@@ -144,8 +144,8 @@ class ContentTypeTest extends ScalatraFunSuite with ShouldMatchers {
     var numReceived = 0
     while (numReceived < 2) {
       mailbox.receiveWithin(10000) {
-        case (i, contentType: String) =>
-          contentType.split(";")(0) should be (i.toString)
+        case (i, mediaType: Option[String]) =>
+          mediaType should be (Some(i.toString))
           numReceived += 1
 
         case TIMEOUT =>
@@ -156,7 +156,7 @@ class ContentTypeTest extends ScalatraFunSuite with ShouldMatchers {
 
   test("charset is set to default when only content type is explicitly set") {
     get("/default-charset") {
-      header("Content-Type") should equal ("text/xml; charset=utf-8")
+      response.charset should equal (Some("UTF-8"))
     }
   }
 
@@ -164,15 +164,17 @@ class ContentTypeTest extends ScalatraFunSuite with ShouldMatchers {
     val charset = "iso-8859-5"
     val message = "Здравствуйте!"
 
-    val req = new HttpTester(Charset.defaultCharset.name)
+    val req = new HttpTester("iso-8859-1")
     req.setVersion("HTTP/1.0")
     req.setMethod("POST")
     req.setURI("/echo")
     req.setHeader("Content-Type", "application/x-www-form-urlencoded; charset="+charset)
     req.setContent("echo="+URLEncoder.encode(message, charset))
+    println(req.generate())
 
-    val res = new HttpTester(Charset.defaultCharset.name)
+    val res = new HttpTester("iso-8859-1")
     res.parse(tester.getResponses(req.generate()))
+    println(res.getCharacterEncoding)
     res.getContent should equal(message)
   }
 }

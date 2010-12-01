@@ -2,13 +2,12 @@ package org.scalatra.test
 
 import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
-import org.mortbay.jetty.testing.HttpTester
-import org.mortbay.jetty.testing.ServletTester
-import org.mortbay.jetty.{Handler => JettyHandler}
+import org.eclipse.jetty.testing.HttpTester
+import org.eclipse.jetty.testing.ServletTester
+import org.eclipse.jetty.servlet.{FilterHolder, FilterMapping, DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 import javax.servlet.Filter
-import org.mortbay.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
 
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
@@ -19,7 +18,7 @@ trait ScalatraTests {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
   def tester: ServletTester
-  private val _response = new DynamicVariable[HttpTester](new HttpTester)
+  private val _response = new DynamicVariable[HttpTester](new HttpTester("iso-8859-1"))
   private val _session = new DynamicVariable(Map[String,String]())
   private val _useSession = new DynamicVariable(false)
 
@@ -32,7 +31,7 @@ trait ScalatraTests {
   private def httpRequest(method: String, uri: String, queryParams: Iterable[(String, String)] = Map.empty,
                           headers: Map[String, String] = Map.empty, body: String = null) = {
     val req = {
-      val r = new HttpTester(Charset.defaultCharset.name)
+      val r = new HttpTester("iso-8859-1")
       r.setVersion("HTTP/1.0")
       r.setMethod(method)
       val queryString = toQueryString(queryParams)
@@ -42,7 +41,7 @@ trait ScalatraTests {
       r
     }
 
-    val res = new HttpTester(Charset.defaultCharset.name)
+    val res = new HttpTester("iso-8859-1")
 
     res.parse(tester.getResponses(req.generate))
     res.setContent(res.getContent match {
@@ -78,10 +77,10 @@ trait ScalatraTests {
     tester.addServlet(servlet, path)
 
   def addFilter(filter: Filter, path: String) =
-    tester.getContext().addFilter(new FilterHolder(filter), path, JettyHandler.DEFAULT)
+    tester.getContext().addFilter(new FilterHolder(filter), path, FilterMapping.DEFAULT)
 
   def addFilter(filter: Class[_ <: Filter], path: String) =
-    tester.addFilter(filter, path, JettyHandler.DEFAULT)
+    tester.addFilter(filter, path, FilterMapping.DEFAULT)
 
   @deprecated("renamed to addFilter")
   def routeFilter(filter: Class[_ <: Filter], path: String) =
@@ -99,7 +98,7 @@ trait ScalatraTests {
   def post(uri: String, params: Iterable[(String,String)])(f: => Unit): Unit =
     post(uri, params, Map[String, String]())(f)
   def post(uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => Unit): Unit =
-    post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded") ++ headers)(f)
+    post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
   def post(uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => Unit) =
     withResponse(httpRequest("POST", uri, Seq.empty, headers, body), f)
   // @todo support POST multipart/form-data for file uploads

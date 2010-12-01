@@ -3,7 +3,7 @@ package scalatest
 
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
-import org.mortbay.jetty.testing.ServletTester
+import org.eclipse.jetty.testing.ServletTester
 import org.scalatest.{Suite, BeforeAndAfterAll}
 
 @RunWith(classOf[JUnitRunner])

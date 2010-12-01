@@ -2,7 +2,7 @@ package org.scalatra.fileupload
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
-import org.mortbay.jetty.testing.{ServletTester, HttpTester}
+import org.eclipse.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
 import org.scalatra.ScalatraServlet
 import org.scalatest.junit.JUnitRunner
@@ -35,7 +35,7 @@ class FileUploadSupportTest extends FunSuite with ShouldMatchers {
   def response(path: String = "/multipart") = {
     val req = IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
       .replace("${PATH}", path)
-    val res = new HttpTester
+    val res = new HttpTester("iso-8859-1")
     res.parse(tester.getResponses(req))
     res
   }
