@@ -15,8 +15,13 @@ trait FileUploadSupport extends ScalatraKernel {
   import FileUploadSupport._
 
   override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
-    val bodyParams = extractMultipartParams(req)
-    super.handle(wrapRequest(req, bodyParams.formParams), resp)
+    val req2 =
+      if (ServletFileUpload.isMultipartContent(req)) {
+        val bodyParams = extractMultipartParams(req)
+        wrapRequest(req, bodyParams.formParams)
+      }
+      else req
+    super.handle(req2, resp)
   }
 
   private def extractMultipartParams(req: HttpServletRequest): BodyParams =
@@ -25,19 +30,14 @@ trait FileUploadSupport extends ScalatraKernel {
       case Some(bodyParams) =>
         bodyParams
       case None =>
-        val bodyParams =
-          if (ServletFileUpload.isMultipartContent(req)) {
-            val upload = new ServletFileUpload(fileItemFactory)
-            val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
-            items.foldRight(BodyParams(Map.empty, Map.empty)) { (item, params) =>
-              if (item.isFormField)
-                BodyParams(params.fileParams, params.formParams + ((item.getFieldName, item.getString :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
-              else
-                BodyParams(params.fileParams + ((item.getFieldName, item :: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
-              }
-          }
+        val upload = new ServletFileUpload(fileItemFactory)
+        val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
+        val bodyParams = items.foldRight(BodyParams(Map.empty, Map.empty)) { (item, params) =>
+          if (item.isFormField)
+            BodyParams(params.fileParams, params.formParams + ((item.getFieldName, item.getString :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
           else
-            BodyParams(Map.empty, Map.empty)
+            BodyParams(params.fileParams + ((item.getFieldName, item :: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
+          }
         req(BodyParamsKey) = bodyParams
         bodyParams
     }

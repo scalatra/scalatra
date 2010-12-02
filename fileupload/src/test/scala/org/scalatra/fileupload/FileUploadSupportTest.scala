@@ -1,12 +1,13 @@
-package org.scalatra.fileupload
+package org.scalatra
+package fileupload
 
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.eclipse.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
-import org.scalatra.ScalatraServlet
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
+import test.scalatest.ScalatraFunSuite
 
 class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
   post("""/multipart.*""".r) {
@@ -24,15 +25,17 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
     println("PASSING")
     pass()
   }
+
+  post("/echo") {
+    params.getOrElse("echo", "")
+  }
 }
 
 @RunWith(classOf[JUnitRunner])
-class FileUploadSupportTest extends FunSuite with ShouldMatchers {
-  val tester = new ServletTester
+class FileUploadSupportTest extends ScalatraFunSuite with ShouldMatchers {
+  addServlet(classOf[FileUploadSupportTestServlet], "/")
 
-  tester.addServlet(classOf[FileUploadSupportTestServlet], "/")
-  tester.start()
-  def response(path: String = "/multipart") = {
+  def multipartResponse(path: String = "/multipart") = {
     val req = IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
       .replace("${PATH}", path)
     val res = new HttpTester("iso-8859-1")
@@ -41,34 +44,40 @@ class FileUploadSupportTest extends FunSuite with ShouldMatchers {
   }
 
   test("keeps input parameters on multipart request") {
-    response().getHeader("string") should equal ("foo")
+    multipartResponse().getHeader("string") should equal ("foo")
   }
 
   test("sets file params") {
-    response().getHeader("file") should equal ("one")
+    multipartResponse().getHeader("file") should equal ("one")
   }
 
   test("sets file param with no bytes when no file is uploaded") {
-    response().getHeader("file-none") should equal ("")
+    multipartResponse().getHeader("file-none") should equal ("")
   }
 
   test("sets multiple file params") {
-    response().getHeader("file-multi-all") should equal ("twothree")
+    multipartResponse().getHeader("file-multi-all") should equal ("twothree")
   }
 
   test("fileParams returns first input for multiple file params") {
-    response().getHeader("file-multi") should equal ("two")
+    multipartResponse().getHeader("file-multi") should equal ("two")
   }
 
   test("file params are not params") {
-    response().getHeader("file-as-param") should equal (null)
+    multipartResponse().getHeader("file-as-param") should equal (null)
   }
 
   test("keeps input params on pass") {
-    response("/multipart-pass").getHeader("string") should equal ("foo")
+    multipartResponse("/multipart-pass").getHeader("string") should equal ("foo")
   }
 
   test("keeps file params on pass") {
-    response("/multipart-pass").getHeader("file") should equal ("one")
+    multipartResponse("/multipart-pass").getHeader("file") should equal ("one")
+  }
+
+  test("reads form params on non-multipart request") {
+    post("/echo", "echo" -> "foo") {
+      body should equal("foo")
+    }
   }
 }
