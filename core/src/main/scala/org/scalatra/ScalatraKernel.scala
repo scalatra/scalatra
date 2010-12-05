@@ -3,6 +3,7 @@ package org.scalatra
 import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
+import scala.util.control.Breaks._
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
@@ -210,12 +211,25 @@ trait ScalatraKernel extends Handler with Initializable
   protected def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
   protected def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
 
-  protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit = {
-    while (true) {
-      val oldRoutes = Routes(protocol)
-      val newRoutes = new Route(routeMatchers, () => action) :: oldRoutes
-      if (Routes.replace(protocol, oldRoutes, newRoutes))
-        return
+  protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
+    val route = new Route(routeMatchers, () => action)
+    modifyRoutes(protocol, { routes: List[Route] => route :: routes })
+    route
+  }
+
+  protected def removeRoute(protocol: String, route: Route): Unit = {
+    modifyRoutes(protocol, { routes: List[Route] => routes filterNot (_ == route) })
+    route
+  }
+
+  private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])): Unit = {
+    breakable {
+      while (true) {
+        val oldRoutes = Routes(protocol)
+        val newRoutes = f(oldRoutes)
+        if (Routes.replace(protocol, oldRoutes, newRoutes))
+          break
+      }
     }
   }
 
