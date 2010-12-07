@@ -14,6 +14,7 @@ class ScalatraKernelProxy {
   private var _request: () => HttpServletRequest = _
   private var _response: () => HttpServletResponse = _
   private var _cookies: () => SweetCookies = _
+  private var _halt: (Int, String) => Unit = _
 
   /**
    * Provides a proxy to the session object with the same interface as in a <code>ScalatraFilter</code> or
@@ -42,11 +43,17 @@ class ScalatraKernelProxy {
   def cookies = _cookies()
   def cookies_=(cookieJar: => SweetCookies) = _cookies = () => cookieJar
 
+  def halt(code: Int = 400, message: String = "") = _halt(code, message)
+  def halt_=(h: (Int, String) => Unit) {
+    _halt = h
+  }
+
 }
 
 object ScalatraKernelProxy {
   def apply(session: => HttpSession, params: => collection.Map[String, String], redirect: String => Unit,
-            request: => HttpServletRequest, response: => HttpServletResponse, cookies: => SweetCookies ) ={
+            request: => HttpServletRequest, response: => HttpServletResponse, cookies: => SweetCookies,
+            halt: (Int, String) => Unit ) ={
     val ctxt = new ScalatraKernelProxy
     ctxt.session = session
     ctxt.params = params
@@ -54,6 +61,7 @@ object ScalatraKernelProxy {
     ctxt.response = response
     ctxt.request = request
     ctxt.cookies = cookies
+    ctxt.halt_=(halt)
     ctxt
   }
 
