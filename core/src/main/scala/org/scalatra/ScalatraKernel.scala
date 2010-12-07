@@ -3,13 +3,16 @@ package org.scalatra
 import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
+import scala.util.control.Breaks._
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
+import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
 import scala.xml.NodeSeq
-import collection.mutable.{ListBuffer, HashMap, Map => MMap}
 import util.{MapWithIndifferentAccess, MultiMapHeadView, using}
 import io.copy
 import java.io.{File, FileInputStream}
+import java.util.concurrent.ConcurrentHashMap
+import scala.annotation.tailrec
 
 object ScalatraKernel
 {
@@ -28,7 +31,11 @@ import ScalatraKernel._
 
 trait ScalatraKernel extends Handler with Initializable
 {
-  protected val Routes = MMap(httpMethods map (_ -> List[Route]()): _*)
+  protected val Routes: ConcurrentMap[String, List[Route]] = {
+    val map = new ConcurrentHashMap[String, List[Route]]
+    httpMethods foreach { x: String => map += ((x, List[Route]())) }
+    map
+  }
 
   protected def contentType = response.getContentType
   protected def contentType_=(value: String): Unit = response.setContentType(value)
@@ -203,8 +210,28 @@ trait ScalatraKernel extends Handler with Initializable
   protected def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("POST", routeMatchers, action)
   protected def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
   protected def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
-  protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Unit =
-    Routes(protocol) = new Route(routeMatchers, () => action) :: Routes(protocol)
+
+  protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
+    val route = new Route(routeMatchers, () => action)
+    modifyRoutes(protocol, { routes: List[Route] => route :: routes })
+    route
+  }
+
+  protected def removeRoute(protocol: String, route: Route): Unit = {
+    modifyRoutes(protocol, { routes: List[Route] => routes filterNot (_ == route) })
+    route
+  }
+
+  private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])): Unit = {
+    breakable {
+      while (true) {
+        val oldRoutes = Routes(protocol)
+        val newRoutes = f(oldRoutes)
+        if (Routes.replace(protocol, oldRoutes, newRoutes))
+          break
+      }
+    }
+  }
 
   private var config: Config = _
   def initialize(config: Config) = this.config = config
