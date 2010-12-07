@@ -4,15 +4,15 @@ import scala.xml._
 import com.rossabaker.sbt.gpg._
 
 class ScalatraProject(info: ProjectInfo) 
-  extends ParentProject(info)
-  with GpgPlugin
-  with ChecksumPlugin
-{
+  extends ParentProject(info) {
+//  with GpgPlugin
+//  with ChecksumPlugin
+//{
   override def shouldCheckOutputDirectories = false
 
   val jettyGroupId = "org.eclipse.jetty"
   val jettyVersion = "7.2.0.v20101020"
-  val slf4jVersion = "1.6.0"
+  val slf4jVersion = "1.6.1"
 
   trait UnpublishedProject
     extends BasicManagedProject
@@ -26,20 +26,21 @@ class ScalatraProject(info: ProjectInfo)
 
   trait ScalatraSubProject 
     extends BasicScalaProject 
-    with BasicPackagePaths 
-    with GpgPlugin
-    with ChecksumPlugin
+    with BasicPackagePaths
   {
+//    with GpgPlugin
+//    with ChecksumPlugin
+//  {
     def description: String
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
     override def pomExtra = (
-      <parent>
-        <groupId>{organization}</groupId>
-        <artifactId>{ScalatraProject.this.artifactID}</artifactId>
-        <version>{version}</version>
-      </parent>
+//      <parent>
+//        <groupId>{organization}</groupId>
+//        <artifactId>{ScalatraProject.this.artifactID}</artifactId>
+//        <version>{version}</version>
+//      </parent>
       <name>{name}</name>
       <description>{description}</description>)
 
@@ -50,6 +51,7 @@ class ScalatraProject(info: ProjectInfo)
     lazy val sourceArtifact = Artifact.sources(artifactID)
     lazy val docsArtifact = Artifact.javadoc(artifactID)
     override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageDocs, packageSrc)
+    override def managedStyle = ManagedStyle.Maven
   }
 
   // Thanks, Mark: http://groups.google.com/group/simple-build-tool/msg/c32741357ac58f18
@@ -108,7 +110,7 @@ class ScalatraProject(info: ProjectInfo)
     val description = "Runs www.scalatra.org"
   }
 
-  lazy val test = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubProject {
+  lazy val scalatraTest = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubProject {
     val description = "Scalatra test framework"
     val jettytester = jettyGroupId % "test-jetty-servlet" % jettyVersion % "compile"
   })
@@ -117,12 +119,12 @@ class ScalatraProject(info: ProjectInfo)
     val scalatest = "org.scalatest" % "scalatest" % "1.2" % "compile"
     val junit = "junit" % "junit" % "4.8.1" % "compile"
     val description = "ScalaTest support for the Scalatra test framework"
-  }, test)
+  }, scalatraTest)
 
   lazy val specs = project("specs", "scalatra-specs", new DefaultProject(_) with ScalatraSubProject {
-    val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "compile"
+    val specs = "org.scala-tools.testing" %% "specs" % "1.6.6" % "compile"
     val description = "Specs support for the Scalatra test framework"
-  }, test)
+  }, scalatraTest)
 
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
@@ -185,13 +187,13 @@ class ScalatraProject(info: ProjectInfo)
     </developers>)
 
   override def pomPostProcess(pom: Node) =
-    super.pomPostProcess(pom) match { 
+    super.pomPostProcess(pom) match {
       case Elem(prefix, label, attr, scope, c @ _*) =>
         val children = c flatMap {
           case Elem(_, "repositories", _, _, repos @ _*) =>
             <profiles>
               <!-- poms deployed to maven central CANNOT have a repositories
-                   section defined.  This download profile lets you 
+                   section defined.  This download profile lets you
                    download dependencies other repos during development time. -->
               <profile>
                 <id>download</id>

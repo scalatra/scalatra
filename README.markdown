@@ -390,6 +390,7 @@ Authentication
 ==============
 
 There is a new authentication middleware in the auth directory, to be documented soon.  See an example at [usage example](http://gist.github.com/660701).
+Another [example https://gist.github.com/732347] for basic authentication can be found
 
 To use it from an SBT project, add the following to your project:
 

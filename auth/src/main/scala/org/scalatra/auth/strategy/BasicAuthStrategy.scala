@@ -14,6 +14,12 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
   }
 }
 
+/**
+ * Provides a hook for the basic auth strategy
+ *
+ * for more details on usage check:
+ * https://gist.github.com/732347
+ */
 trait BasicAuthSupport[UserType] { self: ScentrySupport[UserType]  =>
 
   val realm: String
