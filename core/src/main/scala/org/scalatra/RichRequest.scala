@@ -33,6 +33,6 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
 
   def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
 
-  protected def attributes = r
+  protected def attributes = r.asInstanceOf[Attributes]
 }
 

@@ -8,12 +8,19 @@
     <servlet-name>TemplateExample</servlet-name>
     <servlet-class>org.scalatra.TemplateExample</servlet-class>
   </servlet>
+    <servlet>
+        <servlet-name>BasicAuthExample</servlet-name>
+        <servlet-class>org.scalatra.BasicAuthExample</servlet-class>
+    </servlet>
 
   <servlet-mapping>
     <servlet-name>TemplateExample</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
-
+  <servlet-mapping>
+    <servlet-name>BasicAuthExample</servlet-name>
+    <url-pattern>/auth/*</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
     <url-pattern>/images/*</url-pattern>

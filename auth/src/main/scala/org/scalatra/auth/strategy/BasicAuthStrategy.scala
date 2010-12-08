@@ -1,15 +1,20 @@
-package org.scalatra.auth.strategy
+package org.scalatra
+package auth
+package strategy
 
 import javax.servlet.http.HttpServletRequest
 import org.scalatra.auth.{ScentrySupport, ScentryStrategy, ScalatraKernelProxy}
 import net.iharder.Base64
+import util.RicherString
+import RicherString._
+import java.nio.charset.Charset
+import java.util.Locale
 
 trait RemoteAddress { self: ScentryStrategy[_]  =>
 
   protected def remoteAddress ={
     val proxied = app.request.getHeader("X-FORWARDED-FOR")
-    val res = if (proxied.isNotBlank) proxied else app.request.getRemoteAddr
-    log debug "The remote address is: %s".format(res)
+    val res = if (proxied.isNonBlank) proxied else app.request.getRemoteAddr
     res
   }
 }
@@ -20,7 +25,7 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
  * for more details on usage check:
  * https://gist.github.com/732347
  */
-trait BasicAuthSupport[UserType] { self: ScentrySupport[UserType]  =>
+trait BasicAuthSupport[UserType <: AnyRef] { self: ScentrySupport[UserType]  =>
 
   val realm: String
 
@@ -34,7 +39,7 @@ object BasicAuthStrategy {
   private class BasicAuthRequest(r: HttpServletRequest) {
 
     def parts = authorizationKey map { r.getHeader(_).split(" ", 2).toList } getOrElse Nil
-    def scheme: Option[Symbol] = parts.headOption.map(sch => Symbol(sch.toLowerCase(ENGLISH)))
+    def scheme: Option[Symbol] = parts.headOption.map(sch => Symbol(sch.toLowerCase(Locale.ENGLISH)))
     def params = parts.tail.headOption
 
     private def authorizationKey = AUTHORIZATION_KEYS.find(r.getHeader(_) != null)
@@ -46,7 +51,7 @@ object BasicAuthStrategy {
     def credentials = {
       if (_credentials.isEmpty )
         _credentials = params map { p =>
-          (null.asInstanceOf[(String, String)] /: new String(Base64.decode(p), Utf8).split(":", 2)) { (t, l) =>
+          (null.asInstanceOf[(String, String)] /: new String(Base64.decode(p), Charset.forName("UTF-8")).split(":", 2)) { (t, l) =>
             if(t == null) (l, null) else (t._1, l)
           }
         }
@@ -56,7 +61,7 @@ object BasicAuthStrategy {
     def password = credentials map { _._2 } getOrElse null
   }
 }
-class BasicAuthStrategy[UserType](protected val app: ScalatraKernelProxy, realm: String)
+abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraKernelProxy, realm: String)
   extends ScentryStrategy[UserType]
   with RemoteAddress {
 
@@ -79,7 +84,7 @@ class BasicAuthStrategy[UserType](protected val app: ScalatraKernelProxy, realm:
     else {
       val u = validate(req.username, req.password)
       if (u.isDefined) {
-        res.setHeader("REMOTE_USER", u.get.id.toString)
+        res.setHeader("REMOTE_USER", getUserId(u.get))
         u
       } else {
         unauthorized()
@@ -87,7 +92,7 @@ class BasicAuthStrategy[UserType](protected val app: ScalatraKernelProxy, realm:
     }
   }
 
-
+  protected def getUserId(user: UserType): String
   protected def validate(userName: String, password: String): Option[UserType]
 
   def unauthorized(value: String = challenge): Option[UserType] = {

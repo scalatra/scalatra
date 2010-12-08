@@ -92,7 +92,7 @@ class ScalatraProject(info: ProjectInfo)
     val description = "Supplies the optional Scalatra Scalate support"
   }
 
-  lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate)
+  lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate, auth)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject with UnpublishedProject {
     val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
