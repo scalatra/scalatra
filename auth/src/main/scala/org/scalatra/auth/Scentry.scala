@@ -1,13 +1,14 @@
-package org.scalatra.auth
+package org.scalatra
+package auth
 
 import collection.mutable.{ HashMap, Map => MMap }
 import scala.PartialFunction
-import org.scalatra.auth.ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
-import org.scalatra.util.RicherString
+import ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
+import util.RicherString
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = ScalatraKernelProxy => ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ScalatraKernel => ScentryStrategy[UserType]
 
   private val _globalStrategies = new HashMap[Symbol, StrategyFactory[_ <: AnyRef]]()
 
@@ -21,14 +22,14 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-        app: ScalatraKernelProxy,
+        app: ScalatraKernel,
         serialize: PartialFunction[UserType, String],
         deserialize: PartialFunction[String, UserType] ) {
 
   import RicherString._
 
   type StrategyType = ScentryStrategy[UserType]
-  type StrategyFactory = ScalatraKernelProxy => StrategyType
+  type StrategyFactory = ScalatraKernel => StrategyType
 
   import Scentry._
   private val _strategies = new HashMap[Symbol, StrategyFactory]()

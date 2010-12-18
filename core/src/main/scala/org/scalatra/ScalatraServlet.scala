@@ -22,7 +22,7 @@ abstract class ScalatraServlet
   //
   // If the servlet mapping is not path-mapped, then we fall back to the servletPath.  Routes should have a leading
   // slash and include everything between the context route and the query string.
-  protected def requestPath = if (request.getPathInfo != null) request.getPathInfo else request.getServletPath
+  def requestPath = if (request.getPathInfo != null) request.getPathInfo else request.getServletPath
 
   protected var doNotFound: Action = () => {
     // TODO - We should return a 405 if the route matches a different method

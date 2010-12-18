@@ -37,12 +37,12 @@ trait ScalatraKernel extends Handler with Initializable
     map
   }
 
-  protected def contentType = response.getContentType
-  protected def contentType_=(value: String): Unit = response.setContentType(value)
+  def contentType = response.getContentType
+  def contentType_=(value: String): Unit = response.setContentType(value)
 
   protected val defaultCharacterEncoding = "UTF-8"
-  private val _response   = new DynamicVariable[HttpServletResponse](null)
-  private val _request    = new DynamicVariable[HttpServletRequest](null)
+  protected val _response   = new DynamicVariable[HttpServletResponse](null)
+  protected val _request    = new DynamicVariable[HttpServletRequest](null)
 
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
@@ -126,28 +126,29 @@ trait ScalatraKernel extends Handler with Initializable
     }
   }
 
-  private def effectiveMethod = request.getMethod.toUpperCase match {
+  protected def effectiveMethod = request.getMethod.toUpperCase match {
     case "HEAD" => "GET"
     case x => x
   }
   
-  protected def requestPath: String
+  def requestPath: String
 
-  private val beforeFilters = new ListBuffer[() => Any]
-  protected def before(fun: => Any) = beforeFilters += { () => fun }
+  protected val beforeFilters = new ListBuffer[() => Any]
+  def before(fun: => Any) = beforeFilters += { () => fun }
 
-  private val afterFilters = new ListBuffer[() => Any]
-  protected def after(fun: => Any) = afterFilters += { () => fun }
+  protected val afterFilters = new ListBuffer[() => Any]
+  def after(fun: => Any) = afterFilters += { () => fun }
 
   protected var doNotFound: Action
-  protected def notFound(fun: => Any) = doNotFound = { () => fun }
+  def notFound(fun: => Any) = doNotFound = { () => fun }
 
   protected def handleError(e: Throwable): Any = {
     status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
     _caughtThrowable.withValue(e) { errorHandler() }
   }
-  private var errorHandler: Action = { () => throw caughtThrowable }
-  protected def error(fun: => Any) = errorHandler = { () => fun }
+
+  protected var errorHandler: Action = { () => throw caughtThrowable }
+  def error(fun: => Any) = errorHandler = { () => fun }
   
   private val _caughtThrowable = new DynamicVariable[Throwable](null)
   protected def caughtThrowable = _caughtThrowable.value
@@ -186,30 +187,30 @@ trait ScalatraKernel extends Handler with Initializable
   protected val _params = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
     protected def multiMap = multiParams
   }
-  protected def params = _params
+  def params = _params
 
-  protected def redirect(uri: String) = (_response value) sendRedirect uri
-  protected implicit def request = _request value
-  protected implicit def response = _response value
-  protected def session = request.getSession
-  protected def sessionOption = request.getSession(false) match {
+  def redirect(uri: String) = (_response value) sendRedirect uri
+  implicit def request = _request value
+  implicit def response = _response value
+  def session = request.getSession
+  def sessionOption = request.getSession(false) match {
     case s: HttpSession => Some(s)
     case null => None
   }
-  protected def status(code: Int) = (_response value) setStatus code
+  def status(code: Int) = (_response value) setStatus code
 
-  protected def halt(code: Int, msg: String) = throw new HaltException(Some(code), Some(msg))
-  protected def halt(code: Int) = throw new HaltException(Some(code), None)
-  protected def halt() = throw new HaltException(None, None)
+  def halt(code: Int, msg: String) = throw new HaltException(Some(code), Some(msg))
+  def halt(code: Int) = throw new HaltException(Some(code), None)
+  def halt() = throw new HaltException(None, None)
   private case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
 
-  protected def pass() = throw new PassException
+  def pass() = throw new PassException
   protected[scalatra] class PassException extends RuntimeException
 
-  protected def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("GET", routeMatchers, action)
-  protected def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("POST", routeMatchers, action)
-  protected def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
-  protected def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
+  def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("GET", routeMatchers, action)
+  def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("POST", routeMatchers, action)
+  def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
+  def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
 
   protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
     val route = new Route(routeMatchers, () => action)
@@ -236,7 +237,7 @@ trait ScalatraKernel extends Handler with Initializable
   private var config: Config = _
   def initialize(config: Config) = this.config = config
 
-  protected def initParameter(name: String): Option[String] = config match {
+  def initParameter(name: String): Option[String] = config match {
     case config: ServletConfig => Option(config.getInitParameter(name))
     case config: FilterConfig => Option(config.getInitParameter(name))
     case _ => None

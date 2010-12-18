@@ -1,14 +1,14 @@
 package org.scalatra
 
 import auth.strategy.{BasicAuthStrategy, BasicAuthSupport}
-import auth.{ScalatraKernelProxy, ScentrySupport, ScentryConfig}
+import auth.{ScentrySupport, ScentryConfig}
 import org.scalatra.BasicAuthExample.AuthenticationSupport
 
 object BasicAuthExample {
 
   case class MyUser(id: String)
 
-  class OurBasicAuthStrategy(protected override val app: ScalatraKernelProxy, realm: String)
+  class OurBasicAuthStrategy(protected override val app: ScalatraKernel, realm: String)
     extends BasicAuthStrategy[MyUser](app, realm) {
 
     protected def validate(userName: String, password: String): Option[MyUser] = {

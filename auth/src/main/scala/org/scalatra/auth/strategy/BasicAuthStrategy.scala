@@ -3,7 +3,7 @@ package auth
 package strategy
 
 import javax.servlet.http.HttpServletRequest
-import org.scalatra.auth.{ScentrySupport, ScentryStrategy, ScalatraKernelProxy}
+import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
 import net.iharder.Base64
 import util.RicherString
 import RicherString._
@@ -61,7 +61,7 @@ object BasicAuthStrategy {
     def password = credentials map { _._2 } getOrElse null
   }
 }
-abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraKernelProxy, realm: String)
+abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraKernel, realm: String)
   extends ScentryStrategy[UserType]
   with RemoteAddress {
 

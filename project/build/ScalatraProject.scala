@@ -11,7 +11,7 @@ class ScalatraProject(info: ProjectInfo)
   override def shouldCheckOutputDirectories = false
 
   val jettyGroupId = "org.eclipse.jetty"
-  val jettyVersion = "7.2.0.v20101020"
+  val jettyVersion = "7.2.2.v20101205"
   val slf4jVersion = "1.6.1"
 
   trait UnpublishedProject
@@ -36,11 +36,11 @@ class ScalatraProject(info: ProjectInfo)
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
     override def pomExtra = (
-//      <parent>
-//        <groupId>{organization}</groupId>
-//        <artifactId>{ScalatraProject.this.artifactID}</artifactId>
-//        <version>{version}</version>
-//      </parent>
+      <parent>
+        <groupId>{organization}</groupId>
+        <artifactId>{ScalatraProject.this.artifactID}</artifactId>
+        <version>{version}</version>
+      </parent>
       <name>{name}</name>
       <description>{description}</description>)
 
@@ -224,9 +224,9 @@ class ScalatraProject(info: ProjectInfo)
       System.setProperty("gpg.skip", "true")
       Credentials(Path.userHome / ".ivy2" / ".credentials", log)
       if(version.toString.endsWith("-SNAPSHOT"))
-        "Mojolly Snapshots" at "http://maven/content/repositories/thirdparty-snapshots/"
+        "Mojolly Snapshots" at "https://maven.mojolly.com/content/repositories/thirdparty-snapshots/"
       else
-        "Mojolly Releases" at "http://maven/content/repositories/thirdparty/"
+        "Mojolly Releases" at "https://maven.mojolly.com/content/repositories/thirdparty/"
 
     }
 

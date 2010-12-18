@@ -1,6 +1,6 @@
-package org.scalatra.auth
+package org.scalatra
+package auth
 
-import org.scalatra.{RichSession, RichRequest, SweetCookies}
 import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
 trait ScentryStrategy[UserType <: AnyRef] {
@@ -8,7 +8,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
   protected implicit def requestWrapper(s: HttpServletRequest) = new RichRequest(s)
 
-  protected val app: ScalatraKernelProxy
+  protected val app: ScalatraKernel
   def name: Symbol = 'NameMe
 
   def registerWith(registrar: Scentry[UserType]) {
@@ -17,7 +17,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
   }
   
 
-  def createStrategy(app: ScalatraKernelProxy): this.type = {
+  def createStrategy(app: ScalatraKernel): this.type = {
     throwOverrideException
   }
 
