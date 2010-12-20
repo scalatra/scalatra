@@ -400,7 +400,7 @@ To use it from an SBT project, add the following to your project:
 
 ### It looks neat, but is it production-ready?
 
-- It is use in the backend for (LinkedIn Signal)[http://sna-projects.com/blog/2010/10/linkedin-signal-a-look-under-the-hood/].
+- It is use in the backend for [LinkedIn Signal](http://sna-projects.com/blog/2010/10/linkedin-signal-a-look-under-the-hood/).
 
 - [ChaCha](http://www.chacha.com/) is using it in multiple internal applications.
 
