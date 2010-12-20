@@ -14,20 +14,20 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
 
   "The scentry" should {
 
-    val session = smartMock[HttpSession]
-    session.getAttribute(Scentry.scentryAuthKey) returns "6789"
     var invalidateCalled = false
-    session.invalidate answers { _ => invalidateCalled = true }
-    val response = smartMock[HttpServletResponse]
-    val req = smartMock[HttpServletRequest]
-    req.getCookies returns Array[Cookie]()
-    val context = ScalatraKernelProxy(
-      session,
-      smartMock[scala.collection.Map[String, String]],
-      s => "redirected to: " + s,
-      req,
-      response,
-      new SweetCookies(new RichRequest(req).cookies, response))
+    val context = new ScalatraFilter {
+      private val sessionMap = scala.collection.mutable.HashMap[String, Any](Scentry.scentryAuthKey -> "6789")
+      override val session = smartMock[HttpSession]
+      session.getAttribute(anyString) answers { k => sessionMap.getOrElse(k.asInstanceOf[String], null).asInstanceOf[AnyRef] }
+      session.setAttribute(anyString(), anyObject()) answers { kv =>
+        val kvArray = kv.asInstanceOf[Array[AnyRef]]
+        sessionMap(kvArray(0).asInstanceOf[String]) = kvArray(1)
+      }
+      session.invalidate() answers {
+        invalidateCalled = true
+        k => sessionMap.clear()
+      }
+    }
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)})
     var beforeFetchCalled = false
     var afterFetchCalled = false
