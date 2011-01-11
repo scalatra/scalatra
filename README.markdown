@@ -259,7 +259,7 @@ The `error` handler is invoked any time an exception is raised from a route bloc
 
 ## Flash scope
 
-Flash scope is available by mixing in `FlashScopeSupport`, which provides a mutable map named `flash`.  Values put into flash scope during the current request are stored in the session through the next request and then discarded.  This is particularly useful for messages when using the [Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
+Flash scope is available by mixing in `FlashMapSupport`, which provides a mutable map named `flash`.  Values put into flash scope during the current request are stored in the session through the next request and then discarded.  This is particularly useful for messages when using the [Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
 
 ## Templating with Scalate
 
