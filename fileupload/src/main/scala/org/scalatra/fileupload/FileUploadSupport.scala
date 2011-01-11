@@ -11,6 +11,14 @@ import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpSe
 import collection.Iterable
 import java.lang.String
 
+/** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
+   * as part of a multipart HTTP request.  Commonly this is used for retrieving uploaded files.
+   *
+   * Once the trait has been mixed into your handler you can access any files uploaded using {{{ fileParams("myFile") }}} where ''myFile'' is the name
+   * of the parameter used to upload the file being retrieved.
+   *
+   * @note Once any handler with FileUploadSupport has accessed the request, the fileParams returned by FileUploadSupport will remain fixed for
+   * the lifetime of the request. */
 trait FileUploadSupport extends ScalatraKernel {
   import FileUploadSupport._
 
@@ -61,7 +69,9 @@ trait FileUploadSupport extends ScalatraKernel {
     override def -(key: String) = Map() ++ this - key
     override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
   }
-  protected def fileParams = _fileParams
+
+  /** @return a Map, keyed on the names of multipart file upload parameters, of all multipart files submitted with the request */
+  def fileParams = _fileParams
 }
 
 object FileUploadSupport {
