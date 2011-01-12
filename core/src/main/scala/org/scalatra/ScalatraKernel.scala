@@ -221,14 +221,29 @@ trait ScalatraKernel extends Handler with Initializable
   def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
   def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
 
-  protected[scalatra] def addRoute(protocol: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
+  /**
+   * registers a new route for the given HTTP method, can be overriden so that subtraits can use their own logic
+   * for example, restricting protocol usage, namespace routes based on class name, raise errors on overlapping entries
+   * etc.
+   * 
+   * This is the method invoked by get(), post() etc.
+   *
+   * @see removeRoute
+   */
+  protected[scalatra] def addRoute(verb: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
     val route = new Route(routeMatchers, () => action)
-    modifyRoutes(protocol, { routes: List[Route] => route :: routes })
+    modifyRoutes(verb, route :: _ )
     route
   }
 
-  protected def removeRoute(protocol: String, route: Route): Unit = {
-    modifyRoutes(protocol, { routes: List[Route] => routes filterNot (_ == route) })
+  /**
+   * removes _all_ the actions of a given route for a given HTTP method. 
+   * If [[addRoute]] is overriden this should probably be overriden too.
+   *
+   * @see addRoute
+   */
+  protected def removeRoute(verb: String, route: Route): Unit = {
+    modifyRoutes(verb, _ filterNot (_ == route) )
     route
   }
 
