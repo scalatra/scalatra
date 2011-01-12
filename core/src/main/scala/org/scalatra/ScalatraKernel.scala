@@ -3,7 +3,6 @@ package org.scalatra
 import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
-import scala.util.control.Breaks._
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
@@ -29,6 +28,16 @@ object ScalatraKernel
 import ScalatraKernel._
 
 
+/**
+ * ScalatraKernel provides the DSL for building Scalatra applications. 
+ *
+ * At it's core a type mixing in ScalatraKernel is a registry of possible actions 
+ * to which every request is dispatched to the first route matching.
+ *
+ * The [[get]], [[post]], [put]] and [[delete]] methods register a new action to a route for a given HTTP method, 
+ * possibly overwriting a previous one. These trait is thread safe.
+ * 
+ */
 trait ScalatraKernel extends Handler with Initializable
 {
   protected val Routes: ConcurrentMap[String, List[Route]] = {
@@ -223,14 +232,14 @@ trait ScalatraKernel extends Handler with Initializable
     route
   }
 
-  private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])): Unit = {
-    breakable {
-      while (true) {
-        val oldRoutes = Routes(protocol)
-        val newRoutes = f(oldRoutes)
-        if (Routes.replace(protocol, oldRoutes, newRoutes))
-          break
-      }
+  /**
+   * since routes is a ConcurrentMap and we avoid locking, we need to retry if there are 
+   * concurrent modifications, this is abstracted here for removeRoute and addRoute
+   */
+  @tailrec private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])): Unit = {
+    val oldRoutes = Routes(protocol)
+    if (!Routes.replace(protocol, oldRoutes, f(oldRoutes))) {
+      modifyRoutes(protocol,f)
     }
   }
 
