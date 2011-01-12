@@ -19,7 +19,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   }
 
   def body:String = {
-    Source.fromInputStream(r.getInputStream).mkString
+    Source.fromInputStream(r.getInputStream, r.getCharacterEncoding).mkString
   }
 
   def isAjax: Boolean = r.getHeader("X-Requested-With") != null
