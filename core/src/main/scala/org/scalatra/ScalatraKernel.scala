@@ -31,10 +31,10 @@ import ScalatraKernel._
 /**
  * ScalatraKernel provides the DSL for building Scalatra applications. 
  *
- * At it's core a type mixing in ScalatraKernel is a registry of possible actions 
- * to which every request is dispatched to the first route matching.
+ * At it's core a type mixing in ScalatraKernel is a registry of possible actions, 
+ * every request is dispatched to the first route matching.
  *
- * The [[get]], [[post]], [put]] and [[delete]] methods register a new action to a route for a given HTTP method, 
+ * The [[org.scalatra.ScalatraKernel#get]], [[org.scalatra.ScalatraKernel#post]], [[org.scalatra.ScalatraKernel#put]] and [[org.scalatra.ScalatraKernel#delete]] methods register a new action to a route for a given HTTP method, 
  * possibly overwriting a previous one. These trait is thread safe.
  * 
  */
@@ -216,9 +216,52 @@ trait ScalatraKernel extends Handler with Initializable
   def pass() = throw new PassException
   protected[scalatra] class PassException extends RuntimeException
 
+  /**
+   * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]] and a block as
+   * the action body.
+   * The return value of the block is converted to a string and sent to the client as the response body.
+   * 
+   * See [[org.scalatra.ScalatraKernel.renderResponseBody]] for the detailed behaviour and how to handle your 
+   * response body more explicitly, and see how different return types are handled.
+   *
+   * The block is executed in the context of the ScalatraKernel instance, so all the methods defined in
+   * this trait are also available inside the block. 
+   *
+   * {{{
+   *   get("/") { 
+   *     <form action="/echo">
+   *       <label>Enter your name</label> 
+   *       <input type="text" name="name"/> 
+   *     </form>
+   *   }
+   *  
+   *   post("/echo") { 
+   *     "hello {params('name)}!" 
+   *   }
+   * }}} 
+   *
+   * ScalatraKernel provides implicit transformation from boolean blocks, strings and regular expressions 
+   * to [[org.scalatra.RouteMatcher]], so you can write code naturally
+   * {{{
+   *   get("/", request.getRemoteHost == "127.0.0.1") { "Hello localhost!" }
+   * }}} 
+   * 
+   */
   def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("GET", routeMatchers, action)
+
+  /**
+   * @see [[org.scalatra.ScalatraKernel.get]]
+   */
   def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("POST", routeMatchers, action)
+
+  /**
+   * @see [[org.scalatra.ScalatraKernel.get]]
+   */
   def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
+
+  /**
+   * @see [[org.scalatra.ScalatraKernel.get]]
+   */
   def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
 
   /**
