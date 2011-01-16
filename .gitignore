@@ -11,3 +11,4 @@ target/
 *.iws
 .*.sw?
 .idea
+.DS_Store
