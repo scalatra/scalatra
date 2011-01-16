@@ -379,7 +379,8 @@ Scalatra provides optional support for websockets and comet through [socket.io](
            <param-name>flashPolicyPorts</param-name>
            <param-value>8080</param-value>
          </init-param>
-      </servlet>
+      </servlet>  
+
               
 When you want to use websockets with jetty the sbt build tool gets in the way and that makes it look like the websocket stuff isn't working. If you deploy the war to a jetty distribution everything should work as expected.
 
