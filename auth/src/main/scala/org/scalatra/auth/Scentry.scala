@@ -41,7 +41,7 @@ class Scentry[UserType <: AnyRef](
   def proxy = app
 
   def isAuthenticated = {
-    user != null
+    userOption.isDefined
   }
   @deprecated("use isAuthenticated")
   def authenticated_? = isAuthenticated
@@ -56,7 +56,9 @@ class Scentry[UserType <: AnyRef](
   def strategies: MMap[Symbol, ScentryStrategy[UserType]] =
     (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
-  def user : UserType = if (_user != null) _user else { 
+  def userOption: Option[UserType] = Option(user)
+
+  def user : UserType = if (_user != null) _user else {
     val key = store.get
     if (key.isNonBlank) {
       runCallbacks() { _.beforeFetch(key) }
