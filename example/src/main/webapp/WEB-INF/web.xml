@@ -15,22 +15,22 @@
     <servlet>
         <servlet-name>SocketIOExample</servlet-name>
         <servlet-class>org.scalatra.SocketIOExample</servlet-class>
-        <!--<init-param>-->
-            <!--<param-name>flashPolicyServerHost</param-name>-->
-            <!--<param-value>localhost</param-value>-->
-        <!--</init-param>-->
-        <!--<init-param>-->
-            <!--<param-name>flashPolicyServerPort</param-name>-->
-            <!--<param-value>843</param-value>-->
-        <!--</init-param>-->
-        <!--<init-param>-->
-            <!--<param-name>flashPolicyDomain</param-name>-->
-            <!--<param-value>localhost</param-value>-->
-        <!--</init-param>-->
-        <!--<init-param>-->
-            <!--<param-name>flashPolicyPorts</param-name>-->
-            <!--<param-value>8080</param-value>-->
-        <!--</init-param>-->
+        <init-param>
+            <param-name>flashPolicyServerHost</param-name>
+            <param-value>localhost</param-value>
+        </init-param>
+        <init-param>
+            <param-name>flashPolicyServerPort</param-name>
+            <param-value>843</param-value>
+        </init-param>
+        <init-param>
+            <param-name>flashPolicyDomain</param-name>
+            <param-value>localhost</param-value>
+        </init-param>
+        <init-param>
+            <param-name>flashPolicyPorts</param-name>
+            <param-value>8080</param-value>
+        </init-param>
     </servlet>
 
   <servlet-mapping>

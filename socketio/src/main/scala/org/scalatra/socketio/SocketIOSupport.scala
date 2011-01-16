@@ -161,55 +161,7 @@ trait SocketIOSupport extends Handler with Initializable {
         }
       }, sessionManager)
     }
-//    	String path = request.getPathInfo();
-//    	if (path == null || path.length() == 0 || "/".equals(path)) {
-//    		response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing SocketIO transport");
-//    		return;
-//    	}
-//    	if (path.startsWith("/")) path = path.substring(1);
-//    	String[] parts = path.split("/");
-//
-//    	Transport transport = transports.get(parts[0]);
-//    	if (transport == null) {
-//    		if ("GET".equals(request.getMethod()) && "socket.io.js".equals(parts[0])) {
-//				response.setContentType("text/javascript");
-//				InputStream is = this.getClass().getClassLoader().getResourceAsStream("com/glines/socketio/socket.io.js");
-//				OutputStream os = response.getOutputStream();
-//				IO.copy(is, os);
-//				return;
-//    		} else {
-//	    		response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown SocketIO transport");
-//	    		return;
-//    		}
-//    	}
   }
-
-//  get("/:transportName/?.*/?.*/?.*") {
-//    println("matched transport")
-//    val transport = transports.get(params('transportName))
-//    val builder = _builder
-//    transport.handle(request, response, new Transport.InboundFactory {
-//      def getInbound(p1: HttpServletRequest, p2: Array[String]) = {
-//        val client = builder.result
-//        _connections.add(client)
-//        client.clients = _connections
-//        client
-//      }
-//    }, sessionManager)
-//  }
-//  post("/:transportName/?.*/?.*") {
-//    println("matched transport")
-//    val transport = transports.get(params('transportName))
-//    val builder = _builder
-//    transport.handle(request, response, new Transport.InboundFactory {
-//      def getInbound(p1: HttpServletRequest, p2: Array[String]) = {
-//        val client = builder.result
-//        _connections.add(client)
-//        client.clients = _connections
-//        client
-//      }
-//    }, sessionManager)
-//  }
 
   get("/socket.io.js") {
     contentType = "text/javascript"
@@ -221,13 +173,6 @@ trait SocketIOSupport extends Handler with Initializable {
           line.replace("'socket.io'", "'%s'" format p).replace("socket.io/WebSocketMain", "%s/WebSocketMain" format p))
     }
   }
-
-  //  get("/WebSocketMain.swf") {
-  //    contentType = "application/x-shockwave-flash"
-  //    val is = getClass.getClassLoader.getResourceAsStream("org/scalatra/socketio/WebSocketMain.swf")
-  //    val os = response.getOutputStream
-  //    IO.copy(is, os)
-  //  }
 
   def socketio(action: SocketIOClientBuilder => Unit) {
     if (_builder != null) throw new RuntimeException("You can only use 1 socketio method per application")
