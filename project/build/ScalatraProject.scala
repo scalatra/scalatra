@@ -104,6 +104,9 @@ class ScalatraProject(info: ProjectInfo)
     val jetty7websocket = jettyGroupId % "jetty-websocket" % jettyVersion % "compile"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile"
     val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
+
+    override def webappClasspath = super.webappClasspath +++ buildCompilerJar
+
     val description = "An example Scalatra application"
   }
 
