@@ -34,6 +34,7 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
           <a href={url("/login")}>login</a>
           <a href={url("/logout")}>logout</a>
           <a href={url("/filter-example")}>filter demo</a>
+          <a href={url("/chat")}>chat demo</a>
         </body>
       </html>
     }
@@ -101,6 +102,10 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
         {"""socket.send("hello");"""}
       </pre>
     )
+  }
+
+  get("/chat") {
+    renderTemplate("chat.ssp")
   }
 
   post("/login") {

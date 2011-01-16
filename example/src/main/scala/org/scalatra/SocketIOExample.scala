@@ -1,8 +1,5 @@
 package org.scalatra
 
-import java.lang.String
-import javax.servlet.http.HttpServletRequest
-import collection.immutable.HashSet
 import socketio.SocketIOSupport
 
 

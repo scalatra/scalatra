@@ -41,7 +41,7 @@ object SocketIOSupport {
       _messageHandler = Option(callback)
     }
 
-    def result = {
+    def result(removeFromClients: SocketIOClient => Unit) = {
       new SocketIOClient {
         def onConnect(out: SocketIOOutbound) = {
           _out = Option(out)
@@ -54,6 +54,7 @@ object SocketIOSupport {
           _disconnectHandler foreach {
             _(this, reason, message)
           }
+          removeFromClients(this)
         }
 
         def onMessage(messageType: Int, message: String) = {
@@ -67,9 +68,14 @@ object SocketIOSupport {
   }
 
   trait SocketIOClient extends SocketIOInbound {
-    protected var _out: Option[SocketIOOutbound] = None
-    protected[socketio] var clients = new CopyOnWriteArrayList[SocketIOClient]
 
+    val clientId = GenerateId()
+    protected var _out: Option[SocketIOOutbound] = None
+    private var _broadcaster: (Int, String) => Unit = null
+
+    def broadcaster(block: (Int, String) => Unit) {
+      _broadcaster = block
+    }
     def onMessage(messageType: Int, message: String)
 
     def onDisconnect(reason: DisconnectReason, message: String)
@@ -78,9 +84,9 @@ object SocketIOSupport {
 
     def getProtocol = null
 
-    def send(messageType: FrameType, message: String) {
+    def send(messageType: Int, message: String) {
       _out foreach {
-        _.sendMessage(messageType.value, message)
+        _.sendMessage(messageType, message)
       }
     }
 
@@ -90,8 +96,8 @@ object SocketIOSupport {
       }
     }
 
-    def broadcast(message: String) {
-      clients foreach { cl => if (cl != this) cl.send(message) }
+    def broadcast(messageType: Int, message: String) {
+      if(_broadcaster != null) _broadcaster(messageType, message)
     }
 
     def close() {
@@ -154,9 +160,11 @@ trait SocketIOSupport extends Handler with Initializable {
     } else {
       transport.handle(req, res, new Transport.InboundFactory {
         def getInbound(p1: HttpServletRequest, p2: Array[String]) = {
-          val client = _builder.result
+          val client = _builder.result { c => _connections.remove(_connections.indexOf(c)) }
           _connections.add(client)
-          client.clients = _connections
+          client.broadcaster { (messageType, message) =>
+            _connections.filterNot(_.clientId == client.clientId).foreach { _.send(messageType, message) }
+          }
           client
         }
       }, sessionManager)
