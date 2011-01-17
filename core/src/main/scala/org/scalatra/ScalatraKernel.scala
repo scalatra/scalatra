@@ -16,7 +16,7 @@ import scala.annotation.tailrec
 object ScalatraKernel
 {
   type MultiParams = Map[String, Seq[String]]
-  
+
   type Action = () => Any
 
   val httpMethods = List("GET", "POST", "PUT", "DELETE")
@@ -29,14 +29,15 @@ import ScalatraKernel._
 
 
 /**
- * ScalatraKernel provides the DSL for building Scalatra applications. 
+ * ScalatraKernel provides the DSL for building Scalatra applications.
  *
- * At it's core a type mixing in ScalatraKernel is a registry of possible actions, 
+ * At it's core a type mixing in ScalatraKernel is a registry of possible actions,
  * every request is dispatched to the first route matching.
  *
- * The [[org.scalatra.ScalatraKernel#get]], [[org.scalatra.ScalatraKernel#post]], [[org.scalatra.ScalatraKernel#put]] and [[org.scalatra.ScalatraKernel#delete]] methods register a new action to a route for a given HTTP method, 
- * possibly overwriting a previous one. These trait is thread safe.
- * 
+ * The [[org.scalatra.ScalatraKernel#get]], [[org.scalatra.ScalatraKernel#post]],
+ * [[org.scalatra.ScalatraKernel#put]] and [[org.scalatra.ScalatraKernel#delete]]
+ * methods register a new action to a route for a given HTTP method, possibly
+ * overwriting a previous one. This trait is thread safe.
  */
 trait ScalatraKernel extends Handler with Initializable
 {
@@ -85,7 +86,7 @@ trait ScalatraKernel extends Handler with Initializable
           pairs foreach { case (k, v) => if (v != null) multiParams.getOrElseUpdate(k, new ListBuffer) += v }
           Map() ++ multiParams
         }
-      
+
       override def toString = path
     }
   }
@@ -95,13 +96,13 @@ trait ScalatraKernel extends Handler with Initializable
       case Nil => Map.empty
       case xs => Map("captures" -> xs)
     }}
-    
+
     override def toString = regex.toString
   }
 
   protected implicit def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
     () => { if (matcher) Some(Map[String, Seq[String]]()) else None }
-  
+
   def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
@@ -139,7 +140,7 @@ trait ScalatraKernel extends Handler with Initializable
     case "HEAD" => "GET"
     case x => x
   }
-  
+
   def requestPath: String
 
   protected val beforeFilters = new ListBuffer[() => Any]
@@ -158,7 +159,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   protected var errorHandler: Action = { () => throw caughtThrowable }
   def error(fun: => Any) = errorHandler = { () => fun }
-  
+
   private val _caughtThrowable = new DynamicVariable[Throwable](null)
   protected def caughtThrowable = _caughtThrowable.value
 
@@ -220,32 +221,32 @@ trait ScalatraKernel extends Handler with Initializable
    * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]] and a block as
    * the action body.
    * The return value of the block is converted to a string and sent to the client as the response body.
-   * 
-   * See [[org.scalatra.ScalatraKernel.renderResponseBody]] for the detailed behaviour and how to handle your 
+   *
+   * See [[org.scalatra.ScalatraKernel.renderResponseBody]] for the detailed behaviour and how to handle your
    * response body more explicitly, and see how different return types are handled.
    *
    * The block is executed in the context of the ScalatraKernel instance, so all the methods defined in
-   * this trait are also available inside the block. 
+   * this trait are also available inside the block.
    *
    * {{{
-   *   get("/") { 
+   *   get("/") {
    *     <form action="/echo">
-   *       <label>Enter your name</label> 
-   *       <input type="text" name="name"/> 
+   *       <label>Enter your name</label>
+   *       <input type="text" name="name"/>
    *     </form>
    *   }
-   *  
-   *   post("/echo") { 
-   *     "hello {params('name)}!" 
-   *   }
-   * }}} 
    *
-   * ScalatraKernel provides implicit transformation from boolean blocks, strings and regular expressions 
+   *   post("/echo") {
+   *     "hello {params('name)}!"
+   *   }
+   * }}}
+   *
+   * ScalatraKernel provides implicit transformation from boolean blocks, strings and regular expressions
    * to [[org.scalatra.RouteMatcher]], so you can write code naturally
    * {{{
    *   get("/", request.getRemoteHost == "127.0.0.1") { "Hello localhost!" }
-   * }}} 
-   * 
+   * }}}
+   *
    */
   def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("GET", routeMatchers, action)
 
@@ -265,10 +266,15 @@ trait ScalatraKernel extends Handler with Initializable
   def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
 
   /**
+   * @see [[org.scalatra.ScalatraKernel.get]]
+   */
+  def options(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("OPTIONS", routeMatchers, action)
+
+  /**
    * registers a new route for the given HTTP method, can be overriden so that subtraits can use their own logic
    * for example, restricting protocol usage, namespace routes based on class name, raise errors on overlapping entries
    * etc.
-   * 
+   *
    * This is the method invoked by get(), post() etc.
    *
    * @see removeRoute
@@ -280,7 +286,7 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   /**
-   * removes _all_ the actions of a given route for a given HTTP method. 
+   * removes _all_ the actions of a given route for a given HTTP method.
    * If [[addRoute]] is overriden this should probably be overriden too.
    *
    * @see addRoute
@@ -291,7 +297,7 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   /**
-   * since routes is a ConcurrentMap and we avoid locking, we need to retry if there are 
+   * since routes is a ConcurrentMap and we avoid locking, we need to retry if there are
    * concurrent modifications, this is abstracted here for removeRoute and addRoute
    */
   @tailrec private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])): Unit = {

@@ -12,7 +12,7 @@ import javax.servlet.Filter
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
  * either <code>org.scalatra.test.scalatest.ScalatraSuite</code> or
- * <code>org.scalatra.test.specs.ScalatraSpecification</code>. 
+ * <code>org.scalatra.test.specs.ScalatraSpecification</code>.
  */
 trait ScalatraTests {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)

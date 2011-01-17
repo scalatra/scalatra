@@ -1,4 +1,4 @@
-/* 
+/*
  * Most of these test cases are ported from http://github.com/sinatra/sinatra/tree master/test/routing_test.rb
  */
 package org.scalatra
@@ -8,7 +8,7 @@ import test.scalatest.ScalatraFunSuite
 
 class RouteTestServlet extends ScalatraServlet {
   get(params.getOrElse("booleanTest", "false") == "true") {
-    "matched boolean route"    
+    "matched boolean route"
   }
 
   get("/optional/?:foo?/?:bar?") {
@@ -138,7 +138,7 @@ class RouteTest extends ScalatraFunSuite with ShouldMatchers {
       body should equal("user@example.com")
     }
   }
-  
+
   test("matches a literal dot ('.') outside of named params") {
     get("/dot-outside-named-param/pony.jpg") {
       header("file") should equal ("pony")
