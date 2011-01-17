@@ -26,6 +26,10 @@ class DefaultRouteTestServlet extends ScalatraServlet {
   delete(existingRoute) {
     "delete"
   }
+
+  options(existingRoute) {
+    "options"
+  }
 }
 
 class DefaultRouteTest extends ScalatraFunSuite with ShouldMatchers {
@@ -77,6 +81,18 @@ class DefaultRouteTest extends ScalatraFunSuite with ShouldMatchers {
 
   test("DELETE request to existing route should return 200") {
     delete(existingRoute) {
+      status should equal (200)
+    }
+  }
+
+  test("OPTIONS request to non-existent route should return 404") {
+    options(nonExistentRoute) {
+      status should equal (404)
+    }
+  }
+
+  test("OPTIONS request to existing route should return 200") {
+    options(existingRoute) {
       status should equal (200)
     }
   }

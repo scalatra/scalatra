@@ -111,6 +111,10 @@ trait ScalatraTests {
     withResponse(httpRequest("DELETE", uri, params, headers), f)
   }
 
+  def options(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
+    withResponse(httpRequest("OPTIONS", uri, params, headers), f)
+  }
+
   def session(f: => Unit) = {
     _session.withValue(Map[String,String]()) {
       _useSession.withValue(true)(f)

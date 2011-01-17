@@ -19,7 +19,7 @@ object ScalatraKernel
 
   type Action = () => Any
 
-  val httpMethods = List("GET", "POST", "PUT", "DELETE")
+  val httpMethods = List("GET", "POST", "PUT", "DELETE", "OPTIONS")
   val writeMethods = "POST" :: "PUT" :: "DELETE" :: Nil
   val csrfKey = "csrfToken"
 
