@@ -102,8 +102,14 @@ trait ScalatraTests {
   def post(uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => Unit) =
     withResponse(httpRequest("POST", uri, Seq.empty, headers, body), f)
   // @todo support POST multipart/form-data for file uploads
-  // @todo def put
-  // @todo def delete
+
+  def put(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
+    withResponse(httpRequest("PUT", uri, params, headers), f)
+  }
+
+  def delete(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
+    withResponse(httpRequest("DELETE", uri, params, headers), f)
+  }
 
   def session(f: => Unit) = {
     _session.withValue(Map[String,String]()) {
