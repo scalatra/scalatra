@@ -37,6 +37,10 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
 
   7. Start hacking on `src/main/scala/MyScalatraFilter.scala`.
 
+Note: if you keep getting frequent OutOfMemory errors from `sbt` you can try changing its script as described in [this document](http://www.assembla.com/wiki/show/liftweb/Using_SBT) so that it executes this command line:
+
+     java -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -Xmx512M -Xss2M -jar `dirname $0`/sbt-launch.jar "$@"
+
 ## Community
 
 ### Mailing list
