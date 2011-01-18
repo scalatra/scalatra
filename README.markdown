@@ -505,9 +505,9 @@ Scalatra was renamed from Step to Scalatra to avoid a naming conflict with (an u
 
 ## Related Projects
 
-- (SSGI)[http://github.com/scalatra/ssgi]: Work in progress. Will provide an abstraction layer allowing a future version of Scalatra to run on web servers other than Servlet containers.
+- [SSGI](http://github.com/scalatra/ssgi): Work in progress. Will provide an abstraction layer allowing a future version of Scalatra to run on web servers other than Servlet containers.
 
-- (Bowler)[http://bowlerframework.org]: A RESTful, multi-channel ready web framework in Scala with a functional flavour, built on top of Scalatra and [Scalate](http://scalate.fusesource.org/).
+- [Bowler](http://bowlerframework.org): A RESTful, multi-channel ready web framework in Scala with a functional flavour, built on top of Scalatra and [Scalate](http://scalate.fusesource.org/).
 
 ## Credits
 
