@@ -267,7 +267,7 @@ Flash scope is available by mixing in `FlashMapSupport`, which provides a mutabl
 
 ## Templating with Scalate
 
-Scalatra provides optional support for <a href="http://scalate.org/">Scalate</a>, a Scala template engine.  
+Scalatra provides optional support for [Scalate](http://scalate.fusesource.org/), a Scala template engine.  
 
 1. Depend on scalatra-scalate.jar and a [slf4j binding](http://www.slf4j.org/manual.html#binding).  In your SBT build:
 
@@ -502,6 +502,12 @@ Scalatra was renamed from Step to Scalatra to avoid a naming conflict with (an u
 1. The package has changed from `com.thinkminimo.step` to `org.scalatra`.
 1. The `Step` class has been renamed to `ScalatraServlet`.
 1. All other `Step*` classes have been renamed to `Scalatra*`.
+
+## Related Projects
+
+- (SSGI)[http://github.com/scalatra/ssgi]: Work in progress. Will provide an abstraction layer allowing a future version of Scalatra to run on web servers other than Servlet containers.
+
+- (Bowler)[http://bowlerframework.org]: A RESTful, multi-channel ready web framework in Scala with a functional flavour, built on top of Scalatra and [Scalate](http://scalate.fusesource.org/).
 
 ## Credits
 
