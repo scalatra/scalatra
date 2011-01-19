@@ -112,6 +112,24 @@ The route matcher may also be a regular expression.  Capture groups are accessib
       multiParams("captures") # == Seq("oo", "ar") 
     }
 
+#### Path patterns in the REPL
+
+If you want to experiment with path patterns, it's very easy in the REPL.
+
+    scala> import org.scalatra._                                           
+    import org.scalatra._
+
+    scala> val pattern = PathPatternParser.parseFrom("/foo/:bar")
+    pattern: PathPattern = PathPattern(^/foo/([^/?]+)$,List(bar))
+
+    scala> pattern("/y/x") // doesn't match 
+    res1: Option[MultiParams] = None
+
+    scala> pattern("/foo/x") // matches
+    res2: Option[MultiParams] = Some(Map(bar -> ListBuffer(x)))
+
+Obligatory scolding: the REPL is not a substitute for proper unit tests!
+
 ### Conditions
 
 Routes may include conditions.  A condition is any expression that returns Boolean.  Conditions are evaluated by-name each time the route matcher runs.
