@@ -75,18 +75,13 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
-    val (re, names) = PathPatternParser.parseFrom(path)
+    val pathPattern = PathPatternParser.parseFrom(path)
 
-    // By overriding toString, we can list the available routes in the default notFound handler.
     new RouteMatcher {
-      def apply() = (re findFirstMatchIn requestPath)
-        .map { reMatch => names zip reMatch.subgroups }
-        .map { pairs =>
-          val multiParams = new HashMap[String, ListBuffer[String]]
-          pairs foreach { case (k, v) => if (v != null) multiParams.getOrElseUpdate(k, new ListBuffer) += v }
-          Map() ++ multiParams
-        }
+      def apply() = pathPattern(requestPath)
 
+      // By overriding toString, we can list the available routes in the
+      // default notFound handler.
       override def toString = path
     }
   }

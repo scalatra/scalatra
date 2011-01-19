@@ -1,19 +1,46 @@
 package org.scalatra
 
+import scala.collection.mutable.{HashMap, ListBuffer}
+import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
+import ScalatraKernel.MultiParams
+
+/**
+ * A path pattern optionally matches a request path and extracts path
+ * parameters.
+ */
+case class PathPattern(regex: Regex, captureGroupNames: List[String]) {
+  def apply(path: String): Option[MultiParams] = {
+    regex.findFirstMatchIn(path)
+      .map { captureGroupNames zip _.subgroups }
+      .map { pairs =>
+      val multiParams = new HashMap[String, ListBuffer[String]]
+      pairs foreach { case (k, v) =>
+        if (v != null) multiParams.getOrElseUpdate(k, new ListBuffer) += v
+      }
+      Map() ++ multiParams
+    }
+  }
+}
 
 object PathPatternParser extends RegexParsers {
-  def parseFrom(path: String) = {
-    def tokens(path: String) : Iterable[PathToken] = {
-      parseAll(pathPattern, path) match {
+  /**
+   * Parses a string into a PathPattern.
+   *
+   * @param pattern the string to parse
+   * @return a path pattern
+   */
+  def parseFrom(pattern: String): PathPattern = {
+    def tokens(pattern: String) : Iterable[PathToken] = {
+      parseAll(pathPattern, pattern) match {
         case Success(tokens, _) => tokens
-        case _ =>  throw new IllegalArgumentException("Invalid path pattern: " + path)
+        case _ =>  throw new IllegalArgumentException("Invalid path pattern: " + pattern)
       }
     }
-    val pathTokens = tokens(path)
+    val pathTokens = tokens(pattern)
     val regex = ("^" + pathTokens.foldLeft("")((regexString, token: PathToken) => regexString + token.regexSection) + "$").r
-    val captureGroupNames = pathTokens flatMap { token => token.captureGroupName } 
-    (regex, captureGroupNames)
+    val captureGroupNames = pathTokens flatMap { token => token.captureGroupName }
+    PathPattern(regex, captureGroupNames.toList)
   }
 
   def pathPattern = directories ~ opt("/")  ^^ { case tokens ~ optionalSlash => optionalSlash match {
