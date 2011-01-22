@@ -3,13 +3,14 @@ package org.scalatra
 import scala.collection.mutable.{HashMap, ListBuffer}
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
+import java.util.regex.Pattern.{quote => escape}
 import ScalatraKernel.MultiParams
 
 /**
  * A path pattern optionally matches a request path and extracts path
  * parameters.
  */
-case class PathPattern(regex: Regex, captureGroupNames: List[String]) {
+case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
   def apply(path: String): Option[MultiParams] = {
     regex.findFirstMatchIn(path)
       .map { captureGroupNames zip _.subgroups }
@@ -21,6 +22,11 @@ case class PathPattern(regex: Regex, captureGroupNames: List[String]) {
       Map() ++ multiParams
     }
   }
+
+  def +(pathPattern: PathPattern): PathPattern = PathPattern(
+    new Regex(this.regex.toString + pathPattern.regex.toString),
+    this.captureGroupNames ::: pathPattern.captureGroupNames
+  )
 }
 
 object PathPatternParser extends RegexParsers {
@@ -30,73 +36,41 @@ object PathPatternParser extends RegexParsers {
    * @param pattern the string to parse
    * @return a path pattern
    */
-  def parseFrom(pattern: String): PathPattern = {
-    def tokens(pattern: String) : Iterable[PathToken] = {
-      parseAll(pathPattern, pattern) match {
-        case Success(tokens, _) => tokens
-        case _ =>  throw new IllegalArgumentException("Invalid path pattern: " + pattern)
-      }
+  def parseFrom(pattern: String): PathPattern =
+    parseAll(pathPattern, pattern) match {
+      case Success(pathPattern, _) =>
+        PathPattern("^".r) + pathPattern + PathPattern("$".r)
+      case _ =>
+        throw new IllegalArgumentException("Invalid path pattern: " + pattern)
     }
-    val pathTokens = tokens(pattern)
-    val regex = ("^" + pathTokens.foldLeft("")((regexString, token: PathToken) => regexString + token.regexSection) + "$").r
-    val captureGroupNames = pathTokens flatMap { token => token.captureGroupName }
-    PathPattern(regex, captureGroupNames.toList)
+
+  def pathPattern = directories ~ opt("/") ^^ {
+    case dirs ~ Some(slash) => dirs + PathPattern("/".r)
+    case dirs ~ None => dirs
   }
 
-  def pathPattern = directories ~ opt("/")  ^^ { case tokens ~ optionalSlash => optionalSlash match {
-    case Some(_) => tokens :+ new DirectorySeparatorToken
-    case None => tokens
-  }}
+  def directories = rep(directory) ^^ { _.reduceLeft { _ + _ } }
+  def directory = ("/?" | "/") ~ (splatDirectory | optionalNamedGroup | namedFileAndExtension | namedGroup | simpleDirectory) ^^ {
+    case separator ~ pattern => PathPattern(separator.r) + pattern
+  }
 
-  def directories = rep(directory)
-  def directory = "/" ~> (splatDirectory | optionalNamedGroup | namedFileAndExtension | namedGroup | simpleDirectory)
+  def splatDirectory = "*" ^^^ PathPattern("(.*?)".r, List("splat"))
 
-  def splatDirectory = "*" ^^^ { new SplatToken }
-
-  def optionalNamedGroup = "?:" ~> optionalPathParticle <~ "?" ^^
-          { groupName => new OptionalNamedGroupToken(groupName) }
+  def optionalNamedGroup = ":" ~> optionalPathParticle <~ "?" ^^
+    { groupName => PathPattern("([^/?]+)?".r, List(groupName)) }
 
   def namedFileAndExtension = ":" ~> filePathParticle ~ ".:" ~ pathParticle ^^ {
-    case fileGroupName ~ _ ~ extensionGroupName => new FileAndExtensionGroupToken(fileGroupName, extensionGroupName)
+    case fileGroupName ~ _ ~ extensionGroupName =>
+      PathPattern("""([^/?]+)\.([^/?]+)""".r, List(fileGroupName, extensionGroupName))
   }
 
   def namedGroup = ":" ~> pathParticle ^^
-          { groupName => new NamedGroupToken(groupName) }
+    { groupName => PathPattern("([^/?]+)".r, List(groupName)) }
 
   def simpleDirectory = pathParticle ^^
-          { pathPartString => new SimpleDirectoryToken(pathPartString)}
+    { pathPartString => PathPattern(escape(pathPartString).r, Nil) }
 
   def filePathParticle = """[^.]+"""r
   def optionalPathParticle = """[^/?]+"""r
   def pathParticle = """[^/]+"""r
-
-  trait PathToken {
-    def regexSection : String
-    def captureGroupName : Iterable[String]
-  }
-  class SimpleDirectoryToken(pathParticle: String) extends PathToken {
-    def escape(regex: String) = regex.replaceAll("([.+()$])", """\\$1""")
-    def regexSection = "/" + escape(pathParticle)
-    def captureGroupName = None
-  }
-  class DirectorySeparatorToken extends PathToken {
-    def regexSection = "/"
-    def captureGroupName = None
-  }
-  class SplatToken extends PathToken {
-    def regexSection = "/(.*?)"
-    def captureGroupName = Some("splat")
-  }
-  class NamedGroupToken(groupName: String) extends PathToken {
-    def regexSection = "/([^/?]+)"
-    def captureGroupName = Some(groupName)
-  }
-  class OptionalNamedGroupToken(groupName: String) extends PathToken {
-    def regexSection = "/?([^/?]+)?"
-    def captureGroupName = Some(groupName)
-  }
-  class FileAndExtensionGroupToken(fileGroupName: String, extensionGroupName: String) extends PathToken {
-    def regexSection = """/([^/?]+)\.([^/?]+)"""
-    def captureGroupName = List(fileGroupName, extensionGroupName)
-  }
 }
