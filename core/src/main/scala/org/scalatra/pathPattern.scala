@@ -31,6 +31,22 @@ case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
 
 object PathPatternParser extends RegexParsers {
   /**
+   * This parser gradually builds a regular expression.  Some intermediate
+   * strings are not valid regexes, so we wait to compile until the end.
+   */
+  private case class PartialPathPattern(
+    regex: String,
+    captureGroupNames: List[String] = Nil)
+  {
+    def toPathPattern: PathPattern = PathPattern(regex.r, captureGroupNames)
+
+    def +(other: PartialPathPattern): PartialPathPattern = PartialPathPattern(
+      this.regex + other.regex,
+      this.captureGroupNames ::: other.captureGroupNames
+    )
+  }
+
+  /**
    * Parses a string into a PathPattern.
    *
    * @param pattern the string to parse
@@ -39,38 +55,24 @@ object PathPatternParser extends RegexParsers {
   def parseFrom(pattern: String): PathPattern =
     parseAll(pathPattern, pattern) match {
       case Success(pathPattern, _) =>
-        PathPattern("^".r) + pathPattern + PathPattern("$".r)
+        (PartialPathPattern("^") + pathPattern + PartialPathPattern("$")).toPathPattern
       case _ =>
         throw new IllegalArgumentException("Invalid path pattern: " + pattern)
     }
 
-  def pathPattern = directories ~ opt("/") ^^ {
-    case dirs ~ Some(slash) => dirs + PathPattern("/".r)
-    case dirs ~ None => dirs
-  }
+  private def pathPattern = rep(token) ^^ { _.reduceLeft { _+_ } }
 
-  def directories = rep(directory) ^^ { _.reduceLeft { _ + _ } }
-  def directory = ("/?" | "/") ~ (splatDirectory | optionalNamedGroup | namedFileAndExtension | namedGroup | simpleDirectory) ^^ {
-    case separator ~ pattern => PathPattern(separator.r) + pattern
-  }
+  private def token = splat | namedGroup | literal
 
-  def splatDirectory = "*" ^^^ PathPattern("(.*?)".r, List("splat"))
+  private def splat = "*" ^^^ PartialPathPattern("(.*?)", List("splat"))
 
-  def optionalNamedGroup = ":" ~> optionalPathParticle <~ "?" ^^
-    { groupName => PathPattern("([^/?]+)?".r, List(groupName)) }
+  private def namedGroup = ":" ~> """\w+""".r ^^
+    { groupName => PartialPathPattern("([^/?#]+)", List(groupName)) }
 
-  def namedFileAndExtension = ":" ~> filePathParticle ~ ".:" ~ pathParticle ^^ {
-    case fileGroupName ~ _ ~ extensionGroupName =>
-      PathPattern("""([^/?]+)\.([^/?]+)""".r, List(fileGroupName, extensionGroupName))
-  }
+  private def literal = metaChar | normalChar
 
-  def namedGroup = ":" ~> pathParticle ^^
-    { groupName => PathPattern("([^/?]+)".r, List(groupName)) }
+  private def metaChar = """[\.\+\(\)\$]""".r ^^
+    { c => PartialPathPattern("\\" + c) }
 
-  def simpleDirectory = pathParticle ^^
-    { pathPartString => PathPattern(escape(pathPartString).r, Nil) }
-
-  def filePathParticle = """[^.]+"""r
-  def optionalPathParticle = """[^/?]+"""r
-  def pathParticle = """[^/]+"""r
+  private def normalChar = ".".r ^^ { c => PartialPathPattern(c) }
 }
