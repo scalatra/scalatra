@@ -29,7 +29,17 @@ case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
   )
 }
 
-object PathPatternParser extends RegexParsers {
+/**
+ * Parses a string into a path pattern for routing.
+ */
+trait PathPatternParser {
+  def apply(pattern: String): PathPattern
+}
+
+/**
+ * A Sinatra-compatible route path pattern parser.
+ */
+object SinatraPathPatternParser extends PathPatternParser with RegexParsers {
   /**
    * This parser gradually builds a regular expression.  Some intermediate
    * strings are not valid regexes, so we wait to compile until the end.
@@ -46,13 +56,7 @@ object PathPatternParser extends RegexParsers {
     )
   }
 
-  /**
-   * Parses a string into a PathPattern.
-   *
-   * @param pattern the string to parse
-   * @return a path pattern
-   */
-  def parseFrom(pattern: String): PathPattern =
+  def apply(pattern: String): PathPattern =
     parseAll(pathPattern, pattern) match {
       case Success(pathPattern, _) =>
         (PartialPathPattern("^") + pathPattern + PartialPathPattern("$")).toPathPattern

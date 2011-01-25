@@ -74,8 +74,8 @@ trait ScalatraKernel extends Handler with Initializable
     override def toString() = routeMatchers.toString
   }
 
-  protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
-    val pathPattern = PathPatternParser.parseFrom(path)
+  protected implicit def string2RouteMatcher(path: String)(implicit parser: PathPatternParser): RouteMatcher = {
+    val pathPattern = parser(path)
 
     new RouteMatcher {
       def apply() = pathPattern(requestPath)
@@ -85,6 +85,12 @@ trait ScalatraKernel extends Handler with Initializable
       override def toString = path
     }
   }
+
+  /**
+   * Pluggable parser for converting routes into PathPatterns.  By default, we
+   * are compatible with Sinatra.
+   */
+  protected implicit val pathPatternParser: PathPatternParser = SinatraPathPatternParser
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
