@@ -1,5 +1,6 @@
 package org.scalatra
 
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
@@ -92,5 +93,10 @@ class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach 
     fsh.sweep
     fsh("foo") should equal ("bar")
     fsh('foo) should equal ("bar")
+  }
+
+  test("is serializable") {
+    val out = new ObjectOutputStream(new ByteArrayOutputStream)
+    out.writeObject(new FlashMap)
   }
 }
