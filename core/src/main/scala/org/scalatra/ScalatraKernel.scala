@@ -12,6 +12,7 @@ import io.copy
 import java.io.{File, FileInputStream}
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
+import pattern.{PathPatternParser, SinatraPathPatternParser}
 
 object ScalatraKernel
 {

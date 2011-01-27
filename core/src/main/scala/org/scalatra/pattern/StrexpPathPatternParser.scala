@@ -1,4 +1,5 @@
 package org.scalatra
+package pattern
 
 /**
  * Path pattern parser based on Rack::Mount::Strexp, which is used by Rails.

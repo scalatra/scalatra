@@ -1,4 +1,4 @@
-package org.scalatra
+package org.scalatra.pattern
 
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers

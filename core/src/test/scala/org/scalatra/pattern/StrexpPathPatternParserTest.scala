@@ -1,7 +1,8 @@
-package org.scalatra
+package org.scalatra.pattern
 
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
+import org.scalatra._
 
 /**
  * Test cases adapted from  https://github.com/josh/rack-mount/blob/d44e02ec8a6318fdda8ea53a30aac654e228e07b/test/test_strexp.rb
