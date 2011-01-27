@@ -2,6 +2,7 @@ package org.scalatra
 
 import javax.servlet._
 import javax.servlet.http._
+import pattern.{PathPattern, PathPatternParser, SinatraPathPatternParser}
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
@@ -12,8 +13,6 @@ import io.copy
 import java.io.{File, FileInputStream}
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
-import pattern.{PathPatternParser, SinatraPathPatternParser}
-
 object ScalatraKernel
 {
   type MultiParams = Map[String, Seq[String]]
@@ -75,23 +74,25 @@ trait ScalatraKernel extends Handler with Initializable
     override def toString() = routeMatchers.toString
   }
 
-  protected implicit def string2RouteMatcher(path: String)(implicit parser: PathPatternParser): RouteMatcher = {
-    val pathPattern = parser(path)
+  /**
+   * Pluggable way to convert Strings into RouteMatchers.  By default, we
+   * interpret them the same way Sinatra does.
+   */
+  protected implicit def string2RouteMatcher(path: String): RouteMatcher =
+    SinatraPathPatternParser(path)
 
+  /**
+   * Path pattern is decoupled from requests.  This adapts the PathPattern to
+   * a RouteMatcher by supplying the request path.
+   */
+  protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
     new RouteMatcher {
-      def apply() = pathPattern(requestPath)
+      def apply() = pattern(requestPath)
 
       // By overriding toString, we can list the available routes in the
       // default notFound handler.
-      override def toString = path
+      override def toString = pattern.regex.toString
     }
-  }
-
-  /**
-   * Pluggable parser for converting routes into PathPatterns.  By default, we
-   * are compatible with Sinatra.
-   */
-  protected implicit val pathPatternParser: PathPatternParser = SinatraPathPatternParser
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {

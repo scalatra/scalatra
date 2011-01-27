@@ -5,7 +5,8 @@ import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class RailsLikeRouteTestServlet extends ScalatraServlet {
-  implicit override val pathPatternParser = StrexpPathPatternParser
+  implicit override def string2RouteMatcher(path: String) =
+    StrexpPathPatternParser(path)
 
   // This syntax wouldn't work in Sinatra
   get("/:file(.:ext)") {
