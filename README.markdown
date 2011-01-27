@@ -136,7 +136,7 @@ By default, route patterns parsing is based on Sinatra.  Rails has a similar, bu
 
     class RailsLikeRouting extends ScalatraFilter {
       implicit override val string2RouteMatcher(path: String) =
-        StrexpPathPatternParser(path)
+        RailsPathPatternParser(path)
 
       get("/:file(.:ext)") { // matched Rails-style }
     }

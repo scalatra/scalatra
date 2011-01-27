@@ -4,7 +4,7 @@ package pattern
 /**
  * Path pattern parser based on Rack::Mount::Strexp, which is used by Rails.
  */
-object StrexpPathPatternParser extends RegexPathPatternParser {
+object RailsPathPatternParser extends RegexPathPatternParser {
   def apply(pattern: String): PathPattern =
     parseAll(target, pattern) match {
       case Success(target, _) => target
