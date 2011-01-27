@@ -130,6 +130,16 @@ If you want to experiment with path patterns, it's very easy in the REPL.
 
 Obligatory scolding: the REPL is not a substitute for proper unit tests!
 
+#### Rails-like pattern matching
+
+By default, route patterns parsing is based on Sinatra.  Rails has a similar, but not identical, syntax, based on Rack::Mount's Strexp.  The path pattern parser is resolved implicitly, and may be overridden if you prefer an alternate syntax:
+
+    class RailsLikeRouting extends ScalatraFilter {
+        implicit override val pathPatternParser = StrexpPathPatternParser
+
+        get("/:file(.:ext)") { // matched Rails-style }
+    }
+
 ### Conditions
 
 Routes may include conditions.  A condition is any expression that returns Boolean.  Conditions are evaluated by-name each time the route matcher runs.
