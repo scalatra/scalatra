@@ -116,8 +116,8 @@ The route matcher may also be a regular expression.  Capture groups are accessib
 
 If you want to experiment with path patterns, it's very easy in the REPL.
 
-    scala> import org.scalatra._                                           
-    import org.scalatra._
+    scala> import org.scalatra.pattern._
+    import org.scalatra.pattern._
 
     scala> val pattern = PathPatternParser.parseFrom("/foo/:bar")
     pattern: PathPattern = PathPattern(^/foo/([^/?]+)$,List(bar))
