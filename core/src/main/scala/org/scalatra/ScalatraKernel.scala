@@ -2,7 +2,6 @@ package org.scalatra
 
 import javax.servlet._
 import javax.servlet.http._
-import pattern.{PathPattern, PathPatternParser, SinatraPathPatternParser}
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
@@ -13,6 +12,7 @@ import io.copy
 import java.io.{File, FileInputStream}
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
+
 object ScalatraKernel
 {
   type MultiParams = Map[String, Seq[String]]
@@ -26,7 +26,6 @@ object ScalatraKernel
   val EnvironmentKey = "org.scalatra.environment"
 }
 import ScalatraKernel._
-
 
 /**
  * ScalatraKernel provides the DSL for building Scalatra applications.

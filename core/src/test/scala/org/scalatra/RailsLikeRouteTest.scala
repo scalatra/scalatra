@@ -1,5 +1,4 @@
 package org.scalatra
-package pattern
 
 import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
