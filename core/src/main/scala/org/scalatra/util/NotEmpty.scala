@@ -1,4 +1,4 @@
-package org.scalatra
+package org.scalatra.util
 
 /**
  * Extractor object, useful for handling empty form parameter submissions:
