@@ -27,7 +27,6 @@ object ScalatraKernel
 }
 import ScalatraKernel._
 
-
 /**
  * ScalatraKernel provides the DSL for building Scalatra applications.
  *
@@ -74,17 +73,25 @@ trait ScalatraKernel extends Handler with Initializable
     override def toString() = routeMatchers.toString
   }
 
-  protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
-    val pathPattern = PathPatternParser.parseFrom(path)
+  /**
+   * Pluggable way to convert Strings into RouteMatchers.  By default, we
+   * interpret them the same way Sinatra does.
+   */
+  protected implicit def string2RouteMatcher(path: String): RouteMatcher =
+    SinatraPathPatternParser(path)
 
+  /**
+   * Path pattern is decoupled from requests.  This adapts the PathPattern to
+   * a RouteMatcher by supplying the request path.
+   */
+  protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
     new RouteMatcher {
-      def apply() = pathPattern(requestPath)
+      def apply() = pattern(requestPath)
 
       // By overriding toString, we can list the available routes in the
       // default notFound handler.
-      override def toString = path
+      override def toString = pattern.regex.toString
     }
-  }
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
