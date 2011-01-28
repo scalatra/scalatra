@@ -8,7 +8,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
 import scala.xml.NodeSeq
 import util.{MapWithIndifferentAccess, MultiMapHeadView, using}
-import io.copy
+import util.io.copy
 import java.io.{File, FileInputStream}
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec

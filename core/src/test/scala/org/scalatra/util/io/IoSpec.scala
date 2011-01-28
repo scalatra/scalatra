@@ -1,4 +1,5 @@
-package org.scalatra.io
+package org.scalatra.util
+package io
 
 import scala.io.Source
 import java.io._

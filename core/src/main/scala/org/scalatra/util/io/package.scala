@@ -1,8 +1,7 @@
-package org.scalatra
+package org.scalatra.util
 
 import scala.annotation.tailrec
 import java.io._
-import util.using
 
 /**
  * A collection of I/O ulility methods.
