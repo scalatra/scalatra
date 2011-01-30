@@ -134,7 +134,7 @@ class ScalatraProject(info: ProjectInfo)
   lazy val specs = project("specs", "scalatra-specs", new DefaultProject(_) with ScalatraSubProject {
     val specsVersion = buildScalaVersion match {
       case "2.8.0" => "1.6.5"
-      case _ => "1.6.6"
+      case _ => "1.6.7"
     }
     val specs = "org.scala-tools.testing" %% "specs" % specsVersion % "compile"
     val description = "Specs support for the Scalatra test framework"
