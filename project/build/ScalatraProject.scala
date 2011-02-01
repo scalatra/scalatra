@@ -77,6 +77,7 @@ class ScalatraProject(info: ProjectInfo)
   class AuthProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
     val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "Supplies optional Scalatra authentication support"
+    val base64 = "net.iharder" % "base64" % "2.3.8" % "compile"
   }
 
   lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core)
