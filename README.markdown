@@ -41,6 +41,8 @@ Note: if you keep getting frequent OutOfMemory errors from `sbt` you can try cha
 
      java -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -Xmx512M -Xss2M -jar `dirname $0`/sbt-launch.jar "$@"
 
+Note 2: if you already have a checkout, and after a `git pull` the build fails, try to explicitly run the `update` and `clean` sbt tasks before running `compile`. 
+
 ## Community
 
 ### Mailing list
