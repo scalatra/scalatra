@@ -302,7 +302,7 @@ Scalatra provides optional support for [Scalate](http://scalate.fusesource.org/)
 
 1. Depend on scalatra-scalate.jar and a [slf4j binding](http://www.slf4j.org/manual.html#binding).  In your SBT build:
 
-       val scalatraScalate = "org.scalatra" % "scalatra-scalate" % scalatraVersion
+       val scalatraScalate = "org.scalatra" %% "scalatra-scalate" % scalatraVersion
        val slf4jBinding = "ch.qos.logback" % "logback-classic" % "0.9.25" % runtime
 
 2. Extend your application with `ScalateSupport`
@@ -330,7 +330,7 @@ Scalatra provides optional support for file uploads with <a href="http://commons
 
 1. Depend on scalatra-fileupload.jar.  In your SBT build:
 
-       val scalatraFileUpload = "org.scalatra" % "scalatra-fileupload" % scalatraVersion
+       val scalatraFileUpload = "org.scalatra" %% "scalatra-fileupload" % scalatraVersion
 
 2. Extend your application with `FileUploadSupport`
 
@@ -362,7 +362,7 @@ Scalatra provides optional support for websockets and comet through [socket.io](
 
 1. Depend on the scalatra-socketio.jar. In your SBT build:
 
-       val scalatraSocketIO = "org.scalatra" % "scalatra-socketio" % scalatraVersion
+       val scalatraSocketIO = "org.scalatra" %% "scalatra-socketio" % scalatraVersion
 
 2. SocketIO mimics a socket connection so it's easiest if you just create a socketio servlet at /socket.io/*
 
