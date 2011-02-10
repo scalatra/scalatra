@@ -89,7 +89,7 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core)
   class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.3.2"
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.4.0"
     val description = "Supplies the optional Scalatra Scalate support"
   }
 
