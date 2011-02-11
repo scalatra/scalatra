@@ -4,10 +4,9 @@ import scala.xml._
 import com.rossabaker.sbt.gpg._
 
 class ScalatraProject(info: ProjectInfo) 
-  extends ParentProject(info) {
-//  with GpgPlugin
-//  with ChecksumPlugin
-//{
+  extends ParentProject(info) 
+  with MavenCentralTopLevelProject
+{
   override def shouldCheckOutputDirectories = false
 
   val jettyGroupId = "org.eclipse.jetty"
@@ -25,32 +24,13 @@ class ScalatraProject(info: ProjectInfo)
   }
 
   trait ScalatraSubProject 
-    extends BasicScalaProject 
+    extends MavenCentralScalaProject
+    with MavenCentralSubproject 
     with BasicPackagePaths
   {
-//    with GpgPlugin
-//    with ChecksumPlugin
-//  {
-    def description: String
+    def parent = ScalatraProject.this
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
-
-    override def pomExtra = (
-      <parent>
-        <groupId>{organization}</groupId>
-        <artifactId>{ScalatraProject.this.artifactID}</artifactId>
-        <version>{version}</version>
-      </parent>
-      <name>{name}</name>
-      <description>{description}</description>)
-
-    override def packageDocsJar = defaultJarPath("-javadoc.jar")
-    override def packageSrcJar= defaultJarPath("-sources.jar")
-    // If these aren't lazy, then the build crashes looking for
-    // ${moduleName}/project/build.properties.
-    lazy val sourceArtifact = Artifact.sources(artifactID)
-    lazy val docsArtifact = Artifact.javadoc(artifactID)
-    override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageDocs, packageSrc)
     override def managedStyle = ManagedStyle.Maven
   }
 
@@ -144,15 +124,7 @@ class ScalatraProject(info: ProjectInfo)
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 
-  override def pomExtra = (
-    <name>{name}</name>
-    <description>Scalatra Project POM</description>
-    <url>http://www.scalatra.org/</url>
-    <inceptionYear>2009</inceptionYear>
-    <organization>
-      <name>Scalatra Project</name>
-      <url>http://www.scalatra.org/</url>
-    </organization>
+  def licenses =
     <licenses>
       <license>
         <name>BSD</name>
@@ -160,19 +132,8 @@ class ScalatraProject(info: ProjectInfo)
         <distribution>repo</distribution>
       </license>
     </licenses>
-    <mailingLists>
-      <mailingList>
-        <name>Scalatra user group</name>
-        <archive>http://groups.google.com/group/scalatra-user</archive>
-        <post>scalatra-user@googlegroups.com</post>
-        <subscribe>scalatra-user+subscribe@googlegroups.com</subscribe>
-        <unsubscribe>scalatra-user+unsubscribe@googlegroups.com</unsubscribe>
-      </mailingList>
-    </mailingLists>
-    <scm>
-      <connection>scm:git:git://github.com/scalatra/scalatra.git</connection>
-      <url>http://github.com/scalatra/scalatra</url>
-    </scm>
+
+  def developers = 
     <developers>
       <developer>
         <id>riffraff</id>
@@ -199,34 +160,29 @@ class ScalatraProject(info: ProjectInfo)
         <name>Ivan Porto Carrero</name>
         <url>http://flanders.co.nz/</url>
       </developer>
-    </developers>)
+    </developers>
 
-  override def pomPostProcess(pom: Node) =
-    super.pomPostProcess(pom) match {
-      case Elem(prefix, label, attr, scope, c @ _*) =>
-        val children = c flatMap {
-          case Elem(_, "repositories", _, _, repos @ _*) =>
-            <profiles>
-              <!-- poms deployed to maven central CANNOT have a repositories
-                   section defined.  This download profile lets you
-                   download dependencies other repos during development time. -->
-              <profile>
-                <id>download</id>
-                <repositories>
-                  {repos}
-                </repositories>
-              </profile>
-            </profiles>
-          case Elem(_, "dependencies", _, _, _ @ _*) =>
-            // In SBT, parent projects depend on their children.  They should
-            // not in Maven.
-            None
-          case x => x
-        }
-        Elem(prefix, label, attr, scope, children : _*)
-    }
+  def projectUrl = "http://www.scalatra.org/"
+  def scmUrl = "http://github.com/scalatra/scalatra"
+  def scmConnection = "scm:git:git://github.com/scalatra/scalatra.git"
 
-  override def managedStyle = ManagedStyle.Maven
+  override def pomExtra = super.pomExtra ++ (
+    <inceptionYear>2009</inceptionYear> 
+    <organization>
+      <name>Scalatra Project</name>
+      <url>http://www.scalatra.org/</url>
+    </organization>
+    <mailingLists>
+      <mailingList>
+        <name>Scalatra user group</name>
+        <archive>http://groups.google.com/group/scalatra-user</archive>
+        <post>scalatra-user@googlegroups.com</post>
+        <subscribe>scalatra-user+subscribe@googlegroups.com</subscribe>
+        <unsubscribe>scalatra-user+unsubscribe@googlegroups.com</unsubscribe>
+      </mailingList>
+    </mailingLists>
+  )
+
   val publishTo = {
     val local = System.getenv("MOJOLLY_HOME")
     if(local == null || local.trim.length == 0 || local == ".") {
