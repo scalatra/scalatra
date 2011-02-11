@@ -83,7 +83,7 @@ class ScalatraProject(info: ProjectInfo)
     val scalatePage = "org.fusesource.scalate" % "scalate-page" % scalateVersion
     val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val logback = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
-    val markdown = "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4" % "runtime"
+    val markdown = "org.fusesource.scalamd" % "scalamd" % "1.5" % "runtime"
     val description = "Runs www.scalatra.org"
   }
 
