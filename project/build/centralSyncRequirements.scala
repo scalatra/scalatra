@@ -1,3 +1,10 @@
+/*
+ * Isolates some of the ugliness involved in getting an sbt project to
+ * meet the Central Sync Requirements:
+ *
+ * https://docs.sonatype.org/display/Repository/Central+Sync+Requirements
+ */
+
 import sbt._
 
 import scala.xml._
