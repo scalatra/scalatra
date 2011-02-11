@@ -2,6 +2,7 @@ import sbt._
 
 import scala.xml._
 import com.rossabaker.sbt.gpg._
+import org.fusesource.scalate.sbt._
 
 class ScalatraProject(info: ProjectInfo) 
   extends ParentProject(info) 
@@ -12,6 +13,7 @@ class ScalatraProject(info: ProjectInfo)
   val jettyGroupId = "org.eclipse.jetty"
   val jettyVersion = "7.2.2.v20101205"
   val slf4jVersion = "1.6.1"
+  val scalateVersion = "1.4.0"
 
   trait ScalatraSubproject 
     extends MavenCentralScalaProject
@@ -50,7 +52,7 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core)
   class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.4.0"
+    val scalate = "org.fusesource.scalate" % "scalate-core" % scalateVersion
     val description = "Supplies the optional Scalatra Scalate support"
   }
 
@@ -72,12 +74,15 @@ class ScalatraProject(info: ProjectInfo)
     val description = "An example Scalatra application"
   }
 
-  lazy val website = project("website", "scalatra-website", new WebsiteProject(_), core, scalate)
-  class WebsiteProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubproject with UnpublishedProject {
-    override val jettyPort = 8081
-    val jetty6 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
-    val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
-    val sfl4jnop = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
+  lazy val website = project("website", "scalatra-website", new WebsiteProject(_), core)
+  class WebsiteProject(info: ProjectInfo) 
+    extends DefaultWebProject(info) 
+    with SiteGenWebProject
+    with UnpublishedProject 
+  {
+    val scalatePage = "org.fusesource.scalate" % "scalate-page" % scalateVersion
+    val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
+    val logback = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val markdown = "org.markdownj" % "markdownj" % "0.3.0-1.0.2b4" % "runtime"
     val description = "Runs www.scalatra.org"
   }
