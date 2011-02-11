@@ -13,16 +13,6 @@ class ScalatraProject(info: ProjectInfo)
   val jettyVersion = "7.2.2.v20101205"
   val slf4jVersion = "1.6.1"
 
-  trait UnpublishedProject
-    extends BasicManagedProject
-  {
-    override def publishLocalAction = task { None }
-    override def deliverLocalAction = task { None }
-    override def publishAction = task { None }
-    override def deliverAction = task { None }
-    override def artifacts = Set.empty
-  }
-
   trait ScalatraSubProject 
     extends MavenCentralScalaProject
     with MavenCentralSubproject 
@@ -32,15 +22,6 @@ class ScalatraProject(info: ProjectInfo)
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
     override def managedStyle = ManagedStyle.Maven
-  }
-
-  // Thanks, Mark: http://groups.google.com/group/simple-build-tool/msg/c32741357ac58f18
-  trait TestWith extends BasicScalaProject {
-    def testWithCompileClasspath: Seq[BasicScalaProject] = Nil
-    def testWithTestClasspath: Seq[BasicScalaProject] = Nil
-    override def testCompileAction = super.testCompileAction dependsOn((testWithTestClasspath.map(_.testCompile) ++ testWithCompileClasspath.map(_.compile)) : _*)
-    override def testClasspath = (super.testClasspath /: (testWithTestClasspath.map(_.testClasspath) ++  testWithCompileClasspath.map(_.compileClasspath) ))(_ +++ _)
-    override def deliverProjectDependencies = super.deliverProjectDependencies ++ testWithTestClasspath.map(_.projectID % "test")
   }
 
   trait TestWithScalatraTest extends TestWith {
