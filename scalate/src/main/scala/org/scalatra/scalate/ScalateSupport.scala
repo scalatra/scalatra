@@ -20,17 +20,26 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
-  protected def createTemplateEngine(config: Config): TemplateEngine =
+  protected def createTemplateEngine(config: Config) = 
     config match {
       case servletConfig: ServletConfig =>
-        new ScalatraServletTemplateEngine(this, servletConfig)
+        new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
       case filterConfig: FilterConfig =>
-        new ScalatraFilterTemplateEngine(this, filterConfig)
+        new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine
       case _ =>
         // Don't know how to convert your Config to something that
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
-        new ScalatraTemplateEngine(this)
+        new TemplateEngine with ScalatraTemplateEngine
     }
+
+  trait ScalatraTemplateEngine {
+    this: TemplateEngine =>
+
+    override def createRenderContext(uri: String, out: PrintWriter) =
+      ScalateSupport.this.createRenderContext
+
+    override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
+  }
 
   def createRenderContext: ServletRenderContext = 
     new ServletRenderContext(templateEngine, request, response, servletContext)
@@ -53,5 +62,3 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine.layout(errorPage, renderContext)
   }
 }
-
-
