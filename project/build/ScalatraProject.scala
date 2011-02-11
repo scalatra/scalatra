@@ -13,7 +13,7 @@ class ScalatraProject(info: ProjectInfo)
   val jettyVersion = "7.2.2.v20101205"
   val slf4jVersion = "1.6.1"
 
-  trait ScalatraSubProject 
+  trait ScalatraSubproject 
     extends MavenCentralScalaProject
     with MavenCentralSubproject 
     with BasicPackagePaths
@@ -29,39 +29,39 @@ class ScalatraProject(info: ProjectInfo)
   }
 
   lazy val core = project("core", "scalatra", new CoreProject(_))
-  class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
+  class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
     val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "The core Scalatra library"
   }
 
   lazy val auth = project("auth", "scalatra-auth", new AuthProject(_), core)
-  class AuthProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
+  class AuthProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
     val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
     val description = "Supplies optional Scalatra authentication support"
     val base64 = "net.iharder" % "base64" % "2.3.8" % "compile"
   }
 
   lazy val fileupload = project("fileupload", "scalatra-fileupload", new FileuploadProject(_), core)
-  class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
+  class FileuploadProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1" % "compile"
     val commonsIo = "commons-io" % "commons-io" % "1.4" % "compile"
     val description = "Supplies the optional Scalatra file upload support"
   }
 
   lazy val scalate = project("scalate", "scalatra-scalate", new ScalateProject(_), core)
-  class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
+  class ScalateProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.4.0"
     val description = "Supplies the optional Scalatra Scalate support"
   }
 
   lazy val socketio = project("socketio", "scalatra-socketio", new SocketIOProject(_), core)
-  class SocketIOProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubProject with TestWithScalatraTest {
+  class SocketIOProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
     val websocket = jettyGroupId % "jetty-websocket" % jettyVersion % "provided"
     val description = "Supplies optional SocketIO support for scalatra"
   }
 
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate, auth, socketio)
-  class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject with UnpublishedProject {
+  class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubproject with UnpublishedProject {
     val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val jetty7websocket = jettyGroupId % "jetty-websocket" % jettyVersion % "compile"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile"
@@ -73,7 +73,7 @@ class ScalatraProject(info: ProjectInfo)
   }
 
   lazy val website = project("website", "scalatra-website", new WebsiteProject(_), core, scalate)
-  class WebsiteProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubProject with UnpublishedProject {
+  class WebsiteProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubproject with UnpublishedProject {
     override val jettyPort = 8081
     val jetty6 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val sfl4japi = "org.slf4j" % "slf4j-api" % slf4jVersion % "compile" 
@@ -82,18 +82,18 @@ class ScalatraProject(info: ProjectInfo)
     val description = "Runs www.scalatra.org"
   }
 
-  lazy val scalatraTest = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubProject {
+  lazy val scalatraTest = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubproject {
     val description = "Scalatra test framework"
     val jettytester = jettyGroupId % "test-jetty-servlet" % jettyVersion % "compile"
   })
 
-  lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubProject {
+  lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubproject {
     val scalatest = "org.scalatest" % "scalatest" % "1.2" % "compile"
     val junit = "junit" % "junit" % "4.8.1" % "compile"
     val description = "ScalaTest support for the Scalatra test framework"
   }, scalatraTest)
 
-  lazy val specs = project("specs", "scalatra-specs", new DefaultProject(_) with ScalatraSubProject {
+  lazy val specs = project("specs", "scalatra-specs", new DefaultProject(_) with ScalatraSubproject {
     val specsVersion = buildScalaVersion match {
       case "2.8.0" => "1.6.5"
       case _ => "1.6.7"
