@@ -1,0 +1,20 @@
+---
+title: "Scalatra: a tiny, Sinatra-like web framework for Scala."
+
+--- name:content
+# Scalatra = Scala + Sinatra
+
+<dfn>Scalatra</dfn> is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web
+framework for [Scala](http://www.scala-lang.org/).  
+
+## Why Scalatra?
+
+* *Lightweight*: Scalatra is not a full application stack.  It is a simple DSL for dispatching HTTP requests to Scala code blocks.  The rest of your architecture remains up to you.
+
+* *Scalable*: Scalatra will grow with your application from a single-file prototype to a multi-tier enterprise application.
+
+* *Familiar*: [Similar DSLs](http://gist.github.com/353559) exist in many other languages.  Scalatra is a very comfortable way for users of those frameworks to explore the power of Scala.
+
+* *Java-interoperable*: Scalatra can call your existing Java libraries and deploys to your favorite servlet container.  Migrate from Java at your own pace, if at all.
+
+* *Vibrant*: We are a growing community on [GitHub](http://github.com/scalatra/scalatra), [Google Groups](http://groups.google.com/group/scalatra-user), and [IRC](irc://irc.freenode.net/scalatra).
