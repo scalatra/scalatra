@@ -1,0 +1,16 @@
+---
+title: Community
+--- name:content
+# Community
+
+## Mailing list
+
+The [*scalatra-user*](http://groups.google.com/group/scalatra-user) Google Group is an open forum.  It is the preferred channel for discussion so future users can learn from the archive.  Support requests, suggestions, project announcements, and all other commentary related to Scalatra are welcome here.
+
+## IRC
+
+Because some issues are best discussed in real time, we are also on [**#scalatra**](http://webchat.freenode.net/?channels=#scalatra) on the Freenode IRC network.
+
+## GitHub
+
+Development takes place through our [GitHub](http://github.com/scalatra/scalatra) project.  Come here for [issue tracking](http://github.com/scalatra/scalatra/issues), code reviews, and patches.
