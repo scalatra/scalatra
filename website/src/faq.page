@@ -4,6 +4,39 @@ title: FAQ
 --- name:content pipeline:jade,markdown
 h1 FAQ
 
+h2 General questions
+
+dl
+  dt It looks neat, but is it production ready?
+  dd
+    :markdown
+      - It is use in the backend for [LinkedIn Signal](http://sna-projects.com/blog/2010/10/linkedin-signal-a-look-under-the-hood/).
+
+      - [ChaCha](http://www.chacha.com/) is using it in multiple internal applications.
+
+      - A project is in currently development to support a site with over one million unique users.
+
+  dt Should I extend ScalatraServlet or ScalatraFilter?
+
+  dd
+    :markdown
+      The main difference is the default behavior when a route is not found.
+      A filter will delegate to the next filter or servlet in the chain (as
+      configured by web.xml), whereas a ScalatraServlet will return a 404
+      response.
+
+      Another difference is that ScalatraFilter matches routes relative to
+      the WAR's context path.  ScalatraServlet matches routes relative to
+      the servlet path.  This allows you to mount multiple servlets under in
+      different namespaces in the same WAR.
+
+      ### Use ScalatraFilter if:
+      - You are migrating a legacy application inside the same URL space
+      - You want to serve static content from the WAR rather than a dedicated web server
+
+      ### Use ScalatraServlet if:
+      - You want to match routes with a prefix deeper than the context path.
+
 h2 sbt
 
 dl
