@@ -1,0 +1,282 @@
+---
+title: Core framework
+
+--- name:content
+# Core framework
+
+## Routes
+
+In Scalatra, a route is an HTTP method paired with a URL matching pattern.
+
+    get("/") { 
+      // show something 
+    }
+   
+    post("/") { 
+      // submit/create something 
+    }
+
+    put("/") { 
+      // update something 
+    }
+
+    delete("/") { 
+      // delete something 
+    }
+
+### Route order
+
+The first matching route is invoked.  Routes are matched from the bottom up.
+_This is the opposite of Sinatra._  Route definitions are executed as part
+of a Scala constructor; by matching from the bottom up, routes can be
+overridden in child classes.
+
+### Path patterns
+
+Path patterns add parameters to the `params` map.  Repeated values are
+accessible through the `multiParams` map.
+
+#### Named parameters
+
+Route patterns may include named parameters:
+
+    get("/hello/:name") {
+      // Matches "GET /hello/foo" and "GET /hello/bar"
+      // params("name") is "foo" or "bar"
+      <p>Hello, {params("name")}</p>
+    } 
+
+#### Wildcards
+
+Route patterns may also include wildcard parameters, accessible through the
+`splat` key.
+
+    get("/say/*/to/*) {
+      // Matches "GET /say/hello/to/world"
+      multiParams("splat") # == Seq("hello", "world")
+    }
+
+    get("/download/*.*) {
+      // Matches "GET /download/path/to/file.xml"
+      multiParams("splat") # == Seq("path/to/file", "xml")
+    }
+
+#### Regular expressions
+
+The route matcher may also be a regular expression.  Capture groups are
+accessible through the `captures` key.
+
+    get("""^\/f(.*)/b(.*)""".r) {
+      // Matches "GET /foo/bar"
+      multiParams("captures") # == Seq("oo", "ar") 
+    }
+
+#### Path patterns in the REPL
+
+If you want to experiment with path patterns, it's very easy in the REPL.
+
+    scala> import org.scalatra.pattern._
+    import org.scalatra.pattern._
+
+    scala> val pattern = PathPatternParser.parseFrom("/foo/:bar")
+    pattern: PathPattern = PathPattern(^/foo/([^/?]+)$,List(bar))
+
+    scala> pattern("/y/x") // doesn't match 
+    res1: Option[MultiParams] = None
+
+    scala> pattern("/foo/x") // matches
+    res2: Option[MultiParams] = Some(Map(bar -> ListBuffer(x)))
+
+Obligatory scolding: the REPL is not a substitute for proper unit tests!
+
+#### Rails-like pattern matching
+
+By default, route patterns parsing is based on Sinatra.  Rails has a
+similar, but not identical, syntax, based on Rack::Mount's Strexp.  The path
+pattern parser is resolved implicitly, and may be overridden if you prefer
+an alternate syntax:
+
+    class RailsLikeRouting extends ScalatraFilter {
+      implicit override val string2RouteMatcher(path: String) =
+        RailsPathPatternParser(path)
+
+      get("/:file(.:ext)") { // matched Rails-style }
+    }
+
+### Conditions
+
+Routes may include conditions.  A condition is any expression that returns
+Boolean.  Conditions are evaluated by-name each time the route matcher runs.
+
+    get("/foo") {
+      // Matches "GET /foo"
+    }
+
+    get("/foo", request.getRemoteHost == "127.0.0.1") {
+      // Overrides "GET /foo" for local users
+    }
+
+Multiple conditions can be chained together.  A route must match all
+conditions:
+
+    get("/foo", request.getRemoteHost == "127.0.0.1", request.getRemoteUser == "admin") {
+      // Only matches if you're the admin, and you're localhost
+    }
+
+No path pattern is necessary.  A route may consist of solely a condition:
+
+    get(isMaintenanceMode) {
+      <h1>Go away!</h1>
+    }
+
+### Actions 
+
+Each route is followed by an action.  An Action may return any value, which
+is then rendered to the response according to the following rules:
+
+<dl>
+  <dt>`Array[Byte]`</dt>
+  <dd>If no content-type is set, it is set to `application/octet-stream`.  The byte array is written to the response's output stream.</dd>
+
+  <dt>`NodeSeq`</dt>
+  <dd>If no content-type is set, it is set to`text/html`.  The node sequence is converted to a string and written to the response's writer.</dd>
+
+  <dt>`Unit`</dt>
+  <dd>This signifies that the action has rendered the entire response, and no further action is taken.</dd>
+
+  <dt>Any</dt>
+  <dd>For any other value, if the content type is not set, it is set to `text/plain`.  The value is converted to a string and written to the response's writer</dd>.
+</dl>
+
+This behavior may be customized for these or other return types by
+overriding `renderResponse`.
+
+## Filters
+
+### Before filters
+
+Before filters are evaluated before each request within the same context as
+the routes.
+
+    before {
+      // Default all responses to text/html
+      contentType = "text/html"
+    }
+
+### After filters
+
+After filters are evaluated after each request, but before the action result
+is rendered, within the same context as the routes.
+
+    after {
+      if (response.status >= 500)
+        println("OMG! ONOZ!")
+    }
+
+## Halting
+
+To immediately stop a request within a filter or route:
+
+    halt()
+
+You can also specify the status:
+
+    halt(410)
+
+Or the body:
+
+    halt("This will be the body")
+
+Or both:
+
+    halt(401, "Go away!")
+
+## Passing
+
+A route can punt processing to the next matching route using pass.
+Remember, unlike Sinatra, routes are matched from the bottom up.
+
+    get("/guess/*") {
+      "You missed!"
+    }
+
+    get("/guess/:who") {
+      params("who") match {
+        case "Frank" => pass()
+        case _ => "You got me!"
+      }
+    }
+
+The route block is immediately exited and control continues with the next
+matching route.  If no matching route is found, a 404 is returned.
+
+## Accessing the Servlet API
+
+### HttpServletRequest
+
+The request is available through the `request` variable.  The request is
+implicitly extended with the following methods:
+
+1. `body`: to get the request body as a string
+2. `isAjax`: to detect AJAX requests
+3. `cookies` and `multiCookies`: a Map view of the request's cookies
+4. Implements `scala.collection.mutable.Map` backed by request attributes
+
+### HttpServletResponse
+
+The response is available through the `response` variable.
+
+### HttpSession
+
+The session is available through the `session` variable.  The session
+implicitly implements `scala.collection.mutable.Map` backed by session
+attributes.  To avoid creating a session, it may be accessed through
+`sessionOption`.
+
+### ServletContext
+
+The servlet context is available through the `servletContext` variable.  The
+servlet context implicitly implements `scala.collection.mutable.Map` backed
+by servlet context attributes.
+
+## Configuration
+
+The environment is defined by:
+1. The `org.scalatra.environment` system property.
+2. The `org.scalatra.environment` init property.
+3. A default of `development`.
+
+If the environment starts with "dev", then `isDevelopmentMode` returns true.
+This flag may be used by other modules, for example, to enable the Scalate
+console.
+
+## Error handling
+
+Error handlers run within the same context as routes and before filters.
+
+### Not Found
+
+Whenever no route matches, the `notFound` handler is invoked:
+
+    notFound {
+      <h1>Not found.  Bummer.</h1>
+    }
+
+### Error
+
+The `error` handler is invoked any time an exception is raised from a route
+block or a filter.  The throwable can be obtained from the `caughtThrowable`
+instance variable.  This variable is not defined outside the `error` block.
+
+    error {
+      log.error(caughtThrowable)
+      redirect("http://www.sadtrombone.com/")
+    }
+
+## Flash scope
+
+Flash scope is available by mixing in `FlashMapSupport`, which provides a
+mutable map named `flash`.  Values put into flash scope during the current
+request are stored in the session through the next request and then
+discarded.  This is particularly useful for messages when using the
+[Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
