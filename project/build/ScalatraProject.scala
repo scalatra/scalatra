@@ -81,6 +81,7 @@ class ScalatraProject(info: ProjectInfo)
     with SiteGenWebProject
     with UnpublishedProject 
   {
+    override val jettyPort = 8081
     val scalatePage = "org.fusesource.scalate" % "scalate-page" % scalateVersion
     val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val logback = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
