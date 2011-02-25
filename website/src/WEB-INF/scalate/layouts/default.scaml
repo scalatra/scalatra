@@ -5,6 +5,9 @@
 %html<
   %head
     %title= title
-  %body< 
+    %link(rel="stylesheet" type="text/css" href={uri("/css/scalatra.css")})
+  %body<
+    #navigation
+      = include("/_navigation.ssp.md")
     #content<
       != body
