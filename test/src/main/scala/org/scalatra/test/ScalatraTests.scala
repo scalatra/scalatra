@@ -103,12 +103,15 @@ trait ScalatraTests {
     withResponse(httpRequest("POST", uri, Seq.empty, headers, body), f)
   // @todo support POST multipart/form-data for file uploads
 
-  def put(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
-    withResponse(httpRequest("PUT", uri, params, headers), f)
-  }
-  def put(uri: String, body: String)(f: => Unit) = {
-    withResponse(httpRequest("PUT", uri, Seq.empty, Map.empty, body), f)
-  }
+  def put(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
+    put(uri, params)(f)
+  def put(uri: String, params: Iterable[(String,String)])(f: => Unit): Unit =
+    put(uri, params, Map[String, String]())(f)
+  def put(uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => Unit): Unit =
+    put(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
+  def put(uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => Unit) =
+    withResponse(httpRequest("PUT", uri, Seq.empty, headers, body), f)
+  // @todo support PUT multipart/form-data for file uploads
   
   def delete(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
     withResponse(httpRequest("DELETE", uri, params, headers), f)
