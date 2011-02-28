@@ -106,7 +106,10 @@ trait ScalatraTests {
   def put(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
     withResponse(httpRequest("PUT", uri, params, headers), f)
   }
-
+  def put(uri: String, body: String)(f: => Unit) = {
+    withResponse(httpRequest("PUT", uri, Seq.empty, Map.empty, body), f)
+  }
+  
   def delete(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
     withResponse(httpRequest("DELETE", uri, params, headers), f)
   }
