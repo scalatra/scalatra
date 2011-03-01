@@ -4,10 +4,18 @@ import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.testing.ServletTester
-import org.eclipse.jetty.servlet.{FilterHolder, FilterMapping, DefaultServlet, ServletHolder}
+import org.eclipse.jetty.server.DispatcherType
+import org.eclipse.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 import javax.servlet.Filter
+import java.util.EnumSet
+
+object ScalatraTests {
+  val DefaultDispatcherTypes: EnumSet[DispatcherType] = 
+    EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC)
+}
+import ScalatraTests._
 
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
@@ -76,11 +84,17 @@ trait ScalatraTests {
   def addServlet(servlet: Class[_ <: HttpServlet], path: String) =
     tester.addServlet(servlet, path)
 
-  def addFilter(filter: Filter, path: String) =
-    tester.getContext().addFilter(new FilterHolder(filter), path, FilterMapping.DEFAULT)
-
-  def addFilter(filter: Class[_ <: Filter], path: String) =
-    tester.addFilter(filter, path, FilterMapping.DEFAULT)
+  def addFilter(filter: Filter, path: String): FilterHolder =
+    addFilter(filter, path, DefaultDispatcherTypes)
+  def addFilter(filter: Filter, path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
+    val holder = new FilterHolder(filter)
+    tester.getContext.addFilter(holder, path, dispatches)
+    holder
+  }
+  def addFilter(filter: Class[_ <: Filter], path: String): FilterHolder =
+    addFilter(filter, path, DefaultDispatcherTypes)
+  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder =
+    tester.getContext.addFilter(filter, path, dispatches)
 
   @deprecated("renamed to addFilter")
   def routeFilter(filter: Class[_ <: Filter], path: String) =
@@ -143,3 +157,4 @@ trait ScalatraTests {
   // So servletContext.getRealPath doesn't crash.
   tester.setResourceBase("./src/main/webapp")
 }
+
