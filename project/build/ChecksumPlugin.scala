@@ -7,8 +7,7 @@ import java.io.FileInputStream
 import java.security.MessageDigest
 import java.security.DigestInputStream
 
-// TODO make independent of GpgPlugin
-trait ChecksumPlugin extends BasicManagedProject with GpgPlugin {
+trait ChecksumPlugin extends BasicManagedProject {
   lazy val skipChecksum = systemOptional[Boolean]("checksum.skip", false).value
   val checksumsConfig = config("checksums") 
 
@@ -74,4 +73,12 @@ trait ChecksumPlugin extends BasicManagedProject with GpgPlugin {
 
   override def deliverLocalAction = super.deliverLocalAction dependsOn(checksum)
   override def deliverAction = super.deliverAction dependsOn(checksum)
+
+  private def artifact2Path(artifact: Artifact): Path = {
+    val filename = 
+      artifactBaseName + 
+      (artifact.classifier map { "-"+_ } getOrElse "") +
+      "."+artifact.extension
+    outputPath / filename
+  }
 }
