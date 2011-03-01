@@ -14,7 +14,7 @@ class ScalatraProject(info: ProjectInfo)
   val jettyGroupId = "org.eclipse.jetty"
   val jettyVersion = "7.2.2.v20101205"
   val slf4jVersion = "1.6.1"
-  val scalateVersion = "1.4.0"
+  val scalateVersion = "1.4.1"
 
   trait ScalatraSubproject 
     extends MavenCentralScalaProject
@@ -87,11 +87,6 @@ class ScalatraProject(info: ProjectInfo)
     val logback = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val markdown = "org.fusesource.scalamd" % "scalamd" % "1.5" % "runtime"
     val description = "Runs www.scalatra.org"
-
-    // Hack until scalate-1.4.1 is released
-    override def scalateSources = webappResources ** new FileFilter {
-      def accept(file: File) = webappPath.asFile == file
-    }
   }
 
   lazy val scalatraTest = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubproject {
