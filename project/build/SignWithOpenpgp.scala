@@ -60,7 +60,6 @@ trait SignWithOpenpgp extends BasicManagedProject {
     pgpSignatureGenerator.right map { gen =>
       i.withIvy { ivy =>
         val settings = ivy.getSettings
-        val bouncycastle = (info.projectDirectory)
         settings.addSignatureGenerator(gen)
         settings.getResolvers.toList foreach {
           case r: DependencyResolver => setSigner(r)
