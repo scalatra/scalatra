@@ -14,7 +14,10 @@ class ScalatraProject(info: ProjectInfo)
   val jettyGroupId = "org.eclipse.jetty"
   val jettyVersion = "7.2.2.v20101205"
   val slf4jVersion = "1.6.1"
-  val scalateVersion = "1.4.1"
+  val scalateVersion = buildScalaVersion match {
+    case "2.8.0" => "1.3.2"
+    case _ => "1.4.1"
+  }
 
   trait ScalatraSubproject 
     extends MavenCentralScalaProject
@@ -87,6 +90,15 @@ class ScalatraProject(info: ProjectInfo)
     val logback = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val markdown = "org.fusesource.scalamd" % "scalamd" % "1.5" % "runtime"
     val description = "Runs www.scalatra.org"
+
+    override lazy val generateSite =
+      if (scalateVersion.startsWith("1.3."))
+        task { 
+          log.info("sitegen only supported by Scalate 1.4.0 and above")
+          None
+        }
+      else
+        super.generateSiteAction
   }
 
   lazy val scalatraTest = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubproject {
