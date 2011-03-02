@@ -107,7 +107,7 @@ class ScalatraProject(info: ProjectInfo)
   })
 
   lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubproject {
-    val scalatest = "org.scalatest" % "scalatest" % "1.2" % "compile"
+    val scalatest = "org.scalatest" % "scalatest" % "1.3" % "compile"
     val junit = "junit" % "junit" % "4.8.1" % "compile"
     val description = "ScalaTest support for the Scalatra test framework"
   }, scalatraTest)
