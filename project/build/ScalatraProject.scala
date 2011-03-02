@@ -202,6 +202,7 @@ class ScalatraProject(info: ProjectInfo)
     }
 
   }
+  // Without this, scalatra-scalatest and scalatra-specs can't find scalatra-test
   val scalatraRepo = publishTo
 
   override def deliverProjectDependencies = Nil
