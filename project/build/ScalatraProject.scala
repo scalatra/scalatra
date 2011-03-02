@@ -9,8 +9,6 @@ class ScalatraProject(info: ProjectInfo)
   extends ParentProject(info) 
   with MavenCentralTopLevelProject
 {
-  override def shouldCheckOutputDirectories = false
-
   val jettyGroupId = "org.eclipse.jetty"
   val jettyVersion = "7.2.2.v20101205"
   val slf4jVersion = "1.6.1"
