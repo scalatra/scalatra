@@ -8,6 +8,7 @@ import org.fusesource.scalate.sbt._
 class ScalatraProject(info: ProjectInfo) 
   extends ParentProject(info) 
   with MavenCentralTopLevelProject
+  with posterous.Publish
 {
   val jettyGroupId = "org.eclipse.jetty"
   val jettyVersion = "7.2.2.v20101205"
