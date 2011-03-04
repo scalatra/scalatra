@@ -205,4 +205,8 @@ class ScalatraProject(info: ProjectInfo)
   val scalatraRepo = publishTo
 
   override def deliverProjectDependencies = Nil
+
+  // Tweak posterous settings
+  override def postTitle(vers: String) = "%s %s".format("Scalatra", vers)
+  override def postTags = "Scalatra" :: crossScalaVersions.map { "Scala " + _ }.toList
 }
