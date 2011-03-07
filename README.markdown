@@ -43,6 +43,10 @@ Note: if you keep getting frequent OutOfMemory errors from `sbt` you can try cha
 
 Note 2: if you already have a checkout, and after a `git pull` the build fails, try to explicitly run the `update` and `clean` sbt tasks before running `compile`. 
 
+### Alternative Maven quickstart.
+
+See the [scalatra-maven-prototype](http://github.com/Srirangan/scalatra-maven-prototype).  Eventually this will be released as a proper Maven archetype.
+
 ## Community
 
 ### Mailing list
