@@ -2,7 +2,6 @@ import sbt._
 
 import scala.xml._
 import java.io.File
-import com.rossabaker.sbt.gpg._
 import org.fusesource.scalate.sbt._
 
 class ScalatraProject(info: ProjectInfo) 
