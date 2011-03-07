@@ -521,6 +521,11 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 
 ## Migration Guide
 
+### scalatra-2.0.0.M2 to scalatra-2.0.0.M3
+
+Should be compatible.  If it broke, please share your tale of woe on the
+mailing list.
+
 ### scalatra-2.0.0.M1 to scalatra-2.0.0.M2
 
 1. Session has been retrofitted to a Map interface.  `get` now returns an option instead of the value.
