@@ -6,7 +6,6 @@ import scala.collection.jcl.Conversions._
 import org.apache.ivy.plugins.resolver._
 import org.apache.ivy.plugins.signer._
 import org.apache.ivy.plugins.signer.bouncycastle._
-import org.bouncycastle.openpgp._
 
 /**
  * Turns on Ivy's pgp mechanism.  It assumes:
