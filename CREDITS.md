@@ -2,17 +2,29 @@
 
 ## Committers
 
-- [Gabriele Renzi](http://www.riffraff.info/), who started it all with his [blog posts](http://www.riffraff.info/tags/step)
+- [Gabriele Renzi](http://www.riffraff.info/)
 - [Alan Dipert](http://alan.dipert.org/)
 - [Ross A. Baker](http://www.rossabaker.com/)
-- [Hiram Chirino](http://hiramchirino.com)
-- [Ivan Porto Carrero](http://flanders.co.nz) 
+- [Hiram Chirino](http://hiramchirino.com/)
+- [Ivan Porto Carrero](http://flanders.co.nz/) 
 
 ## Other contributors
 
-- [The Sinatra Project](http://www.sinatrarb.com/), whose excellent framework, test suite, and documentation we've shamelessly copied.
-- [Mark Harrah](http://github.com/harrah) for his support on the SBT mailing list.
-- [Yusuke Kuoka](http://github.com/mumoshu) for adding sessions and header support
-- [Miso Korkiakoski](http://github.com/mwing) for various patches.
-- [Ivan Willig](http://github.com/iwillig) for his work on [Scalate](http://scalate.fusesource.org/) integration.
-- [Phil Wills](http://github.com/philwills) for the path parser cleanup.
+- [Luke Amdor](http://rubbish.io/)
+- [JR Boyens](http://jrboyens.github.com/)
+- [Tuomas Kareinen](http://www.iki.fi/kareinen/)
+- [Miso Korkiakoski](http://github.com/mwing)
+- [Yusuke Kuoka](http://d.hatena.ne.jp/mumoshu/)
+- [Yung-Luen Lan](http://yllan.org/)
+- [Paul Lambert](http://paulitex.com/)
+- [Ted Nyman](http://github.com/tnm)
+- [Erik Rozendaal](http://github.com/erikrozendaal)
+- [Ivan Willig](http://github.com/iwillig)
+- [Phil Wills](http://github.com/philwills)
+
+## Special thanks
+
+- [The Sinatra Project](http://www.sinatrarb.com/), whose excellent framework,
+  test suite, and documentation we've shamelessly copied.
+- [Mark Harrah](http://github.com/harrah) for his support on the [sbt mailing
+  list](http://groups.google.com/group/simple-build-tool)
