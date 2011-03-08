@@ -4,7 +4,7 @@ An [Apache Maven](http://maven.apache.org/) archetype to generate a simple [Scal
 
 # Quick Start
 
-0. This archetype has not been published on Maven central repositories so you need to clone this project and install it in your local repository:
+0. This archetype has not been published on Maven central repositories hence you need to clone this project and install it in your local repository before using the archetype.
 		git clone git://github.com/Srirangan/simple-scalatra-archetype.git simple-scalatra-archetype
 		cd simple-scalatra-archetype
 		mvn install
