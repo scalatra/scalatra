@@ -45,7 +45,7 @@ Note 2: if you already have a checkout, and after a `git pull` the build fails, 
 
 ### Alternative Maven quickstart.
 
-See the [scalatra-maven-prototype](http://github.com/Srirangan/scalatra-maven-prototype).  Eventually this will be released as a proper Maven archetype.
+See the [simple-scalatra-archetype](http://github.com/Srirangan/simple-scalatra-archetype).
 
 ## Community
 
