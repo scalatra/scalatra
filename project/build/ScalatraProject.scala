@@ -11,18 +11,21 @@ class ScalatraProject(info: ProjectInfo)
   override def shouldCheckOutputDirectories = false
 
   val jettyGroupId = "org.eclipse.jetty"
-  val jettyVersion = "7.2.2.v20101205"
+  val jettyVersion = "7.3.0.v20110203"
   val slf4jVersion = "1.6.1"
   val scalateVersion = "1.4.0"
 
+  override def managedStyle = ManagedStyle.Maven
+  val glassfishRepo = "Glassfish Repo" at "http://download.java.net/maven/glassfish"
+
   trait ScalatraSubproject 
     extends MavenCentralScalaProject
-    with MavenCentralSubproject 
+    with MavenCentralSubproject
     with BasicPackagePaths
   {
     def parent = ScalatraProject.this
 
-    val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
+    val servletApi = "org.glassfish" % "javax.servlet" % "3.0" % "provided"
     override def managedStyle = ManagedStyle.Maven
   }
 

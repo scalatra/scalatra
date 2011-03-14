@@ -71,6 +71,11 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
 
   protected def challenge = "Basic realm=\"%s\"" format realm
 
+
+  override def isValid = {
+    app.request.isBasicAuth && app.request.providesAuth
+  }
+
   def authenticate() = {
     val req = app.request
     val res = app.response
