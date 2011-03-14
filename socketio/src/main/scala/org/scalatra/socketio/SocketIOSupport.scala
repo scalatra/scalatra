@@ -117,6 +117,10 @@ object SocketIOSupport {
 
 }
 
+/**
+ * This interface is likely to change before 2.0.0.  Please come to the
+ * mailing list or IRC before betting your project on this.
+ */
 trait SocketIOSupport extends Handler with Initializable {
   self: ScalatraServlet =>
 

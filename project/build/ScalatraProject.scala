@@ -1,19 +1,21 @@
 import sbt._
 
 import scala.xml._
-import com.rossabaker.sbt.gpg._
+import java.io.File
 import org.fusesource.scalate.sbt._
 
 class ScalatraProject(info: ProjectInfo) 
   extends ParentProject(info) 
   with MavenCentralTopLevelProject
+  with posterous.Publish
 {
-  override def shouldCheckOutputDirectories = false
-
   val jettyGroupId = "org.eclipse.jetty"
   val jettyVersion = "7.3.0.v20110203"
   val slf4jVersion = "1.6.1"
-  val scalateVersion = "1.4.0"
+  val scalateVersion = buildScalaVersion match {
+    case "2.8.0" => "1.3.2"
+    case _ => "1.4.1"
+  }
 
   override def managedStyle = ManagedStyle.Maven
   val glassfishRepo = "Glassfish Repo" at "http://download.java.net/maven/glassfish"
@@ -83,11 +85,21 @@ class ScalatraProject(info: ProjectInfo)
     with SiteGenWebProject
     with UnpublishedProject 
   {
+    override val jettyPort = 8081
     val scalatePage = "org.fusesource.scalate" % "scalate-page" % scalateVersion
     val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
     val logback = "org.slf4j" % "slf4j-nop" % slf4jVersion % "runtime"
     val markdown = "org.fusesource.scalamd" % "scalamd" % "1.5" % "runtime"
     val description = "Runs www.scalatra.org"
+
+    override lazy val generateSite =
+      if (scalateVersion.startsWith("1.3."))
+        task { 
+          log.info("sitegen only supported by Scalate 1.4.0 and above")
+          None
+        }
+      else
+        super.generateSiteAction
   }
 
   lazy val scalatraTest = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubproject {
@@ -96,7 +108,7 @@ class ScalatraProject(info: ProjectInfo)
   })
 
   lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubproject {
-    val scalatest = "org.scalatest" % "scalatest" % "1.2" % "compile"
+    val scalatest = "org.scalatest" % "scalatest" % "1.3" % "compile"
     val junit = "junit" % "junit" % "4.8.1" % "compile"
     val description = "ScalaTest support for the Scalatra test framework"
   }, scalatraTest)
@@ -191,7 +203,12 @@ class ScalatraProject(info: ProjectInfo)
     }
 
   }
+  // Without this, scalatra-scalatest and scalatra-specs can't find scalatra-test
   val scalatraRepo = publishTo
 
   override def deliverProjectDependencies = Nil
+
+  // Tweak posterous settings
+  override def postTitle(vers: String) = "%s %s".format("Scalatra", vers)
+  override def postTags = "Scalatra" :: crossScalaVersions.map { "Scala " + _ }.toList
 }

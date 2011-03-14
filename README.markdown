@@ -43,6 +43,10 @@ Note: if you keep getting frequent OutOfMemory errors from `sbt` you can try cha
 
 Note 2: if you already have a checkout, and after a `git pull` the build fails, try to explicitly run the `update` and `clean` sbt tasks before running `compile`. 
 
+### Alternative Maven quickstart.
+
+See the [simple-scalatra-archetype](http://github.com/Srirangan/simple-scalatra-archetype).
+
 ## Community
 
 ### Mailing list
@@ -521,6 +525,11 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 
 ## Migration Guide
 
+### scalatra-2.0.0.M2 to scalatra-2.0.0.M3
+
+Should be compatible.  If it broke, please share your tale of woe on the
+mailing list.
+
 ### scalatra-2.0.0.M1 to scalatra-2.0.0.M2
 
 1. Session has been retrofitted to a Map interface.  `get` now returns an option instead of the value.
@@ -539,22 +548,3 @@ Scalatra was renamed from Step to Scalatra to avoid a naming conflict with (an u
 - [SSGI](http://github.com/scalatra/ssgi): Work in progress. Will provide an abstraction layer allowing a future version of Scalatra to run on web servers other than Servlet containers.
 
 - [Bowler](http://bowlerframework.org): A RESTful, multi-channel ready web framework in Scala with a functional flavour, built on top of Scalatra and [Scalate](http://scalate.fusesource.org/).
-
-## Credits
-
-### Committers
-
-- [Gabriele Renzi](http://www.riffraff.info/), who started it all with his [blog posts](http://www.riffraff.info/tags/step)
-- [Alan Dipert](http://alan.dipert.org/)
-- [Ross A. Baker](http://www.rossabaker.com/)
-- [Hiram Chirino](http://hiramchirino.com)
-- [Ivan Porto Carrero](http://flanders.co.nz) 
-
-### Other contributors
-
-- [The Sinatra Project](http://www.sinatrarb.com/), whose excellent framework, test suite, and documentation we've shamelessly copied.
-- [Mark Harrah](http://github.com/harrah) for his support on the SBT mailing list.
-- [Yusuke Kuoka](http://github.com/mumoshu) for adding sessions and header support
-- [Miso Korkiakoski](http://github.com/mwing) for various patches.
-- [Ivan Willig](http://github.com/iwillig) for his work on [Scalate](http://scalate.fusesource.org/) integration.
-- [Phil Wills](http://github.com/philwills) for the path parser cleanup.

@@ -8,8 +8,13 @@
 import sbt._
 
 import scala.xml._
+import com.rossabaker.sbt.openpgp._
 
-trait MavenCentralProject extends BasicManagedProject {
+trait MavenCentralProject
+  extends BasicManagedProject
+  with SignWithOpenpgp
+  with GenerateChecksums
+{
   def projectDescription: String = projectName.get.get
 
   override def pomExtra = super.pomExtra ++ (

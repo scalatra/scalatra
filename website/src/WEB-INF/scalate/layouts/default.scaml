@@ -2,9 +2,12 @@
 -@ val body: String
 
 !!!
-%html
+%html<
   %head
     %title= title
-  %body 
-    #content
+    %link(rel="stylesheet" type="text/css" href={uri("/css/scalatra.css")})
+  %body<
+    #navigation
+      = include("/_navigation.ssp.md")
+    #content<
       != body

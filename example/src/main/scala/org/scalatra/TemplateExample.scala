@@ -33,7 +33,8 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
           <a href={url("/flash-map/form")}>flash scope</a>
           <a href={url("/login")}>login</a>
           <a href={url("/logout")}>logout</a>
-          <a href={url("/filter-example")}>filter demo</a>
+          <a href={url("/filter-example")}>filter example</a>
+          <a href={url("/cookies-example")}>cookies example</a>
           <a href={url("/chat")}>chat demo</a>
         </body>
       </html>

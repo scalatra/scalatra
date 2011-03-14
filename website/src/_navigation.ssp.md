@@ -1,0 +1,5 @@
+- [Home](${uri("/")})
+- [Getting Started](${uri("/getting-started.html")})
+- [Documentation](${uri("/documentation")})
+- [Community](${uri("/community.html")})
+- [Source](${uri("http://github.com/scalatra")})

@@ -18,3 +18,13 @@ framework for [Scala](http://www.scala-lang.org/).
 * *Java-interoperable*: Scalatra can call your existing Java libraries and deploys to your favorite servlet container.  Migrate from Java at your own pace, if at all.
 
 * *Vibrant*: Scalatra has an active [community](community.html) of users and contributors.  Come join us.
+
+## Example
+
+    import org.scalatra._
+
+    class ScalatraExample extends ScalatraServlet {
+      get("/") {
+        <h1>Hello, world!</h1>
+      }
+    }
