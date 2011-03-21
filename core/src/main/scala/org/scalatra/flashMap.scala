@@ -6,7 +6,7 @@ import scala.util.DynamicVariable
 import util.MutableMapWithIndifferentAccess
 
 object FlashMap {
-  def apply(): FlashMap = new FlashMap
+  def apply(owner: String): FlashMap = new FlashMap(owner)
 }
 
 /**
@@ -19,7 +19,7 @@ object FlashMap {
  * @see FlashMapSupport
  */
 @serializable
-class FlashMap extends MutableMapWithIndifferentAccess[Any] {
+class FlashMap(val owner: String) extends MutableMapWithIndifferentAccess[Any] {
   private var _now = MMap[String, Any]()
   private var next = MMap[String, Any]()
 
@@ -93,21 +93,27 @@ object FlashMapSupport {
  * }}}
  * @see FlashMap
  */
-trait FlashMapSupport extends Handler {
+trait FlashMapSupport extends ScalatraKernel {
   import FlashMapSupport.sessionKey
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     _flash.withValue(getFlash(req)) {
-      super.handle(req, res)
-      flash.sweep()
       req.getSession.setAttribute(sessionKey, flash)
+      super.handle(req, res)
+      /*
+       * http://github.org/scalatra/scalatra/issues/41
+       * Only sweep if we created it, or else it fails in a nested context.
+       */
+      if (kernelName == flash.owner) {
+        flash.sweep()
+      }
     }
   }
 
   private def getFlash(req: HttpServletRequest) =
     req.getSession.getAttribute(sessionKey) match {
       case flashMap: FlashMap => flashMap
-      case _ => FlashMap()
+      case _ => FlashMap(kernelName)
     }
 
 
