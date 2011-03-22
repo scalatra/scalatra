@@ -15,6 +15,10 @@ class ParamsTestServlet extends ScalatraServlet {
     multiParams(params("key")).mkString("[",",","]")
   }
 
+  get("/multiParams/:key") {
+    multiParams(params("key")).mkString("[",",","]")
+  }
+
   get("/params/:key") {
     try {
       params(params("key"))
@@ -39,6 +43,12 @@ class ParamsTest extends ScalatraFunSuite with ShouldMatchers {
 
   test("supports multiple parameters") {
     get("/multiParams/numbers", "numbers" -> "one", "numbers" -> "two", "numbers" -> "three") {
+      body should equal ("[one,two,three]")
+    }
+  }
+
+  test("supports multiple parameters with ruby like syntax") {
+    get("/multiParams/numbers_ruby", "numbers_ruby[]" -> "one", "numbers_ruby[]" -> "two", "numbers_ruby[]" -> "three") {
       body should equal ("[one,two,three]")
     }
   }

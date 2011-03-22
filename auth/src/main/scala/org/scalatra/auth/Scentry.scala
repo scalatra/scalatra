@@ -16,7 +16,7 @@ object Scentry {
     _globalStrategies += (name -> strategyFactory)
 
   def globalStrategies = _globalStrategies
-  def clearGlobalStrategies = _globalStrategies.clear
+  def clearGlobalStrategies() { _globalStrategies.clear() }
 
   val scentryAuthKey = "scentry.auth.default.user"
 }
@@ -36,9 +36,12 @@ class Scentry[UserType <: AnyRef](
   private var _user: UserType = null.asInstanceOf[UserType]
   private var _store: ScentryAuthStore = new SessionAuthStore(app.session)
 
-  def setStore(newStore: ScentryAuthStore) = _store = newStore
+  @deprecated("use store_= instead")
+  def setStore(newStore: ScentryAuthStore) { store = newStore }
   def store = _store
-  def proxy = app
+  def store_=(newStore: ScentryAuthStore) {
+    _store = newStore
+  }
 
   def isAuthenticated = {
     userOption.isDefined
@@ -48,7 +51,7 @@ class Scentry[UserType <: AnyRef](
 
   //def session = app.session
   def params = app.params
-  def redirect(uri: String) = app.redirect(uri)
+  def redirect(uri: String) { app.redirect(uri) }
 
   def registerStrategy(name: Symbol, strategyFactory: StrategyFactory) =
     _strategies += (name -> strategyFactory)
@@ -109,7 +112,7 @@ class Scentry[UserType <: AnyRef](
     }
   }
 
-  def logout() = {
+  def logout() {
     val usr = user.asInstanceOf[UserType]
     runCallbacks() { _.beforeLogout(usr) }
     if (_user != null) _user = null.asInstanceOf[UserType]

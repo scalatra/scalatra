@@ -13,4 +13,5 @@ package object scalatra {
     def setAttribute(name: String, value: AnyRef): Unit
     def removeAttribute(name: String): Unit
   }
+
 }

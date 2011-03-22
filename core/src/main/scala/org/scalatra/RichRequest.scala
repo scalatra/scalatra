@@ -3,8 +3,8 @@ package org.scalatra
 import scala.collection.{Map => CMap}
 import scala.io.Source
 import javax.servlet.http.HttpServletRequest
-import util.MultiMapHeadView
 import java.util.Locale
+import util.{MultiMap, MultiMapHeadView}
 
 case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   @deprecated(message = "Use HttpServletRequest.getServerName() instead")
@@ -25,11 +25,13 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   def isAjax: Boolean = r.getHeader("X-Requested-With") != null
   def isWrite: Boolean = ScalatraKernel.writeMethods.contains(r.getMethod.toUpperCase(Locale.ENGLISH))
 
-  def multiCookies: CMap[String, Seq[String]] =
-    Option(r.getCookies).getOrElse(Array()).toSeq.
+  def multiCookies: MultiMap = {
+    val rr = Option(r.getCookies).getOrElse(Array()).toSeq.
       groupBy { _.getName }.
       transform { case(k, v) => v map { _.getValue }}.
       withDefaultValue(Seq.empty)
+    MultiMap(rr)
+  }
 
   def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
 

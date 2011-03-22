@@ -5,6 +5,7 @@ import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 import java.util.regex.Pattern.{quote => escape}
 import ScalatraKernel.MultiParams
+import util.MultiMap
 
 /**
  * A path pattern optionally matches a request path and extracts path
@@ -19,7 +20,7 @@ case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
       pairs foreach { case (k, v) =>
         if (v != null) multiParams.getOrElseUpdate(k, new ListBuffer) += v
       }
-      Map() ++ multiParams
+      MultiMap(Map() ++ multiParams)
     }
   }
 

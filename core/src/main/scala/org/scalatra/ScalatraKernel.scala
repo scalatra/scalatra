@@ -7,15 +7,15 @@ import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
 import scala.xml.NodeSeq
-import util.{MapWithIndifferentAccess, MultiMapHeadView, using}
 import util.io.copy
 import java.io.{File, FileInputStream}
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
+import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 
 object ScalatraKernel
 {
-  type MultiParams = Map[String, Seq[String]]
+  type MultiParams = MultiMap
 
   type Action = () => Any
 
@@ -70,9 +70,10 @@ trait ScalatraKernel extends Handler with Initializable
         }
       }
 
-    override def toString() = routeMatchers.toString
+    override def toString = routeMatchers.toString()
   }
 
+  protected implicit def map2multimap(map: Map[String, Seq[String]]) = new MultiMap(map)
   /**
    * Pluggable way to convert Strings into RouteMatchers.  By default, we
    * interpret them the same way Sinatra does.
@@ -103,7 +104,7 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   protected implicit def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
-    () => { if (matcher) Some(Map[String, Seq[String]]()) else None }
+    () => { if (matcher) Some(MultiMap()) else None }
 
   def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
@@ -190,7 +191,7 @@ trait ScalatraKernel extends Handler with Initializable
     }
   }
 
-  protected[scalatra] val _multiParams = new DynamicVariable[Map[String, Seq[String]]](Map())
+  protected[scalatra] val _multiParams = new DynamicVariable[MultiMap](new MultiMap)
   protected def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
   /*
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
