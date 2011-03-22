@@ -30,10 +30,14 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   type Config = FilterConfig
 
   // see Initializable.initialize for why
-  def init(filterConfig: FilterConfig) = initialize(filterConfig) 
+  def init(filterConfig: FilterConfig) = initialize(filterConfig)
+
+  private var _kernelName: String = _
+  def kernelName = _kernelName
 
   override def initialize(config: FilterConfig): Unit = {
     super.initialize(config)
+    _kernelName = "filter:"+config.getFilterName
     servletContext = config.getServletContext    
   }
 

@@ -1,0 +1,1 @@
+* [GH-41](http://github.com/scalatra/scalatra/issues/41): FlashMap swept too early with nested filters

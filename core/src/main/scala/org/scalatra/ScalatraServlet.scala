@@ -34,8 +34,12 @@ abstract class ScalatraServlet
 
   type Config = ServletConfig
 
+  private var _kernelName: String = _
+  def kernelName = _kernelName
+
   override def init(config: ServletConfig) = {
     super.init(config)
+    _kernelName = "servlet:"+config.getServletName
     initialize(config) // see Initializable.initialize for why
   }
 

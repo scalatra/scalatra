@@ -19,7 +19,14 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   }
 }
 
+class FlashMapSupportTestFilter extends ScalatraFilter with FlashMapSupport {
+  get("/filter") {
+    flash.get("message") foreach { x => response.setHeader("message", x.toString) }
+  }
+}
+
 class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
+  addFilter(classOf[FlashMapSupportTestFilter], "/*")
   addServlet(classOf[FlashMapSupportTestServlet], "/*")
 
   test("should sweep flash map at end of request") {
@@ -53,6 +60,15 @@ class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
 
     get("/message") {
       header("message") should equal(null)
+    }
+  }
+
+  test("messages should be available in outer filter when flash map supports are nested") {
+    session {
+      post("/message") {}
+      get("/filter") {
+        header("message") should equal ("posted")
+      }
     }
   }
 }

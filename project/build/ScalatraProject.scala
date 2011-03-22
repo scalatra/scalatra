@@ -122,6 +122,9 @@ class ScalatraProject(info: ProjectInfo)
     val description = "Specs support for the Scalatra test framework"
   }, scalatraTest)
 
+  lazy val archetype = project("archetype", "simple-scalatra-archetype", new ArchetypeProject(_))
+  class ArchetypeProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject
+
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 
