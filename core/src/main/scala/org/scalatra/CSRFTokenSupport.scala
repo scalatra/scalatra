@@ -5,7 +5,7 @@ import java.security.SecureRandom
 
 object GenerateId {
   def apply(): String = {
-    generateCSRFToken
+    generateCSRFToken()
   }
 
   private def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
@@ -13,7 +13,7 @@ object GenerateId {
     sb.append(Integer.toString(b.toInt & 0xff, 16))
   }).toString
 
-  protected def generateCSRFToken = {
+  protected def generateCSRFToken() = {
     val tokenVal = new Array[Byte](20)
     (new SecureRandom).nextBytes(tokenVal)
     hexEncode(tokenVal)
@@ -29,7 +29,7 @@ trait CSRFTokenSupport { self: ScalatraKernel =>
     if (isForged) {
       handleForgery()
     }
-    prepareCSRFToken
+    prepareCSRFToken()
   }
 
   /**
@@ -49,7 +49,7 @@ trait CSRFTokenSupport { self: ScalatraKernel =>
     halt(403, "Request tampering detected!")
   }
 
-  protected def prepareCSRFToken = {
+  protected def prepareCSRFToken() = {
     session.getOrElseUpdate(csrfKey, GenerateId())
   }
 
