@@ -140,8 +140,10 @@ Obligatory scolding: the REPL is not a substitute for proper unit tests!
 
 By default, route patterns parsing is based on Sinatra.  Rails has a similar, but not identical, syntax, based on Rack::Mount's Strexp.  The path pattern parser is resolved implicitly, and may be overridden if you prefer an alternate syntax:
 
+    import org.scalatra._
+
     class RailsLikeRouting extends ScalatraFilter {
-      implicit override val string2RouteMatcher(path: String) =
+      implicit override def string2RouteMatcher(path: String) =
         RailsPathPatternParser(path)
 
       get("/:file(.:ext)") { // matched Rails-style }
