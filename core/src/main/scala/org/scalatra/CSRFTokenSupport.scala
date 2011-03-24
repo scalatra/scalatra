@@ -26,9 +26,27 @@ trait CSRFTokenSupport { self: ScalatraKernel =>
   protected def csrfToken = session(csrfKey).asInstanceOf[String]
 
   before {
-    if (request.isWrite && session.get(csrfKey) != params.get(csrfKey))
-      halt(403, "Request tampering detected!")
+    if (isForged) {
+      handleForgery()
+    }
     prepareCSRFToken
+  }
+
+  /**
+   * Test whether a POST request is a potential cross-site forgery.
+   *
+   * @return Returns true if the POST request is suspect.
+   */
+  protected def isForged: Boolean = {
+    request.isWrite && session.get(csrfKey) != params.get(csrfKey)
+  }
+
+  /**
+   * Take an action when a forgery is detected. The default action
+   * halts further request processing and returns a 403 HTTP status code.
+   */
+  protected def handleForgery() {
+    halt(403, "Request tampering detected!")
   }
 
   protected def prepareCSRFToken = {
