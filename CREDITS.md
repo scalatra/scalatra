@@ -12,6 +12,7 @@
 
 - [Luke Amdor](http://rubbish.io/)
 - [JR Boyens](http://jrboyens.github.com/)
+- [Jon Buffington](http://blog.jon.buffington.name/)
 - [Tuomas Kareinen](http://www.iki.fi/kareinen/)
 - [Miso Korkiakoski](http://github.com/mwing)
 - [Yusuke Kuoka](http://d.hatena.ne.jp/mumoshu/)
