@@ -5,7 +5,7 @@ import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
+import scala.collection.mutable.{ConcurrentMap, ListBuffer}
 import scala.xml.NodeSeq
 import util.io.copy
 import java.io.{File, FileInputStream}
@@ -38,23 +38,27 @@ import ScalatraKernel._
  * methods register a new action to a route for a given HTTP method, possibly
  * overwriting a previous one. This trait is thread safe.
  */
-trait ScalatraKernel extends Handler with Initializable
+trait ScalatraKernel extends Handler with Initializable //with RenderResponseBody
 {
+  protected implicit def map2multimap(map: Map[String, Seq[String]]) = new MultiMap(map)
+
   protected val Routes: ConcurrentMap[String, List[Route]] = {
     val map = new ConcurrentHashMap[String, List[Route]]
     httpMethods foreach { x: String => map += ((x, List[Route]())) }
     map
   }
-
   def contentType = response.getContentType
-  def contentType_=(value: String): Unit = response.setContentType(value)
 
+  def contentType_=(value: String) {
+    response.setContentType(value)
+  }
   protected val defaultCharacterEncoding = "UTF-8"
   protected val _response   = new DynamicVariable[HttpServletResponse](null)
-  protected val _request    = new DynamicVariable[HttpServletRequest](null)
 
+  protected val _request    = new DynamicVariable[HttpServletRequest](null)
   protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
+
   protected implicit def servletContextWrapper(sc: ServletContext) = new RichServletContext(sc)
 
   protected[scalatra] class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
@@ -73,7 +77,6 @@ trait ScalatraKernel extends Handler with Initializable
     override def toString = routeMatchers.toString()
   }
 
-  protected implicit def map2multimap(map: Map[String, Seq[String]]) = new MultiMap(map)
   /**
    * Pluggable way to convert Strings into RouteMatchers.  By default, we
    * interpret them the same way Sinatra does.
@@ -91,7 +94,7 @@ trait ScalatraKernel extends Handler with Initializable
 
       // By overriding toString, we can list the available routes in the
       // default notFound handler.
-      override def toString = pattern.regex.toString
+      override def toString() = pattern.regex.toString()
     }
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
@@ -100,7 +103,7 @@ trait ScalatraKernel extends Handler with Initializable
       case xs => Map("captures" -> xs)
     }}
 
-    override def toString = regex.toString
+    override def toString() = regex.toString()
   }
 
   protected implicit def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
@@ -122,21 +125,27 @@ trait ScalatraKernel extends Handler with Initializable
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
             beforeFilters foreach { _() }
-            Routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
+            val res = Routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
+            renderResponse(res)
           }
           catch {
-            case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
-            case HaltException(Some(code), None) => response.sendError(code)
-            case HaltException(None, _) =>
-            case e => handleError(e)
+            case e => renderResponse((renderError orElse internalRenderError).apply(e))
           }
           finally {
             afterFilters foreach { _() }
           }
-          renderResponse(result)
         }
       }
     }
+  }
+
+  type ErrorRenderer = PartialFunction[Throwable, Any]
+  def renderError: ErrorRenderer = internalRenderError
+  private def internalRenderError: ErrorRenderer = {
+    case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
+    case HaltException(Some(code), None) => response.sendError(code)
+    case HaltException(None, _) =>
+    case e => handleError(e)
   }
 
   protected def effectiveMethod = request.getMethod.toUpperCase match {
@@ -153,7 +162,11 @@ trait ScalatraKernel extends Handler with Initializable
   def after(fun: => Any) = afterFilters += { () => fun }
 
   protected var doNotFound: Action
-  def notFound(fun: => Any) = doNotFound = { () => fun }
+  def notFound(fun: => Any) {
+    doNotFound = {
+      () => fun
+    }
+  }
 
   protected def handleError(e: Throwable): Any = {
     status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
@@ -161,7 +174,11 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   protected var errorHandler: Action = { () => throw caughtThrowable }
-  def error(fun: => Any) = errorHandler = { () => fun }
+  def error(fun: => Any) {
+    errorHandler = {
+      () => fun
+    }
+  }
 
   private val _caughtThrowable = new DynamicVariable[Throwable](null)
   protected def caughtThrowable = _caughtThrowable.value
@@ -202,7 +219,9 @@ trait ScalatraKernel extends Handler with Initializable
   }
   def params = _params
 
-  def redirect(uri: String) = (_response value) sendRedirect uri
+  def redirect(uri: String) {
+    (_response value) sendRedirect uri
+  }
   implicit def request = _request value
   implicit def response = _response value
   def session = request.getSession
@@ -210,12 +229,14 @@ trait ScalatraKernel extends Handler with Initializable
     case s: HttpSession => Some(s)
     case null => None
   }
-  def status(code: Int) = (_response value) setStatus code
+  def status(code: Int) {
+    (_response value) setStatus code
+  }
 
   def halt(code: Int, msg: String) = throw new HaltException(Some(code), Some(msg))
   def halt(code: Int) = throw new HaltException(Some(code), None)
   def halt() = throw new HaltException(None, None)
-  private case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
+  protected[scalatra] case class HaltException(code: Option[Int], msg: Option[String]) extends RuntimeException
 
   def pass() = throw new PassException
   protected[scalatra] class PassException extends RuntimeException
@@ -294,7 +315,7 @@ trait ScalatraKernel extends Handler with Initializable
    *
    * @see addRoute
    */
-  protected def removeRoute(verb: String, route: Route): Unit = {
+  protected def removeRoute(verb: String, route: Route) {
     modifyRoutes(verb, _ filterNot (_ == route) )
     route
   }
@@ -303,7 +324,7 @@ trait ScalatraKernel extends Handler with Initializable
    * since routes is a ConcurrentMap and we avoid locking, we need to retry if there are
    * concurrent modifications, this is abstracted here for removeRoute and addRoute
    */
-  @tailrec private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])): Unit = {
+  @tailrec private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])) {
     val oldRoutes = Routes(protocol)
     if (!Routes.replace(protocol, oldRoutes, f(oldRoutes))) {
       modifyRoutes(protocol,f)
@@ -311,7 +332,9 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   private var config: Config = _
-  def initialize(config: Config) = this.config = config
+  def initialize(config: Config) {
+    this.config = config
+  }
 
   def initParameter(name: String): Option[String] = config match {
     case config: ServletConfig => Option(config.getInitParameter(name))
