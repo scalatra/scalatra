@@ -7,7 +7,7 @@ import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, ListBuffer}
 import scala.xml.NodeSeq
-import util.io.copy
+import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
@@ -200,7 +200,7 @@ trait ScalatraKernel extends Handler with Initializable //with RenderResponseBod
       case bytes: Array[Byte] =>
         response.getOutputStream.write(bytes)
       case file: File =>
-        using(new FileInputStream(file)) { in => copy(in, response.getOutputStream) }
+        using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
       case _: Unit =>
       // If an action returns Unit, it assumes responsibility for the response
       case x: Any  =>

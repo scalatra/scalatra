@@ -2,6 +2,8 @@ package org.scalatra.util
 
 import scala.annotation.tailrec
 import java.io._
+import java.nio.channels.Channels
+import java.nio.ByteBuffer
 
 /**
  * A collection of I/O ulility methods.
@@ -27,6 +29,30 @@ package object io {
     loop()
     in.close()
   }
+
+   /**
+   * Copies the input stream to the output stream uses a zero-copy strategy.
+   *
+   * @param in the input stream to read
+   * @param out the output stream to write
+   * @param bufferSize the size of buffer to use for each read
+   */
+    def zeroCopy(in: InputStream, out: OutputStream, bufferSize: Int = 4096) {
+      val buf = ByteBuffer.allocateDirect(bufferSize)
+      val inChannel = Channels.newChannel(in)
+      val outChannel = Channels.newChannel(out)
+      @tailrec
+      def loop() {
+        val n = inChannel.read(buf)
+        if (n >= 0) {
+          buf.flip
+          outChannel.write(buf)
+          loop()
+        }
+      }
+      loop()
+      in.close()
+    }
 
   /**
    * Creates a temp file, passes it to a block, and removes the temp file on the block's completion.

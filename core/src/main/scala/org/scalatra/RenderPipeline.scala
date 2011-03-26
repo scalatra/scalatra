@@ -3,7 +3,7 @@ package org.scalatra
 import collection.mutable
 import java.io.{FileInputStream, File}
 import util.using
-import util.io.copy
+import util.io.zeroCopy
 
 // Perhaps making renderResponseBody a stackable method this would also give a render pipeline maybe even a better one at that
 //trait RenderResponseBody {
@@ -43,7 +43,7 @@ trait RenderPipeline {this: ScalatraKernel =>
     case bytes: Array[Byte] =>
       response.getOutputStream.write(bytes)
     case file: File =>
-      using(new FileInputStream(file)) { in => copy(in, response.getOutputStream) }
+      using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
     case _: Unit =>
     // If an action returns Unit, it assumes responsibility for the response
     case x: Any  =>
@@ -67,7 +67,7 @@ trait DefaultRendererPipeline { self: ScalatraKernel with RenderPipeline =>
   }
 
   render[File] {file =>
-    using(new FileInputStream(file)) {in => copy(in, response.getOutputStream)}
+    using(new FileInputStream(file)) {in => zeroCopy(in, response.getOutputStream)}
   }
 
   render[Array[Byte]] {bytes =>
