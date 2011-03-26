@@ -3,7 +3,7 @@ package org.scalatra
 import collection.mutable
 import java.io.{FileInputStream, File}
 import util.using
-import util.io.zeroCopy
+import util.io.{ copy, zeroCopy }
 
 // Perhaps making renderResponseBody a stackable method this would also give a render pipeline maybe even a better one at that
 //trait RenderResponseBody {

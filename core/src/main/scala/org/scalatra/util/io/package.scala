@@ -38,20 +38,31 @@ package object io {
    * @param bufferSize the size of buffer to use for each read
    */
     def zeroCopy(in: InputStream, out: OutputStream, bufferSize: Int = 4096) {
-      val buf = ByteBuffer.allocateDirect(bufferSize)
+      val buffer = ByteBuffer.allocateDirect(bufferSize)
       val inChannel = Channels.newChannel(in)
       val outChannel = Channels.newChannel(out)
       @tailrec
       def loop() {
-        val n = inChannel.read(buf)
-        if (n >= 0) {
-          buf.flip
-          outChannel.write(buf)
+        val n = inChannel.read(buffer)
+        if (n > -1) {
+          buffer.flip
+          outChannel.write(buffer)
+          buffer.compact
           loop()
+        } else {
+          buffer.flip
         }
       }
       loop()
-      in.close()
+      @tailrec
+      def loopRemaining() {
+        if(buffer.hasRemaining) {
+          outChannel.write(buffer)
+          loopRemaining()
+        }
+      }
+      loopRemaining()
+      try { in.close() } catch { case e => println("error closing input stream")}
     }
 
   /**

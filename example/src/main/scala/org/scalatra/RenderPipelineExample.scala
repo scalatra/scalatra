@@ -1,5 +1,6 @@
 package org.scalatra
 
+import java.io.File
 
 
 class RenderPipelineExample extends ScalatraPipelinedServlet {
@@ -18,5 +19,10 @@ class RenderPipelineExample extends ScalatraPipelinedServlet {
 
   get("/list") {
     "first" :: "second" :: "third" :: "fourth" :: Nil
+  }
+
+  get("/image") {
+    contentType = "image/jpeg"
+    new File(getClass.getClassLoader.getResource("image.jpg").toURI)
   }
 }
