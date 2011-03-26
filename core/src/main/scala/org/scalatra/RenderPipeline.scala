@@ -4,6 +4,7 @@ import collection.mutable
 import java.io.{FileInputStream, File}
 import util.using
 import util.io.{ copy, zeroCopy }
+import java.nio.channels.Channels
 
 // Perhaps making renderResponseBody a stackable method this would also give a render pipeline maybe even a better one at that
 //trait RenderResponseBody {
@@ -66,9 +67,7 @@ trait DefaultRendererPipeline { self: ScalatraKernel with RenderPipeline =>
     case x => response.getWriter.print(x.toString)
   }
 
-  render[File] {file =>
-    using(new FileInputStream(file)) {in => zeroCopy(in, response.getOutputStream)}
-  }
+  render[File] { f => using(new FileInputStream(f)) {in => zeroCopy(in, response.getOutputStream)} }
 
   render[Array[Byte]] {bytes =>
     response.getOutputStream.write(bytes)

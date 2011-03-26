@@ -30,40 +30,9 @@ package object io {
     in.close()
   }
 
-   /**
-   * Copies the input stream to the output stream uses a zero-copy strategy.
-   *
-   * @param in the input stream to read
-   * @param out the output stream to write
-   * @param bufferSize the size of buffer to use for each read
-   */
-    def zeroCopy(in: InputStream, out: OutputStream, bufferSize: Int = 4096) {
-      val buffer = ByteBuffer.allocateDirect(bufferSize)
-      val inChannel = Channels.newChannel(in)
-      val outChannel = Channels.newChannel(out)
-      @tailrec
-      def loop() {
-        val n = inChannel.read(buffer)
-        if (n > -1) {
-          buffer.flip
-          outChannel.write(buffer)
-          buffer.compact
-          loop()
-        } else {
-          buffer.flip
-        }
-      }
-      loop()
-      @tailrec
-      def loopRemaining() {
-        if(buffer.hasRemaining) {
-          outChannel.write(buffer)
-          loopRemaining()
-        }
-      }
-      loopRemaining()
-      try { in.close() } catch { case e => println("error closing input stream")}
-    }
+  def zeroCopy(in: FileInputStream, out: OutputStream) {
+    using(in.getChannel) { ch => ch.transferTo(0, ch.size, Channels.newChannel(out)) }
+  }
 
   /**
    * Creates a temp file, passes it to a block, and removes the temp file on the block's completion.
