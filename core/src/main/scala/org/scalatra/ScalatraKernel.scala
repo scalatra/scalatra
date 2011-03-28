@@ -12,6 +12,7 @@ import java.io.{File, FileInputStream}
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
+import scala.Option._
 
 object ScalatraKernel
 {
@@ -189,11 +190,17 @@ trait ScalatraKernel extends Handler with Initializable //with RenderResponseBod
     renderResponseBody(actionResult)
   }
 
-  protected def inferContentType(actionResult: Any): String = actionResult match {
+  type ContentTypeInferrer = PartialFunction[Any, String]
+  
+  protected def defaultContentTypeInfer: ContentTypeInferrer = {
     case _: NodeSeq => "text/html"
     case _: Array[Byte] => "application/octet-stream"
     case _ => "text/plain"
   }
+  protected def contentTypeInfer: ContentTypeInferrer = defaultContentTypeInfer
+
+  protected def inferContentType(actionResult: Any): String =
+    (contentTypeInfer orElse defaultContentTypeInfer).apply(actionResult)
 
   protected def renderResponseBody(actionResult: Any) {
     actionResult match {
