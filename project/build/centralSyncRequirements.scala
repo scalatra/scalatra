@@ -17,10 +17,22 @@ trait MavenCentralProject
 {
   def projectDescription: String = projectName.get.get
 
-  override def pomExtra = super.pomExtra ++ (
-    <name>{projectName.get.get}</name>
-    <description>{projectDescription}</description>
-  )
+  def projectUrl: String
+  def licenses: NodeSeq
+  def scmUrl: String
+  def scmConnection: String
+  def developers: NodeSeq
+
+  override def pomExtra = super.pomExtra ++
+    <name>{projectName.get.get}</name> ++
+    <description>{projectDescription}</description> ++
+    <url>{projectUrl}</url> ++
+    licenses ++
+    <scm>
+      <url>{scmUrl}</url>
+      <connection>{scmConnection}</connection>
+    </scm> ++
+    developers
 
   override def managedStyle = ManagedStyle.Maven
 
@@ -44,34 +56,6 @@ trait MavenCentralProject
         }
         Elem(prefix, label, attr, scope, children : _*)
     }
-}
-
-trait MavenCentralTopLevelProject extends MavenCentralProject {
-  def projectUrl: String
-  def licenses: NodeSeq
-  def scmUrl: String
-  def scmConnection: String
-  def developers: NodeSeq
-
-  override def pomExtra = super.pomExtra ++ 
-    <url>{projectUrl}</url> ++
-    licenses ++
-    <scm>
-      <url>{scmUrl}</url>
-      <connection>{scmConnection}</connection>
-    </scm> ++
-    developers
-}
-
-trait MavenCentralSubproject extends MavenCentralProject {
-  def parent: ManagedProject
-
-  override def pomExtra = 
-    <parent>
-      <groupId>{parent.projectID.organization}</groupId>
-      <artifactId>{parent.projectID.name}</artifactId>
-      <version>{parent.projectID.revision}</version>
-    </parent> ++ super.pomExtra
 }
 
 trait MavenCentralScalaProject 

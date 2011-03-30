@@ -6,7 +6,6 @@ import org.fusesource.scalate.sbt._
 
 class ScalatraProject(info: ProjectInfo) 
   extends ParentProject(info) 
-  with MavenCentralTopLevelProject
   with posterous.Publish
 {
   val jettyGroupId = "org.eclipse.jetty"
@@ -17,15 +16,71 @@ class ScalatraProject(info: ProjectInfo)
     case _ => "1.4.1"
   }
 
-  override def managedStyle = ManagedStyle.Maven
   val glassfishRepo = "Glassfish Repo" at "http://download.java.net/maven/glassfish"
 
   trait ScalatraSubproject 
     extends MavenCentralScalaProject
-    with MavenCentralSubproject
+    with MavenCentralProject
     with BasicPackagePaths
   {
-    def parent = ScalatraProject.this
+    def licenses =
+      <licenses>
+        <license>
+          <name>BSD</name>
+          <url>http://github.com/scalatra/scalatra/raw/HEAD/LICENSE</url>
+          <distribution>repo</distribution>
+        </license>
+      </licenses>
+
+    def developers =
+      <developers>
+        <developer>
+          <id>riffraff</id>
+          <name>Gabriele Renzi</name>
+          <url>http://www.riffraff.info</url>
+        </developer>
+        <developer>
+          <id>alandipert</id>
+          <name>Alan Dipert</name>
+          <url>http://alan.dipert.org</url>
+        </developer>
+        <developer>
+          <id>rossabaker</id>
+          <name>Ross A. Baker</name>
+          <url>http://www.rossabaker.com/</url>
+        </developer>
+        <developer>
+          <id>chirino</id>
+          <name>Hiram Chirino</name>
+          <url>http://hiramchirino.com/blog/</url>
+        </developer>
+        <developer>
+          <id>casualjim</id>
+          <name>Ivan Porto Carrero</name>
+          <url>http://flanders.co.nz/</url>
+        </developer>
+      </developers>
+
+    def projectUrl = "http://www.scalatra.org/"
+    def scmUrl = "http://github.com/scalatra/scalatra"
+    def scmConnection = "scm:git:git://github.com/scalatra/scalatra.git"
+
+    override def pomExtra = super.pomExtra ++ (
+      <inceptionYear>2009</inceptionYear>
+      <organization>
+        <name>Scalatra Project</name>
+        <url>http://www.scalatra.org/</url>
+      </organization>
+      <mailingLists>
+        <mailingList>
+          <name>Scalatra user group</name>
+          <archive>http://groups.google.com/group/scalatra-user</archive>
+          <post>scalatra-user@googlegroups.com</post>
+          <subscribe>scalatra-user+subscribe@googlegroups.com</subscribe>
+          <unsubscribe>scalatra-user+unsubscribe@googlegroups.com</unsubscribe>
+        </mailingList>
+      </mailingLists>
+    )
 
     val servletApi = "org.glassfish" % "javax.servlet" % "3.0" % "provided"
     override def managedStyle = ManagedStyle.Maven
@@ -128,64 +183,6 @@ class ScalatraProject(info: ProjectInfo)
   val fuseSourceSnapshots = "FuseSource Snapshot Repository" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   val scalaToolsSnapshots = "Scala-Tools Maven2 Snapshots Repository" at "http://scala-tools.org/repo-snapshots"
 
-  def licenses =
-    <licenses>
-      <license>
-        <name>BSD</name>
-        <url>http://github.com/scalatra/scalatra/raw/HEAD/LICENSE</url>
-        <distribution>repo</distribution>
-      </license>
-    </licenses>
-
-  def developers = 
-    <developers>
-      <developer>
-        <id>riffraff</id>
-        <name>Gabriele Renzi</name>
-        <url>http://www.riffraff.info</url>
-      </developer>
-      <developer>
-        <id>alandipert</id>
-        <name>Alan Dipert</name>
-        <url>http://alan.dipert.org</url>
-      </developer>
-      <developer>
-        <id>rossabaker</id>
-        <name>Ross A. Baker</name>
-        <url>http://www.rossabaker.com/</url>
-      </developer>
-      <developer>
-        <id>chirino</id>
-        <name>Hiram Chirino</name>
-        <url>http://hiramchirino.com/blog/</url>
-      </developer>
-      <developer>
-        <id>casualjim</id>
-        <name>Ivan Porto Carrero</name>
-        <url>http://flanders.co.nz/</url>
-      </developer>
-    </developers>
-
-  def projectUrl = "http://www.scalatra.org/"
-  def scmUrl = "http://github.com/scalatra/scalatra"
-  def scmConnection = "scm:git:git://github.com/scalatra/scalatra.git"
-
-  override def pomExtra = super.pomExtra ++ (
-    <inceptionYear>2009</inceptionYear> 
-    <organization>
-      <name>Scalatra Project</name>
-      <url>http://www.scalatra.org/</url>
-    </organization>
-    <mailingLists>
-      <mailingList>
-        <name>Scalatra user group</name>
-        <archive>http://groups.google.com/group/scalatra-user</archive>
-        <post>scalatra-user@googlegroups.com</post>
-        <subscribe>scalatra-user+subscribe@googlegroups.com</subscribe>
-        <unsubscribe>scalatra-user+unsubscribe@googlegroups.com</unsubscribe>
-      </mailingList>
-    </mailingLists>
-  )
 
   val publishTo = {
     val local = System.getenv("MOJOLLY_HOME")
