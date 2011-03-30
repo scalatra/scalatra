@@ -45,5 +45,3 @@ abstract class ScalatraServlet
 
   override def initialize(config: ServletConfig): Unit = super.initialize(config)
 }
-
-abstract class ScalatraPipelinedServlet extends ScalatraServlet with RenderPipeline with DefaultRendererPipeline

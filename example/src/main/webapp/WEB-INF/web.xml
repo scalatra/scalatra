@@ -9,10 +9,6 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     <servlet-class>org.scalatra.TemplateExample</servlet-class>
   </servlet>
   <servlet>
-    <servlet-name>RenderPipelineExample</servlet-name>
-    <servlet-class>org.scalatra.RenderPipelineExample</servlet-class>
-  </servlet>
-  <servlet>
     <servlet-name>BasicAuthExample</servlet-name>
     <servlet-class>org.scalatra.BasicAuthExample</servlet-class>
   </servlet>
@@ -61,10 +57,6 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     </init-param>
   </servlet>
 
-  <servlet-mapping>
-    <servlet-name>RenderPipelineExample</servlet-name>
-    <url-pattern>/pipelined/*</url-pattern>
-  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>ChatApplication</servlet-name>
     <url-pattern>/socket.io/*</url-pattern>
