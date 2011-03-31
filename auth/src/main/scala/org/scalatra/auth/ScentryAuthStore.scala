@@ -1,23 +1,28 @@
 package org.scalatra
 package auth
 
-import javax.servlet.http.{HttpServletResponse, HttpSession}
+import javax.servlet.http.HttpSession
 
 object ScentryAuthStore {
 
   trait ScentryAuthStore {
     def get: String
-    def set(value: String): Unit
-    def invalidate: Unit
+    def set(value: String)
+    def invalidate
   }
 
-  class HttpOnlyCookieAuthStore(app: => (ScalatraKernel with CookieSupport), secureOnly: Boolean = false) extends CookieAuthStore(app.cookies, secureOnly) {
+  class HttpOnlyCookieAuthStore(app: => (ScalatraKernel with CookieSupport), secureOnly: Boolean = false)
+      extends CookieAuthStore(app.cookies, secureOnly) {
 
-
-    private val SET_COOKIE = "Set-Cookie"
+    private val SET_COOKIE = "Set-Cookie".intern
 
     override def set(value: String) {
-      app.response.addHeader(SET_COOKIE, Cookie(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly, httpOnly = true)).toCookieString)
+
+      //TODO: Make use of servlet 3.0 cookie implementation
+      app.response.addHeader(
+        SET_COOKIE,
+        Cookie(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly, httpOnly = true)).toCookieString
+      )
     }
 
   }
@@ -27,10 +32,10 @@ object ScentryAuthStore {
     def get: String = {
       cookies.get(Scentry.scentryAuthKey) getOrElse ""
     }
-    def set(value: String): Unit = {
+    def set(value: String) {
       cookies.set(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly))
     }
-    def invalidate: Unit = {
+    def invalidate {
       cookies -= Scentry.scentryAuthKey
     }
   }
@@ -40,9 +45,11 @@ object ScentryAuthStore {
     def get: String = {
       session.getAttribute(Scentry.scentryAuthKey).asInstanceOf[String]
     }
-    def set(value: String): Unit = {
+    def set(value: String) {
       session.setAttribute(Scentry.scentryAuthKey, value)
     }
-    def invalidate: Unit = session.invalidate
+    def invalidate {
+      session.invalidate()
+    }
   }
 }

@@ -5,6 +5,7 @@ import collection.mutable.{ HashMap, Map => MMap }
 import scala.PartialFunction
 import ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
 import util.RicherString
+import collection.immutable.List._
 
 object Scentry {
 
@@ -96,20 +97,41 @@ class Scentry[UserType <: AnyRef](
     case _ => throw new RuntimeException("You need to provide a session deserializer for Scentry")
   }
 
-  def authenticate(names: Symbol*): Unit = {
-    (List[(Symbol, UserType)]() /: strategies) { (acc, stratKv) =>
-      val (nm, strat) = stratKv
+  def authenticate(names: Symbol*) = {
+    runAuthentication(names:_*) map {
+      case (stratName, usr) =>
+        runCallbacks() { _.afterAuthenticate(stratName, usr) }
+        user = usr
+        user
+    } orElse { runUnauthenticated }
+  }
+
+  private def runAuthentication(names: Symbol*) = {
+    (List[(Symbol, UserType)]() /: strategies) { case (acc, (nm, strat)) =>
       runCallbacks(_.isValid) { _.beforeAuthenticate }
-      if(acc.isEmpty && strat.isValid && (names.isEmpty || names.contains(nm))) {
+      val r = if(acc.isEmpty && strat.isValid && (names.isEmpty || names.contains(nm))) {
         strat.authenticate() match {
-          case Some(usr)  => (nm, usr) :: acc
-          case _ => acc
+          case Some(usr)  => (nm, usr) :: Nil
+          case _ => List.empty[(Symbol, UserType)]
         }
-       } else acc
-    }.headOption foreach { case (stratName, usr) =>
-      runCallbacks() { _.afterAuthenticate(stratName, usr) }
-      user = usr
+       } else List.empty[(Symbol, UserType)]
+      acc ::: r
+    } headOption
+  }
+
+  private def runUnauthenticated = {
+    strategies filter { case (_, strat) => strat.isValid } map { case (_, s) => s } toList match {
+      case Nil => defaultUnauthenticated foreach { _.apply() }
+      case l => l foreach { s => runCallbacks() { _.unauthenticated() } }
     }
+    None
+
+  }
+
+  private var defaultUnauthenticated: Option[() => Unit] = None
+
+  def unauthenticated(callback: => Unit) {
+    defaultUnauthenticated = Some(() => callback)
   }
 
   def logout() {

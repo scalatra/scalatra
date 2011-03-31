@@ -2,13 +2,13 @@ package org.scalatra
 package auth
 package strategy
 
-import javax.servlet.http.HttpServletRequest
 import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
 import net.iharder.Base64
 import util.RicherString
 import RicherString._
 import java.nio.charset.Charset
 import java.util.Locale
+import javax.servlet.http.{ HttpServletRequest}
 
 trait RemoteAddress { self: ScentryStrategy[_]  =>
 
@@ -25,18 +25,29 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
  * for more details on usage check:
  * https://gist.github.com/732347
  */
-trait BasicAuthSupport[UserType <: AnyRef] { self: ScentrySupport[UserType]  =>
+trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraKernel with ScentrySupport[UserType])  =>
 
   val realm: String
 
-  protected def basicAuth() = scentry.authenticate('Basic)
+
+  protected def basicAuth() = {
+    val baReq = new BasicAuthStrategy.BasicAuthRequest(request)
+    if(!baReq.providesAuth) {
+      response.setHeader("WWW-Authenticate", "Basic realm=\"%s\"" format realm)
+      halt(401, "Unauthenticated")
+    }
+    if(!baReq.isBasicAuth) {
+      halt(400, "Bad Request")
+    }
+    scentry.authenticate('Basic)
+  }
 
 }
 
 object BasicAuthStrategy {
 
   private val AUTHORIZATION_KEYS = List("Authorization", "HTTP_AUTHORIZATION", "X-HTTP_AUTHORIZATION", "X_HTTP_AUTHORIZATION")
-  private class BasicAuthRequest(r: HttpServletRequest) {
+  private[strategy] class BasicAuthRequest(r: HttpServletRequest) {
 
     def parts = authorizationKey map { r.getHeader(_).split(" ", 2).toList } getOrElse Nil
     def scheme: Option[Symbol] = parts.headOption.map(sch => Symbol(sch.toLowerCase(Locale.ENGLISH)))
@@ -67,6 +78,8 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
 
   import BasicAuthStrategy._
 
+  private val REMOTE_USER = "REMOTE_USER".intern
+
   implicit def request2BasicAuthRequest(r: HttpServletRequest) = new BasicAuthRequest(r)
 
   protected def challenge = "Basic realm=\"%s\"" format realm
@@ -78,35 +91,21 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
 
   def authenticate() = {
     val req = app.request
-    val res = app.response
-
-    if(!req.providesAuth) {
-      unauthorized()
-    }
-    else if (!req.isBasicAuth) {
-      badRequest
-    }
-    else {
-      val u = validate(req.username, req.password)
-      if (u.isDefined) {
-        res.setHeader("REMOTE_USER", getUserId(u.get))
-        u
-      } else {
-        unauthorized()
-      }
-    }
+    validate(req.username, req.password)
   }
 
   protected def getUserId(user: UserType): String
   protected def validate(userName: String, password: String): Option[UserType]
 
-  def unauthorized(value: String = challenge): Option[UserType] = {
-    app.response.setHeader("WWW-Authenticate", value)
+
+  override def afterSetUser(user: UserType) {
+    app.response.setHeader(REMOTE_USER, getUserId(user))
+  }
+
+
+  override def unauthenticated() = {
+    app.response.setHeader("WWW-Authenticate", challenge)
     app.halt(401, "Unauthenticated")
-    None
   }
-  def badRequest: Option[UserType] = {
-    app.halt(400, " Bad request")
-    None
-  }
+
 }

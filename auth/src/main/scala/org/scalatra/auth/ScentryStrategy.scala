@@ -88,4 +88,9 @@ trait ScentryStrategy[UserType <: AnyRef] {
    */
   def afterLogout(user: UserType) {}
 
+  /**
+   * Perform stuff when the request is unauthenticated and the strategy is valid
+   */
+  def unauthenticated() {}
+
 }

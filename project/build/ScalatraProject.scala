@@ -9,7 +9,7 @@ class ScalatraProject(info: ProjectInfo)
   with posterous.Publish
 {
   val jettyGroupId = "org.eclipse.jetty"
-  val jettyVersion = "7.3.0.v20110203"
+  val jettyVersion = "7.3.1.v20110307"
   val slf4jVersion = "1.6.1"
   val scalateVersion = buildScalaVersion match {
     case "2.8.0" => "1.3.2"
