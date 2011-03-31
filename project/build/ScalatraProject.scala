@@ -16,7 +16,7 @@ class ScalatraProject(info: ProjectInfo)
     case _ => "1.4.1"
   }
 
-  trait ScalatraSubproject 
+  trait ScalatraSubproject
     extends MavenCentralScalaProject
     with MavenCentralProject
     with BasicPackagePaths
@@ -63,10 +63,12 @@ class ScalatraProject(info: ProjectInfo)
     def scmUrl = "http://github.com/scalatra/scalatra"
     def scmConnection = "scm:git:git://github.com/scalatra/scalatra.git"
 
+    def organizationName = "Scalatra Project"
+
     override def pomExtra = super.pomExtra ++ (
       <inceptionYear>2009</inceptionYear>
       <organization>
-        <name>Scalatra Project</name>
+        <name>{organizationName}</name>
         <url>http://www.scalatra.org/</url>
       </organization>
       <mailingLists>
@@ -82,6 +84,19 @@ class ScalatraProject(info: ProjectInfo)
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
     override def managedStyle = ManagedStyle.Maven
+
+    override def packageOptions = ManifestAttributes(
+      "Created-By" -> "Simple Build Tool",
+      "Built-By" -> system[String]("user.name").get.get,
+      "Build-Jdk" -> system[String]("java.version").get.get,
+      "Specification-Title" -> projectName.get.get,
+      "Specification-Version" -> projectVersion.get.get.toString,
+      "Specification-Vendor" -> organizationName,
+      "Implementation-Title" -> projectName.get.get,
+      "Implementation-Version" -> projectVersion.get.get.toString,
+      "Implementation-Vendor-Id" -> projectOrganization.get.get,
+      "Implementation-Vendor" -> organizationName
+    ) :: super.packageOptions.toList
   }
 
   trait TestWithScalatraTest extends TestWith {
@@ -133,10 +148,10 @@ class ScalatraProject(info: ProjectInfo)
   }
 
   lazy val website = project("website", "scalatra-website", new WebsiteProject(_), core)
-  class WebsiteProject(info: ProjectInfo) 
-    extends DefaultWebProject(info) 
+  class WebsiteProject(info: ProjectInfo)
+    extends DefaultWebProject(info)
     with SiteGenWebProject
-    with UnpublishedProject 
+    with UnpublishedProject
   {
     override val jettyPort = 8081
     val scalatePage = "org.fusesource.scalate" % "scalate-page" % scalateVersion
@@ -147,7 +162,7 @@ class ScalatraProject(info: ProjectInfo)
 
     override lazy val generateSite =
       if (scalateVersion.startsWith("1.3."))
-        task { 
+        task {
           log.info("sitegen only supported by Scalate 1.4.0 and above")
           None
         }
