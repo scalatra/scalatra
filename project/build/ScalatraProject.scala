@@ -16,8 +16,6 @@ class ScalatraProject(info: ProjectInfo)
     case _ => "1.4.1"
   }
 
-  val glassfishRepo = "Glassfish Repo" at "http://download.java.net/maven/glassfish"
-
   trait ScalatraSubproject 
     extends MavenCentralScalaProject
     with MavenCentralProject
@@ -82,7 +80,7 @@ class ScalatraProject(info: ProjectInfo)
       </mailingLists>
     )
 
-    val servletApi = "org.glassfish" % "javax.servlet" % "3.0" % "provided"
+    val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
     override def managedStyle = ManagedStyle.Maven
   }
 
