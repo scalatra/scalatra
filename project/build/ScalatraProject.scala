@@ -132,6 +132,7 @@ class ScalatraProject(info: ProjectInfo)
   lazy val socketio = project("socketio", "scalatra-socketio", new SocketIOProject(_), core)
   class SocketIOProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
     val websocket = jettyGroupId % "jetty-websocket" % jettyVersion % "provided"
+    val socketIoJava = "org.scalatra.socketio-java" % "socketio-core" % projectVersion.get.get.toString
     val description = "Supplies optional SocketIO support for scalatra"
   }
 

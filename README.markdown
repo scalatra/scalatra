@@ -527,10 +527,13 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 
 ## Migration Guide
 
+### scalatra-2.0.0.M3 to scalatra-2.0.0.M4
+
+1. Remove socket-io-java-dev.jar if you manually copied it into your lib directory.
+
 ### scalatra-2.0.0.M2 to scalatra-2.0.0.M3
 
-Should be compatible.  If it broke, please share your tale of woe on the
-mailing list.
+No issues.
 
 ### scalatra-2.0.0.M1 to scalatra-2.0.0.M2
 

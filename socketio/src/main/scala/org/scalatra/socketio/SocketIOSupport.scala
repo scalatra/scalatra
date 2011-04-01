@@ -6,8 +6,7 @@ import collection.JavaConversions._
 import scala.io.Source
 import java.lang.String
 import com.glines.socketio.common.DisconnectReason
-import com.glines.socketio.server.{SocketIOInbound, Transport, SocketIOSessionManager}
-import com.glines.socketio.server.SocketIOInbound.SocketIOOutbound
+import com.glines.socketio.server.{SocketIOInbound, SocketIOOutbound, Transport, SocketIOSessionManager}
 import com.glines.socketio.server.SocketIOFrame.FrameType
 import java.util.concurrent.{CopyOnWriteArrayList, ConcurrentHashMap}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
@@ -163,7 +162,7 @@ trait SocketIOSupport extends Handler with Initializable {
       super.handle(req, res)
     } else {
       transport.handle(req, res, new Transport.InboundFactory {
-        def getInbound(p1: HttpServletRequest, p2: Array[String]) = {
+        def getInbound(p1: HttpServletRequest) = {
           val client = _builder.result { c => _connections.remove(_connections.indexOf(c)) }
           _connections.add(client)
           client.broadcaster { (messageType, message) =>
