@@ -126,9 +126,6 @@ trait ScalatraKernel extends Handler with Initializable
             Routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
           }
           catch {
-            case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
-            case HaltException(Some(code), None) => response.sendError(code)
-            case HaltException(None, _) =>
             case e => handleError(e)
           }
           finally {
@@ -157,8 +154,19 @@ trait ScalatraKernel extends Handler with Initializable
   def notFound(fun: => Any) = doNotFound = { () => fun }
 
   protected def handleError(e: Throwable): Any = {
-    status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-    _caughtThrowable.withValue(e) { errorHandler() }
+    (renderError orElse defaultRenderError) apply e
+  }
+
+  protected def renderError : PartialFunction[Throwable, Unit] = defaultRenderError
+
+  protected final def defaultRenderError : PartialFunction[Throwable, Unit] = {
+    case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
+    case HaltException(Some(code), None) => response.sendError(code)
+    case HaltException(None, _) => response.sendError(400)
+    case e => {
+      status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+      _caughtThrowable.withValue(e) { errorHandler() }
+    }
   }
 
   protected var errorHandler: Action = { () => throw caughtThrowable }
@@ -226,7 +234,7 @@ trait ScalatraKernel extends Handler with Initializable
   def halt(code: Int, msg: String) = throw new HaltException(Some(code), Some(msg))
   def halt(code: Int) = throw new HaltException(Some(code), None)
   def halt() = throw new HaltException(None, None)
-  private case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
+  protected case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
 
   def pass() = throw new PassException
   protected[scalatra] class PassException extends RuntimeException
