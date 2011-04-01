@@ -41,6 +41,8 @@ import ScalatraKernel._
  */
 trait ScalatraKernel extends Handler with Initializable
 {
+  protected implicit def map2multimap(map: Map[String, Seq[String]]) = new MultiMap(map)
+  
   protected val Routes: ConcurrentMap[String, List[Route]] = {
     val map = new ConcurrentHashMap[String, List[Route]]
     httpMethods foreach { x: String => map += ((x, List[Route]())) }
@@ -74,7 +76,7 @@ trait ScalatraKernel extends Handler with Initializable
     override def toString = routeMatchers.toString()
   }
 
-  protected implicit def map2multimap(map: Map[String, Seq[String]]) = new MultiMap(map)
+
   /**
    * Pluggable way to convert Strings into RouteMatchers.  By default, we
    * interpret them the same way Sinatra does.
@@ -154,15 +156,15 @@ trait ScalatraKernel extends Handler with Initializable
   def notFound(fun: => Any) = doNotFound = { () => fun }
 
   protected def handleError(e: Throwable): Any = {
-    (renderError orElse defaultRenderError) apply e
+    (renderError orElse defaultRenderError).apply(e)
   }
 
-  protected def renderError : PartialFunction[Throwable, Unit] = defaultRenderError
+  protected def renderError : PartialFunction[Throwable, Any] = defaultRenderError
 
-  protected final def defaultRenderError : PartialFunction[Throwable, Unit] = {
+  protected final def defaultRenderError : PartialFunction[Throwable, Any] = {
     case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
     case HaltException(Some(code), None) => response.sendError(code)
-    case HaltException(None, _) => response.sendError(400)
+    case HaltException(None, _) =>
     case e => {
       status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
       _caughtThrowable.withValue(e) { errorHandler() }
