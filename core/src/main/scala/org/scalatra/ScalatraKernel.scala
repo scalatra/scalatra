@@ -186,16 +186,20 @@ trait ScalatraKernel extends Handler with Initializable
     (contentTypeInfer orElse defaultContentTypeInfer).apply(actionResult)
 
   protected def renderResponseBody(actionResult: Any) {
-    actionResult match {
-      case bytes: Array[Byte] =>
-        response.getOutputStream.write(bytes)
-      case file: File =>
-        using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
-      case _: Unit =>
-      // If an action returns Unit, it assumes responsibility for the response
-      case x: Any  =>
-        response.getWriter.print(x.toString)
-    }
+    (renderPipeline orElse defaultRenderResponse) apply actionResult
+  }
+
+  protected def renderPipeline: PartialFunction[Any, Any] = defaultRenderResponse
+
+  protected final def defaultRenderResponse: PartialFunction[Any, Any] = {
+    case bytes: Array[Byte] =>
+      response.getOutputStream.write(bytes)
+    case file: File =>
+      using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
+    case _: Unit =>
+    // If an action returns Unit, it assumes responsibility for the response
+    case x: Any  =>
+      response.getWriter.print(x.toString)
   }
 
   protected[scalatra] val _multiParams = new DynamicVariable[MultiMap](new MultiMap)
