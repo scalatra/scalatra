@@ -122,7 +122,10 @@ class Scentry[UserType <: AnyRef](
   private def runUnauthenticated = {
     strategies filter { case (_, strat) => strat.isValid } map { case (_, s) => s } toList match {
       case Nil => defaultUnauthenticated foreach { _.apply() }
-      case l => l foreach { s => runCallbacks() { _.unauthenticated() } }
+      case l => {
+        l foreach { s => runCallbacks() { _.unauthenticated() } }
+        defaultUnauthenticated foreach { _.apply() }
+      }
     }
     None
 

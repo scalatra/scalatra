@@ -29,6 +29,13 @@ object BasicAuthExample {
 
     protected val scentryConfig = (new ScentryConfig {}).asInstanceOf[ScentryConfiguration]
 
+
+    override protected def configureScentry = {
+      scentry.unauthenticated {
+        scentry.strategies('Basic).unauthenticated()
+      }
+    }
+
     override protected def registerAuthStrategies = {
 
       scentry.registerStrategy('Basic, app => new OurBasicAuthStrategy(app, realm))
