@@ -5,7 +5,8 @@ import java.io.File
 import org.fusesource.scalate.sbt._
 
 class ScalatraProject(info: ProjectInfo) 
-  extends ParentProject(info) 
+  extends ParentProject(info)
+  with UnifiedScaladoc
   with posterous.Publish
 {
   val jettyGroupId = "org.eclipse.jetty"
@@ -225,4 +226,5 @@ class ScalatraProject(info: ProjectInfo)
   // Tweak posterous settings
   override def postTitle(vers: String) = "%s %s".format("Scalatra", vers)
   override def postTags = "Scalatra" :: crossScalaVersions.map { "Scala " + _ }.toList
+
 }
