@@ -35,6 +35,11 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
 
   def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
 
+  /*
+   * TODO The structural type works at runtime, but fails to compile because
+   * of the raw type returned by getAttributeNames.  We're telling the
+   * compiler to trust us; remove when we upgrade to Servlet 3.0.
+   */
   protected def attributes = r.asInstanceOf[Attributes]
 }
 
