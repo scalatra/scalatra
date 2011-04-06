@@ -19,7 +19,11 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   }
 
   def body:String = {
-    Source.fromInputStream(r.getInputStream, r.getCharacterEncoding).mkString
+    val encoding = r.getCharacterEncoding
+    val enc = if(encoding == null || encoding.trim.length == 0) {
+      "ISO-8859-1"
+    } else encoding
+    Source.fromInputStream(r.getInputStream, enc).mkString
   }
 
   def isAjax: Boolean = r.getHeader("X-Requested-With") != null
