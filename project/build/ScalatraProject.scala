@@ -192,6 +192,12 @@ class ScalatraProject(info: ProjectInfo)
     val description = "Specs support for the Scalatra test framework"
   }, scalatraTest)
 
+  lazy val specs2 = project("specs2", "scalatra-specs2", new DefaultProject(_) with ScalatraSubproject {
+    val specsVersion = "1.1-SNAPSHOT"
+    val specs = "org.specs2" %% "specs2" % specsVersion % "compile"
+    val description = "Specs 2 support for the Scalatra test framework"
+  }, scalatraTest)
+
   lazy val archetype = project("archetype", "simple-scalatra-archetype", new ArchetypeProject(_))
   class ArchetypeProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject
 
