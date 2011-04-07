@@ -198,7 +198,11 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val specs2 = project("specs2", "scalatra-specs2", new DefaultProject(_) with ScalatraSubproject {
     val specsVersion = "1.1"
-    val specs = "org.specs2" %% "specs2" % specsVersion % "compile"
+    val specsScalaVersion = buildScalaVersion match {
+      case "2.8.0" => "2.8.1" // Not released for 2.8.0, but should be compatible
+      case x => x
+    }
+    val specs = "org.specs2" % ("specs2_"+specsScalaVersion) % specsVersion % "compile"
     val description = "Specs 2 support for the Scalatra test framework"
   }, scalatraTest)
 
