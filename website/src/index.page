@@ -9,15 +9,23 @@ framework for [Scala](http://www.scala-lang.org/).
 
 ## Why Scalatra?
 
-* *Lightweight*: Scalatra is not a full application stack.  It is a simple DSL for dispatching HTTP requests to Scala code blocks.  The rest of your architecture remains up to you.
+- *Lightweight*: Scalatra is not a full application stack.  It is a simple DSL
+  for dispatching HTTP requests to Scala code blocks.  The rest of your
+  architecture remains up to you.
 
-* *Scalable*: Scalatra will grow with your application from a single-file prototype to a multi-tier enterprise application.
+- *Scalable*: Scalatra will grow with your application from a single-file
+  prototype to a multi-tier enterprise application.
 
-* *Familiar*: [Similar DSLs](http://gist.github.com/353559) exist in many other languages.  Scalatra is a very comfortable way for users of those frameworks to explore the power of Scala.
+- *Familiar*: [Similar DSLs](http://gist.github.com/353559) exist in many other
+  languages.  Scalatra is a very comfortable way for users of those frameworks
+  to explore the power of Scala.
 
-* *Java-interoperable*: Scalatra can call your existing Java libraries and deploys to your favorite servlet container.  Migrate from Java at your own pace, if at all.
+- *Java-interoperable*: Scalatra can call your existing Java libraries and
+  deploys to your favorite servlet container.  Migrate from Java at your own
+  pace.
 
-* *Vibrant*: Scalatra has an active [community](community.html) of users and contributors.  Come join us.
+- *Vibrant*: Scalatra has an active [community](community.html) of users and
+  contributors.  Come join us.
 
 ## Example
 
