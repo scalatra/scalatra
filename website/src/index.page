@@ -16,9 +16,9 @@ framework for [Scala](http://www.scala-lang.org/).
 - *Scalable*: Scalatra will grow with your application from a single-file
   prototype to a multi-tier enterprise application.
 
-- *Familiar*: [Similar DSLs](http://gist.github.com/353559) exist in many other
-  languages.  Scalatra is a very comfortable way for users of those frameworks
-  to explore the power of Scala.
+- *Familiar*: [Similar DSLs](http://en.wikipedia.org/wiki/Sinatra_%28software%29#Sinatra_inspired_frameworks)
+  exist in many other languages.  Scalatra is a very comfortable way for users
+  of those frameworks to explore the power of Scala.
 
 - *Java-interoperable*: Scalatra can call your existing Java libraries and
   deploys to your favorite servlet container.  Migrate from Java at your own
