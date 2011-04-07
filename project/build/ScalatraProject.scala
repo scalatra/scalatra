@@ -174,6 +174,10 @@ class ScalatraProject(info: ProjectInfo)
         }
       else
         super.generateSiteAction
+
+    // Embed our sources as resources so we can include them in the site and
+    // ensure that they're compilable.
+    override def webappClasspath = super.webappClasspath +++ mainScalaSourcePath
   }
 
   lazy val scalatraTest = project("test", "scalatra-test", new DefaultProject(_) with ScalatraSubproject {

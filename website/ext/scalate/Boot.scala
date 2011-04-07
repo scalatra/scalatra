@@ -3,6 +3,7 @@ package scalate
 import java.util.regex.Matcher
 import org.fusesource.scalamd.{MacroDefinition, Markdown}
 import org.fusesource.scalate._
+import org.fusesource.scalate.servlet.ServletRenderContext
 import org.fusesource.scalate.wikitext.Pygmentize
 
 class Boot(engine: TemplateEngine) {
@@ -11,8 +12,11 @@ class Boot(engine: TemplateEngine) {
 
     Markdown.macros :::= List(MacroDefinition("""\{pygmentize::(.*?)\}(.*?)\{pygmentize\}""", "s", pygmentize, true))
 
-    for (ssp <- engine.filter("ssp"); md <- engine.filter("markdown")) {
+    for (ssp <- engine.filter("ssp");
+         md <- engine.filter("markdown");
+         plain <- engine.filter("plain")) {
       engine.pipelines += "ssp.md"-> List(ssp, md)
+      engine.pipelines += "scala" -> List(plain)
     }
   }
 }
