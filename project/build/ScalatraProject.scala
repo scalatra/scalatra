@@ -105,7 +105,7 @@ class ScalatraProject(info: ProjectInfo)
   }
 
   trait TestWithScalatraTest extends TestWith {
-    override def testWithTestClasspath = List(scalatest, specs)
+    override def testWithTestClasspath = List(scalatest, specs, specs2)
   }
 
   lazy val core = project("core", "scalatra", new CoreProject(_))
