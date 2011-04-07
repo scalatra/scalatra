@@ -1,64 +1,68 @@
 ---
 title: "Scalatra: a tiny, Sinatra-like web framework for Scala."
 
---- name:content
-# Scalatra = Scala + Sinatra
+--- name:content pipeline:jade
+:markdown
+  # Scalatra = Scala + Sinatra
 
-<dfn>Scalatra</dfn> is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web
-framework for [Scala](http://www.scala-lang.org/).  
+  <dfn>Scalatra</dfn> is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web
+  framework for [Scala](http://www.scala-lang.org/).
 
-## Why Scalatra?
+  ## Why Scalatra?
 
-- *Lightweight*: Scalatra is not a full application stack.  It is a simple DSL
-  for dispatching HTTP requests to Scala code blocks.  The rest of your
-  architecture remains up to you.
+  - *Lightweight*: Scalatra is not a full application stack.  It is a simple DSL
+    for dispatching HTTP requests to Scala code blocks.  The rest of your
+    architecture remains up to you.
 
-- *Scalable*: Scalatra will grow with your application from a single-file
-  prototype to a multi-tier enterprise application.
+  - *Scalable*: Scalatra will grow with your application from a single-file
+    prototype to a multi-tier enterprise application.
 
-- *Familiar*: [Similar DSLs](http://en.wikipedia.org/wiki/Sinatra_%28software%29#Sinatra_inspired_frameworks)
-  exist in many other languages.  Scalatra is a very comfortable way for users
-  of those frameworks to explore the power of Scala.
+  - *Familiar*: [Similar DSLs](http://en.wikipedia.org/wiki/Sinatra_%28software%29#Sinatra_inspired_frameworks)
+    exist in many other languages.  Scalatra is a very comfortable way for users
+    of those frameworks to explore the power of Scala.
 
-- *Java-interoperable*: Scalatra can call your existing Java libraries and
-  deploys to your favorite servlet container.  Migrate from Java at your own
-  pace.
+  - *Java-interoperable*: Scalatra can call your existing Java libraries and
+    deploys to your favorite servlet container.  Migrate from Java at your own
+    pace.
 
-- *Vibrant*: Scalatra has an active [community](community.html) of users and
-  contributors.  Come join us.
+  - *Vibrant*: Scalatra has an active [community](community.html) of users and
+    contributors.  Come join us.
 
-## Example
+  ## Example
 
-    import org.scalatra._
+  {pygmentize::scala}
+  import org.scalatra._
 
-    // This Scalatra application is a simple servlet.
-    class ScalatraExample extends ScalatraServlet {
+  // This Scalatra application is a simple servlet.
+  class ScalatraExample extends ScalatraServlet {
 
-      // A Scalatra application is made up of routes.  A route is an HTTP
-      // method (e.g., GET, POST), a path pattern, and an action block to
-      // execute if the route matches.
+    // A Scalatra application is made up of routes.  A route is an HTTP
+    // method (e.g., GET, POST), a path pattern, and an action block to
+    // execute if the route matches.
+    //
+    // This route matches GET requests to /hello/name, where name is a path
+    // parameter.
+    get("/hello/:name") {
+      // The name parameter is available in the params map.
+      val name = params("name")
+
+      // You can do business logic inline or call out to your business tier.
+      // Scalatra leaves these architectural decisions to you.
+      val nameUpper = name.toUpperCase
+
+      // You have full access to the Servlet API.
+      response.setHeader("X-Powered-By", "Scalatra")
+
+      // Like any good MVC framework, Scalatra allows you to separate the
+      // logic from the view by calling out to a templating system such
+      // as Scalate.
       //
-      // This route matches GET requests to /hello/name, where name is a path
-      // parameter.
-      get("/hello/:name") {
-        // The name parameter is available in the params map.
-        val name = params("name")
-
-        // You can do business logic inline or call out to your business tier.
-        // Scalatra leaves these architectural decisions to you.
-        val nameUpper = name.toUpperCase
-
-        // You have full access to the Servlet API.
-        response.setHeader("X-Powered-By", "Scalatra")
-
-        // Like any good MVC framework, Scalatra allows you to separate the
-        // logic from the view by calling out to a templating system such
-        // as Scalate.
-        //
-        // Alternatively, Scalatra will render the return type of the action
-        // block.  In the case of an XML literal, a content-type of "text/html"
-        // is inferred, and the XML is rendered back to the response.  This
-        // rendering is completely customizable.
-        <h1>Hello, {nameUpper}!</h1>
-      }
+      // Alternatively, Scalatra will render the return type of the action
+      // block.  In the case of an XML literal, a content-type of "text/html"
+      // is inferred, and the XML is rendered back to the response.  This
+      // rendering is completely customizable.
+      <h1>Hello, {nameUpper}!</h1>
     }
+  }
+  {pygmentize}
+
