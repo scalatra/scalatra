@@ -12,7 +12,7 @@ trait GenerateChecksums extends BasicManagedProject {
           case child: DependencyResolver => setChecksums(child)
         }
       case r: RepositoryResolver =>
-        r.setChecksums("sha1,md5")
+        resolverChecksumAlgorithms(r.getName)
     }
 
     val i = super.ivySbt
@@ -28,5 +28,12 @@ trait GenerateChecksums extends BasicManagedProject {
     val list = new ju.ArrayList[A](c.size)
     list.addAll(c)
     list
+  }
+
+  /*
+   * Some repos have bad checksums which aren't worth crashing the build over.
+   */
+  def resolverChecksumAlgorithms: PartialFunction[String, Seq[String]] = {
+    case _ => "sha1" :: "md5" :: Nil
   }
 }

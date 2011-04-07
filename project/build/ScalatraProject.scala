@@ -98,6 +98,10 @@ class ScalatraProject(info: ProjectInfo)
       "Implementation-Vendor-Id" -> projectOrganization.get.get,
       "Implementation-Vendor" -> organizationName
     ) :: super.packageOptions.toList
+
+    // specs2 has a bad checksum that is crashing the build.
+    override def resolverChecksumAlgorithms =
+      ({ case "Scala-Tools Maven2 Snapshots Repository" => Nil }: PartialFunction[String, Seq[String]]) orElse super.resolverChecksumAlgorithms
   }
 
   trait TestWithScalatraTest extends TestWith {
@@ -232,5 +236,4 @@ class ScalatraProject(info: ProjectInfo)
   // Tweak posterous settings
   override def postTitle(vers: String) = "%s %s".format("Scalatra", vers)
   override def postTags = "Scalatra" :: crossScalaVersions.map { "Scala " + _ }.toList
-
 }
