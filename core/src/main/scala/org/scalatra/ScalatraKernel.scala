@@ -196,7 +196,11 @@ trait ScalatraKernel extends Handler with Initializable
     (contentTypeInfer orElse defaultContentTypeInfer).apply(actionResult)
 
   protected def renderResponseBody(actionResult: Any) {
-    (renderPipeline orElse defaultRenderResponse) apply actionResult
+    @tailrec def loop(ar: Any): Any = ar match {
+      case r: Unit => r
+      case a => loop((renderPipeline orElse defaultRenderResponse) apply a)
+    }
+    loop(actionResult)
   }
 
   protected def renderPipeline: PartialFunction[Any, Any] = defaultRenderResponse
