@@ -27,7 +27,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   }
 
   def isAjax: Boolean = r.getHeader("X-Requested-With") != null
-  def isWrite: Boolean = ScalatraKernel.writeMethods.contains(r.getMethod.toUpperCase(Locale.ENGLISH))
+  def isWrite: Boolean = !HttpMethod(r.getMethod).isSafe
 
   def multiCookies: MultiMap = {
     val rr = Option(r.getCookies).getOrElse(Array()).toSeq.

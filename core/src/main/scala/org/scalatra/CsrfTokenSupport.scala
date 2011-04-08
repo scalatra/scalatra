@@ -5,7 +5,7 @@ import java.security.SecureRandom
 
 object GenerateId {
   def apply(): String = {
-    generateCSRFToken()
+    generateCsrfToken()
   }
 
   private def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
@@ -13,23 +13,29 @@ object GenerateId {
     sb.append(Integer.toString(b.toInt & 0xff, 16))
   }).toString
 
-  protected def generateCSRFToken() = {
+  protected def generateCsrfToken() = {
     val tokenVal = new Array[Byte](20)
     (new SecureRandom).nextBytes(tokenVal)
     hexEncode(tokenVal)
   }
+
+  @deprecated("Use generateCsrfToken()")
+  protected def generateCSRFToken() = generateCsrfToken()
 }
 
-trait CSRFTokenSupport { self: ScalatraKernel =>
+object CsrfTokenSupport {
+  val DefaultKey = "org.scalatra.CsrfTokenSupport.key"
+}
 
-  protected def csrfKey = ScalatraKernel.csrfKey
+trait CsrfTokenSupport { self: ScalatraKernel =>
+  protected def csrfKey = CsrfTokenSupport.DefaultKey
   protected def csrfToken = session(csrfKey).asInstanceOf[String]
 
   before {
     if (isForged) {
       handleForgery()
     }
-    prepareCSRFToken()
+    prepareCsrfToken()
   }
 
   /**
@@ -49,8 +55,11 @@ trait CSRFTokenSupport { self: ScalatraKernel =>
     halt(403, "Request tampering detected!")
   }
 
-  protected def prepareCSRFToken() = {
+  protected def prepareCsrfToken() = {
     session.getOrElseUpdate(csrfKey, GenerateId())
   }
 
+  @deprecated("Use prepareCsrfToken()")
+  protected def prepareCSRFToken() = prepareCsrfToken()
 }
+
