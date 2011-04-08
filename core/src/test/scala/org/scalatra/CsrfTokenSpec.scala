@@ -4,7 +4,7 @@ import org.scalatra._
 
 import test.specs.ScalatraSpecification
 
-class CSRFTokenServlet extends ScalatraServlet with CSRFTokenSupport {
+class CsrfTokenServlet extends ScalatraServlet with CsrfTokenSupport {
   get("/renderForm") {
     <html>
       <body>
@@ -18,9 +18,9 @@ class CSRFTokenServlet extends ScalatraServlet with CSRFTokenSupport {
   }
 }
 
-object CSRFTokenSpec extends ScalatraSpecification {
+object CsrfTokenSpec extends ScalatraSpecification {
 
-  addServlet(classOf[CSRFTokenServlet], "/*")
+  addServlet(classOf[CsrfTokenServlet], "/*")
 
 
   "the get request should include the CSRF token" in {
@@ -35,7 +35,7 @@ object CSRFTokenSpec extends ScalatraSpecification {
       get("/renderForm") {
         token = ("value=\"(\\w+)\"".r findFirstMatchIn body).get.subgroups.head
       }
-      post("/renderForm", "csrfToken" -> token) {
+      post("/renderForm", CsrfTokenSupport.DefaultKey -> token) {
         body must be_==("SUCCESS")
       }
     }
@@ -45,7 +45,7 @@ object CSRFTokenSpec extends ScalatraSpecification {
     session {
       get("/renderForm") {
       }
-      post("/renderForm", "csrfToken" -> "Hey I'm different") {
+      post("/renderForm", CsrfTokenSupport.DefaultKey -> "Hey I'm different") {
         status must be_==(403)
         body mustNot be_==("SUCCESS")
       }
@@ -62,7 +62,7 @@ object CSRFTokenSpec extends ScalatraSpecification {
         val token2 = ("value=\"(\\w+)\"".r findFirstMatchIn body).get.subgroups.head
         token must be_==(token2)
       }
-      post("/renderForm", "csrfToken" -> token) {
+      post("/renderForm", CsrfTokenSupport.DefaultKey -> token) {
         body must be_==("SUCCESS")
       }
     }

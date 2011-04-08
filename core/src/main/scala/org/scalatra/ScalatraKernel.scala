@@ -27,7 +27,8 @@ object ScalatraKernel
   @deprecated("Use HttpMethods.methods filter { !_.isSafe }")
   val writeMethods = HttpMethod.methods filter { !_.isSafe } map { _.toString }
 
-  val csrfKey = "csrfToken"
+  @deprecated("Use CsrfTokenSupport.DefaultKey")
+  val csrfKey = CsrfTokenSupport.DefaultKey
 
   val EnvironmentKey = "org.scalatra.environment"
 }
