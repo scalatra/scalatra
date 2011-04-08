@@ -220,6 +220,7 @@ class ScalatraProject(info: ProjectInfo)
     } else {
       System.setProperty("gpg.skip", "true")
       Credentials(Path.userHome / ".ivy2" / ".credentials", log)
+
       if(version.toString.endsWith("-SNAPSHOT"))
         "Mojolly Snapshots" at "https://maven.mojolly.com/content/repositories/thirdparty-snapshots/"
       else
@@ -230,6 +231,8 @@ class ScalatraProject(info: ProjectInfo)
   }
   // Without this, scalatra-scalatest and scalatra-specs can't find scalatra-test
   val scalatraRepo = publishTo
+
+  val sonatypeRepo = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
   override def deliverProjectDependencies = Nil
 
