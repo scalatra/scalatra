@@ -9,6 +9,7 @@ import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
 import scala.xml.NodeSeq
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
@@ -20,8 +21,12 @@ object ScalatraKernel
 
   type Action = () => Any
 
-  val httpMethods = List("GET", "POST", "PUT", "DELETE", "OPTIONS")
-  val writeMethods = "POST" :: "PUT" :: "DELETE" :: Nil
+  @deprecated("Use HttpMethods.methods")
+  val httpMethods = HttpMethod.methods map { _.toString }
+
+  @deprecated("Use HttpMethods.methods filter { !_.isSafe }")
+  val writeMethods = HttpMethod.methods filter { !_.isSafe } map { _.toString }
+
   val csrfKey = "csrfToken"
 
   val EnvironmentKey = "org.scalatra.environment"
@@ -42,10 +47,10 @@ import ScalatraKernel._
 trait ScalatraKernel extends Handler with Initializable
 {
   protected implicit def map2multimap(map: Map[String, Seq[String]]) = new MultiMap(map)
-  
-  protected val Routes: ConcurrentMap[String, List[Route]] = {
-    val map = new ConcurrentHashMap[String, List[Route]]
-    httpMethods foreach { x: String => map += ((x, List[Route]())) }
+
+  protected val routes: ConcurrentMap[HttpMethod, List[Route]] = {
+    val map = new ConcurrentHashMap[HttpMethod, List[Route]]
+    HttpMethod.methods foreach { x: HttpMethod => map += ((x, List[Route]())) }
     map
   }
 
@@ -125,7 +130,7 @@ trait ScalatraKernel extends Handler with Initializable
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
             beforeFilters foreach { _() }
-            Routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
+            routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
           }
           catch {
             case e => handleError(e)
@@ -139,10 +144,11 @@ trait ScalatraKernel extends Handler with Initializable
     }
   }
 
-  protected def effectiveMethod = request.getMethod.toUpperCase match {
-    case "HEAD" => "GET"
-    case x => x
-  }
+  protected def effectiveMethod: HttpMethod =
+    HttpMethod(request.getMethod) match {
+      case Head => Get
+      case x => x
+    }
 
   def requestPath: String
 
@@ -276,27 +282,27 @@ trait ScalatraKernel extends Handler with Initializable
    * }}}
    *
    */
-  def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("GET", routeMatchers, action)
+  def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Get, routeMatchers, action)
 
   /**
    * @see [[org.scalatra.ScalatraKernel.get]]
    */
-  def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("POST", routeMatchers, action)
+  def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Post, routeMatchers, action)
 
   /**
    * @see [[org.scalatra.ScalatraKernel.get]]
    */
-  def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("PUT", routeMatchers, action)
+  def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Put, routeMatchers, action)
 
   /**
    * @see [[org.scalatra.ScalatraKernel.get]]
    */
-  def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("DELETE", routeMatchers, action)
+  def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Delete, routeMatchers, action)
 
   /**
    * @see [[org.scalatra.ScalatraKernel.get]]
    */
-  def options(routeMatchers: RouteMatcher*)(action: => Any) = addRoute("OPTIONS", routeMatchers, action)
+  def options(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Options, routeMatchers, action)
 
   /**
    * registers a new route for the given HTTP method, can be overriden so that subtraits can use their own logic
@@ -307,11 +313,15 @@ trait ScalatraKernel extends Handler with Initializable
    *
    * @see removeRoute
    */
-  protected[scalatra] def addRoute(verb: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
+  protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
     val route = new Route(routeMatchers, () => action)
-    modifyRoutes(verb, route :: _ )
+    modifyRoutes(method, route :: _ )
     route
   }
+
+  @deprecated("Use addRoute(HttpMethod, Iterable[RouteMatcher], =>Any)")
+  protected[scalatra] def addRoute(verb: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route =
+    addRoute(HttpMethod(verb), routeMatchers, action)
 
   /**
    * removes _all_ the actions of a given route for a given HTTP method.
@@ -319,19 +329,22 @@ trait ScalatraKernel extends Handler with Initializable
    *
    * @see addRoute
    */
-  protected def removeRoute(verb: String, route: Route): Unit = {
-    modifyRoutes(verb, _ filterNot (_ == route) )
+  protected def removeRoute(method: HttpMethod, route: Route): Unit = {
+    modifyRoutes(method, _ filterNot (_ == route) )
     route
   }
+
+  protected def removeRoute(verb: String, route: Route): Unit =
+    removeRoute(HttpMethod(verb), route)
 
   /**
    * since routes is a ConcurrentMap and we avoid locking, we need to retry if there are
    * concurrent modifications, this is abstracted here for removeRoute and addRoute
    */
-  @tailrec private def modifyRoutes(protocol: String, f: (List[Route] => List[Route])): Unit = {
-    val oldRoutes = Routes(protocol)
-    if (!Routes.replace(protocol, oldRoutes, f(oldRoutes))) {
-      modifyRoutes(protocol,f)
+  @tailrec private def modifyRoutes(method: HttpMethod, f: (List[Route] => List[Route])): Unit = {
+    val oldRoutes = routes(method)
+    if (!routes.replace(method, oldRoutes, f(oldRoutes))) {
+      modifyRoutes(method,f)
     }
   }
 

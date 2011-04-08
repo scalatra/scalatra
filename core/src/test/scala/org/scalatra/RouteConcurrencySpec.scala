@@ -23,7 +23,7 @@ class RouteConcurrencyServlet extends ScalatraServlet {
   } (x(), y())
 
   get("/count/:method") {
-    Routes(params("method").toUpperCase).size
+    routes(HttpMethod(params("method"))).size
   }
 }
 

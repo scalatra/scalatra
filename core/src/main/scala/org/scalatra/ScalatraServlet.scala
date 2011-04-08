@@ -27,7 +27,7 @@ abstract class ScalatraServlet
   protected var doNotFound: Action = () => {
     // TODO - We should return a 405 if the route matches a different method
     response.setStatus(404)
-    response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, Routes)
+    response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, routes)
   }
 
   protected def servletContext: ServletContext = getServletContext
