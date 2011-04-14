@@ -193,9 +193,9 @@ trait ScalatraKernel extends Handler with Initializable
   type ContentTypeInferrer = PartialFunction[Any, String]
   
   protected def defaultContentTypeInfer: ContentTypeInferrer = {
-    case _: NodeSeq => "text/html"
+    case _: String => "text/plain"
     case _: Array[Byte] => "application/octet-stream"
-    case _ => "text/plain"
+    case _ => "text/html"
   }
   protected def contentTypeInfer: ContentTypeInferrer = defaultContentTypeInfer
 
