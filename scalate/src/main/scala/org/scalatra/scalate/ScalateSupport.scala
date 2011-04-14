@@ -56,6 +56,7 @@ trait ScalateSupport extends ScalatraKernel {
     }
 
   protected def renderErrorPage(e: Throwable) = {
+    contentType = "text/html"
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
     val renderContext = createRenderContext
     renderContext.setAttribute("javax.servlet.error.exception", Some(e))
