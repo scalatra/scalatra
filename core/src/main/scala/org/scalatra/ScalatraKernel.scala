@@ -130,7 +130,7 @@ trait ScalatraKernel extends Handler with Initializable
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
-            beforeFilters foreach { _() }
+            beforeFilters.toStream.foreach { _(requestPath) }
             routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
           }
           catch {
@@ -152,9 +152,25 @@ trait ScalatraKernel extends Handler with Initializable
     }
 
   def requestPath: String
-
-  protected val beforeFilters = new ListBuffer[() => Any]
-  def before(fun: => Any) = beforeFilters += { () => fun }
+  
+  
+  
+  //##############################
+  
+  protected val beforeFilters = ListBuffer[Route]()
+  
+  def beforeAll(fun: => Any) = addBefore(List(string2RouteMatcher("/*")), fun)
+  
+  def before(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
+  
+  protected def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
+    val route = new Route(routeMatchers, () => fun)
+    beforeFilters += route
+  }
+    
+  //##############################
+  
+  
 
   protected val afterFilters = new ListBuffer[() => Any]
   def after(fun: => Any) = afterFilters += { () => fun }

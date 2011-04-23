@@ -4,7 +4,7 @@ import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class GetResponseStatusSupportTestServlet extends ScalatraServlet with GetResponseStatusSupport {
-  before {
+  beforeAll {
     session // Establish a session before we commit the response
   }
 
