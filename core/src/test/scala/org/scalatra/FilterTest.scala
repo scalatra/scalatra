@@ -16,7 +16,7 @@ class FilterTestServlet extends ScalatraServlet {
     }
   }
 
-  after {
+  afterAll {
     afterCount += 1
     params.get("after") match {
       case Some(x) => response.getWriter.write(x)
@@ -69,11 +69,11 @@ class MultipleFilterTestServlet extends ScalatraServlet {
     response.getWriter.print("three\n")
   }
 
-  after {
+  afterAll {
     response.getWriter.print("four\n")
   }
 
-  after {
+  afterAll {
     response.getWriter.print("five\n")
   }
 }

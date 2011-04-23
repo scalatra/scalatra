@@ -8,7 +8,7 @@ class GetResponseStatusSupportTestServlet extends ScalatraServlet with GetRespon
     session // Establish a session before we commit the response
   }
 
-  after {
+  afterAll {
     session("status") = status.toString
   }
 

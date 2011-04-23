@@ -54,6 +54,8 @@ trait ScalatraKernel extends Handler with Initializable
     HttpMethod.methods foreach { x: HttpMethod => map += ((x, List[Route]())) }
     map
   }
+  protected val beforeFilters = ListBuffer[Route]()
+  protected val afterFilters = ListBuffer[Route]()
 
   def contentType = response.getContentType
   def contentType_=(value: String): Unit = response.setContentType(value)
@@ -137,7 +139,7 @@ trait ScalatraKernel extends Handler with Initializable
             case e => handleError(e)
           }
           finally {
-            afterFilters foreach { _() }
+            afterFilters.toStream.foreach { _(requestPath) }
           }
           renderResponse(result)
         }
@@ -153,12 +155,6 @@ trait ScalatraKernel extends Handler with Initializable
 
   def requestPath: String
   
-  
-  
-  //##############################
-  
-  protected val beforeFilters = ListBuffer[Route]()
-  
   def beforeAll(fun: => Any) = addBefore(List(string2RouteMatcher("/*")), fun)
   
   def before(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
@@ -167,14 +163,16 @@ trait ScalatraKernel extends Handler with Initializable
     val route = new Route(routeMatchers, () => fun)
     beforeFilters += route
   }
-    
-  //##############################
-  
-  
 
-  protected val afterFilters = new ListBuffer[() => Any]
-  def after(fun: => Any) = afterFilters += { () => fun }
-
+  def afterAll(fun: => Any) = addAfter(List(string2RouteMatcher("/*")), fun)
+  
+  def after(routeMatchers: RouteMatcher*)(fun: => Any) = addAfter(routeMatchers, fun)
+  
+  protected def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
+    val route = new Route(routeMatchers, () => fun)
+    afterFilters += route
+  }
+  
   protected var doNotFound: Action
   def notFound(fun: => Any) = doNotFound = { () => fun }
 

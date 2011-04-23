@@ -28,7 +28,7 @@ class HaltTestServlet extends ScalatraServlet {
     }
   }
 
-  after {
+  afterAll {
     response.setHeader("After-Block-Ran", "true")
   }
 }
