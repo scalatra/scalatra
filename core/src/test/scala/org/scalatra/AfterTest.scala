@@ -6,7 +6,7 @@ import test.scalatest.ScalatraFunSuite
 
 class AfterTestServlet extends ScalatraServlet {
   
-  afterAll {
+  after {
     response.setStatus(204)
   }
   
@@ -29,7 +29,7 @@ class AfterTestServlet extends ScalatraServlet {
 class AfterTest extends ScalatraFunSuite with ShouldMatchers {
   addServlet(classOf[AfterTestServlet], "/*")
   
-  test("afterAll is applied to all paths") {
+  test("after without a path is applied to all paths") {
     get("/third/path") {
       status should equal(204)
     }

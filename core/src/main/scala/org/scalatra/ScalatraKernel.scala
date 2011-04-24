@@ -155,18 +155,24 @@ trait ScalatraKernel extends Handler with Initializable
 
   def requestPath: String
   
-  def beforeAll(fun: => Any) = addBefore(List(string2RouteMatcher("/*")), fun)
-  
-  def before(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
+  object before {
+    
+    def apply(fun: => Any) = addBefore(List(string2RouteMatcher("/*")), fun)
+    
+    def apply(routeMatchers: String*)(fun: => Any) = addBefore(routeMatchers.map(string2RouteMatcher), fun)
+  }
   
   protected def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
     val route = new Route(routeMatchers, () => fun)
     beforeFilters += route
   }
-
-  def afterAll(fun: => Any) = addAfter(List(string2RouteMatcher("/*")), fun)
   
-  def after(routeMatchers: RouteMatcher*)(fun: => Any) = addAfter(routeMatchers, fun)
+  object after {
+    
+    def apply(fun: => Any) = addAfter(List(string2RouteMatcher("/*")), fun)
+    
+    def apply(routeMatchers: String*)(fun: => Any) = addAfter(routeMatchers.map(string2RouteMatcher), fun)
+  }
   
   protected def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
     val route = new Route(routeMatchers, () => fun)

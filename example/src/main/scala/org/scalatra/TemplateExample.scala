@@ -41,7 +41,7 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
     }
   }
 
-  beforeAll {
+  before {
     contentType = "text/html"
   }
 

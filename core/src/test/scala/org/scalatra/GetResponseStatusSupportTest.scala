@@ -4,11 +4,11 @@ import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class GetResponseStatusSupportTestServlet extends ScalatraServlet with GetResponseStatusSupport {
-  beforeAll {
+  before {
     session // Establish a session before we commit the response
   }
 
-  afterAll {
+  after {
     session("status") = status.toString
   }
 
