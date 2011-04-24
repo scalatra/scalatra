@@ -155,28 +155,21 @@ trait ScalatraKernel extends Handler with Initializable
 
   def requestPath: String
   
-  object before {
+  def before(fun: => Any) = addBefore(List("/*"), fun)
     
-    def apply(fun: => Any) = addBefore(List(string2RouteMatcher("/*")), fun)
-    
-    def apply(routeMatchers: String*)(fun: => Any) = addBefore(routeMatchers.map(string2RouteMatcher), fun)
-  }
+  def before(routeMatchers: String*)(fun: => Any) = addBefore(routeMatchers, fun)
   
-  protected def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
-    val route = new Route(routeMatchers, () => fun)
-    beforeFilters += route
-  }
+  protected def addBefore(routeMatchers: Iterable[String], fun: => Any): Unit = addFilter(routeMatchers, fun, beforeFilters)
   
-  object after {
+  def after(fun: => Any) = addAfter(List("/*"), fun)
     
-    def apply(fun: => Any) = addAfter(List(string2RouteMatcher("/*")), fun)
-    
-    def apply(routeMatchers: String*)(fun: => Any) = addAfter(routeMatchers.map(string2RouteMatcher), fun)
-  }
+  def after(routeMatchers: String*)(fun: => Any) = addAfter(routeMatchers, fun)
   
-  protected def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
-    val route = new Route(routeMatchers, () => fun)
-    afterFilters += route
+  protected def addAfter(routeMatchers: Iterable[String], fun: => Any): Unit = addFilter(routeMatchers, fun, afterFilters)
+  
+  protected def addFilter(routeMatchers: Iterable[String], fun: => Any, filterCollection: ListBuffer[Route]) = {
+    val route = new Route(routeMatchers.map(string2RouteMatcher), () => fun)
+    filterCollection += route
   }
   
   protected var doNotFound: Action
