@@ -323,7 +323,7 @@ Scalatra provides optional support for [Scalate](http://scalate.fusesource.org/)
 3. A template engine is created as the `templateEngine` variable.  This can be used to render templates and call layouts.
 
        get("/") {
-         templateEngine.layout("index.scaml", "content" -> "yada yada yada")
+         templateEngine.layout("index.scaml", Map("content" -> "yada yada yada"))
        }
 
 Additionally, `createRenderContext` may be used to create a render context for the current request and response. 
