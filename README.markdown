@@ -101,12 +101,12 @@ Route patterns may also include wildcard parameters, accessible through the `spl
 
     get("/say/*/to/*) {
       // Matches "GET /say/hello/to/world"
-      multiParams("splat") # == Seq("hello", "world")
+      multiParams("splat") // == Seq("hello", "world")
     }
 
     get("/download/*.*) {
       // Matches "GET /download/path/to/file.xml"
-      multiParams("splat") # == Seq("path/to/file", "xml")
+      multiParams("splat") // == Seq("path/to/file", "xml")
     }
 
 #### Regular expressions
@@ -115,7 +115,7 @@ The route matcher may also be a regular expression.  Capture groups are accessib
 
     get("""^\/f(.*)/b(.*)""".r) {
       // Matches "GET /foo/bar"
-      multiParams("captures") # == Seq("oo", "ar") 
+      multiParams("captures") // == Seq("oo", "ar") 
     }
 
 #### Path patterns in the REPL
