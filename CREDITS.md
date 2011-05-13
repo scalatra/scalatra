@@ -20,6 +20,7 @@
 - [Paul Lambert](http://paulitex.com/)
 - [Ted Nyman](http://github.com/tnm)
 - [Erik Rozendaal](http://github.com/erikrozendaal)
+- [Lucas Torri](http://github.com/lucastorri)
 - [Ivan Willig](http://github.com/iwillig)
 - [Phil Wills](http://github.com/philwills)
 

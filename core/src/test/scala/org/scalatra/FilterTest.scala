@@ -8,7 +8,7 @@ class FilterTestServlet extends ScalatraServlet {
   var beforeCount = 0
   var afterCount = 0
 
-  before { 
+  beforeAll { 
     beforeCount += 1
     params.get("before") match {
       case Some(x) => response.getWriter.write(x)
@@ -16,7 +16,7 @@ class FilterTestServlet extends ScalatraServlet {
     }
   }
 
-  after {
+  afterAll {
     afterCount += 1
     params.get("after") match {
       case Some(x) => response.getWriter.write(x)
@@ -45,7 +45,7 @@ class FilterTestServlet extends ScalatraServlet {
 class FilterTestFilter extends ScalatraFilter {
   var beforeCount = 0
 
-  before {
+  beforeAll {
     beforeCount += 1
     response.setHeader("filterBeforeCount", beforeCount.toString)
   }
@@ -57,11 +57,11 @@ class FilterTestFilter extends ScalatraFilter {
 }
 
 class MultipleFilterTestServlet extends ScalatraServlet {
-  before {
+  beforeAll {
     response.getWriter.print("one\n")
   }
 
-  before {
+  beforeAll {
     response.getWriter.print("two\n")
   }
 
@@ -69,11 +69,11 @@ class MultipleFilterTestServlet extends ScalatraServlet {
     response.getWriter.print("three\n")
   }
 
-  after {
+  afterAll {
     response.getWriter.print("four\n")
   }
 
-  after {
+  afterAll {
     response.getWriter.print("five\n")
   }
 }

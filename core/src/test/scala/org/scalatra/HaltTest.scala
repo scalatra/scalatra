@@ -22,13 +22,13 @@ class HaltTestServlet extends ScalatraServlet {
     "this content must not be returned"
   }
 
-  before {
+  beforeAll {
     if (params.isDefinedAt("haltBefore")) {
       halt(503)
     }
   }
 
-  after {
+  afterAll {
     response.setHeader("After-Block-Ran", "true")
   }
 }
