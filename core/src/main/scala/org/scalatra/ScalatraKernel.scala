@@ -54,6 +54,8 @@ trait ScalatraKernel extends Handler with Initializable
     HttpMethod.methods foreach { x: HttpMethod => map += ((x, List[Route]())) }
     map
   }
+  protected val beforeFilters = ListBuffer[Route]()
+  protected val afterFilters = ListBuffer[Route]()
 
   def contentType = response.getContentType
   def contentType_=(value: String): Unit = response.setContentType(value)
@@ -130,14 +132,14 @@ trait ScalatraKernel extends Handler with Initializable
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
-            beforeFilters foreach { _() }
+            beforeFilters.toStream.foreach { _(requestPath) }
             routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
           }
           catch {
             case e => handleError(e)
           }
           finally {
-            afterFilters foreach { _() }
+            afterFilters.toStream.foreach { _(requestPath) }
           }
           renderResponse(result)
         }
@@ -152,13 +154,24 @@ trait ScalatraKernel extends Handler with Initializable
     }
 
   def requestPath: String
-
-  protected val beforeFilters = new ListBuffer[() => Any]
-  def before(fun: => Any) = beforeFilters += { () => fun }
-
-  protected val afterFilters = new ListBuffer[() => Any]
-  def after(fun: => Any) = afterFilters += { () => fun }
-
+  
+  def before(fun: => Any) = addBefore(List("/*"), fun)
+    
+  def before(routeMatchers: String*)(fun: => Any) = addBefore(routeMatchers, fun)
+  
+  protected def addBefore(routeMatchers: Iterable[String], fun: => Any): Unit = addFilter(routeMatchers, fun, beforeFilters)
+  
+  def after(fun: => Any) = addAfter(List("/*"), fun)
+    
+  def after(routeMatchers: String*)(fun: => Any) = addAfter(routeMatchers, fun)
+  
+  protected def addAfter(routeMatchers: Iterable[String], fun: => Any): Unit = addFilter(routeMatchers, fun, afterFilters)
+  
+  protected def addFilter(routeMatchers: Iterable[String], fun: => Any, filterCollection: ListBuffer[Route]) = {
+    val route = new Route(routeMatchers.map(string2RouteMatcher), () => fun)
+    filterCollection += route
+  }
+  
   protected var doNotFound: Action
   def notFound(fun: => Any) = doNotFound = { () => fun }
 
