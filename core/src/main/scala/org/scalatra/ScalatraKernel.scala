@@ -376,6 +376,8 @@ trait ScalatraKernel extends Handler with Initializable
     case _ => None
   }
 
+  protected def servletContext: ServletContext
+
   def environment: String = System.getProperty(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("development"))
   def isDevelopmentMode = environment.toLowerCase.startsWith("dev")
 

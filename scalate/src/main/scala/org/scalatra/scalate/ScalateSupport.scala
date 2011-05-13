@@ -9,10 +9,6 @@ import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngi
 import java.lang.Throwable
 
 trait ScalateSupport extends ScalatraKernel {
-  self: {
-    def servletContext: ServletContext
-  } =>
-
   protected var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
