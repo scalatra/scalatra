@@ -10,11 +10,11 @@ class BeforeTestServlet extends ScalatraServlet {
     response.setStatus(204)
   }
   
-  before("/some/path") {
+  beforeSome("/some/path") {
     response.setStatus(202)
   }
   
-  before("/other/path") {
+  beforeSome("/other/path") {
     response.setStatus(206)
   }
   

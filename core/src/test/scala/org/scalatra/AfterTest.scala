@@ -10,11 +10,11 @@ class AfterTestServlet extends ScalatraServlet {
     response.setStatus(204)
   }
   
-  after("/some/path") {
+  afterSome("/some/path") {
     response.setStatus(202)
   }
   
-  after("/other/path") {
+  afterSome("/other/path") {
     response.setStatus(206)
   }
   
