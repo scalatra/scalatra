@@ -56,7 +56,7 @@ class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach 
     flash("two") = 2
     flash.sweep()
     flash("three") = 3
-    flash.iterator.toSeq should equal (Seq("one" -> 1, "two" -> 2))
+    flash.toSet should equal (Set("one" -> 1, "two" -> 2))
   }
 
   test("keep adds all items from the current map to the next map") {

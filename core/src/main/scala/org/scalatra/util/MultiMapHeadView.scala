@@ -29,5 +29,5 @@ class MultiMap(wrapped: Map[String, Seq[String]] = Map.empty) extends Map[String
 
   def iterator = wrapped.iterator
 
-
+  override def default(a: String): Seq[String] = wrapped.default(a)
 }

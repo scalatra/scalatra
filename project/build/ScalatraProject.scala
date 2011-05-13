@@ -186,22 +186,28 @@ class ScalatraProject(info: ProjectInfo)
   })
 
   lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubproject {
-    val scalatest = "org.scalatest" % "scalatest" % "1.3" % "compile"
+    val scalatest = buildScalaVersion match {
+      case x: String if (x startsWith "2.9.") => 
+        "org.scalatest" %% "scalatest" % "1.4.1" % "compile"
+      case x: String if (x startsWith "2.8.") => 
+        "org.scalatest" % "scalatest" % "1.3" % "compile"
+    }
     val junit = "junit" % "junit" % "4.8.1" % "compile"
     val description = "ScalaTest support for the Scalatra test framework"
   }, scalatraTest)
 
   lazy val specs = project("specs", "scalatra-specs", new DefaultProject(_) with ScalatraSubproject {
     val specsVersion = buildScalaVersion match {
+      case "2.9.0" => "1.6.8"
+      case "2.8.1" => "1.6.7.2"
       case "2.8.0" => "1.6.5"
-      case _ => "1.6.7"
     }
     val specs = "org.scala-tools.testing" %% "specs" % specsVersion % "compile"
     val description = "Specs support for the Scalatra test framework"
   }, scalatraTest)
 
   lazy val specs2 = project("specs2", "scalatra-specs2", new DefaultProject(_) with ScalatraSubproject {
-    val specsVersion = "1.1"
+    val specsVersion = "1.3"
     val specsScalaVersion = buildScalaVersion match {
       case "2.8.0" => "2.8.1" // Not released for 2.8.0, but should be compatible
       case x => x
