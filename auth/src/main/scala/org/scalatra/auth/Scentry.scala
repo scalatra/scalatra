@@ -37,7 +37,7 @@ class Scentry[UserType <: AnyRef](
   private var _user: UserType = null.asInstanceOf[UserType]
   private var _store: ScentryAuthStore = new SessionAuthStore(app.session)
 
-  @deprecated("use store_= instead")
+  @deprecated("use store_= instead", "2.0")
   def setStore(newStore: ScentryAuthStore) { store = newStore }
   def store = _store
   def store_=(newStore: ScentryAuthStore) {
@@ -47,7 +47,7 @@ class Scentry[UserType <: AnyRef](
   def isAuthenticated = {
     userOption.isDefined
   }
-  @deprecated("use isAuthenticated")
+  @deprecated("use isAuthenticated", "2.0")
   def authenticated_? = isAuthenticated
 
   //def session = app.session
