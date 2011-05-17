@@ -35,7 +35,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
    */
   def isValid = true
 
-  @deprecated("use isValid", "2.0")
+  @deprecated("use isValid")
   def valid_? = isValid
 
   /**
@@ -45,7 +45,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
    */
   def authenticate(): Option[UserType]
 
-  @deprecated("use authenticate()", "2.0")
+  @deprecated("use authenticate()")
   def authenticate_! = authenticate()
 
   /**

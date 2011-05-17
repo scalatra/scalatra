@@ -18,7 +18,8 @@ object FlashMap {
  * very next action and then cleared out.
  * @see FlashMapSupport
  */
-class FlashMap(val owner: String) extends MutableMapWithIndifferentAccess[Any] with Serializable {
+@serializable
+class FlashMap(val owner: String) extends MutableMapWithIndifferentAccess[Any] {
   private var _now = MMap[String, Any]()
   private var next = MMap[String, Any]()
 

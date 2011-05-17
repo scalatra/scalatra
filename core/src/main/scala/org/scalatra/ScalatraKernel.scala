@@ -21,13 +21,13 @@ object ScalatraKernel
 
   type Action = () => Any
 
-  @deprecated("Use HttpMethods.methods", "2.0")
+  @deprecated("Use HttpMethods.methods")
   val httpMethods = HttpMethod.methods map { _.toString }
 
-  @deprecated("Use HttpMethods.methods filter { !_.isSafe }", "2.0")
+  @deprecated("Use HttpMethods.methods filter { !_.isSafe }")
   val writeMethods = HttpMethod.methods filter { !_.isSafe } map { _.toString }
 
-  @deprecated("Use CsrfTokenSupport.DefaultKey", "2.0")
+  @deprecated("Use CsrfTokenSupport.DefaultKey")
   val csrfKey = CsrfTokenSupport.DefaultKey
 
   val EnvironmentKey = "org.scalatra.environment"
@@ -156,7 +156,7 @@ trait ScalatraKernel extends Handler with Initializable
   def requestPath: String
   
   def beforeAll(fun: => Any) = addBefore(List(string2RouteMatcher("/*")), fun)
-  @deprecated("Use beforeAll", "2.0")
+  @deprecated("Use beforeAll")
   def before(fun: => Any) = beforeAll(fun)
   
   def beforeSome(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
@@ -167,7 +167,7 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   def afterAll(fun: => Any) = addAfter(List(string2RouteMatcher("/*")), fun)
-  @deprecated("Use afterAll", "2.0")
+  @deprecated("Use afterAll")
   def after(fun: => Any) = afterAll(fun)
   
   def afterSome(routeMatchers: RouteMatcher*)(fun: => Any) = addAfter(routeMatchers, fun)
@@ -338,7 +338,7 @@ trait ScalatraKernel extends Handler with Initializable
     route
   }
 
-  @deprecated("Use addRoute(HttpMethod, Iterable[RouteMatcher], =>Any)", "2.0")
+  @deprecated("Use addRoute(HttpMethod, Iterable[RouteMatcher], =>Any)")
   protected[scalatra] def addRoute(verb: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route =
     addRoute(HttpMethod(verb), routeMatchers, action)
 

@@ -8,7 +8,7 @@ package org.scalatra
  *   case _ => message("foo is required")
  * }
  */
-@deprecated("Moved to org.scalatra.util.NotEmpty", "2.0")
+@deprecated("Moved to org.scalatra.util.NotEmpty")
 object NotEmpty {
   def unapply(s: String) = if (s != null && !s.isEmpty) Some(s) else None
   def unapply(o: Option[String]): Option[String] = o flatMap { s => unapply(s) }

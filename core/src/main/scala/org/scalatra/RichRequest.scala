@@ -7,10 +7,10 @@ import java.util.Locale
 import util.{MultiMap, MultiMapHeadView}
 
 case class RichRequest(r: HttpServletRequest) extends AttributesMap {
-  @deprecated(message = "Use HttpServletRequest.getServerName() instead", "2.0")
+  @deprecated(message = "Use HttpServletRequest.getServerName() instead")
   def host = r.getServerName
 
-  @deprecated(message = "Use HttpServletRequest.getServerPort() instead", "2.0")
+  @deprecated(message = "Use HttpServletRequest.getServerPort() instead")
   def port = Integer.toString(r.getServerPort)
 
   def referer = r.getHeader("Referer") match {
