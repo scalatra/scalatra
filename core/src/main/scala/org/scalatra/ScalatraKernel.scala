@@ -5,7 +5,7 @@ import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer}
+import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, SynchronizedBuffer}
 import scala.xml.NodeSeq
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
@@ -13,7 +13,6 @@ import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
-import scala.Option._
 
 object ScalatraKernel
 {
@@ -58,7 +57,9 @@ trait ScalatraKernel extends Handler with Initializable
   protected val afterFilters = ListBuffer[Route]()
 
   def contentType = response.getContentType
-  def contentType_=(value: String): Unit = response.setContentType(value)
+  def contentType_=(value: String) {
+    response.setContentType(value)
+  }
 
   protected val defaultCharacterEncoding = "UTF-8"
   protected val _response   = new DynamicVariable[HttpServletResponse](null)
@@ -155,7 +156,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   def requestPath: String
   
-  def beforeAll(fun: => Any) = addBefore(List(string2RouteMatcher("/*")), fun)
+  def beforeAll(fun: => Any) = addBefore(List(regex2RouteMatcher(".*".r)), fun)
   @deprecated("Use beforeAll", "2.0")
   def before(fun: => Any) = beforeAll(fun)
   
@@ -166,7 +167,7 @@ trait ScalatraKernel extends Handler with Initializable
     beforeFilters += route
   }
 
-  def afterAll(fun: => Any) = addAfter(List(string2RouteMatcher("/*")), fun)
+  def afterAll(fun: => Any) = addAfter(List(regex2RouteMatcher(".*".r)), fun)
   @deprecated("Use afterAll", "2.0")
   def after(fun: => Any) = afterAll(fun)
   
