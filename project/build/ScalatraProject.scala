@@ -10,7 +10,7 @@ class ScalatraProject(info: ProjectInfo)
   with posterous.Publish
 {
   val jettyGroupId = "org.eclipse.jetty"
-  val jettyVersion = "7.3.1.v20110307"
+  val jettyVersion = "7.4.1.v20110513"
   val slf4jVersion = "1.6.1"
   val scalateVersion = buildScalaVersion match {
     case "2.8.0" => "1.3.2"
@@ -111,13 +111,13 @@ class ScalatraProject(info: ProjectInfo)
 
   lazy val core = project("core", "scalatra", new CoreProject(_))
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
-    val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
+    val mockito = "org.mockito" % "mockito-all" % "1.8.5" % "test"
     val description = "The core Scalatra library"
   }
 
   lazy val auth = project("auth", "scalatra-auth", new AuthProject(_), core)
   class AuthProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
-    val mockito = "org.mockito" % "mockito-all" % "1.8.4" % "test"
+    val mockito = "org.mockito" % "mockito-all" % "1.8.5" % "test"
     val description = "Supplies optional Scalatra authentication support"
     val base64 = "net.iharder" % "base64" % "2.3.8" % "compile"
   }
