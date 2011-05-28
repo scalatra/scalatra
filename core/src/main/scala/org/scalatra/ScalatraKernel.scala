@@ -156,7 +156,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   def requestPath: String
   
-  def beforeAll(fun: => Any) = addBefore(List(regex2RouteMatcher(".*".r)), fun)
+  def beforeAll(fun: => Any) = addBefore(Iterable.empty, fun)
   @deprecated("Use beforeAll", "2.0")
   def before(fun: => Any) = beforeAll(fun)
   
@@ -167,7 +167,7 @@ trait ScalatraKernel extends Handler with Initializable
     beforeFilters += route
   }
 
-  def afterAll(fun: => Any) = addAfter(List(regex2RouteMatcher(".*".r)), fun)
+  def afterAll(fun: => Any) = addAfter(Iterable.empty, fun)
   @deprecated("Use afterAll", "2.0")
   def after(fun: => Any) = afterAll(fun)
   
