@@ -187,23 +187,30 @@ class ScalatraProject(info: ProjectInfo)
   })
 
   lazy val scalatest = project("scalatest", "scalatra-scalatest", new DefaultProject(_) with ScalatraSubproject {
-    val scalatest = buildScalaVersion match {
-      case x: String if (x startsWith "2.9.") => 
-        "org.scalatest" %% "scalatest" % "1.4.1" % "compile"
-      case x: String if (x startsWith "2.8.") => 
-        "org.scalatest" % "scalatest" % "1.3" % "compile"
+    val artifactId = "scalatest_" + (buildScalaVersion match {
+      case "2.9.0-1" => "2.9.0"
+      case x => x
+    })
+    val ver = buildScalaVersion match {
+      case x if (x startsWith "2.9.") => "1.4.1"
+      case x if (x startsWith "2.8.") => "1.3"
     }
+    val scalatest = "org.scalatest" % artifactId % ver % "compile"
     val junit = "junit" % "junit" % "4.8.1" % "compile"
     val description = "ScalaTest support for the Scalatra test framework"
   }, scalatraTest)
 
   lazy val specs = project("specs", "scalatra-specs", new DefaultProject(_) with ScalatraSubproject {
-    val specsVersion = buildScalaVersion match {
-      case "2.9.0" => "1.6.8"
+    val artifactId = "specs_" + (buildScalaVersion match {
+      case "2.9.0-1" => "2.9.0"
+      case x => x
+    })
+    val ver = buildScalaVersion match {
+      case x if (x startsWith "2.9.") => "1.6.8"
       case "2.8.1" => "1.6.7.2"
       case "2.8.0" => "1.6.5"
     }
-    val specs = "org.scala-tools.testing" %% "specs" % specsVersion % "compile"
+    val specs = "org.scala-tools.testing" % artifactId % ver % "compile"
     val description = "Specs support for the Scalatra test framework"
   }, scalatraTest)
 
