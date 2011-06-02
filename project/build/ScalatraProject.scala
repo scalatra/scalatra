@@ -15,7 +15,7 @@ class ScalatraProject(info: ProjectInfo)
   val scalateVersion = buildScalaVersion match {
     case "2.8.0" => "1.3.2"
     case "2.8.1" => "1.4.1"
-    case x: String if (x startsWith "2.9.") => "1.5.0-SNAPSHOT"
+    case x: String if (x startsWith "2.9.") => "1.5.0"
   }
 
   trait ScalatraSubproject
