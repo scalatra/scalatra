@@ -46,6 +46,7 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraProject = Project("scalatra-project", file("."), 
     settings = scalatraSettings)
+    .settings(publishArtifact in Compile := false)
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2)
