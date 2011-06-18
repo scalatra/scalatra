@@ -2,7 +2,6 @@ import sbt._
 import Keys._
 
 // TODO: Crossbuild support
-// TODO: Manifest files
 // TODO: Maven Central metadata
 // TODO: Sign with PGP
 // TODO: Define repositories for publishing
@@ -12,7 +11,22 @@ object ScalatraBuild extends Build {
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.0-SNAPSHOT",
-    scalaVersion := "2.9.0-1"
+    scalaVersion := "2.9.0-1",
+    packageOptions <<= (packageOptions, name, version, organization) map {
+      (opts, title, version, vendor) => 
+        opts :+ Package.ManifestAttributes(
+          "Created-By" -> "Simple Build Tool",
+          "Built-By" -> System.getProperty("user.name"),
+          "Build-Jdk" -> System.getProperty("java.version"),
+          "Specification-Title" -> title,
+          "Specification-Version" -> version,
+          "Specification-Vendor" -> vendor,
+          "Implementation-Title" -> title,
+          "Implementation-Version" -> version,
+          "Implementation-Vendor-Id" -> vendor,
+          "Implementation-Vendor" -> vendor
+        )
+    }
   )
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
