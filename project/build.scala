@@ -1,9 +1,9 @@
 import sbt._
 import Keys._
 import scala.xml._
+import com.rossabaker.sbt.signer.SignerPlugin
 
 // TODO: Crossbuild support
-// TODO: Sign with PGP
 // TODO: Define repositories for publishing
 // TODO: Build example project
 // TODO: Build website project
@@ -85,7 +85,7 @@ object ScalatraBuild extends Build {
         IvyActions.makePom(module, confWithDesc, s.log)
         conf.file
     } 
-  )
+  ) ++ SignerPlugin.signerSettings 
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
