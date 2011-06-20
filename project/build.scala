@@ -29,9 +29,9 @@ object ScalatraBuild extends Build {
           "Implementation-Vendor" -> vendor
         )
     },
-    // For elements that don't change.  See makePom below for those that do.
-    pomExtra <<= (pomExtra, name) {(extra, name) => extra ++ Seq(
+    pomExtra <<= (pomExtra, name, description) { (extra, name, desc) => extra ++ Seq(
       <name>{name}</name>,
+      <description>{desc}</description>,
       <url>http://scalatra.org</url>,
       <licenses>
         <license>
@@ -71,20 +71,7 @@ object ScalatraBuild extends Build {
           <url>http://flanders.co.nz/</url>
         </developer>
       </developers>
-    )},
-    /* 
-     * TODO If we override pomExtra or makePomConfiguration, description isn't
-     * defined yet.  This solution repeats the definition of makePom.  There
-     * must be a better way.
-     */
-    makePom <<= (ivyModule, makePomConfiguration, streams, description) map {
-      (module, conf, s, desc) => 
-        val confWithDesc = conf.copy(
-          extra = conf.extra ++ <description>{desc}</description>
-        )
-        IvyActions.makePom(module, confWithDesc, s.log)
-        conf.file
-    } 
+    )}
   ) ++ SignerPlugin.signerSettings 
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
