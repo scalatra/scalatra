@@ -17,5 +17,5 @@ trait JsonSupport extends ScalatraKernel {
       import net.liftweb._
       val bytes = json.compact(json.render(jv)).getBytes("UTF-8")
       response.getOutputStream.write(bytes)
-  }
+  } orElse super.renderPipeline
 }
