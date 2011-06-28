@@ -142,6 +142,12 @@ class ScalatraProject(info: ProjectInfo)
     val description = "Supplies optional SocketIO support for scalatra"
   }
 
+  lazy val liftJson = project("lift-json", "scalatra-lift-json", new LiftJsonProject(_), core)
+  class LiftJsonProject(info: ProjectInfo) extends DefaultProject(info) with ScalatraSubproject with TestWithScalatraTest {
+    val liftJson = "net.liftweb" %% "lift-json" % "2.4-M2" % "compile"
+    val description = "Supplies optional Lift JSON support for scalatra"
+  }
+
   lazy val example = project("example", "scalatra-example", new ExampleProject(_), core, fileupload, scalate, auth, socketio)
   class ExampleProject(info: ProjectInfo) extends DefaultWebProject(info) with ScalatraSubproject with UnpublishedProject {
     val jetty7 = jettyGroupId % "jetty-webapp" % jettyVersion % "test"
