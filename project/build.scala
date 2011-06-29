@@ -4,7 +4,6 @@ import scala.xml._
 import com.rossabaker.sbt.signer.SignerPlugin
 
 // TODO: Scala 2.8 support
-// TODO: Define repositories for publishing
 // TODO: Build example project
 // TODO: Build website project
 object ScalatraBuild extends Build {
@@ -72,7 +71,15 @@ object ScalatraBuild extends Build {
           <url>http://flanders.co.nz/</url>
         </developer>
       </developers>
-    )}
+    )},
+    publishTo <<= (version) { version: String =>
+      val nexus = "http://nexus-direct.scala-tools.org/content/repositories/"
+      if (version.trim.endsWith("SNAPSHOT")) 
+        Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+      else                                  
+        Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+    },
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
   ) ++ SignerPlugin.signerSettings 
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
