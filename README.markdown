@@ -10,6 +10,43 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
       }
     }
 
+## Quick start (SBT 0.7.x)
+
+  1. Git-clone the prototype.  Alternatively, download and extract a [tarball](https://github.com/scalatra/scalatra-sbt-prototype/tarball/master) or [zip](https://github.com/scalatra/scalatra-sbt-prototype/zipball/master).
+
+         $ git clone git://github.com/scalatra/scalatra-sbt-prototype.git my-app
+
+  2. Change directory into your clone.
+
+         $ cd my-app
+
+  3. Launch [SBT](http://code.google.com/p/simple-build-tool).
+
+         $ sbt
+
+  4. Fetch the dependencies.
+
+         > update
+
+  5. Start Jetty, enabling continuous compilation and reloading.
+
+         > jetty-run
+         > ~prepare-webapp
+
+  6. Browse to http://localhost:8080/.
+
+  7. Start hacking on `src/main/scala/MyScalatraFilter.scala`.
+
+Note: if you keep getting frequent OutOfMemory errors from `sbt` you can try changing its script as described in [this document](http://www.assembla.com/wiki/show/liftweb/Using_SBT) so that it executes this command line:
+
+     java -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -Xmx512M -Xss2M -jar `dirname $0`/sbt-launch.jar "$@"
+
+Note 2: if you already have a checkout, and after a `git pull` the build fails, try to explicitly run the `update` and `clean` sbt tasks before running `compile`. 
+
+### Alternative Maven quickstart.
+
+See the [simple-scalatra-archetype](http://github.com/Srirangan/simple-scalatra-archetype).
+
 ## Quick start (SBT 0.10.x)
 
 ### Setup (one time)
@@ -49,44 +86,6 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
 
   9. Start hacking on `src/main/scala/MyScalatraFilter.scala`.
 	 
-
-## Quick start (SBT 0.7.x)
-
-  1. Git-clone the prototype.  Alternatively, download and extract a [tarball](https://github.com/scalatra/scalatra-sbt-prototype/tarball/master) or [zip](https://github.com/scalatra/scalatra-sbt-prototype/zipball/master).
-
-         $ git clone git://github.com/scalatra/scalatra-sbt-prototype.git my-app
-
-  2. Change directory into your clone.
-
-         $ cd my-app
-
-  3. Launch [SBT](http://code.google.com/p/simple-build-tool).
-
-         $ sbt
-
-  4. Fetch the dependencies.
-
-         > update
-
-  5. Start Jetty, enabling continuous compilation and reloading.
-
-         > jetty-run
-         > ~prepare-webapp
-
-  6. Browse to http://localhost:8080/.
-
-  7. Start hacking on `src/main/scala/MyScalatraFilter.scala`.
-
-Note: if you keep getting frequent OutOfMemory errors from `sbt` you can try changing its script as described in [this document](http://www.assembla.com/wiki/show/liftweb/Using_SBT) so that it executes this command line:
-
-     java -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -Xmx512M -Xss2M -jar `dirname $0`/sbt-launch.jar "$@"
-
-Note 2: if you already have a checkout, and after a `git pull` the build fails, try to explicitly run the `update` and `clean` sbt tasks before running `compile`. 
-
-### Alternative Maven quickstart.
-
-See the [simple-scalatra-archetype](http://github.com/Srirangan/simple-scalatra-archetype).
-
 ## Community
 
 ### Mailing list
