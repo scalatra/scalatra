@@ -1,7 +1,6 @@
 import sbt._
 import Keys._
 import scala.xml._
-import com.rossabaker.sbt.signer.SignerPlugin
 
 // TODO: Build example project
 // TODO: Build website project
@@ -80,7 +79,7 @@ object ScalatraBuild extends Build {
     },
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     resolvers += ScalaToolsSnapshots // for org.specs2:scalaz-core
-  ) ++ SignerPlugin.signerSettings 
+  )
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
