@@ -35,7 +35,7 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
 
   6. Browse to http://localhost:8080/.
 
-  7. Start hacking on `src/main/scala/*your name here*.scala`.
+  7. Start hacking on `src/main/scala/MyScalatraFilter.scala`.
 
 Note: if you keep getting frequent OutOfMemory errors from `sbt` you can try changing its script as described in [this document](http://www.assembla.com/wiki/show/liftweb/Using_SBT) so that it executes this command line:
 
@@ -84,7 +84,7 @@ See the [simple-scalatra-archetype](http://github.com/Srirangan/simple-scalatra-
 
   8. Browse to http://localhost:8080/.
 
-  9. Start hacking on `src/main/scala/MyScalatraFilter.scala`.
+  9. Start hacking on `src/main/scala/*your name here*.scala`.
 	 
 ## Community
 
