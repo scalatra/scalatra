@@ -3,7 +3,6 @@ import Keys._
 import scala.xml._
 import com.rossabaker.sbt.signer.SignerPlugin
 
-// TODO: Scala 2.8 support
 // TODO: Build example project
 // TODO: Build website project
 object ScalatraBuild extends Build {
@@ -99,13 +98,46 @@ object ScalatraBuild extends Build {
 
     val liftJson = "net.liftweb" %% "lift-json" % "2.4-M2"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.0"
+    def scalate(scalaVersion: String) = {
+      val libVersion = scalaVersion match {
+        case "2.8.0" => "1.3.2"
+        case "2.8.1" => "1.4.1"
+        case _ => "1.5.0"
+      }
+      "org.fusesource.scalate" % "scalate-core" % libVersion
+    }
 
-    val scalatest = "org.scalatest" % "scalatest_2.9.0" % "1.4.1"
+    def scalatest(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case x if (x startsWith "2.9.") => "scalatest_2.9.0"
+        case x if (x startsWith "2.8") => "scalatest"
+      }
+      val libVersion = scalaVersion match {
+        case x if (x startsWith "2.9.") => "1.4.1"
+        case x if (x startsWith "2.8.") => "1.3"
+      }
+      "org.scalatest" % libArtifactId % libVersion
+    }
 
-    val specs = "org.scala-tools.testing" % "specs_2.9.0" % "1.6.8"
+    def specs(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case "2.9.0-1" => "specs_2.9.0"
+        case x => "specs_"+x
+      }
+      val libVersion = scalaVersion match {
+        case "2.8.0" => "1.6.5"
+        case x => "1.6.8"
+      }
+      "org.scala-tools.testing" % libArtifactId % libVersion
+    }
 
-    val specs2 = "org.specs2" %% "specs2" % "1.3"
+    def specs2(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case "2.8.0" => "specs2_2.8.1" // Not released for 2.8.0, but is compatible
+        case x => "specs2_"+x
+      }
+      "org.specs2" % libArtifactId % "1.3"
+    }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
@@ -148,7 +180,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraScalate = Project("scalatra-scalate", file("scalate"), 
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(scalate, servletApi),
+      libraryDependencies <<= (scalaVersion, libraryDependencies) {
+        (sv, deps) => deps ++ Seq(scalate(sv), servletApi)
+      },
       description := "Scalate integration with Scalatra")
     .dependsOn(scalatraCore)
     .testWithScalatraTest
@@ -183,21 +217,27 @@ object ScalatraBuild extends Build {
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"), 
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(scalatest, junit),
+      libraryDependencies <<= (scalaVersion, libraryDependencies) {
+        (sv, deps) => deps ++ Seq(scalatest(sv), junit)
+      },
       description := "ScalaTest support for the Scalatra test framework")
     .dependsOn(scalatraTest)
 
   lazy val scalatraSpecs = Project("scalatra-specs", file("specs"), 
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(specs),
+      libraryDependencies <<= (scalaVersion, libraryDependencies) {
+        (sv, deps) => deps ++ Seq(specs(sv))
+      },
       description := "Specs support for the Scalatra test framework")
     .dependsOn(scalatraTest)
 
   lazy val scalatraSpecs2 = Project("scalatra-specs2", file("specs2"), 
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(specs2),
+      libraryDependencies <<= (scalaVersion, libraryDependencies) {
+        (sv, deps) => deps ++ Seq(specs2(sv))
+      },
       description := "Specs2 support for the Scalatra test framework")
     .dependsOn(scalatraTest)
 
