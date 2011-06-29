@@ -3,7 +3,7 @@ import Keys._
 import scala.xml._
 import com.rossabaker.sbt.signer.SignerPlugin
 
-// TODO: Crossbuild support
+// TODO: Scala 2.8 support
 // TODO: Define repositories for publishing
 // TODO: Build example project
 // TODO: Build website project
@@ -13,7 +13,8 @@ object ScalatraBuild extends Build {
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.0-SNAPSHOT",
-    scalaVersion := "2.9.0-1",
+    crossScalaVersions := Seq("2.9.0-1", "2.9.0"),
+    scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     packageOptions <<= (packageOptions, name, version, organization) map {
       (opts, title, version, vendor) => 
         opts :+ Package.ManifestAttributes(
