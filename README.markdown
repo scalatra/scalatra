@@ -16,17 +16,17 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
 
   1. Install [conscript](https://github.com/n8han/conscript#readme)
   	
-	$ curl https://raw.github.com/n8han/conscript/master/setup.sh | sh
+         $ curl https://raw.github.com/n8han/conscript/master/setup.sh | sh
 
   2. Install [giter8](https://github.com/n8han/giter8)
   
-  	$ ~/bin/cs n8han/giter8
+         $ ~/bin/cs n8han/giter8
 	
 ### Scalatra template
   
   3. Giter8 the Scalatra template
   
-  	$ ~/bin/g8 scalatra/scalatra-sbt
+         $ ~/bin/g8 scalatra/scalatra-sbt
 	
   4. Change directory into your clone.
 
