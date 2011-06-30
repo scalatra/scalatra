@@ -10,7 +10,7 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
       }
     }
 
-## Quick start
+## Quick start (SBT 0.7.x)
 
   1. Git-clone the prototype.  Alternatively, download and extract a [tarball](https://github.com/scalatra/scalatra-sbt-prototype/tarball/master) or [zip](https://github.com/scalatra/scalatra-sbt-prototype/zipball/master).
 
@@ -47,6 +47,45 @@ Note 2: if you already have a checkout, and after a `git pull` the build fails, 
 
 See the [simple-scalatra-archetype](http://github.com/Srirangan/simple-scalatra-archetype).
 
+## Quick start (SBT 0.10.x)
+
+### Setup (one time)
+
+  1. Install [conscript](https://github.com/n8han/conscript#readme)
+  	
+         $ curl https://raw.github.com/n8han/conscript/master/setup.sh | sh
+
+  2. Install [giter8](https://github.com/n8han/giter8)
+  
+         $ ~/bin/cs n8han/giter8
+	
+### Scalatra template
+  
+  3. Giter8 the Scalatra template
+  
+         $ ~/bin/g8 scalatra/scalatra-sbt
+	
+  4. Change directory into your clone.
+
+         $ cd my-app
+	
+  5. Launch [SBT](https://github.com/harrah/xsbt).
+
+         $ sbt
+
+  6. Fetch the dependencies.
+
+         > update
+
+  7. Start Jetty, enabling continuous compilation and reloading.
+
+         > jetty-run
+         > ~prepare-webapp
+
+  8. Browse to http://localhost:8080/.
+
+  9. Start hacking on `src/main/scala/*your name here*.scala`.
+	 
 ## Community
 
 ### Mailing list
