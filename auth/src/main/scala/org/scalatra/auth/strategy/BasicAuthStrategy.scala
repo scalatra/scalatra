@@ -103,9 +103,12 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
   }
 
 
-  override def unauthenticated() = {
+  override def unauthenticated() {
     app.response.setHeader("WWW-Authenticate", challenge)
     app.halt(401, "Unauthenticated")
   }
 
+  override def afterLogout(user: UserType) {
+    app.response.setHeader(REMOTE_USER, "")
+  }
 }
