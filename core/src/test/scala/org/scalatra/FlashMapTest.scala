@@ -10,7 +10,7 @@ import org.junit.runner.RunWith
 class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
   var flash: FlashMap = _
 
-  override def beforeEach = flash = FlashMap("foo")
+  override def beforeEach = flash = new FlashMap()
 
   test("items are not visible until the first sweep") {
     flash("foo") = "bar"
@@ -88,7 +88,7 @@ class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach 
   }
 
   test("is accessible via symbols") {
-    val fsh = FlashMap("foo")
+    val fsh = new FlashMap()
     fsh("foo") = "bar"
     fsh.sweep
     fsh("foo") should equal ("bar")
@@ -97,6 +97,6 @@ class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach 
 
   test("is serializable") {
     val out = new ObjectOutputStream(new ByteArrayOutputStream)
-    out.writeObject(FlashMap("foo"))
+    out.writeObject(new FlashMap())
   }
 }
