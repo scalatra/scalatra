@@ -5,10 +5,6 @@ import scala.collection.mutable.{Map => MMap}
 import scala.util.DynamicVariable
 import util.MutableMapWithIndifferentAccess
 
-object FlashMap {
-  def apply(owner: String): FlashMap = new FlashMap(owner)
-}
-
 /**
  * A FlashMap is the data structured used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
@@ -19,7 +15,7 @@ object FlashMap {
  * @see FlashMapSupport
  */
 @serializable
-class FlashMap(val owner: String) extends MutableMapWithIndifferentAccess[Any] {
+class FlashMap extends MutableMapWithIndifferentAccess[Any] {
   private var _now = MMap[String, Any]()
   private var next = MMap[String, Any]()
 
@@ -74,7 +70,8 @@ class FlashMap(val owner: String) extends MutableMapWithIndifferentAccess[Any] {
 }
 
 object FlashMapSupport {
-  val sessionKey = FlashMapSupport.getClass.getName+".key"
+  val sessionKey = FlashMapSupport.getClass.getName+".flashMap"
+  val lockKey = FlashMapSupport.getClass.getName+".lock"
 }
 
 /**
@@ -94,17 +91,24 @@ object FlashMapSupport {
  * @see FlashMap
  */
 trait FlashMapSupport extends ScalatraKernel {
-  import FlashMapSupport.sessionKey
+  import FlashMapSupport._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     _flash.withValue(getFlash(req)) {
+      val isOutermost = !req.contains(lockKey)
+      if (isOutermost) {
+        req(lockKey) = "locked"
+      }
       req.getSession.setAttribute(sessionKey, flash)
       super.handle(req, res)
       /*
        * http://github.org/scalatra/scalatra/issues/41
-       * Only sweep if we created it, or else it fails in a nested context.
+       * http://github.org/scalatra/scalatra/issues/57
+       *
+       * Only the outermost FlashMapSupport sweeps it at the end.  This deals with both nested filters and
+       * redirects to other servlets.
        */
-      if (kernelName == flash.owner) {
+      if (isOutermost) {
         flash.sweep()
       }
     }
@@ -113,7 +117,7 @@ trait FlashMapSupport extends ScalatraKernel {
   private def getFlash(req: HttpServletRequest) =
     req.getSession.getAttribute(sessionKey) match {
       case flashMap: FlashMap => flashMap
-      case _ => FlashMap(kernelName)
+      case _ => new FlashMap()
     }
 
 

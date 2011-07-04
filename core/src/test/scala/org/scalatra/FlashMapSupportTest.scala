@@ -19,6 +19,13 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   }
 }
 
+class FlashMapSupportSecondTestServlet extends ScalatraServlet with FlashMapSupport {
+  post("/redirect") {
+    flash("message") = "redirected"
+    redirect("/first/message")
+  }
+}
+
 class FlashMapSupportTestFilter extends ScalatraFilter with FlashMapSupport {
   get("/filter") {
     flash.get("message") foreach { x => response.setHeader("message", x.toString) }
@@ -73,3 +80,30 @@ class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
   }
 }
 
+// Based on issue #57
+class FlashMapSupportTwoServletsTest extends ScalatraFunSuite with ShouldMatchers {
+  addServlet(classOf[FlashMapSupportTestServlet], "/first/*")
+  addServlet(classOf[FlashMapSupportSecondTestServlet], "/second/*")
+
+  test("should clear message when displayed in other servlet") {
+    session {
+      post("/second/redirect") {}
+      get("/first/message") {
+        header("message") should equal ("redirected")
+      }
+      get("/first/message") {
+        header("message") should equal (null)
+      }
+    }
+  }
+
+  test("works if message page is hit first") {
+    session {
+      get("/first/message") {}
+      post("/second/redirect") {}
+      get("/first/message") {
+        header("message") should equal ("redirected")
+      }
+    }
+  }
+}
