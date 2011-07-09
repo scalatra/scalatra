@@ -73,18 +73,14 @@ See the [simple-scalatra-archetype](http://github.com/Srirangan/simple-scalatra-
 
          $ sbt
 
-  6. Fetch the dependencies.
-
-         > update
-
-  7. Start Jetty, enabling continuous compilation and reloading.
+  6. Start Jetty, enabling continuous compilation and reloading.
 
          > jetty-run
          > ~prepare-webapp
 
-  8. Browse to http://localhost:8080/.
+  7. Browse to http://localhost:8080/.
 
-  9. Start hacking on `src/main/scala/*your name here*.scala`.
+  8. Start hacking on `src/main/scala/*your name here*.scala`.
 	 
 ## Community
 
