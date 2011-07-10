@@ -6,7 +6,6 @@ import test.scalatest.ScalatraFunSuite
 class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   post("/message") {
     flash("message") = "posted"
-    flash.get("message") foreach { x => response.setHeader("message", x.toString) }
   }
 
   get("/message") {
@@ -38,9 +37,7 @@ class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
 
   test("should sweep flash map at end of request") {
     session {
-      post("/message") {
-        header("message") should equal(null)
-      }
+      post("/message") {}
 
       get("/message") {
         header("message") should equal("posted")
