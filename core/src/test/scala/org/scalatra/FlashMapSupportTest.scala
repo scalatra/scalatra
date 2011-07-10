@@ -2,6 +2,7 @@ package org.scalatra
 
 import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
+import javax.servlet.http.HttpServletRequest
 
 class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   post("/message") {
@@ -15,6 +16,13 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   post("/commit") {
     flash("message") = "oops"
     response.flushBuffer // commit response
+  }
+
+  get("/unused") {}
+
+  override def sweepUnusedFlashEntries(req: HttpServletRequest) = req.getParameter("sweep") match {
+    case null => false
+    case x => x.toBoolean
   }
 }
 
@@ -71,6 +79,30 @@ class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
     session {
       post("/message") {}
       get("/filter") {
+        header("message") should equal ("posted")
+      }
+    }
+  }
+
+  test("does not sweep unused entries if flag is false") {
+    session {
+      post("/message") {}
+
+      get("/unused", "sweep" -> "false") {}
+
+      get("/message") {
+        header("message") should equal ("posted")
+      }
+    }
+  }
+
+  test("sweeps unused entries if flag is true") {
+    session {
+      post("/message") {}
+
+      get("/unused", "sweep" -> "true") {}
+
+      get("/message") {
         header("message") should equal ("posted")
       }
     }

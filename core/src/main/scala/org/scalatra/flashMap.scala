@@ -123,6 +123,9 @@ trait FlashMapSupport extends ScalatraKernel {
       val isOutermost = !req.contains(lockKey)
       if (isOutermost) {
         req(lockKey) = "locked"
+        if (sweepUnusedFlashEntries(req)) {
+          flash.flag()
+        }
       }
       req.getSession.setAttribute(sessionKey, flash)
       super.handle(req, res)
@@ -152,4 +155,9 @@ trait FlashMapSupport extends ScalatraKernel {
    * returns a thread local [[org.scalatra.FlashMap]] instance
    */
   protected def flash = _flash.value
+
+  /**
+   * Determines whether unused flash entries should be swept.  The default is false.
+   */
+  protected def sweepUnusedFlashEntries(req: HttpServletRequest) = false
 }

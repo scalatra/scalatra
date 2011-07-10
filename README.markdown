@@ -335,7 +335,22 @@ The `error` handler is invoked any time an exception is raised from a route bloc
 
 ## Flash scope
 
-Flash scope is available by mixing in `FlashMapSupport`, which provides a mutable map named `flash`.  Values put into flash scope during the current request are stored in the session through the next request and then discarded.  This is particularly useful for messages when using the [Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
+Flash scope is available by mixing in `FlashMapSupport`, which provides a
+mutable map named `flash`.  Values put into flash scope by default persist 
+through the request that they are first retrieved, and then are discarded
+at the end of the request.  This is particularly useful for messages when using the
+[Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
+
+### sweepUnusedFlashEntries
+
+The `sweepUnusedFlashEntries` method may be overridden to fine tune exactly
+when entries are discarded:
+
+* The default, false, is consistent with [Rack::Flash](http://nakajima.github.com/rack-flash/).
+
+* To clear all entries after the next request, regardless of whether they've been read, override to true.  This is consistent with [ActionDispatch::Flash](http://api.rubyonrails.org/classes/ActionDispatch/Flash/FlashHash.html).
+
+* The method takes the current request as a parameter, so the strategy may be tuned dynamically.  This could be useful to give special treatment to AJAX requests.
 
 ## Templating with Scalate
 
