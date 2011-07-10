@@ -335,7 +335,22 @@ The `error` handler is invoked any time an exception is raised from a route bloc
 
 ## Flash scope
 
-Flash scope is available by mixing in `FlashMapSupport`, which provides a mutable map named `flash`.  Values put into flash scope during the current request are stored in the session through the next request and then discarded.  This is particularly useful for messages when using the [Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
+Flash scope is available by mixing in `FlashMapSupport`, which provides a
+mutable map named `flash`.  Values put into flash scope by default persist 
+through the request that they are first retrieved, and then are discarded
+at the end of the request.  This is particularly useful for messages when using the
+[Post/Redirect/Get](http://en.wikipedia.org/wiki/Post/Redirect/Get) pattern.
+
+### sweepUnusedFlashEntries
+
+The `sweepUnusedFlashEntries` method may be overridden to fine tune exactly
+when entries are discarded:
+
+* The default, false, is consistent with [Rack::Flash](http://nakajima.github.com/rack-flash/).
+
+* To clear all entries after the next request, regardless of whether they've been read, override to true.  This is consistent with [ActionDispatch::Flash](http://api.rubyonrails.org/classes/ActionDispatch/Flash/FlashHash.html).
+
+* The method takes the current request as a parameter, so the strategy may be tuned dynamically.  This could be useful to give special treatment to AJAX requests.
 
 ## Templating with Scalate
 
@@ -343,23 +358,23 @@ Scalatra provides optional support for [Scalate](http://scalate.fusesource.org/)
 
 1. Depend on scalatra-scalate.jar and a [slf4j binding](http://www.slf4j.org/manual.html#binding).  In your SBT build:
 
-       val scalatraScalate = "org.scalatra" %% "scalatra-scalate" % scalatraVersion
-       val slf4jBinding = "ch.qos.logback" % "logback-classic" % "0.9.25" % runtime
+        val scalatraScalate = "org.scalatra" %% "scalatra-scalate" % scalatraVersion
+        val slf4jBinding = "ch.qos.logback" % "logback-classic" % "0.9.25" % runtime
 
 2. Extend your application with `ScalateSupport`
 
-       import org.scalatra._
-       import org.scalatra.scalate._
-
-       class MyApplication extends ScalatraServlet with ScalateSupport {
-         // ....
-       }
+        import org.scalatra._
+        import org.scalatra.scalate._
+         
+        class MyApplication extends ScalatraServlet with ScalateSupport {
+          // ....
+        }
 
 3. A template engine is created as the `templateEngine` variable.  This can be used to render templates and call layouts.
 
-       get("/") {
-         templateEngine.layout("index.scaml", Map("content" -> "yada yada yada"))
-       }
+        get("/") {
+          templateEngine.layout("index.scaml", Map("content" -> "yada yada yada"))
+        }
 
 Additionally, `createRenderContext` may be used to create a render context for the current request and response. 
 
@@ -371,7 +386,7 @@ Scalatra provides optional support for file uploads with <a href="http://commons
 
 1. Depend on scalatra-fileupload.jar.  In your SBT build:
 
-       val scalatraFileUpload = "org.scalatra" %% "scalatra-fileupload" % scalatraVersion
+        val scalatraFileUpload = "org.scalatra" %% "scalatra-fileupload" % scalatraVersion
 
 2. Extend your application with `FileUploadSupport`
 
@@ -403,59 +418,59 @@ Scalatra provides optional support for websockets and comet through [socket.io](
 
 1. Depend on the scalatra-socketio.jar. In your SBT build:
 
-       val scalatraSocketIO = "org.scalatra" %% "scalatra-socketio" % scalatraVersion
+        val scalatraSocketIO = "org.scalatra" %% "scalatra-socketio" % scalatraVersion
 
 2. SocketIO mimics a socket connection so it's easiest if you just create a socketio servlet at /socket.io/*
 
-       import org.scalatra.ScalatraServlet
-       import org.scalatra.socketio.SocketIOSupport
+        import org.scalatra.ScalatraServlet
+        import org.scalatra.socketio.SocketIOSupport
 
-       class MySocketIOServlet extends ScalatraServlet with SocketIOSupport {
-         // ...
-       }
+        class MySocketIOServlet extends ScalatraServlet with SocketIOSupport {
+          // ...
+        }
 
 3. Setup the callbacks
 
-       socketio { socket =>
+        socketio { socket =>
 
-         socket.onConnect { connection =>
-           // Do stuff on connection
-         }
+          socket.onConnect { connection =>
+            // Do stuff on connection
+          }
 
-         socket.onMessage { (connection, frameType, message) =>
-           // Receive a message
-           // use `connection.send("string")` to send a message
-           // use `connection.broadcast("to send")` to send a message to all connected clients except the current one
-           // use `connection.disconnect` to disconnect the client.
-         }
+          socket.onMessage { (connection, frameType, message) =>
+            // Receive a message
+            // use `connection.send("string")` to send a message
+            // use `connection.broadcast("to send")` to send a message to all connected clients except the current one
+            // use `connection.disconnect` to disconnect the client.
+          }
 
-         socket.onDisconnect { (connection, reason, message) =>
-           // Do stuff on disconnection
-         }
-       }
+          socket.onDisconnect { (connection, reason, message) =>
+            // Do stuff on disconnection
+          }
+        }
 
 4. Add the necessary entries to web.xml
 
-       <servlet>
-         <servlet-name>SocketIOServlet</servlet-name>
-         <servlet-class>com.example.SocketIOServlet</servlet-class>
-         <init-param>
-           <param-name>flashPolicyServerHost</param-name>
-           <param-value>localhost</param-value>
-         </init-param>
-         <init-param>
-           <param-name>flashPolicyServerPort</param-name>
-           <param-value>843</param-value>
-         </init-param>
-         <init-param>
-           <param-name>flashPolicyDomain</param-name>
-           <param-value>localhost</param-value>
-         </init-param>
-         <init-param>
-           <param-name>flashPolicyPorts</param-name>
-           <param-value>8080</param-value>
-         </init-param>
-      </servlet>  
+        <servlet>
+          <servlet-name>SocketIOServlet</servlet-name>
+          <servlet-class>com.example.SocketIOServlet</servlet-class>
+          <init-param>
+            <param-name>flashPolicyServerHost</param-name>
+            <param-value>localhost</param-value>
+          </init-param>
+          <init-param>
+            <param-name>flashPolicyServerPort</param-name>
+            <param-value>843</param-value>
+          </init-param>
+          <init-param>
+            <param-name>flashPolicyDomain</param-name>
+            <param-value>localhost</param-value>
+          </init-param>
+          <init-param>
+            <param-name>flashPolicyPorts</param-name>
+            <param-value>8080</param-value>
+          </init-param>
+        </servlet>  
 
               
 When you want to use websockets with jetty the sbt build tool gets in the way and that makes it look like the websocket stuff isn't working. If you deploy the war to a jetty distribution everything should work as expected.

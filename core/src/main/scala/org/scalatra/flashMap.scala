@@ -1,7 +1,7 @@
 package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
-import scala.collection.mutable.{Map => MMap}
+import scala.collection.mutable.{Map => MMap, Set => MSet}
 import scala.util.DynamicVariable
 import util.MutableMapWithIndifferentAccess
 
@@ -9,64 +9,90 @@ import util.MutableMapWithIndifferentAccess
  * A FlashMap is the data structured used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
  *
- * FlashMap behaves like [[org.scalatra.util.MapWithIndifferentAccess]] but
- * anything you place in the flash in an action will be exposed only to the
- * very next action and then cleared out.
+ * FlashMap behaves like [[org.scalatra.util.MapWithIndifferentAccess]].  By
+ * default, anything placed in the map is available to the current request and
+ * next request and then discarded.
+ *
  * @see FlashMapSupport
  */
 @serializable
 class FlashMap extends MutableMapWithIndifferentAccess[Any] {
-  private var _now = MMap[String, Any]()
-  private var next = MMap[String, Any]()
+  private val m = MMap[String, Any]()
+  private val flagged = MSet[String]()
 
   def -=(key: String) = {
-    next -= key
+    m -= key
     this
   }
 
   def +=(kv: (String, Any)) = {
-    next += kv
+    flagged -= kv._1
+    m += kv
     this
   }
 
-  def iterator = _now.iterator
+  def iterator = new Iterator[(String, Any)] {
+    private val it = m.iterator
 
-  def get(key: String) = _now.get(key)
+    def hasNext = it.hasNext
+
+    def next = {
+      val kv = it.next
+      flagged += kv._1
+      kv
+    }
+  }
 
   /**
-   * removes all existing key-value pairs
+   * Returns the value associated with a key and flags it to be swept.
+   */
+  def get(key: String) = {
+    flagged += key
+    m.get(key)
+  }
+
+  /**
+   * Removes all flagged entries.
    */
   def sweep() {
-    _now = next
-    next = MMap()
-    this
+    flagged foreach { key => m -= key }
   }
 
   /**
-   * maintains present values available for the next action
+   * Clears all flags so no entries are removed on the next sweep.
    */
-  def keep() = {
-    next ++= _now
-    this
+  def keep() {
+    flagged.clear()
   }
 
   /**
-   * maintains the value associated with key `key` available for the next action
+   * Clears the flag for the specified key so its entry is not removed on the next sweep.
    */
-  def keep(key: String) = {
-    _now.get(key) foreach { value => next += ((key, value)) }
-    this
+  def keep(key: String) {
+    flagged -= key
   }
 
   /**
-   * accesses the map that is availble in this action, not the next one.
-   * Useful with filters and sub-methods. Data put in this object is availble as usual:
+   * Flags all current keys so the entire map is cleared on the next sweep.
+   */
+  def flag() {
+    flagged ++= m.keys
+  }
+
+  /**
+   * Sets a value for the current request only.  It will be removed before the next request unless explicitly kept.
+   * Data put in this object is availble as usual:
    * {{{
    * flash.now("notice") = "logged in succesfully"
    * flash("notice") // "logged in succesfully"
    * }}}
    */
-  def now = _now
+  object now {
+    def update(key: String, value: Any) =  {
+      flagged += key
+      m += key -> value
+    }
+  }
 }
 
 object FlashMapSupport {
@@ -98,6 +124,9 @@ trait FlashMapSupport extends ScalatraKernel {
       val isOutermost = !req.contains(lockKey)
       if (isOutermost) {
         req(lockKey) = "locked"
+        if (sweepUnusedFlashEntries(req)) {
+          flash.flag()
+        }
       }
       req.getSession.setAttribute(sessionKey, flash)
       super.handle(req, res)
@@ -127,4 +156,9 @@ trait FlashMapSupport extends ScalatraKernel {
    * returns a thread local [[org.scalatra.FlashMap]] instance
    */
   protected def flash = _flash.value
+
+  /**
+   * Determines whether unused flash entries should be swept.  The default is false.
+   */
+  protected def sweepUnusedFlashEntries(req: HttpServletRequest) = false
 }
