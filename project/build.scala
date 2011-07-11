@@ -110,11 +110,13 @@ object ScalatraBuild extends Build {
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case x if (x startsWith "2.9.") => "scalatest_2.9.0"
-        case x if (x startsWith "2.8") => "scalatest"
+        case "2.8.1" => "scalatest_2.8.1"
+        case "2.8.0" => "scalatest"
       }
       val libVersion = scalaVersion match {
-        case x if (x startsWith "2.9.") => "1.4.1"
-        case x if (x startsWith "2.8.") => "1.3"
+        case x if (x startsWith "2.9.") => "1.6.1"
+        case "2.8.1" => "1.5.1"
+        case "2.8.0" => "1.3"
       }
       "org.scalatest" % libArtifactId % libVersion
     }
@@ -136,7 +138,11 @@ object ScalatraBuild extends Build {
         case "2.8.0" => "specs2_2.8.1" // Not released for 2.8.0, but is compatible
         case x => "specs2_"+x
       }
-      "org.specs2" % libArtifactId % "1.3"
+      val libVersion = scalaVersion match {
+        case "2.9.0" => "1.3"
+        case x => "1.5"
+      }
+      "org.specs2" % libArtifactId % libVersion
     }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
