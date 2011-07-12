@@ -56,7 +56,7 @@ trait RegexPathPatternParser extends PathPatternParser with RegexParsers {
 /**
  * A Sinatra-compatible route path pattern parser.
  */
-object SinatraPathPatternParser extends RegexPathPatternParser {
+class SinatraPathPatternParser extends RegexPathPatternParser {
   def apply(pattern: String): PathPattern =
     parseAll(pathPattern, pattern) match {
       case Success(pathPattern, _) =>
@@ -82,10 +82,14 @@ object SinatraPathPatternParser extends RegexPathPatternParser {
   private def normalChar = ".".r ^^ { c => PartialPathPattern(c) }
 }
 
+object SinatraPathPatternParser {
+  def apply(pattern: String): PathPattern = new SinatraPathPatternParser().apply(pattern)
+}
+
 /**
  * Path pattern parser based on Rack::Mount::Strexp, which is used by Rails.
  */
-object RailsPathPatternParser extends RegexPathPatternParser {
+class RailsPathPatternParser extends RegexPathPatternParser {
   def apply(pattern: String): PathPattern =
     parseAll(target, pattern) match {
       case Success(target, _) => target
@@ -125,3 +129,8 @@ object RailsPathPatternParser extends RegexPathPatternParser {
 
   private def paren = ("(" | ")") ^^ { "\\"+_ }
 }
+
+object RailsPathPatternParser {
+  def apply(pattern: String): PathPattern = new RailsPathPatternParser().apply(pattern)
+}
+
