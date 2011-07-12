@@ -1,4 +1,4 @@
-package org.scalatra.lift
+package org.scalatra.liftjson
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatest.matchers.ShouldMatchers
