@@ -1,4 +1,4 @@
-package org.scalatra.lift
+package org.scalatra.liftjson
 
 import org.scalatra.ScalatraKernel
 import net.liftweb.json.JsonAST.JValue
