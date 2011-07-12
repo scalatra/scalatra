@@ -151,7 +151,7 @@ object ScalatraBuild extends Build {
   import Dependencies._
 
   lazy val scalatraProject = Project("scalatra-project", file("."), 
-    settings = scalatraSettings)
+    settings = scalatraSettings ++ Unidoc.settings)
     .settings(
       publishArtifact in Compile := false,
       description := "A tiny, Sinatra-like web framework for Scala")
