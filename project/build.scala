@@ -10,7 +10,7 @@ object ScalatraBuild extends Build {
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.0-SNAPSHOT",
-    crossScalaVersions := Seq("2.8.1", "2.8.0"),
+    crossScalaVersions := Seq("2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     packageOptions <<= (packageOptions, name, version, organization) map {
       (opts, title, version, vendor) => 
@@ -100,7 +100,6 @@ object ScalatraBuild extends Build {
 
     def scalate(scalaVersion: String) = {
       val libVersion = scalaVersion match {
-        case "2.8.0" => "1.3.2"
         case "2.8.1" => "1.4.1"
         case _ => "1.5.0"
       }
@@ -111,12 +110,10 @@ object ScalatraBuild extends Build {
       val libArtifactId = scalaVersion match {
         case x if (x startsWith "2.9.") => "scalatest_2.9.0"
         case "2.8.1" => "scalatest_2.8.1"
-        case "2.8.0" => "scalatest"
       }
       val libVersion = scalaVersion match {
         case x if (x startsWith "2.9.") => "1.6.1"
         case "2.8.1" => "1.5.1"
-        case "2.8.0" => "1.3"
       }
       "org.scalatest" % libArtifactId % libVersion
     }
@@ -126,23 +123,15 @@ object ScalatraBuild extends Build {
         case "2.9.0-1" => "specs_2.9.0"
         case x => "specs_"+x
       }
-      val libVersion = scalaVersion match {
-        case "2.8.0" => "1.6.5"
-        case x => "1.6.8"
-      }
-      "org.scala-tools.testing" % libArtifactId % libVersion
+      "org.scala-tools.testing" % libArtifactId % "1.6.8"
     }
 
     def specs2(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.0" => "specs2_2.8.1" // Not released for 2.8.0, but is compatible
-        case x => "specs2_"+x
-      }
       val libVersion = scalaVersion match {
         case "2.9.0" => "1.3"
         case x => "1.5"
       }
-      "org.specs2" % libArtifactId % libVersion
+      "org.specs2" %% "specs2" % libVersion
     }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
