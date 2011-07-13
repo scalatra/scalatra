@@ -59,10 +59,11 @@ trait ScalatraTests {
     res
   }
 
-  private def withResponse(r: HttpTester, f: => Unit) = {
-    _response.withValue(r)(f)
+  private def withResponse[A](r: HttpTester, f: => A) = {
+    val result = _response.withValue(r)(f)
     if(_useSession.value && r.getHeader("Set-Cookie") != null)
       _session.value ++= Map("Cookie" -> r.getHeader("Set-Cookie"))
+    result
   }
 
   @deprecated("use addServlet(Class, String) or addFilter(Class, String)")
@@ -100,42 +101,41 @@ trait ScalatraTests {
   def routeFilter(filter: Class[_ <: Filter], path: String) =
     addFilter(filter, path)
 
-  def get(uri: String)(f: => Unit): Unit = withResponse(httpRequest("GET", uri), f)
-  def get(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
+  def get[A](uri: String)(f: => A): A = withResponse(httpRequest("GET", uri), f)
+  def get[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     get(uri, params, Map[String, String]())(f)
-  def get(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)
-         (f: => Unit) =
+  def get[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     withResponse(httpRequest("GET", uri, params, headers), f)
 
-  def post(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
+  def post[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     post(uri, params)(f)
-  def post(uri: String, params: Iterable[(String,String)])(f: => Unit): Unit =
+  def post[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
     post(uri, params, Map[String, String]())(f)
-  def post(uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => Unit): Unit =
+  def post[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
     post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def post(uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => Unit) =
+  def post[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
     withResponse(httpRequest("POST", uri, Seq.empty, headers, body), f)
   // @todo support POST multipart/form-data for file uploads
 
-  def put(uri: String, params: Tuple2[String, String]*)(f: => Unit): Unit =
+  def put[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     put(uri, params)(f)
-  def put(uri: String, params: Iterable[(String,String)])(f: => Unit): Unit =
+  def put[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
     put(uri, params, Map[String, String]())(f)
-  def put(uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => Unit): Unit =
+  def put[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
     put(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def put(uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => Unit) =
+  def put[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A) =
     withResponse(httpRequest("PUT", uri, Seq.empty, headers, body), f)
   // @todo support PUT multipart/form-data for file uploads
   
-  def delete(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
+  def delete[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A = {
     withResponse(httpRequest("DELETE", uri, params, headers), f)
   }
 
-  def options(uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => Unit) = {
+  def options[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A = {
     withResponse(httpRequest("OPTIONS", uri, params, headers), f)
   }
 
-  def session(f: => Unit) = {
+  def session[A](f: => A): A = {
     _session.withValue(Map[String,String]()) {
       _useSession.withValue(true)(f)
     }
