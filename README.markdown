@@ -580,6 +580,8 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 ### scalatra-2.0.0.M3 to scalatra-2.0.0.M4
 
 1. Remove socket-io-java-dev.jar if you manually copied it into your lib directory.
+2. Flash map entries are no longer swept until accessed.  For the old behavior, override `sweepUnusedFlashEntries` to return true.
+3. Scala 2.8.0 is no longer supported.  Please upgrade to 2.8.1 (easy) or 2.9.0-1 (better).
 
 ### scalatra-2.0.0.M2 to scalatra-2.0.0.M3
 
