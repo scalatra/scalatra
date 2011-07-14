@@ -22,7 +22,9 @@
 - [Dag Liodden](http://github.com/daggerrz)
 - [Ted Nyman](http://github.com/tnm)
 - [Erik Rozendaal](http://github.com/erikrozendaal)
+- [Srirangan](http://srirangan.net)
 - [Lucas Torri](http://github.com/lucastorri)
+- [Leif Warner](http://github.com/LeifW)
 - [Ivan Willig](http://github.com/iwillig)
 - [Phil Wills](http://github.com/philwills)
 
