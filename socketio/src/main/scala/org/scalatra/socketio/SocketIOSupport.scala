@@ -50,8 +50,6 @@ object SocketIOSupport {
 
     protected var _out: Option[SocketIOOutbound] = None
 
-    def getProtocol = null
-
     final def send(messageType: Int, message: String) {
       _out foreach { _.sendMessage(messageType, message) }
     }
