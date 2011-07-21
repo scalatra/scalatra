@@ -48,7 +48,7 @@ object SocketIOSupport {
 
     def receive: SocketIOReceive
 
-    protected var _out: Option[SocketIOOutbound] = None
+    private var _out: Option[SocketIOOutbound] = None
 
     final def send(messageType: Int, message: String) {
       _out foreach { _.sendMessage(messageType, message) }
