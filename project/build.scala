@@ -1,15 +1,15 @@
 import sbt._
 import Keys._
 import scala.xml._
+import com.github.siasia.WebPlugin.webSettings
 
-// TODO: Build example project
 // TODO: Build website project
 object ScalatraBuild extends Build {
   val description = SettingKey[String]("description")
 
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
-    version := "2.0.0.M4",
+    version := "2.0.0-SNAPSHOT",
     crossScalaVersions := Seq("2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     packageOptions <<= (packageOptions, name, version, organization) map {
@@ -90,9 +90,10 @@ object ScalatraBuild extends Build {
 
     val commonsIo = "commons-io" % "commons-io" % "1.4"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "7.4.1.v20110513"
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.0.0.M2"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket")
+    val jettyWebapp = jettyDep("jetty-webapp")
 
     val junit = "junit" % "junit" % "4.8.1"
 
@@ -147,7 +148,8 @@ object ScalatraBuild extends Build {
       description := "A tiny, Sinatra-like web framework for Scala")
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson,
-      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2)
+      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
+      scalatraExample)
 
   lazy val scalatraCore = Project("scalatra", file("core"), 
     settings = scalatraSettings)
@@ -235,6 +237,18 @@ object ScalatraBuild extends Build {
       },
       description := "Specs2 support for the Scalatra test framework")
     .dependsOn(scalatraTest)
+
+  lazy val scalatraExample = Project("scalatra-example", file("example"), 
+    settings = scalatraSettings)
+    .settings(webSettings :_*)
+    .settings(
+      resolvers += sonatypeSnapshots,
+      libraryDependencies := Seq(servletApi, jettyWebapp % "jetty"),
+      description := "Scalatra example project",
+      publish := {},
+      publishLocal := {})
+    .dependsOn(scalatraCore, scalatraScalate, scalatraAuth, scalatraFileupload,
+               scalatraSocketio)
 
   class RichProject(project: Project) {
     def testWithScalatraTest = {
