@@ -1,2 +1,5 @@
 ## scalatra-core
 * Fix dynamic variables leaking memory on redeploy. [(GH-74)](http://github.com/scalatra/scalatra/issues/74) 
+
+## scalatra-socketio
+* Change interface to socket io to something that allows to keep state per client. [(GH-72)](http://github.com/scalatra/scalatra/issues/72)
