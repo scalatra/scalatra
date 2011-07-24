@@ -105,7 +105,5 @@ trait CookieSupport extends Handler {
   }
 
   private val _cookies = new DynamicVariable[SweetCookies](null)
-  private val _cookieOptions = new DynamicVariable[CookieOptions](CookieOptions())
-
-
+  private val _cookieOptions = new DynamicVariable[CookieOptions](null)
 }
