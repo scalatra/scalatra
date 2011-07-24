@@ -1,0 +1,2 @@
+## scalatra-core
+* Fix dynamic variables leaking memory on redeploy. [(GH-74)](http://github.com/scalatra/scalatra/issues/74) 

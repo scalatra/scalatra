@@ -242,7 +242,7 @@ trait ScalatraKernel extends Handler with Initializable
       response.getWriter.print(x.toString)
   }
 
-  protected[scalatra] val _multiParams = new DynamicVariable[MultiMap](new MultiMap)
+  protected[scalatra] val _multiParams = new DynamicVariable[MultiMap](null)
   protected def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
   /*
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
