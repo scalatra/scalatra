@@ -3,3 +3,6 @@
 
 ## scalatra-socketio
 * Change interface to socket io to something that allows to keep state per client. [(GH-72)](http://github.com/scalatra/scalatra/issues/72)
+
+## scalatra-scalatest
+* New convenience traits for Suites other than FunSuite. [(GH-21)](http://github.com/scalatra/scalatra/issues/21)
