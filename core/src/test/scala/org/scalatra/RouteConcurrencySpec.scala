@@ -1,9 +1,7 @@
 package org.scalatra
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
 import scala.concurrent.ops._
+import test.scalatest.ScalatraWordSpec
 
 class RouteConcurrencyServlet extends ScalatraServlet {
   for {
@@ -27,7 +25,7 @@ class RouteConcurrencyServlet extends ScalatraServlet {
   }
 }
 
-class RouteConcurrencySpec extends WordSpec with ScalatraSuite with ShouldMatchers {
+class RouteConcurrencySpec extends ScalatraWordSpec {
   addServlet(classOf[RouteConcurrencyServlet], "/*")
 
   "A scalatra kernel " should {

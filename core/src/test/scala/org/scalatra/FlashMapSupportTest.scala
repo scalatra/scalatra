@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 import javax.servlet.http.HttpServletRequest
 
@@ -39,7 +38,7 @@ class FlashMapSupportTestFilter extends ScalatraFilter with FlashMapSupport {
   }
 }
 
-class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
+class FlashMapSupportTest extends ScalatraFunSuite {
   addFilter(classOf[FlashMapSupportTestFilter], "/*")
   addServlet(classOf[FlashMapSupportTestServlet], "/*")
 
@@ -110,7 +109,7 @@ class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
 }
 
 // Based on issue #57
-class FlashMapSupportTwoServletsTest extends ScalatraFunSuite with ShouldMatchers {
+class FlashMapSupportTwoServletsTest extends ScalatraFunSuite {
   addServlet(classOf[FlashMapSupportTestServlet], "/first/*")
   addServlet(classOf[FlashMapSupportSecondTestServlet], "/second/*")
 

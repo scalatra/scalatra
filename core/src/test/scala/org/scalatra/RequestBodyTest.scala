@@ -2,7 +2,6 @@ package org.scalatra
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class RequestBodyTestServlet extends ScalatraServlet {
@@ -12,7 +11,7 @@ class RequestBodyTestServlet extends ScalatraServlet {
 }
 
 @RunWith(classOf[JUnitRunner])
-class RequestBodyTest extends ScalatraFunSuite with ShouldMatchers {
+class RequestBodyTest extends ScalatraFunSuite {
   addServlet(classOf[RequestBodyTestServlet], "/")
 
   test("can read request body") {

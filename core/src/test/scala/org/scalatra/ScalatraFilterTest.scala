@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 /*
@@ -74,7 +73,7 @@ class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
   }
 }
 
-class ScalatraFilterTest extends ScalatraFunSuite with ShouldMatchers {
+class ScalatraFilterTest extends ScalatraFunSuite {
   val filterHolder = addFilter(classOf[ScalatraFilterTestFilter], "/*")
   filterHolder.setInitParameter("cat-who-is-biting-me", "Pete")
 
@@ -146,10 +145,7 @@ class ScalatraFilterTest extends ScalatraFunSuite with ShouldMatchers {
   }
 }
 
-class ScalatraFilterWithoutServletMappingTest 
-  extends ScalatraFunSuite 
-  with ShouldMatchers 
-{
+class ScalatraFilterWithoutServletMappingTest extends ScalatraFunSuite {
   addFilter(classOf[ScalatraFilterTestFilter], "/*")
 
   // Based on http://gist.github.com/519565, http://gist.github.com/519566.

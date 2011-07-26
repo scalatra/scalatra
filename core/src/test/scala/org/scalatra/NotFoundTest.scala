@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class DefaultNotFoundTestServlet extends ScalatraServlet
@@ -11,7 +10,7 @@ class CustomNotFoundTestServlet extends ScalatraServlet {
   }
 }
 
-class NotFoundTest extends ScalatraFunSuite with ShouldMatchers {
+class NotFoundTest extends ScalatraFunSuite {
   addServlet(classOf[DefaultNotFoundTestServlet], "/default/*")
   addServlet(classOf[CustomNotFoundTestServlet], "/custom/*")
   

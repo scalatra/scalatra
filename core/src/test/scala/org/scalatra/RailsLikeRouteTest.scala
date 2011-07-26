@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class RailsLikeRouteTestServlet extends ScalatraServlet {
@@ -15,7 +14,7 @@ class RailsLikeRouteTestServlet extends ScalatraServlet {
   }
 }
 
-class RailsLikeRouteTest extends ScalatraFunSuite with ShouldMatchers {
+class RailsLikeRouteTest extends ScalatraFunSuite {
   addServlet(classOf[RailsLikeRouteTestServlet], "/*")
 
   test("matches without extension") {

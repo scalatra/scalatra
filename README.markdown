@@ -488,9 +488,9 @@ ScalaTest
 
 ### Code
 
-Mix in ShouldMatchers or MustMatchers to your taste...
+Extend ScalatraSuite with your preferred Suite implementation.  You get ShouldMatchers and MustMatchers for free.
 
-    class MyScalatraServletTests extends ScalatraFunSuite with ShouldMatchers {
+    class MyScalatraServletTests extends ScalatraSuite with FunSuite {
       // `MyScalatraServlet` is your app which extends ScalatraServlet
       addServlet(classOf[MyScalatraServlet], "/*")
 
@@ -501,6 +501,18 @@ Mix in ShouldMatchers or MustMatchers to your taste...
         }
       }
     }
+
+Convenience traits are provided for many Suite implementations:
+
+* ScalatraSpec
+* ScalatraFlatSpec
+* ScalatraFreeSpec
+* ScalatraWordSpec
+* ScalatraFunSuite
+* ScalatraFeatureSpec
+* ScalatraJUnit3Suite
+* ScalatraJUnitSuite (JUnit 4)
+* ScalatraTestNGSuite
 
 Specs
 -----

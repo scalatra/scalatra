@@ -149,6 +149,8 @@ object ScalatraBuild extends Build {
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % version
+
+    val testng = "org.testng" % "testng" % "6.1.1" % "optional"
   }
   import Dependencies._
 
@@ -228,7 +230,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(scalatest(sv), junit)
+        (sv, deps) => deps ++ Seq(scalatest(sv), junit, testng)
       },
       description := "ScalaTest support for the Scalatra test framework")
     .dependsOn(scalatraTest)

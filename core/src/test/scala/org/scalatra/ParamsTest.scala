@@ -1,7 +1,6 @@
 package org.scalatra
 
 import java.util.NoSuchElementException
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 object ParamsTestServlet {
@@ -38,7 +37,7 @@ class ParamsTestServlet extends ScalatraServlet {
   }
 }
 
-class ParamsTest extends ScalatraFunSuite with ShouldMatchers {
+class ParamsTest extends ScalatraFunSuite {
   addServlet(classOf[ParamsTestServlet], "/*")
 
   test("supports multiple parameters") {

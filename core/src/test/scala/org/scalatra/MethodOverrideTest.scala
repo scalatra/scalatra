@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class MethodOverrideTestServlet extends ScalatraServlet with MethodOverride {
@@ -9,7 +8,7 @@ class MethodOverrideTestServlet extends ScalatraServlet with MethodOverride {
   get("/foo") { "GET" }
 }
 
-class MethodOverrideTest extends ScalatraFunSuite with ShouldMatchers {
+class MethodOverrideTest extends ScalatraFunSuite {
   addServlet(classOf[MethodOverrideTestServlet], "/*")
 
   test("should override method with _method parameter on post") {

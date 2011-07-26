@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class ErrorHandlerTestServlet extends ScalatraServlet {
@@ -13,7 +12,7 @@ class ErrorHandlerTestServlet extends ScalatraServlet {
   }
 }
 
-class ErrorHandlerTest extends ScalatraFunSuite with ShouldMatchers {
+class ErrorHandlerTest extends ScalatraFunSuite {
   addServlet(classOf[ErrorHandlerTestServlet], "/*")
 
   test("result of error handler should be rendered") {

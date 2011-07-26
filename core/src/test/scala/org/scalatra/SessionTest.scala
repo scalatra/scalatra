@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class SessionTestServlet extends ScalatraServlet {
@@ -25,7 +24,7 @@ class SessionTestServlet extends ScalatraServlet {
   }
 }
 
-class SessionTest extends ScalatraFunSuite with ShouldMatchers {
+class SessionTest extends ScalatraFunSuite {
   addServlet(classOf[SessionTestServlet], "/*")
 
   test("GET /session with no session should return 'None'") {

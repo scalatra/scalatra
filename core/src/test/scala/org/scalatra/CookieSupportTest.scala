@@ -27,7 +27,7 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
   }
 }
 
-class CookieSupportTest extends ScalatraFunSuite with MustMatchers {
+class CookieSupportTest extends ScalatraFunSuite {
   val oneWeek = 7 * 24 * 3600
 
   tester.setContextPath("/foo")
