@@ -12,9 +12,7 @@ import org.scalatest.testng.TestNGSuite
  * Provides Scalatra test support to ScalaTest suites.  The servlet tester
  * is started before the first test in the suite and stopped after the last.
  */
-trait ScalatraSuite extends ScalatraTests with BeforeAndAfterAll {
-  this: Suite =>
-
+trait ScalatraSuite extends Suite with ScalatraTests with BeforeAndAfterAll {
   lazy val tester = new ServletTester
 
   override protected def beforeAll(): Unit = start()
