@@ -1,10 +1,9 @@
 package org.scalatra.liftjson
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatra.ScalatraServlet
 
-class JsonSupportTest extends ScalatraFunSuite with ShouldMatchers {
+class JsonSupportTest extends ScalatraFunSuite {
   val servletHolder = addServlet(classOf[JsonSupportTestServlet], "/*")
   servletHolder.setInitOrder(1) // force load on startup
 

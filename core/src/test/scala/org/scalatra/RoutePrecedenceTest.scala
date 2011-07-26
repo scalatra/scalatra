@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class RoutePrecedenceTestBaseServlet extends ScalatraServlet {
@@ -51,7 +50,7 @@ class RoutePrecedenceTestChildServlet extends RoutePrecedenceTestBaseServlet {
   }
 }
 
-class RoutePrecedenceTest extends ScalatraFunSuite with ShouldMatchers {
+class RoutePrecedenceTest extends ScalatraFunSuite {
   addServlet(classOf[RoutePrecedenceTestChildServlet], "/*")
 
   test("Routes in child should override routes in base") {

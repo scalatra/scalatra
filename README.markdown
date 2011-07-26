@@ -488,9 +488,9 @@ ScalaTest
 
 ### Code
 
-Extend ScalatraSuite with your preferred Suite implementation:
+Extend ScalatraSuite with your preferred Suite implementation.  You get ShouldMatchers and MustMatchers for free.
 
-    class MyScalatraServletTests extends ScalatraSuite with FunSuite with ShouldMatchers {
+    class MyScalatraServletTests extends ScalatraSuite with FunSuite {
       // `MyScalatraServlet` is your app which extends ScalatraServlet
       addServlet(classOf[MyScalatraServlet], "/*")
 

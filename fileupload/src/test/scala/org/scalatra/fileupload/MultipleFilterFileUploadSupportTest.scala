@@ -1,12 +1,11 @@
 package org.scalatra
 package fileupload
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 import org.eclipse.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
 
-class MultipleFilterFileUploadSupportTest extends ScalatraFunSuite with ShouldMatchers {
+class MultipleFilterFileUploadSupportTest extends ScalatraFunSuite {
   addFilter(new ScalatraFilter with FileUploadSupport {
     post("/some-other-url-with-file-upload-support") {}
   }, "/*")

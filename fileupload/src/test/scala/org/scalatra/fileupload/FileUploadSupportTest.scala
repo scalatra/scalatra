@@ -1,7 +1,6 @@
 package org.scalatra
 package fileupload
 
-import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import org.eclipse.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
@@ -32,7 +31,7 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
 }
 
 @RunWith(classOf[JUnitRunner])
-class FileUploadSupportTest extends ScalatraFunSuite with ShouldMatchers {
+class FileUploadSupportTest extends ScalatraFunSuite {
   addServlet(classOf[FileUploadSupportTestServlet], "/")
 
   def multipartResponse(path: String = "/multipart") = {

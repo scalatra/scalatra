@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import javax.servlet.http.HttpServletResponse
 import test.scalatest.ScalatraFunSuite
 
@@ -26,7 +25,7 @@ class BeforeTestServlet extends ScalatraServlet {
   
 }
 
-class BeforeTest extends ScalatraFunSuite with ShouldMatchers {
+class BeforeTest extends ScalatraFunSuite {
   addServlet(classOf[BeforeTestServlet], "/*")
   
   test("beforeAll is applied to all paths") {

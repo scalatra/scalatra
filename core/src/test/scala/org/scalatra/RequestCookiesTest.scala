@@ -2,10 +2,9 @@ package org.scalatra
 
 import javax.servlet.http.{Cookie => ServletCookie}
 import test.scalatest.ScalatraFunSuite
-import org.scalatest.matchers.ShouldMatchers
 import org.eclipse.jetty.testing.HttpTester
 
-class RequestCookiesTest extends ScalatraFunSuite with ShouldMatchers {
+class RequestCookiesTest extends ScalatraFunSuite {
   addServlet(new ScalatraServlet {
     get("/multi-cookies") {
       Seq("one", "two", "three") map { key =>

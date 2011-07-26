@@ -8,7 +8,7 @@ import org.scalatest.matchers._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner]) // makes test run with Maven Surefire
-class MyScalatraFilterSuite extends ScalatraFunSuite with ShouldMatchers {
+class MyScalatraFilterSuite extends ScalatraFunSuite {
   addFilter(classOf[MyScalatraFilter], "/*")
 
   test("GET / returns status 200") {

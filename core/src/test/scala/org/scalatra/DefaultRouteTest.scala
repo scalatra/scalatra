@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 object DefaultRouteTest {
@@ -32,7 +31,7 @@ class DefaultRouteTestServlet extends ScalatraServlet {
   }
 }
 
-class DefaultRouteTest extends ScalatraFunSuite with ShouldMatchers {
+class DefaultRouteTest extends ScalatraFunSuite {
   import DefaultRouteTest._
 
   addServlet(classOf[DefaultRouteTestServlet], "/*")

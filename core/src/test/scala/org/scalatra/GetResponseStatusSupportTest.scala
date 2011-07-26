@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class GetResponseStatusSupportTestServlet extends ScalatraServlet with GetResponseStatusSupport {
@@ -34,7 +33,7 @@ class GetResponseStatusSupportTestServlet extends ScalatraServlet with GetRespon
   }
 }
 
-class GetResponseStatusSupportTest extends ScalatraFunSuite with ShouldMatchers {
+class GetResponseStatusSupportTest extends ScalatraFunSuite {
   addServlet(classOf[GetResponseStatusSupportTestServlet], "/*")
 
   test("remember status after setStatus") {

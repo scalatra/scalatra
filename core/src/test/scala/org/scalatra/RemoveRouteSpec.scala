@@ -1,8 +1,6 @@
 package org.scalatra
 
-import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
-import test.scalatest.ScalatraSuite
+import test.scalatest.ScalatraWordSpec
 
 class RemoveRouteServlet extends ScalatraServlet {
   val foo = get("/foo") { "foo" }
@@ -16,7 +14,7 @@ class RemoveRouteServlet extends ScalatraServlet {
   }
 }
 
-class RemoveRouteSpec extends WordSpec with ScalatraSuite with ShouldMatchers {
+class RemoveRouteSpec extends ScalatraWordSpec {
   addServlet(classOf[RemoveRouteServlet], "/*")
 
   "a route" should {

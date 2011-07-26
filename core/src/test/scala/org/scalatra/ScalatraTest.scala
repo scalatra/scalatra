@@ -3,7 +3,6 @@ package org.scalatra
 import scala.actors.Actor
 import scala.actors.TIMEOUT
 import scala.xml.Text
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 import java.io.File
 import util.io.withTempFile
@@ -81,7 +80,7 @@ class ScalatraTestServlet extends ScalatraServlet {
   }
 }
 
-class ScalatraTest extends ScalatraFunSuite with ShouldMatchers {
+class ScalatraTest extends ScalatraFunSuite {
   val filterHolder = addServlet(classOf[ScalatraTestServlet], "/*")
   filterHolder.setInitParameter("bofh-excuse", "decreasing electron flux")
 

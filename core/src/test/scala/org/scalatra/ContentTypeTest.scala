@@ -2,7 +2,6 @@ package org.scalatra
 
 import scala.actors.{Actor, TIMEOUT}
 import scala.xml.Text
-import org.scalatest.matchers.ShouldMatchers
 import org.eclipse.jetty.testing.HttpTester
 import java.net.URLEncoder
 import java.nio.charset.Charset
@@ -82,7 +81,7 @@ class ContentTypeTestServlet extends ScalatraServlet {
   override def destroy() { conductor ! 'exit } 
 }
 
-class ContentTypeTest extends ScalatraFunSuite with ShouldMatchers {
+class ContentTypeTest extends ScalatraFunSuite {
   val servletHolder = addServlet(classOf[ContentTypeTestServlet], "/*")
   servletHolder.setInitOrder(1) // force load on startup
 

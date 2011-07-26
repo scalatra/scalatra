@@ -1,7 +1,6 @@
 package org.scalatra
 
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 class FilterTestServlet extends ScalatraServlet {
@@ -78,7 +77,7 @@ class MultipleFilterTestServlet extends ScalatraServlet {
   }
 }
 
-class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach with ShouldMatchers {
+class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
   addServlet(classOf[FilterTestServlet], "/*")
   addServlet(classOf[MultipleFilterTestServlet], "/multiple-filters/*")
   addFilter(classOf[FilterTestFilter], "/*")

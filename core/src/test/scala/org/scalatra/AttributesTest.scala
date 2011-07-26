@@ -1,11 +1,10 @@
 package org.scalatra
 
 import scala.collection.mutable.Map
-import org.scalatest.matchers.ShouldMatchers
 import test.scalatest.ScalatraFunSuite
 
 trait AttributesTest {
-  this: ScalatraFunSuite with ShouldMatchers =>
+  this: ScalatraFunSuite =>
 
   trait AttributesServlet extends ScalatraServlet {
     def attributesMap: Map[String, AnyRef]
