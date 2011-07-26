@@ -97,7 +97,13 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.8.1"
 
-    val liftJson = "net.liftweb" %% "lift-json" % "2.4-M2"
+    def liftJson(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case "2.9.1.RC1" => "lift-json_2.9.0"
+        case x => "lift-json_"+x
+      }
+      "net.liftweb" % libArtifactId % "2.4-M2"
+    }
 
     def scalate(scalaVersion: String) = {
       val libVersion = scalaVersion match {
@@ -121,6 +127,7 @@ object ScalatraBuild extends Build {
 
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
+        case "2.9.1.RC1" => "specs_2.9.0"
         case "2.9.0-1" => "specs_2.9.0"
         case x => "specs_"+x
       }
@@ -128,11 +135,15 @@ object ScalatraBuild extends Build {
     }
 
     def specs2(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case "2.9.1.RC1" => "specs2_2.9.0-1"
+        case x => "specs2_"+x
+      }
       val libVersion = scalaVersion match {
         case "2.9.0" => "1.3"
         case x => "1.5"
       }
-      "org.specs2" %% "specs2" % libVersion
+      "org.specs2" % libArtifactId % libVersion
     }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
@@ -199,7 +210,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraLiftJson = Project("scalatra-lift-json", file("lift-json"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(liftJson, servletApi),
+      libraryDependencies <<= (scalaVersion, libraryDependencies) {
+        (sv, deps) => deps ++ Seq(liftJson(sv), servletApi)
+      },
       description := "Lift JSON support for Scalatra"
     )
     .dependsOn(scalatraCore)
