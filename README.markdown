@@ -412,6 +412,32 @@ Scalatra provides optional support for file uploads with <a href="http://commons
           processFile(fileParams("file"))
         }
 
+## Anti-XML integration
+
+Scalatra provides optional [Anti-XML](http://anti-xml.org/) integration:
+
+1. Depend on scalatra-anti-xml.jar.  In your SBT build:
+
+        val scalatraAntiXml = "org.scalatra" %% "scalatra-anti-xml" % scalatraVersion
+
+2. Extend your application with `AntiXmlSupport`
+
+        import org.scalatra.ScalatraServlet
+        import org.scalatra.antixml.AntiXmlSupport
+        import com.codecommit.antixml._
+
+        class MyApp extends ScalatraServlet with AntiXmlSupport {
+          // ...
+        }
+
+3. Actions results of type `com.codecommit.antixml.Elem` will be serialized
+to the response body, and a content type of `text/html` will be inferred if
+none is set.
+
+        get("/") {
+          XML.fromString("""<foo bar="baz"></foo>""")
+        }
+
 ## WebSocket and Comet support through Socket.IO
 
 Scalatra provides optional support for websockets and comet through [socket.io](http://socket.io). We depend on [the socketio-java project](http://code.google.com/p/socketio-java) to provide this support.

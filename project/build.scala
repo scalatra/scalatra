@@ -83,6 +83,14 @@ object ScalatraBuild extends Build {
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
   object Dependencies {
+    def antiXml(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case x if (x startsWith "2.9.") => "anti-xml_2.9.0"
+        case x => "anti-xml_"+x
+      }
+      "com.codecommit" % libArtifactId % "0.2"
+    }
+
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
@@ -159,7 +167,7 @@ object ScalatraBuild extends Build {
       publishArtifact in Compile := false,
       description := "A tiny, Sinatra-like web framework for Scala")
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
-      scalatraScalate, scalatraSocketio, scalatraLiftJson,
+      scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample)
 
@@ -216,6 +224,16 @@ object ScalatraBuild extends Build {
       },
       description := "Lift JSON support for Scalatra"
     )
+    .dependsOn(scalatraCore)
+    .testWithScalatraTest
+
+  lazy val scalatraAntiXml = Project("scalatra-anti-xml", file("anti-xml"), 
+    settings = scalatraSettings)
+    .settings(
+      libraryDependencies <<= (scalaVersion, libraryDependencies) {
+        (sv, deps) => deps ++ Seq(antiXml(sv), servletApi)
+      },
+      description := "Anti-XML support for Scalatra")
     .dependsOn(scalatraCore)
     .testWithScalatraTest
 
