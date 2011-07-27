@@ -153,24 +153,6 @@ The route matcher may also be a regular expression.  Capture groups are accessib
       multiParams("captures") // == Seq("oo", "ar") 
     }
 
-#### Path patterns in the REPL
-
-If you want to experiment with path patterns, it's very easy in the REPL.
-
-    scala> import org.scalatra.pattern._
-    import org.scalatra.pattern._
-
-    scala> val pattern = PathPatternParser.parseFrom("/foo/:bar")
-    pattern: PathPattern = PathPattern(^/foo/([^/?]+)$,List(bar))
-
-    scala> pattern("/y/x") // doesn't match 
-    res1: Option[MultiParams] = None
-
-    scala> pattern("/foo/x") // matches
-    res2: Option[MultiParams] = Some(Map(bar -> ListBuffer(x)))
-
-Obligatory scolding: the REPL is not a substitute for proper unit tests!
-
 #### Rails-like pattern matching
 
 By default, route patterns parsing is based on Sinatra.  Rails has a similar, but not identical, syntax, based on Rack::Mount's Strexp.  The path pattern parser is resolved implicitly, and may be overridden if you prefer an alternate syntax:
@@ -183,6 +165,25 @@ By default, route patterns parsing is based on Sinatra.  Rails has a similar, bu
 
       get("/:file(.:ext)") { // matched Rails-style }
     }
+
+#### Path patterns in the REPL
+
+If you want to experiment with path patterns, it's very easy in the REPL.
+
+    scala> import org.scalatra.SinatraPathPatternParser
+    import org.scalatra.SinatraPathPatternParser
+
+    scala> val pattern = SinatraPathPatternParser("/foo/:bar")
+    pattern: PathPattern = PathPattern(^/foo/([^/?#]+)$,List(bar))
+
+    scala> pattern("/y/x") // doesn't match 
+    res1: Option[MultiParams] = None
+
+    scala> pattern("/foo/x") // matches
+    res2: Option[MultiParams] = Some(Map(bar -> ListBuffer(x)))
+
+Alternatively, you may use the `RailsPathPatternParser` in place of the
+`SinatraPathPatternParser`.
 
 ### Conditions
 
