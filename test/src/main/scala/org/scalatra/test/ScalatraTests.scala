@@ -117,6 +117,12 @@ trait ScalatraTests {
   def get[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     withResponse(httpRequest("GET", uri, params, headers), f)
 
+  def head[A](uri: String)(f: => A): A = withResponse(httpRequest("HEAD", uri), f)
+  def head[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
+    get(uri, params, Map[String, String]())(f)
+  def head[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
+    withResponse(httpRequest("HEAD", uri, params, headers), f)
+
   def post[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     post(uri, params)(f)
   def post[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
