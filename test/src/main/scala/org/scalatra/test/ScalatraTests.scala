@@ -70,7 +70,7 @@ trait ScalatraTests {
     if(_useSession.value && r.getHeader("Set-Cookie") != null) {
       val setCookies = r.getHeaderValues("Set-Cookie").asInstanceOf[Enumeration[String]]
       _cookies.value = setCookies flatMap { setCookie => 
-        HttpCookie.parse(setCookie)
+        HttpCookie.parse(setCookie).iterator
       } toSeq
     }
     result
