@@ -85,7 +85,8 @@ object ScalatraBuild extends Build {
   object Dependencies {
     def antiXml(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case x if (x startsWith "2.9.") => "anti-xml_2.9.0"
+        case "2.9.1.RC1" => "anti-xml_2.9.0"
+        case "2.9.0-1" => "anti-xml_2.9.0"
         case x => "anti-xml_"+x
       }
       "com.codecommit" % libArtifactId % "0.2"
@@ -122,8 +123,9 @@ object ScalatraBuild extends Build {
 
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case x if (x startsWith "2.9.") => "scalatest_2.9.0"
-        case "2.8.1" => "scalatest_2.8.1"
+        case "2.9.1.RC1" => "scalatest_2.9.0"
+        case "2.9.0-1" => "scalatest_2.9.0"
+        case x => "scalatest_"+x
       }
       val libVersion = scalaVersion match {
         case x if (x startsWith "2.9.") => "1.6.1"
