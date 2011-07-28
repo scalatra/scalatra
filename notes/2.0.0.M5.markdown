@@ -1,5 +1,8 @@
-## scalatra-core
+## scalatra
 * Fix dynamic variables leaking memory on redeploy. [(GH-74)](http://github.com/scalatra/scalatra/issues/74) 
+
+## scalatra-anti-xml
+* New module adds support for rendering Elem responses. [(GH-75)](http://github.com/scalatra/scalatra/issues/75)
 
 ## scalatra-socketio
 * Change interface to socket io to something that allows to keep state per client. [(GH-72)](http://github.com/scalatra/scalatra/issues/72)
@@ -7,3 +10,4 @@
 ## scalatra-scalatest
 * New convenience traits for Suites other than FunSuite. [(GH-21)](http://github.com/scalatra/scalatra/issues/21)
 * For convenience, ScalatraSuite now extends MustMatchers and ShouldMatchers.
+* Support for testing HEAD requests. [(GH-20)](http://github.com/scalatra/scalatra/issues/20)

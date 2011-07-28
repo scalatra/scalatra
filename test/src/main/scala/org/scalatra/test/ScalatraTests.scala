@@ -1,5 +1,6 @@
 package org.scalatra.test
 
+import scala.collection.JavaConversions._
 import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
 import org.eclipse.jetty.testing.HttpTester
@@ -9,7 +10,8 @@ import org.eclipse.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 import javax.servlet.Filter
-import java.util.EnumSet
+import java.net.HttpCookie
+import java.util.{Enumeration, EnumSet}
 
 object ScalatraTests {
   val DefaultDispatcherTypes: EnumSet[DispatcherType] = 
@@ -21,13 +23,17 @@ import ScalatraTests._
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
  * either <code>org.scalatra.test.scalatest.ScalatraSuite</code> or
  * <code>org.scalatra.test.specs.ScalatraSpecification</code>.
+ *
+ * Cookies are crudely supported within session blocks.  No attempt is made 
+ * to match domains, paths, or max-ages; the request sends a Cookie header
+ * to match whatever Set-Cookie call it received on the previous response.
  */
 trait ScalatraTests {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
   def tester: ServletTester
   private val _response = new DynamicVariable[HttpTester](new HttpTester("iso-8859-1"))
-  private val _session = new DynamicVariable(Map[String,String]())
+  private val _cookies = new DynamicVariable[Seq[HttpCookie]](Nil)
   private val _useSession = new DynamicVariable(false)
 
   protected def start() = tester.start()
@@ -45,12 +51,12 @@ trait ScalatraTests {
       val queryString = toQueryString(queryParams)
       r.setURI(uri + (if (queryString == "") "" else "?") + queryString)
       r.setContent(body)
-      (headers ++ _session.value).foreach(t => r.setHeader(t._1, t._2))
+      headers.foreach(t => r.setHeader(t._1, t._2))
+      _cookies.value foreach(c => r.setHeader("Cookie", c.toString))
       r
     }
 
     val res = new HttpTester("iso-8859-1")
-
     res.parse(tester.getResponses(req.generate))
     res.setContent(res.getContent match {
       case null => ""
@@ -61,8 +67,12 @@ trait ScalatraTests {
 
   private def withResponse[A](r: HttpTester, f: => A) = {
     val result = _response.withValue(r)(f)
-    if(_useSession.value && r.getHeader("Set-Cookie") != null)
-      _session.value ++= Map("Cookie" -> r.getHeader("Set-Cookie"))
+    if(_useSession.value && r.getHeader("Set-Cookie") != null) {
+      val setCookies = r.getHeaderValues("Set-Cookie").asInstanceOf[Enumeration[String]]
+      _cookies.value = setCookies flatMap { setCookie => 
+        HttpCookie.parse(setCookie)
+      } toSeq
+    }
     result
   }
 
@@ -107,6 +117,12 @@ trait ScalatraTests {
   def get[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     withResponse(httpRequest("GET", uri, params, headers), f)
 
+  def head[A](uri: String)(f: => A): A = withResponse(httpRequest("HEAD", uri), f)
+  def head[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
+    get(uri, params, Map[String, String]())(f)
+  def head[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
+    withResponse(httpRequest("HEAD", uri, params, headers), f)
+
   def post[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     post(uri, params)(f)
   def post[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
@@ -136,7 +152,7 @@ trait ScalatraTests {
   }
 
   def session[A](f: => A): A = {
-    _session.withValue(Map[String,String]()) {
+    _cookies.withValue(Nil) {
       _useSession.withValue(true)(f)
     }
   }
