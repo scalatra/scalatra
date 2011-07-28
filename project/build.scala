@@ -10,7 +10,7 @@ object ScalatraBuild extends Build {
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.0-SNAPSHOT",
-    crossScalaVersions := Seq("2.8.1"),
+    crossScalaVersions := Seq("2.8.1", "2.8.2.RC1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     packageOptions <<= (packageOptions, name, version, organization) map {
       (opts, title, version, vendor) => 
