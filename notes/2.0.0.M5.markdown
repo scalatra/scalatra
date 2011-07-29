@@ -10,4 +10,4 @@
 ## scalatra-scalatest
 * New convenience traits for Suites other than FunSuite. [(GH-21)](http://github.com/scalatra/scalatra/issues/21)
 * For convenience, ScalatraSuite now extends MustMatchers and ShouldMatchers.
-* Support for testing HEAD, TRACE, and CONNECT requests. [(GH-51)](http://github.com/scalatra/scalatra/issues/51)
+* Support for testing arbitrary requests. Explicit support for HEAD, TRACE, and CONNECT. [(GH-51)](http://github.com/scalatra/scalatra/issues/51)
