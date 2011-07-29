@@ -87,7 +87,6 @@ object ScalatraBuild extends Build {
       val libArtifactId = scalaVersion match {
         case "2.9.1.RC1" => "anti-xml_2.9.0"
         case "2.9.0-1" => "anti-xml_2.9.0"
-        case "2.8.2-1" => "anti-xml_2.8.1"
         case x => "anti-xml_"+x
       }
       "com.codecommit" % libArtifactId % "0.2"
@@ -115,32 +114,22 @@ object ScalatraBuild extends Build {
     }
 
     def scalate(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case "2.8.1" => "1.4.1"
-        case _ => "1.5.0"
-      }
-      "org.fusesource.scalate" % "scalate-core" % libVersion
+      "org.fusesource.scalate" % "scalate-core" % "1.5.0"
     }
 
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.9.1.RC1" => "scalatest_2.9.0"
         case "2.9.0-1" => "scalatest_2.9.0"
-        case "2.8.2.RC1" => "scalatest_2.8.1"
         case x => "scalatest_"+x
       }
-      val libVersion = scalaVersion match {
-        case x if (x startsWith "2.8.") => "1.5.1"
-        case x => "1.6.1"
-      }
-      "org.scalatest" % libArtifactId % libVersion
+      "org.scalatest" % libArtifactId % "1.6.1"
     }
 
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.9.1.RC1" => "specs_2.9.0"
         case "2.9.0-1" => "specs_2.9.0"
-        case "2.8.2.RC1" => "specs_2.8.1"
         case x => "specs_"+x
       }
       "org.scala-tools.testing" % libArtifactId % "1.6.8"
@@ -149,7 +138,6 @@ object ScalatraBuild extends Build {
     def specs2(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.9.1.RC1" => "specs2_2.9.0-1"
-        case "2.8.2.RC1" => "specs_2.8.1"
         case x => "specs2_"+x
       }
       val libVersion = scalaVersion match {
