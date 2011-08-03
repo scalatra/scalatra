@@ -188,9 +188,7 @@ trait ScalatraKernel extends Handler with Initializable
   protected def renderError : PartialFunction[Throwable, Any] = defaultRenderError
 
   protected final def defaultRenderError : PartialFunction[Throwable, Any] = {
-    case HaltException(Some(code), Some(msg)) => response.sendError(code, msg)
-    case HaltException(Some(code), None) => response.sendError(code)
-    case HaltException(None, _) =>
+    case e: HaltException => renderHaltException(e)
     case e => {
       status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
       _caughtThrowable.withValue(e) { errorHandler() }
@@ -263,10 +261,45 @@ trait ScalatraKernel extends Handler with Initializable
   }
   def status(code: Int) = (_response value) setStatus code
 
-  def halt(code: Int, msg: String) = throw new HaltException(Some(code), Some(msg))
-  def halt(code: Int) = throw new HaltException(Some(code), None)
-  def halt() = throw new HaltException(None, None)
-  protected case class HaltException(val code: Option[Int], val msg: Option[String]) extends RuntimeException
+  /**
+   * Immediately halts the current action.  If called within a before filter,
+   * prevents the action from executing.  Any matching after filters will still
+   * execute.
+   *
+   * @param status set as the response's HTTP status code.  Ignored if null.
+   *
+   * @param body rendered to the response body through the response pipeline.
+   *
+   * @param reason set as the HTTP status reason.  Ignored if null or if status
+   * is null.
+   *
+   * @param headers added as headers to the response.  Previously set headers 
+   * are retained
+   */
+  def halt(status: Integer = null, 
+           body: Any = (), 
+           headers: Map[String, String] = Map.empty, 
+           reason: String = null): Nothing = {
+    val statusOpt = if (status == null) None else Some(status.toInt)
+    throw new HaltException(statusOpt, Some(reason), headers, body)
+  }
+
+  protected case class HaltException(
+      status: Option[Int], 
+      reason: Option[String],
+      headers: Map[String, String],
+      body: Any)
+   extends RuntimeException
+
+  private def renderHaltException(e: HaltException) {
+    e match {
+      case HaltException(Some(status), Some(reason), _, _) => response.setStatus(status, reason)
+      case HaltException(Some(status), None, _, _) => response.setStatus(status)
+      case HaltException(None, _, _, _) => // leave status line alone
+    }
+    e.headers foreach { case(name, value) => response.addHeader(name, value) }
+    renderResponse(e.body)
+  }
 
   def pass() = throw new PassException
   protected[scalatra] class PassException extends RuntimeException
