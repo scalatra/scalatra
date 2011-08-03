@@ -10,7 +10,7 @@ import test.scalatest.ScalatraFunSuite
 
 class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
   post("""/multipart.*""".r) {
-    params.get("string") foreach { response.setHeader("string", _) }
+    multiParams.get("string") foreach { ps: Seq[String] => response.setHeader("string", ps.mkString(";")) }
     fileParams.get("file") foreach { fi => response.setHeader("file", new String(fi.get)) }
     fileParams.get("file-none") foreach { fi => response.setHeader("file-none", new String(fi.get)) }
     fileParams.get("file-multi") foreach { fi => response.setHeader("file-multi", new String(fi.get)) }
@@ -22,6 +22,13 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
 
   post("/multipart-pass") {
     println("PASSING")
+    pass()
+  }
+
+  post("/multipart-param") {
+    params.get("queryParam") foreach { p => 
+      response.addHeader("Query-Param", p) 
+    }
     pass()
   }
 
@@ -78,5 +85,13 @@ class FileUploadSupportTest extends ScalatraFunSuite {
     post("/echo", "echo" -> "foo") {
       body should equal("foo")
     }
+  }
+
+  test("keeps query parameters") {
+    multipartResponse("/multipart-param?queryParam=foo").getHeader("Query-Param") should equal ("foo")
+  }
+
+  test("query parameters don't shadow post parameters") {
+    multipartResponse("/multipart-param?string=bar").getHeader("string") should equal ("bar;foo")
   }
 }
