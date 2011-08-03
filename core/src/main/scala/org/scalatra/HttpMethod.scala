@@ -37,13 +37,17 @@ case object Connect extends HttpMethod {
   val isSafe = false
   override def toString = "CONNECT"
 }
+case object Patch extends HttpMethod {
+  val isSafe = false
+  override def toString = "PATCH"
+}
 case class ExtensionMethod(name: String) extends HttpMethod {
   val isSafe = false
 }
 
 object HttpMethod {
   private val methodMap =
-    Map(List(Options, Get, Head, Post, Put, Delete, Trace, Connect) map {
+    Map(List(Options, Get, Head, Post, Put, Delete, Trace, Connect, Patch) map {
       method => (method.toString, method)
     } : _*)
 

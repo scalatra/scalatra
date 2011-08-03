@@ -150,6 +150,15 @@ trait ScalatraTests {
   def connect[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A = 
     submit("CONNECT", uri, params, headers) { f }
 
+  def patch[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
+    patch(uri, params)(f)
+  def patch[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
+    patch(uri, params, Map[String, String]())(f)
+  def patch[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
+    patch(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
+  def patch[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
+    submit("PATCH", uri, Seq.empty, headers, body) { f } 
+
   def session[A](f: => A): A = {
     _cookies.withValue(Nil) {
       _useSession.withValue(true)(f)

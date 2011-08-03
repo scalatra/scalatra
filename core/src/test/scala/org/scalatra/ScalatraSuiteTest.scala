@@ -31,6 +31,18 @@ class ScalatraSuiteTestServlet extends ScalatraServlet {
   post("/echo_params") {
     params("msg")
   }
+
+  patch("/method") {
+    request.getMethod
+  }
+
+  put("/method") {
+    request.getMethod
+  }
+
+  delete("/method") {
+    request.getMethod
+  }
 }
 
 class ScalatraSuiteTest extends ScalatraFunSuite {
@@ -113,7 +125,21 @@ class ScalatraSuiteTest extends ScalatraFunSuite {
     }
   }
 
-  // @todo put test
+  test("put test") {
+    put("/method") {
+      body should equal ("PUT")
+    }
+  }
 
-  // @todo delete test
+  test("delete test") {
+    delete("/method") {
+      body should equal ("DELETE")
+    }
+  }
+
+  test("patch test") {
+    patch("/method") {
+      body should equal ("PATCH")
+    }
+  }
 }

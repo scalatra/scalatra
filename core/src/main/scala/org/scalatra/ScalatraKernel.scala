@@ -358,6 +358,11 @@ trait ScalatraKernel extends Handler with Initializable
   def options(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Options, routeMatchers, action)
 
   /**
+   * @see [[org.scalatra.ScalatraKernel.get]]
+   */
+  def patch(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Patch, routeMatchers, action)
+
+  /**
    * registers a new route for the given HTTP method, can be overriden so that subtraits can use their own logic
    * for example, restricting protocol usage, namespace routes based on class name, raise errors on overlapping entries
    * etc.
