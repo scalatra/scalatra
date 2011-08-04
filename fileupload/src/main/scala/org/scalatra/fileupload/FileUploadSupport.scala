@@ -6,7 +6,7 @@ import org.apache.commons.fileupload.{FileItemFactory, FileItem}
 import org.apache.commons.fileupload.disk.DiskFileItemFactory
 import collection.JavaConversions._
 import scala.util.DynamicVariable
-import java.util.{List => JList, HashMap => JHashMap}
+import java.util.{List => JList, HashMap => JHashMap, Map => JMap}
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
 import collection.Iterable
 import java.lang.String
@@ -26,7 +26,14 @@ trait FileUploadSupport extends ScalatraKernel {
     val req2 =
       if (ServletFileUpload.isMultipartContent(req)) {
         val bodyParams = extractMultipartParams(req)
-        wrapRequest(req, bodyParams.formParams)
+        var mergedParams = bodyParams.formParams
+        // Add the query string parameters
+        req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach { 
+          case (name, values) =>
+            val formValues = mergedParams.getOrElse(name, List.empty)
+            mergedParams += name -> (values.toList ++ formValues)
+        }
+        wrapRequest(req, mergedParams)
       }
       else req
     super.handle(req2, resp)

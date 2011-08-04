@@ -254,15 +254,23 @@ To immediately stop a request within a filter or route:
 
 You can also specify the status:
 
-    halt(410)
+    halt(403)
 
-Or the body:
+Or the status and the body:
 
-    halt("This will be the body")
+    halt(403, <h1>Go away!</h1>)
 
-Or both:
+Or even the HTTP status reason and headers.  For more complex invocations, it 
+is recommended to use named arguments:
 
-    halt(401, "Go away!")
+    halt(status = 403,
+         reason = "Forbidden",
+         headers = Map("X-Your-Mother-Was-A" -> "hamster",
+                       "X-And-Your-Father-Smelt-Of" -> "Elderberries"),
+         body = <h1>Go away or I shall taunt you a second time!</h1>)
+
+The `reason` argument is ignored unless `status` is not null.  The default 
+arguments leave that part of the request unchanged.
 
 ## Passing
 
@@ -615,6 +623,15 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 - You want to match routes with a prefix deeper than the context path.
 
 ## Migration Guide
+
+### scalatra-2.0.0.M4 to scalatra-2.0.0.M5
+
+1. `halt(Int, String)` no longer sets the HTTP status line reason.  Call
+   it with the named overload parameter.
+
+2. `halt(Int)` and `halt(Int, String)` no longer call `response.sendError`.
+   If you depend on this behavior for routing to web.xml error pages, call 
+   it explicitly and then call `halt()`, or override `halt`.
 
 ### scalatra-2.0.0.M3 to scalatra-2.0.0.M4
 
