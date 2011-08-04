@@ -9,6 +9,7 @@ import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, Synchronize
 import scala.xml.NodeSeq
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
+import java.lang.{Integer => JInteger}
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
@@ -276,11 +277,11 @@ trait ScalatraKernel extends Handler with Initializable
    * @param headers added as headers to the response.  Previously set headers 
    * are retained
    */
-  def halt(status: Integer = null, 
+  def halt(status: JInteger = null, 
            body: Any = (), 
            headers: Map[String, String] = Map.empty, 
            reason: String = null): Nothing = {
-    val statusOpt = if (status == null) None else Some(status.toInt)
+    val statusOpt = if (status == null) None else Some(status.intValue)
     throw new HaltException(statusOpt, Some(reason), headers, body)
   }
 
