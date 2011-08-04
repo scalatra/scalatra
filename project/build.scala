@@ -12,6 +12,7 @@ object ScalatraBuild extends Build {
     version := "2.0.0-SNAPSHOT",
     crossScalaVersions := Seq("2.8.1", "2.8.2.RC1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
+    scalacOptions ++= Seq("-unchecked", "-deprecation"),
     packageOptions <<= (packageOptions, name, version, organization) map {
       (opts, title, version, vendor) => 
         opts :+ Package.ManifestAttributes(

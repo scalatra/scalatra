@@ -60,7 +60,7 @@ class IoSpec extends WordSpec with ShouldMatchers {
       try {
         withTempFile(content) { myF =>
           f = myF
-          error("foo")
+          throw new RuntimeException()
         }
       }
       catch {
