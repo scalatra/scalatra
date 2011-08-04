@@ -121,34 +121,29 @@ class ContentTypeTest extends ScalatraFunSuite {
 
   test("contentType is threadsafe") {
     import Actor._
-    import concurrent.MailBox
   
-    val mailbox = new MailBox()
-  
-    def makeRequest(i: Int) = actor {
-      val req = new HttpTester
-      req.setVersion("HTTP/1.0")
-      req.setMethod("GET")
-      req.setURI("/concurrent/"+i)
-      
-      // Execute in own thread in servlet with LocalConnector
-      val conn = tester.createLocalConnector()
-      val res = new HttpTester
-      res.parse(tester.getResponses(req.generate(), conn))
-      mailbox.send((i, res.mediaType))
+    def doRequest = actor {
+      loop {
+        react {
+          case i: Int =>
+            val req = new HttpTester
+            req.setVersion("HTTP/1.0")
+            req.setMethod("GET")
+            req.setURI("/concurrent/"+i)
+            // Execute in own thread in servlet with LocalConnector
+            val conn = tester.createLocalConnector()
+            val res = new HttpTester
+            res.parse(tester.getResponses(req.generate(), conn))
+            sender ! (i, res.mediaType)
+            exit()
+        }
+      }
     }
 
-    makeRequest(1)
-    makeRequest(2)
-    var numReceived = 0
-    while (numReceived < 2) {
-      mailbox.receiveWithin(10000) {
-        case (i, mediaType: Option[String]) =>
-          mediaType should be (Some(i.toString))
-          numReceived += 1
-
-        case TIMEOUT =>
-          fail("Timed out")
+    val futures = for (i <- 1 to 2) yield { doRequest !! i }
+    for (future <- futures) { 
+      val result = future() match {
+        case (i, mediaType) => mediaType should be (Some(i.toString))
       }
     }
   }
