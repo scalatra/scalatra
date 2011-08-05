@@ -1,6 +1,7 @@
 package org
 
 import javax.servlet.http.HttpSession
+import org.scalatra.util.MultiMap
 
 package object scalatra {
   /**
@@ -16,4 +17,8 @@ package object scalatra {
 
   @deprecated("Use CsrfTokenSupport")
   type CSRFTokenSupport = CsrfTokenSupport
+
+  type RouteMatcher = () => Option[ScalatraKernel.MultiParams]
+
+  implicit def map2multiMap(map: Map[String, Seq[String]]) = new MultiMap(map)
 }
