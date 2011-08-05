@@ -47,8 +47,6 @@ import ScalatraKernel._
  */
 trait ScalatraKernel extends Handler with Initializable
 {
-  protected implicit def map2multimap(map: Map[String, Seq[String]]) = new MultiMap(map)
-
   protected val routes: ConcurrentMap[HttpMethod, List[Route]] = {
     val map = new ConcurrentHashMap[HttpMethod, List[Route]]
     HttpMethod.methods foreach { x: HttpMethod => map += ((x, List[Route]())) }
@@ -92,7 +90,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
-      case Nil => map2multimap(Map.empty)
+      case Nil => map2multiMap(Map.empty)
       case xs => Map("captures" -> xs)
     }}
 
