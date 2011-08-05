@@ -70,23 +70,6 @@ trait ScalatraKernel extends Handler with Initializable
   protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
   protected implicit def servletContextWrapper(sc: ServletContext) = new RichServletContext(sc)
 
-  protected[scalatra] class Route(val routeMatchers: Iterable[RouteMatcher], val action: Action) {
-    def apply(realPath: String): Option[Any] = RouteMatcher.matchRoute(routeMatchers) flatMap { invokeAction(_) }
-
-    private def invokeAction(routeParams: MultiParams) =
-      _multiParams.withValue(multiParams ++ routeParams) {
-        try {
-          Some(action.apply())
-        }
-        catch {
-          case e: PassException => None
-        }
-      }
-
-    override def toString = routeMatchers.toString()
-  }
-
-
   /**
    * Pluggable way to convert Strings into RouteMatchers.  By default, we
    * interpret them the same way Sinatra does.
@@ -134,20 +117,44 @@ trait ScalatraKernel extends Handler with Initializable
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
-            beforeFilters.toStream.foreach { _(requestPath) }
-            routes(effectiveMethod).toStream.flatMap { _(requestPath) }.headOption.getOrElse(doNotFound())
+            runFilters(beforeFilters)
+            val actionResult = runRoutes(routes(effectiveMethod)).headOption
+            actionResult getOrElse doNotFound()
           }
           catch {
             case e => handleError(e)
           }
           finally {
-            afterFilters.toStream.foreach { _(requestPath) }
+            runFilters(afterFilters)
           }
           renderResponse(result)
         }
       }
     }
   }
+
+  private def runFilters(filters: Traversable[Route]) =
+    for { 
+      route <- filters
+      matchedRoute <- route() 
+    } invoke(matchedRoute)
+
+  private def runRoutes(routes: Traversable[Route]) = 
+    for { 
+      route <- routes.toStream // toStream makes it lazy so we stop after match
+      matchedRoute <- route()
+      actionResult <- invoke(matchedRoute)
+    } yield actionResult
+
+  private def invoke(matchedRoute: MatchedRoute) = 
+    _multiParams.withValue(multiParams ++ matchedRoute.multiParams) {
+      try {
+        Some(matchedRoute.action())
+      }
+      catch {
+        case e: PassException => None
+      }
+    }
 
   protected def effectiveMethod: HttpMethod =
     HttpMethod(request.getMethod) match {
