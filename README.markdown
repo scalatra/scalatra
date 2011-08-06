@@ -327,11 +327,33 @@ Error handlers run within the same context as routes and before filters.
 
 ### Not Found
 
-Whenever no route matches, the `notFound` handler is invoked:
+Whenever no route matches, the `notFound` handler is invoked.  The default behavior is:
 
     notFound {
       <h1>Not found.  Bummer.</h1>
     }
+
+* _ScalatraServlet_: send a 404 response
+* _ScalatraFilter_: pass the request to the servlet filter chain
+
+### Method not allowed
+
+If a route matches for other methods, but not the requested method, the
+`methodNotAllowed` handler is invoked.  The default handler sends HTTP
+status 405 with an `Allow` header containing a comma-separated list of the
+supported methods.
+
+The default behavior is adequate for most apps.  The most likely reasons
+to override this behavior are:
+
+1. You don't want to expose the supported methods.
+
+2. You are in a ScalatraFilter and know the servlet filter chain can 
+handle the request.
+
+        methodNotAllowed { allow: Set[HttpMethod] =>
+          filterChain.doFilter(request, response) 
+        }
 
 ### Error
 

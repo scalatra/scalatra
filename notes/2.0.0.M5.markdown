@@ -1,5 +1,6 @@
 ## scalatra
 * Fix dynamic variables leaking memory on redeploy. [(GH-74)](http://github.com/scalatra/scalatra/issues/74) 
+* Send 405 and Allow header if other methods match. [(GH-50)](http://github.com/scalatra/scalatra/issues/50) 
 * Support bodies and headers in halt. [(GH-79)](http://github.com/scalatra/scalatra/issues/79) 
 * Support PATCH requests. [(GH-51)](http://github.com/scalatra/scalatra/issues/51) 
 
