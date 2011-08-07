@@ -90,7 +90,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
-      case Nil => map2multiMap(Map.empty)
+      case Nil => MultiMap()
       case xs => Map("captures" -> xs)
     }}
 
