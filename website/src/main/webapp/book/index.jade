@@ -1,12 +1,48 @@
-= include("toc.jade")
-= include("introduction.jade")
-= include("getting_to_know_scalatra.jade")
-= include("organizing_your_application.jade")
-= include("views.jade")
-= include("models.jade")
-= include("helpers.jade")
-= include("middleware.jade")
-= include("testing.jade")
-= include("development.jade")
-= include("deployment.jade")
-= include("contributing.jade")
+!!! 5
+html(lang="en")
+  head
+    title Scalatra Book: a tiny Sinatra-like web framework for Scala
+    script{:type => "text/javascript",
+           :src  => "http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"}
+    script{:type => "text/javascript",
+           :src  => "/js/sh/scripts/shCore.js"}
+    script{:type => "text/javascript",
+           :src  => "/js/sh/scripts/shAutoloader.js"}
+    link{:type => "text/css",
+           :rel => "stylesheet",
+           :href  => "/js/sh/styles/shCore.css"}
+    link{:type => "text/css",
+           :rel => "stylesheet",
+           :href  => "/js/sh/styles/shCoreDefault.css"}
+  body
+    
+    = include("toc.jade")
+    = include("introduction.jade")
+    = include("getting_to_know_scalatra.jade")
+    = include("organizing_your_application.jade")
+    = include("views.jade")
+    = include("models.jade")
+    = include("helpers.jade")
+    = include("middleware.jade")
+    = include("testing.jade")
+    = include("development.jade")
+    = include("deployment.jade")
+    = include("contributing.jade")
+
+    :javascript
+      //$("pre[code:contains('$ ')]").addClass('brush:').addClass('shell');
+      $("pre code:not(.shell)").addClass('brush:').addClass('scala');
+      function path(){
+      var args = arguments,
+         result = [];
+      for(var i = 0; i < args.length; i++){
+        result.push(args[i].replace('@', '/js/sh/scripts/'));
+        
+      }return result;}
+      SyntaxHighlighter.config.tagName="code";
+      SyntaxHighlighter.autoloader.apply(null, path(
+        'bash shell				@shBrushBash.js',
+        'scala					@shBrushScala.js',
+        'xml xhtml xslt html	@shBrushXml.js'
+      ));
+      SyntaxHighlighter.all();
