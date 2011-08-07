@@ -45,4 +45,16 @@ html(lang="en")
         'scala					@shBrushScala.js',
         'xml xhtml xslt html	@shBrushXml.js'
       ));
+      
+      $("div.toc").html('<p>In this book:</p>');
+      $("h1, h2, h3").each(function(i) {
+        var current = $(this);
+        var indent = "5px";
+        if(current.prop('tagName').toLowerCase()  == "h2"){ indent="10px"; }
+        if(current.prop('tagName').toLowerCase()  == "h3"){ indent="20px"; }
+        
+        $("div.toc").append("<a style='padding-left:"+indent+";' id='link" + i + "' href='#" +
+            current.attr("id") + "' title='" + current.attr("tagName") + "'>" + 
+            current.html() + "</a><br />");
+      });
       SyntaxHighlighter.all();
