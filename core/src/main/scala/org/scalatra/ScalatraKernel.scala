@@ -90,7 +90,7 @@ trait ScalatraKernel extends Handler with Initializable
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
     def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
-      case Nil => map2multiMap(Map.empty)
+      case Nil => MultiMap()
       case xs => Map("captures" -> xs)
     }}
 
@@ -117,7 +117,7 @@ trait ScalatraKernel extends Handler with Initializable
           val result = try {
             runFilters(beforeFilters)
             val actionResult = runRoutes(routes(effectiveMethod)).headOption
-            actionResult getOrElse doNotFound()
+            actionResult orElse matchOtherMethods() getOrElse doNotFound()
           }
           catch {
             case e => handleError(e)
@@ -186,6 +186,19 @@ trait ScalatraKernel extends Handler with Initializable
   
   protected var doNotFound: Action
   def notFound(fun: => Any) = doNotFound = { () => fun }
+
+  protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = { allow =>
+    status(405)
+    response.setHeader("Allow", allow.mkString(", "))
+  }
+  def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
+
+  private def matchOtherMethods(): Option[Any] = {
+    val allows = (HttpMethod.methods filterNot { _ == effectiveMethod } filter {
+      method: HttpMethod => routes(method) exists { _().isDefined }
+    }).toSet
+    if (allows.isEmpty) None else Some(doMethodNotAllowed(allows))
+  }
 
   protected def handleError(e: Throwable): Any = {
     (renderError orElse defaultRenderError).apply(e)

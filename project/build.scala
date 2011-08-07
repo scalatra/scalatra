@@ -1,9 +1,8 @@
 import sbt._
 import Keys._
 import scala.xml._
-import com.github.siasia.WebPlugin.webSettings
+import com.github.siasia.WebPlugin.{webSettings, jettyPort}
 
-// TODO: Build website project
 object ScalatraBuild extends Build {
   val description = SettingKey[String]("description")
 
@@ -114,6 +113,8 @@ object ScalatraBuild extends Build {
       "net.liftweb" % libArtifactId % "2.4-M2"
     }
 
+    val scalamd = "org.fusesource.scalamd" % "scalamd" % "1.5"
+
     def scalate(scalaVersion: String) = {
       "org.fusesource.scalate" % "scalate-core" % "1.4.1"
     }
@@ -158,7 +159,7 @@ object ScalatraBuild extends Build {
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample)
+      scalatraExample, scalatraWebsite)
 
   lazy val scalatraCore = Project("scalatra", file("core"), 
     settings = scalatraSettings)
@@ -270,6 +271,17 @@ object ScalatraBuild extends Build {
       publishLocal := {})
     .dependsOn(scalatraCore, scalatraScalate, scalatraAuth, scalatraFileupload,
                scalatraSocketio)
+
+  lazy val scalatraWebsite = Project("scalatra-website", file("website"), 
+    settings = scalatraSettings)
+    .settings(webSettings :_*)
+    .settings(
+      libraryDependencies := Seq(servletApi, jettyWebapp % "jetty", scalamd),
+      description := "http://www.scalatra.org/",
+      publish := {},
+      publishLocal := {},
+      jettyPort := 8081)
+    .dependsOn(scalatraCore, scalatraScalate)
 
   class RichProject(project: Project) {
     def testWithScalatraTest = {

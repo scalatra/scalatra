@@ -19,6 +19,4 @@ package object scalatra {
   type CSRFTokenSupport = CsrfTokenSupport
 
   type RouteMatcher = () => Option[ScalatraKernel.MultiParams]
-
-  implicit def map2multiMap(map: Map[String, Seq[String]]) = new MultiMap(map)
 }
