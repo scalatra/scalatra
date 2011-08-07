@@ -1,84 +1,103 @@
-.block
-	:markdown
-		Introduction
-		=============
+:markdown
+	Introduction
+	=============
 
-		What is Scalatra?
-		----------------
-
-
-		Installation
-		------------
-		The simplest way to install Scalatra is through g8:
-
-		     scalatra/scalatra-sbt
-
-		### Dependencies
-
-		Scalatra 
-
-		Scalatra supports many different template engines (it uses the Scalate library
-		internally to support practically every template engine)
+	What is Scalatra?
+	----------------
 
 
-		### Living on the Edge
+	Installation
+	------------
+	The simplest way to install Scalatra is through g8:
 
-		The 2.0 version of Scalatra lives in its Git repository, available at 
-		**<http://github.com/scalatra/scalatra/tree/master>**.
+	     scalatra/scalatra-sbt
 
-		You can use the 2.0 version to try new functionality or to contribute to the
-		framework. You need to have [Git version control
-		software](http://www.git-scm.com) and [g8](https://github.com/n8han/giter8#readme).
+	### Dependencies
 
-		    g8 scalatra/scalatra-sbt
+	Scalatra 
 
-		To use Scalatra 2.0 with SBT, you'll have to modify your Project file to include.
-
-		    val scalatraVersion = "2.0.0-SNAPSHOT"
-		    val scalatra = "org.scalatra" %% "scalatra" % scalatraVersion
+	Scalatra supports many different template engines (it uses the Scalate library
+	internally to support practically every template engine)
 
 
+	### Living on the Edge
 
-		Hello World Application
-		-----------------------
+	The 2.0 version of Scalatra lives in its Git repository, available at 
+	**<http://github.com/scalatra/scalatra/tree/master>**.
 
-		Scalatra is installed, how about making your first application?
+	You can use the 2.0 version to try new functionality or to contribute to the
+	framework. You need to have [Git version control
+	software](http://www.git-scm.com) and [g8](https://github.com/n8han/giter8#readme).
+
+		g8 scalatra/scalatra-sbt
+		organization [com.example]: 
+		name ["scalatra-sbt-prototype"]: scalatra-example
+		servlet_name [MyScalatraFilter]:
+		scala_version [2.9.0-1]:
+		version [1.0]:
+
+	To use Scalatra 2.0 with SBT, you'll have to modify your Project file to include.
+
+	    val scalatraVersion = "2.0.0-SNAPSHOT"
+	    val scalatra = "org.scalatra" %% "scalatra" % scalatraVersion
 
 
-		Run this application by `$ ./sbt jetty-run` and load
-		`http://localhost:8080` in your browser.
 
-		As you can see, Scalatra doesn't force you to setup much infrastructure: a
-		request to a URL evaluates some Ruby code and returns some text in response.
-		Whatever the block returns is sent back to the browser.
+	Hello World Application
+	-----------------------
+
+	Scalatra is installed, how about making your first application?
+		
+		import org.scalatra._
+		import java.net.URL
+		import scalate.ScalateSupport
+
+		class MyScalatraFilter extends ScalatraFilter with ScalateSupport {
+
+		  get("/") {
+		    <html>
+		      <body>
+		        <h1>Hello, world!</h1>
+		        Say <a href="hello-scalate">hello to Scalate</a>.
+		      </body>
+		    </html>
+		  }
+		}
+		
+	Run this application by `$ ./sbt jetty-run` and load
+	`http://localhost:8080` in your browser.
+
+	As you can see, Scalatra doesn't force you to setup much infrastructure: a
+	request to a URL evaluates some Ruby code and returns some text in response.
+	Whatever the block returns is sent back to the browser.
 
 
-		Real World Applications in Scalatra
-		----------------------------------
+	Real World Applications in Scalatra
+	----------------------------------
 
-		### LinkedIn Signal
+	### LinkedIn Signal
 
-		Scalatra is used for their backend REST services.
+	Scalatra is used for their backend REST services.
 
-		### ChaCha
+	### ChaCha
 
-		ChaCha is using it in multiple internal applications.
+	ChaCha is using it in multiple internal applications.
 
-		Check out a full list of Scalatra apps [in the wild][in-the-wild].
+	Check out a full list of Scalatra apps [in the wild][in-the-wild].
 
-		[in-the-wild]: http://www.scalatra.org/wild
+	[in-the-wild]: http://www.scalatra.org/wild
 
-		About this book
-		---------------
-		This book will assume you have a basic knowledge of the Scala scripting language.
+	About this book
+	---------------
+	This book will assume you have a basic knowledge of the Scala scripting language.
 
-		For more information about the Scala language visit the following links:
+	For more information about the Scala language visit the following links:
 
-		* [scala-lang](http://www.scala-lang.org/)
+	* [scala-lang](http://www.scala-lang.org/)
 
-		Need Help? 
-		----------
+	Need Help? 
+	----------
 
-		The Scalatra club is small, but super-friendly.  Join us on IRC at
-		irc.freenode.org in #scalatra if you have any questions.  It's a bit
-		slow at times, so give us a bit to get back to your questions.
+	The Scalatra club is small, but super-friendly.  Join us on IRC at
+	irc.freenode.org in #scalatra if you have any questions.  It's a bit
+	slow at times, so give us a bit to get back to your questions.
