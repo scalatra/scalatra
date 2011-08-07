@@ -81,10 +81,6 @@ class RouteTestServlet extends ScalatraServlet {
   get("/fail", false, () => { throw new RuntimeException("shouldn't execute"); None }) {
     "shouldn't return"
   }
-
-  notFound {
-    "not found"
-  }
 }
 
 class RouteTest extends ScalatraFunSuite {
@@ -209,7 +205,7 @@ class RouteTest extends ScalatraFunSuite {
 
   test("matchers should not execute if one before it fails") {
     get("/fail") {
-      body should equal ("not found")
+      body should not include ("shouldn't return")
     }
   }
 }
