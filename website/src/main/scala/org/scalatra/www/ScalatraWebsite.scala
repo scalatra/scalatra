@@ -10,7 +10,7 @@ class ScalatraWebsite extends ScalatraServlet with ScalateSupport {
       case s if s.endsWith("/") => s + "index"
       case s => s
     }
-    val templatePath = templateBase + ".md"
+    val templatePath = templateBase + ".jade"
     servletContext.getResource(templatePath) match {
       case url: URL => 
         contentType = "text/html"
