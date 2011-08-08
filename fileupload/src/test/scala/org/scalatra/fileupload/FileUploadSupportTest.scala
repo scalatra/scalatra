@@ -1,6 +1,7 @@
 package org.scalatra
 package fileupload
 
+import java.net.{URLDecoder, URLEncoder}
 import org.scalatest.FunSuite
 import org.eclipse.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
@@ -18,10 +19,10 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
       response.setHeader("file-multi-all", fis.foldLeft(""){ (acc, fi) => acc + new String(fi.get) })
     }
     params.get("file") foreach { response.setHeader("file-as-param", _) }
+    params("utf8-string")
   }
 
   post("/multipart-pass") {
-    println("PASSING")
     pass()
   }
 
@@ -42,8 +43,11 @@ class FileUploadSupportTest extends ScalatraFunSuite {
   addServlet(classOf[FileUploadSupportTestServlet], "/")
 
   def multipartResponse(path: String = "/multipart") = {
-    val req = IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
-      .replace("${PATH}", path)
+    // TODO We've had problems with the tester not running as iso-8859-1, even if the
+    // request really isn't iso-8859-1.  This is a hack, but this hack passes iff the
+    // browser behavior is correct.
+    val req = new String(IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
+      .replace("${PATH}", path).getBytes, "iso-8859-1")
     val res = new HttpTester("iso-8859-1")
     res.parse(tester.getResponses(req))
     res
@@ -51,6 +55,10 @@ class FileUploadSupportTest extends ScalatraFunSuite {
 
   test("keeps input parameters on multipart request") {
     multipartResponse().getHeader("string") should equal ("foo")
+  }
+
+  test("decodes input parameters according to request encoding") {
+    multipartResponse().getContent() should equal ("föo")
   }
 
   test("sets file params") {

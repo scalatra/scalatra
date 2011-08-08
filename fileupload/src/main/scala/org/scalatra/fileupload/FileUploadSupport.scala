@@ -3,7 +3,7 @@ package fileupload
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.fileupload.{FileItemFactory, FileItem}
-import org.apache.commons.fileupload.disk.DiskFileItemFactory
+import org.apache.commons.fileupload.disk.{DiskFileItem, DiskFileItemFactory}
 import collection.JavaConversions._
 import scala.util.DynamicVariable
 import java.util.{List => JList, HashMap => JHashMap, Map => JMap}
@@ -49,13 +49,35 @@ trait FileUploadSupport extends ScalatraKernel {
         val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
         val bodyParams = items.foldRight(BodyParams(Map.empty, Map.empty)) { (item, params) =>
           if (item.isFormField)
-            BodyParams(params.fileParams, params.formParams + ((item.getFieldName, item.getString :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
+            BodyParams(params.fileParams, params.formParams + ((item.getFieldName, fileItemToString(req, item) :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
           else
             BodyParams(params.fileParams + ((item.getFieldName, item :: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
           }
         req(BodyParamsKey) = bodyParams
         bodyParams
     }
+
+  /**
+   * Converts a file item to a string.
+   *
+   * Browsers tend to be sloppy about providing content type headers with
+   * charset information to form-data parts.  Worse, browsers are
+   * inconsistent about how they encode these parameters. 
+   *
+   * The default implementation attempts to use the charset specified on
+   * the request.  If that is unspecified, and it usually isn't, then it
+   * falls back to the kernel's charset.
+   */
+  protected def fileItemToString(req: HttpServletRequest, item: FileItem): String = {
+    val charset = item match {
+      case diskItem: DiskFileItem =>
+        // Why doesn't FileItem have this method???
+        Option(diskItem.getCharSet())
+      case _ => 
+        None
+    }
+    item.getString(charset getOrElse defaultCharacterEncoding)
+  }
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) =
     new HttpServletRequestWrapper(req) {
