@@ -7,6 +7,7 @@
 - [Ross A. Baker](http://www.rossabaker.com/)
 - [Hiram Chirino](http://hiramchirino.com/)
 - [Ivan Porto Carrero](http://flanders.co.nz/) 
+- [Jared Armstrong](http://www.jaredarmstrong.name/) 
 
 ## Other contributors
 
