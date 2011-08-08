@@ -96,21 +96,21 @@ object ScalatraBuild extends Build {
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
 
-    val commonsIo = "commons-io" % "commons-io" % "1.4"
+    val commonsIo = "commons-io" % "commons-io" % "2.0.1"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "7.4.1.v20110513"
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "7.4.5.v20110725"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket")
     val jettyWebapp = jettyDep("jetty-webapp")
 
-    val junit = "junit" % "junit" % "4.8.1"
+    val junit = "junit" % "junit" % "4.8.2"
 
     def liftJson(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.9.1.RC1" => "lift-json_2.9.0"
         case x => "lift-json_"+x
       }
-      "net.liftweb" % libArtifactId % "2.4-M2"
+      "net.liftweb" % libArtifactId % "2.4-M3"
     }
 
     val scalamd = "org.fusesource.scalamd" % "scalamd" % "1.5"
@@ -122,7 +122,6 @@ object ScalatraBuild extends Build {
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.9.1.RC1" => "scalatest_2.9.0"
-        case "2.9.0-1" => "scalatest_2.9.0"
         case x => "scalatest_"+x
       }
       "org.scalatest" % libArtifactId % "1.6.1"
