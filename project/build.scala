@@ -68,6 +68,11 @@ object ScalatraBuild extends Build {
           <name>Ivan Porto Carrero</name>
           <url>http://flanders.co.nz/</url>
         </developer>
+        <developer>
+          <id>jlarmstrong</id>
+          <name>Jared Armstrong</name>
+          <url>http://www.jaredarmstrong.name/</url>
+        </developer>
       </developers>
     )},
     publishTo <<= (version) { version: String =>
