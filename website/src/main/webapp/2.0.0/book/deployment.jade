@@ -58,3 +58,10 @@
 
 	and see it will launch the embedded Jetty at port 8080 with the example Scalatra project running. On my machine (OS X 10.6 with JVM 1.6) this setup costs 38MB memory.
 	
+	## Including Scala Compiler
+	
+	If you need the Scala compiler included within a WAR file add the declaration below to your SBT build file.
+	
+	<pre>
+	override def webappClasspath = super.webappClasspath +++ buildCompilerJar
+	</pre>
