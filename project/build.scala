@@ -121,7 +121,7 @@ object ScalatraBuild extends Build {
     val scalamd = "org.fusesource.scalamd" % "scalamd" % "1.5"
 
     def scalate(scalaVersion: String) = {
-      "org.fusesource.scalate" % "scalate-core" % "1.5.0"
+      "org.fusesource.scalate" % "scalate-core" % "1.5.1"
     }
 
     def scalatest(scalaVersion: String) = {

@@ -6,6 +6,9 @@ import org.scalatest.matchers.MustMatchers
 class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
   get("/getcookie") {
+    cookies.get("anothercookie") foreach { cookie =>
+      response.setHeader("X-Another-Cookie", cookie)
+    }
     cookies.get("somecookie") match {
       case Some(v) => v
       case _ => "None"
@@ -14,6 +17,7 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
   post("/setcookie") {
     cookies.update("somecookie", params("cookieval"))
+    params.get("anothercookieval") foreach { cookies("anothercookie") = _ }
     "OK"
   }
 
@@ -74,6 +78,20 @@ class CookieSupportTest extends ScalatraFunSuite {
       val hdr = response.getHeader("Set-Cookie")
       hdr must startWith ("""somecookie=whatever;""")
       hdr must endWith (";Path=/foo")
+    }
+  }
+
+  // This is as much a test of ScalatraTests as it is of CookieSupport.
+  // http://github.com/scalatra/scalatra/issue/84
+  test("handles multiple cookies") {
+    session {
+      post("/foo/setcookie", Map("cookieval" -> "The value", "anothercookieval" -> "Another Cookie")) {
+        body must equal("OK")
+      }
+      get("/foo/getcookie") {
+        body must equal("The value")
+        header("X-Another-Cookie") must equal ("Another Cookie")
+      }
     }
   }
 }
