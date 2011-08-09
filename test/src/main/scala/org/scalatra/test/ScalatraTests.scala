@@ -44,7 +44,13 @@ trait ScalatraTests {
 
   def submit[A](req: HttpTester)(f: => A): A = {
     val res = new HttpTester("iso-8859-1")
-    res.parse(tester.getResponses(req.generate))
+    val reqString = req.generate
+//    println(reqString)
+//    println()
+    val resString = tester.getResponses(req.generate)
+//    println(resString)
+//    println()
+    res.parse(resString)
     res.setContent(res.getContent match {
       case null => ""
       case content => content
@@ -67,7 +73,7 @@ trait ScalatraTests {
     req.setURI(uri + (if (queryString == "") "" else "?") + queryString)
     req.setContent(body)
     headers.foreach(t => req.setHeader(t._1, t._2))
-    _cookies.value foreach(c => req.setHeader("Cookie", c.toString))
+    _cookies.value foreach(c => req.addHeader("Cookie", c.toString))
     submit(req) { f }
   }
 
