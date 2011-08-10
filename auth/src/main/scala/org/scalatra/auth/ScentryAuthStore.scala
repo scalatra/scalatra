@@ -50,6 +50,7 @@ object ScentryAuthStore {
     }
     def invalidate {
       session.invalidate()
+      session.reset()
     }
   }
 }
