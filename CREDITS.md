@@ -15,6 +15,7 @@
 - [JR Boyens](http://jrboyens.github.com/)
 - [Jon Buffington](http://blog.jon.buffington.name/)
 - [Gregg Carrier](http://janxspirit.blogspot.com/)
+- [Thibault Duplessis](http://ornicar.github.com/)
 - [Tuomas Kareinen](http://www.iki.fi/kareinen/)
 - [Miso Korkiakoski](http://github.com/mwing)
 - [Yusuke Kuoka](http://d.hatena.ne.jp/mumoshu/)
