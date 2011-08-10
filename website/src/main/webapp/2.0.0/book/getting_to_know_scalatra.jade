@@ -100,9 +100,13 @@
 	during processing. Here's a quick example you could use to run a contrived
 	`authenticate!` method before accessing any "admin" type requests.
 
-	    beforeAll("/admin/*") {
+	    beforeSome("/admin/*") {
 	      basicAuth
 	    }
+	    afterSome("/admin/*") {
+	      user.logout
+	    }
+
 
 	[filters]: http://www.scalatra.org/book#Filters
 
@@ -120,10 +124,9 @@
 	
 	This will return a 302 HTTP Response to `/someplace/else`.
 
-	You can even use the Scalatra handler for sessions, just add this to your
-	application or to a configure block:
+	Scalatra has session handling built in by default. There are no modules or 
+	traits that you need to include.
 
-	    //enable :sessions
 
 	Then you will be able to use the default cookie based session handler in your
 	application:
@@ -138,8 +141,51 @@
 	use is the `params` convention, which gives you access to any parameters passed
 	in via the request object, or generated in your route pattern.
 
-	[halting]: http://www.scalatra.org/intro#Halting
-	[passing]: http://www.scalatra.org/intro#Passing
+	[halting]: http://www.scalatra.org/book/#Halting
+	[passing]: http://www.scalatra.org/book/#Passing
+
+	## Halting
+
+	To immediately stop a request within a filter or route:
+
+	    halt()
+
+	You can also specify the status:
+
+	    halt(403)
+
+	Or the status and the body:
+
+	    halt(403, <h1>Go away!</h1>)
+
+	Or even the HTTP status reason and headers.  For more complex invocations, it 
+	is recommended to use named arguments:
+
+	    halt(status = 403,
+	         reason = "Forbidden",
+	         headers = Map("X-Your-Mother-Was-A" -> "hamster",
+	                       "X-And-Your-Father-Smelt-Of" -> "Elderberries"),
+	         body = <h1>Go away or I shall taunt you a second time!</h1>)
+
+	The `reason` argument is ignored unless `status` is not null.  The default 
+	arguments leave that part of the request unchanged.
+
+	## Passing
+
+	A route can punt processing to the next matching route using pass.  Remember, unlike Sinatra, routes are matched from the bottom up.
+
+	    get("/guess/*") {
+	      "You missed!"
+	    }
+
+	    get("/guess/:who") {
+	      params("who") match {
+	        case "Frank" => pass()
+	        case _ => "You got me!"
+	      }
+	    }
+
+	The route block is immediately exited and control continues with the next matching route.  If no matching route is found, a 404 is returned.
 
 
 	## Templates
@@ -200,6 +246,51 @@
 
 	## Helpers
 
-	Helpers do not exist in Scalatra in the normal sense. Instead you can create Traits that are extended.
+	Helpers exist as traits in Scalatra that can applied to your base class. Please see [Helpers][helpers] for more details.
 
-	
+	## Accessing the Servlet API
+
+	### HttpServletRequest
+
+	The request is available through the `request` variable.  The request is implicitly extended with the following methods:
+
+	1. `body`: to get the request body as a string
+	2. `isAjax`: to detect AJAX requests
+	3. `cookies` and `multiCookies`: a Map view of the request's cookies
+	4. Implements `scala.collection.mutable.Map` backed by request attributes
+
+	### HttpServletResponse
+
+	The response is available through the `response` variable.
+
+	### HttpSession
+
+	The session is available through the `session` variable.  The session implicitly implements `scala.collection.mutable.Map` backed by session attributes.  To avoid creating a session, it may be accessed through `sessionOption`.
+
+	### ServletContext
+
+	The servlet context is available through the `servletContext` variable.  The servlet context implicitly implements `scala.collection.mutable.Map` backed by servlet context attributes.
+
+	## Configuration
+
+	The environment is defined by:
+	1. The `org.scalatra.environment` system property.
+	2. The `org.scalatra.environment` init property.
+	3. A default of `development`.
+
+	If the environment starts with "dev", then `isDevelopmentMode` returns true.  This flag may be used by other modules, for example, to enable the Scalate console.
+
+	## Error handling
+
+	Error handlers run within the same context as routes and before filters.
+
+	### Not Found
+
+	Whenever no route matches, the `notFound` handler is invoked.  The default behavior is:
+
+	    notFound {
+	      <h1>Not found.  Bummer.</h1>
+	    }
+
+	* _ScalatraServlet_: send a 404 response
+	* _ScalatraFilter_: pass the request to the servlet filter chain
