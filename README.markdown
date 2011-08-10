@@ -234,17 +234,29 @@ This behavior may be customized for these or other return types by overriding `r
 
 Before filters are evaluated before each request within the same context as the routes.
 
-    before {
+    beforeSome('/some/path') {
+      // Log access to /some/path
+      println("Will match /some/path")
+    }
+
+    beforeAll() {
       // Default all responses to text/html
       contentType = "text/html"
     }
 
 After filters are evaluated after each request, but before the action result is rendered, within the same context as the routes.
 
-    after {
-      if (response.status >= 500)
+    afterSome('/some/path') {
+      println("Will render /some/path")
+    }
+
+    afterAll() {
+      if (status >= 500)
         println("OMG! ONOZ!")
     }
+
+Note that in the last example, in order to get access to the `status` method,
+the filter class must mix `org.scalatra.GetResponseStatusSupport` in.
 
 ## Halting
 
