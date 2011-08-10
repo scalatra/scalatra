@@ -21,14 +21,14 @@
 	internally to support practically every template engine)
 
 
-	### Living on the Edge
+	### Scalatra+Giter8 Living on the Edge
 
 	The 2.0 version of Scalatra lives in its Git repository, available at 
 	**<http://github.com/scalatra/scalatra/tree/master>**.
 
 	You can use the 2.0 version to try new functionality or to contribute to the
 	framework. You need to have [Git version control
-	software](http://www.git-scm.com) and [g8](https://github.com/n8han/giter8#readme).
+	software](http://www.git-scm.com) and [giter8](https://github.com/n8han/giter8#readme).
 
 		$ g8 scalatra/scalatra-sbt
 		> organization [com.example]: 
@@ -42,7 +42,20 @@
 	    val scalatraVersion = "2.0.0-SNAPSHOT"
 	    val scalatra = "org.scalatra" %% "scalatra" % scalatraVersion
 
+	### Scalatra Git Clone
+	
+	The 2.0 project template can also be cloned into a new project using the commands listed below.
+	
+	Clone this repository:
 
+           $ git clone git://github.com/scalatra/scalatra-sbt-prototype.git my-app
+           $ cd my-app
+           $ ./sbt
+           > update
+           > jetty-run
+           > ~prepare-webapp
+
+    Go to http://localhost:8080/.
 
 	Hello World Application
 	-----------------------

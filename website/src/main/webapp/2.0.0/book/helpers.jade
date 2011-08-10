@@ -30,12 +30,54 @@
 			  }
 		    }
 	
-	Scentry + BasicAuth
-	-------------------
+	Scentry + Authentication
+	------------------------
 	
 	Scentry is a user submitted authentication scheme. Combined 
 	`ScentrySupport` and `BasicAuthSupport` traits allow you to quickly tie a
 	User class to the session and Basic Authentication methods.
+	
+	### User Password
+	
+	The User Password is the most common form/ajax/mixed strategy used in 
+	standard application development. 
+	
+	TODO: Add example
+	
+	### Remember Me
+	
+	Remember Me is a common strategy that can be applied to your application.
+	It allows your users to return to your site already logged into their 
+	account by validating a secure token.
+	
+	
+	TODO: Add example
+	
+	### Basic Authentication
+	
+	Basic Authentication is the simplest authentication method. Due to the 
+	constraints of Basic Authentication it is recommended that people utilize
+	the User Password strategy if they need to have better control over user
+	interaction.
+	
+	TODO: Add example
+	
+	
+	
+	
+	Flash Map
+	---------
+	
+	Flash support is included within Scalatra by default. Flash entries are not
+	normally available within the current request scope. The exception is adding
+	new flash entries into `flash.now`.
+	
+	
+	TODO: Add better supporting examples
+	
+		flash += ("error" -> "An error occurred")
+		flash.now += ("info" -> "redirect to see the error")
+	
 	
 	File Upload
 	-----------

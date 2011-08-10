@@ -5,25 +5,41 @@ html(lang="en")
   body
     h1 Scalatra      
     :markdown
-      Under construction
 
       Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for [Scala](http://www.scala-lang.org/).
       
-      ## Quick start (SBT 0.10.x)
+      ## Quick start
 
-      ### Setup (one time)
+      ### Git clone Quick Start  (SBT 0.7.x)
 
-        1. Install [conscript](https://github.com/n8han/conscript#readme)
+        1. Clone this repository:
 
-               $ curl https://raw.github.com/n8han/conscript/master/setup.sh | sh
+            git clone git://github.com/scalatra/scalatra-sbt-prototype.git my-app
 
-        2. Install [giter8](https://github.com/n8han/giter8)
+        2. Change directory into your clone:
 
-               $ ~/bin/cs n8han/giter8
+            cd my-app
 
-      ### Scalatra template
+        3. Launch [SBT](http://code.google.com/p/simple-build-tool).
 
-        3. Giter8 the Scalatra template
+            ./sbt
+
+        4. At SBT prompt, fetch the dependencies.  Do this the first time and also whenever you change the project definition.
+
+            update
+
+        5. Run Jetty
+
+               > jetty-run
+               > ~prepare-webapp
+
+        6. Go to http://localhost:8080/.
+
+        7. Happy hacking!
+
+      ### Giter8 Quick start (SBT 0.10.x)
+
+        1. [Giter8](https://github.com/n8han/giter8) the Scalatra template
 
                $ ~/bin/g8 scalatra/scalatra-sbt
 
@@ -42,7 +58,7 @@ html(lang="en")
 
         7. Browse to http://localhost:8080/.
 
-        8. Start hacking on `src/main/scala/*your name here*.scala`.
+        8. Happy hacking!
 
       ## Community
 
@@ -52,7 +68,7 @@ html(lang="en")
 
       ### IRC channel
 
-      For those topics that are easier to discuss in real time, or just to hang out with some fun people, join us on the #scalatra channel on irc.freenode.org.
+      For those topics that are easier to discuss in real time, or just to hang out with some fun people, join us at the #scalatra channel on irc.freenode.org.
 
 
       Documentation

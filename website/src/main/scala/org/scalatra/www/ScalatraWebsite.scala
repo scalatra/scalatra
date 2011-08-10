@@ -4,7 +4,12 @@ import java.net.URL
 import org.scalatra.ScalatraServlet
 import org.scalatra.scalate.ScalateSupport
 
-class ScalatraWebsite extends ScalatraServlet with ScalateSupport {
+class ScalatraWebsite extends ScalatraServlet with ScalateSupport {    
+	
+  get("/book/?"){ 
+    redirect("/2.0.0/book/")
+  }
+	
   notFound {
     val templateBase = requestPath match {
       case s if s.endsWith("/") => s + "index"
