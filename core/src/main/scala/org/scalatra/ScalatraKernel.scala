@@ -48,8 +48,6 @@ import ScalatraKernel._
 trait ScalatraKernel extends Handler with Initializable
 {
   protected lazy val routes: RouteRegistry = new RouteRegistry
-  protected val beforeFilters = ListBuffer[Route]()
-  protected val afterFilters = ListBuffer[Route]()
 
   def contentType = response.getContentType
   def contentType_=(value: String) {
@@ -111,7 +109,7 @@ trait ScalatraKernel extends Handler with Initializable
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
-            runFilters(beforeFilters)
+            runFilters(routes.beforeFilters)
             val actionResult = runRoutes(routes(effectiveMethod)).headOption
             actionResult orElse matchOtherMethods() getOrElse doNotFound()
           }
@@ -119,7 +117,7 @@ trait ScalatraKernel extends Handler with Initializable
             case e => handleError(e)
           }
           finally {
-            runFilters(afterFilters)
+            runFilters(routes.afterFilters)
           }
           renderResponse(result)
         }
@@ -163,22 +161,18 @@ trait ScalatraKernel extends Handler with Initializable
   def before(fun: => Any) = beforeAll(fun)
   
   def beforeSome(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
-  
-  protected def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
-    val route = new Route(routeMatchers, () => fun)
-    beforeFilters += route
-  }
 
+  private def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
+    routes.appendBeforeFilter(Route(routeMatchers, () => fun))
+  
   def afterAll(fun: => Any) = addAfter(Iterable.empty, fun)
   @deprecated("Use afterAll", "2.0")
   def after(fun: => Any) = afterAll(fun)
   
   def afterSome(routeMatchers: RouteMatcher*)(fun: => Any) = addAfter(routeMatchers, fun)
   
-  protected def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
-    val route = new Route(routeMatchers, () => fun)
-    afterFilters += route
-  }
+  private def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any) = 
+    routes.appendAfterFilter(Route(routeMatchers, () => fun))
   
   protected var doNotFound: Action
   def notFound(fun: => Any) = doNotFound = { () => fun }
