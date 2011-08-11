@@ -194,10 +194,23 @@ trait ScalatraKernel extends Handler with Initializable
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
   private def matchOtherMethods(): Option[Any] = {
-    val allows = (HttpMethod.methods filterNot { _ == effectiveMethod } filter {
+    var allows = allowedMethods
+    // Match *other* methods, not ourself...
+    allows -= effectiveMethod
+    // ... and HEAD is implied by GET
+    if (effectiveMethod == Get)
+      allows -= Head
+    if (allows.isEmpty) None else Some(doMethodNotAllowed(allows))
+  }
+
+  protected def allowedMethods: Set[HttpMethod] = {
+    var allows = (HttpMethod.methods filter {
       method: HttpMethod => routes(method) exists { _().isDefined }
     }).toSet
-    if (allows.isEmpty) None else Some(doMethodNotAllowed(allows))
+    // HEAD is implemented in terms of GET, so GET implies HEAD
+    if (allows.contains(Get))
+      allows += Head
+    allows
   }
 
   protected def handleError(e: Throwable): Any = {

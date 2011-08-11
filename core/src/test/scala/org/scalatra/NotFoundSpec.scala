@@ -16,6 +16,7 @@ class NotFoundSpec extends ScalatraSpec { def is =
     "by default"                                ^
       "should send a 405"                       ! defaultMethodNotAllowedSends405^
       "should set the allow header"             ! allowHeader^
+      "HEAD should be implied by GET"           ! getImpliesHead^
                                                 end
 
   addFilter(new ScalatraFilter {}, "/filtered/*")
@@ -25,6 +26,7 @@ class NotFoundSpec extends ScalatraSpec { def is =
   }, "/filtered/*")
 
   addServlet(new ScalatraServlet {
+    get("/get") { "foo" }
     post("/no-get") { "foo" }
     put("/no-get") { "foo" }
   }, "/default/*")
@@ -59,6 +61,10 @@ class NotFoundSpec extends ScalatraSpec { def is =
 
   def allowHeader = get("/default/no-get") {
     header("Allow").split(", ").toSet must_== Set("POST", "PUT")
+  }
+
+  def getImpliesHead = post("/default/get") {
+    header("Allow").split(", ").toSet must_== Set("GET", "HEAD")
   }
 }
 
