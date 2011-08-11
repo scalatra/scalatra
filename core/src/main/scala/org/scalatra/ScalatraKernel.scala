@@ -110,7 +110,7 @@ trait ScalatraKernel extends Handler with Initializable
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
             runFilters(routes.beforeFilters)
-            val actionResult = runRoutes(routes(effectiveMethod)).headOption
+            val actionResult = runRoutes(routes(request.method)).headOption
             actionResult orElse matchOtherMethods() getOrElse doNotFound()
           }
           catch {
@@ -148,12 +148,6 @@ trait ScalatraKernel extends Handler with Initializable
       }
     }
 
-  protected def effectiveMethod: HttpMethod =
-    HttpMethod(request.getMethod) match {
-      case Head => Get
-      case x => x
-    }
-
   def requestPath: String
   
   def beforeAll(fun: => Any) = addBefore(Iterable.empty, fun)
@@ -184,23 +178,8 @@ trait ScalatraKernel extends Handler with Initializable
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
   private def matchOtherMethods(): Option[Any] = {
-    var allows = allowedMethods
-    // Match *other* methods, not ourself...
-    allows -= effectiveMethod
-    // ... and HEAD is implied by GET
-    if (effectiveMethod == Get)
-      allows -= Head
-    if (allows.isEmpty) None else Some(doMethodNotAllowed(allows))
-  }
-
-  protected def allowedMethods: Set[HttpMethod] = {
-    var allows = (HttpMethod.methods filter {
-      method: HttpMethod => routes(method) exists { _().isDefined }
-    }).toSet
-    // HEAD is implemented in terms of GET, so GET implies HEAD
-    if (allows.contains(Get))
-      allows += Head
-    allows
+    var allow = routes.matchingMethodsExcept(request.method)
+    if (allow.isEmpty) None else Some(doMethodNotAllowed(allow))
   }
 
   protected def handleError(e: Throwable): Any = {
