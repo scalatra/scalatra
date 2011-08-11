@@ -451,9 +451,4 @@ trait ScalatraKernel extends Handler with Initializable
 
   def environment: String = System.getProperty(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("development"))
   def isDevelopmentMode = environment.toLowerCase.startsWith("dev")
-
-  /**
-   * Uniquely identifies this ScalatraKernel inside the webapp.
-   */
-  def kernelName: String
 }
