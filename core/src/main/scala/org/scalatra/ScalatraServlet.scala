@@ -29,7 +29,7 @@ abstract class ScalatraServlet
     response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, routes)
   }
 
-  protected def servletContext: ServletContext = getServletContext
+  def servletContext: ServletContext = getServletContext
 
   type Config = ServletConfig
 

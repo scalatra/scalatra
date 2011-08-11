@@ -45,14 +45,9 @@ import ScalatraKernel._
  * methods register a new action to a route for a given HTTP method, possibly
  * overwriting a previous one. This trait is thread safe.
  */
-trait ScalatraKernel extends Handler with Initializable
+trait ScalatraKernel extends Handler with CoreDsl with Initializable
 {
   protected lazy val routes: RouteRegistry = new RouteRegistry
-
-  def contentType = response.getContentType
-  def contentType_=(value: String) {
-    response.setContentType(value)
-  }
 
   protected val defaultCharacterEncoding = "UTF-8"
   protected val _response   = new DynamicVariable[HttpServletResponse](null)
@@ -150,18 +145,10 @@ trait ScalatraKernel extends Handler with Initializable
 
   def requestPath: String
   
-  def beforeAll(fun: => Any) = addBefore(Iterable.empty, fun)
-  @deprecated("Use beforeAll", "2.0")
-  def before(fun: => Any) = beforeAll(fun)
-  
   def beforeSome(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
 
   private def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
     routes.appendBeforeFilter(Route(routeMatchers, () => fun))
-  
-  def afterAll(fun: => Any) = addAfter(Iterable.empty, fun)
-  @deprecated("Use afterAll", "2.0")
-  def after(fun: => Any) = afterAll(fun)
   
   def afterSome(routeMatchers: RouteMatcher*)(fun: => Any) = addAfter(routeMatchers, fun)
   
@@ -200,7 +187,7 @@ trait ScalatraKernel extends Handler with Initializable
   def error(fun: => Any) = errorHandler = { () => fun }
 
   private val _caughtThrowable = new DynamicVariable[Throwable](null)
-  protected def caughtThrowable = _caughtThrowable.value
+  def caughtThrowable = _caughtThrowable.value
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
@@ -242,7 +229,7 @@ trait ScalatraKernel extends Handler with Initializable
   }
 
   protected[scalatra] val _multiParams = new DynamicVariable[MultiMap](null)
-  protected def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
+  def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
   /*
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
@@ -252,31 +239,9 @@ trait ScalatraKernel extends Handler with Initializable
   }
   def params = _params
 
-  def redirect(uri: String) = (_response value) sendRedirect uri
   implicit def request = _request value
   implicit def response = _response value
-  def session = request.getSession
-  def sessionOption = request.getSession(false) match {
-    case s: HttpSession => Some(s)
-    case null => None
-  }
-  def status(code: Int) = (_response value) setStatus code
 
-  /**
-   * Immediately halts the current action.  If called within a before filter,
-   * prevents the action from executing.  Any matching after filters will still
-   * execute.
-   *
-   * @param status set as the response's HTTP status code.  Ignored if null.
-   *
-   * @param body rendered to the response body through the response pipeline.
-   *
-   * @param reason set as the HTTP status reason.  Ignored if null or if status
-   * is null.
-   *
-   * @param headers added as headers to the response.  Previously set headers 
-   * are retained
-   */
   def halt(status: JInteger = null, 
            body: Any = (), 
            headers: Map[String, String] = Map.empty, 
@@ -305,52 +270,12 @@ trait ScalatraKernel extends Handler with Initializable
   def pass() = throw new PassException
   protected[scalatra] class PassException extends RuntimeException
 
-  /**
-   * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]] and a block as
-   * the action body.
-   * The return value of the block is converted to a string and sent to the client as the response body.
-   *
-   * See [[org.scalatra.ScalatraKernel.renderResponseBody]] for the detailed behaviour and how to handle your
-   * response body more explicitly, and see how different return types are handled.
-   *
-   * The block is executed in the context of the ScalatraKernel instance, so all the methods defined in
-   * this trait are also available inside the block.
-   *
-   * {{{
-   *   get("/") {
-   *     <form action="/echo">
-   *       <label>Enter your name</label>
-   *       <input type="text" name="name"/>
-   *     </form>
-   *   }
-   *
-   *   post("/echo") {
-   *     "hello {params('name)}!"
-   *   }
-   * }}}
-   *
-   * ScalatraKernel provides implicit transformation from boolean blocks, strings and regular expressions
-   * to [[org.scalatra.RouteMatcher]], so you can write code naturally
-   * {{{
-   *   get("/", request.getRemoteHost == "127.0.0.1") { "Hello localhost!" }
-   * }}}
-   *
-   */
   def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Get, routeMatchers, action)
 
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
   def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Post, routeMatchers, action)
 
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
   def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Put, routeMatchers, action)
 
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
   def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Delete, routeMatchers, action)
 
   /**
@@ -407,7 +332,7 @@ trait ScalatraKernel extends Handler with Initializable
     case _ => None
   }
 
-  protected def servletContext: ServletContext
+  def servletContext: ServletContext
 
   def environment: String = System.getProperty(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("development"))
   def isDevelopmentMode = environment.toLowerCase.startsWith("dev")
