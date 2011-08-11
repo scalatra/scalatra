@@ -47,11 +47,7 @@ import ScalatraKernel._
  */
 trait ScalatraKernel extends Handler with Initializable
 {
-  protected val routes: ConcurrentMap[HttpMethod, List[Route]] = {
-    val map = new ConcurrentHashMap[HttpMethod, List[Route]]
-    HttpMethod.methods foreach { x: HttpMethod => map += ((x, List[Route]())) }
-    map
-  }
+  protected lazy val routes: RouteRegistry = new RouteRegistry
   protected val beforeFilters = ListBuffer[Route]()
   protected val afterFilters = ListBuffer[Route]()
 
@@ -395,9 +391,13 @@ trait ScalatraKernel extends Handler with Initializable
   def patch(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Patch, routeMatchers, action)
 
   /**
-   * registers a new route for the given HTTP method, can be overriden so that subtraits can use their own logic
-   * for example, restricting protocol usage, namespace routes based on class name, raise errors on overlapping entries
-   * etc.
+   * Prepends a new route for the given HTTP method.
+   *
+   * Can be overriden so that subtraits can use their own logic.
+   * Possible examples:
+   * - restricting protocols
+   * - namespace routes based on class name
+   * - raising errors on overlapping entries.
    *
    * This is the method invoked by get(), post() etc.
    *
@@ -405,7 +405,7 @@ trait ScalatraKernel extends Handler with Initializable
    */
   protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
     val route = new Route(routeMatchers, () => action)
-    modifyRoutes(method, route :: _ )
+    routes.prependRoute(method, route)
     route
   }
 
@@ -419,24 +419,11 @@ trait ScalatraKernel extends Handler with Initializable
    *
    * @see addRoute
    */
-  protected def removeRoute(method: HttpMethod, route: Route): Unit = {
-    modifyRoutes(method, _ filterNot (_ == route) )
-    route
-  }
+  protected def removeRoute(method: HttpMethod, route: Route): Unit =
+    routes.removeRoute(method, route) 
 
-  protected def removeRoute(verb: String, route: Route): Unit =
-    removeRoute(HttpMethod(verb), route)
-
-  /**
-   * since routes is a ConcurrentMap and we avoid locking, we need to retry if there are
-   * concurrent modifications, this is abstracted here for removeRoute and addRoute
-   */
-  @tailrec private def modifyRoutes(method: HttpMethod, f: (List[Route] => List[Route])): Unit = {
-    val oldRoutes = routes(method)
-    if (!routes.replace(method, oldRoutes, f(oldRoutes))) {
-      modifyRoutes(method,f)
-    }
-  }
+  protected def removeRoute(method: String, route: Route): Unit =
+    removeRoute(HttpMethod(method), route)
 
   private var config: Config = _
   def initialize(config: Config) = this.config = config
