@@ -45,5 +45,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * compiler to trust us; remove when we upgrade to Servlet 3.0.
    */
   protected def attributes = r.asInstanceOf[Attributes]
+
+  def method: HttpMethod = HttpMethod(r.getMethod)
 }
 

@@ -47,13 +47,7 @@ import ScalatraKernel._
  */
 trait ScalatraKernel extends Handler with Initializable
 {
-  protected val routes: ConcurrentMap[HttpMethod, List[Route]] = {
-    val map = new ConcurrentHashMap[HttpMethod, List[Route]]
-    HttpMethod.methods foreach { x: HttpMethod => map += ((x, List[Route]())) }
-    map
-  }
-  protected val beforeFilters = ListBuffer[Route]()
-  protected val afterFilters = ListBuffer[Route]()
+  protected lazy val routes: RouteRegistry = new RouteRegistry
 
   def contentType = response.getContentType
   def contentType_=(value: String) {
@@ -115,15 +109,15 @@ trait ScalatraKernel extends Handler with Initializable
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
           val result = try {
-            runFilters(beforeFilters)
-            val actionResult = runRoutes(routes(effectiveMethod)).headOption
+            runFilters(routes.beforeFilters)
+            val actionResult = runRoutes(routes(request.method)).headOption
             actionResult orElse matchOtherMethods() getOrElse doNotFound()
           }
           catch {
             case e => handleError(e)
           }
           finally {
-            runFilters(afterFilters)
+            runFilters(routes.afterFilters)
           }
           renderResponse(result)
         }
@@ -154,12 +148,6 @@ trait ScalatraKernel extends Handler with Initializable
       }
     }
 
-  protected def effectiveMethod: HttpMethod =
-    HttpMethod(request.getMethod) match {
-      case Head => Get
-      case x => x
-    }
-
   def requestPath: String
   
   def beforeAll(fun: => Any) = addBefore(Iterable.empty, fun)
@@ -167,22 +155,18 @@ trait ScalatraKernel extends Handler with Initializable
   def before(fun: => Any) = beforeAll(fun)
   
   def beforeSome(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
-  
-  protected def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
-    val route = new Route(routeMatchers, () => fun)
-    beforeFilters += route
-  }
 
+  private def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
+    routes.appendBeforeFilter(Route(routeMatchers, () => fun))
+  
   def afterAll(fun: => Any) = addAfter(Iterable.empty, fun)
   @deprecated("Use afterAll")
   def after(fun: => Any) = afterAll(fun)
   
   def afterSome(routeMatchers: RouteMatcher*)(fun: => Any) = addAfter(routeMatchers, fun)
   
-  protected def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any): Unit = {
-    val route = new Route(routeMatchers, () => fun)
-    afterFilters += route
-  }
+  private def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any) = 
+    routes.appendAfterFilter(Route(routeMatchers, () => fun))
   
   protected var doNotFound: Action
   def notFound(fun: => Any) = doNotFound = { () => fun }
@@ -194,23 +178,8 @@ trait ScalatraKernel extends Handler with Initializable
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
   private def matchOtherMethods(): Option[Any] = {
-    var allows = allowedMethods
-    // Match *other* methods, not ourself...
-    allows -= effectiveMethod
-    // ... and HEAD is implied by GET
-    if (effectiveMethod == Get)
-      allows -= Head
-    if (allows.isEmpty) None else Some(doMethodNotAllowed(allows))
-  }
-
-  protected def allowedMethods: Set[HttpMethod] = {
-    var allows = (HttpMethod.methods filter {
-      method: HttpMethod => routes(method) exists { _().isDefined }
-    }).toSet
-    // HEAD is implemented in terms of GET, so GET implies HEAD
-    if (allows.contains(Get))
-      allows += Head
-    allows
+    var allow = routes.matchingMethodsExcept(request.method)
+    if (allow.isEmpty) None else Some(doMethodNotAllowed(allow))
   }
 
   protected def handleError(e: Throwable): Any = {
@@ -395,9 +364,13 @@ trait ScalatraKernel extends Handler with Initializable
   def patch(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Patch, routeMatchers, action)
 
   /**
-   * registers a new route for the given HTTP method, can be overriden so that subtraits can use their own logic
-   * for example, restricting protocol usage, namespace routes based on class name, raise errors on overlapping entries
-   * etc.
+   * Prepends a new route for the given HTTP method.
+   *
+   * Can be overriden so that subtraits can use their own logic.
+   * Possible examples:
+   * - restricting protocols
+   * - namespace routes based on class name
+   * - raising errors on overlapping entries.
    *
    * This is the method invoked by get(), post() etc.
    *
@@ -405,7 +378,7 @@ trait ScalatraKernel extends Handler with Initializable
    */
   protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
     val route = new Route(routeMatchers, () => action)
-    modifyRoutes(method, route :: _ )
+    routes.prependRoute(method, route)
     route
   }
 
@@ -419,24 +392,11 @@ trait ScalatraKernel extends Handler with Initializable
    *
    * @see addRoute
    */
-  protected def removeRoute(method: HttpMethod, route: Route): Unit = {
-    modifyRoutes(method, _ filterNot (_ == route) )
-    route
-  }
+  protected def removeRoute(method: HttpMethod, route: Route): Unit =
+    routes.removeRoute(method, route) 
 
-  protected def removeRoute(verb: String, route: Route): Unit =
-    removeRoute(HttpMethod(verb), route)
-
-  /**
-   * since routes is a ConcurrentMap and we avoid locking, we need to retry if there are
-   * concurrent modifications, this is abstracted here for removeRoute and addRoute
-   */
-  @tailrec private def modifyRoutes(method: HttpMethod, f: (List[Route] => List[Route])): Unit = {
-    val oldRoutes = routes(method)
-    if (!routes.replace(method, oldRoutes, f(oldRoutes))) {
-      modifyRoutes(method,f)
-    }
-  }
+  protected def removeRoute(method: String, route: Route): Unit =
+    removeRoute(HttpMethod(method), route)
 
   private var config: Config = _
   def initialize(config: Config) = this.config = config
@@ -451,9 +411,4 @@ trait ScalatraKernel extends Handler with Initializable
 
   def environment: String = System.getProperty(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("development"))
   def isDevelopmentMode = environment.toLowerCase.startsWith("dev")
-
-  /**
-   * Uniquely identifies this ScalatraKernel inside the webapp.
-   */
-  def kernelName: String
 }
