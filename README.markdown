@@ -10,7 +10,8 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
       }
     }
 
-### As a library for your existing project:
+
+## As a library for your existing project:
    Scalatra is available from Maven Central by listing the following library dependency in your SBT (or something similiar for Maven/Gradle/etc) configuration:
 
     "org.scalatra" %% "scalatra" % "2.0.0.M4"
