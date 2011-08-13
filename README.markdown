@@ -377,10 +377,13 @@ handle the request.
 
 ### Error
 
-The `error` handler is invoked any time an exception is raised from a route block or a filter.  The throwable can be obtained from the `caughtThrowable` instance variable.  This variable is not defined outside the `error` block.
+The `error` handler is invoked any time an exception is raised from a route
+block or a before filter.  The error handler is a pattern matcher prepended
+to the previous error handler.  The default behavior is to rethrow the 
+exception.
 
-    error {
-      log.error(caughtThrowable)
+    error { case e =>
+      log.error(e)
       redirect("http://www.sadtrombone.com/")
     }
 
@@ -674,6 +677,15 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 2. `halt(Int)` and `halt(Int, String)` no longer call `response.sendError`.
    If you depend on this behavior for routing to web.xml error pages, call 
    it explicitly and then call `halt()`, or override `halt`.
+
+3. `caughtThrowable` has been removed.  The error block is now a partial
+   function that pattern matches the exception.  Replace this:
+
+       error { caughtThrowable.printStackTrace() }
+
+   With this:
+
+       error { case e => e.printStackTrace() }
 
 ### scalatra-2.0.0.M3 to scalatra-2.0.0.M4
 

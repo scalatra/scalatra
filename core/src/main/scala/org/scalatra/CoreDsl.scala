@@ -116,16 +116,18 @@ trait CoreDsl {
   def methodNotAllowed(block: Set[HttpMethod] => Any): Unit
 
   /**
-   * Defines a block to run if an exception is thrown.  The exception is
-   * passed to the block.
+   * Defines an error handler for exceptions thrown in either the before
+   * block or a route action.
+   *
+   * If the error handler does not match, the result falls through to the
+   * previously defined error handler.  The default error handler simply
+   * rethrows the exception.
+   *
+   * The error handler is run before the after filters, and the result is
+   * rendered like a standard response.  It is the error handler's
+   * responsibility to set any appropriate status code.
    */
-  def error(block: => Any): Unit
-
-  /**
-   * The throwable currently handled by the error block.  Invalid outside
-   * an error block.
-   */
-  def caughtThrowable: Throwable
+  def error(handler: ErrorHandler): Unit
 
   /**
    * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]

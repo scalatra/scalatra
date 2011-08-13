@@ -109,7 +109,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
             actionResult orElse matchOtherMethods() getOrElse doNotFound()
           }
           catch {
-            case e => handleError(e)
+            case e: HaltException => renderHaltException(e)
+            case e => errorHandler(e)
           }
           finally {
             runFilters(routes.afterFilters)
@@ -169,25 +170,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     if (allow.isEmpty) None else Some(doMethodNotAllowed(allow))
   }
 
-  protected def handleError(e: Throwable): Any = {
-    (renderError orElse defaultRenderError).apply(e)
-  }
-
-  protected def renderError : PartialFunction[Throwable, Any] = defaultRenderError
-
-  protected final def defaultRenderError : PartialFunction[Throwable, Any] = {
-    case e: HaltException => renderHaltException(e)
-    case e => {
-      status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-      _caughtThrowable.withValue(e) { errorHandler() }
-    }
-  }
-
-  protected var errorHandler: Action = { () => throw caughtThrowable }
-  def error(fun: => Any) = errorHandler = { () => fun }
-
-  private val _caughtThrowable = new DynamicVariable[Throwable](null)
-  def caughtThrowable = _caughtThrowable.value
+  protected var errorHandler: ErrorHandler = { case t => throw t }
+  def error(handler: ErrorHandler) = errorHandler = handler orElse errorHandler
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
