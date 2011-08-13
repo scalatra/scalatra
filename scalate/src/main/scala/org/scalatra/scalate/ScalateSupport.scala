@@ -43,18 +43,31 @@ trait ScalateSupport extends ScalatraKernel {
   def renderTemplate(path: String, attributes: (String, Any)*) = 
     createRenderContext.render(path, Map(attributes : _*))
 
-  override protected def handleError(e: Throwable) =
+  /**
+   * Flag whether the Scalate error page is enabled.  If true, uncaught 
+   * exceptions will be caught and rendered by the Scalate error page.
+   *
+   * The default is true.
+   */
+  protected def isScalateErrorPageEnabled = true 
+
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     try {
-      super.handleError(e)
+      super.handle(request, response)
     }
     catch {
-      case e => renderErrorPage(e)
+      case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
+      case e => throw e
     }
+  }
 
-  protected def renderErrorPage(e: Throwable) = {
-    contentType = "text/html"
+  // Hack: Have to pass it the request and response, because we're outside the 
+  // scope of the super handler.
+  private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = { 
+    resp.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
-    val renderContext = createRenderContext
+    val renderContext = 
+      new ServletRenderContext(templateEngine, req, resp, servletContext)
     renderContext.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, renderContext)
   }

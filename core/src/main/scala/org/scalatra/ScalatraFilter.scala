@@ -25,7 +25,7 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)
 
-  protected var servletContext: ServletContext = _
+  var servletContext: ServletContext = _
 
   type Config = FilterConfig
 

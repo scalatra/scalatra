@@ -10,6 +10,14 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for 
       }
     }
 
+
+## As a library for your existing project:
+   Scalatra is available from Maven Central by listing the following library dependency in your SBT (or something similiar for Maven/Gradle/etc) configuration:
+
+    "org.scalatra" %% "scalatra" % "2.0.0.M4"
+  
+  The latest snapshot is available from the [Sonatype snapshots](http://oss.sonatype.org/content/repositories/snapshots/) repo.  
+
 ## Quick start (SBT 0.10.x)
 
 ### Setup (one time)
@@ -232,25 +240,27 @@ This behavior may be customized for these or other return types by overriding `r
 
 ## Filters
 
-Before filters are evaluated before each request within the same context as the routes.
+Before filters are evaluated before each request within the same context as the routes.  
 
-    beforeSome('/some/path') {
+    before('/some/path') {
       // Log access to /some/path
       println("Will match /some/path")
     }
 
-    beforeAll() {
+    // Empty list of matchers matches all routes
+    before() {
       // Default all responses to text/html
       contentType = "text/html"
     }
 
 After filters are evaluated after each request, but before the action result is rendered, within the same context as the routes.
 
-    afterSome('/some/path') {
+    after('/some/path') {
       println("Will render /some/path")
     }
 
-    afterAll() {
+    // Empty list of matchers matches all routes
+    after() {
       if (status >= 500)
         println("OMG! ONOZ!")
     }
@@ -369,10 +379,13 @@ handle the request.
 
 ### Error
 
-The `error` handler is invoked any time an exception is raised from a route block or a filter.  The throwable can be obtained from the `caughtThrowable` instance variable.  This variable is not defined outside the `error` block.
+The `error` handler is invoked any time an exception is raised from a route
+block or a before filter.  The error handler is a pattern matcher prepended
+to the previous error handler.  The default behavior is to rethrow the 
+exception.
 
-    error {
-      log.error(caughtThrowable)
+    error { case e =>
+      log.error(e)
       redirect("http://www.sadtrombone.com/")
     }
 
@@ -666,6 +679,15 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 2. `halt(Int)` and `halt(Int, String)` no longer call `response.sendError`.
    If you depend on this behavior for routing to web.xml error pages, call 
    it explicitly and then call `halt()`, or override `halt`.
+
+3. `caughtThrowable` has been removed.  The error block is now a partial
+   function that pattern matches the exception.  Replace this:
+
+       error { caughtThrowable.printStackTrace() }
+
+   With this:
+
+       error { case e => e.printStackTrace() }
 
 ### scalatra-2.0.0.M3 to scalatra-2.0.0.M4
 

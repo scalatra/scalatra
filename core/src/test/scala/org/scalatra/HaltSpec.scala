@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletResponse
 import specs2.ScalatraSpec
 
 class HaltTestServlet extends ScalatraServlet {
-  beforeAll {
+  before() {
     status(501)
     response.setHeader("Before-Header", "before")
     if (params.isDefinedAt("haltBefore")) {
@@ -44,7 +44,7 @@ class HaltTestServlet extends ScalatraServlet {
     "this content must not be returned"
   }
 
-  afterAll {
+  after() {
     response.setHeader("After-Header", "after")
   }
 }

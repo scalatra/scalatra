@@ -19,4 +19,6 @@ package object scalatra {
   type CSRFTokenSupport = CsrfTokenSupport
 
   type RouteMatcher = () => Option[ScalatraKernel.MultiParams]
+
+  type ErrorHandler = PartialFunction[Throwable, Any]
 }
