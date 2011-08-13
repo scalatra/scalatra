@@ -5,15 +5,15 @@ import test.scalatest.ScalatraFunSuite
 
 class BeforeTestServlet extends ScalatraServlet {
   
-  beforeAll {
+  before() {
     response.setStatus(204)
   }
   
-  beforeSome("/some/path") {
+  before("/some/path") {
     response.setStatus(202)
   }
   
-  beforeSome("/other/path") {
+  before("/other/path") {
     response.setStatus(206)
   }
   

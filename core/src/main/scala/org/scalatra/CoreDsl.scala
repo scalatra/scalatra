@@ -72,36 +72,32 @@ trait CoreDsl {
   def sessionOption: Option[HttpSession] = Option(request.getSession(false))
 
   /**
-   * Adds a filter to run before the route.  
-   *
-   * Equivalent to beforeSome()(block).
-   */
-  final def beforeAll(block: => Any): Unit = beforeSome()(block)
-
-  @deprecated("Use beforeAll", "2.0")
-  final def before(block: => Any): Unit = beforeAll(block)
-
-  /**
    * Adds a filter to run before the route.  The filter only runs if each
-   * routeMatcher returns Some.
+   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+   * filter runs for all routes.
    */
-  def beforeSome(routeMatchers: RouteMatcher*)(block: => Any): Unit
+  def before(routeMatchers: RouteMatcher*)(block: => Any): Unit
 
-  /**
-   * Adds a filter to run after the route.  
-   *
-   * Equivalent to afterSome()(block).
-   */
-  final def afterAll(block: => Any): Unit = afterSome()(block)
+  @deprecated("Use before() { ... }", "2.0")
+  final def beforeAll(block: => Any): Unit = before()(block)
 
-  @deprecated("Use afterAll", "2.0")
-  final def after(block: => Any): Unit = afterAll(block)
+  @deprecated("Use before(RouteMatcher*) { ... }", "2.0")
+  final def beforeSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
+    before(routeMatchers : _*)(block)
 
   /**
    * Adds a filter to run after the route.  The filter only runs if each
-   * routeMatcher returns Some.
+   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+   * filter runs for all routes.
    */
-  def afterSome(routeMatchers: RouteMatcher*)(block: => Any): Unit
+  def after(routeMatchers: RouteMatcher*)(block: => Any): Unit
+
+  @deprecated("Use after() { ... }", "2.0")
+  final def afterAll(block: => Any): Unit = after()(block)
+
+  @deprecated("Use after(RouteMatcher*) { ... }", "2.0")
+  final def afterSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
+    before(routeMatchers : _*)(block)
 
   /**
    * Defines a block to run if no matching routes are found, or if all

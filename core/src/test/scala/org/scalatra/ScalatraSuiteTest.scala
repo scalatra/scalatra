@@ -3,7 +3,7 @@ package org.scalatra
 import test.scalatest.ScalatraFunSuite
 
 class ScalatraSuiteTestServlet extends ScalatraServlet {
-  beforeAll {
+  before() {
     contentType = "text/html; charset=utf-8"
   }
 

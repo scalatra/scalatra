@@ -31,7 +31,7 @@ trait CsrfTokenSupport { self: ScalatraKernel =>
   protected def csrfKey = CsrfTokenSupport.DefaultKey
   protected def csrfToken = session(csrfKey).asInstanceOf[String]
 
-  beforeAll {
+  before() {
     if (isForged) {
       handleForgery()
     }

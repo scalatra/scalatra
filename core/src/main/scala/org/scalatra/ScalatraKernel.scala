@@ -146,12 +146,14 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   def requestPath: String
   
-  def beforeSome(routeMatchers: RouteMatcher*)(fun: => Any) = addBefore(routeMatchers, fun)
+  def before(routeMatchers: RouteMatcher*)(fun: => Any) = 
+    addBefore(routeMatchers, fun)
 
   private def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
     routes.appendBeforeFilter(Route(routeMatchers, () => fun))
   
-  def afterSome(routeMatchers: RouteMatcher*)(fun: => Any) = addAfter(routeMatchers, fun)
+  def after(routeMatchers: RouteMatcher*)(fun: => Any) = 
+    addAfter(routeMatchers, fun)
   
   private def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any) = 
     routes.appendAfterFilter(Route(routeMatchers, () => fun))

@@ -240,25 +240,27 @@ This behavior may be customized for these or other return types by overriding `r
 
 ## Filters
 
-Before filters are evaluated before each request within the same context as the routes.
+Before filters are evaluated before each request within the same context as the routes.  
 
-    beforeSome('/some/path') {
+    before('/some/path') {
       // Log access to /some/path
       println("Will match /some/path")
     }
 
-    beforeAll() {
+    // Empty list of matchers matches all routes
+    before() {
       // Default all responses to text/html
       contentType = "text/html"
     }
 
 After filters are evaluated after each request, but before the action result is rendered, within the same context as the routes.
 
-    afterSome('/some/path') {
+    after('/some/path') {
       println("Will render /some/path")
     }
 
-    afterAll() {
+    // Empty list of matchers matches all routes
+    after() {
       if (status >= 500)
         println("OMG! ONOZ!")
     }

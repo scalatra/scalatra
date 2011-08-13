@@ -5,15 +5,15 @@ import test.scalatest.ScalatraFunSuite
 
 class AfterTestServlet extends ScalatraServlet {
   
-  afterAll {
+  after() {
     response.setStatus(204)
   }
   
-  afterSome("/some/path") {
+  after("/some/path") {
     response.setStatus(202)
   }
   
-  afterSome("/other/path") {
+  after("/other/path") {
     response.setStatus(206)
   }
   
