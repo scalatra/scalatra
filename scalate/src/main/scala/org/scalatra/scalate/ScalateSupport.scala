@@ -53,7 +53,7 @@ trait ScalateSupport extends ScalatraKernel {
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     try {
-      super.handle(request, response)
+      super.handle(req, res)
     }
     catch {
       case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
