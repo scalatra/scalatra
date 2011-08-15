@@ -62,32 +62,29 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * interpret them the same way Sinatra does.
    */
   protected implicit def string2RouteMatcher(path: String): RouteMatcher =
-    SinatraPathPatternParser(path)
+    new RouteMatcher(() => SinatraPathPatternParser(path)(requestPath), path)
 
   /**
    * Path pattern is decoupled from requests.  This adapts the PathPattern to
    * a RouteMatcher by supplying the request path.
    */
   protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
-    new RouteMatcher {
-      def apply() = pattern(requestPath)
+    new RouteMatcher(() => pattern(requestPath), pattern.regex.toString)
 
-      // By overriding toString, we can list the available routes in the
-      // default notFound handler.
-      override def toString = pattern.regex.toString
-    }
+  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
+    new RouteMatcher(
+      () => regex.findFirstMatchIn(requestPath) map { _.subgroups match {
+        case Nil => MultiMap()
+        case xs => Map("captures" -> xs)
+      }},
+      regex.toString
+    )
 
-  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = new RouteMatcher {
-    def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
-      case Nil => MultiMap()
-      case xs => Map("captures" -> xs)
-    }}
-
-    override def toString = regex.toString
-  }
-
-  protected implicit def booleanBlock2RouteMatcher(matcher: => Boolean): RouteMatcher =
-    () => { if (matcher) Some(MultiMap()) else None }
+  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
+    new RouteMatcher(
+      () => { if (block) Some(MultiMap()) else None },
+      "[Boolean Guard]"
+    )
 
   def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
