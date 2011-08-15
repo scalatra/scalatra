@@ -9,7 +9,7 @@ object ScalatraBuild extends Build {
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.0-SNAPSHOT",
-    crossScalaVersions := Seq("2.9.0-1", "2.9.1.RC1", "2.9.0"),
+    crossScalaVersions := Seq("2.9.0-1", "2.9.1.RC2", "2.9.0"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     packageOptions <<= (packageOptions, name, version, organization) map {
@@ -90,7 +90,7 @@ object ScalatraBuild extends Build {
   object Dependencies {
     def antiXml(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC1" => "anti-xml_2.9.0"
+        case "2.9.1.RC2" => "anti-xml_2.9.0"
         case "2.9.0-1" => "anti-xml_2.9.0"
         case x => "anti-xml_"+x
       }
@@ -112,7 +112,7 @@ object ScalatraBuild extends Build {
 
     def liftJson(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC1" => "lift-json_2.9.0"
+        case "2.9.1.RC2" => "lift-json_2.9.0"
         case x => "lift-json_"+x
       }
       "net.liftweb" % libArtifactId % "2.4-M3"
@@ -126,7 +126,7 @@ object ScalatraBuild extends Build {
 
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC1" => "scalatest_2.9.0"
+        case "2.9.1.RC2" => "scalatest_2.9.0"
         case x => "scalatest_"+x
       }
       "org.scalatest" % libArtifactId % "1.6.1"
@@ -134,7 +134,7 @@ object ScalatraBuild extends Build {
 
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC1" => "specs_2.9.0"
+        case "2.9.1.RC2" => "specs_2.9.0"
         case "2.9.0-1" => "specs_2.9.0"
         case x => "specs_"+x
       }
@@ -143,7 +143,7 @@ object ScalatraBuild extends Build {
 
     def specs2(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC1" => "specs2_2.9.0-1"
+        case "2.9.1.RC2" => "specs2_2.9.0-1"
         case x => "specs2_"+x
       }
       val libVersion = scalaVersion match {
