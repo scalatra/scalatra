@@ -282,7 +282,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    *
    * This is the method invoked by get(), post() etc.
    *
-   * @see removeRoute
+   * @see org.scalatra.ScalatraKernel.removeRoute
    */
   protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
     val route = new Route(routeMatchers, () => action)
@@ -298,7 +298,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * removes _all_ the actions of a given route for a given HTTP method.
    * If [[addRoute]] is overriden this should probably be overriden too.
    *
-   * @see addRoute
+   * @see org.scalatra.ScalatraKernel.addRoute
    */
   protected def removeRoute(method: HttpMethod, route: Route): Unit =
     routes.removeRoute(method, route)
