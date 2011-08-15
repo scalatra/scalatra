@@ -1,20 +1,20 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" 
-         xmlns="http://maven.apache.org/POM/4.0.0" 
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-     
+
   <modelVersion>4.0.0</modelVersion>
-  
+
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
   <version>${version}</version>
-  
+
   <packaging>war</packaging>
 
   <properties>
     <scalatra.version>2.0.0.M3</scalatra.version>
   </properties>
-  
+
   <build>
     <finalName>scalatra-maven-prototype</finalName>
     <sourceDirectory>src/main/scala</sourceDirectory>
@@ -60,7 +60,7 @@
       </plugin>
     </plugins>
   </build>
-  
+
   <dependencies>
     <dependency>
       <groupId>org.scalatra</groupId>

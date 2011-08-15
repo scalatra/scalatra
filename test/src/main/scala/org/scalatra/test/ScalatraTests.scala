@@ -14,7 +14,7 @@ import java.net.HttpCookie
 import java.util.{Enumeration, EnumSet}
 
 object ScalatraTests {
-  val DefaultDispatcherTypes: EnumSet[DispatcherType] = 
+  val DefaultDispatcherTypes: EnumSet[DispatcherType] =
     EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC)
 }
 import ScalatraTests._
@@ -24,7 +24,7 @@ import ScalatraTests._
  * either <code>org.scalatra.test.scalatest.ScalatraSuite</code> or
  * <code>org.scalatra.test.specs.ScalatraSpecification</code>.
  *
- * Cookies are crudely supported within session blocks.  No attempt is made 
+ * Cookies are crudely supported within session blocks.  No attempt is made
  * to match domains, paths, or max-ages; the request sends a Cookie header
  * to match whatever Set-Cookie call it received on the previous response.
  */
@@ -122,7 +122,7 @@ trait ScalatraTests {
   def head[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     get(uri, params, Map[String, String]())(f)
   def head[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("HEAD", uri, params, headers) { f } 
+    submit("HEAD", uri, params, headers) { f }
 
   def post[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     post(uri, params)(f)
@@ -131,7 +131,7 @@ trait ScalatraTests {
   def post[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
     post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
   def post[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("POST", uri, Seq.empty, headers, body) { f } 
+    submit("POST", uri, Seq.empty, headers, body) { f }
   // @todo support POST multipart/form-data for file uploads
 
   def put[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
@@ -143,17 +143,17 @@ trait ScalatraTests {
   def put[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A) =
     submit("PUT", uri, Seq.empty, headers, body) { f }
   // @todo support PUT multipart/form-data for file uploads
-  
-  def delete[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A = 
+
+  def delete[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("DELETE", uri, params, headers) { f }
 
-  def options[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A = 
+  def options[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("OPTIONS", uri, params, headers) { f }
 
-  def trace[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A = 
+  def trace[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("TRACE", uri, params, headers) { f }
 
-  def connect[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A = 
+  def connect[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("CONNECT", uri, params, headers) { f }
 
   def patch[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
@@ -163,7 +163,7 @@ trait ScalatraTests {
   def patch[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
     patch(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
   def patch[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("PATCH", uri, Seq.empty, headers, body) { f } 
+    submit("PATCH", uri, Seq.empty, headers, body) { f }
 
   def session[A](f: => A): A = {
     _cookies.withValue(Nil) {

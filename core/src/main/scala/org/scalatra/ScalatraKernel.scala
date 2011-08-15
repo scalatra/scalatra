@@ -122,19 +122,19 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   }
 
   private def runFilters(filters: Traversable[Route]) =
-    for { 
+    for {
       route <- filters
-      matchedRoute <- route() 
+      matchedRoute <- route()
     } invoke(matchedRoute)
 
-  private def runRoutes(routes: Traversable[Route]) = 
-    for { 
+  private def runRoutes(routes: Traversable[Route]) =
+    for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route()
       actionResult <- invoke(matchedRoute)
     } yield actionResult
 
-  private def invoke(matchedRoute: MatchedRoute) = 
+  private def invoke(matchedRoute: MatchedRoute) =
     _multiParams.withValue(multiParams ++ matchedRoute.multiParams) {
       try {
         Some(matchedRoute.action())
@@ -145,19 +145,19 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     }
 
   def requestPath: String
-  
-  def before(routeMatchers: RouteMatcher*)(fun: => Any) = 
+
+  def before(routeMatchers: RouteMatcher*)(fun: => Any) =
     addBefore(routeMatchers, fun)
 
   private def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
     routes.appendBeforeFilter(Route(routeMatchers, () => fun))
-  
-  def after(routeMatchers: RouteMatcher*)(fun: => Any) = 
+
+  def after(routeMatchers: RouteMatcher*)(fun: => Any) =
     addAfter(routeMatchers, fun)
-  
-  private def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any) = 
+
+  private def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
     routes.appendAfterFilter(Route(routeMatchers, () => fun))
-  
+
   protected var doNotFound: Action
   def notFound(fun: => Any) = doNotFound = { () => fun }
 
@@ -182,7 +182,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   }
 
   type ContentTypeInferrer = PartialFunction[Any, String]
-  
+
   protected def defaultContentTypeInfer: ContentTypeInferrer = {
     case _: String => "text/plain"
     case _: Array[Byte] => "application/octet-stream"
@@ -228,16 +228,16 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   implicit def request = _request value
   implicit def response = _response value
 
-  def halt(status: JInteger = null, 
-           body: Any = (), 
-           headers: Map[String, String] = Map.empty, 
+  def halt(status: JInteger = null,
+           body: Any = (),
+           headers: Map[String, String] = Map.empty,
            reason: String = null): Nothing = {
     val statusOpt = if (status == null) None else Some(status.intValue)
     throw new HaltException(statusOpt, Some(reason), headers, body)
   }
 
   protected case class HaltException(
-      status: Option[Int], 
+      status: Option[Int],
       reason: Option[String],
       headers: Map[String, String],
       body: Any)
@@ -304,7 +304,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * @see addRoute
    */
   protected def removeRoute(method: HttpMethod, route: Route): Unit =
-    routes.removeRoute(method, route) 
+    routes.removeRoute(method, route)
 
   protected def removeRoute(method: String, route: Route): Unit =
     removeRoute(HttpMethod(method), route)

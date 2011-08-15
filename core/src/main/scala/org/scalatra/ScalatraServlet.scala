@@ -8,9 +8,9 @@ import scala.collection.mutable.HashSet
 import scala.collection.JavaConversions._
 import scala.xml.NodeSeq
 
-abstract class ScalatraServlet 
-  extends HttpServlet 
-  with ScalatraKernel 
+abstract class ScalatraServlet
+  extends HttpServlet
+  with ScalatraKernel
   with Initializable
 {
   import ScalatraKernel._

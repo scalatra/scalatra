@@ -9,10 +9,10 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
 
   object Template {
 
-    def style() = 
+    def style() =
       """
-      pre { border: 1px solid black; padding: 10px; } 
-      body { font-family: Helvetica, sans-serif; } 
+      pre { border: 1px solid black; padding: 10px; }
+      body { font-family: Helvetica, sans-serif; }
       h1 { color: #8b2323 }
       """
 
@@ -46,7 +46,7 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
   }
 
   get("/date/:year/:month/:day") {
-    Template.page("Scalatra: Date Example", 
+    Template.page("Scalatra: Date Example",
     <ul>
       <li>Year: {params("year")}</li>
       <li>Month: {params("month")}</li>

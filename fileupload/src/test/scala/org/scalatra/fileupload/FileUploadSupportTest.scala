@@ -27,8 +27,8 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
   }
 
   post("/multipart-param") {
-    params.get("queryParam") foreach { p => 
-      response.addHeader("Query-Param", p) 
+    params.get("queryParam") foreach { p =>
+      response.addHeader("Query-Param", p)
     }
     pass()
   }

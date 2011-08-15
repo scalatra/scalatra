@@ -21,7 +21,7 @@ trait CoreDsl {
   implicit def request: HttpServletRequest
 
   /**
-   * A map of the current parameters.  The map contains the head of every 
+   * A map of the current parameters.  The map contains the head of every
    * non-empty value in `multiParams`.
    */
   def params: Map[String, String]
@@ -66,7 +66,7 @@ trait CoreDsl {
    */
   implicit def session: HttpSession = request.getSession
 
-  /** 
+  /**
    * The current HTTP session.  If none exists, None is returned.
    */
   def sessionOption: Option[HttpSession] = Option(request.getSession(false))
@@ -106,7 +106,7 @@ trait CoreDsl {
   def notFound(block: => Any): Unit
 
   /**
-   * Defines a block to run if matching routes are found only for other 
+   * Defines a block to run if matching routes are found only for other
    * methods.  The set of matching methods is passed to the block.
    */
   def methodNotAllowed(block: Set[HttpMethod] => Any): Unit
@@ -127,14 +127,14 @@ trait CoreDsl {
 
   /**
    * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]
-   * and a block as the action body.  The return value of the block is 
+   * and a block as the action body.  The return value of the block is
    * rendered through the pipeline and sent to the client as the response body.
    *
-   * See [[org.scalatra.ScalatraKernel.renderResponseBody]] for the detailed 
-   * behaviour and how to handle your response body more explicitly, and see 
+   * See [[org.scalatra.ScalatraKernel.renderResponseBody]] for the detailed
+   * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *
-   * The block is executed in the context of a CoreDsl instance, so all the 
+   * The block is executed in the context of a CoreDsl instance, so all the
    * methods defined in this trait are also available inside the block.
    *
    * {{{
@@ -150,8 +150,8 @@ trait CoreDsl {
    *   }
    * }}}
    *
-   * ScalatraKernel provides implicit transformation from boolean blocks, 
-   * strings and regular expressions to [[org.scalatra.RouteMatcher]], so 
+   * ScalatraKernel provides implicit transformation from boolean blocks,
+   * strings and regular expressions to [[org.scalatra.RouteMatcher]], so
    * you can write code naturally.
    * {{{
    *   get("/", request.getRemoteHost == "127.0.0.1") { "Hello localhost!" }
@@ -197,12 +197,12 @@ trait CoreDsl {
    * @param reason set as the HTTP status reason.  Ignored if null or if status
    * is null.
    *
-   * @param headers added as headers to the response.  Previously set headers 
+   * @param headers added as headers to the response.  Previously set headers
    * are retained
    */
-  def halt(status: JInteger = null, 
-           body: Any = (), 
-           headers: Map[String, String] = Map.empty, 
+  def halt(status: JInteger = null,
+           body: Any = (),
+           headers: Map[String, String] = Map.empty,
            reason: String = null): Nothing
 
   /**

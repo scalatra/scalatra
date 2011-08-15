@@ -7,11 +7,11 @@ class FilterTestServlet extends ScalatraServlet {
   var beforeCount = 0
   var afterCount = 0
 
-  before() { 
+  before() {
     beforeCount += 1
     params.get("before") match {
       case Some(x) => response.getWriter.write(x)
-      case None => 
+      case None =>
     }
   }
 
@@ -24,7 +24,7 @@ class FilterTestServlet extends ScalatraServlet {
   }
 
   get("/") {}
-  
+
   get("/before-counter") { beforeCount }
 
   get("/after-counter") { afterCount }
@@ -81,11 +81,11 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
   addServlet(classOf[FilterTestServlet], "/*")
   addServlet(classOf[MultipleFilterTestServlet], "/multiple-filters/*")
   addFilter(classOf[FilterTestFilter], "/*")
-  
+
   override def beforeEach() {
     post("/reset-counters") {}
   }
-  
+
   test("before is called exactly once per request to a servlet") {
     get("/before-counter") { body should equal("1") }
     get("/before-counter") { body should equal("2") }

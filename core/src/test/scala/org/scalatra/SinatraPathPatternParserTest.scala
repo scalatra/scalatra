@@ -17,7 +17,7 @@ class SinatraPathPatternParserTest extends FunSuite with ShouldMatchers {
     pattern.toString should equal ("""^/simple/path/$""")
     names should equal (Nil)
   }
-  
+
   test("should replace a splat with a capturing group") {
     val PathPattern(pattern, names) = SinatraPathPatternParser("/splat/path/*")
 
