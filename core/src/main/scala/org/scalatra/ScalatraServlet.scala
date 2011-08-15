@@ -26,7 +26,11 @@ abstract class ScalatraServlet
 
   protected var doNotFound: Action = () => {
     response.setStatus(404)
-    response.getWriter println "Requesting %s but only have %s".format(request.getRequestURI, routes)
+    if (isDevelopmentMode)
+      response.getWriter println "Requesting %s %s but only have: %s".format(
+        request.getMethod,
+        request.getRequestURI,
+        routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
   }
 
   def servletContext: ServletContext = getServletContext
