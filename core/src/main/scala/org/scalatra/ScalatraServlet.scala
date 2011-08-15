@@ -39,7 +39,7 @@ abstract class ScalatraServlet
       val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
       response.getWriter println error.format(
         request.getMethod,
-        request.getPathInfo,
+        Option(request.getPathInfo) getOrElse "/",
         request.getServletPath,
         routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
     }
