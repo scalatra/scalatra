@@ -174,39 +174,36 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
-      contentType = inferContentType(actionResult)
+      contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
     renderResponseBody(actionResult)
   }
 
-  type ContentTypeInferrer = PartialFunction[Any, String]
-
-  protected def defaultContentTypeInfer: ContentTypeInferrer = {
+  protected def contentTypeInferrer: ContentTypeInferrer = {
     case _: String => "text/plain"
     case _: Array[Byte] => "application/octet-stream"
     case _ => "text/html"
   }
-  protected def contentTypeInfer: ContentTypeInferrer = defaultContentTypeInfer
-
-  protected def inferContentType(actionResult: Any): String =
-    (contentTypeInfer orElse defaultContentTypeInfer).apply(actionResult)
 
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
-      case r: Unit => r
-      case a => loop((renderPipeline orElse defaultRenderResponse) apply a)
+      case r: Unit => 
+      case a => loop(renderPipeline.lift(a) getOrElse ()) 
     }
     loop(actionResult)
   }
 
-  protected def renderPipeline: PartialFunction[Any, Any] = defaultRenderResponse
-
-  protected final def defaultRenderResponse: PartialFunction[Any, Any] = {
+  /**
+   * The render pipeline is a partial function of Any => Any.  It is
+   * called recursively until it returns ().  () indicates that the
+   * response has been rendered.
+   */
+  protected def renderPipeline: RenderPipeline = {
     case bytes: Array[Byte] =>
       response.getOutputStream.write(bytes)
     case file: File =>
       using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
     case _: Unit =>
-    // If an action returns Unit, it assumes responsibility for the response
+      // If an action returns Unit, it assumes responsibility for the response
     case x: Any  =>
       response.getWriter.print(x.toString)
   }
@@ -282,7 +279,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    *
    * This is the method invoked by get(), post() etc.
    *
-   * @see removeRoute
+   * @see org.scalatra.ScalatraKernel.removeRoute
    */
   protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
     val route = new Route(routeMatchers, () => action)
@@ -298,7 +295,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * removes _all_ the actions of a given route for a given HTTP method.
    * If [[addRoute]] is overriden this should probably be overriden too.
    *
-   * @see addRoute
+   * @see org.scalatra.ScalatraKernel.addRoute
    */
   protected def removeRoute(method: HttpMethod, route: Route): Unit =
     routes.removeRoute(method, route)
