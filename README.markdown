@@ -689,6 +689,11 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 
        error { case e => e.printStackTrace() }
 
+4. If your ScalatraServlet is not path-mapped (mapping ends in `/*'), you
+   need to change your requestPath definition:
+
+       override def requestPath = request.getServletPath
+
 ### scalatra-2.0.0.M3 to scalatra-2.0.0.M4
 
 1. Remove socket-io-java-dev.jar if you manually copied it into your lib directory.
