@@ -97,6 +97,10 @@ class RouteTestServlet extends ScalatraServlet {
 class RouteTest extends ScalatraFunSuite {
   addServlet(classOf[RouteTestServlet], "/*")
 
+  addServlet(new ScalatraServlet {
+    get("/") { "root" }
+  }, "/subcontext/*")
+
   test("routes can be a simple string") {
     get("/foo") {
       body should equal ("matched simple string route")
@@ -223,6 +227,16 @@ class RouteTest extends ScalatraFunSuite {
   test("matchers should not execute if one before it fails") {
     get("/fail") {
       body should not include ("shouldn't return")
+    }
+  }
+
+  test("trailing slash is optional in a subcontext-mapped servlet") {
+    get("/subcontext") {
+      body should equal ("root")
+    }
+
+    get("/subcontext/") {
+      body should equal ("root")
     }
   }
 }

@@ -4,6 +4,7 @@
 * Support bodies and headers in halt. [(GH-79)](http://github.com/scalatra/scalatra/issues/79) 
 * Support PATCH requests. [(GH-51)](http://github.com/scalatra/scalatra/issues/51) 
 * Error handler is now a pattern matcher. [(GH-93)](http://github.com/scalatra/scalatra/issues/93) 
+* Make trailing slash optional on non-root path-mapped servlets. [(GH-98)](http://github.com/scalatra/scalatra/issues/98) 
 
 ## scalatra-anti-xml
 * New module adds support for rendering Elem responses. [(GH-75)](http://github.com/scalatra/scalatra/issues/75)

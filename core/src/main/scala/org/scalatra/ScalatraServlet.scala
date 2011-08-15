@@ -17,12 +17,21 @@ abstract class ScalatraServlet
 
   override def service(request: HttpServletRequest, response: HttpServletResponse) = handle(request, response)
 
-  // pathInfo is for path-mapped servlets (i.e., the mapping ends in "/*").  Path-mapped Scalatra servlets will work even
-  // if the servlet is not mapped to the context root.  Routes should contain everything matched by the "/*".
-  //
-  // If the servlet mapping is not path-mapped, then we fall back to the servletPath.  Routes should have a leading
-  // slash and include everything between the context route and the query string.
-  def requestPath = if (request.getPathInfo != null) request.getPathInfo else request.getServletPath
+  /**
+   * Defines the request path to be matched by routers.  The default 
+   * definition is optimized for `path mapped` servlets (i.e., servlet 
+   * mapping ends in `&#47;*`).  The route should match everything matched by
+   * the `&#47;*`.  In the event that the request URI equals the servlet path 
+   * with no trailing slash (e.g., mapping = `/admin&#47;*`, request URI = 
+   * '/admin'), a '/' is returned.
+   *
+   * All other servlet mappings likely want to return request.getServletPath.
+   * Custom implementations are allowed for unusual cases.
+   */
+  def requestPath = request.getPathInfo match {
+    case pathInfo: String => pathInfo
+    case null => "/"
+  }
 
   protected var doNotFound: Action = () => {
     response.setStatus(404)
