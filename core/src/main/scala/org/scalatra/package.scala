@@ -18,7 +18,5 @@ package object scalatra {
   @deprecated("Use CsrfTokenSupport", "2.0")
   type CSRFTokenSupport = CsrfTokenSupport
 
-  type RouteMatcher = () => Option[ScalatraKernel.MultiParams]
-
   type ErrorHandler = PartialFunction[Throwable, Any]
 }
