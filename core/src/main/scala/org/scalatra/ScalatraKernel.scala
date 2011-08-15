@@ -165,7 +165,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
   private def matchOtherMethods(): Option[Any] = {
-    var allow = routes.matchingMethodsExcept(request.method)
+    val allow = routes.matchingMethodsExcept(request.method)
     if (allow.isEmpty) None else Some(doMethodNotAllowed(allow))
   }
 
