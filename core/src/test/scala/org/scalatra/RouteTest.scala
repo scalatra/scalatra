@@ -6,6 +6,10 @@ package org.scalatra
 import test.scalatest.ScalatraFunSuite
 
 class RouteTestServlet extends ScalatraServlet {
+  get("/foo") {
+    "matched simple string route"
+  }
+
   get(params.getOrElse("booleanTest", "false") == "true") {
     "matched boolean route"
   }
@@ -78,13 +82,26 @@ class RouteTestServlet extends ScalatraServlet {
     "I match any post!"
   }
 
-  get("/fail", false, () => { throw new RuntimeException("shouldn't execute"); None }) {
+  get("/nothing", false) {
+    "shouldn't return"
+  }
+
+  get("/fail", false, new RouteMatcher(
+    () => { throw new RuntimeException("shouldn't execute"); None },
+    "None matcher"
+  )) {
     "shouldn't return"
   }
 }
 
 class RouteTest extends ScalatraFunSuite {
   addServlet(classOf[RouteTestServlet], "/*")
+
+  test("routes can be a simple string") {
+    get("/foo") {
+      body should equal ("matched simple string route")
+    }
+  }
 
   test("routes can be a boolean expression") {
     get("/whatever", "booleanTest" -> "true") {
