@@ -8,9 +8,9 @@ import com.codecommit.antixml._
  */
 trait AntiXmlSupport extends ScalatraKernel {
 
-  override protected def contentTypeInfer = {
+  override protected def contentTypeInferrer = ({
     case _: Elem => "text/html"
-  }
+  }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
   override protected def renderPipeline = {
     val myPipeline: PartialFunction[Any, Any] = {

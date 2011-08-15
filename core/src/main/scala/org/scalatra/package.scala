@@ -19,4 +19,6 @@ package object scalatra {
   type CSRFTokenSupport = CsrfTokenSupport
 
   type ErrorHandler = PartialFunction[Throwable, Any]
+
+  type ContentTypeInferrer = PartialFunction[Any, String]
 }

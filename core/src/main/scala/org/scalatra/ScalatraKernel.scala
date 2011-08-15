@@ -174,21 +174,15 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
-      contentType = inferContentType(actionResult)
+      contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
     renderResponseBody(actionResult)
   }
 
-  type ContentTypeInferrer = PartialFunction[Any, String]
-
-  protected def defaultContentTypeInfer: ContentTypeInferrer = {
+  protected def contentTypeInferrer: ContentTypeInferrer = {
     case _: String => "text/plain"
     case _: Array[Byte] => "application/octet-stream"
     case _ => "text/html"
   }
-  protected def contentTypeInfer: ContentTypeInferrer = defaultContentTypeInfer
-
-  protected def inferContentType(actionResult: Any): String =
-    (contentTypeInfer orElse defaultContentTypeInfer).apply(actionResult)
 
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {

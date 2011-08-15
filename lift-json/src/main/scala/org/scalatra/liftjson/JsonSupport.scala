@@ -1,6 +1,7 @@
-package org.scalatra.liftjson
+package org.scalatra
+package liftjson
 
-import org.scalatra.ScalatraKernel
+import org.scalatra.{ContentTypeInferrer, ScalatraKernel}
 import net.liftweb.json.JsonAST.JValue
 
 /**
@@ -8,9 +9,9 @@ import net.liftweb.json.JsonAST.JValue
  */
 trait JsonSupport extends ScalatraKernel {
 
-  override protected def contentTypeInfer = {
+  override protected def contentTypeInferrer = ({
     case _ : JValue => "application/json; charset=utf-8"
-  }
+  }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
   // TODO I've got better fights to pick right now than the type inferencer...
   // is there a way to make myPipeline anonymous without running into:
