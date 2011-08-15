@@ -35,11 +35,14 @@ abstract class ScalatraServlet
 
   protected var doNotFound: Action = () => {
     response.setStatus(404)
-    if (isDevelopmentMode)
-      response.getWriter println "Requesting %s %s but only have: %s".format(
+    if (isDevelopmentMode){
+      val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
+      response.getWriter println error.format(
         request.getMethod,
-        request.getRequestURI,
+        Option(request.getPathInfo) getOrElse "/",
+        request.getServletPath,
         routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
+    }
   }
 
   def servletContext: ServletContext = getServletContext
