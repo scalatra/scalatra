@@ -186,21 +186,24 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
-      case r: Unit => r
-      case a => loop((renderPipeline orElse defaultRenderResponse) apply a)
+      case r: Unit => 
+      case a => loop(renderPipeline.lift(a) getOrElse ()) 
     }
     loop(actionResult)
   }
 
-  protected def renderPipeline: PartialFunction[Any, Any] = defaultRenderResponse
-
-  protected final def defaultRenderResponse: PartialFunction[Any, Any] = {
+  /**
+   * The render pipeline is a partial function of Any => Any.  It is
+   * called recursively until it returns ().  () indicates that the
+   * response has been rendered.
+   */
+  protected def renderPipeline: RenderPipeline = {
     case bytes: Array[Byte] =>
       response.getOutputStream.write(bytes)
     case file: File =>
       using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
     case _: Unit =>
-    // If an action returns Unit, it assumes responsibility for the response
+      // If an action returns Unit, it assumes responsibility for the response
     case x: Any  =>
       response.getWriter.print(x.toString)
   }

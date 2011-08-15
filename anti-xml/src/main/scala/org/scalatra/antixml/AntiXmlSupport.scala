@@ -12,10 +12,7 @@ trait AntiXmlSupport extends ScalatraKernel {
     case _: Elem => "text/html"
   }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
-  override protected def renderPipeline = {
-    val myPipeline: PartialFunction[Any, Any] = {
-      case e: Elem => XMLSerializer().serialize(e, response.getWriter)
-    }
-    myPipeline orElse super.renderPipeline
-  }
+  override protected def renderPipeline = ({
+    case e: Elem => XMLSerializer().serialize(e, response.getWriter)
+  }: RenderPipeline) orElse super.renderPipeline
 }
