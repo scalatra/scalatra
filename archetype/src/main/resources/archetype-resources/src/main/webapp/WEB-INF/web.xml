@@ -10,7 +10,7 @@
 			net.srirangan.MyScalatraFilter
 		</filter-class>
 	</filter>
-	
+
 	<filter-mapping>
 		<filter-name>scalatra</filter-name>
 		<url-pattern>/*</url-pattern>

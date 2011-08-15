@@ -12,7 +12,7 @@ class HeadSpec extends ScalatraSpec { def is =
 
   def noBody = head("/") { response.body must_== "" }
 
-  def preserveHeaders = head("/") { 
+  def preserveHeaders = head("/") {
     header("X-Powered-By") must_== "caffeine"
   }
 }

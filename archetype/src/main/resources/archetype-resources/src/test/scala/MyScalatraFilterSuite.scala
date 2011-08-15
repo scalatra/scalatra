@@ -12,7 +12,7 @@ class MyScalatraFilterSuite extends ScalatraFunSuite {
   addFilter(classOf[MyScalatraFilter], "/*")
 
   test("GET / returns status 200") {
-    get("/") { 
+    get("/") {
       status should equal (200)
     }
   }

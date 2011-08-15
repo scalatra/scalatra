@@ -5,7 +5,7 @@ import java.net.URL
 import scalate.ScalateSupport
 
 class MyScalatraFilter extends ScalatraFilter with ScalateSupport {
-  
+
   get("/") {
     <html>
       <body>
@@ -23,11 +23,11 @@ class MyScalatraFilter extends ScalatraFilter with ScalateSupport {
     }
     val templatePath = "/WEB-INF/scalate/templates/" + templateBase + ".scaml"
     servletContext.getResource(templatePath) match {
-      case url: URL => 
+      case url: URL =>
         contentType = "text/html"
         templateEngine.layout(templatePath)
-      case _ => 
+      case _ =>
         filterChain.doFilter(request, response)
-    } 
+    }
   }
 }

@@ -17,17 +17,17 @@ class AntiXmlSupportTest extends ScalatraSpec { def is =
 
   val servletHolder = addServlet(classOf[AntiXmlSupportTestServlet], "/*")
 
-  def inferContentType = 
+  def inferContentType =
     get("/anti-xml") {
       response.mediaType must_== (Some("text/html"))
     }
 
-  def responseBody = 
+  def responseBody =
     get("/anti-xml") {
       response.body must_== """<foo bar="baz"/>"""
     }
 
-  def passThrough = 
+  def passThrough =
     get("/pass-through") {
       response.body must_== "pass through"
     }

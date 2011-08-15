@@ -8,10 +8,10 @@ class ErrorHandlerTest extends ScalatraFunSuite {
   case class Exception2() extends TestException
 
   class BaseServlet extends ScalatraServlet {
-    get("/1") { 
+    get("/1") {
       status(418)
-      throw new Exception1 
-    } 
+      throw new Exception1
+    }
     get("/uncaught") { throw new RuntimeException }
     error { case e: TestException => "base" }
   }
