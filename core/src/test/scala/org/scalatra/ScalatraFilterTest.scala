@@ -51,6 +51,9 @@ class ScalatraFilterTestExtensionMappedServlet extends ScalatraServlet {
   get("/unfiltered.do") {
     "extension-mapped"
   }
+
+  // Non path-mapped servlets need this to work
+  override def requestPath = request.getServletPath
 }
 
 class ScalatraFilterTestDefaultServlet extends ScalatraServlet {
@@ -61,6 +64,9 @@ class ScalatraFilterTestDefaultServlet extends ScalatraServlet {
   get("/unfiltered") {
     "default"
   }
+
+  // Non path-mapped servlets need this to work
+  override def requestPath = request.getServletPath
 }
 
 class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
@@ -71,6 +77,9 @@ class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
   get("/exact-match/unfiltered") {
     "exact match"
   }
+
+  // Non path-mapped servlets need this to work
+  override def requestPath = request.getServletPath
 }
 
 class ScalatraFilterTest extends ScalatraFunSuite {

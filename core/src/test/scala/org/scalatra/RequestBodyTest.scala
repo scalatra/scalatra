@@ -12,7 +12,7 @@ class RequestBodyTestServlet extends ScalatraServlet {
 
 @RunWith(classOf[JUnitRunner])
 class RequestBodyTest extends ScalatraFunSuite {
-  addServlet(classOf[RequestBodyTestServlet], "/")
+  addServlet(classOf[RequestBodyTestServlet], "/*")
 
   test("can read request body") {
     post("/request-body", "My cat's breath smells like cat food!") {

@@ -40,7 +40,7 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
 
 @RunWith(classOf[JUnitRunner])
 class FileUploadSupportTest extends ScalatraFunSuite {
-  addServlet(classOf[FileUploadSupportTestServlet], "/")
+  addServlet(classOf[FileUploadSupportTestServlet], "/*")
 
   def multipartResponse(path: String = "/multipart") = {
     // TODO We've had problems with the tester not running as iso-8859-1, even if the
