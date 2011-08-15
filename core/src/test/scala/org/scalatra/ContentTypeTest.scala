@@ -17,7 +17,7 @@ class ContentTypeTestServlet extends ScalatraServlet {
     contentType = "text/html; charset=utf-8"
     "test"
   }
-  
+
   get("/implicit/string") {
     "test"
   }
@@ -78,7 +78,7 @@ class ContentTypeTestServlet extends ScalatraServlet {
   }
 
   override def init () { conductor.start() }
-  override def destroy() { conductor ! 'exit } 
+  override def destroy() { conductor ! 'exit }
 }
 
 class ContentTypeTest extends ScalatraFunSuite {
@@ -121,7 +121,7 @@ class ContentTypeTest extends ScalatraFunSuite {
 
   test("contentType is threadsafe") {
     import Actor._
-  
+
     def doRequest = actor {
       loop {
         react {
@@ -141,7 +141,7 @@ class ContentTypeTest extends ScalatraFunSuite {
     }
 
     val futures = for (i <- 1 to 2) yield { doRequest !! i }
-    for (future <- futures) { 
+    for (future <- futures) {
       val result = future() match {
         case (i, mediaType) => mediaType should be (Some(i.toString))
       }

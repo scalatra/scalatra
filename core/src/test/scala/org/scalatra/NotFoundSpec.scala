@@ -44,7 +44,7 @@ class NotFoundSpec extends ScalatraSpec { def is =
   }
 
   def servletNotFoundSends404 = get("/default/matches-nothing") {
-    status must_== 404 
+    status must_== 404
   }
 
   def filterNotFoundInvokesChain = get("/filtered/fall-through") {

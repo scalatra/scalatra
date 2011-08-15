@@ -46,7 +46,7 @@ class SessionTest extends ScalatraFunSuite {
         body should equal (data)
       }
       get("/session") {
-        body should equal (data)        
+        body should equal (data)
       }
     }
   }
@@ -58,7 +58,7 @@ class SessionTest extends ScalatraFunSuite {
         body should equal (data)
       }
       get("/session-symbol") {
-        body should equal (data)        
+        body should equal (data)
       }
     }
   }

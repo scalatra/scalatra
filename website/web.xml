@@ -84,10 +84,10 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     <url-pattern>/js/*</url-pattern>
   </servlet-mapping>
 
-  <!-- 
+  <!--
     Demonstrates how to use Scalatra as a filter rather than as a Servlet.
     Typically, you would run Scalatra as either a servlet or a filter, but
-    not both in the same app.  
+    not both in the same app.
   -->
   <filter>
     <filter-name>FilterExample</filter-name>

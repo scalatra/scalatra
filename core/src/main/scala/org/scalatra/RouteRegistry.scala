@@ -33,7 +33,7 @@ class RouteRegistry {
   def matchingMethods: Set[HttpMethod] = matchingMethodsExcept { _ => false }
 
   /**
-   * Returns a set of methods with a matching route minus a specified 
+   * Returns a set of methods with a matching route minus a specified
    * method.
    *
    * HEAD must be identical to GET without a body, so:
@@ -49,10 +49,10 @@ class RouteRegistry {
   }
 
   private def matchingMethodsExcept(p: HttpMethod => Boolean) = {
-    var methods = (methodRoutes filter { case (method, routes) => 
+    var methods = (methodRoutes filter { case (method, routes) =>
       !p(method) && (routes exists { _().isDefined })
     }).keys.toSet
-    if (methods.contains(Get)) 
+    if (methods.contains(Get))
       methods += Head
     methods
   }
@@ -66,7 +66,7 @@ class RouteRegistry {
   /**
    * Removes a route from the method's route seqeuence.
    */
-  def removeRoute(method: HttpMethod, route: Route): Unit = 
+  def removeRoute(method: HttpMethod, route: Route): Unit =
     modifyRoutes(method, _ filterNot (_ == route))
 
   /**
@@ -77,7 +77,7 @@ class RouteRegistry {
   /**
    * Appends a filter to the sequence of before filters.
    */
-  def appendBeforeFilter(route: Route): Unit = _beforeFilters :+= route 
+  def appendBeforeFilter(route: Route): Unit = _beforeFilters :+= route
 
   /**
    * Returns the sequence of filters to run after the route.
@@ -87,7 +87,7 @@ class RouteRegistry {
   /**
    * Appends a filter to the sequence of before filters.
    */
-  def appendAfterFilter(route: Route): Unit = _afterFilters :+= route 
+  def appendAfterFilter(route: Route): Unit = _afterFilters :+= route
 
   @tailrec private def modifyRoutes(method: HttpMethod, f: (Seq[Route] => Seq[Route])): Unit = {
     if (methodRoutes.putIfAbsent(method, f(Vector.empty)).isDefined) {
