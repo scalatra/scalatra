@@ -100,12 +100,11 @@ class RouteRegistry {
   /**
    * List of entry points, made of all route matchers
    */
-  def entryPoints: Iterable[String] =
-    for {
+  def entryPoints: Seq[String] =
+    (for {
       (method, routes) <- methodRoutes
       route <- routes
-    } yield method + " " + route
+    } yield method + " " + route).toSeq sortWith (_ < _)
 
-  override def toString(): String =
-    entryPoints.toSeq sortWith (_ < _) mkString ", "
+  override def toString(): String = entryPoints mkString ", "
 }
