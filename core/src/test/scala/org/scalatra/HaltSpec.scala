@@ -33,8 +33,8 @@ class HaltTestServlet extends ScalatraServlet {
   }
 
   get("/all-args") {
-    halt(status = 403, 
-         reason = "Go away", 
+    halt(status = 403,
+         reason = "Go away",
          headers = Map("X-Your-Mother-Was-A" -> "hamster", "X-Your-Father-Smelt-Of" -> "elderberries"),
          body = <h1>Go away or I shall taunt you a second time!</h1>)
     "this content must not be returned"
@@ -81,39 +81,39 @@ class HaltSpec extends ScalatraSpec { def is =
 
   addServlet(classOf[HaltTestServlet], "/*")
 
-  def commonHalt(uri: String) = 
+  def commonHalt(uri: String) =
     "not execute the rest of the action"        ! haltsAction(uri)^
     "retain the headers"                        ! retainsHeaders(uri)^
     "still execute after filter"                ! hasHeader(uri, "After-Header", "after")
 
-  def haltsAction(uri: String) = 
+  def haltsAction(uri: String) =
     get(uri) {
       body must not contain ("this content must not be returned")
     }
 
-  def status(uri: String, status: Int) = 
+  def status(uri: String, status: Int) =
     get(uri) {
       status must_== status
     }
 
   def retainsHeaders(uri: String) = hasHeader(uri, "Before-Header", "before")
 
-  def reason(uri: String, reason: String) = 
+  def reason(uri: String, reason: String) =
     get(uri) {
       response.getReason must_== reason
     }
 
-  def bodyContains(uri: String, text: String) = 
+  def bodyContains(uri: String, text: String) =
     get(uri) {
       body must contain (text)
     }
 
-  def bodyEquals(uri: String, text: String) = 
+  def bodyEquals(uri: String, text: String) =
     get(uri) {
       body must_== (text)
     }
 
-  def hasHeader(uri: String, name: String, value: String) = 
+  def hasHeader(uri: String, name: String, value: String) =
     get(uri) {
       header(name) must_== value
     }

@@ -16,7 +16,7 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
-  protected def createTemplateEngine(config: Config) = 
+  protected def createTemplateEngine(config: Config) =
     config match {
       case servletConfig: ServletConfig =>
         new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
@@ -37,19 +37,19 @@ trait ScalateSupport extends ScalatraKernel {
     override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
   }
 
-  def createRenderContext: ServletRenderContext = 
+  def createRenderContext: ServletRenderContext =
     new ServletRenderContext(templateEngine, request, response, servletContext)
 
-  def renderTemplate(path: String, attributes: (String, Any)*) = 
+  def renderTemplate(path: String, attributes: (String, Any)*) =
     createRenderContext.render(path, Map(attributes : _*))
 
   /**
-   * Flag whether the Scalate error page is enabled.  If true, uncaught 
+   * Flag whether the Scalate error page is enabled.  If true, uncaught
    * exceptions will be caught and rendered by the Scalate error page.
    *
    * The default is true.
    */
-  protected def isScalateErrorPageEnabled = true 
+  protected def isScalateErrorPageEnabled = true
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     try {
@@ -61,12 +61,12 @@ trait ScalateSupport extends ScalatraKernel {
     }
   }
 
-  // Hack: Have to pass it the request and response, because we're outside the 
+  // Hack: Have to pass it the request and response, because we're outside the
   // scope of the super handler.
-  private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = { 
+  private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
     resp.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
-    val renderContext = 
+    val renderContext =
       new ServletRenderContext(templateEngine, req, resp, servletContext)
     renderContext.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, renderContext)

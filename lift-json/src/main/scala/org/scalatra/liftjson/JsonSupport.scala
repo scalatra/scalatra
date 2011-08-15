@@ -14,7 +14,7 @@ trait JsonSupport extends ScalatraKernel {
 
   // TODO I've got better fights to pick right now than the type inferencer...
   // is there a way to make myPipeline anonymous without running into:
-  // 
+  //
   // "The argument types of an anonymous function must be fully known. (SLS 8.5)"
   override protected def renderPipeline = {
     val myPipeline: PartialFunction[Any, Any] = {

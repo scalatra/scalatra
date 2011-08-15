@@ -28,7 +28,7 @@ trait FileUploadSupport extends ScalatraKernel {
         val bodyParams = extractMultipartParams(req)
         var mergedParams = bodyParams.formParams
         // Add the query string parameters
-        req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach { 
+        req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
           case (name, values) =>
             val formValues = mergedParams.getOrElse(name, List.empty)
             mergedParams += name -> (values.toList ++ formValues)
@@ -62,7 +62,7 @@ trait FileUploadSupport extends ScalatraKernel {
    *
    * Browsers tend to be sloppy about providing content type headers with
    * charset information to form-data parts.  Worse, browsers are
-   * inconsistent about how they encode these parameters. 
+   * inconsistent about how they encode these parameters.
    *
    * The default implementation attempts to use the charset specified on
    * the request.  If that is unspecified, and it usually isn't, then it
@@ -73,7 +73,7 @@ trait FileUploadSupport extends ScalatraKernel {
       case diskItem: DiskFileItem =>
         // Why doesn't FileItem have this method???
         Option(diskItem.getCharSet())
-      case _ => 
+      case _ =>
         None
     }
     item.getString(charset getOrElse defaultCharacterEncoding)
