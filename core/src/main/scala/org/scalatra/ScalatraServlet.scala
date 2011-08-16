@@ -2,6 +2,7 @@ package org.scalatra
 
 import javax.servlet._
 import javax.servlet.http._
+import java.net.URL
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.collection.mutable.HashSet
@@ -34,6 +35,11 @@ abstract class ScalatraServlet
   }
 
   protected var doNotFound: Action = () => {
+
+    servletContext.getResource(Option(request.getPathInfo) getOrElse "/index.html") match {
+      case url: URL => servletContext.getNamedDispatcher("default").forward(request, response)
+    }
+    
     response.setStatus(404)
     if (isDevelopmentMode){
       val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
