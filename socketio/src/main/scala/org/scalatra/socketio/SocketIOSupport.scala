@@ -18,6 +18,7 @@ case object Connected extends SocketIOMessage
 case class Message(messageType: Int, message: String) extends SocketIOMessage
 case class Disconnected(reason: DisconnectReason, message: String) extends SocketIOMessage
 
+@deprecated("Upstream socketio-java is unsupported. We will provide an Atmosphere solution.", "2.0")
 object SocketIOSupport {
   val BUFFER_SIZE_INIT_PARAM = "bufferSize"
   val MAX_IDLE_TIME_INIT_PARAM: String = "maxIdleTime"
@@ -76,10 +77,7 @@ object SocketIOSupport {
 
 }
 
-/**
- * This interface is likely to change before 2.0.0.  Please come to the
- * mailing list or IRC before betting your project on this.
- */
+@deprecated("Upstream socketio-java is unsupported. We will provide an Atmosphere solution.", "2.0")
 trait SocketIOSupport extends Handler with Initializable {
   self: ScalatraServlet =>
 
