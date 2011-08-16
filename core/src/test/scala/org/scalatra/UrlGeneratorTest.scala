@@ -49,4 +49,8 @@ class UrlGeneratorTest extends ScalatraFunSuite {
   test("Mix named and splat") {
     generate(mixNamedAndSplat, Map("foo" -> "deep"), Seq("purple")) should equal ("/mix-named-and-splat-params/deep/purple")
   }
+
+  test("Unexpected splat parameters are just ignored at the moment") {
+    generate(singleSplat, "black", "coffee") should equal ("/single-splat/black")
+  }
 }
