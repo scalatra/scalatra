@@ -3,34 +3,45 @@ package org.scalatra
 import scala.util.matching.Regex
 import util.MultiMap
 
-class RouteMatcher(
-  val matcher: () => Option[ScalatraKernel.MultiParams],
-  val pattern: String
-) {
-
-  def apply(): Option[ScalatraKernel.MultiParams] = matcher()
-
-  override def toString: String = pattern
+trait RouteMatcher
+{
+  def apply(): Option[ScalatraKernel.MultiParams]
 }
 
-object RouteMatcher {
+trait ReversableRouteMatcher
+{
+  def generate(params: Map[String, String]): String
+}
 
-  def apply(matcher: () => Option[ScalatraKernel.MultiParams], pattern: String): RouteMatcher =
-    new RouteMatcher(matcher, pattern)
+final class StringPathRouteMatcher(path: String, requestPath: => String)
+  extends RouteMatcher with ReversableRouteMatcher
+{
+  def apply() = SinatraPathPatternParser(path)(requestPath)
 
-  def stringPath(path: String, requestPath: () => String): RouteMatcher =
-    apply(() => SinatraPathPatternParser(path)(requestPath()), path)
+  def generate(params: Map[String, String]) = throw new Exception("WIP - Implement me")
 
-  def pathPattern(pattern: PathPattern, requestPath: () => String): RouteMatcher =
-    apply(() => pattern(requestPath()), pattern.regex.toString)
+  override def toString = path
+}
 
-  def regex(regex: Regex, requestPath: () => String): RouteMatcher =
-    apply(() => regex.findFirstMatchIn(requestPath()) map { _.subgroups match {
-        case Nil => MultiMap()
-        case xs => Map("captures" -> xs)
-      }},
-      regex.toString)
+final class PathPatternRouteMatcher(pattern: PathPattern, requestPath: => String) extends RouteMatcher {
+  def apply() = pattern(requestPath)
 
-  def booleanBlock(block: => Boolean): RouteMatcher =
-    apply(() => { if (block) Some(MultiMap()) else None }, "[Boolean Guard]")
+  override def toString = pattern.regex.toString
+}
+
+final class RegexRouteMatcher(regex: Regex, requestPath: => String) extends RouteMatcher
+{
+  def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
+    case Nil => MultiMap()
+    case xs => Map("captures" -> xs)
+  }}
+
+  override def toString = regex.toString
+}
+
+final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher
+{
+  def apply() = if (block) Some(MultiMap()) else None
+
+  override def toString = "[Boolean Guard]"
 }

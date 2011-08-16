@@ -62,20 +62,20 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * interpret them the same way Sinatra does.
    */
   protected implicit def string2RouteMatcher(path: String): RouteMatcher =
-    RouteMatcher.stringPath(path, () => requestPath)
+    new StringPathRouteMatcher(path, requestPath)
 
   /**
    * Path pattern is decoupled from requests.  This adapts the PathPattern to
    * a RouteMatcher by supplying the request path.
    */
   protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
-    RouteMatcher.pathPattern(pattern, () => requestPath)
+    new PathPatternRouteMatcher(pattern, requestPath)
 
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
-    RouteMatcher.regex(regex, () => requestPath)
+    new RegexRouteMatcher(regex, requestPath)
 
   protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
-    RouteMatcher.booleanBlock(block)
+    new BooleanBlockRouteMatcher(block)
 
   def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
