@@ -10,7 +10,7 @@ trait RouteMatcher
 
 trait ReversibleRouteMatcher
 {
-  def reverse(params: Map[String, String], splats: Iterable[String]): String
+  def reverse(params: Map[String, String], splats: List[String]): String
 }
 
 final class SinatraRouteMatcher(path: String, requestPath: => String)
@@ -18,18 +18,21 @@ final class SinatraRouteMatcher(path: String, requestPath: => String)
 {
   def apply() = SinatraPathPatternParser(path)(requestPath)
 
-  def reverse(params: Map[String, String], splats: Iterable[String]): String =
-    replaceSplat(replaceNamed(params), splats)
+  def reverse(params: Map[String, String], splats: List[String]): String =
+    replaceSplats(replaceNamedParams(params), splats)
 
-  private def replaceNamed(params: Map[String, String]) =
+  private def replaceNamedParams(params: Map[String, String]) =
     """:[^/?#\.]+""".r replaceAllIn (path, s =>
       params.get(s.toString.tail) match {
         case Some(value) => value
         case None => throw new Exception("The url \"%s\" requires param \"%s\"" format (path, s))
       })
 
-  private def replaceSplat(slug: String, splats: Iterable[String]): String =
-    slug
+  private def replaceSplats(slug: String, splats: List[String]): String =
+    splats match {
+      case Nil => slug
+      case s :: rest => replaceSplats("""\*""".r replaceFirstIn (slug, s), rest)
+    }
 
   override def toString = path
 }
