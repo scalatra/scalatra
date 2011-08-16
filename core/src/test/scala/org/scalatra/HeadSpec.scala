@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.specs2.ScalatraSpec
+import test.specs2.ScalatraSpec
 
 class HeadSpec extends ScalatraSpec { def is =
   "A HEAD request should"                              ^

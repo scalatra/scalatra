@@ -1,7 +1,7 @@
 package org.scalatra
 package antixml
 
-import specs2.ScalatraSpec
+import test.specs2.ScalatraSpec
 import com.codecommit.antixml._
 
 class AntiXmlSupportTest extends ScalatraSpec { def is =

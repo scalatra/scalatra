@@ -1,6 +1,6 @@
-package org.scalatra.specs2
+package org.scalatra.test
+package specs2
 
-import org.scalatra.test.ScalatraTests
 import org.eclipse.jetty.testing.ServletTester
 import org.specs2.execute.Result
 import org.specs2.specification.{Around, BeforeAfter, Step, Fragments}

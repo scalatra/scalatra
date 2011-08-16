@@ -1,7 +1,7 @@
 package org.scalatra
 package scalate
 
-import specs2.ScalatraSpec
+import test.specs2.ScalatraSpec
 
 class ScalateSupportSpec extends ScalatraSpec { def is =
   "ScalateSupport should"                       ^
