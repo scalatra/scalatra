@@ -1,6 +1,6 @@
 package org.scalatra
 
-import specs2.ScalatraSpec
+import test.specs2.ScalatraSpec
 
 class EnvironmentFilter extends ScalatraFilter {
   get("/*/environment") {

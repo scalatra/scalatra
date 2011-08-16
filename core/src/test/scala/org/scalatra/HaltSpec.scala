@@ -1,7 +1,7 @@
 package org.scalatra
 
 import javax.servlet.http.HttpServletResponse
-import specs2.ScalatraSpec
+import test.specs2.ScalatraSpec
 
 class HaltTestServlet extends ScalatraServlet {
   before() {

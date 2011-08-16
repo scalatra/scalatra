@@ -1,6 +1,6 @@
 package org.scalatra
 
-import specs2.ScalatraSpec
+import test.specs2.ScalatraSpec
 
 class NotFoundSpec extends ScalatraSpec { def is =
   "The notFound block"                          ^
