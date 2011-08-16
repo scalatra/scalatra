@@ -18,7 +18,7 @@ class UrlGeneratorTestServlet extends ScalatraServlet
 
   val mixNamedAndSplat = get("/mix-named-and-splat-params/:foo/*") { }
 
-  val dotInNamedParam = get("/dot-in-named-param/:foo/:bar") { }
+  val dotInNamedParam = get("/dot-in-named-param/:f.oo/:bar") { }
 
   val dotOutsideNamedParam = get("/dot-outside-named-param/:file.:ext") { }
 

@@ -14,8 +14,10 @@ case class Route(routeMatchers: Iterable[RouteMatcher], action: Action)
     } map { routeParams => MatchedRoute(action, routeParams) }
   }
 
-  lazy val isReversible: Boolean =
-    routeMatchers exists (_.isInstanceOf[ReversibleRouteMatcher])
+  lazy val reversibleMatcher: Option[RouteMatcher] =
+    routeMatchers find (_.isInstanceOf[ReversibleRouteMatcher])
+
+  lazy val isReversible: Boolean = !reversibleMatcher.isEmpty
 
   override def toString: String = routeMatchers mkString " "
 }
