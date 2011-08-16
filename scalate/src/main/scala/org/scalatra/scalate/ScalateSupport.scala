@@ -4,7 +4,7 @@ package scalate
 import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.fusesource.scalate.TemplateEngine
+import org.fusesource.scalate.{TemplateEngine, Binding}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import java.lang.Throwable
@@ -31,8 +31,8 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
-  protected def createTemplateEngine(config: Config) =
-    config match {
+  protected def createTemplateEngine(config: Config) = {
+    val engine = config match {
       case servletConfig: ServletConfig =>
         new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
       case filterConfig: FilterConfig =>
@@ -42,6 +42,9 @@ trait ScalateSupport extends ScalatraKernel {
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
         new TemplateEngine with ScalatraTemplateEngine
     }
+    engine.bindings = Binding("urlGenerator", "UrlGenerator", true) :: engine.bindings
+    engine
+  }
 
   /**
    * A TemplateEngine integrated with Scalatra.
@@ -67,8 +70,11 @@ trait ScalateSupport extends ScalatraKernel {
     ScalateSupport.setLayoutStrategy(this)
   }
 
-  def createRenderContext: ServletRenderContext =
-    new ServletRenderContext(templateEngine, request, response, servletContext)
+  def createRenderContext: ServletRenderContext = {
+    val context = new ServletRenderContext(templateEngine, request, response, servletContext)
+    context.attributes.update("urlGenerator", UrlGenerator)
+    context
+  }
 
   def renderTemplate(path: String, attributes: (String, Any)*) =
     createRenderContext.render(path, Map(attributes : _*))
