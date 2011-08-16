@@ -13,7 +13,7 @@ trait ReversableRouteMatcher
   def generate(params: Map[String, String]): String
 }
 
-final class StringPathRouteMatcher(path: String, requestPath: => String)
+final class SinatraRouteMatcher(path: String, requestPath: => String)
   extends RouteMatcher with ReversableRouteMatcher
 {
   def apply() = SinatraPathPatternParser(path)(requestPath)

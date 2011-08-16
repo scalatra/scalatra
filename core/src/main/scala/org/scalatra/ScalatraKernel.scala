@@ -62,7 +62,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * interpret them the same way Sinatra does.
    */
   protected implicit def string2RouteMatcher(path: String): RouteMatcher =
-    new StringPathRouteMatcher(path, requestPath)
+    new SinatraRouteMatcher(path, requestPath)
 
   /**
    * Path pattern is decoupled from requests.  This adapts the PathPattern to
@@ -177,8 +177,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
-      case r: Unit => 
-      case a => loop(renderPipeline.lift(a) getOrElse ()) 
+      case r: Unit =>
+      case a => loop(renderPipeline.lift(a) getOrElse ())
     }
     loop(actionResult)
   }
