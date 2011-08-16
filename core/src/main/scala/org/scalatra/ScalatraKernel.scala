@@ -273,7 +273,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * @see org.scalatra.ScalatraKernel.removeRoute
    */
   protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
-    val route = new Route(routeMatchers, () => action)
+    val route = Route(routeMatchers, () => action)
     routes.prependRoute(method, route)
     route
   }

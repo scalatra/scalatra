@@ -6,8 +6,7 @@ class UrlGeneratorTest extends ScalatraFunSuite {
 
   addServlet(classOf[UrlGeneratorTestServlet], "/*")
 
-  object TestUrlGenerator extends UrlGenerator
-  import TestUrlGenerator._
+  import UrlGenerator._
 
   object TestServlet extends UrlGeneratorTestServlet
   import TestServlet._

@@ -1,6 +1,6 @@
 package org.scalatra
 
-trait UrlGenerator {
+object UrlGenerator {
 
   def url(route: Route, params: Pair[String, String]*): String =
     url(route, params.toMap)
