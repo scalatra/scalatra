@@ -8,13 +8,13 @@ trait RouteMatcher
   def apply(): Option[ScalatraKernel.MultiParams]
 }
 
-trait ReversableRouteMatcher
+trait ReversibleRouteMatcher
 {
   def generate(params: Map[String, String]): String
 }
 
 final class SinatraRouteMatcher(path: String, requestPath: => String)
-  extends RouteMatcher with ReversableRouteMatcher
+  extends RouteMatcher with ReversibleRouteMatcher
 {
   def apply() = SinatraPathPatternParser(path)(requestPath)
 
@@ -23,13 +23,16 @@ final class SinatraRouteMatcher(path: String, requestPath: => String)
   override def toString = path
 }
 
-final class PathPatternRouteMatcher(pattern: PathPattern, requestPath: => String) extends RouteMatcher {
+final class PathPatternRouteMatcher(pattern: PathPattern, requestPath: => String)
+  extends RouteMatcher
+{
   def apply() = pattern(requestPath)
 
   override def toString = pattern.regex.toString
 }
 
-final class RegexRouteMatcher(regex: Regex, requestPath: => String) extends RouteMatcher
+final class RegexRouteMatcher(regex: Regex, requestPath: => String)
+  extends RouteMatcher
 {
   def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
     case Nil => MultiMap()
