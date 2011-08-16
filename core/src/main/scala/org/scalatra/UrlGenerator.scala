@@ -2,13 +2,13 @@ package org.scalatra
 
 trait UrlGenerator {
 
-  def generate(route: Route, params: Pair[String, String]*): String =
-    generate(route, params.toMap)
+  def url(route: Route, params: Pair[String, String]*): String =
+    url(route, params.toMap)
 
-  def generate(route: Route, splat: String, moreSplats: String*): String =
-    generate(route, Map[String, String](), splat +: moreSplats)
+  def url(route: Route, splat: String, moreSplats: String*): String =
+    url(route, Map[String, String](), splat +: moreSplats)
 
-  def generate(
+  def url(
     route: Route,
     params: Map[String, String] = Map(),
     splats: Iterable[String] = Seq()

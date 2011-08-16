@@ -13,44 +13,44 @@ class UrlGeneratorTest extends ScalatraFunSuite {
   import TestServlet._
 
   test("Simple string route reverses to the same url") {
-    generate(simpleString) should equal ("/foo")
+    url(simpleString) should equal ("/foo")
   }
 
   test("Route with one named parameter replaces the parameter") {
-    generate(singleNamed, "bar" -> "bryan") should equal ("/foo/bryan")
+    url(singleNamed, "bar" -> "bryan") should equal ("/foo/bryan")
   }
 
   test("Route with two named parameters replaces both parameters") {
-    generate(multipleNameds, "bar" -> "moonless", "rebar" -> "midnight") should equal ("/foo/moonless/and/midnight")
+    url(multipleNameds, "bar" -> "moonless", "rebar" -> "midnight") should equal ("/foo/moonless/and/midnight")
   }
 
   test("Named of path containing a dot get replaced anyway") {
-    generate(dotOutsideNamedParam, "file" -> "TroutLauncher", "ext" -> "scala") should equal ("/dot-outside-named-param/TroutLauncher.scala")
+    url(dotOutsideNamedParam, "file" -> "TroutLauncher", "ext" -> "scala") should equal ("/dot-outside-named-param/TroutLauncher.scala")
   }
 
   test("Missing parameter produces an exception") {
     evaluating {
-      generate(multipleNameds, "bar" -> "moonless")
+      url(multipleNameds, "bar" -> "moonless")
     } should produce [Exception]
   }
 
   test("Unexpected parameters are just ignored at the moment") {
-    generate(singleNamed, "bar" -> "pepper", "unexpected" -> "surprise") should equal ("/foo/pepper")
+    url(singleNamed, "bar" -> "pepper", "unexpected" -> "surprise") should equal ("/foo/pepper")
   }
 
   test("One splat parameter gets replaced") {
-    generate(singleSplat, "malt") should equal ("/single-splat/malt")
+    url(singleSplat, "malt") should equal ("/single-splat/malt")
   }
 
   test("Many splat parameters get replaced") {
-    generate(multipleSplats, "made", "in", "japan") should equal ("/mixing-multiple-splats/made/foo/in/japan")
+    url(multipleSplats, "made", "in", "japan") should equal ("/mixing-multiple-splats/made/foo/in/japan")
   }
 
   test("Mix named and splat") {
-    generate(mixNamedAndSplat, Map("foo" -> "deep"), Seq("purple")) should equal ("/mix-named-and-splat-params/deep/purple")
+    url(mixNamedAndSplat, Map("foo" -> "deep"), Seq("purple")) should equal ("/mix-named-and-splat-params/deep/purple")
   }
 
   test("Unexpected splat parameters are just ignored at the moment") {
-    generate(singleSplat, "black", "coffee") should equal ("/single-splat/black")
+    url(singleSplat, "black", "coffee") should equal ("/single-splat/black")
   }
 }
