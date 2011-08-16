@@ -24,10 +24,6 @@ class UrlGeneratorTest extends ScalatraFunSuite {
     generate(multipleNameds, "bar" -> "moonless", "rebar" -> "midnight") should equal ("/foo/moonless/and/midnight")
   }
 
-  test("Named containing a dot gets replaced anyway") {
-    generate(dotInNamedParam, "f.oo" -> "crazy", "bar" -> "bear") should equal ("/dot-in-named-param/crazy/bear")
-  }
-
   test("Named of path containing a dot get replaced anyway") {
     generate(dotOutsideNamedParam, "file" -> "TroutLauncher", "ext" -> "scala") should equal ("/dot-outside-named-param/TroutLauncher.scala")
   }
