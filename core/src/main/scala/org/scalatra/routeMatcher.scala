@@ -10,7 +10,7 @@ trait RouteMatcher
 
 trait ReversibleRouteMatcher
 {
-  def generate(params: Map[String, String]): String
+  def reverse(params: Map[String, String]): String
 }
 
 final class SinatraRouteMatcher(path: String, requestPath: => String)
@@ -18,7 +18,7 @@ final class SinatraRouteMatcher(path: String, requestPath: => String)
 {
   def apply() = SinatraPathPatternParser(path)(requestPath)
 
-  def generate(params: Map[String, String]) = throw new Exception("WIP - Implement me")
+  def reverse(params: Map[String, String]) = throw new Exception("WIP - Implement me")
 
   override def toString = path
 }
