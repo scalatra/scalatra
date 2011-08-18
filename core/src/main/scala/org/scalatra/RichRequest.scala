@@ -26,14 +26,12 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
 
   def body:String = {
     cachedBody getOrElse {
-      println("READING")
       val encoding = r.getCharacterEncoding
       val enc = if(encoding == null || encoding.trim.length == 0) {
         "ISO-8859-1"
       } else encoding
       val body = Source.fromInputStream(r.getInputStream, enc).mkString
       update(cachedBodyKey, body)
-println(attributes)
       body
     }
   }
