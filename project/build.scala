@@ -13,7 +13,7 @@ object ScalatraBuild extends Build {
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     packageOptions <<= (packageOptions, name, version, organization) map {
-      (opts, title, version, vendor) => 
+      (opts, title, version, vendor) =>
         opts :+ Package.ManifestAttributes(
           "Created-By" -> "Simple Build Tool",
           "Built-By" -> System.getProperty("user.name"),
@@ -77,12 +77,11 @@ object ScalatraBuild extends Build {
     )},
     publishTo <<= (version) { version: String =>
       val nexus = "http://nexus-direct.scala-tools.org/content/repositories/"
-      if (version.trim.endsWith("SNAPSHOT")) 
+      if (version.trim.endsWith("SNAPSHOT"))
         Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-      else                                  
+      else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials"),
     resolvers += ScalaToolsSnapshots // for org.specs2:scalaz-core
   )
 
@@ -117,8 +116,6 @@ object ScalatraBuild extends Build {
       }
       "net.liftweb" % libArtifactId % "2.4-M3"
     }
-
-    val scalamd = "org.fusesource.scalamd" % "scalamd" % "1.5"
 
     def scalate(scalaVersion: String) = {
       "org.fusesource.scalate" % "scalate-core" % "1.4.1"
@@ -156,7 +153,7 @@ object ScalatraBuild extends Build {
   }
   import Dependencies._
 
-  lazy val scalatraProject = Project("scalatra-project", file("."), 
+  lazy val scalatraProject = Project("scalatra-project", file("."),
     settings = scalatraSettings ++ Unidoc.settings)
     .settings(
       publishArtifact in Compile := false,
@@ -164,16 +161,16 @@ object ScalatraBuild extends Build {
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample, scalatraWebsite)
+      scalatraExample)
 
-  lazy val scalatraCore = Project("scalatra", file("core"), 
+  lazy val scalatraCore = Project("scalatra", file("core"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies := Seq(servletApi),
       description := "The core Scalatra framework")
     .testWithScalatraTest
 
-  lazy val scalatraAuth = Project("scalatra-auth", file("auth"), 
+  lazy val scalatraAuth = Project("scalatra-auth", file("auth"),
     settings = scalatraSettings)
     .settings(
        libraryDependencies := Seq(servletApi, base64),
@@ -181,7 +178,7 @@ object ScalatraBuild extends Build {
     .dependsOn(scalatraCore)
     .testWithScalatraTest
 
-  lazy val scalatraFileupload = Project("scalatra-fileupload", file("fileupload"), 
+  lazy val scalatraFileupload = Project("scalatra-fileupload", file("fileupload"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies := Seq(servletApi, commonsFileupload, commonsIo),
@@ -189,7 +186,7 @@ object ScalatraBuild extends Build {
     .dependsOn(scalatraCore)
     .testWithScalatraTest
 
-  lazy val scalatraScalate = Project("scalatra-scalate", file("scalate"), 
+  lazy val scalatraScalate = Project("scalatra-scalate", file("scalate"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
@@ -199,7 +196,7 @@ object ScalatraBuild extends Build {
     .dependsOn(scalatraCore)
     .testWithScalatraTest
 
-  lazy val scalatraSocketio = Project("scalatra-socketio", file("socketio"), 
+  lazy val scalatraSocketio = Project("scalatra-socketio", file("socketio"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (version, libraryDependencies) {
@@ -222,7 +219,7 @@ object ScalatraBuild extends Build {
     .dependsOn(scalatraCore)
     .testWithScalatraTest
 
-  lazy val scalatraAntiXml = Project("scalatra-anti-xml", file("anti-xml"), 
+  lazy val scalatraAntiXml = Project("scalatra-anti-xml", file("anti-xml"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
@@ -232,13 +229,13 @@ object ScalatraBuild extends Build {
     .dependsOn(scalatraCore)
     .testWithScalatraTest
 
-  lazy val scalatraTest = Project("scalatra-test", file("test"), 
+  lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies := Seq(testJettyServlet),
       description := "The abstract Scalatra test framework")
 
-  lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"), 
+  lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
@@ -247,7 +244,7 @@ object ScalatraBuild extends Build {
       description := "ScalaTest support for the Scalatra test framework")
     .dependsOn(scalatraTest)
 
-  lazy val scalatraSpecs = Project("scalatra-specs", file("specs"), 
+  lazy val scalatraSpecs = Project("scalatra-specs", file("specs"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
@@ -256,7 +253,7 @@ object ScalatraBuild extends Build {
       description := "Specs support for the Scalatra test framework")
     .dependsOn(scalatraTest)
 
-  lazy val scalatraSpecs2 = Project("scalatra-specs2", file("specs2"), 
+  lazy val scalatraSpecs2 = Project("scalatra-specs2", file("specs2"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
@@ -265,7 +262,7 @@ object ScalatraBuild extends Build {
       description := "Specs2 support for the Scalatra test framework")
     .dependsOn(scalatraTest)
 
-  lazy val scalatraExample = Project("scalatra-example", file("example"), 
+  lazy val scalatraExample = Project("scalatra-example", file("example"),
     settings = scalatraSettings)
     .settings(webSettings :_*)
     .settings(
@@ -277,17 +274,6 @@ object ScalatraBuild extends Build {
     .dependsOn(scalatraCore, scalatraScalate, scalatraAuth, scalatraFileupload,
                scalatraSocketio)
 
-  lazy val scalatraWebsite = Project("scalatra-website", file("website"), 
-    settings = scalatraSettings)
-    .settings(webSettings :_*)
-    .settings(
-      libraryDependencies := Seq(servletApi, jettyWebapp % "jetty", scalamd),
-      description := "http://www.scalatra.org/",
-      publish := {},
-      publishLocal := {},
-      jettyPort := 8081)
-    .dependsOn(scalatraCore, scalatraScalate)
-
   class RichProject(project: Project) {
     def testWithScalatraTest = {
       val testProjects = Seq(scalatraScalatest, scalatraSpecs, scalatraSpecs2)
@@ -295,5 +281,5 @@ object ScalatraBuild extends Build {
       project.dependsOn(testDeps : _*)
     }
   }
-  implicit def project2RichProject(project: Project): RichProject = new RichProject(project) 
+  implicit def project2RichProject(project: Project): RichProject = new RichProject(project)
 }
