@@ -28,6 +28,16 @@ class IoSpec extends WordSpec with ShouldMatchers {
       testCopy(10000, 10000)
     }
 
+    "not close the input stream" in {
+      val in = new InputStream {
+        var isClosed: Boolean = false
+        def read() = -1
+        override def close() { isClosed = true }
+      }
+      copy(in, new ByteArrayOutputStream)
+      in.isClosed should be (false)
+    }
+
     def testCopy(len: Int, bufferSize: Int) {
       val bytes: Array[Byte] = (0 until len) map { x => x.toByte } toArray
       val in = new ByteArrayInputStream(bytes)
