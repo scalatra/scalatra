@@ -81,8 +81,7 @@ object ScalatraBuild extends Build {
         Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
       else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-    },
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+    }
   )
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
