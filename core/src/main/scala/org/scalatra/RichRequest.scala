@@ -6,7 +6,13 @@ import javax.servlet.http.HttpServletRequest
 import java.util.Locale
 import util.{MultiMap, MultiMapHeadView}
 
+object RichRequest {
+  private val cachedBodyKey = "org.scalatra.RichRequest.cachedBody"
+}
+
 case class RichRequest(r: HttpServletRequest) extends AttributesMap {
+  import RichRequest._
+
   @deprecated(message = "Use HttpServletRequest.getServerName() instead", "2.0")
   def host = r.getServerName
 
@@ -19,12 +25,21 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   }
 
   def body:String = {
-    val encoding = r.getCharacterEncoding
-    val enc = if(encoding == null || encoding.trim.length == 0) {
-      "ISO-8859-1"
-    } else encoding
-    Source.fromInputStream(r.getInputStream, enc).mkString
+    cachedBody getOrElse {
+      println("READING")
+      val encoding = r.getCharacterEncoding
+      val enc = if(encoding == null || encoding.trim.length == 0) {
+        "ISO-8859-1"
+      } else encoding
+      val body = Source.fromInputStream(r.getInputStream, enc).mkString
+      update(cachedBodyKey, body)
+println(attributes)
+      body
+    }
   }
+
+  private def cachedBody: Option[String] =
+    get(cachedBodyKey).asInstanceOf[Option[String]]
 
   def isAjax: Boolean = r.getHeader("X-Requested-With") != null
   def isWrite: Boolean = !HttpMethod(r.getMethod).isSafe
