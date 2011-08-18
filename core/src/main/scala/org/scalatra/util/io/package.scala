@@ -27,7 +27,6 @@ package object io {
       }
     }
     loop()
-    in.close()
   }
 
   def zeroCopy(in: FileInputStream, out: OutputStream) {
