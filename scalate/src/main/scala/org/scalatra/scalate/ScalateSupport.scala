@@ -42,7 +42,11 @@ trait ScalateSupport extends ScalatraKernel {
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
         new TemplateEngine with ScalatraTemplateEngine
     }
-    engine.bindings = Binding("urlGenerator", "UrlGenerator", true) :: engine.bindings
+    engine.bindings = engine.bindings ::: List(
+      Binding("servlet", this.getClass.getName, true),
+      Binding("urlGenerator", classOf[UrlGeneratorSupport].getName, true)
+    )
+
     engine
   }
 
@@ -70,8 +74,12 @@ trait ScalateSupport extends ScalatraKernel {
     ScalateSupport.setLayoutStrategy(this)
   }
 
-  def createRenderContext: ServletRenderContext = {
-    val context = new ServletRenderContext(templateEngine, request, response, servletContext)
+  def createRenderContext: ServletRenderContext =
+    createRenderContext(request, response)
+
+  def createRenderContext(req: HttpServletRequest, resp: HttpServletResponse): ServletRenderContext = {
+    val context = new ServletRenderContext(templateEngine, req, resp, servletContext)
+    context.attributes.update("servlet", this)
     context.attributes.update("urlGenerator", UrlGenerator)
     context
   }
@@ -102,9 +110,8 @@ trait ScalateSupport extends ScalatraKernel {
   private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
     resp.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
-    val renderContext =
-      new ServletRenderContext(templateEngine, req, resp, servletContext)
-    renderContext.setAttribute("javax.servlet.error.exception", Some(e))
-    templateEngine.layout(errorPage, renderContext)
+    val context = createRenderContext(req, resp)
+    context.setAttribute("javax.servlet.error.exception", Some(e))
+    templateEngine.layout(errorPage, context)
   }
 }

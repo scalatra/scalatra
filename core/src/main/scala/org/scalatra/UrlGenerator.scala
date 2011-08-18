@@ -1,6 +1,6 @@
 package org.scalatra
 
-object UrlGenerator {
+trait UrlGeneratorSupport {
 
   def url(route: Route, params: Pair[String, String]*): String =
     url(route, params.toMap)
@@ -19,3 +19,5 @@ object UrlGenerator {
         throw new Exception("Route \"%s\" is not reversible" format (route))
     }
 }
+
+object UrlGenerator extends UrlGeneratorSupport

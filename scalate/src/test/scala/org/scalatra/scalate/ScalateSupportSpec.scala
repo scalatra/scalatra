@@ -12,6 +12,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "render a simple template"                                    ! e3^
     "render a simple template with params"                        ! e4^
     "looks for layouts in /WEB-INF/layouts"                       ! e5
+    "generate a url from a template"                              ! e6
 
   addServlet(new ScalatraServlet with ScalateSupport {
 
@@ -33,6 +34,11 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
     get("/layout-strategy") {
       templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";"
+      templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts mkString ";"
+    }
+
+    val urlGeneration = get("/url-generation") {
+      renderTemplate("/urlGeneration.jade")
     }
 
   }, "/*")
@@ -66,5 +72,9 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
       "/WEB-INF/scalate/layouts/default.scaml",
       "/WEB-INF/scalate/layouts/default.ssp"
     ) mkString ";")
+  }
+
+  def e6 = get("/url-generation") {
+    body must_== "/url-generation\n"
   }
 }
