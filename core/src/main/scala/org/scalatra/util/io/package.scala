@@ -12,7 +12,8 @@ package object io {
   /**
    * Copies the input stream to the output stream.
    *
-   * @param in the input stream to read
+   * @param in the input stream to read.  The InputStream will be closed, unlike
+   * commons-io's version.
    * @param out the output stream to write
    * @param bufferSize the size of buffer to use for each read
    */
