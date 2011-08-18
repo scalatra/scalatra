@@ -5,8 +5,16 @@ import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.fusesource.scalate.TemplateEngine
+import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import java.lang.Throwable
+
+object ScalateSupport {
+  val DefaultLayouts = Seq(
+    "/WEB-INF/layouts/default",
+    "/WEB-INF/scalate/layouts/default"
+  )
+}
 
 trait ScalateSupport extends ScalatraKernel {
   protected var templateEngine: TemplateEngine = _
@@ -28,13 +36,34 @@ trait ScalateSupport extends ScalatraKernel {
         new TemplateEngine with ScalatraTemplateEngine
     }
 
+  /**
+   * A TemplateEngine integrated with Scalatra.
+   *
+   * A ScalatraTemplateEngine looks for layouts in `/WEB-INF/layouts` before
+   * searching the default `/WEB-INF/scalate/layouts`.
+   */
   trait ScalatraTemplateEngine {
     this: TemplateEngine =>
 
+    /**
+     * Returns a ServletRenderContext constructed from the current
+     * request and response.
+     */
     override def createRenderContext(uri: String, out: PrintWriter) =
       ScalateSupport.this.createRenderContext
 
+    /**
+     * Delegates to the ScalatraKernel's isDevelopmentMode flag.
+     */
     override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
+
+    {
+      val layouts = for {
+        base <- ScalateSupport.DefaultLayouts
+        extension <- TemplateEngine.templateTypes
+      } yield ("%s.%s".format(base, extension))
+      layoutStrategy = new DefaultLayoutStrategy(this, layouts:_*)
+    }
   }
 
   def createRenderContext: ServletRenderContext =
