@@ -10,10 +10,13 @@ import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngi
 import java.lang.Throwable
 
 object ScalateSupport {
-  val DefaultLayouts = Seq(
-    "/WEB-INF/layouts/default",
-    "/WEB-INF/scalate/layouts/default"
-  )
+  private def setLayoutStrategy(engine: TemplateEngine) = {
+    val layouts = for {
+      base <- ScalateSupport.DefaultLayouts
+      extension <- TemplateEngine.templateTypes
+    } yield ("%s.%s".format(base, extension))
+    engine.layoutStrategy = new DefaultLayoutStrategy(engine, layouts:_*)
+  }
 }
 
 trait ScalateSupport extends ScalatraKernel {
@@ -57,13 +60,7 @@ trait ScalateSupport extends ScalatraKernel {
      */
     override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
 
-    {
-      val layouts = for {
-        base <- ScalateSupport.DefaultLayouts
-        extension <- TemplateEngine.templateTypes
-      } yield ("%s.%s".format(base, extension))
-      layoutStrategy = new DefaultLayoutStrategy(this, layouts:_*)
-    }
+    ScalateSupport.setLayoutStrategy(this)
   }
 
   def createRenderContext: ServletRenderContext =
