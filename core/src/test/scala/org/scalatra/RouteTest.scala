@@ -18,6 +18,10 @@ class RouteTestServlet extends ScalatraServlet {
     (for (key <- List("foo", "bar") if params.isDefinedAt(key)) yield key+"="+params(key)).mkString(";")
   }
 
+  get("/optional-ext.?:ext?") {
+    (for (key <- List("ext") if params.isDefinedAt(key)) yield key+"="+params(key)).mkString(";")
+  }
+
   get("/single-splat/*") {
     multiParams.getOrElse("splat", Seq.empty).mkString(":")
   }
@@ -122,6 +126,14 @@ class RouteTest extends ScalatraFunSuite {
     }
 
     get("/optional") {
+      body should equal ("")
+    }
+
+    get("/optional-ext.json") {
+      body should equal ("ext=json")
+    }
+
+    get("/optional-ext") {
       body should equal ("")
     }
   }
