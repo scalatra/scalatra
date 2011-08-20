@@ -46,10 +46,10 @@ class UrlGeneratorTest extends ScalatraFunSuite {
     url(optional) should equal ("/optional")
   }
 
-  //test("Optional parameter following a dot can drop the dot") {
-    //url(optionalExt) should equal ("/optional-ext")
-    //url(optionalExt, "ext" -> "json") should equal ("/optional-ext.json")
-  //}
+  test("Optional parameter following a dot can drop the dot") {
+    url(optionalExt) should equal ("/optional-ext")
+    url(optionalExt, "ext" -> "json") should equal ("/optional-ext.json")
+  }
 
   test("Unexpected parameters are just ignored at the moment") {
     url(singleNamed, "bar" -> "pepper", "unexpected" -> "surprise") should equal ("/foo/pepper")
