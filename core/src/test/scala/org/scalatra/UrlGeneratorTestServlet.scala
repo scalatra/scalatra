@@ -14,6 +14,8 @@ class UrlGeneratorTestServlet extends ScalatraServlet with ReverseRoutingSupport
 
   val optional = get("/optional/?:foo?/?:bar?") { }
 
+  val optionalExt = get("/optional-ext.?:ext?") { }
+
   val singleSplat = get("/single-splat/*") { }
 
   val multipleSplats = get("/mixing-multiple-splats/*/foo/*/*") { }
