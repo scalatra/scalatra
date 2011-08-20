@@ -18,12 +18,25 @@ final class SinatraRouteMatcher(path: String, requestPath: => String)
 {
   def apply() = SinatraPathPatternParser(path)(requestPath)
 
-  def reverse(params: Map[String, String], splats: List[String]): String =
-    replaceSplats(replaceNamedParams(params), splats)
+  def reverse(params: Map[String, String], splats: List[String]): String = {
+    replaceSplats(
+      replaceNamedParams(
+        replaceOptionalParams(path, params),
+        params
+      ), splats)
+  }
 
-  private def replaceNamedParams(params: Map[String, String]) =
-    """:[^/?#\.]+""".r replaceAllIn (path, s =>
-      params.get(s.toString.tail) match {
+  private def replaceOptionalParams(slug: String, params: Map[String, String]): String =
+    """[\./]\?:[^/?#\.]+\?""".r replaceAllIn (path, s => {
+      params.get(s.matched slice (3, s.matched.size - 1)) match {
+        case Some(value) => s.matched.head + value
+        case None => ""
+      }
+    })
+
+  private def replaceNamedParams(slug: String, params: Map[String, String]): String =
+    """:[^/?#\.]+""".r replaceAllIn (slug, s =>
+      params.get(s.matched.tail) match {
         case Some(value) => value
         case None => throw new Exception("The url \"%s\" requires param \"%s\"" format (path, s))
       })
