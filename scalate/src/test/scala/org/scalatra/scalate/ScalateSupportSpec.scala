@@ -10,7 +10,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "render uncaught errors with 500.scaml"                       ! e1^
     "not throw a NullPointerException for trivial requests"       ! e2^
     "render a simple template"                                    ! e3^
-    "render a simple template with params"                        ! e4
+    "render a simple template with params"                        ! e4^
     "looks for layouts in /WEB-INF/layouts"                       ! e5
 
   addServlet(new ScalatraServlet with ScalateSupport {
@@ -32,7 +32,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     }
 
     get("/layout-strategy") {
-      templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts mkString ";"
+      templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";"
     }
 
   }, "/*")
@@ -56,15 +56,15 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
   // Testing the default layouts is going to be hard, but we can at least
   // verify that it's looking in the right place.
   def e5 = get("/layout-strategy") {
-    body.split(";") must_== Array(
-      "/WEB-INF/layout/default.jade",
-      "/WEB-INF/layout/default.mustache",
-      "/WEB-INF/layout/default.scaml",
-      "/WEB-INF/layout/default.ssp",
-      "/WEB-INF/scalate/layout/default.jade",
-      "/WEB-INF/scalate/layout/default.mustache",
-      "/WEB-INF/scalate/layout/default.scaml",
-      "/WEB-INF/scalate/layout/default.ssp"
-    )
+    body must_== (List(
+      "/WEB-INF/layouts/default.jade",
+      "/WEB-INF/layouts/default.mustache",
+      "/WEB-INF/layouts/default.scaml",
+      "/WEB-INF/layouts/default.ssp",
+      "/WEB-INF/scalate/layouts/default.jade",
+      "/WEB-INF/scalate/layouts/default.mustache",
+      "/WEB-INF/scalate/layouts/default.scaml",
+      "/WEB-INF/scalate/layouts/default.ssp"
+    ) mkString ";")
   }
 }
