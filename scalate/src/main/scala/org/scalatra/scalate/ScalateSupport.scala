@@ -23,7 +23,7 @@ object ScalateSupport {
   }
 }
 
-trait ScalateSupport extends ScalatraKernel {
+trait ScalateSupport extends ScalatraKernel with ReverseRoutingSupport {
   protected var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
@@ -42,10 +42,9 @@ trait ScalateSupport extends ScalatraKernel {
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
         new TemplateEngine with ScalatraTemplateEngine
     }
-    engine.bindings = engine.bindings ::: List(
-      Binding("servlet", this.getClass.getName, true),
-      Binding("urlGenerator", classOf[UrlGeneratorSupport].getName, true)
-    )
+    val generatorBinding = Binding("urlGenerator", classOf[UrlGeneratorSupport].getName, true)
+    val routeBindings = this.reflectRoutes.keys map (Binding(_, classOf[Route].getName))
+    engine.bindings = generatorBinding :: engine.bindings ::: routeBindings.toList
 
     engine
   }
@@ -79,7 +78,8 @@ trait ScalateSupport extends ScalatraKernel {
 
   def createRenderContext(req: HttpServletRequest, resp: HttpServletResponse): ServletRenderContext = {
     val context = new ServletRenderContext(templateEngine, req, resp, servletContext)
-    context.attributes.update("servlet", this)
+    for ((name, route) <- this.reflectRoutes)
+      context.attributes.update(name, route)
     context.attributes.update("urlGenerator", UrlGenerator)
     context
   }
