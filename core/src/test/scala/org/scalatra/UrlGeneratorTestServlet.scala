@@ -1,7 +1,9 @@
 package org.scalatra
 
-class UrlGeneratorTestServlet extends ScalatraServlet
+class UrlGeneratorTestServlet extends ScalatraServlet with ReverseRoutingSupport
 {
+  val cat: String = "meea"
+
   val simpleString = get("/foo") { }
 
   val singleNamed = get("/foo/:bar") { }
