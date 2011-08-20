@@ -35,7 +35,6 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
     get("/layout-strategy") {
       templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";"
-      templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts mkString ";"
     }
 
     val urlGeneration = get("/url-generation") {
