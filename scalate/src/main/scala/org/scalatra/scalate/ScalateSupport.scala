@@ -10,6 +10,10 @@ import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngi
 import java.lang.Throwable
 
 object ScalateSupport {
+  val DefaultLayouts = Seq(
+    "/WEB-INF/layouts/default",
+    "/WEB-INF/scalate/layouts/default"
+  )
   private def setLayoutStrategy(engine: TemplateEngine) = {
     val layouts = for {
       base <- ScalateSupport.DefaultLayouts
