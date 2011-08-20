@@ -11,7 +11,9 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "not throw a NullPointerException for trivial requests"       ! e2^
     "render a simple template"                                    ! e3^
     "render a simple template with params"                        ! e4^
-    "looks for layouts in /WEB-INF/layouts"                       ! e5
+    "looks for layouts in /WEB-INF/layouts"                       ! e5^
+    "generate a url from a template"                              ! e6^
+    "generate a url with params from a template"                  ! e7
 
   addServlet(new ScalatraServlet with ScalateSupport {
 
@@ -33,6 +35,14 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
     get("/layout-strategy") {
       templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";"
+    }
+
+    val urlGeneration = get("/url-generation") {
+      renderTemplate("/urlGeneration.jade")
+    }
+
+    val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
+      renderTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
     }
 
   }, "/*")
@@ -66,5 +76,13 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
       "/WEB-INF/scalate/layouts/default.scaml",
       "/WEB-INF/scalate/layouts/default.ssp"
     ) mkString ";")
+  }
+
+  def e6 = get("/url-generation") {
+    body must_== "/url-generation\n"
+  }
+
+  def e7 = get("/url-generation-with-params/jedi/vs/sith") {
+    body must_== "/url-generation-with-params/jedi/vs/sith\n"
   }
 }

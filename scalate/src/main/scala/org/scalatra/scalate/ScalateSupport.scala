@@ -4,7 +4,7 @@ package scalate
 import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.fusesource.scalate.TemplateEngine
+import org.fusesource.scalate.{TemplateEngine, Binding}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import java.lang.Throwable
@@ -23,7 +23,7 @@ object ScalateSupport {
   }
 }
 
-trait ScalateSupport extends ScalatraKernel {
+trait ScalateSupport extends ScalatraKernel with ReverseRoutingSupport {
   protected var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
@@ -31,8 +31,8 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
-  protected def createTemplateEngine(config: Config) =
-    config match {
+  protected def createTemplateEngine(config: Config) = {
+    val engine = config match {
       case servletConfig: ServletConfig =>
         new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
       case filterConfig: FilterConfig =>
@@ -42,6 +42,12 @@ trait ScalateSupport extends ScalatraKernel {
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
         new TemplateEngine with ScalatraTemplateEngine
     }
+    val generatorBinding = Binding("urlGenerator", classOf[UrlGeneratorSupport].getName, true)
+    val routeBindings = this.reflectRoutes.keys map (Binding(_, classOf[Route].getName))
+    engine.bindings = generatorBinding :: engine.bindings ::: routeBindings.toList
+
+    engine
+  }
 
   /**
    * A TemplateEngine integrated with Scalatra.
@@ -68,7 +74,15 @@ trait ScalateSupport extends ScalatraKernel {
   }
 
   def createRenderContext: ServletRenderContext =
-    new ServletRenderContext(templateEngine, request, response, servletContext)
+    createRenderContext(request, response)
+
+  def createRenderContext(req: HttpServletRequest, resp: HttpServletResponse): ServletRenderContext = {
+    val context = new ServletRenderContext(templateEngine, req, resp, servletContext)
+    for ((name, route) <- this.reflectRoutes)
+      context.attributes.update(name, route)
+    context.attributes.update("urlGenerator", UrlGenerator)
+    context
+  }
 
   def renderTemplate(path: String, attributes: (String, Any)*) =
     createRenderContext.render(path, Map(attributes : _*))
@@ -96,9 +110,8 @@ trait ScalateSupport extends ScalatraKernel {
   private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
     resp.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
-    val renderContext =
-      new ServletRenderContext(templateEngine, req, resp, servletContext)
-    renderContext.setAttribute("javax.servlet.error.exception", Some(e))
-    templateEngine.layout(errorPage, renderContext)
+    val context = createRenderContext(req, resp)
+    context.setAttribute("javax.servlet.error.exception", Some(e))
+    templateEngine.layout(errorPage, context)
   }
 }
