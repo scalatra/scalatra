@@ -62,7 +62,7 @@ class RailsLikeUrlGeneratorTest extends FunSuite with MustMatchers {
   }
 
   test("multiple glob segments") {
-    url("src/*files/dir/*morefiles/foo.txt", "files" -> "a/b", "morefiles" -> "c/d") must equal ("src/a/b/dir/c/b/foo.txt")
+    url("src/*files/dir/*morefiles/foo.txt", "files" -> "a/b", "morefiles" -> "c/d") must equal ("src/a/b/dir/c/d/foo.txt")
   }
 
   test("escaped glob segment") {
@@ -76,6 +76,10 @@ class RailsLikeUrlGeneratorTest extends FunSuite with MustMatchers {
 
   test("optional segment") {
     url("/foo(/bar)") must equal ("/foo/bar")
+  }
+
+  test("optional segment on first position") {
+    url("(/foo)/bar") must equal ("/foo/bar")
   }
 
   test("consecutive optional segments") {
@@ -95,6 +99,6 @@ class RailsLikeUrlGeneratorTest extends FunSuite with MustMatchers {
   }
 
   test("escapes one optional segment parenthesis") {
-    url("""/foo\((/bar)""") must equal ("/foo(")
+    url("""/foo\((/bar)""") must equal ("/foo(/bar")
   }
 }
