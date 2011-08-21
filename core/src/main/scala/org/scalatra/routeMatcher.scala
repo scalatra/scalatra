@@ -26,20 +26,17 @@ final class SinatraRouteMatcher(path: String, requestPath: => String)
       ), splats)
 
   private def replaceOptionalParams(slug: String, params: Map[String, String]): String =
-    """[\./]\?:[^/?#\.]+\?""".r replaceAllIn (path, s =>
-      params.get(s.matched slice (3, s.matched.size - 1)) match {
-        case Some(value) => s.matched.head + value
-        case None => ""
-      })
+    """([\./])\?:([^/?#\.]+)\?""".r replaceAllIn (slug, m => params.get(m.group(2)) match {
+      case Some(value) => m.group(1) + value
+      case None => ""
+    })
 
   private def replaceNamedParams(slug: String, params: Map[String, String]): String =
-    """:[^/?#\.]+""".r replaceAllIn (slug, s => {
-      val param = s.matched.tail
-      params.get(param) match {
-        case Some(value) => value
-        case None => throw new Exception(
-          "The url \"%s\" requires param \"%s\"" format (path, param))
-    }})
+    """:([^/?#\.]+)""".r replaceAllIn (slug, m => params.get(m.group(1)) match {
+      case Some(value) => value
+      case None => throw new Exception(
+        "The url \"%s\" requires param \"%s\"" format (path, m.group(1)))
+    })
 
   private def replaceSplats(slug: String, splats: List[String]): String =
     splats match {
