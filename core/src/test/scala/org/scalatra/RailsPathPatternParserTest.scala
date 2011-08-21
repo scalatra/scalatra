@@ -2,17 +2,11 @@ package org.scalatra
 
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatra._
 
 /**
  * Test cases adapted from  https://github.com/josh/rack-mount/blob/d44e02ec8a6318fdda8ea53a30aac654e228e07b/test/test_strexp.rb
  */
 class RailsPathPatternParserTest extends FunSuite with ShouldMatchers {
-  test("unanchored segment") {
-    val PathPattern(re, names) = RailsPathPatternParser("/foo(/bar)")
-    re.toString should equal ("""\A/foo(?:/bar)?\Z""")
-    names should equal (Nil)
-  }
 
   test("static string") {
     val PathPattern(re, names) = RailsPathPatternParser("foo")
