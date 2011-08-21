@@ -2,6 +2,7 @@ package org.scalatra
 
 import scala.util.matching.Regex
 import scala.util.parsing.combinator._
+import java.net.URLEncoder.encode
 import util.MultiMap
 
 trait RouteMatcher {
@@ -22,34 +23,42 @@ final class SinatraRouteMatcher(pattern: String, requestPath: => String)
   def apply() = SinatraPathPatternParser(pattern)(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
-    generator(Url("", params, splats)).path
+    generator(Url("", params, splats)).get
 
   case class Url(path: String, params: Map[String, String], splats: List[String]) {
 
-    def addLiteral(text: String) = copy(path = path + text)
+    def addLiteral(text: String): Url = copy(path = path + text)
 
-    def addSplat = copy(path = path + splats.head, splats = splats.tail)
+    def addSplat: Url = copy(path = path + splats.head, splats = splats.tail)
 
-    def addNamed(name: String) =
+    def addNamed(name: String): Url =
       if (params contains name) copy(path = path + params(name), params = params - name)
       else throw new Exception("Url \"%s\" requires param \"%s\"" format (pattern, name))
 
-    def addOptional(name: String) =
+    def addOptional(name: String): Url =
       if (params contains name) copy(path = path + params(name), params = params - name)
       else this
 
-    def addPrefixedOptional(name: String, prefix: String) =
+    def addPrefixedOptional(name: String, prefix: String): Url =
       if (params contains name) copy(path = path + prefix + params(name), params = params - name)
       else this
+
+    // checks all splats are used, appends additional params as a query string
+    def get: String = {
+      if (!splats.isEmpty) throw new Exception("Too many splats for url \"%s\"" format pattern)
+      val pairs = params map { case(key, value) => encode(key, "utf-8") + "=" +encode(value, "utf-8") }
+      val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
+      path + queryString
+    }
   }
 
   object GeneratorParser extends RegexParsers {
 
     def apply(pattern: String): (Url => Url) = parseAll(tokens, pattern) get
 
-    private def tokens: Parser[Url => Url] = rep(token) ^^ (_ reduceLeft {
-      (acc, fun) => (url: Url) => fun(acc(url))
-    })
+    private def tokens: Parser[Url => Url] = rep(token) ^^ {
+      tokens => tokens reduceLeft ((acc, fun) => url => fun(acc(url)))
+    }
 
     private def token: Parser[Url => Url] = splat | prefixedOptional | optional | named | literal
 

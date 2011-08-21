@@ -51,8 +51,8 @@ class UrlGeneratorTest extends ScalatraFunSuite {
     url(optionalExt, "ext" -> "json") should equal ("/optional-ext.json")
   }
 
-  test("Unexpected parameters are just ignored at the moment") {
-    url(singleNamed, "bar" -> "pepper", "unexpected" -> "surprise") should equal ("/foo/pepper")
+  test("Unexpected parameters are added as query string") {
+    url(singleNamed, "bar" -> "pepper", "unexpected" -> "surprise") should equal ("/foo/pepper?unexpected=surprise")
   }
 
   test("One splat parameter gets replaced") {
@@ -67,7 +67,9 @@ class UrlGeneratorTest extends ScalatraFunSuite {
     url(mixNamedAndSplat, Map("foo" -> "deep"), Seq("purple")) should equal ("/mix-named-and-splat-params/deep/purple")
   }
 
-  test("Unexpected splat parameters are just ignored at the moment") {
-    url(singleSplat, "black", "coffee") should equal ("/single-splat/black")
+  test("Unexpected splat parameters trigger an exception") {
+    evaluating {
+      url(singleSplat, "black", "coffee")
+    } should produce [Exception]
   }
 }
