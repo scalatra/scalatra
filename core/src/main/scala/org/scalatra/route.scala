@@ -3,7 +3,11 @@ package org.scalatra
 import ScalatraKernel.{Action, MultiParams}
 import util.MultiMap
 
-case class Route(routeMatchers: Iterable[RouteMatcher], action: Action)
+case class Route(
+  routeMatchers: Iterable[RouteMatcher],
+  action: Action,
+  contextPath: () => String = () => ""
+)
 {
   def apply(): Option[MatchedRoute] = {
     routeMatchers.foldLeft(Option(MultiMap())) {

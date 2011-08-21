@@ -106,5 +106,5 @@ class RouteRegistry {
       route <- routes
     } yield method + " " + route).toSeq sortWith (_ < _)
 
-  override def toString(): String = entryPoints mkString ", "
+  override def toString: String = entryPoints mkString ", "
 }
