@@ -36,10 +36,17 @@ class RailsLikeUrlGeneratorTest extends FunSuite with MustMatchers {
 
   test("escaped dynamic segment") {
     url("""\:foo.example.com""") must equal (":foo.example.com")
+    url("""bar.\:foo.com""") must equal ("bar.:foo.com")
   }
 
   test("dynamic segment inside optional segment") {
     url("foo(.:extension)", "extension" -> "json") must equal ("foo.json")
+    url("foo(.:extension)") must equal ("foo")
+  }
+
+  test("static string and dynamic segment inside optional segment") {
+    url("foo(/bar.:extension)", "extension" -> "json") must equal ("foo/bar.json")
+    url("foo(/bar.:extension)") must equal ("foo")
   }
 
   test("glob segment") {
@@ -62,16 +69,25 @@ class RailsLikeUrlGeneratorTest extends FunSuite with MustMatchers {
     url("""src/\*files""") must equal ("src/*files")
   }
 
-  test("optional segment") {
-    url("/foo(/bar)") must equal ("/foo")
+  test("glob segment inside optional segment") {
+    url("src(/*files)", "files" -> "a/b/c.txt") must equal ("src/a/b/c.txt")
+    url("src(/*files)") must equal ("src")
   }
 
-  test("consecutive optional segment") {
-    url("/foo(/bar)(/baz)") must equal ("/foo")
+  test("optional segment") {
+    url("/foo(/bar)") must equal ("/foo/bar")
+  }
+
+  test("consecutive optional segments") {
+    url("/foo(/bar)(/baz)") must equal ("/foo/bar/baz")
+  }
+
+  test("separated optional segments") {
+    url("/foo(/bar)/buz(/baz)") must equal ("/foo/bar/buz/baz")
   }
 
   test("multiple optional segments") {
-    url("(/foo)(/bar)(/baz)") must equal ("")
+    url("(/foo)(/bar)(/baz)") must equal ("/foo/bar/baz")
   }
 
   test("escapes optional segment parentheses") {
