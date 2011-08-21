@@ -1,6 +1,7 @@
 package org.scalatra
 
 import scala.util.matching.Regex
+import scala.util.parsing.combinator._
 import util.MultiMap
 
 trait RouteMatcher {
@@ -13,62 +14,102 @@ trait ReversibleRouteMatcher {
   def reverse(params: Map[String, String], splats: List[String]): String
 }
 
-final class SinatraRouteMatcher(path: String, requestPath: => String)
+final class SinatraRouteMatcher(pattern: String, requestPath: => String)
   extends RouteMatcher with ReversibleRouteMatcher {
 
-  def apply() = SinatraPathPatternParser(path)(requestPath)
+  lazy val generator: Generator = GeneratorParser(pattern)
+
+  def apply() = SinatraPathPatternParser(pattern)(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
-    replaceSplats(
-      replaceNamedParams(
-        replaceOptionalParams(path, params),
-        params
-      ), splats)
+    generator(Url("", params, splats)).path
 
-  private def replaceOptionalParams(slug: String, params: Map[String, String]): String =
-    """([\./])\?:([^/?#\.]+)\?""".r replaceAllIn (slug, m => params.get(m.group(2)) match {
-      case Some(value) => m.group(1) + value
-      case None => ""
-    })
+  case class Url(path: String, params: Map[String, String], splats: List[String]) {
 
-  private def replaceNamedParams(slug: String, params: Map[String, String]): String =
-    """:([^/?#\.]+)""".r replaceAllIn (slug, m => params.get(m.group(1)) match {
-      case Some(value) => value
-      case None => throw new Exception(
-        "The url \"%s\" requires param \"%s\"" format (path, m.group(1)))
-    })
+    def add(text: String) = copy(path = path + text)
 
-  private def replaceSplats(slug: String, splats: List[String]): String =
-    splats match {
-      case Nil => slug
-      case s :: rest => replaceSplats("""\*""".r replaceFirstIn (slug, s), rest)
+    def addSplat = copy(path = path + splats.head, splats = splats.tail)
+  }
+
+  sealed trait Generator {
+
+    def apply(url: Url): Url
+
+    def +(block: Generator) = new Generator {
+      def apply(c: Url) = block(Generator.this(c))
+    }
+  }
+
+  object Generator {
+
+    def splat = new Generator {
+      def apply(url: Url) = url addSplat
     }
 
-  override def toString = path
+    def literal(text: String) = new Generator {
+      def apply(url: Url) = url add text
+    }
+
+    def prefixedOptional(prefix: String, name: String) = new Generator {
+      def apply(url: Url) = url.params get name match {
+        case Some(value) => url add (prefix + value)
+        case None => url
+      }
+    }
+
+    def optional(name: String) = new Generator {
+      def apply(url: Url) = url add (url.params get name getOrElse "")
+    }
+
+    def named(name: String) = new Generator {
+      def apply(url: Url) = url.params get name match {
+        case Some(value) => url add value
+        case None => throw new Exception("Url \"%s\" requires param \"%s\"" format (pattern, name))
+      }
+    }
+  }
+
+  object GeneratorParser extends RegexParsers {
+
+    def apply(pattern: String): Generator = {
+      parseAll(tokens, pattern) match {
+        case Success(g, _) => g
+        case _ => throw new Exception("Url generation fail: " + pattern)
+      }
+    }
+
+    private def tokens: Parser[Generator] = rep(token) ^^ (_ reduceLeft { _ + _ })
+
+    private def token: Parser[Generator] = splat | prefixedOptional | optional | named | literal
+
+    private def splat: Parser[Generator] = "*" ^^^ { Generator.splat }
+
+    private def prefixedOptional: Parser[Generator] =
+      ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ {
+        case p ~ "?:" ~ o ~ "?" => Generator.prefixedOptional(p, o)
+      }
+
+    private def optional: Parser[Generator] =
+      "?:" ~> """\w+""".r <~ "?" ^^ { Generator.optional(_) }
+
+    private def named: Parser[Generator] =
+      ":" ~> """\w+""".r ^^ { Generator.named(_) }
+
+    private def literal: Parser[Generator] =
+      ("""[\.\+\(\)\$]""".r | ".".r) ^^ { Generator.literal(_) }
+  }
+
+  override def toString = pattern
 }
 
-final class RailsRouteMatcher(path: String, requestPath: => String)
+final class RailsRouteMatcher(pattern: String, requestPath: => String)
   extends RouteMatcher with ReversibleRouteMatcher {
 
-  def apply() = RailsPathPatternParser(path)(requestPath)
+  def apply() = RailsPathPatternParser(pattern)(requestPath)
 
-  def reverse(params: Map[String, String], splats: List[String]): String =
-    dynamicSegments(optionalSegments(path, params), params)
-
-  private def optionalSegments(slug: String, params: Map[String, String]): String =
-    """([^\\])\(([^\)]*[^\\])\)""".r replaceAllIn (slug, s => s.group(1) +
-      (try dynamicSegments(s.group(2), params) catch { case e: Exception => "" })
-    )
-
-  private def dynamicSegments(slug: String, params: Map[String, String]): String =
-    """(.?)(:([a-z_][^/?#\.]+))""".r replaceAllIn (slug, s => {
-      if (s.group(1) == "\\") s.group(2)
-      else params.get(s.group(3)) match {
-        case Some(value) => s.group(1) + value
-        case None => throw new Exception(
-          "The url \"%s\" requires param \"%s\"" format (path, s.group(3))
-        )
-    }})
+  def reverse(params: Map[String, String], splats: List[String]): String = {
+    "todo"
+  }
 }
 
 final class PathPatternRouteMatcher(pattern: PathPattern, requestPath: => String)
