@@ -17,7 +17,7 @@ trait ReversibleRouteMatcher {
 final class SinatraRouteMatcher(pattern: String, requestPath: => String)
   extends RouteMatcher with ReversibleRouteMatcher {
 
-  lazy val generator: Generator = GeneratorParser(pattern)
+  lazy val generator: (Url => Url) = GeneratorParser(pattern)
 
   def apply() = SinatraPathPatternParser(pattern)(requestPath)
 
@@ -26,77 +26,48 @@ final class SinatraRouteMatcher(pattern: String, requestPath: => String)
 
   case class Url(path: String, params: Map[String, String], splats: List[String]) {
 
-    def add(text: String) = copy(path = path + text)
+    def addLiteral(text: String) = copy(path = path + text)
 
     def addSplat = copy(path = path + splats.head, splats = splats.tail)
-  }
 
-  sealed trait Generator {
+    def addNamed(name: String) =
+      if (params contains name) copy(path = path + params(name), params = params - name)
+      else throw new Exception("Url \"%s\" requires param \"%s\"" format (pattern, name))
 
-    def apply(url: Url): Url
+    def addOptional(name: String) =
+      if (params contains name) copy(path = path + params(name), params = params - name)
+      else this
 
-    def +(block: Generator) = new Generator {
-      def apply(c: Url) = block(Generator.this(c))
-    }
-  }
-
-  object Generator {
-
-    def splat = new Generator {
-      def apply(url: Url) = url addSplat
-    }
-
-    def literal(text: String) = new Generator {
-      def apply(url: Url) = url add text
-    }
-
-    def prefixedOptional(prefix: String, name: String) = new Generator {
-      def apply(url: Url) = url.params get name match {
-        case Some(value) => url add (prefix + value)
-        case None => url
-      }
-    }
-
-    def optional(name: String) = new Generator {
-      def apply(url: Url) = url add (url.params get name getOrElse "")
-    }
-
-    def named(name: String) = new Generator {
-      def apply(url: Url) = url.params get name match {
-        case Some(value) => url add value
-        case None => throw new Exception("Url \"%s\" requires param \"%s\"" format (pattern, name))
-      }
-    }
+    def addPrefixedOptional(name: String, prefix: String) =
+      if (params contains name) copy(path = path + prefix + params(name), params = params - name)
+      else this
   }
 
   object GeneratorParser extends RegexParsers {
 
-    def apply(pattern: String): Generator = {
-      parseAll(tokens, pattern) match {
-        case Success(g, _) => g
-        case _ => throw new Exception("Url generation fail: " + pattern)
-      }
-    }
+    def apply(pattern: String): (Url => Url) = parseAll(tokens, pattern) get
 
-    private def tokens: Parser[Generator] = rep(token) ^^ (_ reduceLeft { _ + _ })
+    private def tokens: Parser[Url => Url] = rep(token) ^^ (_ reduceLeft {
+      (acc, fun) => (url: Url) => fun(acc(url))
+    })
 
-    private def token: Parser[Generator] = splat | prefixedOptional | optional | named | literal
+    private def token: Parser[Url => Url] = splat | prefixedOptional | optional | named | literal
 
-    private def splat: Parser[Generator] = "*" ^^^ { Generator.splat }
+    private def splat: Parser[Url => Url] = "*" ^^^ { url => url addSplat }
 
-    private def prefixedOptional: Parser[Generator] =
+    private def prefixedOptional: Parser[Url => Url] =
       ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ {
-        case p ~ "?:" ~ o ~ "?" => Generator.prefixedOptional(p, o)
+        case p ~ "?:" ~ o ~ "?" => url => url addPrefixedOptional (o, p)
       }
 
-    private def optional: Parser[Generator] =
-      "?:" ~> """\w+""".r <~ "?" ^^ { Generator.optional(_) }
+    private def optional: Parser[Url => Url] =
+      "?:" ~> """\w+""".r <~ "?" ^^ { x => url => url addOptional x }
 
-    private def named: Parser[Generator] =
-      ":" ~> """\w+""".r ^^ { Generator.named(_) }
+    private def named: Parser[Url => Url] =
+      ":" ~> """\w+""".r ^^ { x => url => url addNamed x }
 
-    private def literal: Parser[Generator] =
-      ("""[\.\+\(\)\$]""".r | ".".r) ^^ { Generator.literal(_) }
+    private def literal: Parser[Url => Url] =
+      ("""[\.\+\(\)\$]""".r | ".".r) ^^ { x => url => url addLiteral x }
   }
 
   override def toString = pattern
