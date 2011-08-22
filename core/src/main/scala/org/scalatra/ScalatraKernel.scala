@@ -109,20 +109,20 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     }
   }
 
-  private def runFilters(filters: Traversable[Route]) =
+  protected def runFilters(filters: Traversable[Route]) =
     for {
       route <- filters
       matchedRoute <- route()
     } invoke(matchedRoute)
 
-  private def runRoutes(routes: Traversable[Route]) =
+  protected def runRoutes(routes: Traversable[Route]) =
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route()
       actionResult <- invoke(matchedRoute)
     } yield actionResult
 
-  private def invoke(matchedRoute: MatchedRoute) =
+  protected def invoke(matchedRoute: MatchedRoute) =
     _multiParams.withValue(multiParams ++ matchedRoute.multiParams) {
       try {
         Some(matchedRoute.action())
