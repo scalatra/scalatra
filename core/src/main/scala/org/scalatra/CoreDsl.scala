@@ -200,8 +200,8 @@ trait CoreDsl {
    * @param headers added as headers to the response.  Previously set headers
    * are retained
    */
-  def halt(status: JInteger = null,
-           body: Any = (),
+  def halt[T : Manifest](status: JInteger = null,
+           body: T = (),
            headers: Map[String, String] = Map.empty,
            reason: String = null): Nothing
 
