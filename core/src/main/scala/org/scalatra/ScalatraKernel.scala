@@ -213,8 +213,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   implicit def request = _request value
   implicit def response = _response value
 
-  def halt(status: JInteger = null,
-           body: Any = (),
+  def halt[T : Manifest](status: JInteger = null,
+           body: T = (),
            headers: Map[String, String] = Map.empty,
            reason: String = null): Nothing = {
     val statusOpt = if (status == null) None else Some(status.intValue)
