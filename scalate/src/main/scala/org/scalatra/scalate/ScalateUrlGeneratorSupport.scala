@@ -11,7 +11,7 @@ trait ScalateUrlGeneratorSupport { self: ScalateSupport =>
   lazy val reflectRoutes: Map[String, Route] =
     this.getClass.getDeclaredMethods
       .filter(_.getParameterTypes.isEmpty)
-      .filter(_.getReturnType.isAssignableFrom(classOf[Route]))
+      .filter(f => classOf[Route].isAssignableFrom(f.getReturnType))
       .map(f => (f.getName, f.invoke(this).asInstanceOf[Route]))
       .toMap
 
