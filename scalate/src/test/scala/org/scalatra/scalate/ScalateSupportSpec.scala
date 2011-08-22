@@ -15,7 +15,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "generate a url from a template"                              ! e6^
     "generate a url with params from a template"                  ! e7
 
-  addServlet(new ScalatraServlet with ScalateSupport {
+  addServlet(new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
 
     get("/barf") {
       throw new RuntimeException
