@@ -1,11 +1,19 @@
 package org.scalatra
+package scalate
 
 import org.specs2.mutable._
 import org.specs2.matcher.MapMatchers._
 
-class ReverseRoutingSupportTest extends Specification {
+class ScalateUrlGeneratorSupportTest extends Specification {
 
-  val servlet = new UrlGeneratorTestServlet
+  val servlet = new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
+
+    val cat: String = "meea"
+
+    val simpleString = get("/foo") { }
+
+    val singleNamed = get("/foo/:bar") { }
+  }
 
   "Routes extracted from the servlet" should {
     "exist" in {
