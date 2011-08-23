@@ -35,6 +35,32 @@ class IoSpec extends WordSpec with ShouldMatchers {
       copy(in, out, bufferSize)
       out.toByteArray should equal (bytes)
     }
+
+    "close the input stream even if copying throws" in {
+      var isClosed = false
+      val in = new InputStream {
+        def read() = throw new RuntimeException
+        override def close() = isClosed = true
+      }
+      try {
+        copy(in, new ByteArrayOutputStream)
+      }
+      catch { case ignore => }
+      isClosed should equal (true)
+    }
+
+    "throw any exception during copy" in {
+      val e = new RuntimeException
+      val in = new InputStream {
+        def read() = throw e
+      }
+      val caught = try {
+        copy(in, new ByteArrayOutputStream)
+        None
+      }
+      catch { case ex => Some(ex) }
+      caught should equal (Some(e))
+    }
   }
 
   "withTempFile" should {

@@ -18,17 +18,18 @@ package object io {
    * @param bufferSize the size of buffer to use for each read
    */
   def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
-    val buf = new Array[Byte](bufferSize)
-    @tailrec
-    def loop() {
-      val n = in.read(buf)
-      if (n >= 0) {
-        out.write(buf, 0, n)
-        loop()
+    using(in) { in =>
+      val buf = new Array[Byte](bufferSize)
+      @tailrec
+      def loop() {
+        val n = in.read(buf)
+        if (n >= 0) {
+          out.write(buf, 0, n)
+          loop()
+        }
       }
+      loop()
     }
-    loop()
-    in.close()
   }
 
   def zeroCopy(in: FileInputStream, out: OutputStream) {
