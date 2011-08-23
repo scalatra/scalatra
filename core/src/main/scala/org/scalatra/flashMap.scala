@@ -97,6 +97,7 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
 object FlashMapSupport {
   val sessionKey = FlashMapSupport.getClass.getName+".flashMap"
   val lockKey = FlashMapSupport.getClass.getName+".lock"
+  val FlashMapKey = "org.scalatra.FlashMap".intern
 }
 
 /**
@@ -119,15 +120,15 @@ trait FlashMapSupport extends ScalatraKernel {
   import FlashMapSupport._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    _flash.withValue(getFlash(req)) {
+      val f = getFlash(req)
       val isOutermost = !req.contains(lockKey)
       if (isOutermost) {
         req(lockKey) = "locked"
         if (sweepUnusedFlashEntries(req)) {
-          flash.flag()
+          f.flag()
         }
       }
-      req.getSession.setAttribute(sessionKey, flash)
+      req.getSession.setAttribute(sessionKey, f)
       super.handle(req, res)
       /*
        * http://github.org/scalatra/scalatra/issues/41
@@ -137,9 +138,8 @@ trait FlashMapSupport extends ScalatraKernel {
        * redirects to other servlets.
        */
       if (isOutermost) {
-        flash.sweep()
+        f.sweep()
       }
-    }
   }
 
   private def getFlash(req: HttpServletRequest) =
@@ -148,13 +148,10 @@ trait FlashMapSupport extends ScalatraKernel {
       case _ => new FlashMap()
     }
 
-
-  private val _flash = new DynamicVariable[FlashMap](null)
-
   /**
    * returns a thread local [[org.scalatra.FlashMap]] instance
    */
-  protected def flash = _flash.value
+  def flash = getFlash(request)
 
   /**
    * Determines whether unused flash entries should be swept.  The default is false.

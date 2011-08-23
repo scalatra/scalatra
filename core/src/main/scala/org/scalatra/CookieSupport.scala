@@ -89,21 +89,22 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
   }
 }
 
+object CookieSupport {
+  val SweetCookiesKey = "org.scalatra.SweetCookies".intern
+  val CookieOptionsKey = "org.scalatra.CookieOptions".intern
+}
 trait CookieSupport extends Handler {
   self: ScalatraKernel =>
 
-  implicit def cookieOptions: CookieOptions = _cookieOptions.value
+  import CookieSupport._
+  implicit def cookieOptions: CookieOptions = request(CookieOptionsKey).asInstanceOf[CookieOptions]
 
-  def cookies = _cookies.value
+  def cookies = request(SweetCookiesKey).asInstanceOf[SweetCookies]
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    _cookies.withValue(new SweetCookies(req.cookies, res)) {
-      _cookieOptions.withValue(CookieOptions(path = req.getContextPath)) {
-        super.handle(req, res)
-      }
-    }
+    req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
+    req(CookieOptionsKey) = CookieOptions(path = req.getContextPath)
+    super.handle(req, res)
   }
 
-  private val _cookies = new DynamicVariable[SweetCookies](null)
-  private val _cookieOptions = new DynamicVariable[CookieOptions](null)
 }

@@ -24,7 +24,7 @@ object GenerateId {
 }
 
 object CsrfTokenSupport {
-  val DefaultKey = "org.scalatra.CsrfTokenSupport.key"
+  val DefaultKey = "org.scalatra.CsrfTokenSupport.key".intern
 }
 
 trait CsrfTokenSupport { self: ScalatraKernel =>

@@ -30,7 +30,9 @@ object ScalatraKernel
   @deprecated("Use CsrfTokenSupport.DefaultKey", "2.0")
   val csrfKey = CsrfTokenSupport.DefaultKey
 
-  val EnvironmentKey = "org.scalatra.environment"
+  val EnvironmentKey = "org.scalatra.environment".intern
+
+  val MultiParamsKey = "org.scalatra.MultiParams".intern
 }
 import ScalatraKernel._
 
@@ -90,32 +92,26 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
     _request.withValue(request) {
       _response.withValue(response) {
-        _multiParams.withValue(Map() ++ realMultiParams) {
-           executeRoutes //taken out because I need the extension point
-        }
+        request(MultiParamsKey) = MultiMap(Map().withDefaultValue(Seq.empty[String]) ++ realMultiParams)
+        executeRoutes() // IPC: taken out because I needed the extension point
       }
     }
   }
 
-  protected def executeRoutes = {
-    var matchedRoute: Option[MatchedRoute] = None
+  protected def executeRoutes() = {
     val result = try {
       runFilters(routes.beforeFilters)
-      val routeResult = runRoutes(routes(request.method)).headOption
-      matchedRoute = routeResult.map(_._1)
-      val actionResult = routeResult.map(_._2)
+      val actionResult = runRoutes(routes(request.method)).headOption
       actionResult orElse matchOtherMethods() getOrElse doNotFound()
     }
     catch {
-      case e: HaltException => {
-        withMultiParams(matchedRoute) { renderHaltException(e) }
-      }
-      case e => withMultiParams(matchedRoute) { errorHandler(e) }
+      case e: HaltException => renderHaltException(e)
+      case e => errorHandler(e)
     }
     finally {
-      withMultiParams(matchedRoute) { runFilters(routes.afterFilters) }
+      runFilters(routes.afterFilters)
     }
-    withMultiParams(matchedRoute) { renderResponse(result) }
+    renderResponse(result)
   }
 
   protected def runFilters(filters: Traversable[Route]) =
@@ -124,15 +120,15 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       matchedRoute <- route()
     } invoke(matchedRoute)
 
-  protected def runRoutes(routes: Traversable[Route]): Stream[(MatchedRoute, Any)] =
+  protected def runRoutes(routes: Traversable[Route]) =
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route()
       actionResult <- invoke(matchedRoute)
-    } yield (matchedRoute, actionResult)
+    } yield actionResult
 
   protected def invoke(matchedRoute: MatchedRoute) =
-    withMultiParams(Some(matchedRoute)) {
+    withRouteMultiParams(Some(matchedRoute)) {
       try {
         Some(matchedRoute.action())
       }
@@ -172,8 +168,12 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   protected var errorHandler: ErrorHandler = { case t => throw t }
   def error(handler: ErrorHandler) = errorHandler = handler orElse errorHandler
 
-  protected def withMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S =
-    _multiParams.withValue(Option(multiParams).getOrElse(Map.empty) ++ matchedRoute.map(_.multiParams).getOrElse(Map.empty))(thunk)
+  protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
+    val originalParams = multiParams
+    request(MultiParamsKey) = originalParams ++ matchedRoute.map(_.multiParams).getOrElse(Map.empty)
+    try { thunk } finally { request(MultiParamsKey) = originalParams }
+  }
+
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
@@ -211,8 +211,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       response.getWriter.print(x.toString)
   }
 
-  protected[scalatra] val _multiParams = new DynamicVariable[MultiMap](null)
-  def multiParams: MultiParams = (_multiParams.value).withDefaultValue(Seq.empty)
+  def multiParams: MultiParams = request(MultiParamsKey).asInstanceOf[MultiParams]
   /*
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
