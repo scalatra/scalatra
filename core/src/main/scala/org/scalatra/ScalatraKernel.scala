@@ -91,22 +91,31 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     _request.withValue(request) {
       _response.withValue(response) {
         _multiParams.withValue(Map() ++ realMultiParams) {
-          val result = try {
-            runFilters(routes.beforeFilters)
-            val actionResult = runRoutes(routes(request.method)).headOption
-            actionResult orElse matchOtherMethods() getOrElse doNotFound()
-          }
-          catch {
-            case e: HaltException => renderHaltException(e)
-            case e => errorHandler(e)
-          }
-          finally {
-            runFilters(routes.afterFilters)
-          }
-          renderResponse(result)
+           executeRoutes //taken out because I need the extension point
         }
       }
     }
+  }
+
+  protected def executeRoutes = {
+    var matchedRoute: Option[MatchedRoute] = None
+    val result = try {
+      runFilters(routes.beforeFilters)
+      val routeResult = runRoutes(routes(request.method)).headOption
+      matchedRoute = routeResult.map(_._1)
+      val actionResult = routeResult.map(_._2)
+      actionResult orElse matchOtherMethods() getOrElse doNotFound()
+    }
+    catch {
+      case e: HaltException => {
+        withMultiParams(matchedRoute) { renderHaltException(e) }
+      }
+      case e => withMultiParams(matchedRoute) { errorHandler(e) }
+    }
+    finally {
+      withMultiParams(matchedRoute) { runFilters(routes.afterFilters) }
+    }
+    withMultiParams(matchedRoute) { renderResponse(result) }
   }
 
   protected def runFilters(filters: Traversable[Route]) =
@@ -115,15 +124,15 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       matchedRoute <- route()
     } invoke(matchedRoute)
 
-  protected def runRoutes(routes: Traversable[Route]) =
+  protected def runRoutes(routes: Traversable[Route]): Stream[(MatchedRoute, Any)] =
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route()
       actionResult <- invoke(matchedRoute)
-    } yield actionResult
+    } yield (matchedRoute, actionResult)
 
   protected def invoke(matchedRoute: MatchedRoute) =
-    _multiParams.withValue(multiParams ++ matchedRoute.multiParams) {
+    withMultiParams(Some(matchedRoute)) {
       try {
         Some(matchedRoute.action())
       }
@@ -162,6 +171,9 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   protected var errorHandler: ErrorHandler = { case t => throw t }
   def error(handler: ErrorHandler) = errorHandler = handler orElse errorHandler
+
+  protected def withMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S =
+    _multiParams.withValue(Option(multiParams).getOrElse(Map.empty) ++ matchedRoute.map(_.multiParams).getOrElse(Map.empty))(thunk)
 
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
