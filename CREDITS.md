@@ -25,6 +25,7 @@
 - [Ted Nyman](http://github.com/tnm)
 - [Erik Rozendaal](http://github.com/erikrozendaal)
 - [Srirangan](http://srirangan.net)
+- [Eric Torreborre](http://etorreborre.blogspot.com/)
 - [Lucas Torri](http://github.com/lucastorri)
 - [Leif Warner](http://github.com/LeifW)
 - [Ivan Willig](http://github.com/iwillig)
