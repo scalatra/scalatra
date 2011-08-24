@@ -92,7 +92,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
     _request.withValue(request) {
       _response.withValue(response) {
-        request(MultiParamsKey) = MultiMap(Map().withDefaultValue(Seq.empty[String]) ++ realMultiParams)
+        request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
         executeRoutes() // IPC: taken out because I needed the extension point
       }
     }
@@ -212,6 +212,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   }
 
   def multiParams: MultiParams = request(MultiParamsKey).asInstanceOf[MultiParams]
+    .withDefaultValue(Seq.empty)
+
   /*
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
