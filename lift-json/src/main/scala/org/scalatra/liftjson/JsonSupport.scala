@@ -18,4 +18,6 @@ trait JsonSupport extends ScalatraKernel {
       import net.liftweb._
       json.compact(json.render(jv)).getBytes("UTF-8")
   }: RenderPipeline) orElse super.renderPipeline
+
+
 }
