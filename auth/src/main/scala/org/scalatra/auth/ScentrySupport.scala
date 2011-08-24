@@ -30,11 +30,13 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   }
 
   abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
-    servletRequest(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession)
-    configureScentry
-    registerStrategiesFromConfig
-    registerAuthStrategies
-    super.handle(servletRequest, servletResponse)
+    _request.withValue(servletRequest) {
+      request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession)
+      configureScentry
+      registerStrategiesFromConfig
+      registerAuthStrategies
+      super.handle(servletRequest, servletResponse)
+    }
   }
 
   private def readStrategiesFromConfig(config: Config) = _strategiesFromConfig = {
@@ -46,7 +48,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
         filterConfig.getInitParameter("scentry.strategies")
       case _ => ""
     })
-    if(strats != null && strats.trim.length > 0) (strats split ";").toList else Nil
+    if(strats != null && strats.trim.nonEmpty) (strats split ";").toList else Nil
   }
 
   private def registerStrategiesFromConfig = _strategiesFromConfig foreach { strategyClassName =>
