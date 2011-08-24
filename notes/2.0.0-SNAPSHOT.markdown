@@ -18,6 +18,9 @@
 ## scalatra-socketio
 * Change interface to socket io to something that allows to keep state per client. [(GH-72)](http://github.com/scalatra/scalatra/issues/72)
 
+## scalatra-specs2
+* Support mutable (unit)specifications. [(GH-123)](http://github.com/scalatra/scalatra/issues/123)
+
 ## scalatra-scalatest
 * New convenience traits for Suites other than FunSuite. [(GH-21)](http://github.com/scalatra/scalatra/issues/21)
 * For convenience, ScalatraSuite now extends MustMatchers and ShouldMatchers.

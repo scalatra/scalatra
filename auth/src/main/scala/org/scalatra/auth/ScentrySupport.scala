@@ -22,7 +22,6 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   protected def toSession: PartialFunction[UserType, String]
   protected val scentryConfig: ScentryConfiguration
 
-  private val _scentry = new DynamicVariable[Scentry[UserType]](null)
   private var _strategiesFromConfig = List[String]()
 
   abstract override def initialize(config: Config) {
@@ -31,12 +30,11 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   }
 
   abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
-    _scentry.withValue(new Scentry[UserType](self, toSession, fromSession)) {
-      configureScentry
-      registerStrategiesFromConfig
-      registerAuthStrategies
-      super.handle(servletRequest, servletResponse)
-    }
+    servletRequest(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession)
+    configureScentry
+    registerStrategiesFromConfig
+    registerAuthStrategies
+    super.handle(servletRequest, servletResponse)
   }
 
   private def readStrategiesFromConfig(config: Config) = _strategiesFromConfig = {
@@ -68,8 +66,8 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   }
 
-  protected def scentry: Scentry[UserType] = _scentry.value
-  protected def scentryOption: Option[Scentry[UserType]] = Option(scentry)
+  protected def scentry: Scentry[UserType] = request(Scentry.ScentryRequestKey).asInstanceOf[Scentry[UserType]]
+  protected def scentryOption: Option[Scentry[UserType]] = Option(request(Scentry.ScentryRequestKey)).map(_.asInstanceOf[Scentry[UserType]])
   protected def userOption: Option[UserType] = scentry.userOption
   protected def user: UserType = scentry.user
   protected def user_=(user: UserType) = scentry.user = user
