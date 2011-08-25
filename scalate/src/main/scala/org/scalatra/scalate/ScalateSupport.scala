@@ -23,7 +23,7 @@ object ScalateSupport {
   }
 }
 
-trait ScalateSupport extends ScalatraKernel {
+trait ScalateSupport extends ScalatraKernel with ScalateHelper {
   protected var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
