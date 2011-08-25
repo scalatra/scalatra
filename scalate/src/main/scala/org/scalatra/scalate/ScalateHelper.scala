@@ -8,9 +8,16 @@ package scalate
 trait ScalateHelper {
   this: ScalateSupport =>
 
-  lazy val defaultIndexName    = "index"
-  lazy val defaultFormat       = "scaml"
-  lazy val defaultTemplatePath = "/WEB-INF/scalate/templates"
+  val defIndexName = "index"
+  val defFormat = "scaml"
+  val defTemplatePath = "/WEB-INF/views"
+
+  /**
+   * Switched to defs
+   */
+  def defaultIndexName: String = defIndexName
+  def defaultFormat: String = defFormat
+  def defaultTemplatePath: String = defTemplatePath
 
   /**
    * Syntax sugars for various scalate formats
