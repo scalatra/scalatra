@@ -15,6 +15,9 @@
 * Keep query parameters available on multipart requests. [(GH-80)](http://github.com/scalatra/scalatra/issues/80)
 * Improve character decoding of form fields in multipart requests. [(GH-83)](http://github.com/scalatra/scalatra/issues/83)
 
+## scalatra-scalate
+* Find templates and layouts by convention. [(GH-85)](http://github.com/scalatra/scalatra/issues/85)
+
 ## scalatra-socketio
 * Change interface to socket io to something that allows to keep state per client. [(GH-72)](http://github.com/scalatra/scalatra/issues/72)
 

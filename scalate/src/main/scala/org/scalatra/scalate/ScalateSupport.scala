@@ -7,7 +7,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.fusesource.scalate.{TemplateEngine, Binding}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
-import java.lang.Throwable
+import org.fusesource.scalate.support.TemplateFinder
 
 object ScalateSupport {
   val DefaultLayouts = Seq(
@@ -69,6 +69,8 @@ trait ScalateSupport extends ScalatraKernel {
     override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
 
     ScalateSupport.setLayoutStrategy(this)
+
+    templateDirectories = defaultTemplatePath
   }
 
   def createRenderContext: ServletRenderContext =
@@ -123,9 +125,16 @@ trait ScalateSupport extends ScalatraKernel {
   protected def defaultTemplateFormat: String = "scaml"
 
   /**
-   * The default path to search for templates.
+   * The default path to search for templates.  Left as a def so it can be
+   * read from the servletContext in initialize, but you probably want a
+   * constant.
+   *
+   * Defaults to:
+   * - `/WEB-INF/views` (recommended)
+   * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
    */
-  protected def defaultTemplatePath: String = "/WEB-INF/views"
+  protected def defaultTemplatePath: List[String] =
+    List("/WEB-INF/views", "/WEB-INF/scalate/templates")
 
   /**
    * Convenience method for `layoutTemplateAs("jade")`.
@@ -156,30 +165,24 @@ trait ScalateSupport extends ScalatraKernel {
    * returning the result.
    *
    * @param ext The extension to look for a template.
-   * @param path The path of the template to find.
+   * @param path The path of the template, passed to `findTemplate`.
    * @param attributes Attributes to path to the render context.  Disable
    * layouts by passing `layout -> ""`.
    */
-  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*): String =
-    templateEngine.layout(findTemplate(path, ext), Map(attributes : _*))
+  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*): String = {
+    val uri = findTemplate(path, Set(ext)).getOrElse(path)
+    templateEngine.layout(uri, Map(attributes:_*))
+  }
 
   /**
-   * Return a template path with WEB-INF prefix.
+   * Finds a template for a path.  Delegates to a TemplateFinder, and if
+   * that fails, tries again with `/defaultIndexName` appended.
    */
-  protected def findTemplate(name: String, ext: String = defaultTemplateFormat) =
-    defaultTemplatePath + "/" + completeTemplateName(name, ext)
-
-  /**
-   * Complate template name about default index and extname
-   */
-  protected def completeTemplateName(name: String, ext: String) = {
-    val base = name match {
-      case s if s.endsWith("/") => s + defaultIndexName
-      case s => s
+  protected def findTemplate(path: String, extensionSet: Set[String] = templateEngine.extensions): Option[String] = {
+    val finder = new TemplateFinder(templateEngine) {
+      override lazy val extensions = extensionSet
     }
-    base match {
-      case s if s.contains(".") => s
-      case s => s + "." + ext
-    }
+    finder.findTemplate("/"+path) orElse
+      finder.findTemplate("/%s/%s".format(path, defaultIndexName))
   }
 }
