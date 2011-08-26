@@ -21,7 +21,9 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "render a simple template via ssp method"                     ! e12^
     "render a simple template with params via ssp method"         ! e13^
     "render a simple template via mustache method"                ! e14^
-    "render a simple template with params via mustache method"    ! e15
+    "render a simple template with params via mustache method"    ! e15^
+    "looks for templates in legacy /WEB-INF/scalate/templates"    ! e16^
+    "looks for index page if no template found"                   ! e17
 
   addServlet(new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
 
@@ -85,6 +87,13 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
       renderTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
     }
 
+    get("/legacy-view-path") {
+      jade("legacy")
+    }
+
+    get("/directory") {
+      jade("directory/index")
+    }
   }, "/*")
 
   def e1 = get("/barf") {
@@ -156,5 +165,13 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
   def e15 = get("/mustache-params") {
     body must_== "<div>Configurable template</div>\n"
+  }
+
+  def e16 = get("/legacy-view-path") {
+    body must_== "<p>legacy</p>\n"
+  }
+
+  def e17 = get("/directory") {
+    body must_== "<p>index</p>\n"
   }
 }
