@@ -4,7 +4,7 @@ package scalate
 import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.fusesource.scalate.{TemplateEngine, Binding}
+import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import org.fusesource.scalate.support.TemplateFinder
@@ -31,8 +31,8 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
-  protected def createTemplateEngine(config: Config) = {
-    val engine = config match {
+  protected def createTemplateEngine(config: Config): TemplateEngine =
+    config match {
       case servletConfig: ServletConfig =>
         new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
       case filterConfig: FilterConfig =>
@@ -42,10 +42,6 @@ trait ScalateSupport extends ScalatraKernel {
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
         new TemplateEngine with ScalatraTemplateEngine
     }
-    configureTemplateEngine(engine)
-  }
-
-  protected def configureTemplateEngine(engine: TemplateEngine) = engine
 
   /**
    * A TemplateEngine integrated with Scalatra.
@@ -61,7 +57,7 @@ trait ScalateSupport extends ScalatraKernel {
      * request and response.
      */
     override def createRenderContext(uri: String, out: PrintWriter) =
-      ScalateSupport.this.createRenderContext
+      ScalateSupport.this.createRenderContext()
 
     /**
      * Delegates to the ScalatraKernel's isDevelopmentMode flag.
@@ -73,18 +69,11 @@ trait ScalateSupport extends ScalatraKernel {
     templateDirectories = defaultTemplatePath
   }
 
-  def createRenderContext: ServletRenderContext =
-    createRenderContext(request, response)
-
-  def createRenderContext(req: HttpServletRequest, resp: HttpServletResponse): ServletRenderContext = {
-    val context = new ServletRenderContext(templateEngine, req, resp, servletContext)
-    configureRenderContext(context)
-  }
-
-  protected def configureRenderContext(context: ServletRenderContext) = context
+  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): RenderContext =
+    new ServletRenderContext(templateEngine, req, resp, servletContext)
 
   def renderTemplate(path: String, attributes: (String, Any)*) =
-    createRenderContext.render(path, Map(attributes : _*))
+    createRenderContext().render(path, Map(attributes : _*))
 
   /**
    * Flag whether the Scalate error page is enabled.  If true, uncaught
@@ -134,6 +123,18 @@ trait ScalateSupport extends ScalatraKernel {
    * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
    */
   protected def defaultTemplatePath: List[String] =
+    List("/WEB-INF/views", "/WEB-INF/scalate/templates")
+
+  /**
+   * The default path to search for templates.  Left as a def so it can be
+   * read from the servletContext in initialize, but you probably want a
+   * constant.
+   *
+   * Defaults to:
+   * - `/WEB-INF/views` (recommended)
+   * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
+   */
+  protected def defaultLayoutPath: List[String] =
     List("/WEB-INF/views", "/WEB-INF/scalate/templates")
 
   /**
