@@ -72,6 +72,12 @@ trait ScalateSupport extends ScalatraKernel {
   protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): RenderContext =
     new ServletRenderContext(templateEngine, req, resp, servletContext)
 
+  /**
+   * Creates a render context and renders directly to that.  No template
+   * search is performed, and the layout strategy is circumvented.  Clients
+   * are urged to consider layoutTemplate instead.
+   */
+  @deprecated("not idiomatic Scalate; consider layoutTemplate instead", "2.0")
   def renderTemplate(path: String, attributes: (String, Any)*) =
     createRenderContext().render(path, Map(attributes : _*))
 
@@ -141,39 +147,51 @@ trait ScalateSupport extends ScalatraKernel {
    * Convenience method for `layoutTemplateAs("jade")`.
    */
   protected def jade(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("jade")(path, attributes:_*)
+    layoutTemplateAs(Set("jade"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("scaml")`.
    */
   protected def scaml(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("scaml")(path, attributes:_*)
+    layoutTemplateAs(Set("scaml"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("ssp")`.
    */
   protected def ssp(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("ssp")(path, attributes:_*)
+    layoutTemplateAs(Set("ssp"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("mustache")`.
    */
   protected def mustache(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("mustache")(path, attributes:_*)
+    layoutTemplateAs(Set("mustache"))(path, attributes:_*)
 
   /**
    * Finds and renders a template with the current layout strategy,
    * returning the result.
+   *
+   * @param ext The extensions to look for a template.
+   * @param path The path of the template, passed to `findTemplate`.
+   * @param attributes Attributes to path to the render context.  Disable
+   * layouts by passing `layout -> ""`.
+   */
+  protected def layoutTemplateAs(ext: Set[String])(path: String, attributes: (String, Any)*): String = {
+    val uri = findTemplate(path, ext).getOrElse(path)
+    templateEngine.layout(uri, Map(attributes:_*))
+  }
+
+  /**
+   * Finds and renders a template with the current layout strategy,
+   * looking for all known extensions, returning the result.
    *
    * @param ext The extension to look for a template.
    * @param path The path of the template, passed to `findTemplate`.
    * @param attributes Attributes to path to the render context.  Disable
    * layouts by passing `layout -> ""`.
    */
-  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*): String = {
-    val uri = findTemplate(path, Set(ext)).getOrElse(path)
-    templateEngine.layout(uri, Map(attributes:_*))
-  }
+  protected def layoutTemplate(path: String, attributes: (String, Any)*): String =
+    layoutTemplateAs(templateEngine.extensions)(path, attributes :_*)
 
   /**
    * Finds a template for a path.  Delegates to a TemplateFinder, and if
