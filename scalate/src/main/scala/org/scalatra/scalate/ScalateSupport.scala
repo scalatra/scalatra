@@ -23,7 +23,7 @@ object ScalateSupport {
   }
 }
 
-trait ScalateSupport extends ScalatraKernel with ScalateHelper {
+trait ScalateSupport extends ScalatraKernel {
   protected var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
@@ -110,5 +110,76 @@ trait ScalateSupport extends ScalatraKernel with ScalateHelper {
     val context = createRenderContext(req, resp)
     context.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, context)
+  }
+
+  /**
+   * The default index page when the path is a directory.
+   */
+  protected def defaultIndexName: String = "index"
+
+  /**
+   * The default template format.
+   */
+  protected def defaultTemplateFormat: String = "scaml"
+
+  /**
+   * The default path to search for templates.
+   */
+  protected def defaultTemplatePath: String = "/WEB-INF/views"
+
+  /**
+   * Convenience method for `layoutTemplateAs("jade")`.
+   */
+  protected def jade(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("jade")(path, attributes:_*)
+
+  /**
+   * Convenience method for `layoutTemplateAs("scaml")`.
+   */
+  protected def scaml(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("scaml")(path, attributes:_*)
+
+  /**
+   * Convenience method for `layoutTemplateAs("ssp")`.
+   */
+  protected def ssp(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("ssp")(path, attributes:_*)
+
+  /**
+   * Convenience method for `layoutTemplateAs("mustache")`.
+   */
+  protected def mustache(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("mustache")(path, attributes:_*)
+
+  /**
+   * Finds and renders a template with the current layout strategy,
+   * returning the result.
+   *
+   * @param ext The extension to look for a template.
+   * @param path The path of the template to find.
+   * @param attributes Attributes to path to the render context.  Disable
+   * layouts by passing `layout -> ""`.
+   */
+  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*): String =
+    templateEngine.layout(findTemplate(path, ext), Map(attributes : _*))
+
+  /**
+   * Return a template path with WEB-INF prefix.
+   */
+  protected def findTemplate(name: String, ext: String = defaultTemplateFormat) =
+    defaultTemplatePath + "/" + completeTemplateName(name, ext)
+
+  /**
+   * Complate template name about default index and extname
+   */
+  protected def completeTemplateName(name: String, ext: String) = {
+    val base = name match {
+      case s if s.endsWith("/") => s + defaultIndexName
+      case s => s
+    }
+    base match {
+      case s if s.contains(".") => s
+      case s => s + "." + ext
+    }
   }
 }
