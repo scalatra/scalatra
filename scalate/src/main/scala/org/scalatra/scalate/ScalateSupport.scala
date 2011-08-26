@@ -112,16 +112,20 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine.layout(errorPage, context)
   }
 
-  val defIndexName = "index"
-  val defFormat = "scaml"
-  val defTemplatePath = "/WEB-INF/views"
+  /**
+   * The default index page when the path is a directory.
+   */
+  protected def defaultIndexName: String = "index"
 
   /**
-   * Switched to defs
+   * The default template format.
    */
-  def defaultIndexName: String = defIndexName
-  def defaultFormat: String = defFormat
-  def defaultTemplatePath: String = defTemplatePath
+  protected def defaultTemplateFormat: String = "scaml"
+
+  /**
+   * The default path to search for templates.
+   */
+  protected def defaultTemplatePath: String = "/WEB-INF/views"
 
   /**
    * Syntax sugars for various scalate formats
