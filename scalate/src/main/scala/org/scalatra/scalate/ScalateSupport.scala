@@ -130,22 +130,26 @@ trait ScalateSupport extends ScalatraKernel {
   /**
    * Convenience method for `layoutTemplateAs("jade")`.
    */
-  protected def jade: String = renderTemplateAs("jade") _
+  protected def jade(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("jade")(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("scaml")`.
    */
-  protected def scaml: String = renderTemplateAs("scaml") _
+  protected def scaml(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("scaml")(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("ssp")`.
    */
-  protected def ssp: String = renderTemplateAs("ssp") _
+  protected def ssp(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("ssp")(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("mustache")`.
    */
-  protected def mustache: String = renderTemplateAs("mustache") _
+  protected def mustache(path: String, attributes: (String, Any)*): String =
+    renderTemplateAs("mustache")(path, attributes:_*)
 
   /**
    * Finds and renders a template with the current layout strategy,
@@ -162,7 +166,7 @@ trait ScalateSupport extends ScalatraKernel {
   /**
    * Return a template path with WEB-INF prefix.
    */
-  protected def findTemplate(name: String, ext: String = defaultFormat) =
+  protected def findTemplate(name: String, ext: String = defaultTemplateFormat) =
     defaultTemplatePath + "/" + completeTemplateName(name, ext)
 
   /**
