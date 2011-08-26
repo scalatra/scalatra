@@ -23,7 +23,7 @@ object ScalateSupport {
   }
 }
 
-trait ScalateSupport extends ScalatraKernel with ScalateHelper {
+trait ScalateSupport extends ScalatraKernel {
   protected var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
@@ -110,5 +110,47 @@ trait ScalateSupport extends ScalatraKernel with ScalateHelper {
     val context = createRenderContext(req, resp)
     context.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, context)
+  }
+
+  val defIndexName = "index"
+  val defFormat = "scaml"
+  val defTemplatePath = "/WEB-INF/views"
+
+  /**
+   * Switched to defs
+   */
+  def defaultIndexName: String = defIndexName
+  def defaultFormat: String = defFormat
+  def defaultTemplatePath: String = defTemplatePath
+
+  /**
+   * Syntax sugars for various scalate formats
+   */
+  def jade     = renderTemplateAs("jade") _
+  def scaml    = renderTemplateAs("scaml") _
+  def ssp      = renderTemplateAs("ssp") _
+  def mustache = renderTemplateAs("mustache") _
+
+  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*) =
+    templateEngine.layout(findTemplate(path, ext), Map(attributes : _*))
+
+  /**
+   * Return a template path with WEB-INF prefix.
+   */
+  protected def findTemplate(name: String, ext: String = defaultFormat) =
+    defaultTemplatePath + "/" + completeTemplateName(name, ext)
+
+  /**
+   * Complate template name about default index and extname
+   */
+  protected def completeTemplateName(name: String, ext: String) = {
+    val base = name match {
+      case s if s.endsWith("/") => s + defaultIndexName
+      case s => s
+    }
+    base match {
+      case s if s.contains(".") => s
+      case s => s + "." + ext
+    }
   }
 }
