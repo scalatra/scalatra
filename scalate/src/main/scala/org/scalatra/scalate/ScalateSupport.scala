@@ -128,14 +128,35 @@ trait ScalateSupport extends ScalatraKernel {
   protected def defaultTemplatePath: String = "/WEB-INF/views"
 
   /**
-   * Syntax sugars for various scalate formats
+   * Convenience method for `layoutTemplateAs("jade")`.
    */
-  def jade     = renderTemplateAs("jade") _
-  def scaml    = renderTemplateAs("scaml") _
-  def ssp      = renderTemplateAs("ssp") _
-  def mustache = renderTemplateAs("mustache") _
+  protected def jade: String = renderTemplateAs("jade") _
 
-  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*) =
+  /**
+   * Convenience method for `layoutTemplateAs("scaml")`.
+   */
+  protected def scaml: String = renderTemplateAs("scaml") _
+
+  /**
+   * Convenience method for `layoutTemplateAs("ssp")`.
+   */
+  protected def ssp: String = renderTemplateAs("ssp") _
+
+  /**
+   * Convenience method for `layoutTemplateAs("mustache")`.
+   */
+  protected def mustache: String = renderTemplateAs("mustache") _
+
+  /**
+   * Finds and renders a template with the current layout strategy,
+   * returning the result.
+   *
+   * @param ext The extension to look for a template.
+   * @param path The path of the template to find.
+   * @param attributes Attributes to path to the render context.  Disable
+   * layouts by passing `layout -> ""`.
+   */
+  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*): String =
     templateEngine.layout(findTemplate(path, ext), Map(attributes : _*))
 
   /**
