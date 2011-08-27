@@ -4,7 +4,7 @@ package scalate
 import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.fusesource.scalate.{TemplateEngine, Binding}
+import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import org.fusesource.scalate.support.TemplateFinder
@@ -31,8 +31,8 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
-  protected def createTemplateEngine(config: Config) = {
-    val engine = config match {
+  protected def createTemplateEngine(config: Config): TemplateEngine =
+    config match {
       case servletConfig: ServletConfig =>
         new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
       case filterConfig: FilterConfig =>
@@ -42,10 +42,6 @@ trait ScalateSupport extends ScalatraKernel {
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
         new TemplateEngine with ScalatraTemplateEngine
     }
-    configureTemplateEngine(engine)
-  }
-
-  protected def configureTemplateEngine(engine: TemplateEngine) = engine
 
   /**
    * A TemplateEngine integrated with Scalatra.
@@ -61,7 +57,7 @@ trait ScalateSupport extends ScalatraKernel {
      * request and response.
      */
     override def createRenderContext(uri: String, out: PrintWriter) =
-      ScalateSupport.this.createRenderContext
+      ScalateSupport.this.createRenderContext()
 
     /**
      * Delegates to the ScalatraKernel's isDevelopmentMode flag.
@@ -73,18 +69,17 @@ trait ScalateSupport extends ScalatraKernel {
     templateDirectories = defaultTemplatePath
   }
 
-  def createRenderContext: ServletRenderContext =
-    createRenderContext(request, response)
+  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): RenderContext =
+    new ServletRenderContext(templateEngine, req, resp, servletContext)
 
-  def createRenderContext(req: HttpServletRequest, resp: HttpServletResponse): ServletRenderContext = {
-    val context = new ServletRenderContext(templateEngine, req, resp, servletContext)
-    configureRenderContext(context)
-  }
-
-  protected def configureRenderContext(context: ServletRenderContext) = context
-
+  /**
+   * Creates a render context and renders directly to that.  No template
+   * search is performed, and the layout strategy is circumvented.  Clients
+   * are urged to consider layoutTemplate instead.
+   */
+  @deprecated("not idiomatic Scalate; consider layoutTemplate instead")
   def renderTemplate(path: String, attributes: (String, Any)*) =
-    createRenderContext.render(path, Map(attributes : _*))
+    createRenderContext().render(path, Map(attributes : _*))
 
   /**
    * Flag whether the Scalate error page is enabled.  If true, uncaught
@@ -137,42 +132,66 @@ trait ScalateSupport extends ScalatraKernel {
     List("/WEB-INF/views", "/WEB-INF/scalate/templates")
 
   /**
+   * The default path to search for templates.  Left as a def so it can be
+   * read from the servletContext in initialize, but you probably want a
+   * constant.
+   *
+   * Defaults to:
+   * - `/WEB-INF/views` (recommended)
+   * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
+   */
+  protected def defaultLayoutPath: List[String] =
+    List("/WEB-INF/views", "/WEB-INF/scalate/templates")
+
+  /**
    * Convenience method for `layoutTemplateAs("jade")`.
    */
   protected def jade(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("jade")(path, attributes:_*)
+    layoutTemplateAs(Set("jade"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("scaml")`.
    */
   protected def scaml(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("scaml")(path, attributes:_*)
+    layoutTemplateAs(Set("scaml"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("ssp")`.
    */
   protected def ssp(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("ssp")(path, attributes:_*)
+    layoutTemplateAs(Set("ssp"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("mustache")`.
    */
   protected def mustache(path: String, attributes: (String, Any)*): String =
-    renderTemplateAs("mustache")(path, attributes:_*)
+    layoutTemplateAs(Set("mustache"))(path, attributes:_*)
 
   /**
    * Finds and renders a template with the current layout strategy,
    * returning the result.
+   *
+   * @param ext The extensions to look for a template.
+   * @param path The path of the template, passed to `findTemplate`.
+   * @param attributes Attributes to path to the render context.  Disable
+   * layouts by passing `layout -> ""`.
+   */
+  protected def layoutTemplateAs(ext: Set[String])(path: String, attributes: (String, Any)*): String = {
+    val uri = findTemplate(path, ext).getOrElse(path)
+    templateEngine.layout(uri, Map(attributes:_*))
+  }
+
+  /**
+   * Finds and renders a template with the current layout strategy,
+   * looking for all known extensions, returning the result.
    *
    * @param ext The extension to look for a template.
    * @param path The path of the template, passed to `findTemplate`.
    * @param attributes Attributes to path to the render context.  Disable
    * layouts by passing `layout -> ""`.
    */
-  protected def renderTemplateAs(ext: String)(path: String, attributes: (String, Any)*): String = {
-    val uri = findTemplate(path, Set(ext)).getOrElse(path)
-    templateEngine.layout(uri, Map(attributes:_*))
-  }
+  protected def layoutTemplate(path: String, attributes: (String, Any)*): String =
+    layoutTemplateAs(templateEngine.extensions)(path, attributes :_*)
 
   /**
    * Finds a template for a path.  Delegates to a TemplateFinder, and if

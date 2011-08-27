@@ -106,7 +106,7 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
   }
 
   get("/chat") {
-    renderTemplate("chat.ssp")
+    layoutTemplate("chat.ssp")
   }
 
   post("/login") {
@@ -139,8 +139,8 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
   }
 
   get("/scalate") {
-  	val content = "this is some fake content for the web page"
-	  renderTemplate("index.scaml",("content"-> content))
+    val content = "this is some fake content for the web page"
+    layoutTemplate("index.scaml", "content"-> content)
   }
 
   get("/upload") {
