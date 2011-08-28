@@ -41,11 +41,11 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     }
 
     get("/simple-template") {
-      renderTemplate("/simple.jade")
+      layoutTemplate("/simple.jade")
     }
 
     get("/params") {
-      renderTemplate("/params.jade", "foo" -> "Configurable")
+      layoutTemplate("/params.jade", "foo" -> "Configurable")
     }
 
     get("/jade-template") {
@@ -85,11 +85,11 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     }
 
     val urlGeneration = get("/url-generation") {
-      renderTemplate("/urlGeneration.jade")
+      layoutTemplate("/urlGeneration.jade")
     }
 
     val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
-      renderTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
+      layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
     }
 
     get("/legacy-view-path") {
@@ -124,7 +124,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
   }
 
   def e3 = get("/simple-template") {
-    body must_== "<div>Simple template</div>\n"
+    body must_== "<div>Jade template</div>\n"
   }
 
   def e4 = get("/params") {
