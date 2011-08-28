@@ -48,16 +48,13 @@ import ScalatraKernel._
  * overwriting a previous one. This trait is thread safe.
  */
 trait ScalatraKernel extends Handler with CoreDsl with Initializable
+  with ServletApiImplicits
 {
   protected lazy val routes: RouteRegistry = new RouteRegistry
 
   protected val defaultCharacterEncoding = "UTF-8"
   protected val _response   = new DynamicVariable[HttpServletResponse](null)
   protected val _request    = new DynamicVariable[HttpServletRequest](null)
-
-  protected implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
-  protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
-  protected implicit def servletContextWrapper(sc: ServletContext) = new RichServletContext(sc)
 
   /**
    * Pluggable way to convert Strings into RouteMatchers.  By default, we
@@ -297,7 +294,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   /**
    * removes _all_ the actions of a given route for a given HTTP method.
-   * If [[addRoute]] is overriden this should probably be overriden too.
+   * If addRoute is overriden this should probably be overriden too.
    *
    * @see org.scalatra.ScalatraKernel.addRoute
    */

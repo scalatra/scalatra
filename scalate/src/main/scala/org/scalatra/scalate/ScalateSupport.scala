@@ -24,7 +24,7 @@ object ScalateSupport {
 }
 
 trait ScalateSupport extends ScalatraKernel {
-  protected var templateEngine: TemplateEngine = _
+  protected[scalatra] var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
     super.initialize(config)
@@ -65,12 +65,22 @@ trait ScalateSupport extends ScalatraKernel {
     override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
 
     ScalateSupport.setLayoutStrategy(this)
-
     templateDirectories = defaultTemplatePath
+    bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, true, isImplicit = true)
+    importStatements ::= "import org.scalatra.ServletApiImplicits._"
   }
 
+  /**
+   * Creates a render context to be used by default in the template engine.
+   *
+   * Returns a ScalatraRenderContext by default in order to bind some other
+   * framework variables (e.g., multiParams, flash).  ScalatraTemplateEngine
+   * assumes this returns ScalatraRenderContext in its binding of "context".
+   * If you return something other than a ScalatraRenderContext, you will
+   * also want to redefine that binding.
+   */
   protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): RenderContext =
-    new ServletRenderContext(templateEngine, req, resp, servletContext)
+    new ScalatraRenderContext(this, req, resp)
 
   /**
    * Creates a render context and renders directly to that.  No template

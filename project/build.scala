@@ -112,6 +112,7 @@ object ScalatraBuild extends Build {
     def liftJson(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "lift-json_2.8.1"
+        case "2.9.1.RC4" => "lift-json_2.9.0"
         case x => "lift-json_"+x
       }
       "net.liftweb" % libArtifactId % "2.4-M3"
@@ -166,14 +167,14 @@ object ScalatraBuild extends Build {
   lazy val scalatraCore = Project("scalatra", file("core"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(servletApi),
+      libraryDependencies ++= Seq(servletApi),
       description := "The core Scalatra framework")
     .testWithScalatraTest
 
   lazy val scalatraAuth = Project("scalatra-auth", file("auth"),
     settings = scalatraSettings)
     .settings(
-       libraryDependencies := Seq(servletApi, base64),
+       libraryDependencies ++= Seq(servletApi, base64),
        description := "Scalatra authentication module")
     .dependsOn(scalatraCore)
     .testWithScalatraTest
@@ -181,7 +182,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraFileupload = Project("scalatra-fileupload", file("fileupload"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(servletApi, commonsFileupload, commonsIo),
+      libraryDependencies ++= Seq(servletApi, commonsFileupload, commonsIo),
       description := "Commons-Fileupload integration with Scalatra")
     .dependsOn(scalatraCore)
     .testWithScalatraTest
@@ -232,7 +233,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(testJettyServlet),
+      libraryDependencies ++= Seq(testJettyServlet),
       description := "The abstract Scalatra test framework")
 
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
@@ -267,7 +268,7 @@ object ScalatraBuild extends Build {
     .settings(webSettings :_*)
     .settings(
       resolvers += sonatypeSnapshots,
-      libraryDependencies := Seq(servletApi, jettyWebapp % "jetty"),
+      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
       description := "Scalatra example project",
       publish := {},
       publishLocal := {})

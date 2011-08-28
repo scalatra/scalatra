@@ -16,7 +16,7 @@
 * Improve character decoding of form fields in multipart requests. [(GH-83)](http://github.com/scalatra/scalatra/issues/83)
 
 ## scalatra-scalate
-* Find templates and layouts by convention. [(GH-85)](http://github.com/scalatra/scalatra/issues/85)
+* Find templates and layouts by convention. [(GH-87)](http://github.com/scalatra/scalatra/issues/87)
 
 ## scalatra-socketio
 * Change interface to socket io to something that allows to keep state per client. [(GH-72)](http://github.com/scalatra/scalatra/issues/72)
