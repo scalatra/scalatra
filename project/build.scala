@@ -81,6 +81,11 @@ object ScalatraBuild extends Build {
         Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
       else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
+    },
+    autoCompilerPlugins := true,
+    addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
+    scalacOptions in Compile <+= scalaSource in Compile map {
+      "-P:sxr:base-directory:" + _.getAbsolutePath
     }
   )
 
@@ -171,14 +176,14 @@ object ScalatraBuild extends Build {
   lazy val scalatraCore = Project("scalatra", file("core"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(servletApi),
+      libraryDependencies ++= Seq(servletApi),
       description := "The core Scalatra framework")
     .testWithScalatraTest
 
   lazy val scalatraAuth = Project("scalatra-auth", file("auth"),
     settings = scalatraSettings)
     .settings(
-       libraryDependencies := Seq(servletApi, base64),
+       libraryDependencies ++= Seq(servletApi, base64),
        description := "Scalatra authentication module")
     .dependsOn(scalatraCore)
     .testWithScalatraTest
@@ -186,7 +191,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraFileupload = Project("scalatra-fileupload", file("fileupload"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(servletApi, commonsFileupload, commonsIo),
+      libraryDependencies ++= Seq(servletApi, commonsFileupload, commonsIo),
       description := "Commons-Fileupload integration with Scalatra")
     .dependsOn(scalatraCore)
     .testWithScalatraTest
@@ -237,7 +242,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies := Seq(testJettyServlet),
+      libraryDependencies ++= Seq(testJettyServlet),
       description := "The abstract Scalatra test framework")
 
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
@@ -272,7 +277,7 @@ object ScalatraBuild extends Build {
     .settings(webSettings :_*)
     .settings(
       resolvers += sonatypeSnapshots,
-      libraryDependencies := Seq(servletApi, jettyWebapp % "jetty"),
+      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
       description := "Scalatra example project",
       publish := {},
       publishLocal := {})

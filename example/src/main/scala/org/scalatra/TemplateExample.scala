@@ -59,7 +59,7 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
   get("/form") {
     Template.page("Scalatra: Form Post Example",
     <form action={url("/post")} method='POST'>
-      Post something: <input name='submission' type='text'/>
+      Post something: <input name="submission" type='text'/>
       <input type='submit'/>
     </form>
     <pre>Route: /form</pre>
@@ -83,8 +83,8 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
       case x:AnyRef =>
         Template.page("Scalatra: Session Example" + x.toString,
         <form action={url("/login")} method='POST'>
-        First Name: <input name='first' type='text'/>
-        Last Name: <input name='last' type='text'/>
+        First Name: <input name="first" type='text'/>
+        Last Name: <input name="last" type='text'/>
         <input type='submit'/>
         </form>
         <pre>Route: /login</pre>
