@@ -70,7 +70,16 @@ trait ScalateSupport extends ScalatraKernel {
     importStatements ::= "import org.scalatra.ServletApiImplicits._"
   }
 
-  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): ScalatraRenderContext =
+  /**
+   * Creates a render context to be used by default in the template engine.
+   *
+   * Returns a ScalatraRenderContext by default in order to bind some other
+   * framework variables (e.g., multiParams, flash).  ScalatraTemplateEngine
+   * assumes this returns ScalatraRenderContext in its binding of "context".
+   * If you return something other than a ScalatraRenderContext, you will
+   * also want to redefine that binding.
+   */
+  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): RenderContext =
     new ScalatraRenderContext(this, req, resp)
 
   /**
