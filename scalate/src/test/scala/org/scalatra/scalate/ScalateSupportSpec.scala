@@ -23,9 +23,14 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "render a simple template via mustache method"                ! e14^
     "render a simple template with params via mustache method"    ! e15^
     "looks for templates in legacy /WEB-INF/scalate/templates"    ! e16^
-    "looks for index page if no template found"                   ! e17
+    "looks for index page if no template found"                   ! e17^
+    "implicitly bind flash"                                       ! e18^
+    "implicitly bind session"                                     ! e19^
+    "implicitly bind params"                                      ! e20^
+    "implicitly bind multiParams"                                 ! e21
 
-  addServlet(new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
+  addServlet(new ScalatraServlet with ScalateSupport
+    with ScalateUrlGeneratorSupport with FlashMapSupport with CookieSupport {
 
     get("/barf") {
       throw new RuntimeException
@@ -93,6 +98,20 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
     get("/directory") {
       jade("directory/index")
+    }
+
+    get("/bindings/*") {
+      flash.now("message") = "flash works"
+      session("message") = "session works"
+      jade(requestPath)
+    }
+
+    get("/bindings/params/:foo") {
+      jade("/bindings/params")
+    }
+
+    get("/bindings/multiParams/*/*") {
+      jade("/bindings/multiParams")
     }
   }, "/*")
 
@@ -173,5 +192,21 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
   def e17 = get("/directory") {
     body must_== "<p>index</p>\n"
+  }
+
+  def e18 = get("/bindings/flash") {
+    body must_== "<div>flash works</div>\n"
+  }
+
+  def e19 = get("/bindings/session") {
+    body must_== "<div>session works</div>\n"
+  }
+
+  def e20 = get("/bindings/params/bar") {
+    body must_== "<div>bar</div>\n"
+  }
+
+  def e21 = get("/bindings/multiParams/bar/baz") {
+    body must_== "<div>bar;baz</div>\n"
   }
 }

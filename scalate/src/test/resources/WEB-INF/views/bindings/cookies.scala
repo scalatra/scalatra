@@ -1,0 +1,1 @@
+div= cookies("favorite")

@@ -24,7 +24,7 @@ object ScalateSupport {
 }
 
 trait ScalateSupport extends ScalatraKernel {
-  protected var templateEngine: TemplateEngine = _
+  protected[scalatra] var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
     super.initialize(config)
@@ -65,12 +65,13 @@ trait ScalateSupport extends ScalatraKernel {
     override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
 
     ScalateSupport.setLayoutStrategy(this)
-
     templateDirectories = defaultTemplatePath
+    bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, true, isImplicit = true)
+    importStatements ::= "import org.scalatra.ServletApiImplicits._"
   }
 
-  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): RenderContext =
-    new ServletRenderContext(templateEngine, req, resp, servletContext)
+  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): ScalatraRenderContext =
+    new ScalatraRenderContext(this, req, resp)
 
   /**
    * Creates a render context and renders directly to that.  No template
