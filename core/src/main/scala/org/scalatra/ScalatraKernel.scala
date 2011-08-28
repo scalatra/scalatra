@@ -294,7 +294,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   /**
    * removes _all_ the actions of a given route for a given HTTP method.
-   * If [[addRoute]] is overriden this should probably be overriden too.
+   * If addRoute is overriden this should probably be overriden too.
    *
    * @see org.scalatra.ScalatraKernel.addRoute
    */
