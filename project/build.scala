@@ -139,7 +139,13 @@ object ScalatraBuild extends Build {
       "org.scala-tools.testing" % libArtifactId % "1.6.8"
     }
 
-    def specs2(scalaVersion: String) = "org.specs2" %% "specs2" % "1.5"
+    def specs2(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case "2.8.2.RC1" => "specs2_2.8.1"
+        case x => "specs2_"+x
+      }
+      "org.specs2" % libArtifactId % "1.5"
+    }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
