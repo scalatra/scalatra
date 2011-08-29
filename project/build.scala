@@ -82,12 +82,14 @@ object ScalatraBuild extends Build {
         Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
       else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-    },
+    }
+/* This is crashing unidoc.
     autoCompilerPlugins := true,
     addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
     scalacOptions in Compile <+= scalaSource in Compile map {
       "-P:sxr:base-directory:" + _.getAbsolutePath
     }
+*/
   )
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
