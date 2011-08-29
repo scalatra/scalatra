@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import scala.xml._
 import com.github.siasia.WebPlugin.{webSettings, jettyPort}
+import posterous.Publish._
 
 object ScalatraBuild extends Build {
   val description = SettingKey[String]("description")
@@ -167,7 +168,9 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.settings)
     .settings(
       publishArtifact in Compile := false,
-      description := "A tiny, Sinatra-like web framework for Scala")
+      description := "A tiny, Sinatra-like web framework for Scala",
+      (name in Posterous) := "scalatra",
+      (crossScalaVersions in Posterous) ++= Seq("2.8.1", "2.8.2.RC1"))
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
