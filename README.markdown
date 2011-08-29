@@ -671,7 +671,7 @@ Another difference is that ScalatraFilter matches routes relative to the WAR's c
 
 ## Migration Guide
 
-### scalatra-2.0.0.M4 to scalatra-2.0.0.M5
+### scalatra-2.0.0.M4 to scalatra-2.0.0.RC1
 
 1. `halt(Int, String)` no longer sets the HTTP status line reason.  Call
    it with the named overload parameter.
