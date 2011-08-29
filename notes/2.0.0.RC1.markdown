@@ -33,3 +33,7 @@
 #### scalatra-scalatest
 * New convenience traits for Suites other than FunSuite. [(GH-21)](http://github.com/scalatra/scalatra/issues/21)
 * For convenience, ScalatraSuite now extends MustMatchers and ShouldMatchers.
+
+### scalatra-website
+* The website now has it's own project. [scalatra-website](http://github.com/scalatra/scalatra-website)
+* The scalatra book has also been seperated into it's own project. [scalatra-book](http://github.com/scalatra/scalatra-book)
