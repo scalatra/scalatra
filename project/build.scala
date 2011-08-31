@@ -98,8 +98,9 @@ object ScalatraBuild extends Build {
   object Dependencies {
     def antiXml(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1" => "anti-xml_2.9.0"
+        case "2.8.2.RC1" => "anti-xml_2.8.1"
         case "2.9.0-1" => "anti-xml_2.9.0"
+        case "2.9.1" => "anti-xml_2.9.0"
         case x => "anti-xml_"+x
       }
       "com.codecommit" % libArtifactId % "0.2"
@@ -120,6 +121,7 @@ object ScalatraBuild extends Build {
 
     def liftJson(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
+        case "2.8.2.RC1" => "lift-json_2.8.1"
         case "2.9.1" => "lift-json_2.9.0"
         case x => "lift-json_"+x
       }
@@ -129,27 +131,48 @@ object ScalatraBuild extends Build {
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
     def scalate(scalaVersion: String) = {
-      "org.fusesource.scalate" % "scalate-core" % "1.5.1"
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.4.1"
+        case _ => "1.5.1"
+      }
+      "org.fusesource.scalate" % "scalate-core" % libVersion
     }
 
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
+        case "2.8.2.RC1" => "scalatest_2.8.1"
         case "2.9.1" => "scalatest_2.9.0"
         case x => "scalatest_"+x
       }
-      "org.scalatest" % libArtifactId % "1.6.1"
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.5.1"
+        case _ => "1.6.1"
+      }
+      "org.scalatest" % libArtifactId % libVersion
     }
 
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1" => "specs_2.9.0"
+        case "2.8.2.RC1" => "specs_2.8.1"
         case "2.9.0-1" => "specs_2.9.0"
+        case "2.9.1" => "specs_2.9.0"
         case x => "specs_"+x
       }
       "org.scala-tools.testing" % libArtifactId % "1.6.8"
     }
 
-    def specs2(scalaVersion: String) = "org.specs2" %% "specs2" % "1.6-SNAPSHOT"
+    def specs2(scalaVersion: String) = {
+      val libArtifactId = scalaVersion match {
+        case "2.8.2.RC1" => "specs2_2.8.1"
+        case x => "specs2_"+x
+      }
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.5"
+        case "2.9.0" => "1.5" // https://github.com/etorreborre/specs2/issues/33
+        case _ => "1.6-SNAPSHOT"
+      }
+      "org.specs2" % libArtifactId % libVersion
+    }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
