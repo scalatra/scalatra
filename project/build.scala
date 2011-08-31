@@ -153,7 +153,6 @@ object ScalatraBuild extends Build {
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "specs_2.8.1"
-        case "2.9.0-1" => "specs_2.9.0"
         case "2.9.1" => "specs_2.9.0"
         case x => "specs_"+x
       }
