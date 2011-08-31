@@ -83,7 +83,14 @@ object ScalatraBuild extends Build {
       else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
-    resolvers += ScalaToolsSnapshots // for org.specs2:scalaz-core
+    resolvers += ScalaToolsSnapshots
+/* This is crashing unidoc.
+    autoCompilerPlugins := true,
+    addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
+    scalacOptions in Compile <+= scalaSource in Compile map {
+      "-P:sxr:base-directory:" + _.getAbsolutePath
+    }
+*/
   )
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
@@ -92,6 +99,8 @@ object ScalatraBuild extends Build {
     def antiXml(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "anti-xml_2.8.1"
+        case "2.9.0-1" => "anti-xml_2.9.0"
+        case "2.9.1" => "anti-xml_2.9.0"
         case x => "anti-xml_"+x
       }
       "com.codecommit" % libArtifactId % "0.2"
@@ -114,26 +123,40 @@ object ScalatraBuild extends Build {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "lift-json_2.8.1"
         case "2.9.1.RC4" => "lift-json_2.9.0"
+        case "2.9.1" => "lift-json_2.9.0"
         case x => "lift-json_"+x
       }
       "net.liftweb" % libArtifactId % "2.4-M3"
     }
 
+    val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
+
     def scalate(scalaVersion: String) = {
-      "org.fusesource.scalate" % "scalate-core" % "1.4.1"
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.4.1"
+        case _ => "1.5.1"
+      }
+      "org.fusesource.scalate" % "scalate-core" % libVersion
     }
 
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "scalatest_2.8.1"
+        case "2.9.1" => "scalatest_2.9.0"
         case x => "scalatest_"+x
       }
-      "org.scalatest" % libArtifactId % "1.5.1"
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.5.1"
+        case _ => "1.6.1"
+      }
+      "org.scalatest" % libArtifactId % libVersion
     }
 
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "specs_2.8.1"
+        case "2.9.0-1" => "specs_2.9.0"
+        case "2.9.1" => "specs_2.9.0"
         case x => "specs_"+x
       }
       "org.scala-tools.testing" % libArtifactId % "1.6.8"
@@ -144,7 +167,12 @@ object ScalatraBuild extends Build {
         case "2.8.2.RC1" => "specs2_2.8.1"
         case x => "specs2_"+x
       }
-      "org.specs2" % libArtifactId % "1.5"
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.5"
+        case "2.9.0" => "1.5" // https://github.com/etorreborre/specs2/issues/33
+        case _ => "1.6-SNAPSHOT"
+      }
+      "org.specs2" % libArtifactId % libVersion
     }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
@@ -236,7 +264,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies ++= Seq(testJettyServlet),
+      libraryDependencies ++= Seq(testJettyServlet, mockitoAll),
       description := "The abstract Scalatra test framework")
 
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
