@@ -97,7 +97,7 @@ object ScalatraBuild extends Build {
   object Dependencies {
     def antiXml(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC4" => "anti-xml_2.9.0"
+        case "2.9.1" => "anti-xml_2.9.0"
         case "2.9.0-1" => "anti-xml_2.9.0"
         case x => "anti-xml_"+x
       }
@@ -119,7 +119,7 @@ object ScalatraBuild extends Build {
 
     def liftJson(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC4" => "lift-json_2.9.0"
+        case "2.9.1" => "lift-json_2.9.0"
         case x => "lift-json_"+x
       }
       "net.liftweb" % libArtifactId % "2.4-M3"
@@ -131,7 +131,7 @@ object ScalatraBuild extends Build {
 
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC4" => "scalatest_2.9.0"
+        case "2.9.1" => "scalatest_2.9.0"
         case x => "scalatest_"+x
       }
       "org.scalatest" % libArtifactId % "1.6.1"
@@ -139,14 +139,14 @@ object ScalatraBuild extends Build {
 
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
-        case "2.9.1.RC4" => "specs_2.9.0"
+        case "2.9.1" => "specs_2.9.0"
         case "2.9.0-1" => "specs_2.9.0"
         case x => "specs_"+x
       }
       "org.scala-tools.testing" % libArtifactId % "1.6.8"
     }
 
-    def specs2(scalaVersion: String) = "org.specs2" %% "specs2" % "1.5"
+    def specs2(scalaVersion: String) = "org.specs2" % "specs2_2.9.1.RC4" % "1.5"
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
