@@ -6,10 +6,8 @@ import javax.servlet.http.HttpServletRequest
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
-@RunWith(classOf[JUnitRunner])
 class RichRequestTest extends FunSuite with ShouldMatchers {
   implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
 

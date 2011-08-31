@@ -82,7 +82,8 @@ object ScalatraBuild extends Build {
         Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
       else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-    }
+    },
+    resolvers += ScalaToolsSnapshots
 /* This is crashing unidoc.
     autoCompilerPlugins := true,
     addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
@@ -125,6 +126,8 @@ object ScalatraBuild extends Build {
       "net.liftweb" % libArtifactId % "2.4-M3"
     }
 
+    val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
+
     def scalate(scalaVersion: String) = {
       "org.fusesource.scalate" % "scalate-core" % "1.5.1"
     }
@@ -146,7 +149,7 @@ object ScalatraBuild extends Build {
       "org.scala-tools.testing" % libArtifactId % "1.6.8"
     }
 
-    def specs2(scalaVersion: String) = "org.specs2" % "specs2_2.9.1.RC4" % "1.5"
+    def specs2(scalaVersion: String) = "org.specs2" %% "specs2" % "1.6-SNAPSHOT"
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
@@ -237,7 +240,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies ++= Seq(testJettyServlet),
+      libraryDependencies ++= Seq(testJettyServlet, mockitoAll),
       description := "The abstract Scalatra test framework")
 
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
