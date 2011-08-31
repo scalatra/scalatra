@@ -153,10 +153,14 @@ object ScalatraBuild extends Build {
     def specs(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "specs_2.8.1"
-        case "2.9.1" => "specs_2.9.0"
         case x => "specs_"+x
       }
-      "org.scala-tools.testing" % libArtifactId % "1.6.8"
+      val libVersion = scalaVersion match {
+        case "2.9.0" => "1.6.9-SNAPSHOT"
+        case "2.9.1" => "1.6.9-SNAPSHOT"
+        case _ => "1.6.8"
+      }
+      "org.scala-tools.testing" % libArtifactId % libVersion
     }
 
     def specs2(scalaVersion: String) = {
