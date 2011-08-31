@@ -141,7 +141,6 @@ object ScalatraBuild extends Build {
     def scalatest(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "scalatest_2.8.1"
-        case "2.9.1" => "scalatest_2.9.0"
         case x => "scalatest_"+x
       }
       val libVersion = scalaVersion match {
