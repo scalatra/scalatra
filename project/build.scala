@@ -156,7 +156,7 @@ object ScalatraBuild extends Build {
         case x => "specs_"+x
       }
       val libVersion = scalaVersion match {
-        case "2.9.0" => "1.6.9-SNAPSHOT"
+        case "2.9.0-1" => "1.6.9-SNAPSHOT"
         case "2.9.1" => "1.6.9-SNAPSHOT"
         case _ => "1.6.8"
       }
