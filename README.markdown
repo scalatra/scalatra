@@ -13,7 +13,7 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for
 
 ## Documentation
 
-Please see [The Scalatra Book](http://github.com/stable/book) for more.
+Please see [The Scalatra Book](http://www.scalatra.org/stable/book/) for more.
 
 ## Latest version 
 
