@@ -2,7 +2,10 @@
 <!DOCTYPE web-app
 PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
 "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
-<web-app>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+      version="3.0">
 
   <servlet>
     <servlet-name>TemplateExample</servlet-name>
@@ -32,6 +35,7 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
       <param-value>8080</param-value>
     </init-param>
   </servlet>
+  
   <servlet>
     <servlet-name>CookiesExample</servlet-name>
     <servlet-class>org.scalatra.CookiesExample</servlet-class>
@@ -56,7 +60,21 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
       <param-value>8080</param-value>
     </init-param>
   </servlet>
-
+  <servlet>
+      <description>MeteorServlet</description>
+      <servlet-name>MeteorServlet</servlet-name>
+      <servlet-class>org.atmosphere.cpr.MeteorServlet</servlet-class>
+      <async-supported>true</async-supported>
+      <init-param>
+          <param-name>org.atmosphere.servlet</param-name>
+          <param-value>org.scalatra.MeteorChatExample</param-value>
+      </init-param>
+      <load-on-startup>0</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+      <servlet-name>MeteorServlet</servlet-name>
+      <url-pattern>/meteor</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>ChatApplication</servlet-name>
     <url-pattern>/socket.io/*</url-pattern>

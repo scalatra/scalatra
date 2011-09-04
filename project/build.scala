@@ -175,6 +175,8 @@ object ScalatraBuild extends Build {
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0.RC1"
 
     val testng = "org.testng" % "testng" % "6.1.1" % "optional"
+
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
   }
   import Dependencies._
 
@@ -294,7 +296,7 @@ object ScalatraBuild extends Build {
     .settings(webSettings :_*)
     .settings(
       resolvers += sonatypeSnapshots,
-      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
+      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty", atmosphere),
       description := "Scalatra example project",
       publish := {},
       publishLocal := {})
