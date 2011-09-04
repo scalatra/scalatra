@@ -36,6 +36,8 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
           <a href={url("/filter-example")}>filter example</a>
           <a href={url("/cookies-example")}>cookies example</a>
           <a href={url("/chat")}>chat demo</a>
+          <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a>
+          <a href={url("/chat_30.html")}>Servlet 3.0 async chat demo</a>
         </body>
       </html>
     }

@@ -49,10 +49,6 @@ object Servlet30ChatExample {
       })
     }
 
-    def remove(conn: AsyncContext) = {
-      connections remove conn
-    }
-
     def broadcast(message: String) = {
       messageQueue put message
     }
@@ -65,7 +61,7 @@ object Servlet30ChatExample {
       notifierExecutor.shutdown()
     }
     def start {
-      if (_notifier == null) {
+      if (!isStarted) {
         _notifier = notifierExecutor.submit(r {
           var done = false
           while(!done) {
@@ -89,7 +85,6 @@ object Servlet30ChatExample {
             } catch {
               case e: InterruptedException => {
                 done = true
-                e.printStackTrace()
               }
             }
           }
