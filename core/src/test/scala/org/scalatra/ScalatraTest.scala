@@ -36,7 +36,7 @@ class ScalatraTestServlet extends ScalatraServlet {
   }
 
   get("/no_content") {
-    status(204)
+    status = 204
   }
 
   get("/redirect") {

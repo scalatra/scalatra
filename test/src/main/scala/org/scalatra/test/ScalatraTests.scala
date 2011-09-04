@@ -5,13 +5,12 @@ import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.testing.ServletTester
-import org.eclipse.jetty.server.DispatcherType
 import org.eclipse.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
-import javax.servlet.Filter
 import java.net.HttpCookie
 import java.util.{Enumeration, EnumSet}
+import javax.servlet.{DispatcherType, Filter}
 
 object ScalatraTests {
   val DefaultDispatcherTypes: EnumSet[DispatcherType] =

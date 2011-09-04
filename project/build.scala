@@ -110,7 +110,7 @@ object ScalatraBuild extends Build {
 
     val commonsIo = "commons-io" % "commons-io" % "2.0.1"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "7.4.5.v20110725"
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.0.0.v20110901"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket")
     val jettyWebapp = jettyDep("jetty-webapp")
@@ -120,10 +120,9 @@ object ScalatraBuild extends Build {
     def liftJson(scalaVersion: String) = {
       val libArtifactId = scalaVersion match {
         case "2.8.2.RC1" => "lift-json_2.8.1"
-        case "2.9.1" => "lift-json_2.9.0"
         case x => "lift-json_"+x
       }
-      "net.liftweb" % libArtifactId % "2.4-M3"
+      "net.liftweb" % libArtifactId % "2.4-SNAPSHOT"
     }
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
@@ -170,7 +169,7 @@ object ScalatraBuild extends Build {
       "org.specs2" % libArtifactId % "1.5"
     }
 
-    val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
+    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0.RC1"
 

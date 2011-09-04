@@ -54,7 +54,10 @@ trait CoreDsl {
   /**
    * Sets the status code of the current response.
    */
-  def status(code: Int) = response.setStatus(code)
+//  def status(code: Int) = response.setStatus(code)
+  def status_=(code: Int) = response.setStatus(code)
+
+  def status = response.getStatus
 
   /**
    * Sends a redirect response.

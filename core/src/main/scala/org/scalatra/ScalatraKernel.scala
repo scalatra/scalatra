@@ -247,7 +247,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * methods.
    */
   protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = { allow =>
-    status(405)
+    status = 405
     response.setHeader("Allow", allow.mkString(", "))
   }
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f

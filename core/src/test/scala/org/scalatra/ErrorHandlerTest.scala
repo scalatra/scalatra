@@ -9,7 +9,7 @@ class ErrorHandlerTest extends ScalatraFunSuite {
 
   class BaseServlet extends ScalatraServlet {
     get("/1") {
-      status(418)
+      status = 418
       throw new Exception1
     }
     get("/uncaught") { throw new RuntimeException }

@@ -2,7 +2,7 @@ package org.scalatra
 
 import test.scalatest.ScalatraFunSuite
 
-class GetResponseStatusSupportTestServlet extends ScalatraServlet with GetResponseStatusSupport {
+class GetResponseStatusSupportTestServlet extends ScalatraServlet {
   before() {
     session // Establish a session before we commit the response
   }

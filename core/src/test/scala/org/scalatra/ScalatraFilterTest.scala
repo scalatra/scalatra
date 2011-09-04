@@ -25,7 +25,7 @@ class ScalatraFilterTestFilter extends ScalatraFilter {
   }
 
   get("/status-202") {
-    status(202)
+    status = 202
   }
 
   get("/init-param/:name") {

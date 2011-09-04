@@ -5,7 +5,7 @@ import test.specs2.ScalatraSpec
 
 class HaltTestServlet extends ScalatraServlet {
   before() {
-    status(501)
+    status = 501
     response.setHeader("Before-Header", "before")
     if (params.isDefinedAt("haltBefore")) {
       halt(503)
