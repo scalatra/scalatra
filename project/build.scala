@@ -118,11 +118,12 @@ object ScalatraBuild extends Build {
     val junit = "junit" % "junit" % "4.8.2"
 
     def liftJson(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "lift-json_2.8.1"
-        case x => "lift-json_"+x
+      val (libArtifactId, libArtifactVersion) = scalaVersion match {
+        case "2.8.2.RC1" => ("lift-json_2.8.1", "2.4-M3")
+        case "2.9.1" => ("lift-json_2.9.1", "2.4-SNAPSHOT")
+        case x => ("lift-json_"+x, "2.4-M3")
       }
-      "net.liftweb" % libArtifactId % "2.4-SNAPSHOT"
+      "net.liftweb" % libArtifactId % libArtifactVersion
     }
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
