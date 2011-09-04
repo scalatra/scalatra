@@ -51,12 +51,17 @@ trait CoreDsl {
    */
   def contentType_=(contentType: String) = response.setContentType(contentType)
 
+  @deprecated("Use status_=(Int) instead", "2.1")
+  def status(code: Int) = response.setStatus(code)
+
   /**
    * Sets the status code of the current response.
    */
-//  def status(code: Int) = response.setStatus(code)
   def status_=(code: Int) = response.setStatus(code)
 
+  /**
+   * Gets the status code of the current response.
+   */
   def status = response.getStatus
 
   /**
