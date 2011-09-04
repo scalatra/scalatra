@@ -6,6 +6,7 @@ import org.atmosphere.cpr.BroadcastFilter.BroadcastAction
 import org.atmosphere.cpr.{AtmosphereResourceEvent, AtmosphereResourceEventListener, Meteor, BroadcastFilter}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import collection.JavaConversions._
+import javax.servlet.annotation.WebServlet
 
 class EventsLogger extends AtmosphereResourceEventListener {
   def onThrowable(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
@@ -30,16 +31,13 @@ class EventsLogger extends AtmosphereResourceEventListener {
 }
 
 class JsonpFilter extends BroadcastFilter {
-  val BEGIN_SCRIPT = "<script type='text/javascript'>\n"
-  val END_SCRIPT = "</script>\n"
+
+  import Servlet30ChatExample.jsonp
 
   def filter(originalMessage: AnyRef, data: AnyRef) = data match {
     case d: String => {
       val (name, message) = if (d.indexOf("__") > 0) (d.substring(0, d.indexOf("__")), d.substring(d.indexOf("__") + 2)) else (d, "")
-      new BroadcastAction(
-        BEGIN_SCRIPT +
-            "window.parent.app.update({ name: \"%s\", message: \"%s\"});\n".format(name, message) +
-        END_SCRIPT)
+      new BroadcastAction(jsonp("window.parent.app.update({ name: \"%s\", message: \"%s\"});\n".format(name, message)))
     }
     case _ => new BroadcastAction(data)
   }

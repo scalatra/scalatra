@@ -35,7 +35,11 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
       <param-value>8080</param-value>
     </init-param>
   </servlet>
-  
+  <servlet>
+    <servlet-name>Servlet30ChatExample</servlet-name>
+    <servlet-class>org.scalatra.Servlet30ChatExample</servlet-class>
+    <async-supported>true</async-supported>
+  </servlet>
   <servlet>
     <servlet-name>CookiesExample</servlet-name>
     <servlet-class>org.scalatra.CookiesExample</servlet-class>
@@ -72,8 +76,12 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
       <load-on-startup>0</load-on-startup>
   </servlet>
   <servlet-mapping>
+    <servlet-name>Servlet30ChatExample</servlet-name>
+    <url-pattern>/chat30/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
       <servlet-name>MeteorServlet</servlet-name>
-      <url-pattern>/meteor</url-pattern>
+      <url-pattern>/meteor/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>ChatApplication</servlet-name>
