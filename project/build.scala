@@ -112,8 +112,8 @@ object ScalatraBuild extends Build {
 
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.0.0.v20110901"
     val testJettyServlet = jettyDep("test-jetty-servlet")
-    val jettyWebsocket = jettyDep("jetty-websocket")
-    val jettyWebapp = jettyDep("jetty-webapp")
+    val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
+    val jettyWebapp = jettyDep("jetty-webapp") % "test"
 
     val junit = "junit" % "junit" % "4.8.2"
 
@@ -202,18 +202,16 @@ object ScalatraBuild extends Build {
   lazy val scalatraAuth = Project("scalatra-auth", file("auth"),
     settings = scalatraSettings)
     .settings(
-       libraryDependencies ++= Seq(servletApi, base64),
+       libraryDependencies ++= Seq(base64),
        description := "Scalatra authentication module")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
+    .dependsOn(scalatraCore % "compile;provided->provided;test->test")
 
   lazy val scalatraFileupload = Project("scalatra-fileupload", file("fileupload"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies ++= Seq(servletApi, commonsFileupload, commonsIo),
+      libraryDependencies ++= Seq(commonsFileupload, commonsIo),
       description := "Commons-Fileupload integration with Scalatra")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
+    .dependsOn(scalatraCore % "compile;provided->provided;test->test")
 
   lazy val scalatraScalate = Project("scalatra-scalate", file("scalate"),
     settings = scalatraSettings)
@@ -222,8 +220,7 @@ object ScalatraBuild extends Build {
         (sv, deps) => deps ++ Seq(scalate(sv), servletApi)
       },
       description := "Scalate integration with Scalatra")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
+    .dependsOn(scalatraCore % "compile;provided->provided;test->test")
 
   lazy val scalatraSocketio = Project("scalatra-socketio", file("socketio"),
     settings = scalatraSettings)
@@ -234,29 +231,26 @@ object ScalatraBuild extends Build {
       resolvers += sonatypeSnapshots,
       description := "Socket IO support for Scalatra"
     )
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
+    .dependsOn(scalatraCore % "compile;provided->provided;test->test")
 
   lazy val scalatraLiftJson = Project("scalatra-lift-json", file("lift-json"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(liftJson(sv), servletApi)
+        (sv, deps) => deps ++ Seq(liftJson(sv))
       },
       description := "Lift JSON support for Scalatra"
     )
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
+    .dependsOn(scalatraCore % "compile;provided->provided;test->test")
 
   lazy val scalatraAntiXml = Project("scalatra-anti-xml", file("anti-xml"),
     settings = scalatraSettings)
     .settings(
       libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(antiXml(sv), servletApi)
+        (sv, deps) => deps ++ Seq(antiXml(sv))
       },
       description := "Anti-XML support for Scalatra")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
+    .dependsOn(scalatraCore % "compile;provided->provided;test->test")
 
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
@@ -296,17 +290,20 @@ object ScalatraBuild extends Build {
     .settings(webSettings :_*)
     .settings(
       resolvers += sonatypeSnapshots,
-      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty", atmosphere),
+      libraryDependencies ++= Seq(atmosphere),
       description := "Scalatra example project",
       publish := {},
       publishLocal := {})
-    .dependsOn(scalatraCore, scalatraScalate, scalatraAuth, scalatraFileupload,
-               scalatraSocketio)
+    .dependsOn(scalatraCore       % "compile;provided->provided;test->test",
+               scalatraScalate    % "compile",
+               scalatraAuth       % "compile",
+               scalatraFileupload % "compile",
+               scalatraSocketio   % "compile;provided->provided")
 
   class RichProject(project: Project) {
     def testWithScalatraTest = {
       val testProjects = Seq(scalatraScalatest, scalatraSpecs, scalatraSpecs2)
-      val testDeps = testProjects map { _ % "test" }
+      val testDeps = testProjects map { _ % "compile->test" }
       project.dependsOn(testDeps : _*)
     }
   }
