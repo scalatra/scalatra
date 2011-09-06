@@ -165,9 +165,11 @@ object ScalatraBuild extends Build {
         case "2.8.2.RC1" => "specs2_2.8.1"
         case x => "specs2_"+x
       }
-      // Don't ever use 1.6 with 2.9.0:
-      // https://github.com/etorreborre/specs2/issues/33
-      "org.specs2" % libArtifactId % "1.5"
+      val libVersion = scalaVersion match {
+        case "2.9.1" => "1.6"
+        case _ => "1.5"
+      }
+      "org.specs2" % libArtifactId % libVersion
     }
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
