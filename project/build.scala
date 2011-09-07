@@ -120,7 +120,7 @@ object ScalatraBuild extends Build {
     def liftJson(scalaVersion: String) = {
       val (libArtifactId, libArtifactVersion) = scalaVersion match {
         case "2.8.2.RC1" => ("lift-json_2.8.1", "2.4-M3")
-        case "2.9.1" => ("lift-json_2.9.1", "2.4-SNAPSHOT")
+        case "2.9.1" => ("lift-json_2.9.1", "2.4-M4")
         case x => ("lift-json_"+x, "2.4-M3")
       }
       "net.liftweb" % libArtifactId % libArtifactVersion
