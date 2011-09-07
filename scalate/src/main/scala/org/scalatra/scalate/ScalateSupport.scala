@@ -23,7 +23,18 @@ object ScalateSupport {
   }
 }
 
+/**
+ * ScalateSupport creates and configures a template engine and provides
+ * helper methods and bindings to integrate with the ScalatraKernel.
+ */
 trait ScalateSupport extends ScalatraKernel {
+  /**
+   * The template engine used by the methods in this support class.  It
+   * provides a lower-level interface to Scalate and may be used directly
+   * to circumvent the conventions imposed by the helpers in this class.
+   * For instance, paths passed directly to the template engine are not
+   * run through `findTemplate`.
+   */
   protected[scalatra] var templateEngine: TemplateEngine = _
 
   abstract override def initialize(config: Config) {
@@ -31,6 +42,11 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
+  /**
+   * Creates the templateEngine from the config.  There is little reason to
+   * override this unless you have created a ScalatraKernel extension outside
+   * an HttpServlet or Filter.
+   */
   protected def createTemplateEngine(config: Config): TemplateEngine =
     config match {
       case servletConfig: ServletConfig =>
