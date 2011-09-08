@@ -32,7 +32,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
     case null => None
   }
 
-  @deprecated("Use referrer", "2.0")
+  @deprecated("Use referrer")
   def referer: Option[String] = referrer
 
   /**
