@@ -8,9 +8,23 @@ import java.util.Locale.ENGLISH
 
 
 object ApiFormats {
+  /**
+   * The request attribute key in which the format is stored.
+   */
   val FormatKey = "org.scalatra.FormatKey".intern
 }
+
+/**
+ * Adds support for mapping and inferring formats to content types.
+ *
+ * $ - Provides a request-scoped format variable
+ * $ - Maps formats to content types and vice versa
+ * $ - Augments the content-type inferrer to use the format
+ */
 trait ApiFormats extends ScalatraKernel {
+  /**
+   * A map of suffixes to content types.
+   */
   val formats: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "json" -> "application/json",
     "xml" -> "application/xml",
@@ -28,6 +42,9 @@ trait ApiFormats extends ScalatraKernel {
     "html5" -> "text/html",
     "xhtml" -> "application/xhtml+xml"))
 
+  /**
+   * A map of content types to suffixes.  Not strictly a reverse of `formats`.
+   */
   val mimeTypes: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "application/json" -> "json",
     "application/xml" -> "xml",
@@ -48,10 +65,21 @@ trait ApiFormats extends ScalatraKernel {
     "text/html" -> "html",
     "application/xhtml+xml" -> "html"))
 
-  def defaultFormat = 'html
+  /**
+   * The default format.
+   */
+  def defaultFormat: Symbol = 'html
+
+  /**
+   * A list of formats accepted by default.
+   */
   def defaultAcceptedFormats: List[Symbol] = List.empty
 
-  def acceptHeader = {
+  /**
+   * The list of media types accepted by the current request.  Parsed from the
+   * `Accept` header.
+   */
+  def acceptHeader: List[String] = {
     val s = request.getHeader("Accept")
     if (s == null || s.isEmpty) List[String]() else s.split(";").map(_.trim).toList
   }
@@ -65,32 +93,46 @@ trait ApiFormats extends ScalatraKernel {
     formatForMimeTypes(hdrs: _*)
   }
 
-  protected def formatForMimeTypes(mimeTypes: String*) = {
+  protected def formatForMimeTypes(mimeTypes: String*): Option[String] = {
     val defaultMimeType = formats(defaultFormat.name)
     def matchMimeType(tm: String, f: String) = {
       tm.toLowerCase(ENGLISH).startsWith(f) || (defaultMimeType == f && tm.contains(defaultMimeType))
     }
-    mimeTypes find { hdr ⇒
-      formats exists { case (k, v) ⇒ matchMimeType(hdr, v) }
-    } flatMap { hdr ⇒
-      formats find { case (k, v) ⇒ matchMimeType(hdr, v) } map { _._1 }
+    mimeTypes find { hdr =>
+      formats exists { case (k, v) => matchMimeType(hdr, v) }
+    } flatMap { hdr =>
+      formats find { case (k, v) => matchMimeType(hdr, v) } map { _._1 }
     }
   }
 
+  /**
+   * A content type inferrer based on the `format` variable.  Looks up the media
+   * type from the `formats` map.  If not found, returns
+   * `application/octet-stream`.  This inferrer is prepended to the inherited
+   * one.
+   */
   protected def inferFromFormats: ContentTypeInferrer = {
-    case _ if format.isNonBlank ⇒ formats.get(format) getOrElse "application/octetstream"
+    case _ if format.isNonBlank => formats.get(format) getOrElse "application/octet-stream"
   }
 
   override protected def contentTypeInferrer: ContentTypeInferrer = inferFromFormats orElse super.contentTypeInferrer
 
   protected def acceptedFormats(accepted: Symbol*) = {
     val conditions = if (accepted.isEmpty) defaultAcceptedFormats else accepted.toList
-    conditions.isEmpty || (conditions filter { s ⇒ formats.get(s.name).isDefined } contains contentType)
+    conditions.isEmpty || (conditions filter { s => formats.get(s.name).isDefined } contains contentType)
   }
 
   private def getFormat = getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
 
   import ApiFormats.FormatKey
+
+  /**
+   * Returns the request-scoped format.  If not explicitly set, the format is:
+   * $ - the `format` request parameter, if present in `formatParams`
+   * $ - the first match from `Accept` header, looked up in `mimeTypes`
+   * $ - the format from the `Content-Type` header, as looked up in `mimeTypes`
+   * $ - the default format
+   */
   def format = {
     request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
       val fmt = getFormat
@@ -98,9 +140,19 @@ trait ApiFormats extends ScalatraKernel {
       fmt
     }
   }
+
+  /**
+   * Explicitly sets the request-scoped format.  This takes precedence over
+   * whatever was inferred from the request.
+   */
   def format_=(formatValue: Symbol) {
     request(FormatKey) = formatValue.name
   }
+
+  /**
+   * Explicitly sets the request-scoped format.  This takes precedence over
+   * whatever was inferred from the request.
+   */
   def format_=(formatValue: String) {
     request(FormatKey) = formatValue
   }

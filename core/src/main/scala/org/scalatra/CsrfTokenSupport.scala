@@ -27,9 +27,24 @@ object CsrfTokenSupport {
   val DefaultKey = "org.scalatra.CsrfTokenSupport.key".intern
 }
 
+/**
+ * Provides cross-site request forgery protection.
+ *
+ * Adds a before filter.  If a request is determined to be forged, the
+ * `handleForgery()` hook is invoked.  Otherwise, a token for the next
+ * request is prepared with `prepareCsrfToken`.
+ */
 trait CsrfTokenSupport { self: ScalatraKernel =>
-  protected def csrfKey = CsrfTokenSupport.DefaultKey
-  protected def csrfToken = session(csrfKey).asInstanceOf[String]
+  /**
+   * The key used to store the token on the session, as well as the parameter
+   * of the request.
+   */
+  protected def csrfKey: String = CsrfTokenSupport.DefaultKey
+
+  /**
+   * Returns the token from the session.
+   */
+  protected def csrfToken: String = session(csrfKey).asInstanceOf[String]
 
   before() {
     if (isForged) {
@@ -39,9 +54,12 @@ trait CsrfTokenSupport { self: ScalatraKernel =>
   }
 
   /**
-   * Test whether a POST request is a potential cross-site forgery.
+   * Tests whether a request with a unsafe method is a potential cross-site
+   * forgery.
    *
-   * @return Returns true if the POST request is suspect.
+   * @return true if the request is an unsafe method (POST, PUT, DELETE, TRACE,
+   * CONNECT, PATCH) and the request parameter at `csrfKey` does not match
+   * the session key of the same name.
    */
   protected def isForged: Boolean = {
     request.isWrite && session.get(csrfKey) != params.get(csrfKey)
@@ -55,6 +73,10 @@ trait CsrfTokenSupport { self: ScalatraKernel =>
     halt(403, "Request tampering detected!")
   }
 
+  /**
+   * Prepares a CSRF token.  The default implementation uses `GenerateId`
+   * and stores it on the session.
+   */
   protected def prepareCsrfToken() = {
     session.getOrElseUpdate(csrfKey, GenerateId())
   }

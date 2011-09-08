@@ -188,6 +188,7 @@ object ScalatraBuild extends Build {
     .settings(
       publishArtifact in Compile := false,
       description := "A tiny, Sinatra-like web framework for Scala",
+      Unidoc.unidocExclude := Seq("scalatra-example"),
       (name in Posterous) := "scalatra",
       (crossScalaVersions in Posterous) ++= Seq("2.8.1", "2.8.2.RC1"))
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,

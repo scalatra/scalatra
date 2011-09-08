@@ -5,16 +5,31 @@ import scala.util.parsing.combinator._
 import java.net.URLEncoder.encode
 import util.MultiMap
 
+/**
+ * A route matcher is evaluated in the context it was created and returns a
+ * a (possibly empty) multi-map of parameters if the route is deemed to match.
+ */
 trait RouteMatcher {
-
   def apply(): Option[ScalatraKernel.MultiParams]
 }
 
+/**
+ * A route matcher from which a URI can be generated from route parameters.
+ */
 trait ReversibleRouteMatcher {
-
+  /**
+   * Generates a URI from a route matcher.
+   *
+   * @param params a map of named params extractable by the route
+   * @param splats a list of splats extractable by the route
+   * @return a String that would match the route with the given params and splats
+   */
   def reverse(params: Map[String, String], splats: List[String]): String
 }
 
+/**
+ * An implementation of Sinatra's path pattern syntax.
+ */
 final class SinatraRouteMatcher(pattern: String, requestPath: => String)
   extends RouteMatcher with ReversibleRouteMatcher {
 
@@ -82,6 +97,9 @@ final class SinatraRouteMatcher(pattern: String, requestPath: => String)
   override def toString = pattern
 }
 
+/**
+ * An implementation of Rails' path pattern syntax
+ */
 final class RailsRouteMatcher(pattern: String, requestPath: => String)
   extends RouteMatcher with ReversibleRouteMatcher {
 
@@ -157,9 +175,19 @@ final class PathPatternRouteMatcher(pattern: PathPattern, requestPath: => String
   override def toString = pattern.regex.toString
 }
 
+/**
+ * A route matcher for regular expressions.  Useful for cases that are
+ * more complex than are supported by Sinatra- or Rails-style routes.
+ */
 final class RegexRouteMatcher(regex: Regex, requestPath: => String)
   extends RouteMatcher {
 
+  /**
+   * Evaluates the request path against the regular expression.
+   *
+   * @return If the regex matches the request path, returns a list of all
+   * captured groups in a "captures" variable.  Otherwise, returns None.
+   */
   def apply() = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
     case Nil => MultiMap()
     case xs => Map("captures" -> xs)
@@ -168,8 +196,15 @@ final class RegexRouteMatcher(regex: Regex, requestPath: => String)
   override def toString = regex.toString
 }
 
+/**
+ * A route matcher on a boolean condition.  Does not extract any route parameters.
+ */
 final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
-
+  /**
+   * Evaluates the block.
+   *
+   * @return Some empty map if the block evaluates to true, or else None.
+   */
   def apply() = if (block) Some(MultiMap()) else None
 
   override def toString = "[Boolean Guard]"

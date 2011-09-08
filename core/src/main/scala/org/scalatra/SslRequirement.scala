@@ -3,6 +3,9 @@ package org.scalatra
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import java.net.URI
 
+/**
+ * Redirects unsecured requests to the corresponding secure URL.
+ */
 trait SslRequirement extends Handler { self: ScalatraKernel =>
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     _request.withValue(req) {
