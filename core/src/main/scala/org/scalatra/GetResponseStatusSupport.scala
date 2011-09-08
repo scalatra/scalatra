@@ -5,7 +5,9 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Mixin to ScalatraKernel that allows the retrieval of the HttpStatus.
- * The response.getStatus() method was not added until Servlet 3.0.
+ * Do not use with other response wrappers, or it will fail with a
+ * ClassCastException.  This trait is not necessary if you can upgrade to
+ * Servlet 3.0, which adds response.getStatus().
  */
 trait GetResponseStatusSupport extends Handler { self: ScalatraKernel =>
 
@@ -41,6 +43,9 @@ trait GetResponseStatusSupport extends Handler { self: ScalatraKernel =>
     }
   }
 
-  // TODO will fail if there is another response wrapper of a different type
+  /**
+   * Returns the status of the current response.  Caution: if the response
+   * has been wrapped by another class, this will throw a ClassCastException.
+   */
   def status = response.asInstanceOf[ScalatraGetStatusServletResponseWrapper].getStatus
 }

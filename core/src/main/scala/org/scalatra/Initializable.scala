@@ -6,8 +6,11 @@ package org.scalatra
  * HttpServlet and a Filter.
  */
 trait Initializable {
+  /**
+   * Abstract type member for the configuration to use during initialization.
+   * Examples include `ServletConfig` and `FilterConfig`.
+   */
   type Config
-
 
   /**
    * A hook to initialize the class with some configuration after it has

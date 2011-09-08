@@ -4,6 +4,18 @@ import scala.util.DynamicVariable
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import javax.servlet._
 
+/**
+ * An implementation of the Scalatra DSL in a filter.  You may prefer a filter
+ * to a ScalatraServlet if:
+ *
+ * $ - you are sharing a URL space with another servlet or filter and want to
+ *     delegate unmatched requests.  This is very useful when migrating
+ *     legacy applications one page or resource at a time.
+ *
+ * If in doubt, extend ScalatraServlet instead.
+ *
+ * @see ScalatraServlet
+ */
 trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   import ScalatraKernel._
 
