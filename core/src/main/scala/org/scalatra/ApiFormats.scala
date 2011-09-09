@@ -5,13 +5,14 @@ import collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
-
+import collection.{SortedMap, mutable}
 
 object ApiFormats {
   /**
    * The request attribute key in which the format is stored.
    */
   val FormatKey = "org.scalatra.FormatKey".intern
+
 }
 
 /**
@@ -79,10 +80,7 @@ trait ApiFormats extends ScalatraKernel {
    * The list of media types accepted by the current request.  Parsed from the
    * `Accept` header.
    */
-  def acceptHeader: List[String] = {
-    val s = request.getHeader("Accept")
-    if (s == null || s.isEmpty) List[String]() else s.split(";").map(_.trim).toList
-  }
+  def acceptHeader: List[String] = parseAcceptHeader
 
   private def getFromParams = {
     params.get('format).find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
@@ -91,6 +89,23 @@ trait ApiFormats extends ScalatraKernel {
   private def getFromAcceptHeader = {
     val hdrs = if (request.getContentType != null) (acceptHeader ::: List(request.getContentType)).distinct else acceptHeader
     formatForMimeTypes(hdrs: _*)
+  }
+
+  private def parseAcceptHeader = {
+    val s = request.getHeader("Accept")
+    if (s.isBlank) Nil else {
+      val fmts = s.split(",").map(_.trim)
+      val accepted = (fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
+        val parts = f.split(";").map(_.trim)
+        val i = if (parts.size > 1) {
+          val pars = parts(1).split("=").map(_.trim).grouped(2).map(a => a(0) -> a(1)).toSeq
+          val a = Map(pars:_*)
+          (a.get("q").map(_.toDouble).getOrElse(1.0) * 10).ceil.toInt
+        } else 10
+        acc + (i -> (parts(0) :: acc.get(i).getOrElse(List.empty)))
+      })
+      (accepted.toList sortWith ((kv1, kv2) => kv1._1 > kv2._1) flatMap (_._2.reverse) toList)
+    }
   }
 
   protected def formatForMimeTypes(mimeTypes: String*): Option[String] = {
