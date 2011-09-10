@@ -6,11 +6,13 @@ import posterous.Publish._
 
 object ScalatraBuild extends Build {
   val description = SettingKey[String]("description")
+  val crossScalaVersions_2_8 = SettingKey[Seq[String]]("cross-scala-versions-2.8")
 
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.0-SNAPSHOT",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0"),
+    crossScalaVersions_2_8 := Seq("2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     packageOptions <<= (packageOptions, name, version, organization) map {
@@ -155,7 +157,7 @@ object ScalatraBuild extends Build {
       "org.specs2" %% "specs2" % libVersion
     }
 
-    val servletApi = "javax.servlet" % "servlet-api" % "3.0" % "provided"
+    val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % version
 
@@ -170,7 +172,7 @@ object ScalatraBuild extends Build {
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
       (name in Posterous) := "scalatra",
-      (crossScalaVersions in Posterous) ++= Seq("2.8.1"))
+      (crossScalaVersions in Posterous) <++= crossScalaVersions_2_8(identity))
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
