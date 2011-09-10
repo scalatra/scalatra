@@ -97,11 +97,7 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
     def antiXml(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "anti-xml_2.8.1"
-        case x => "anti-xml_"+x
-      }
-      "com.codecommit" % libArtifactId % "0.2"
+      "com.codecommit" %% "anti-xml" % "0.2"
     }
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
@@ -118,15 +114,11 @@ object ScalatraBuild extends Build {
     val junit = "junit" % "junit" % "4.8.2"
 
     def liftJson(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "lift-json_2.8.1"
-        case x => "lift-json_"+x
-      }
       val libVersion = scalaVersion match {
         case "2.9.1" => "2.4-M4"
         case _ => "2.4-M3"
       }
-      "net.liftweb" % libArtifactId % libVersion
+      "net.liftweb" %% "lift-json" % libVersion
     }
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
@@ -140,42 +132,30 @@ object ScalatraBuild extends Build {
     }
 
     def scalatest(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "scalatest_2.8.1"
-        case x => "scalatest_"+x
-      }
       val libVersion = scalaVersion match {
         case x if x startsWith "2.8." => "1.5.1"
         case _ => "1.6.1"
       }
-      "org.scalatest" % libArtifactId % libVersion
+      "org.scalatest" %% "scalatest" % libVersion
     }
 
     def specs(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "specs_2.8.1"
-        case x => "specs_"+x
-      }
       val libVersion = scalaVersion match {
         case "2.9.1" => "1.6.9"
         case _ => "1.6.8"
       }
-      "org.scala-tools.testing" % libArtifactId % libVersion
+      "org.scala-tools.testing" %% "specs" % libVersion
     }
 
     def specs2(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "specs2_2.8.1"
-        case x => "specs2_"+x
-      }
       val libVersion = scalaVersion match {
         case "2.9.1" => "1.6"
         case _ => "1.5"
       }
-      "org.specs2" % libArtifactId % libVersion
+      "org.specs2" %% "specs2" % libVersion
     }
 
-    val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
+    val servletApi = "javax.servlet" % "servlet-api" % "3.0" % "provided"
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % version
 
@@ -190,7 +170,7 @@ object ScalatraBuild extends Build {
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
       (name in Posterous) := "scalatra",
-      (crossScalaVersions in Posterous) ++= Seq("2.8.1", "2.8.2.RC1"))
+      (crossScalaVersions in Posterous) ++= Seq("2.8.1"))
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
