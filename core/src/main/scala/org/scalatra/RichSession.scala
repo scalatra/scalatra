@@ -3,6 +3,9 @@ package org.scalatra
 import javax.servlet.http.HttpSession
 import util.MapWithIndifferentAccess
 
+/**
+ * Extension methods to the standard HttpSession.
+ */
 class RichSession(session: HttpSession) extends AttributesMap {
   /*
    * TODO The structural type works at runtime, but fails to compile because

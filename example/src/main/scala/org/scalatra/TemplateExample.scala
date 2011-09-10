@@ -135,7 +135,7 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
   get("/") {
     Template.page("Scalatra: Hello World",
     <h2>Hello world!</h2>
-    <p>Referer: { (request referer) map { Text(_) } getOrElse { <i>none</i> }}</p>
+    <p>Referer: { (request referrer) map { Text(_) } getOrElse { <i>none</i> }}</p>
     <pre>Route: /</pre>
     )
   }

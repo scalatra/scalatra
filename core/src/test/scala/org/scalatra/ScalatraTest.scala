@@ -47,8 +47,8 @@ class ScalatraTestServlet extends ScalatraServlet {
     "redirected"
   }
 
-  get("/print_referer") {
-    (request referer) getOrElse ("NONE")
+  get("/print_referrer") {
+    (request referrer) getOrElse ("NONE")
   }
 
   get("/binary/test") {
@@ -139,14 +139,15 @@ class ScalatraTest extends ScalatraFunSuite {
     }
   }
 
-  test("GET /print_referer should return Referer") {
-    get("/print_referer", Map.empty[String, String], Map("Referer" -> "somewhere")) {
+  test("GET /print_referrer should return Referer") {
+    val referer = "Referer" // Misspelling intentional; it's the standard
+    get("/print_referrer", Map.empty[String, String], Map(referer -> "somewhere")) {
       body should equal ("somewhere")
     }
   }
 
-  test("GET /print_referer should return NONE when no referer") {
-    get("/print_referer") {
+  test("GET /print_refrerer should return NONE when no referrer") {
+    get("/print_referrer") {
       body should equal ("NONE")
     }
   }
