@@ -111,7 +111,7 @@ object ScalatraBuild extends Build {
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.0.0.v20110901"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
-    val jettyWebapp = jettyDep("jetty-webapp") % "test"
+    val jettyWebapp = jettyDep("jetty-webapp") % "test;jetty"
 
     val junit = "junit" % "junit" % "4.8.2"
 
@@ -278,7 +278,7 @@ object ScalatraBuild extends Build {
     .settings(webSettings :_*)
     .settings(
       resolvers += sonatypeSnapshots,
-      libraryDependencies ++= Seq(atmosphere),
+      libraryDependencies ++= Seq(atmosphere, jettyWebapp),
       description := "Scalatra example project",
       publish := {},
       publishLocal := {})
@@ -291,7 +291,7 @@ object ScalatraBuild extends Build {
   class RichProject(project: Project) {
     def testWithScalatraTest = {
       val testProjects = Seq(scalatraScalatest, scalatraSpecs, scalatraSpecs2)
-      val testDeps = testProjects map { _ % "compile->test" }
+      val testDeps = testProjects map { _ % "test->compile" }
       project.dependsOn(testDeps : _*)
     }
   }
