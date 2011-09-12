@@ -129,8 +129,8 @@ object ScalatraBuild extends Build {
 
     def scalate(scalaVersion: String) = {
       val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.4.1"
-        case _ => "1.5.1"
+        case x if x startsWith "2.8." => "1.5.2-scala_2.8.1"
+        case _ => "1.5.2"
       }
       "org.fusesource.scalate" % "scalate-core" % libVersion
     }
