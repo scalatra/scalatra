@@ -105,11 +105,13 @@ object ScalatraBuild extends Build {
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
-
     val commonsIo = "commons-io" % "commons-io" % "2.0.1"
+    val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.0.1"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "7.4.5.v20110725"
+    private def jettyDep(name: String, version: String = "7.4.5.v20110725") =
+      "org.eclipse.jetty" % name % version
     val testJettyServlet = jettyDep("test-jetty-servlet")
+    val testJettyServlet_8 = jettyDep("test-jetty-servlet", "8.0.1.v20110908")
     val jettyWebsocket = jettyDep("jetty-websocket")
     val jettyWebapp = jettyDep("jetty-webapp")
 
@@ -158,6 +160,7 @@ object ScalatraBuild extends Build {
     }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
+    val servletApi_3_0 = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % version
 
@@ -176,7 +179,7 @@ object ScalatraBuild extends Build {
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample)
+      scalatraExample, scalatraJetty8Tests)
 
   lazy val scalatraCore = Project("scalatra", file("core"),
     settings = scalatraSettings)
@@ -247,7 +250,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies ++= Seq(testJettyServlet, mockitoAll),
+      libraryDependencies <++= (scalaVersion) { sv =>
+        Seq(testJettyServlet, mockitoAll, commonsLang3, specs2(sv) % "test")
+      },
       description := "The abstract Scalatra test framework")
 
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
@@ -288,6 +293,15 @@ object ScalatraBuild extends Build {
       publishLocal := {})
     .dependsOn(scalatraCore, scalatraScalate, scalatraAuth, scalatraFileupload,
                scalatraSocketio)
+
+  lazy val scalatraJetty8Tests = Project("scalatra-jetty8-tests", file("test/jetty8"),
+    settings = scalatraSettings)
+    .settings(
+      libraryDependencies ++= Seq(servletApi_3_0, testJettyServlet_8 % "test"),
+      description := "Compatibility tests for Jetty 8",
+      publish := {},
+      publishLocal := {})
+    .testWithScalatraTest
 
   class RichProject(project: Project) {
     def testWithScalatraTest = {

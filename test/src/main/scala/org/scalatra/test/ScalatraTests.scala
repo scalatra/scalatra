@@ -5,7 +5,6 @@ import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.testing.ServletTester
-import org.eclipse.jetty.server.DispatcherType
 import org.eclipse.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
@@ -98,15 +97,33 @@ trait ScalatraTests {
 
   def addFilter(filter: Filter, path: String): FilterHolder =
     addFilter(filter, path, DefaultDispatcherTypes)
+
   def addFilter(filter: Filter, path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
     val holder = new FilterHolder(filter)
-    tester.getContext.addFilter(holder, path, dispatches)
+    def tryToAddFilter(dispatches: AnyRef) = Reflection.invokeMethod(
+      tester.getContext, "addFilter", holder, path, dispatches)
+    // HACK: Jetty7 and Jetty8 have incompatible interfaces.  Call it reflectively
+    // so we support both.
+    for {
+      _ <- tryToAddFilter(DispatcherType.intValue(dispatches): java.lang.Integer).left
+      result <- tryToAddFilter(DispatcherType.convert(dispatches, "javax.servlet.DispatcherType")).left
+    } yield (throw result)
     holder
   }
+
   def addFilter(filter: Class[_ <: Filter], path: String): FilterHolder =
     addFilter(filter, path, DefaultDispatcherTypes)
-  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder =
-    tester.getContext.addFilter(filter, path, dispatches)
+
+  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
+    def tryToAddFilter(dispatches: AnyRef): Either[Throwable, AnyRef] =
+      Reflection.invokeMethod(tester.getContext, "addFilter",
+        filter, path, dispatches)
+    // HACK: Jetty7 and Jetty8 have incompatible interfaces.  Call it reflectively
+    // so we support both.
+    (tryToAddFilter(DispatcherType.intValue(dispatches): java.lang.Integer).left map {
+      t: Throwable => tryToAddFilter(DispatcherType.convert(dispatches, "javax.servlet.DispatcherType"))
+    }).joinLeft fold ({ throw _ }, { x => x.asInstanceOf[FilterHolder] })
+  }
 
   @deprecated("renamed to addFilter", "2.0")
   def routeFilter(filter: Class[_ <: Filter], path: String) =
