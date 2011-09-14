@@ -163,7 +163,7 @@ object ScalatraBuild extends Build {
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
     val servletApi_3_0 = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
-    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % version
+    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
     val testng = "org.testng" % "testng" % "6.1.1" % "optional"
   }
