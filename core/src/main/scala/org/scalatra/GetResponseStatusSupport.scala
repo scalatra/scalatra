@@ -48,4 +48,5 @@ trait GetResponseStatusSupport extends Handler { self: ScalatraKernel =>
    * has been wrapped by another class, this will throw a ClassCastException.
    */
   def status = response.asInstanceOf[ScalatraGetStatusServletResponseWrapper].getStatus
+  def status_=(code: Int) = response.setStatus(code)
 }
