@@ -10,7 +10,7 @@ object ScalatraBuild extends Build {
 
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
-    version := "2.0.0-SNAPSHOT",
+    version := "2.0.0",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0"),
     crossScalaVersions_2_8 := Seq("2.8.1"),
     crossScalaVersions <<= (crossScalaVersions_2_8) { v => v },
@@ -163,7 +163,7 @@ object ScalatraBuild extends Build {
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
     val servletApi_3_0 = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
-    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % version
+    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
     val testng = "org.testng" % "testng" % "6.1.1" % "optional"
   }
