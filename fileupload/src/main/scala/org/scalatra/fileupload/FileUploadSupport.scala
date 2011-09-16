@@ -47,11 +47,11 @@ trait FileUploadSupport extends ScalatraKernel {
       case None =>
         val upload = new ServletFileUpload(fileItemFactory)
         val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
-        val bodyParams = items.foldRight(BodyParams(Map.empty, Map.empty)) { (item, params) =>
+        val bodyParams = items.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (item, params) =>
           if (item.isFormField)
             BodyParams(params.fileParams, params.formParams + ((item.getFieldName, fileItemToString(req, item) :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
           else
-            BodyParams(params.fileParams + ((item.getFieldName, item :: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
+            BodyParams(params.fileParams + ((item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
           }
         req(BodyParamsKey) = bodyParams
         bodyParams
@@ -105,7 +105,6 @@ trait FileUploadSupport extends ScalatraKernel {
 
 object FileUploadSupport {
   case class BodyParams(fileParams: FileMultiParams, formParams: Map[String, List[String]])
-  type FileMultiParams = Map[String, List[FileItem]]
   private val BodyParamsKey = "org.scalatra.fileupload.bodyParams"
 }
 

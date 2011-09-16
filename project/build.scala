@@ -6,11 +6,14 @@ import posterous.Publish._
 
 object ScalatraBuild extends Build {
   val description = SettingKey[String]("description")
+  val crossScalaVersions_2_8 = SettingKey[Seq[String]]("cross-scala-versions-2.8")
 
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
-    version := "2.0.0-SNAPSHOT",
-    crossScalaVersions := Seq("2.8.1", "2.8.2.RC1"),
+    version := "2.0.0",
+    crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0"),
+    crossScalaVersions_2_8 := Seq("2.8.1"),
+    crossScalaVersions <<= (crossScalaVersions_2_8) { v => v },
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     packageOptions <<= (packageOptions, name, version, organization) map {
@@ -83,73 +86,84 @@ object ScalatraBuild extends Build {
       else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
-    resolvers += ScalaToolsSnapshots // for org.specs2:scalaz-core
+    resolvers += ScalaToolsSnapshots
+/* This is crashing unidoc.
+    autoCompilerPlugins := true,
+    addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
+    scalacOptions in Compile <+= scalaSource in Compile map {
+      "-P:sxr:base-directory:" + _.getAbsolutePath
+    }
+*/
   )
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
   object Dependencies {
     def antiXml(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "anti-xml_2.8.1"
-        case x => "anti-xml_"+x
-      }
-      "com.codecommit" % libArtifactId % "0.2"
+      "com.codecommit" %% "anti-xml" % "0.2"
     }
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
-
     val commonsIo = "commons-io" % "commons-io" % "2.0.1"
+    val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.0.1"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "7.4.5.v20110725"
+    private def jettyDep(name: String, version: String = "7.4.5.v20110725") =
+      "org.eclipse.jetty" % name % version
     val testJettyServlet = jettyDep("test-jetty-servlet")
+    val testJettyServlet_8 = jettyDep("test-jetty-servlet", "8.0.1.v20110908")
     val jettyWebsocket = jettyDep("jetty-websocket")
     val jettyWebapp = jettyDep("jetty-webapp")
 
     val junit = "junit" % "junit" % "4.8.2"
 
     def liftJson(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "lift-json_2.8.1"
-        case "2.9.1.RC4" => "lift-json_2.9.0"
-        case x => "lift-json_"+x
+      val libVersion = scalaVersion match {
+        case "2.9.1" => "2.4-M4"
+        case _ => "2.4-M3"
       }
-      "net.liftweb" % libArtifactId % "2.4-M3"
+      "net.liftweb" %% "lift-json" % libVersion
     }
 
+    val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
+
     def scalate(scalaVersion: String) = {
-      "org.fusesource.scalate" % "scalate-core" % "1.4.1"
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.5.2-scala_2.8.1"
+        case _ => "1.5.2"
+      }
+      "org.fusesource.scalate" % "scalate-core" % libVersion
     }
 
     def scalatest(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "scalatest_2.8.1"
-        case x => "scalatest_"+x
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "1.5.1"
+        case _ => "1.6.1"
       }
-      "org.scalatest" % libArtifactId % "1.5.1"
+      "org.scalatest" %% "scalatest" % libVersion
     }
 
     def specs(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "specs_2.8.1"
-        case x => "specs_"+x
+      val libVersion = scalaVersion match {
+        case "2.9.1" => "1.6.9"
+        case _ => "1.6.8"
       }
-      "org.scala-tools.testing" % libArtifactId % "1.6.8"
+      "org.scala-tools.testing" %% "specs" % libVersion
     }
 
     def specs2(scalaVersion: String) = {
-      val libArtifactId = scalaVersion match {
-        case "2.8.2.RC1" => "specs2_2.8.1"
-        case x => "specs2_"+x
+      val libVersion = scalaVersion match {
+        case "2.9.1" => "1.6"
+        case _ => "1.5"
       }
-      "org.specs2" % libArtifactId % "1.5"
+      "org.specs2" %% "specs2" % libVersion
     }
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
+    val servletApi_3_0 = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
-    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % version
+    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
     val testng = "org.testng" % "testng" % "6.1.1" % "optional"
   }
@@ -160,12 +174,13 @@ object ScalatraBuild extends Build {
     .settings(
       publishArtifact in Compile := false,
       description := "A tiny, Sinatra-like web framework for Scala",
+      Unidoc.unidocExclude := Seq("scalatra-example"),
       (name in Posterous) := "scalatra",
-      (crossScalaVersions in Posterous) ++= Seq("2.8.1", "2.8.2.RC1"))
+      (crossScalaVersions in Posterous) <++= crossScalaVersions_2_8(identity))
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample)
+      scalatraExample, scalatraJetty8Tests)
 
   lazy val scalatraCore = Project("scalatra", file("core"),
     settings = scalatraSettings)
@@ -236,7 +251,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies ++= Seq(testJettyServlet),
+      libraryDependencies <++= (scalaVersion) { sv =>
+        Seq(testJettyServlet, mockitoAll, commonsLang3, specs2(sv) % "test")
+      },
       description := "The abstract Scalatra test framework")
 
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
@@ -277,6 +294,15 @@ object ScalatraBuild extends Build {
       publishLocal := {})
     .dependsOn(scalatraCore, scalatraScalate, scalatraAuth, scalatraFileupload,
                scalatraSocketio)
+
+  lazy val scalatraJetty8Tests = Project("scalatra-jetty8-tests", file("test/jetty8"),
+    settings = scalatraSettings)
+    .settings(
+      libraryDependencies ++= Seq(servletApi_3_0, testJettyServlet_8 % "test"),
+      description := "Compatibility tests for Jetty 8",
+      publish := {},
+      publishLocal := {})
+    .testWithScalatraTest
 
   class RichProject(project: Project) {
     def testWithScalatraTest = {

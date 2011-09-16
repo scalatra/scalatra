@@ -14,9 +14,12 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
     multiParams.get("string") foreach { ps: Seq[String] => response.setHeader("string", ps.mkString(";")) }
     fileParams.get("file") foreach { fi => response.setHeader("file", new String(fi.get)) }
     fileParams.get("file-none") foreach { fi => response.setHeader("file-none", new String(fi.get)) }
-    fileParams.get("file-multi") foreach { fi => response.setHeader("file-multi", new String(fi.get)) }
-    fileMultiParams.get("file-multi") foreach { fis =>
-      response.setHeader("file-multi-all", fis.foldLeft(""){ (acc, fi) => acc + new String(fi.get) })
+    fileParams.get("file-two[]") foreach { fi => response.setHeader("file-two", new String(fi.get)) }
+    fileMultiParams.get("file-two[]") foreach { fis =>
+      response.setHeader("file-two-with-brackets", fis.foldLeft(""){ (acc, fi) => acc + new String(fi.get) })
+    }
+    fileMultiParams.get("file-two") foreach { fis =>
+      response.setHeader("file-two-without-brackets", fis.foldLeft(""){ (acc, fi) => acc + new String(fi.get) })
     }
     params.get("file") foreach { response.setHeader("file-as-param", _) }
     params("utf8-string")
@@ -70,11 +73,15 @@ class FileUploadSupportTest extends ScalatraFunSuite {
   }
 
   test("sets multiple file params") {
-    multipartResponse().getHeader("file-multi-all") should equal ("twothree")
+    multipartResponse().getHeader("file-two-with-brackets") should equal ("twothree")
+  }
+
+  test("looks for params with [] suffix, Ruby style") {
+    multipartResponse().getHeader("file-two-without-brackets") should equal ("twothree")
   }
 
   test("fileParams returns first input for multiple file params") {
-    multipartResponse().getHeader("file-multi") should equal ("two")
+    multipartResponse().getHeader("file-two") should equal ("two")
   }
 
   test("file params are not params") {

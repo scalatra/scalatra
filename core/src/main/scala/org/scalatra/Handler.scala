@@ -17,13 +17,10 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
  * servlet or filter gets called together with the dispatching action, providing the mixed in functionalities to all the invoked actions.
  *
  * `Handler` instances are usually shared among threads thus any state change produced in this method (outsid of side effects on the arguments to `handle(req,res)` should be wrapped in a [[scala.util.DynamicVariable]] , which is thread-local.
- *
- * TODO add nice example, with test
- *
  */
 trait Handler {
   /**
-   * Accesses the request/response pair, possibly altering them
+   * Handles a request and writes to the response.
    */
   def handle(req: HttpServletRequest, res: HttpServletResponse): Unit
 }

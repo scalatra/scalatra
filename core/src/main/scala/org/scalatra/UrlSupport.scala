@@ -12,8 +12,28 @@ trait UrlSupport {
 
   protected def response: HttpServletResponse
 
+  /**
+   * Returns a context-relative, session-aware URL for a path with no
+   * query parameters.
+   *
+   * @see url(String, Iterable[(String, Any])
+   */
   def url(path: String): String = url(path, Seq.empty)
 
+  /**
+   * Returns a context-relative, session-aware URL for a path and specified
+   * parameters.
+   * Finally, the result is run through `response.encodeURL` for a session
+   * ID, if necessary.
+   *
+   * @param path the base path.  If a path begins with '/', then the context
+   * path will be prepended to the result
+   *
+   * @param params params, to be appended in the form of a query string
+   *
+   * @return the path plus the query string, if any.  The path is run through
+   * `response.encodeURL` to add any necessary session tracking parameters.
+   */
   def url(path: String, params: Iterable[(String, Any)]): String = {
     val newPath = path match {
       case x if x.startsWith("/") => contextPath + path

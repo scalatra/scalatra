@@ -1,0 +1,18 @@
+### scalatra
+* Fix `ApiFormats.acceptHeader` and sort by `q` parameter
+* Add crossbuild for Scala 2.9.1 
+
+### scalatra-fileupload
+* Support implicit `[]`-suffix convention in `fileMultiParams` as with `multiParams`. [(GH-128)](http://github.com/scalatra/scalatra/issues/128)
+
+### scalatra-test
+* Fix NoSuchMethodError in Jetty8. [(GH-129)](http://github.com/scalatra/scalatra/issues/129) 
+
+### scalatra-scalate
+* Upgrade to Scalate-1.5.2
+
+#### scalatra-specs
+* Upgrade to Specs-1.6.9
+
+#### scalatra-specs2
+* Upgrade to Specs2-1.6

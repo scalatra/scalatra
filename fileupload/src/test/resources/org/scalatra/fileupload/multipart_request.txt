@@ -22,13 +22,13 @@ Content-Type: application/octet-stream
 
 
 -----------------------------3924013385056820061124200860
-Content-Disposition: form-data; name="file-multi"; filename="2.txt"
+Content-Disposition: form-data; name="file-two[]"; filename="2.txt"
 Content-Type: text/plain
 
 two
 
 -----------------------------3924013385056820061124200860
-Content-Disposition: form-data; name="file-multi"; filename="3.txt"
+Content-Disposition: form-data; name="file-two[]"; filename="3.txt"
 Content-Type: text/plain
 
 three

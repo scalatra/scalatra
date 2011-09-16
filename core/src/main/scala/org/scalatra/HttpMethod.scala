@@ -3,6 +3,9 @@ package org.scalatra
 import java.util.Locale
 
 sealed trait HttpMethod {
+  /**
+   * Flag as to whether the method is "safe", as defined by RFC 2616.
+   */
   val isSafe: Boolean
 }
 case object Options extends HttpMethod {
@@ -51,10 +54,21 @@ object HttpMethod {
       method => (method.toString, method)
     } : _*)
 
+  /**
+   * Maps a String as an HttpMethod.
+   *
+   * @param a string representing an HttpMethod
+   * @return the matching common HttpMethod, or an instance of `ExtensionMethod`
+   * if no method matches
+   */
   def apply(name: String): HttpMethod = {
     val canonicalName = name.toUpperCase(Locale.ENGLISH)
     methodMap.getOrElse(canonicalName, ExtensionMethod(canonicalName))
   }
 
+  /**
+   * The set of common HTTP methods: GET, HEAD, POST, PUT, DELETE, TRACE,
+   * CONNECT, and PATCH.
+   */
   val methods: Set[HttpMethod] = methodMap.values.toSet
 }

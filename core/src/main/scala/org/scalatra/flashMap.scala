@@ -6,12 +6,12 @@ import scala.util.DynamicVariable
 import util.MutableMapWithIndifferentAccess
 
 /**
- * A FlashMap is the data structured used by [[org.scalatra.FlashMapSupport]]
+ * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
  *
  * FlashMap behaves like [[org.scalatra.util.MapWithIndifferentAccess]].  By
  * default, anything placed in the map is available to the current request and
- * next request and then discarded.
+ * next request, and is then discarded.
  *
  * @see FlashMapSupport
  */
@@ -20,17 +20,28 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] {
   private val m = MMap[String, Any]()
   private val flagged = MSet[String]()
 
+  /**
+   * Removes an entry from the flash map.  It is no longer available for this
+   * request or the next.
+   */
   def -=(key: String) = {
     m -= key
     this
   }
 
+  /**
+   * Adds an entry to the flash map.  Clears the sweep flag for the key.
+   */
   def +=(kv: (String, Any)) = {
     flagged -= kv._1
     m += kv
     this
   }
 
+  /**
+   * Creates a new iterator over the values of the flash map.  These are the
+   * values that were added during the last request.
+   */
   def iterator = new Iterator[(String, Any)] {
     private val it = m.iterator
 
@@ -150,7 +161,7 @@ trait FlashMapSupport extends ScalatraKernel {
     }
 
   /**
-   * returns a thread local [[org.scalatra.FlashMap]] instance
+   * Returns the [[org.scalatra.FlashMap]] instance for the current request.
    */
   def flash = getFlash(request)
 
