@@ -105,8 +105,8 @@ object ScalatraBuild extends Build {
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
-
     val commonsIo = "commons-io" % "commons-io" % "2.0.1"
+    val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.0.1"
 
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.0.0.v20110901"
     val testJettyServlet = jettyDep("test-jetty-servlet")
@@ -127,8 +127,8 @@ object ScalatraBuild extends Build {
 
     def scalate(scalaVersion: String) = {
       val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.4.1"
-        case _ => "1.5.1"
+        case x if x startsWith "2.8." => "1.5.2-scala_2.8.1"
+        case _ => "1.5.2"
       }
       "org.fusesource.scalate" % "scalate-core" % libVersion
     }
@@ -159,7 +159,7 @@ object ScalatraBuild extends Build {
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
-    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0.RC1"
+    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
     val testng = "org.testng" % "testng" % "6.1.1" % "optional"
 
@@ -243,7 +243,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraTest = Project("scalatra-test", file("test"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies ++= Seq(testJettyServlet, mockitoAll),
+      libraryDependencies <++= (scalaVersion) { sv =>
+        Seq(testJettyServlet, mockitoAll, commonsLang3, specs2(sv) % "test")
+      },
       description := "The abstract Scalatra test framework")
 
   lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),

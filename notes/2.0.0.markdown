@@ -1,10 +1,12 @@
 ### scalatra
-* Alternate build for Jetty 8 / Servlet 3.0 (use "servlet30" classifier). [(GH-129)](http://github.com/scalatra/scalatra/issues/129) 
 * Fix `ApiFormats.acceptHeader` and sort by `q` parameter
 * Add crossbuild for Scala 2.9.1 
 
 ### scalatra-fileupload
 * Support implicit `[]`-suffix convention in `fileMultiParams` as with `multiParams`. [(GH-128)](http://github.com/scalatra/scalatra/issues/128)
+
+### scalatra-test
+* Fix NoSuchMethodError in Jetty8. [(GH-129)](http://github.com/scalatra/scalatra/issues/129) 
 
 ### scalatra-scalate
 * Upgrade to Scalate-1.5.2
