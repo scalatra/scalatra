@@ -59,7 +59,10 @@ trait CoreDsl {
   /**
    * Sends a redirect response.
    */
-  def redirect(uri: String) = response.sendRedirect(uri)
+  def redirect(uri: String) = {
+    response.sendRedirect(uri)
+    halt()
+  }
 
   /**
    * The current HTTP session.  Creates a session if none exists.
