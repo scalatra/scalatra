@@ -40,11 +40,13 @@ class ScalatraTestServlet extends ScalatraServlet {
   }
 
   get("/redirect") {
+    session("halted") = "halted"
     redirect("/redirected")
+    session("halted") = "did not halt"
   }
 
   get("/redirected") {
-    "redirected"
+    session("halted")
   }
 
   get("/print_referrer") {
@@ -129,7 +131,15 @@ class ScalatraTest extends ScalatraFunSuite {
 
   test("GET /redirect redirects to /redirected") {
     get("/redirect") {
-      header("Location") should endWith ("/redirected")
+      // Split to strip jsessionid
+      header("Location").split(";").head should endWith ("/redirected")
+    }
+  }
+
+  test("redirect halts") {
+    session {
+      get("/redirect") {}
+      get("/redirected") { body should equal ("halted") }
     }
   }
 
