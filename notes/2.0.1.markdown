@@ -1,0 +1,2 @@
+### scalatra
+* `redirect` halts the action immediately. [(GH-132)](http://github.com/scalatra/scalatra/issues/132)
