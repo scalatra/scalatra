@@ -35,6 +35,8 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   // Unlike the Scalatra servlet, we'll use both here by default.  Don't like it?  Override it.
   def requestPath = request.getServletPath + (if (request.getPathInfo != null) request.getPathInfo else "")
 
+  protected def routeBasePath = request.getContextPath
+
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)
 
   var servletContext: ServletContext = _
