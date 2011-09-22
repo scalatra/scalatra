@@ -1,2 +1,6 @@
 ### scalatra
 * `redirect` halts the action immediately. [(GH-132)](http://github.com/scalatra/scalatra/issues/132)
+* Correct base path of reverse routes in non-root contexts. [(GH-130)](http://github.com/scalatra/scalatra/issues/130)
+
+### scalatra-lift-json
+* Only read the input stream once when parsing the request body.

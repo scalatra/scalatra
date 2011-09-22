@@ -57,7 +57,7 @@ trait CoreDsl {
   def status(code: Int) = response.setStatus(code)
 
   /**
-   * Sends a redirect response.
+   * Sends a redirect response and immediately halts the current action.
    */
   def redirect(uri: String) = {
     response.sendRedirect(uri)
