@@ -21,25 +21,7 @@ trait LiftJsonRequestBody extends ScalatraKernel with ApiFormats {
   protected implicit def jsonFormats = DefaultFormats
 
   import LiftJsonRequestBody._
-  private def requestBody: String = {
-    val sb = new StringBuilder
-    val reader = request.getReader
-    val buf = new Array[Char](1000)
-//    val cb = CharBuffer.allocate(1000)
-
-    def fromBuffer = reader.read(buf, 0, 1000)
-    @tailrec
-    def readBody(read: Int): String = {
-      if (read <= 0) {
-        sb.toString()
-      } else {
-        sb appendAll buf.slice(0, read)
-        readBody(fromBuffer)
-      }
-    }
-    readBody(fromBuffer)
-  }
-
+ 
   protected def parseRequestBody(format: String, content: String) = try {
     if (format == "json") {
       transformRequestBody(JsonParser.parse(content))
@@ -55,7 +37,7 @@ trait LiftJsonRequestBody extends ScalatraKernel with ApiFormats {
       val mt = request.getContentType.toOption map { _.split(";").head } getOrElse "application/x-www-form-urlencoded"
       val fmt = mimeTypes get mt getOrElse "html"
       if (fmt == "json" || fmt == "xml") {
-        request(ParsedBodyKey) = parseRequestBody(fmt, requestBody)
+        request(ParsedBodyKey) = parseRequestBody(fmt, request.body)
       }
       super.invoke(matchedRoute)
     }
