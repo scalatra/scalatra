@@ -44,12 +44,13 @@ trait CoreDsl {
   /**
    * Gets the content type of the current response.
    */
-  def contentType = response.getContentType
+  def contentType: String = response.getContentType
 
   /**
    * Sets the content type of the current response.
    */
-  def contentType_=(contentType: String) = response.setContentType(contentType)
+  def contentType_=(contentType: String): Unit =
+    response.setContentType(contentType)
 
   @deprecated("Use status_=(Int) instead", "2.1")
   def status(code: Int) = response.setStatus(code)
@@ -57,17 +58,17 @@ trait CoreDsl {
   /**
    * Sets the status code of the current response.
    */
-  def status_=(code: Int) = response.setStatus(code)
+  def status_=(code: Int): Unit = response.setStatus(code)
 
   /**
    * Gets the status code of the current response.
    */
-  def status = response.getStatus
+  def status: Unit = response.getStatus
 
   /**
    * Sends a redirect response and immediately halts the current action.
    */
-  def redirect(uri: String) = {
+  def redirect(uri: String): Unit = {
     response.sendRedirect(uri)
     halt()
   }
@@ -219,5 +220,5 @@ trait CoreDsl {
   /**
    * Immediately passes execution to the next matching route.
    */
-  def pass()
+  def pass(): Unit
 }
