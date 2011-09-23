@@ -4,3 +4,6 @@
 
 ### scalatra-lift-json
 * Only read the input stream once when parsing the request body.
+
+### scalatra-specs2
+* Upgrade from Specs2 1.6.0 to 1.6.1.
