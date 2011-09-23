@@ -10,7 +10,7 @@ object ScalatraBuild extends Build {
 
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
-    version := "2.0.1-SNAPSHOT",
+    version := "2.0.1",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0"),
     crossScalaVersions_2_8 := Seq("2.8.1"),
     crossScalaVersions <<= (crossScalaVersions_2_8) { v => v },
@@ -154,8 +154,9 @@ object ScalatraBuild extends Build {
 
     def specs2(scalaVersion: String) = {
       val libVersion = scalaVersion match {
-        case "2.9.1" => "1.6"
-        case _ => "1.5"
+        case x if x startsWith "2.8." => "1.5"
+        case "2.9.0" => "1.5" // https://github.com/etorreborre/specs2/issues/33
+        case _ => "1.6.1"
       }
       "org.specs2" %% "specs2" % libVersion
     }

@@ -57,9 +57,12 @@ trait CoreDsl {
   def status(code: Int) = response.setStatus(code)
 
   /**
-   * Sends a redirect response.
+   * Sends a redirect response and immediately halts the current action.
    */
-  def redirect(uri: String) = response.sendRedirect(uri)
+  def redirect(uri: String) = {
+    response.sendRedirect(uri)
+    halt()
+  }
 
   /**
    * The current HTTP session.  Creates a session if none exists.

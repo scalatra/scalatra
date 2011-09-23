@@ -438,10 +438,15 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * @see org.scalatra.ScalatraKernel#removeRoute
    */
   protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
-    val route = Route(routeMatchers, () => action, () => request.getServletPath)
+    val route = Route(routeMatchers, () => action, () => routeBasePath)
     routes.prependRoute(method, route)
     route
   }
+
+  /**
+   * The base path for URL generation
+   */
+  protected def routeBasePath: String
 
   @deprecated("Use addRoute(HttpMethod, Iterable[RouteMatcher], =>Any)")
   protected[scalatra] def addRoute(verb: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route =
