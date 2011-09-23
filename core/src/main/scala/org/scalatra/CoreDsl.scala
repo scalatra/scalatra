@@ -44,22 +44,23 @@ trait CoreDsl {
   /**
    * Gets the content type of the current response.
    */
-  def contentType = response.getContentType
+  def contentType: String = response.getContentType
 
   /**
    * Sets the content type of the current response.
    */
-  def contentType_=(contentType: String) = response.setContentType(contentType)
+  def contentType_=(contentType: String): Unit =
+    response.setContentType(contentType)
 
   /**
    * Sets the status code of the current response.
    */
-  def status(code: Int) = response.setStatus(code)
+  def status(code: Int): Unit = response.setStatus(code)
 
   /**
    * Sends a redirect response and immediately halts the current action.
    */
-  def redirect(uri: String) = {
+  def redirect(uri: String): Unit = {
     response.sendRedirect(uri)
     halt()
   }
@@ -211,5 +212,5 @@ trait CoreDsl {
   /**
    * Immediately passes execution to the next matching route.
    */
-  def pass()
+  def pass(): Unit
 }
