@@ -63,7 +63,7 @@ trait CoreDsl {
   /**
    * Gets the status code of the current response.
    */
-  def status: Unit = response.getStatus
+  def status: Int = response.getStatus
 
   /**
    * Sends a redirect response and immediately halts the current action.
