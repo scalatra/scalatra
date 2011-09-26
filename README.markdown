@@ -21,13 +21,13 @@ subjects.  If you find one, please [let us know](http://github.com/scalatra/scal
 
 ## Latest version 
 
-The latest version of Scalatra is `2.0.0.RC1`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
+The latest version of Scalatra is `2.0.1`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
-    libraryDependencies += "org.scalatra" %% "scalatra" % "2.0.0.RC1"
+    libraryDependencies += "org.scalatra" %% "scalatra" % "2.0.1"
 
 ### Development version
 
-The develop branch is published as `2.0.0-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra).
+The develop branch is published as `2.1.0-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra).
 
     resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
