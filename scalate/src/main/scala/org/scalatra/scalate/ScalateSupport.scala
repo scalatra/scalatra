@@ -1,6 +1,7 @@
 package org.scalatra
 package scalate
 
+import scala.collection.mutable
 import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
@@ -21,6 +22,8 @@ object ScalateSupport {
     } yield ("%s.%s".format(base, extension))
     engine.layoutStrategy = new DefaultLayoutStrategy(engine, layouts:_*)
   }
+
+  private val TemplateAttributesKey = "org.scalatra.scalate.ScalateSupport.TemplateAttributes"
 }
 
 /**
@@ -72,8 +75,13 @@ trait ScalateSupport extends ScalatraKernel {
      * Returns a ServletRenderContext constructed from the current
      * request and response.
      */
-    override def createRenderContext(uri: String, out: PrintWriter) =
-      ScalateSupport.this.createRenderContext()
+    override def createRenderContext(uri: String, out: PrintWriter) = {
+      val ctx = ScalateSupport.this.createRenderContext()
+      ScalateSupport.this.templateAttributes foreach {
+        case (name, value) => ctx.setAttribute(name, Some(value))
+      }
+      ctx
+    }
 
     /**
      * Delegates to the ScalatraKernel's isDevelopmentMode flag.
@@ -230,4 +238,12 @@ trait ScalateSupport extends ScalatraKernel {
     finder.findTemplate("/"+path) orElse
       finder.findTemplate("/%s/%s".format(path, defaultIndexName))
   }
+
+  /**
+   * A request-scoped map of attributes to pass to the template.  This map
+   * will be set to any render context created with the `createRenderContext`
+   * method.
+   */
+  protected def templateAttributes: mutable.Map[String, Any] =
+    request.getOrElseUpdate(ScalateSupport.TemplateAttributesKey, mutable.Map.empty).asInstanceOf[mutable.Map[String, Any]]
 }

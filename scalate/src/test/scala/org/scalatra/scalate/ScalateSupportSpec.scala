@@ -27,7 +27,8 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "implicitly bind flash"                                       ! e18^
     "implicitly bind session"                                     ! e19^
     "implicitly bind params"                                      ! e20^
-    "implicitly bind multiParams"                                 ! e21
+    "implicitly bind multiParams"                                 ! e21^
+    "set templateAttributes when creating a render context"       ! e21
 
   addServlet(new ScalatraServlet with ScalateSupport
     with ScalateUrlGeneratorSupport with FlashMapSupport with CookieSupport {
@@ -112,6 +113,11 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
     get("/bindings/multiParams/*/*") {
       jade("/bindings/multiParams")
+    }
+
+    get("/template-attributes") {
+      templateAttributes("foo") = "from template attributes"
+      scaml("params")
     }
   }, "/*")
 
@@ -208,5 +214,9 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
   def e21 = get("/bindings/multiParams/bar/baz") {
     body must_== "<div>bar;baz</div>\n"
+  }
+
+  def e22 = get("/template-attributes") {
+    body must_== "<div>from template attributes</div>\n"
   }
 }
