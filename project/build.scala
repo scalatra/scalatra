@@ -6,14 +6,11 @@ import posterous.Publish._
 
 object ScalatraBuild extends Build {
   val description = SettingKey[String]("description")
-  val crossScalaVersions_2_8 = SettingKey[Seq[String]]("cross-scala-versions-2.8")
 
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.2-SNAPSHOT",
-    crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0"),
-    crossScalaVersions_2_8 := Seq("2.8.1"),
-    crossScalaVersions <<= (crossScalaVersions_2_8) { v => v },
+    crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     packageOptions <<= (packageOptions, name, version, organization) map {
@@ -176,8 +173,7 @@ object ScalatraBuild extends Build {
       publishArtifact in Compile := false,
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      (name in Posterous) := "scalatra",
-      (crossScalaVersions in Posterous) <++= crossScalaVersions_2_8(identity))
+      (name in Posterous) := "scalatra")
     .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
