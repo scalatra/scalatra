@@ -13,21 +13,7 @@ object ScalatraBuild extends Build {
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
-    packageOptions <<= (packageOptions, name, version, organization) map {
-      (opts, title, version, vendor) =>
-        opts :+ Package.ManifestAttributes(
-          "Created-By" -> "Simple Build Tool",
-          "Built-By" -> System.getProperty("user.name"),
-          "Build-Jdk" -> System.getProperty("java.version"),
-          "Specification-Title" -> title,
-          "Specification-Version" -> version,
-          "Specification-Vendor" -> vendor,
-          "Implementation-Title" -> title,
-          "Implementation-Version" -> version,
-          "Implementation-Vendor-Id" -> vendor,
-          "Implementation-Vendor" -> vendor
-        )
-    },
+    manifestSetting,
     pomExtra <<= (pomExtra, name, description) { (extra, name, desc) => extra ++ Seq(
       <name>{name}</name>,
       <description>{desc}</description>,
@@ -309,4 +295,20 @@ object ScalatraBuild extends Build {
     }
   }
   implicit def project2RichProject(project: Project): RichProject = new RichProject(project)
+
+  lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
+    (title, version, vendor) =>
+      Package.ManifestAttributes(
+        "Created-By" -> "Simple Build Tool",
+        "Built-By" -> System.getProperty("user.name"),
+        "Build-Jdk" -> System.getProperty("java.version"),
+        "Specification-Title" -> title,
+        "Specification-Version" -> version,
+        "Specification-Vendor" -> vendor,
+        "Implementation-Title" -> title,
+        "Implementation-Version" -> version,
+        "Implementation-Vendor-Id" -> vendor,
+        "Implementation-Vendor" -> vendor
+      )
+  }
 }
