@@ -1,12 +1,11 @@
 import sbt._
 import Keys._
 import scala.xml._
+import java.net.URL
 import com.github.siasia.WebPlugin.{webSettings, jettyPort}
 import posterous.Publish._
 
 object ScalatraBuild extends Build {
-  val description = SettingKey[String]("description")
-
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.2-SNAPSHOT",
@@ -14,54 +13,6 @@ object ScalatraBuild extends Build {
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
-    pomExtra <<= (pomExtra, name, description) { (extra, name, desc) => extra ++ Seq(
-      <name>{name}</name>,
-      <description>{desc}</description>,
-      <url>http://scalatra.org</url>,
-      <licenses>
-        <license>
-          <name>BSD</name>
-          <url>http://github.com/scalatra/scalatra/raw/HEAD/LICENSE</url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>,
-      <scm>
-        <url>http://github.com/scalatra/scalatra</url>
-        <connection>scm:git:git://github.com/scalatra/scalatra.git</connection>
-      </scm>,
-      <developers>
-        <developer>
-          <id>riffraff</id>
-          <name>Gabriele Renzi</name>
-          <url>http://www.riffraff.info</url>
-        </developer>
-        <developer>
-          <id>alandipert</id>
-          <name>Alan Dipert</name>
-          <url>http://alan.dipert.org</url>
-        </developer>
-        <developer>
-          <id>rossabaker</id>
-          <name>Ross A. Baker</name>
-          <url>http://www.rossabaker.com/</url>
-        </developer>
-        <developer>
-          <id>chirino</id>
-          <name>Hiram Chirino</name>
-          <url>http://hiramchirino.com/blog/</url>
-        </developer>
-        <developer>
-          <id>casualjim</id>
-          <name>Ivan Porto Carrero</name>
-          <url>http://flanders.co.nz/</url>
-        </developer>
-        <developer>
-          <id>jlarmstrong</id>
-          <name>Jared Armstrong</name>
-          <url>http://www.jaredarmstrong.name/</url>
-        </developer>
-      </developers>
-    )},
     publishTo <<= (version) { version: String =>
       val nexus = "http://nexus-direct.scala-tools.org/content/repositories/"
       if (version.trim.endsWith("SNAPSHOT"))
@@ -77,7 +28,7 @@ object ScalatraBuild extends Build {
       "-P:sxr:base-directory:" + _.getAbsolutePath
     }
 */
-  )
+  ) ++ mavenCentralFrouFrou
 
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
@@ -311,4 +262,49 @@ object ScalatraBuild extends Build {
         "Implementation-Vendor" -> vendor
       )
   }
+
+  // Things we care about primarily because Maven Central demands them
+  lazy val mavenCentralFrouFrou = Seq(
+    homepage := Some(new URL("http://www.scalatra.org/")),
+    startYear := Some(2009),
+    licenses := Seq(("BSD", new URL("http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
+    pomExtra <<= (pomExtra, name, description) {(pom, name, desc) => pom ++ Group(
+      <scm>
+        <url>http://github.com/scalatra/scalatra</url>
+        <connection>scm:git:git://github.com/scalatra/scalatra.git</connection>
+      </scm>
+      <developers>
+        <developer>
+          <id>riffraff</id>
+          <name>Gabriele Renzi</name>
+          <url>http://www.riffraff.info</url>
+        </developer>
+        <developer>
+          <id>alandipert</id>
+          <name>Alan Dipert</name>
+          <url>http://alan.dipert.org</url>
+        </developer>
+        <developer>
+          <id>rossabaker</id>
+          <name>Ross A. Baker</name>
+          <url>http://www.rossabaker.com/</url>
+        </developer>
+        <developer>
+          <id>chirino</id>
+          <name>Hiram Chirino</name>
+          <url>http://hiramchirino.com/blog/</url>
+        </developer>
+        <developer>
+          <id>casualjim</id>
+          <name>Ivan Porto Carrero</name>
+          <url>http://flanders.co.nz/</url>
+        </developer>
+        <developer>
+          <id>jlarmstrong</id>
+          <name>Jared Armstrong</name>
+          <url>http://www.jaredarmstrong.name/</url>
+        </developer>
+      </developers>
+    )}
+  )
 }
