@@ -1,0 +1,11 @@
+-@ val title: String
+-@ val headline: String = title
+-@ val body: String
+
+#collection
+  .item
+    .description
+      p #{messages("hello").format(1234)}
+      p #{messages("some.missing.key", "some default text")}
+      p #{messages.get("some.missing.key").getOrElse("some default text")}
+      != body
