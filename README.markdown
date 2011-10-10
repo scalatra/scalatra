@@ -31,7 +31,7 @@ The develop branch is published as `2.1.0-SNAPSHOT` to [OSSRH](http://oss.sonaty
 
     resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-    libraryDependencies += "org.scalatra" %% "scalatra" % "2.0.0-SNAPSHOT"
+    libraryDependencies += "org.scalatra" %% "scalatra" % "2.1.0-SNAPSHOT"
 
 ## Community
 
