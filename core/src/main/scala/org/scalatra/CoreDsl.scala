@@ -90,10 +90,10 @@ trait CoreDsl {
    */
   def before(routeMatchers: RouteMatcher*)(block: => Any): Unit
 
-  @deprecated("Use before() { ... }", "2.0")
+  @deprecated("Use before() { ... }")
   final def beforeAll(block: => Any): Unit = before()(block)
 
-  @deprecated("Use before(RouteMatcher*) { ... }", "2.0")
+  @deprecated("Use before(RouteMatcher*) { ... }")
   final def beforeSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
     before(routeMatchers : _*)(block)
 
@@ -104,10 +104,10 @@ trait CoreDsl {
    */
   def after(routeMatchers: RouteMatcher*)(block: => Any): Unit
 
-  @deprecated("Use after() { ... }", "2.0")
+  @deprecated("Use after() { ... }")
   final def afterAll(block: => Any): Unit = after()(block)
 
-  @deprecated("Use after(RouteMatcher*) { ... }", "2.0")
+  @deprecated("Use after(RouteMatcher*) { ... }")
   final def afterSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
     before(routeMatchers : _*)(block)
 

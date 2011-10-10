@@ -56,8 +56,8 @@ trait ScalatraTests {
     })
     if (_useSession.value && res.getHeader("Set-Cookie") != null) {
       val setCookies = res.getHeaderValues("Set-Cookie").asInstanceOf[Enumeration[String]]
-      _cookies.value = setCookies flatMap { setCookie =>
-        HttpCookie.parse(setCookie)
+      _cookies.value = setCookies flatMap { setCookie => 
+        HttpCookie.parse(setCookie).iterator
       } toSeq
     }
     _response.withValue(res) { f }
@@ -76,7 +76,7 @@ trait ScalatraTests {
     submit(req) { f }
   }
 
-  @deprecated("use addServlet(Class, String) or addFilter(Class, String)", "2.0")
+  @deprecated("use addServlet(Class, String) or addFilter(Class, String)")
   def route(klass: Class[_], path: String) = klass match {
     case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
       addServlet(servlet.asInstanceOf[Class[_ <: HttpServlet]], path)
@@ -86,7 +86,7 @@ trait ScalatraTests {
       throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
   }
 
-  @deprecated("renamed to addServlet", "2.0")
+  @deprecated("renamed to addServlet")
   def route(servlet: HttpServlet, path: String) = addServlet(servlet, path)
 
   def addServlet(servlet: HttpServlet, path: String) =
@@ -125,7 +125,7 @@ trait ScalatraTests {
     }).joinLeft fold ({ throw _ }, { x => x.asInstanceOf[FilterHolder] })
   }
 
-  @deprecated("renamed to addFilter", "2.0")
+  @deprecated("renamed to addFilter")
   def routeFilter(filter: Class[_ <: Filter], path: String) =
     addFilter(filter, path)
 

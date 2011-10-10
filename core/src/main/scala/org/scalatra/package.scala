@@ -15,7 +15,7 @@ package object scalatra {
     def removeAttribute(name: String): Unit
   }
 
-  @deprecated("Use CsrfTokenSupport", "2.0")
+  @deprecated("Use CsrfTokenSupport")
   type CSRFTokenSupport = CsrfTokenSupport
 
   type ErrorHandler = PartialFunction[Throwable, Any]

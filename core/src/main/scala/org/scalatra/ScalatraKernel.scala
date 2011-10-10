@@ -21,13 +21,13 @@ object ScalatraKernel
 
   type Action = () => Any
 
-  @deprecated("Use HttpMethods.methods", "2.0")
+  @deprecated("Use HttpMethods.methods")
   val httpMethods = HttpMethod.methods map { _.toString }
 
-  @deprecated("Use HttpMethods.methods filter { !_.isSafe }", "2.0")
+  @deprecated("Use HttpMethods.methods filter { !_.isSafe }")
   val writeMethods = HttpMethod.methods filter { !_.isSafe } map { _.toString }
 
-  @deprecated("Use CsrfTokenSupport.DefaultKey", "2.0")
+  @deprecated("Use CsrfTokenSupport.DefaultKey")
   val csrfKey = CsrfTokenSupport.DefaultKey
 
   val EnvironmentKey = "org.scalatra.environment".intern
@@ -448,7 +448,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected def routeBasePath: String
 
-  @deprecated("Use addRoute(HttpMethod, Iterable[RouteMatcher], =>Any)", "2.0")
+  @deprecated("Use addRoute(HttpMethod, Iterable[RouteMatcher], =>Any)")
   protected[scalatra] def addRoute(verb: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route =
     addRoute(HttpMethod(verb), routeMatchers, action)
 

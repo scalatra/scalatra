@@ -111,7 +111,7 @@ trait ScalateSupport extends ScalatraKernel {
    * search is performed, and the layout strategy is circumvented.  Clients
    * are urged to consider layoutTemplate instead.
    */
-  @deprecated("not idiomatic Scalate; consider layoutTemplate instead", "2.0")
+  @deprecated("not idiomatic Scalate; consider layoutTemplate instead")
   def renderTemplate(path: String, attributes: (String, Any)*) =
     createRenderContext().render(path, Map(attributes : _*))
 
