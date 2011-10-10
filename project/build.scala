@@ -9,7 +9,7 @@ object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  val scalatraSettings = Defaults.defaultSettings ++ Seq(
+  lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.2-SNAPSHOT",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.1"),
@@ -29,8 +29,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraProject = Project(
     id = "scalatra-project",
     base = file("."),
-    settings = scalatraSettings ++ Unidoc.settings ++ Seq(
-      publishArtifact in Compile := false,
+    settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
       (name in Posterous) := "scalatra"
@@ -144,12 +143,10 @@ object ScalatraBuild extends Build {
   lazy val scalatraExample = Project(
     id = "scalatra-example",
     base = file("example"),
-    settings = scalatraSettings ++ webSettings ++ Seq(
+    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
       resolvers += sonatypeNexusSnapshots,
       libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
-      description := "Scalatra example project",
-      publish := {},
-      publishLocal := {}
+      description := "Scalatra example project"
     )
   ) dependsOn(
     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
@@ -159,11 +156,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraJetty8Tests = Project(
     id = "scalatra-jetty8-tests",
     base = file("test/jetty8"),
-    settings = scalatraSettings ++ Seq(
+    settings = scalatraSettings ++ doNotPublish ++ Seq(
       libraryDependencies ++= Seq(servletApi_3_0, testJettyServlet_8 % "test"),
-      description := "Compatibility tests for Jetty 8",
-      publish := {},
-      publishLocal := {}
+      description := "Compatibility tests for Jetty 8"
     )
   ) dependsOn(scalatraSpecs2 % "test->compile")
 
@@ -310,4 +305,6 @@ object ScalatraBuild extends Build {
       </developers>
     )}
   )
+
+  lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
 }
