@@ -17,13 +17,6 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting
-/* This is crashing unidoc.
-    autoCompilerPlugins := true,
-    addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
-    scalacOptions in Compile <+= scalaSource in Compile map {
-      "-P:sxr:base-directory:" + _.getAbsolutePath
-    }
-*/
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
