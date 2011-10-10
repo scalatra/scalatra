@@ -13,14 +13,7 @@ object ScalatraBuild extends Build {
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
-    publishTo <<= (version) { version: String =>
-      val nexus = "http://nexus-direct.scala-tools.org/content/repositories/"
-      if (version.trim.endsWith("SNAPSHOT"))
-        Some("Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
-      else
-        Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
-    },
-    resolvers += ScalaToolsSnapshots
+    publishSetting
 /* This is crashing unidoc.
     autoCompilerPlugins := true,
     addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
@@ -29,8 +22,6 @@ object ScalatraBuild extends Build {
     }
 */
   ) ++ mavenCentralFrouFrou
-
-  val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
   object Dependencies {
     def antiXml(scalaVersion: String) = {
@@ -104,6 +95,12 @@ object ScalatraBuild extends Build {
   }
   import Dependencies._
 
+  object Resolvers {
+    val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+    val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+  }
+  import Resolvers._
+
   lazy val scalatraProject = Project("scalatra-project", file("."),
     settings = scalatraSettings ++ Unidoc.settings)
     .settings(
@@ -155,7 +152,7 @@ object ScalatraBuild extends Build {
       libraryDependencies <<= (version, libraryDependencies) {
         (v, deps) => deps ++ Seq(jettyWebsocket, socketioCore(v))
       },
-      resolvers += sonatypeSnapshots,
+      resolvers += sonatypeNexusSnapshots,
       description := "Socket IO support for Scalatra"
     )
     .dependsOn(scalatraCore)
@@ -221,7 +218,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings)
     .settings(webSettings :_*)
     .settings(
-      resolvers += sonatypeSnapshots,
+      resolvers += sonatypeNexusSnapshots,
       libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
       description := "Scalatra example project",
       publish := {},
@@ -261,6 +258,13 @@ object ScalatraBuild extends Build {
         "Implementation-Vendor-Id" -> vendor,
         "Implementation-Vendor" -> vendor
       )
+  }
+
+  lazy val publishSetting = publishTo <<= (version) { version: String =>
+    if (version.trim.endsWith("SNAPSHOT"))
+      Some(sonatypeNexusSnapshots)
+    else
+      Some(sonatypeNexusStaging)
   }
 
   // Things we care about primarily because Maven Central demands them
