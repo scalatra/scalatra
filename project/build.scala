@@ -6,6 +6,9 @@ import com.github.siasia.WebPlugin.{webSettings, jettyPort}
 import posterous.Publish._
 
 object ScalatraBuild extends Build {
+  import Dependencies._
+  import Resolvers._
+
   val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.2-SNAPSHOT",
@@ -22,6 +25,147 @@ object ScalatraBuild extends Build {
     }
 */
   ) ++ mavenCentralFrouFrou
+
+  lazy val scalatraProject = Project(
+    id = "scalatra-project",
+    base = file("."),
+    settings = scalatraSettings ++ Unidoc.settings ++ Seq(
+      publishArtifact in Compile := false,
+      description := "A tiny, Sinatra-like web framework for Scala",
+      Unidoc.unidocExclude := Seq("scalatra-example"),
+      (name in Posterous) := "scalatra"
+    ),
+    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
+      scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
+      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
+      scalatraExample, scalatraJetty8Tests)
+  )
+
+  lazy val scalatraCore = Project(
+    id = "scalatra",
+    base = file("core"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(servletApi),
+      description := "The core Scalatra framework"
+    )
+  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
+
+  lazy val scalatraAuth = Project(
+    id = "scalatra-auth",
+    base = file("auth"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies += base64,
+      description := "Scalatra authentication module"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraFileupload = Project(
+    id = "scalatra-fileupload",
+    base = file("fileupload"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(commonsFileupload, commonsIo),
+      description := "Commons-Fileupload integration with Scalatra"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraScalate = Project(
+    id = "scalatra-scalate",
+    base = file("scalate"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <+= scalaVersion(scalate),
+      description := "Scalate integration with Scalatra"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraSocketio = Project(
+    id = "scalatra-socketio",
+    base = file("socketio"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <++= version(v => Seq(jettyWebsocket, socketioCore(v))),
+      resolvers += sonatypeNexusSnapshots,
+      description := "Socket IO support for Scalatra"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraLiftJson = Project(
+    id = "scalatra-lift-json",
+    base = file("lift-json"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <+= scalaVersion(liftJson),
+      description := "Lift JSON support for Scalatra"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraAntiXml = Project(
+    id = "scalatra-anti-xml",
+    base = file("anti-xml"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <+= scalaVersion(antiXml),
+      description := "Anti-XML support for Scalatra"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraTest = Project(
+    id = "scalatra-test",
+    base = file("test"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <++= scalaVersion(sv => Seq(testJettyServlet, mockitoAll, commonsLang3, specs2(sv) % "test")),
+      description := "The abstract Scalatra test framework"
+    )
+  )
+
+  lazy val scalatraScalatest = Project(
+    id = "scalatra-scalatest",
+    base = file("scalatest"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <++= scalaVersion(sv => Seq(scalatest(sv), junit, testng)),
+      description := "ScalaTest support for the Scalatra test framework"
+    )
+  ) dependsOn(scalatraTest)
+
+  lazy val scalatraSpecs = Project(
+    id = "scalatra-specs",
+    base = file("specs"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <+= scalaVersion(specs),
+      description := "Specs support for the Scalatra test framework"
+    )
+  ) dependsOn(scalatraTest)
+
+  lazy val scalatraSpecs2 = Project(
+    id = "scalatra-specs2",
+    base = file("specs2"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <+= scalaVersion(specs2),
+      description := "Specs2 support for the Scalatra test framework"
+    )
+  ) dependsOn(scalatraTest)
+
+  lazy val scalatraExample = Project(
+    id = "scalatra-example",
+    base = file("example"),
+    settings = scalatraSettings ++ webSettings ++ Seq(
+      resolvers += sonatypeNexusSnapshots,
+      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
+      description := "Scalatra example project",
+      publish := {},
+      publishLocal := {}
+    )
+  ) dependsOn(
+    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
+    scalatraAuth, scalatraFileupload, scalatraSocketio
+  )
+
+  lazy val scalatraJetty8Tests = Project(
+    id = "scalatra-jetty8-tests",
+    base = file("test/jetty8"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(servletApi_3_0, testJettyServlet_8 % "test"),
+      description := "Compatibility tests for Jetty 8",
+      publish := {},
+      publishLocal := {}
+    )
+  ) dependsOn(scalatraSpecs2 % "test->compile")
 
   object Dependencies {
     def antiXml(scalaVersion: String) = {
@@ -93,156 +237,11 @@ object ScalatraBuild extends Build {
 
     val testng = "org.testng" % "testng" % "6.1.1" % "optional"
   }
-  import Dependencies._
 
   object Resolvers {
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
   }
-  import Resolvers._
-
-  lazy val scalatraProject = Project("scalatra-project", file("."),
-    settings = scalatraSettings ++ Unidoc.settings)
-    .settings(
-      publishArtifact in Compile := false,
-      description := "A tiny, Sinatra-like web framework for Scala",
-      Unidoc.unidocExclude := Seq("scalatra-example"),
-      (name in Posterous) := "scalatra")
-    .aggregate(scalatraCore, scalatraAuth, scalatraFileupload,
-      scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
-      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample, scalatraJetty8Tests)
-
-  lazy val scalatraCore = Project("scalatra", file("core"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies ++= Seq(servletApi),
-      description := "The core Scalatra framework")
-    .testWithScalatraTest
-
-  lazy val scalatraAuth = Project("scalatra-auth", file("auth"),
-    settings = scalatraSettings)
-    .settings(
-       libraryDependencies ++= Seq(servletApi, base64),
-       description := "Scalatra authentication module")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
-
-  lazy val scalatraFileupload = Project("scalatra-fileupload", file("fileupload"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies ++= Seq(servletApi, commonsFileupload, commonsIo),
-      description := "Commons-Fileupload integration with Scalatra")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
-
-  lazy val scalatraScalate = Project("scalatra-scalate", file("scalate"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(scalate(sv), servletApi)
-      },
-      description := "Scalate integration with Scalatra")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
-
-  lazy val scalatraSocketio = Project("scalatra-socketio", file("socketio"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <<= (version, libraryDependencies) {
-        (v, deps) => deps ++ Seq(jettyWebsocket, socketioCore(v))
-      },
-      resolvers += sonatypeNexusSnapshots,
-      description := "Socket IO support for Scalatra"
-    )
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
-
-  lazy val scalatraLiftJson = Project("scalatra-lift-json", file("lift-json"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(liftJson(sv), servletApi)
-      },
-      description := "Lift JSON support for Scalatra"
-    )
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
-
-  lazy val scalatraAntiXml = Project("scalatra-anti-xml", file("anti-xml"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(antiXml(sv), servletApi)
-      },
-      description := "Anti-XML support for Scalatra")
-    .dependsOn(scalatraCore)
-    .testWithScalatraTest
-
-  lazy val scalatraTest = Project("scalatra-test", file("test"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <++= (scalaVersion) { sv =>
-        Seq(testJettyServlet, mockitoAll, commonsLang3, specs2(sv) % "test")
-      },
-      description := "The abstract Scalatra test framework")
-
-  lazy val scalatraScalatest = Project("scalatra-scalatest", file("scalatest"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(scalatest(sv), junit, testng)
-      },
-      description := "ScalaTest support for the Scalatra test framework")
-    .dependsOn(scalatraTest)
-
-  lazy val scalatraSpecs = Project("scalatra-specs", file("specs"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(specs(sv))
-      },
-      description := "Specs support for the Scalatra test framework")
-    .dependsOn(scalatraTest)
-
-  lazy val scalatraSpecs2 = Project("scalatra-specs2", file("specs2"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies <<= (scalaVersion, libraryDependencies) {
-        (sv, deps) => deps ++ Seq(specs2(sv))
-      },
-      description := "Specs2 support for the Scalatra test framework")
-    .dependsOn(scalatraTest)
-
-  lazy val scalatraExample = Project("scalatra-example", file("example"),
-    settings = scalatraSettings)
-    .settings(webSettings :_*)
-    .settings(
-      resolvers += sonatypeNexusSnapshots,
-      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
-      description := "Scalatra example project",
-      publish := {},
-      publishLocal := {})
-    .dependsOn(scalatraCore, scalatraScalate, scalatraAuth, scalatraFileupload,
-               scalatraSocketio)
-
-  lazy val scalatraJetty8Tests = Project("scalatra-jetty8-tests", file("test/jetty8"),
-    settings = scalatraSettings)
-    .settings(
-      libraryDependencies ++= Seq(servletApi_3_0, testJettyServlet_8 % "test"),
-      description := "Compatibility tests for Jetty 8",
-      publish := {},
-      publishLocal := {})
-    .testWithScalatraTest
-
-  class RichProject(project: Project) {
-    def testWithScalatraTest = {
-      val testProjects = Seq(scalatraScalatest, scalatraSpecs, scalatraSpecs2)
-      val testDeps = testProjects map { _ % "test" }
-      project.dependsOn(testDeps : _*)
-    }
-  }
-  implicit def project2RichProject(project: Project): RichProject = new RichProject(project)
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
     (title, version, vendor) =>
