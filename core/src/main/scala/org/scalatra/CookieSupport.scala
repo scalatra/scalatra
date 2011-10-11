@@ -23,6 +23,7 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
     sCookie.setMaxAge(cookieOptions.maxAge)
     if(cookieOptions.secure) sCookie.setSecure(cookieOptions.secure)
     if(cookieOptions.comment.isNonBlank) sCookie.setComment(cookieOptions.comment)
+    sCookie.setHttpOnly(cookieOptions.httpOnly)
     sCookie
   }
 
@@ -58,16 +59,11 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
   def apply(key: String) = cookies.get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
 
   def update(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
-    val sCookie = new ServletCookie(name, value)
-    if(cookieOptions.domain.isNonBlank) sCookie.setDomain(cookieOptions.domain)
-    if(cookieOptions.path.isNonBlank) sCookie.setPath(cookieOptions.path)
-    sCookie.setMaxAge(cookieOptions.maxAge)
-    if(cookieOptions.secure) sCookie.setSecure(cookieOptions.secure)
-    if(cookieOptions.comment.isNonBlank) sCookie.setComment(cookieOptions.comment)
     cookies += name -> value
-    //response.addHeader("Set-Cookie", cookie.toCookieString)
-    response.addCookie(sCookie)
-    sCookie
+    val cookie = new Cookie(name, value)(cookieOptions)
+    val servletCookie = cookie.toServletCookie
+    response.addCookie(servletCookie)
+    servletCookie
   }
 
   def set(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {

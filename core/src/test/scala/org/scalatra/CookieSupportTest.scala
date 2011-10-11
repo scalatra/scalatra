@@ -25,6 +25,10 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
     cookies.update("thecookie", params("cookieval"))(CookieOptions(maxAge = params("maxAge").toInt))
   }
 
+  post("/set-http-only-cookie") {
+    cookies.update("thecookie", params("cookieval"))(CookieOptions(httpOnly = true))
+  }
+
   post("/maplikeset") {
     cookies += ("somecookie" -> params("cookieval"))
     "OK"
@@ -92,6 +96,13 @@ class CookieSupportTest extends ScalatraFunSuite {
         body must equal("The value")
         header("X-Another-Cookie") must equal ("Another Cookie")
       }
+    }
+  }
+
+  test("respects the HttpOnly option") {
+    post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
+      val hdr = response.getHeader("Set-Cookie")
+      hdr must include (";HttpOnly")
     }
   }
 }
