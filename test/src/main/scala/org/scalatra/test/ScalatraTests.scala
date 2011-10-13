@@ -26,7 +26,7 @@ import ScalatraTests._
  * to match domains, paths, or max-ages; the request sends a Cookie header
  * to match whatever Set-Cookie call it received on the previous response.
  */
-trait ScalatraTests extends Client {
+trait ScalatraTests extends Container with Client {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
   def tester: ServletTester
