@@ -16,7 +16,8 @@ object ScalatraBuild extends Build {
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
-    publishSetting
+    publishSetting,
+    resolvers += ScalaToolsSnapshots
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
