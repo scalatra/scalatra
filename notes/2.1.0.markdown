@@ -1,3 +1,4 @@
 ### scalatra-scalate
 * Request-scoped `templateAttributes` map lets you set common render context variables prior to the layout call. [GH-134](http://github.com/scalatra/scalatra/issues/134)
 * Respect HttpOnly option on CookieOptions. [GH-136](http://github.com/scalatra/scalatra/issues/136)
+* Support deleting cookies with paths. [GH-138](http://github.com/scalatra/scalatra/issues/138)

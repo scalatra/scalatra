@@ -60,28 +60,31 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
 
   def update(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
     cookies += name -> value
-    val cookie = new Cookie(name, value)(cookieOptions)
-    val servletCookie = cookie.toServletCookie
-    response.addCookie(servletCookie)
-    servletCookie
+    addServletCookie(name, value, cookieOptions.copy(maxAge = 0))
   }
 
   def set(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
     this.update(name, value)(cookieOptions)
   }
 
-  def delete(name: String) {
+  def delete(name: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
     cookies -= name
-    response.addHeader("Set-Cookie", Cookie(name, "")(CookieOptions(maxAge = 0)).toCookieString)
+    addServletCookie(name, "", cookieOptions.copy(maxAge = 0))
   }
 
   def +=(keyValuePair: (String, String))(implicit cookieOptions: CookieOptions = CookieOptions()) = {
     this.update(keyValuePair._1, keyValuePair._2)(cookieOptions)
   }
 
+  def -=(key: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
+    delete(key)(cookieOptions)
+  }
 
-  def -=(key: String) {
-    delete(key)
+  private def addServletCookie(name: String, value: String, options: CookieOptions) = {
+    val cookie = new Cookie(name, value)(options)
+    val servletCookie = cookie.toServletCookie
+    response.addCookie(servletCookie)
+    servletCookie
   }
 }
 

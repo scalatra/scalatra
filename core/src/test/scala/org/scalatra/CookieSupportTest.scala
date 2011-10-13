@@ -33,6 +33,16 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
     cookies += ("somecookie" -> params("cookieval"))
     "OK"
   }
+
+  post("/remove-cookie") {
+    cookies -= "somecookie"
+    response.setHeader("Somecookie-Is-Defined",
+      cookies.get("somecookie").isDefined.toString)
+  }
+
+  post("/remove-cookie-with-path") {
+    cookies.delete("somecookie")(CookieOptions(path = "/bar"))
+  }
 }
 
 class CookieSupportTest extends ScalatraFunSuite {
@@ -73,7 +83,7 @@ class CookieSupportTest extends ScalatraFunSuite {
 
   test("cookie path defaults to context path") {
     post("/foo/setcookie", "cookieval" -> "whatever") {
-      response.getHeader("Set-Cookie") must endWith (";Path=/foo")
+      response.getHeader("Set-Cookie") must include (";Path=/foo")
     }
   }
 
@@ -81,7 +91,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/maplikeset", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
       hdr must startWith ("""somecookie=whatever;""")
-      hdr must endWith (";Path=/foo")
+      hdr must include (";Path=/foo")
     }
   }
 
@@ -103,6 +113,32 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
       hdr must include (";HttpOnly")
+    }
+  }
+
+  test("removes a cookie by setting max-age = 0") {
+    post("/foo/remove-cookie") {
+      val hdr = response.getHeader("Set-Cookie")
+      // Jetty turns Max-Age into Expires
+      hdr must include (";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+    }
+  }
+
+  test("removes a cookie by setting a path") {
+    post("/foo/remove-cookie-with-path") {
+      val hdr = response.getHeader("Set-Cookie")
+      // Jetty turns Max-Age into Expires
+      hdr must include (";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+      hdr must include (";Path=/bar")
+    }
+  }
+
+  test("removing a cookie removes it from the map view") {
+    session {
+      post("/foo/setcookie") {}
+      post("/foo/remove-cookie") {
+        header("Somecookie-Is-Defined") must be ("false")
+      }
     }
   }
 }
