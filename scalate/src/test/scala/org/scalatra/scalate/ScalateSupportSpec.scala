@@ -28,7 +28,8 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "implicitly bind session"                                     ! e19^
     "implicitly bind params"                                      ! e20^
     "implicitly bind multiParams"                                 ! e21^
-    "set templateAttributes when creating a render context"       ! e21
+    "set templateAttributes when creating a render context"       ! e22^
+    "render to a string instead of response"                      ! e23
 
   addServlet(new ScalatraServlet with ScalateSupport
     with ScalateUrlGeneratorSupport with FlashMapSupport with CookieSupport {
@@ -116,8 +117,12 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     }
 
     get("/template-attributes") {
-      templateAttributes("foo") = "from template attributes"
+      templateAttributes("foo") = "from attributes"
       scaml("params")
+    }
+
+    get("/render-to-string") {
+      response.setHeader("X-Template-Output", layoutTemplate("simple"))
     }
   }, "/*")
 
@@ -217,6 +222,10 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
   }
 
   def e22 = get("/template-attributes") {
-    body must_== "<div>from template attributes</div>\n"
+    body must_== "<div>from attributes template</div>\n"
+  }
+
+  def e23 = get("/render-to-string") {
+    header("X-Template-Output") must_== "<div>SSP template</div>"
   }
 }

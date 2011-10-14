@@ -76,7 +76,7 @@ trait ScalateSupport extends ScalatraKernel {
      * request and response.
      */
     override def createRenderContext(uri: String, out: PrintWriter) = {
-      val ctx = ScalateSupport.this.createRenderContext()
+      val ctx = ScalateSupport.this.createRenderContext(out = out)
       ScalateSupport.this.templateAttributes foreach {
         case (name, value) => ctx.setAttribute(name, Some(value))
       }
@@ -103,8 +103,8 @@ trait ScalateSupport extends ScalatraKernel {
    * If you return something other than a ScalatraRenderContext, you will
    * also want to redefine that binding.
    */
-  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response): RenderContext =
-    new ScalatraRenderContext(this, req, resp)
+  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response, out: PrintWriter = response.getWriter): RenderContext =
+    new ScalatraRenderContext(this, templateEngine, out, req, resp)
 
   /**
    * Creates a render context and renders directly to that.  No template
@@ -138,7 +138,7 @@ trait ScalateSupport extends ScalatraKernel {
   private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
     resp.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
-    val context = createRenderContext(req, resp)
+    val context = createRenderContext(req, resp, resp.getWriter)
     context.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, context)
   }
