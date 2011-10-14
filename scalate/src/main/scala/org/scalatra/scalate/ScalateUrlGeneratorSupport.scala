@@ -1,6 +1,7 @@
 package org.scalatra
 package scalate
 
+import java.io.PrintWriter
 import java.lang.reflect.Field
 import java.lang.Class
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -24,8 +25,8 @@ trait ScalateUrlGeneratorSupport extends ScalateSupport {
     engine
   }
 
-  override protected def createRenderContext(req: HttpServletRequest = request, res: HttpServletResponse = response) = {
-    val context = super.createRenderContext(req, res)
+  override protected def createRenderContext(req: HttpServletRequest = request, res: HttpServletResponse = response, out: PrintWriter = response.getWriter) = {
+    val context = super.createRenderContext(req, res, out)
     for ((name, route) <- this.reflectRoutes)
       context.attributes.update(name, route)
     context.attributes.update("urlGenerator", UrlGenerator)

@@ -27,7 +27,8 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "implicitly bind flash"                                       ! e18^
     "implicitly bind session"                                     ! e19^
     "implicitly bind params"                                      ! e20^
-    "implicitly bind multiParams"                                 ! e21
+    "implicitly bind multiParams"                                 ! e21^
+    "render to a string instead of response"                      ! e22
 
   addServlet(new ScalatraServlet with ScalateSupport
     with ScalateUrlGeneratorSupport with FlashMapSupport with CookieSupport {
@@ -112,6 +113,10 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
     get("/bindings/multiParams/*/*") {
       jade("/bindings/multiParams")
+    }
+
+    get("/render-to-string") {
+      response.setHeader("X-Template-Output", layoutTemplate("simple"))
     }
   }, "/*")
 
@@ -208,5 +213,9 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
   def e21 = get("/bindings/multiParams/bar/baz") {
     body must_== "<div>bar;baz</div>\n"
+  }
+
+  def e22 = get("/render-to-string") {
+    header("X-Template-Output") must_== "<div>SSP template</div>"
   }
 }
