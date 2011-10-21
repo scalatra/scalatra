@@ -3,6 +3,7 @@ package org.scalatra
 import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
+import scala.util.control.ControlThrowable
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, SynchronizedBuffer}
@@ -384,7 +385,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       reason: Option[String],
       headers: Map[String, String],
       body: Any)
-   extends RuntimeException
+   extends ControlThrowable
 
   private def renderHaltException(e: HaltException) {
     e match {
@@ -404,7 +405,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   /**
    * Implementation detail.  Do not rely on this.
    */
-  protected[scalatra] class PassException extends RuntimeException
+  protected[scalatra] class PassException extends ControlThrowable
 
   def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Get, routeMatchers, action)
 
