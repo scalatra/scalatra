@@ -66,6 +66,7 @@ object ScalatraBuild extends Build {
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <+= scalaVersion(scalate),
+      resolvers ++= Seq(sonatypeNexusSnapshots, fuseSourceSnapshots),
       description := "Scalate integration with Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -138,7 +139,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-example",
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
-      resolvers += sonatypeNexusSnapshots,
+      resolvers ++= Seq(sonatypeNexusSnapshots, fuseSourceSnapshots),
       libraryDependencies ++= Seq(atmosphere, jettyWebapp),
       description := "Scalatra example project"
     )
@@ -179,8 +180,8 @@ object ScalatraBuild extends Build {
 
     def scalate(scalaVersion: String) = {
       val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5.2-scala_2.8.1"
-        case _ => "1.5.2"
+        case x if x startsWith "2.8." => "1.6.0-scala_2.8.1-SNAPSHOT"
+        case _ => "1.6.0-SNAPSHOT"
       }
       "org.fusesource.scalate" % "scalate-core" % libVersion
     }
@@ -220,6 +221,7 @@ object ScalatraBuild extends Build {
   object Resolvers {
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+    val fuseSourceSnapshots = "FuseSource Snapshots" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
