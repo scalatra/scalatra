@@ -4,7 +4,7 @@ import scala.collection.JavaConversions._
 import scala.util.DynamicVariable
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.testing.ServletTester
-import org.eclipse.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
+import org.eclipse.jetty.servlet.ServletContextHandler
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 import javax.servlet.Filter
@@ -26,10 +26,12 @@ import ScalatraTests._
  * to match domains, paths, or max-ages; the request sends a Cookie header
  * to match whatever Set-Cookie call it received on the previous response.
  */
-trait ScalatraTests extends Container with Client {
+trait ScalatraTests extends JettyContainer with Client {
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
   def tester: ServletTester
+  def servletContextHandler = tester.getContext
+
   private val _cookies = new DynamicVariable[Seq[HttpCookie]](Nil)
   private val _useSession = new DynamicVariable(false)
 
@@ -73,59 +75,6 @@ trait ScalatraTests extends Container with Client {
     submit(req) { f }
   }
 
-  @deprecated("use addServlet(Class, String) or addFilter(Class, String)")
-  def route(klass: Class[_], path: String) = klass match {
-    case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
-      addServlet(servlet.asInstanceOf[Class[_ <: HttpServlet]], path)
-    case filter if classOf[Filter].isAssignableFrom(filter) =>
-      addFilter(filter.asInstanceOf[Class[_ <: Filter]], path)
-    case _ =>
-      throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
-  }
-
-  @deprecated("renamed to addServlet")
-  def route(servlet: HttpServlet, path: String) = addServlet(servlet, path)
-
-  def addServlet(servlet: HttpServlet, path: String) =
-    tester.getContext().addServlet(new ServletHolder(servlet), path)
-
-  def addServlet(servlet: Class[_ <: HttpServlet], path: String) =
-    tester.addServlet(servlet, path)
-
-  def addFilter(filter: Filter, path: String): FilterHolder =
-    addFilter(filter, path, DefaultDispatcherTypes)
-
-  def addFilter(filter: Filter, path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
-    val holder = new FilterHolder(filter)
-    def tryToAddFilter(dispatches: AnyRef) = Reflection.invokeMethod(
-      tester.getContext, "addFilter", holder, path, dispatches)
-    // HACK: Jetty7 and Jetty8 have incompatible interfaces.  Call it reflectively
-    // so we support both.
-    for {
-      _ <- tryToAddFilter(DispatcherType.intValue(dispatches): java.lang.Integer).left
-      result <- tryToAddFilter(DispatcherType.convert(dispatches, "javax.servlet.DispatcherType")).left
-    } yield (throw result)
-    holder
-  }
-
-  def addFilter(filter: Class[_ <: Filter], path: String): FilterHolder =
-    addFilter(filter, path, DefaultDispatcherTypes)
-
-  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
-    def tryToAddFilter(dispatches: AnyRef): Either[Throwable, AnyRef] =
-      Reflection.invokeMethod(tester.getContext, "addFilter",
-        filter, path, dispatches)
-    // HACK: Jetty7 and Jetty8 have incompatible interfaces.  Call it reflectively
-    // so we support both.
-    (tryToAddFilter(DispatcherType.intValue(dispatches): java.lang.Integer).left map {
-      t: Throwable => tryToAddFilter(DispatcherType.convert(dispatches, "javax.servlet.DispatcherType"))
-    }).joinLeft fold ({ throw _ }, { x => x.asInstanceOf[FilterHolder] })
-  }
-
-  @deprecated("renamed to addFilter")
-  def routeFilter(filter: Class[_ <: Filter], path: String) =
-    addFilter(filter, path)
-
   def session[A](f: => A): A = {
     _cookies.withValue(Nil) {
       _useSession.withValue(true)(f)
@@ -138,10 +87,6 @@ trait ScalatraTests extends Container with Client {
   def header = response.header
   // shorthand for response.status
   def status = response.status
-
-  // Add a default servlet.  If there is no underlying servlet, then
-  // filters just return 404.
-  addServlet(classOf[DefaultServlet], "/")
 
   // So servletContext.getRealPath doesn't crash.
   tester.setResourceBase("./src/main/webapp")
