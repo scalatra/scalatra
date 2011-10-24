@@ -166,7 +166,7 @@ object ScalatraBuild extends Build {
     val commonsIo = "commons-io" % "commons-io" % "2.0.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.0.1"
 
-    val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5" % "test"
+    val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5"
 
     private def jettyDep(name: String, version: String = "7.4.5.v20110725") =
       "org.eclipse.jetty" % name % version

@@ -5,7 +5,10 @@ import dispatch._
 import org.specs2.mutable._
 import org.specs2.specification.{Step, Fragments}
 
-class EmbeddedJettyContainerSpec extends Specification with EmbeddedJettyContainer {
+class EmbeddedJettyContainerSpec extends Specification
+  with EmbeddedJettyContainer
+  with DispatchClient
+{
   override def map(fs: =>Fragments) =
     Step(start()) ^ super.map(fs) ^ Step(stop())
 
@@ -15,11 +18,11 @@ class EmbeddedJettyContainerSpec extends Specification with EmbeddedJettyContain
     }
   }, "/*")
 
+  def baseUrl = "http://localhost:8080"
+
   "An embedded jetty container" should {
     "respond to a hello world servlet" in {
-      Http(url("http://localhost:8080/") >- { body =>
-        body must_== "Hello, world"
-      })
+      get("/") { body must_== "Hello, world" }
     }
   }
 }
