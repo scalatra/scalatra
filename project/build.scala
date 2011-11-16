@@ -150,7 +150,11 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
     def antiXml(scalaVersion: String) = {
-      "com.codecommit" %% "anti-xml" % "0.2"
+      val libVersion = scalaVersion match {
+        case x if x startsWith "2.8." => "0.2"
+        case _ => "0.3"
+      }
+      "com.codecommit" %% "anti-xml" % libVersion
     }
 
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
