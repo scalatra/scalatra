@@ -38,7 +38,7 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi),
+      libraryDependencies ++= Seq(servletApi, slf4jSimple % "test"),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
@@ -218,6 +218,8 @@ object ScalatraBuild extends Build {
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
     val servletApi_3_0 = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
+
+    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
