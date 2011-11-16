@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import scala.xml._
 import java.net.URL
-import com.github.siasia.WebPlugin.{webSettings, jettyPort}
+import com.github.siasia.WebPlugin.webSettings
 import posterous.Publish._
 
 object ScalatraBuild extends Build {
@@ -139,7 +139,7 @@ object ScalatraBuild extends Build {
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
       resolvers += sonatypeNexusSnapshots,
-      libraryDependencies ++= Seq(servletApi, jettyWebapp % "jetty"),
+      libraryDependencies ++= Seq(servletApi, jettyWebapp % "container"),
       description := "Scalatra example project"
     )
   ) dependsOn(
