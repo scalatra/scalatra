@@ -176,20 +176,17 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.8.2"
 
-    def liftJson(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case "2.9.1" => "2.4-M4"
-        case _ => "2.4-M3"
-      }
-      "net.liftweb" %% "lift-json" % libVersion
-    }
+    def liftJson(scalaVersion: String) =
+      "net.liftweb" %% "lift-json" % "2.4-M5"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
     def scalate(scalaVersion: String) = {
       val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5.2-scala_2.8.1"
-        case _ => "1.5.2"
+        // 1.5.3-scala_2.8.2 fails on 2.8.1 loading
+        // scala/tools/nsc/interactive/Global$
+        case x if x startsWith "2.8.1" => "1.5.2-scala_2.8.1"
+        case _ => "1.5.3"
       }
       "org.fusesource.scalate" % "scalate-core" % libVersion
     }
