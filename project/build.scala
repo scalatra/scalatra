@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import scala.xml._
 import java.net.URL
-import com.github.siasia.WebPlugin.{webSettings, jettyPort}
+import com.github.siasia.WebPlugin.webSettings
 import posterous.Publish._
 
 object ScalatraBuild extends Build {
@@ -38,7 +38,7 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi),
+      libraryDependencies ++= Seq(servletApi, slf4jSimple % "test"),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
@@ -162,15 +162,15 @@ object ScalatraBuild extends Build {
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
-    val commonsIo = "commons-io" % "commons-io" % "2.0.1"
-    val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.0.1"
+    val commonsIo = "commons-io" % "commons-io" % "2.1"
+    val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.0.0.v20110901"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
-    val jettyWebapp = jettyDep("jetty-webapp") % "test;jetty"
+    val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
-    val junit = "junit" % "junit" % "4.8.2"
+    val junit = "junit" % "junit" % "4.10"
 
     def liftJson(scalaVersion: String) =
       "net.liftweb" %% "lift-json" % "2.4-M5"
@@ -214,9 +214,11 @@ object ScalatraBuild extends Build {
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
+    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
+
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
-    val testng = "org.testng" % "testng" % "6.1.1" % "optional"
+    val testng = "org.testng" % "testng" % "6.3" % "optional"
   }
 
   object Resolvers {
