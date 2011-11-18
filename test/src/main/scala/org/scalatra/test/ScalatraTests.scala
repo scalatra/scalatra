@@ -10,7 +10,7 @@ import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 import java.net.HttpCookie
 import java.util.{Enumeration, EnumSet}
-import javax.servlet.{DispatcherType, Filter}
+import javax.servlet.{DispatcherType => JDispatcherType, Filter}
 import com.weiglewilczek.slf4s.Logger
 
 object ScalatraTests {
@@ -101,30 +101,18 @@ trait ScalatraTests {
 
   def addFilter(filter: Filter, path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
     val holder = new FilterHolder(filter)
-    def tryToAddFilter(dispatches: AnyRef) = Reflection.invokeMethod(
-      tester.getContext, "addFilter", holder, path, dispatches)
-    // HACK: Jetty7 and Jetty8 have incompatible interfaces.  Call it reflectively
-    // so we support both.
-    for {
-      _ <- tryToAddFilter(DispatcherType.intValue(dispatches): java.lang.Integer).left
-      result <- tryToAddFilter(DispatcherType.convert(dispatches, "javax.servlet.DispatcherType")).left
-    } yield (throw result)
+    tester.getContext.addFilter(holder, path, dispatches)
     holder
   }
 
   def addFilter(filter: Class[_ <: Filter], path: String): FilterHolder =
     addFilter(filter, path, DefaultDispatcherTypes)
 
-  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
-    def tryToAddFilter(dispatches: AnyRef): Either[Throwable, AnyRef] =
-      Reflection.invokeMethod(tester.getContext, "addFilter",
-        filter, path, dispatches)
-    // HACK: Jetty7 and Jetty8 have incompatible interfaces.  Call it reflectively
-    // so we support both.
-    (tryToAddFilter(DispatcherType.intValue(dispatches): java.lang.Integer).left map {
-      t: Throwable => tryToAddFilter(DispatcherType.convert(dispatches, "javax.servlet.DispatcherType"))
-    }).joinLeft fold ({ throw _ }, { x => x.asInstanceOf[FilterHolder] })
-  }
+  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder =
+    tester.getContext.addFilter(filter, path, dispatches)
+
+  private implicit def convertDispatcherType(dispatches: EnumSet[DispatcherType]): EnumSet[JDispatcherType] =
+    DispatcherType.convert(dispatches, "javax.servlet.DispatcherType")
 
   @deprecated("renamed to addFilter")
   def routeFilter(filter: Class[_ <: Filter], path: String) =
