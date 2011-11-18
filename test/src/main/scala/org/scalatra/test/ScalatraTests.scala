@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet
 import java.net.HttpCookie
 import java.util.{Enumeration, EnumSet}
 import javax.servlet.{DispatcherType, Filter}
+import com.weiglewilczek.slf4s.Logger
 
 object ScalatraTests {
   val DefaultDispatcherTypes: EnumSet[DispatcherType] =
@@ -28,6 +29,8 @@ import ScalatraTests._
  * to match whatever Set-Cookie call it received on the previous response.
  */
 trait ScalatraTests {
+  private lazy val log = Logger(getClass)
+
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
   def tester: ServletTester
@@ -44,11 +47,9 @@ trait ScalatraTests {
   def submit[A](req: HttpTester)(f: => A): A = {
     val res = new HttpTester("iso-8859-1")
     val reqString = req.generate
-    //println(reqString)
-    //println()
+    log.debug("request\n"+reqString)
     val resString = tester.getResponses(req.generate)
-    //println(resString)
-    //println()
+    log.debug("response\n"+resString)
     res.parse(resString)
     res.setContent(res.getContent match {
       case null => ""
@@ -56,7 +57,7 @@ trait ScalatraTests {
     })
     if (_useSession.value && res.getHeader("Set-Cookie") != null) {
       val setCookies = res.getHeaderValues("Set-Cookie").asInstanceOf[Enumeration[String]]
-      _cookies.value = setCookies flatMap { setCookie => 
+      _cookies.value = setCookies flatMap { setCookie =>
         HttpCookie.parse(setCookie).iterator
       } toSeq
     }

@@ -103,7 +103,13 @@ object ScalatraBuild extends Build {
     id = "scalatra-test",
     base = file("test"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(testJettyServlet, mockitoAll, commonsLang3, specs2(sv) % "test")),
+      libraryDependencies <++= scalaVersion(sv => Seq(
+        slf4s(sv),
+        testJettyServlet,
+        mockitoAll,
+        commonsLang3,
+        specs2(sv) % "test"
+      )),
       description := "The abstract Scalatra test framework"
     )
   )
@@ -215,6 +221,14 @@ object ScalatraBuild extends Build {
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
+
+    def slf4s(scalaVersion: String) = {
+      val libVersion = scalaVersion match {
+        case "2.9.0" => "1.0.6"
+        case _ => "1.0.7"
+      }
+      "com.weiglewilczek.slf4s" %% "slf4s" % libVersion
+    }
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
