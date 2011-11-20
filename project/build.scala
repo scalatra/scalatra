@@ -17,6 +17,7 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting,
+    issue257Hack,
     resolvers += ScalaToolsSnapshots
   ) ++ mavenCentralFrouFrou
 
@@ -307,6 +308,14 @@ object ScalatraBuild extends Build {
       </developers>
     )}
   )
+
+  // https://github.com/harrah/xsbt/issues/257#issuecomment-2697049
+  lazy val issue257Hack = pomPostProcess :=
+    Rewrite.rewriter {
+      case e: Elem if e.label == "classifier" &&
+        Set("sources", "javadoc").contains(e.child.mkString) =>
+        NodeSeq.Empty
+    }
 
   lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
 }
