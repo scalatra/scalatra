@@ -303,7 +303,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
-      case r: Unit =>
+      case r: Unit | Unit =>
       case a => loop(renderPipeline.lift(a) getOrElse ())
     }
     loop(actionResult)
@@ -319,7 +319,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       response.getOutputStream.write(bytes)
     case file: File =>
       using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
-    case _: Unit =>
+    case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response
     case x: Any  =>
       response.getWriter.print(x.toString)
