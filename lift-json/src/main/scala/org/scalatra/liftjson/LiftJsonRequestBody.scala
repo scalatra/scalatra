@@ -18,7 +18,7 @@ object LiftJsonRequestBody {
  */
 trait LiftJsonRequestBody extends ScalatraKernel with ApiFormats {
 
-  protected implicit def jsonFormats = DefaultFormats
+  protected implicit def jsonFormats: Formats = DefaultFormats
 
   import LiftJsonRequestBody._
  
