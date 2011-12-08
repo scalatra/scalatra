@@ -303,7 +303,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
-      case r: Unit | Unit =>
+      case _: Unit | Unit =>
       case a => loop(renderPipeline.lift(a) getOrElse ())
     }
     loop(actionResult)
