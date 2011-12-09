@@ -1,12 +1,12 @@
 package org.scalatra.test
 
-import javax.servlet.{DispatcherType => JDispatcherType, Filter}
+import javax.servlet.{DispatcherType, Filter}
 import javax.servlet.http.HttpServlet
 import java.util.EnumSet
 import org.eclipse.jetty.servlet._
 
 object JettyContainer {
-  val DefaultDispatcherTypes: EnumSet[DispatcherType] =
+  private val DefaultDispatcherTypes: EnumSet[DispatcherType] =
     EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC)
 }
 
@@ -48,9 +48,6 @@ trait JettyContainer extends Container {
 
   def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder =
     servletContextHandler.addFilter(filter, path, dispatches)
-
-  private implicit def convertDispatcherType(dispatches: EnumSet[DispatcherType]): EnumSet[JDispatcherType] =
-    DispatcherType.convert(dispatches, "javax.servlet.DispatcherType")
 
   @deprecated("renamed to addFilter")
   def routeFilter(filter: Class[_ <: Filter], path: String) =

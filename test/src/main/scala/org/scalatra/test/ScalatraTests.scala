@@ -4,19 +4,9 @@ import scala.collection.JavaConversions._
 import scala.util.DynamicVariable
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.testing.ServletTester
-import org.eclipse.jetty.servlet.ServletContextHandler
-import java.nio.charset.Charset
-import javax.servlet.http.HttpServlet
 import java.net.HttpCookie
-import java.util.{Enumeration, EnumSet}
-import javax.servlet.{DispatcherType => JDispatcherType, Filter}
+import java.util.Enumeration
 import com.weiglewilczek.slf4s.Logger
-
-object ScalatraTests {
-  val DefaultDispatcherTypes: EnumSet[DispatcherType] =
-    EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC)
-}
-import ScalatraTests._
 
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
