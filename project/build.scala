@@ -109,7 +109,8 @@ object ScalatraBuild extends Build {
         testJettyServlet,
         mockitoAll,
         commonsLang3,
-        specs2(sv) % "test"
+        specs2(sv) % "test",
+        dispatch
       )),
       description := "The abstract Scalatra test framework"
     )
@@ -171,6 +172,8 @@ object ScalatraBuild extends Build {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
+
+    val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5"
 
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.RC1"
     val testJettyServlet = jettyDep("test-jetty-servlet")

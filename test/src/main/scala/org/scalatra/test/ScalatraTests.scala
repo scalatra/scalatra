@@ -2,10 +2,9 @@ package org.scalatra.test
 
 import scala.collection.JavaConversions._
 import scala.util.DynamicVariable
-import java.net.URLEncoder.encode
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.testing.ServletTester
-import org.eclipse.jetty.servlet.{FilterHolder, DefaultServlet, ServletHolder}
+import org.eclipse.jetty.servlet.ServletContextHandler
 import java.nio.charset.Charset
 import javax.servlet.http.HttpServlet
 import java.net.HttpCookie
@@ -28,21 +27,21 @@ import ScalatraTests._
  * to match domains, paths, or max-ages; the request sends a Cookie header
  * to match whatever Set-Cookie call it received on the previous response.
  */
-trait ScalatraTests {
+trait ScalatraTests extends JettyContainer with Client {
   private lazy val log = Logger(getClass)
 
   implicit def httpTesterToScalatraHttpTester(t: HttpTester) = new ScalatraHttpTester(t)
 
   def tester: ServletTester
-  private val _response = new DynamicVariable[HttpTester](new HttpTester("iso-8859-1"))
+  def servletContextHandler = tester.getContext
+
   private val _cookies = new DynamicVariable[Seq[HttpCookie]](Nil)
   private val _useSession = new DynamicVariable(false)
 
   protected def start() = tester.start()
   protected def stop() = tester.stop()
 
-  private def toQueryString(params: Traversable[(String, String)]) =
-    params.map(t => List(t._1, t._2).map(encode(_, "UTF-8")).mkString("=")).mkString("&")
+  type Response = HttpTester
 
   def submit[A](req: HttpTester)(f: => A): A = {
     val res = new HttpTester("iso-8859-1")
@@ -61,7 +60,7 @@ trait ScalatraTests {
         HttpCookie.parse(setCookie).iterator
       } toSeq
     }
-    _response.withValue(res) { f }
+    withResponse(res) { f }
   }
 
   def submit[A](method: String, uri: String, queryParams: Iterable[(String, String)] = Map.empty,
@@ -77,118 +76,18 @@ trait ScalatraTests {
     submit(req) { f }
   }
 
-  @deprecated("use addServlet(Class, String) or addFilter(Class, String)")
-  def route(klass: Class[_], path: String) = klass match {
-    case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
-      addServlet(servlet.asInstanceOf[Class[_ <: HttpServlet]], path)
-    case filter if classOf[Filter].isAssignableFrom(filter) =>
-      addFilter(filter.asInstanceOf[Class[_ <: Filter]], path)
-    case _ =>
-      throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
-  }
-
-  @deprecated("renamed to addServlet")
-  def route(servlet: HttpServlet, path: String) = addServlet(servlet, path)
-
-  def addServlet(servlet: HttpServlet, path: String) =
-    tester.getContext().addServlet(new ServletHolder(servlet), path)
-
-  def addServlet(servlet: Class[_ <: HttpServlet], path: String) =
-    tester.addServlet(servlet, path)
-
-  def addFilter(filter: Filter, path: String): FilterHolder =
-    addFilter(filter, path, DefaultDispatcherTypes)
-
-  def addFilter(filter: Filter, path: String, dispatches: EnumSet[DispatcherType]): FilterHolder = {
-    val holder = new FilterHolder(filter)
-    tester.getContext.addFilter(holder, path, dispatches)
-    holder
-  }
-
-  def addFilter(filter: Class[_ <: Filter], path: String): FilterHolder =
-    addFilter(filter, path, DefaultDispatcherTypes)
-
-  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder =
-    tester.getContext.addFilter(filter, path, dispatches)
-
-  private implicit def convertDispatcherType(dispatches: EnumSet[DispatcherType]): EnumSet[JDispatcherType] =
-    DispatcherType.convert(dispatches, "javax.servlet.DispatcherType")
-
-  @deprecated("renamed to addFilter")
-  def routeFilter(filter: Class[_ <: Filter], path: String) =
-    addFilter(filter, path)
-
-  def get[A](uri: String)(f: => A): A = submit("GET", uri) { f }
-  def get[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
-    get(uri, params, Map[String, String]())(f)
-  def get[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("GET", uri, params, headers) { f }
-
-  def head[A](uri: String)(f: => A): A = submit("HEAD", uri) { f }
-  def head[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
-    get(uri, params, Map[String, String]())(f)
-  def head[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("HEAD", uri, params, headers) { f }
-
-  def post[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
-    post(uri, params)(f)
-  def post[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
-    post(uri, params, Map[String, String]())(f)
-  def post[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
-    post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def post[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("POST", uri, Seq.empty, headers, body) { f }
-  // @todo support POST multipart/form-data for file uploads
-
-  def put[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
-    put(uri, params)(f)
-  def put[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
-    put(uri, params, Map[String, String]())(f)
-  def put[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
-    put(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def put[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A) =
-    submit("PUT", uri, Seq.empty, headers, body) { f }
-  // @todo support PUT multipart/form-data for file uploads
-
-  def delete[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("DELETE", uri, params, headers) { f }
-
-  def options[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("OPTIONS", uri, params, headers) { f }
-
-  def trace[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("TRACE", uri, params, headers) { f }
-
-  def connect[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("CONNECT", uri, params, headers) { f }
-
-  def patch[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
-    patch(uri, params)(f)
-  def patch[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
-    patch(uri, params, Map[String, String]())(f)
-  def patch[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
-    patch(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def patch[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
-    submit("PATCH", uri, Seq.empty, headers, body) { f }
-
   def session[A](f: => A): A = {
     _cookies.withValue(Nil) {
       _useSession.withValue(true)(f)
     }
   }
 
-  // return the last response
-  def response = _response value
   // shorthand for response.body
   def body = response.body
   // shorthand for response.header
   def header = response.header
   // shorthand for response.status
   def status = response.status
-
-  // Add a default servlet.  If there is no underlying servlet, then
-  // filters just return 404.
-  addServlet(classOf[DefaultServlet], "/")
 
   // So servletContext.getRealPath doesn't crash.
   tester.setResourceBase("./src/main/webapp")
