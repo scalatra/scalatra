@@ -43,13 +43,8 @@ trait ScalatraTests {
 
   def submit[A](req: HttpTester)(f: => A): A = {
     val res = new HttpTester("iso-8859-1")
-    val reqString = req.generate
-    //println(reqString)
-    //println()
     val resString = tester.getResponses(req.generate)
-    //println(resString)
-    //println()
-    res.parse(resString)
+    res.parse(resString, req.getMethod == "HEAD")
     res.setContent(res.getContent match {
       case null => ""
       case content => content
