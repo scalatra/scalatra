@@ -50,7 +50,7 @@ trait ScalatraTests {
     log.debug("request\n"+reqString)
     val resString = tester.getResponses(req.generate)
     log.debug("response\n"+resString)
-    res.parse(resString)
+    res.parse(resString, req.getMethod == "HEAD")
     res.setContent(res.getContent match {
       case null => ""
       case content => content
