@@ -1,15 +1,9 @@
 package org.scalatra.test
 
-import javax.servlet.Filter
-import javax.servlet.http.HttpServlet
-import java.util.EnumSet
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
-import com.weiglewilczek.slf4s.Logger
 
 trait EmbeddedJettyContainer extends JettyContainer {
-  private val logger = Logger(getClass)
-
   /**
    * Sets the port to listen on.  0 means listen on any available port.
    */
@@ -20,8 +14,7 @@ trait EmbeddedJettyContainer extends JettyContainer {
    * 
    * @return Some port if Jetty is currently listening, or None if it is not.
    */
-  def currentPort: Option[Int] = _currentPort
-  private var _currentPort: Option[Int] = None
+  def localPort: Option[Int] = server.getConnectors.headOption map { _.getLocalPort }
 
   lazy val server = new Server(port)
 
@@ -34,11 +27,18 @@ trait EmbeddedJettyContainer extends JettyContainer {
   def start(): Unit = {
     server.setHandler(servletContextHandler)
     server.start()
-    _currentPort = server.getConnectors.headOption map { _.getLocalPort }
   }
 
-  def stop(): Unit = {
-    _currentPort = None
-    server.stop()
-  }
+  def stop(): Unit = server.stop()
+
+  def baseUrl: String =
+    server.getConnectors.headOption match {
+      case Some(conn) => 
+        val host = Option(conn.getHost) getOrElse "localhost"
+        val port = conn.getLocalPort
+        "http://%s:%d".format(host, port)
+      case None =>
+        sys.error("can't calculate base URL: no connector")
+    }
 }
+

@@ -18,8 +18,6 @@ class EmbeddedJettyContainerSpec extends Specification
     }
   }, "/*")
 
-  def baseUrl = "http://localhost:%d".format(currentPort.get)
-
   "An embedded jetty container" should {
     "respond to a hello world servlet" in {
       get("/") { body must_== "Hello, world" }
