@@ -3,10 +3,7 @@ package auth
 
 import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
-trait ScentryStrategy[UserType <: AnyRef] {
-
-  protected implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
-  protected implicit def requestWrapper(s: HttpServletRequest) = new RichRequest(s)
+trait ScentryStrategy[UserType <: AnyRef] extends servlet.ServletApiImplicits {
 
   protected val app: ScalatraKernel
   def name: Symbol = 'NameMe

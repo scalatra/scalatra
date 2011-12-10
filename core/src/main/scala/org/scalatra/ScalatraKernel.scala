@@ -43,7 +43,7 @@ import ScalatraKernel._
  * [[org.scalatra.ScalatraFilter]] to create a Scalatra application.
  */
 trait ScalatraKernel extends Handler with CoreDsl with Initializable
-  with ServletApiImplicits
+  with servlet.ServletApiImplicits
 {
   /**
    * The routes registered in this kernel.

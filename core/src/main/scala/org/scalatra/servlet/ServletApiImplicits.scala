@@ -1,4 +1,5 @@
 package org.scalatra
+package servlet
 
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpSession}
@@ -11,5 +12,3 @@ trait ServletApiImplicits {
   implicit def sessionWrapper(s: HttpSession) = new RichSession(s)
   implicit def servletContextWrapper(sc: ServletContext) = new RichServletContext(sc)
 }
-
-object ServletApiImplicits extends ServletApiImplicits

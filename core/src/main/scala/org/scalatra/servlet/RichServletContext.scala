@@ -1,4 +1,5 @@
 package org.scalatra
+package servlet
 
 import java.net.{MalformedURLException, URL}
 import javax.servlet.ServletContext

@@ -1,4 +1,5 @@
 package org.scalatra
+package servlet
 
 import test.scalatest.ScalatraFunSuite
 

@@ -1,9 +1,9 @@
 package org.scalatra
+package servlet
 
 import scala.collection.{Map => CMap}
 import scala.io.Source
 import javax.servlet.http.HttpServletRequest
-import java.util.Locale
 import util.{MultiMap, MultiMapHeadView}
 
 object RichRequest {

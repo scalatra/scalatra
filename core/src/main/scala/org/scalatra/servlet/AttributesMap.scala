@@ -1,4 +1,5 @@
 package org.scalatra
+package servlet
 
 import scala.collection.mutable.Map
 import scala.collection.JavaConversions._
