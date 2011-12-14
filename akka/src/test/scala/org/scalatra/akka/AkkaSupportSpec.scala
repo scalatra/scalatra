@@ -12,12 +12,14 @@ object AkkaSupportSpec {
     protected def receive = {
       case "working" => self reply "the-working-reply"
       case "dontreply" =>
-      case "throw" => self.channel.sendException(new RuntimeException("The error"))
+      case "throw" => if (!(self sendException (new RuntimeException("The error")))) {
+        self.senderFuture map { _ completeWithException (new RuntimeException("The error"))}
+      }
     }
   }).start()
   class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
     
-    get("/") {
+    get("/working") {
       probe ? "working"
     }
     
@@ -27,6 +29,13 @@ object AkkaSupportSpec {
     
     get("/throw") {
       probe ? "throw"
+    }
+    
+    error {
+      case t => {
+        status = 500
+        response.getWriter.println(t.getMessage)
+      }
     }
   }
 }
@@ -41,14 +50,21 @@ class AkkaSupportSpec extends ScalatraSpecification {
   "The AkkaSupport" should {
     
     "render the reply of an actor" in {
-      get("/") {
+      get("/working") {
         body must_== "the-working-reply"
       }
     }
     
-    "render the error response" in {
+    "respond with timeout if no timely reply from the actor" in {
+      get("/timeout") {
+        status must_== 504
+        body must_== "Gateway timeout"
+      }
+    }
+
+    "respond with error message" in {
       get("/throw") {
-        body must_== "hello"
+        body must startWith("The error")
       }
     }
   }

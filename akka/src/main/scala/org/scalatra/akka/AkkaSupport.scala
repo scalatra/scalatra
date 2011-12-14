@@ -46,15 +46,7 @@ trait AkkaSupport extends ScalatraKernel {
             }
           }
 
-          def onError(event: AsyncEvent) {
-            withAsyncRequestAndResponse(event) {
-              if (gotResponseAlready.compareAndSet(false, true))
-                event.getThrowable match {
-                  case e: HaltException => renderHaltException(e)
-                  case e => errorHandler(e)
-                }
-            }
-          }
+          def onError(event: AsyncEvent) {}
 
           def onStartAsync(event: AsyncEvent) {}
         })
@@ -68,8 +60,20 @@ trait AkkaSupport extends ScalatraKernel {
               }
             }
           }
-        }
+        } recover {
+          case t => {
+            withAsyncRequestAndResponse(context) {
+              if (gotResponseAlready.compareAndSet(false, true)) {
+                t match {
+                  case e: HaltException => renderHaltException(e)
+                  case e => errorHandler(e)
+                }
+                context.complete()
+              }
+            }
+          }
 
+        }
       }
       case a => {
         super.renderResponseBody(a)
