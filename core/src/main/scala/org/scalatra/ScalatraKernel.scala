@@ -387,7 +387,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       body: Any)
    extends ControlThrowable
 
-  private def renderHaltException(e: HaltException) {
+  protected def renderHaltException(e: HaltException) {
     e match {
       case HaltException(Some(status), Some(reason), _, _) => response.setStatus(status, reason)
       case HaltException(Some(status), None, _, _) => response.setStatus(status)
