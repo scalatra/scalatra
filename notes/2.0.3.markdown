@@ -1,0 +1,2 @@
+### scalatra-auth
+* Fix crash in BasicAuthStrategy when no auth header is present. [(GH-143)](http://github.com/scalatra/scalatra/issues/143)
