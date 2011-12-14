@@ -51,7 +51,7 @@ object BasicAuthStrategy {
 
     def parts = authorizationKey map { r.getHeader(_).split(" ", 2).toList } getOrElse Nil
     def scheme: Option[Symbol] = parts.headOption.map(sch => Symbol(sch.toLowerCase(Locale.ENGLISH)))
-    def params = parts.tail.headOption
+    def params = parts.lastOption
 
     private def authorizationKey = AUTHORIZATION_KEYS.find(r.getHeader(_) != null)
 

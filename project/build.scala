@@ -17,7 +17,6 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting,
-    issue257Hack,
     resolvers += ScalaToolsSnapshots
   ) ++ mavenCentralFrouFrou
 
@@ -48,7 +47,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-auth",
     base = file("auth"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies += base64,
+      libraryDependencies ++= Seq(base64, liftTestkit),
       description := "Scalatra authentication module"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -86,7 +85,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-lift-json",
     base = file("lift-json"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(liftJson),
+      libraryDependencies += liftJson,
       description := "Lift JSON support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -182,8 +181,9 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    def liftJson(scalaVersion: String) =
-      "net.liftweb" %% "lift-json" % "2.4-M5"
+    private def liftDep(name: String) = "net.liftweb" %% name % "2.4-M5"
+    val liftJson = liftDep("lift-json")
+    val liftTestkit = liftDep("lift-testkit") % "test"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
@@ -311,14 +311,6 @@ object ScalatraBuild extends Build {
       </developers>
     )}
   )
-
-  // https://github.com/harrah/xsbt/issues/257#issuecomment-2697049
-  lazy val issue257Hack = pomPostProcess :=
-    Rewrite.rewriter {
-      case e: Elem if e.label == "classifier" &&
-        Set("sources", "javadoc").contains(e.child.mkString) =>
-        NodeSeq.Empty
-    }
 
   lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
 }
