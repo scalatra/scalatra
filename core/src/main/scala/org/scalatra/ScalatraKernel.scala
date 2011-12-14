@@ -16,6 +16,16 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 
+/**
+   * Implementation detail.  Do not rely on this.
+   */
+private[scalatra] case class HaltException(
+    status: Option[Int],
+    reason: Option[String],
+    headers: Map[String, String],
+    body: Any)
+ extends ControlThrowable
+
 object ScalatraKernel
 {
   type MultiParams = MultiMap
@@ -377,15 +387,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     throw new HaltException(statusOpt, Some(reason), headers, body)
   }
 
-  /**
-   * Implementation detail.  Do not rely on this.
-   */
-  protected case class HaltException(
-      status: Option[Int],
-      reason: Option[String],
-      headers: Map[String, String],
-      body: Any)
-   extends ControlThrowable
+
 
   protected def renderHaltException(e: HaltException) {
     e match {

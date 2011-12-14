@@ -8,13 +8,11 @@ import test.scalatest.ScalatraWordSpec
 import test.specs.ScalatraSpecification
 
 object AkkaSupportSpec {
-  val probe = actorOf(new Actor {
+  val probe = actorOf(new Actor with ScalatraSupport {
     protected def receive = {
       case "working" => self reply "the-working-reply"
       case "dontreply" =>
-      case "throw" => if (!(self sendException (new RuntimeException("The error")))) {
-        self.senderFuture map { _ completeWithException (new RuntimeException("The error"))}
-      }
+      case "throw" => halt(500, "The error")
     }
   }).start()
   class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
