@@ -2,6 +2,7 @@ package org.scalatra
 package akka
 
 import _root_.akka.actor._
+import _root_.akka.config.Supervision._
 import Actor._
 import test.specs.ScalatraSpecification
 
@@ -12,6 +13,13 @@ object AkkaSupportSpec {
       case "working" => self reply "the-working-reply"
       case "dontreply" =>
       case "throw" => halt(500, "The error")
+    }
+  }).start()
+  
+  val superv = actorOf(new Actor {
+    self.faultHandler = OneForOneStrategy(classOf[Exception] :: Nil, 5, 3000L)
+    protected def receive = {
+      case _ =>
     }
   }).start()
 
@@ -30,8 +38,11 @@ object AkkaSupportSpec {
     }
     
     get("/supervised_error") {
-      probe ? "throw"
+      superv link probe
+      probe ? "throw" onComplete { _ => superv.unlink(probe) }
     }
+
+
     
   }
 }
