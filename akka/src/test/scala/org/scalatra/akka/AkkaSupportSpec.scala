@@ -17,7 +17,7 @@ object AkkaSupportSpec {
   }).start()
   
   val superv = actorOf(new Actor {
-    self.faultHandler = OneForOneStrategy(classOf[Exception] :: Nil, 5, 3000L)
+    self.faultHandler = OneForOneStrategy(classOf[Exception] :: Nil, 5, 3000)
     protected def receive = {
       case _ =>
     }
