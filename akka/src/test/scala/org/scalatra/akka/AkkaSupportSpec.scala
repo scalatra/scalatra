@@ -35,7 +35,7 @@ class AkkaSupportSpec extends ScalatraSpecification {
 
   import AkkaSupportSpec.AkkaSupportServlet
   
-  addServlet(new AkkaSupportServlet, "/")
+  addServlet(new AkkaSupportServlet, "/*")
   
   
   "The AkkaSupport" should {
