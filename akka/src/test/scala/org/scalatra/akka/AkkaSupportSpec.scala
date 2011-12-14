@@ -3,18 +3,18 @@ package akka
 
 import _root_.akka.actor._
 import Actor._
-import org.scalatest.matchers.MustMatchers
-import test.scalatest.ScalatraWordSpec
 import test.specs.ScalatraSpecification
 
 object AkkaSupportSpec {
-  val probe = actorOf(new Actor with ScalatraSupport {
+
+  val probe = actorOf(new Actor {
     protected def receive = {
       case "working" => self reply "the-working-reply"
       case "dontreply" =>
       case "throw" => halt(500, "The error")
     }
   }).start()
+
   class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
     
     get("/working") {
@@ -29,22 +29,18 @@ object AkkaSupportSpec {
       probe ? "throw"
     }
     
-    error {
-      case t => {
-        status = 500
-        response.getWriter.println(t.getMessage)
-      }
+    get("/supervised_error") {
+      probe ? "throw"
     }
+    
   }
 }
 
 class AkkaSupportSpec extends ScalatraSpecification {
 
   import AkkaSupportSpec.AkkaSupportServlet
-  
   addServlet(new AkkaSupportServlet, "/*")
-  
-  
+
   "The AkkaSupport" should {
     
     "render the reply of an actor" in {
