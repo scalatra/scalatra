@@ -31,7 +31,7 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample)
+      scalatraExample, scalatraAkka)
   )
 
   lazy val scalatraCore = Project(
@@ -49,6 +49,16 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies += base64,
       description := "Scalatra authentication module"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraAkka = Project(
+    id = "scalatra-akka",
+    base = file("akka"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(akka, akkaTestkit),
+      resolvers += "Akka Repo" at "http://akka.io/repository",
+      description := "Scalatra akka integration module"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -152,7 +162,7 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(
     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-    scalatraAuth, scalatraFileupload, scalatraSocketio
+    scalatraAuth, scalatraFileupload, scalatraSocketio, scalatraAkka
   )
 
   object Dependencies {
@@ -167,6 +177,9 @@ object ScalatraBuild extends Build {
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
+
+    val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3-RC4"
+    val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3-RC4" % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
