@@ -42,6 +42,18 @@ trait CoreDsl {
   implicit def response: HttpServletResponse
 
   /**
+   * Immediately halts processing of a request.  Can be called from either a
+   * before filter or a route.
+   *
+   * @param status the status to set on the response, or null to leave
+   *        the status unchanged.
+   * @param body a result to render through the render pipeline as the body
+   * @param headers headers to add to the response
+   * @param reason the HTTP status reason to set, or null to leave unchanged.
+   */
+  val halt = org.scalatra.halt
+
+  /**
    * Gets the content type of the current response.
    */
   def contentType: String = response.getContentType
@@ -196,26 +208,6 @@ trait CoreDsl {
    * @see patch
    */
   def patch(routeMatchers: RouteMatcher*)(block: => Any): Route
-
-  /**
-   * Immediately halts the current action.  If called within a before filter,
-   * prevents the action from executing.  Any matching after filters will still
-   * execute.
-   *
-   * @param status set as the response's HTTP status code.  Ignored if null.
-   *
-   * @param body rendered to the response body through the response pipeline.
-   *
-   * @param reason set as the HTTP status reason.  Ignored if null or if status
-   * is null.
-   *
-   * @param headers added as headers to the response.  Previously set headers
-   * are retained
-   */
-  def halt[T : Manifest](status: JInteger = null,
-           body: T = (),
-           headers: Map[String, String] = Map.empty,
-           reason: String = null): Nothing
 
   /**
    * Immediately passes execution to the next matching route.
