@@ -42,6 +42,18 @@ trait CoreDsl {
   implicit def response: HttpServletResponse
 
   /**
+   * Immediately halts processing of a request.  Can be called from either a
+   * before filter or a route.
+   *
+   * @param status the status to set on the response, or null to leave
+   *        the status unchanged.
+   * @param body a result to render through the render pipeline as the body
+   * @param headers headers to add to the response
+   * @param reason the HTTP status reason to set, or null to leave unchanged.
+   */
+  val halt = org.scalatra.halt
+
+  /**
    * Gets the content type of the current response.
    */
   def contentType: String = response.getContentType
