@@ -58,8 +58,11 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(akka, akkaTestkit),
       resolvers += "Akka Repo" at "http://akka.io/repository",
-      description := "Scalatra akka integration module"
-    )
+      description := "Scalatra akka integration module",
+      // Akka only supports 2.9.x, so don't build this module for 2.8.x.
+      skip <<= scalaVersion map { v => v startsWith "2.8." }
+      // TODO don't publish or publish-local when we skip
+    ) 
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraFileupload = Project(
