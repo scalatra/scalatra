@@ -3,8 +3,8 @@ package org.scalatra
 import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
-import scala.util.control.ControlThrowable
 import scala.util.matching.Regex
+import scala.util.control.ControlThrowable
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, SynchronizedBuffer}
 import scala.xml.NodeSeq
@@ -105,45 +105,6 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected val _request    = new DynamicVariable[HttpServletRequest](null)
 
-  /**
-   * Pluggable way to convert a path expression to a route matcher.
-   * The default implementation is compatible with Sinatra's route syntax.
-   *
-   * @param path a path expression
-   * @return a route matcher based on `path`
-   */
-  protected implicit def string2RouteMatcher(path: String): RouteMatcher =
-    new SinatraRouteMatcher(path, requestPath)
-
-  /**
-   * Path pattern is decoupled from requests.  This adapts the PathPattern to
-   * a RouteMatcher by supplying the request path.
-   */
-  protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
-    new PathPatternRouteMatcher(pattern, requestPath)
-
-  /**
-   * Converts a regular expression to a route matcher.
-   *
-   * @param regex the regular expression
-   * @return a route matcher based on `regex`
-   * @see [[org.scalatra.RegexRouteMatcher]]
-   */
-  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
-    new RegexRouteMatcher(regex, requestPath)
-
-  /**
-   * Converts a boolean expression to a route matcher.
-   *
-   * @param block a block that evaluates to a boolean
-   *
-   * @return a route matcher based on `block`.  The route matcher should
-   * return `Some` if the block is true and `None` if the block is false.
-   *
-   * @see [[org.scalatra.BooleanBlockRouteMatcher]]
-   */
-  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
-    new BooleanBlockRouteMatcher(block)
 
   /**
    * Handles a request and renders a response.
@@ -256,17 +217,11 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   def requestPath: String
 
-  def before(routeMatchers: RouteMatcher*)(fun: => Any) =
-    addBefore(routeMatchers, fun)
+  def before(transformers: RouteTransformer*)(fun: => Any) =
+    routes.appendBeforeFilter(Route(transformers, () => fun))
 
-  private def addBefore(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
-    routes.appendBeforeFilter(Route(routeMatchers, () => fun))
-
-  def after(routeMatchers: RouteMatcher*)(fun: => Any) =
-    addAfter(routeMatchers, fun)
-
-  private def addAfter(routeMatchers: Iterable[RouteMatcher], fun: => Any) =
-    routes.appendAfterFilter(Route(routeMatchers, () => fun))
+  def after(transformers: RouteTransformer*)(fun: => Any) =
+    routes.appendAfterFilter(Route(transformers, () => fun))
 
   /**
    * Called if no route matches the current request for any method.  The
@@ -389,6 +344,61 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   implicit def request = _request value
 
   /**
+   * Pluggable way to convert a path expression to a route matcher.
+   * The default implementation is compatible with Sinatra's route syntax.
+   *
+   * @param path a path expression
+   * @return a route matcher based on `path`
+   */
+  protected implicit def string2RouteMatcher(path: String): RouteMatcher =
+    new SinatraRouteMatcher(path, requestPath)
+
+  protected implicit def string2RouteTransformer(path: String): RouteTransformer =
+    Route.appendMatcher(path)
+
+  /**
+   * Path pattern is decoupled from requests.  This adapts the PathPattern to
+   * a RouteMatcher by supplying the request path.
+   */
+  protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
+    new PathPatternRouteMatcher(pattern, requestPath)
+
+  protected implicit def pathPattern2RouteTransformer(pattern: PathPattern): RouteTransformer =
+    Route.appendMatcher(pattern)
+
+  /**
+   * Converts a regular expression to a route matcher.
+   *
+   * @param regex the regular expression
+   * @return a route matcher based on `regex`
+   * @see [[org.scalatra.RegexRouteMatcher]]
+   */
+  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
+    new RegexRouteMatcher(regex, requestPath)
+
+  protected implicit def regex2RouteTransformer(regex: Regex): RouteTransformer =
+    Route.appendMatcher(regex)
+
+  /**
+   * Converts a boolean expression to a route matcher.
+   *
+   * @param block a block that evaluates to a boolean
+   *
+   * @return a route matcher based on `block`.  The route matcher should
+   * return `Some` if the block is true and `None` if the block is false.
+   *
+   * @see [[org.scalatra.BooleanBlockRouteMatcher]]
+   */
+  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
+    new BooleanBlockRouteMatcher(block)
+
+  protected implicit def booleanBlock2RouteTransformer(block: => Boolean): RouteTransformer =
+    Route.appendMatcher(block)
+
+  protected implicit def routeMatcher2RouteTransformer(matcher: RouteMatcher): RouteTransformer =
+    Route.appendMatcher(matcher)
+
+  /**
    * The currently scoped response.  Invalid outside `handle`.
    */
   implicit def response = _response value
@@ -413,23 +423,23 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected[scalatra] class PassException extends ControlThrowable
 
-  def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Get, routeMatchers, action)
+  def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
 
-  def post(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Post, routeMatchers, action)
+  def post(transformers: RouteTransformer*)(action: => Any) = addRoute(Post, transformers, action)
 
-  def put(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Put, routeMatchers, action)
+  def put(transformers: RouteTransformer*)(action: => Any) = addRoute(Put, transformers, action)
 
-  def delete(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Delete, routeMatchers, action)
-
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
-  def options(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Options, routeMatchers, action)
+  def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
 
   /**
    * @see [[org.scalatra.ScalatraKernel.get]]
    */
-  def patch(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Patch, routeMatchers, action)
+  def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
+
+  /**
+   * @see [[org.scalatra.ScalatraKernel.get]]
+   */
+  def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
 
   /**
    * Prepends a new route for the given HTTP method.
@@ -444,8 +454,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    *
    * @see org.scalatra.ScalatraKernel#removeRoute
    */
-  protected def addRoute(method: HttpMethod, routeMatchers: Iterable[RouteMatcher], action: => Any): Route = {
-    val route = Route(routeMatchers, () => action, () => routeBasePath)
+  protected def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route = {
+    val route = Route(transformers, () => action, () => routeBasePath)
     routes.prependRoute(method, route)
     route
   }
@@ -455,9 +465,9 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected def routeBasePath: String
 
-  @deprecated("Use addRoute(HttpMethod, Iterable[RouteMatcher], =>Any)")
-  protected[scalatra] def addRoute(verb: String, routeMatchers: Iterable[RouteMatcher], action: => Any): Route =
-    addRoute(HttpMethod(verb), routeMatchers, action)
+  @deprecated("Use addRoute(HttpMethod, Seq[RouteMatcher], =>Any)")
+  protected[scalatra] def addRoute(verb: String, transformers: Seq[RouteTransformer], action: => Any): Route =
+    addRoute(HttpMethod(verb), transformers, action)
 
   /**
    * Removes _all_ the actions of a given route for a given HTTP method.

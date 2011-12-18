@@ -1,6 +1,8 @@
 package org
 
 package object scalatra {
+  type RouteTransformer = (Route => Route)
+
  @deprecated("Use CsrfTokenSupport")
   type CSRFTokenSupport = CsrfTokenSupport
 
