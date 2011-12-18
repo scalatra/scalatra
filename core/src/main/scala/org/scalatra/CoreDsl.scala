@@ -1,6 +1,5 @@
 package org.scalatra
 
-import java.lang.{Integer => JInteger}
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
 
@@ -9,7 +8,7 @@ import ScalatraKernel.MultiParams
 /**
  * The core DSL of a Scalatra application.
  */
-trait CoreDsl {
+trait CoreDsl extends Control {
   /**
    * The current servlet context
    */
@@ -40,18 +39,6 @@ trait CoreDsl {
    * The current response.
    */
   implicit def response: HttpServletResponse
-
-  /**
-   * Immediately halts processing of a request.  Can be called from either a
-   * before filter or a route.
-   *
-   * @param status the status to set on the response, or null to leave
-   *        the status unchanged.
-   * @param body a result to render through the render pipeline as the body
-   * @param headers headers to add to the response
-   * @param reason the HTTP status reason to set, or null to leave unchanged.
-   */
-  val halt = org.scalatra.halt
 
   /**
    * Gets the content type of the current response.
@@ -208,9 +195,4 @@ trait CoreDsl {
    * @see patch
    */
   def patch(routeMatchers: RouteMatcher*)(block: => Any): Route
-
-  /**
-   * Immediately passes execution to the next matching route.
-   */
-  def pass(): Unit
 }

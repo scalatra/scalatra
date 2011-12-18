@@ -1,7 +1,9 @@
 package org
 
-package object scalatra {
- @deprecated("Use CsrfTokenSupport")
+package object scalatra 
+  extends Control // make halt and pass visible to helpers outside the DSL
+{
+  @deprecated("Use CsrfTokenSupport")
   type CSRFTokenSupport = CsrfTokenSupport
 
   type ErrorHandler = PartialFunction[Throwable, Any]

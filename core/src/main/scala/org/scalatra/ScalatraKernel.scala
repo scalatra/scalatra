@@ -3,7 +3,6 @@ package org.scalatra
 import javax.servlet._
 import javax.servlet.http._
 import scala.util.DynamicVariable
-import scala.util.control.ControlThrowable
 import scala.util.matching.Regex
 import scala.collection.JavaConversions._
 import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, SynchronizedBuffer}
@@ -15,40 +14,6 @@ import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
-
-/**
- * Immediately halts processing of a request.  Can be called from either a
- * before filter or a route.
- */
-object halt {
-
-  /**
-   * Immediately halts processing of a request.  Can be called from either a
-   * before filter or a route.
-   *
-   * @param status the status to set on the response, or null to leave
-   *        the status unchanged.
-   * @param body a result to render through the render pipeline as the body
-   * @param headers headers to add to the response
-   * @param reason the HTTP status reason to set, or null to leave unchanged.
-   */
-  def apply[T : Manifest](status: JInteger = null,
-         body: T = (),
-         headers: Map[String, String] = Map.empty,
-         reason: String = null): Nothing = {
-    val statusOpt = if (status == null) None else Some(status.intValue)
-    throw new HaltException(statusOpt, Some(reason), headers, body)
-  }
-}
-/**
-   * Implementation detail.  Do not rely on this.
-   */
-private[scalatra] case class HaltException(
-    status: Option[Int],
-    reason: Option[String],
-    headers: Map[String, String],
-    body: Any)
- extends ControlThrowable
 
 object ScalatraKernel
 {
@@ -402,16 +367,6 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     e.headers foreach { case(name, value) => response.addHeader(name, value) }
     renderResponse(e.body)
   }
-
-  /**
-   * Immediately exits from the current route.
-   */
-  def pass() = throw new PassException
-
-  /**
-   * Implementation detail.  Do not rely on this.
-   */
-  protected[scalatra] class PassException extends ControlThrowable
 
   def get(routeMatchers: RouteMatcher*)(action: => Any) = addRoute(Get, routeMatchers, action)
 
