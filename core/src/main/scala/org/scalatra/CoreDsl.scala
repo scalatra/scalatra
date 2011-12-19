@@ -87,28 +87,28 @@ trait CoreDsl extends Control {
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def before(routeMatchers: RouteMatcher*)(block: => Any): Unit
+  def before(transformers: RouteTransformer*)(block: => Any): Unit
 
   @deprecated("Use before() { ... }")
   final def beforeAll(block: => Any): Unit = before()(block)
 
-  @deprecated("Use before(RouteMatcher*) { ... }")
-  final def beforeSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
-    before(routeMatchers : _*)(block)
+  @deprecated("Use before(RouteTransformer*) { ... }")
+  final def beforeSome(transformers: RouteTransformer*)(block: => Any): Unit =
+    before(transformers: _*)(block)
 
   /**
    * Adds a filter to run after the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def after(routeMatchers: RouteMatcher*)(block: => Any): Unit
+  def after(transformers: RouteTransformer*)(block: => Any): Unit
 
   @deprecated("Use after() { ... }")
   final def afterAll(block: => Any): Unit = after()(block)
 
-  @deprecated("Use after(RouteMatcher*) { ... }")
-  final def afterSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
-    before(routeMatchers : _*)(block)
+  @deprecated("Use after(RouteTransformer*) { ... }")
+  final def afterSome(transformers: RouteTransformer*)(block: => Any): Unit =
+    before(transformers: _*)(block)
 
   /**
    * Defines a block to run if no matching routes are found, or if all
@@ -169,30 +169,30 @@ trait CoreDsl extends Control {
    * }}}
    *
    */
-  def get(routeMatchers: RouteMatcher*)(block: => Any): Route
+  def get(transformers: RouteTransformer*)(block: => Any): Route
 
   /**
    * @see get
    */
-  def post(routeMatchers: RouteMatcher*)(block: => Any): Route
+  def post(transformers: RouteTransformer*)(block: => Any): Route
 
   /**
    * @see get
    */
-  def put(routeMatchers: RouteMatcher*)(block: => Any): Route
+  def put(transformers: RouteTransformer*)(block: => Any): Route
 
   /**
    * @see get
    */
-  def delete(routeMatchers: RouteMatcher*)(block: => Any): Route
+  def delete(transformers: RouteTransformer*)(block: => Any): Route
 
   /**
    * @see get
    */
-  def options(routeMatchers: RouteMatcher*)(block: => Any): Route
+  def options(transformers: RouteTransformer*)(block: => Any): Route
 
   /**
    * @see patch
    */
-  def patch(routeMatchers: RouteMatcher*)(block: => Any): Route
+  def patch(transformers: RouteTransformer*)(block: => Any): Route
 }

@@ -10,9 +10,10 @@ import util.MultiMap
  * available to the action.
  */
 case class Route(
-  routeMatchers: Iterable[RouteMatcher],
+  routeMatchers: Seq[RouteMatcher] = Seq.empty,
   action: Action,
-  contextPath: () => String = () => ""
+  contextPath: () => String = () => "",
+  metadata: Map[Symbol, Any] = Map.empty
 )
 {
   /**
@@ -44,6 +45,20 @@ case class Route(
   lazy val isReversible: Boolean = !reversibleMatcher.isEmpty
 
   override def toString: String = routeMatchers mkString " "
+}
+
+object Route {
+  def apply(transformers: Seq[RouteTransformer], action: Action): Route =
+    apply(transformers, action, () => "")
+  
+  def apply(transformers: Seq[RouteTransformer], action: Action, contextPath: () => String): Route = {
+    val route = Route(action = action, contextPath = contextPath)
+    transformers.foldLeft(route){ (route, transformer) => transformer(route) }
+  }
+
+  def appendMatcher(matcher: RouteMatcher): RouteTransformer = { route =>
+    route.copy(routeMatchers = route.routeMatchers :+ matcher)
+  }
 }
 
 /**

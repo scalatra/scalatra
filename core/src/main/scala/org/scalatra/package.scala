@@ -3,6 +3,8 @@ package org
 package object scalatra 
   extends Control // make halt and pass visible to helpers outside the DSL
 {
+  type RouteTransformer = (Route => Route)
+
   @deprecated("Use CsrfTokenSupport")
   type CSRFTokenSupport = CsrfTokenSupport
 

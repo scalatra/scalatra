@@ -65,36 +65,36 @@ trait AsyncSupport extends ScalatraKernel {
    * }}}
    *
    */
-  def asyncGet(routeMatchers: RouteMatcher*)(block: => Any): Route = 
-    get(routeMatchers: _*)(asynchronously(block))
+  def asyncGet(transformers: RouteTransformer*)(block: => Any): Route = 
+    get(transformers: _*)(asynchronously(block))
 
   /**
    * @see asyncGet
    */
-  def asyncPost(routeMatchers: RouteMatcher*)(block: => Any): Route = 
-    post(routeMatchers: _*)(asynchronously(block))
+  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route = 
+    post(transformers: _*)(asynchronously(block))
 
   /**
    * @see asyncGet
    */
-  def asyncPut(routeMatchers: RouteMatcher*)(block: => Any): Route = 
-    put(routeMatchers: _*)(asynchronously(block))
+  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route = 
+    put(transformers: _*)(asynchronously(block))
 
   /**
    * @see asyncGet
    */
-  def asyncDelete(routeMatchers: RouteMatcher*)(block: => Any): Route = 
-    delete(routeMatchers: _*)(asynchronously(block))
+  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route = 
+    delete(transformers: _*)(asynchronously(block))
 
   /**
    * @see asyncGet
    */
-  def asyncOptions(routeMatchers: RouteMatcher*)(block: => Any): Route = 
-    options(routeMatchers: _*)(asynchronously(block))
+  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route = 
+    options(transformers: _*)(asynchronously(block))
 
   /**
    * @see asyncGet
    */
-  def asyncPatch(routeMatchers: RouteMatcher*)(block: => Any): Route = 
-    patch(routeMatchers: _*)(asynchronously(block))
+  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route = 
+    patch(transformers: _*)(asynchronously(block))
 }
