@@ -13,7 +13,7 @@ case class Route(
   routeMatchers: Seq[RouteMatcher] = Seq.empty,
   action: Action,
   contextPath: () => String = () => "",
-  metadata: Map[Symbol, String] = Map.empty
+  metadata: Map[Symbol, Any] = Map.empty
 )
 {
   /**
