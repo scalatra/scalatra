@@ -7,7 +7,7 @@ import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 
 class RouteRegistry {
-  private val methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
+  private val _methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
     new ConcurrentHashMap[HttpMethod, Seq[Route]]
 
   private var _beforeFilters: Seq[Route] = Vector.empty
@@ -21,8 +21,8 @@ class RouteRegistry {
    */
   def apply(method: HttpMethod): Seq[Route] =
     method match {
-      case Head => methodRoutes.getOrElse(Get, Vector.empty)
-      case m => methodRoutes.getOrElse(m, Vector.empty)
+      case Head => _methodRoutes.getOrElse(Get, Vector.empty)
+      case m => _methodRoutes.getOrElse(m, Vector.empty)
     }
 
   /**
@@ -49,7 +49,7 @@ class RouteRegistry {
   }
 
   private def matchingMethodsExcept(p: HttpMethod => Boolean) = {
-    var methods = (methodRoutes filter { case (method, routes) =>
+    var methods = (_methodRoutes filter { case (method, routes) =>
       !p(method) && (routes exists { _().isDefined })
     }).keys.toSet
     if (methods.contains(Get))
@@ -90,9 +90,9 @@ class RouteRegistry {
   def appendAfterFilter(route: Route): Unit = _afterFilters :+= route
 
   @tailrec private def modifyRoutes(method: HttpMethod, f: (Seq[Route] => Seq[Route])): Unit = {
-    if (methodRoutes.putIfAbsent(method, f(Vector.empty)).isDefined) {
-      val oldRoutes = methodRoutes(method)
-      if (!methodRoutes.replace(method, oldRoutes, f(oldRoutes)))
+    if (_methodRoutes.putIfAbsent(method, f(Vector.empty)).isDefined) {
+      val oldRoutes = _methodRoutes(method)
+      if (!_methodRoutes.replace(method, oldRoutes, f(oldRoutes)))
        modifyRoutes(method, f)
     }
   }
@@ -102,9 +102,11 @@ class RouteRegistry {
    */
   def entryPoints: Seq[String] =
     (for {
-      (method, routes) <- methodRoutes
+      (method, routes) <- _methodRoutes
       route <- routes
     } yield method + " " + route).toSeq sortWith (_ < _)
+
+  def methodRoutes = _methodRoutes.clone()
 
   override def toString: String = entryPoints mkString ", "
 }
