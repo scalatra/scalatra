@@ -11,7 +11,7 @@ class DocumentExample extends ScalatraServlet with DocumentationSupport {
     contentType = "text/html"
   }
 
-  get(helloDoc.route, doc(helloDoc)) {
+  get(helloDoc) {
     "hello"
   }
 

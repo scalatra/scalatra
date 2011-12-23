@@ -4,11 +4,11 @@ import org.scalatra._
 
 trait DocumentationSupport extends ScalatraKernel {
 
-  implicit def documentation2RouteMatcher(documentation: Documentation): RouteMatcher =
-    new SinatraRouteMatcher(documentation.route, requestPath)
-
-  def doc(documentation: Documentation): RouteTransformer = { route =>
-    route.copy(metadata = route.metadata + (docsSymbol -> documentation))
+  implicit def documentation2RouteTransformer(documentation: Documentation): RouteTransformer = { route =>
+      route.copy(
+          routeMatchers = new SinatraRouteMatcher(documentation.route, requestPath) +: route.routeMatchers, 
+          metadata = route.metadata + (docsSymbol -> documentation)
+      )
   }
 
   def docs(): Seq[Documentation] = {
