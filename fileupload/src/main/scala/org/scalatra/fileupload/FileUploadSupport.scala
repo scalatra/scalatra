@@ -45,7 +45,7 @@ trait FileUploadSupport extends ScalatraKernel {
       case Some(bodyParams) =>
         bodyParams
       case None =>
-        val upload = new ServletFileUpload(fileItemFactory)
+        val upload = newServletFileUpload
         val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
         val bodyParams = items.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (item, params) =>
           if (item.isFormField)
@@ -87,6 +87,26 @@ trait FileUploadSupport extends ScalatraKernel {
       override def getParameterMap = new JHashMap[String, Array[String]] ++ (formMap transform { (k, v) => v.toArray })
     }
 
+  /**
+   * Creates a new file upload handler to parse the request.  By default, it
+   * creates a `ServletFileUpload` instance with the file item factory 
+   * returned by the `fileItemFactory` method.  Override this method to
+   * customize properties such as the maximum file size, progress listener,
+   * etc.
+   *
+   * @return a new file upload handler.
+   */
+  protected def newServletFileUpload: ServletFileUpload = 
+    new ServletFileUpload(fileItemFactory)
+
+  /**
+   * The file item factory used by the default implementation of 
+   * `newServletFileUpload`.  By default, we use a DiskFileItemFactory.
+   */
+  /*
+   * [non-scaladoc] This method predates newServletFileUpload.  If I had it 
+   * to do over again, we'd have that instead of this.  Oops.
+   */
   protected def fileItemFactory: FileItemFactory = new DiskFileItemFactory
 
   protected def fileMultiParams: FileMultiParams = extractMultipartParams(request).fileParams
