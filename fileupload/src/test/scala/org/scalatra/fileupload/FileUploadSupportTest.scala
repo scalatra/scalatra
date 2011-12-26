@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 import test.scalatest.ScalatraFunSuite
+import org.apache.commons.fileupload.FileUploadBase
 
 class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
   post("""/multipart.*""".r) {
@@ -41,9 +42,26 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
   }
 }
 
+class MaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
+  post() {
+  }
+
+  error {
+    case e: FileUploadBase.SizeLimitExceededException => "boom"
+  }
+
+  override def newServletFileUpload = {
+    val upload = super.newServletFileUpload
+    upload.setSizeMax(1)
+    upload
+  }
+}
+
+
 @RunWith(classOf[JUnitRunner])
 class FileUploadSupportTest extends ScalatraFunSuite {
   addServlet(classOf[FileUploadSupportTestServlet], "/*")
+  addServlet(classOf[MaxSizeTestServlet], "/max-size/*")
 
   def multipartResponse(path: String = "/multipart") = {
     // TODO We've had problems with the tester not running as iso-8859-1, even if the
@@ -108,5 +126,14 @@ class FileUploadSupportTest extends ScalatraFunSuite {
 
   test("query parameters don't shadow post parameters") {
     multipartResponse("/multipart-param?string=bar").getHeader("string") should equal ("bar;foo")
+  }
+
+  test("max size is respected") {
+    multipartResponse("/max-size/").status should equal (500)
+  }
+
+  test("file upload exceptions are handled by standard error handler") {
+    // multipartResponse("/max-size/").body should equal ("boom")
+    pending
   }
 }
