@@ -4,24 +4,37 @@ import org.scalatra._
 
 trait DocumentationSupport extends ScalatraKernel {
 
-  implicit def documentation2RouteTransformer(documentation: Documentation): RouteTransformer = { route =>
-      route.copy(
-          routeMatchers = new SinatraRouteMatcher(documentation.route, requestPath) +: route.routeMatchers, 
-          metadata = route.metadata + (docsSymbol -> documentation)
-      )
+  def name(value: String): RouteTransformer = { route =>
+    route.copy(metadata = route.metadata + (docsNameSymbol -> value))
+  }
+
+  def description(value: String): RouteTransformer = { route =>
+    route.copy(metadata = route.metadata + (docsDescriptionSymbol -> value))
+  }
+
+  def document(value: Boolean): RouteTransformer = { route =>
+    route.copy(metadata = route.metadata + (docsDocumentSymbol -> value))
+  }
+
+  def optionalParams(value: List[Param]): RouteTransformer = { route =>
+    route.copy(metadata = route.metadata + (docsOptionalParams -> value))
+  }
+
+  def requiredParams(value: List[Param]): RouteTransformer = { route =>
+    route.copy(metadata = route.metadata + (docsRequiredParams -> value))
   }
 
   def docs(): Seq[Documentation] = {
     (for{
       (method, routes) <- routes.methodRoutes
       route <- routes
-      docAsAny <- route.metadata.get(docsSymbol) if docAsAny.isInstanceOf[Documentation]
-      doc <- Some(docAsAny.asInstanceOf[Documentation])
-    } yield doc.copy(method = method)).toSeq
+    } yield Documentation(route, method)).toSeq
   }
 
-  def docsAsHtml(): String = {
+  def allRoutesAsHtml(): String =
     docs map ( _.toHtml ) mkString ("<ul><li>", "</li><li>", "</li></ul>")
-  }
+
+  def allDocumentedRoutesAsHtml(): String =
+    docs filter ( _.document ) map ( _.toHtml ) mkString ("<ul><li>", "</li><li>", "</li></ul>") toString
 
 }

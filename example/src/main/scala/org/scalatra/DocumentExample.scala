@@ -4,19 +4,32 @@ import docs._
 
 class DocumentExample extends ScalatraServlet with DocumentationSupport {
 
-  val helloParam = Param(name = "hello", description = "The hello parameter")
-  val helloDoc = Documentation(name = "hello world", route = "/hello", description = "The hello world documentation example", requiredParams = List(helloParam), optionalParams = List(helloParam))
+  val helloParam = Param(name = "hello", description = Some("The hello parameter"))
+  val nameParam = Param(name = "name", description = Some("The name to be returned"))
 
   before(){
     contentType = "text/html"
   }
 
-  get(helloDoc) {
-    "hello"
+  get("/hello",
+    name("hello world"),
+    description("The hello world endpoint returns hello"),
+    optionalParams(List(helloParam)),
+    requiredParams(List(helloParam)),
+    document(true)){
+    "hello world"
   }
 
-  get("/render") {
-    docsAsHtml()
+  get("/hi/:name") {
+    "hi " + params("name")
+  }
+
+  get("/hello/:name", requiredParams(List(nameParam))) {
+    "hello " + params("name")
+  }
+
+  get("/render", document(false)) {
+    allDocumentedRoutesAsHtml()
   }
 
 
