@@ -31,7 +31,7 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample, scalatraAkka)
+      scalatraExample, scalatraAkka, scalatraDocs)
   )
 
   lazy val scalatraCore = Project(
@@ -155,6 +155,12 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraTest)
 
+  lazy val scalatraDocs = Project(
+    id = "scalatra-docs",
+    base = file("docs"),
+    settings = scalatraSettings
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
   lazy val scalatraExample = Project(
     id = "scalatra-example",
     base = file("example"),
@@ -165,7 +171,7 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(
     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-    scalatraAuth, scalatraFileupload, scalatraSocketio, scalatraAkka
+    scalatraAuth, scalatraFileupload, scalatraSocketio, scalatraAkka, scalatraDocs
   )
 
   object Dependencies {
