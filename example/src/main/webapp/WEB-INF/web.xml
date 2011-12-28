@@ -16,6 +16,10 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     <servlet-class>org.scalatra.BasicAuthExample</servlet-class>
   </servlet>
   <servlet>
+    <servlet-name>DocumentExample</servlet-name>
+    <servlet-class>org.scalatra.DocumentExample</servlet-class>
+  </servlet>
+  <servlet>
     <servlet-name>SocketIOExample</servlet-name>
     <servlet-class>org.scalatra.SocketIOExample</servlet-class>
     <init-param>
@@ -102,6 +106,10 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
   <servlet-mapping>
     <servlet-name>CookiesExample</servlet-name>
     <url-pattern>/cookies-example/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>DocumentExample</servlet-name>
+    <url-pattern>/docs/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>default</servlet-name>
