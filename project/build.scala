@@ -181,8 +181,8 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3-RC4"
-    val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3-RC4" % "test"
+    val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3-RC5"
+    val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3-RC5" % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
