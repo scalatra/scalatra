@@ -60,8 +60,8 @@ object ScalatraBuild extends Build {
       resolvers += "Akka Repo" at "http://akka.io/repository",
       description := "Scalatra akka integration module",
       // Akka only supports 2.9.x, so don't build this module for 2.8.x.
-      skip <<= scalaVersion map { v => v startsWith "2.8." }
-      // TODO don't publish or publish-local when we skip
+      skip <<= scalaVersion map { v => v startsWith "2.8." },
+      publishArtifact in (Compile, packageDoc) <<= scalaVersion(v => !(v startsWith "2.8."))
     ) 
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
