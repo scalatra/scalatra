@@ -27,7 +27,7 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
  */
 trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraKernel with ScentrySupport[UserType])  =>
 
-  val realm: String
+  def realm: String
 
 
   protected def basicAuth() = {
