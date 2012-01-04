@@ -196,7 +196,7 @@ object ScalatraBuild extends Build {
 
     val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.RC1"
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.RC2"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
