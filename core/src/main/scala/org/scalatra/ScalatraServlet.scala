@@ -46,7 +46,11 @@ abstract class ScalatraServlet
     case null => "/"
   }
 
-  protected def routeBasePath = request.getContextPath + request.getServletPath
+  protected def routeBasePath = {
+    if (request == null)
+      throw new IllegalStateException("routeBasePath requires an active request to determine the servlet path")
+    request.getContextPath + request.getServletPath
+  }
 
   /**
    * Invoked when no route matches.  By default, calls `serveStaticResource()`,
