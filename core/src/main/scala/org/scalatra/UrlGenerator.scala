@@ -12,6 +12,8 @@ trait UrlGeneratorSupport {
    * @param params a list of named param/value pairs
    * @return a URI that matches the route for the given params
    * @throws Exception if the route is not reversible
+   * @throws IllegalStateException if the route's base path cannot be
+   * determined.  This may occur outside of an HTTP request's lifecycle.
    */
   def url(route: Route, params: Pair[String, String]*): String =
     url(route, params.toMap)
@@ -24,6 +26,8 @@ trait UrlGeneratorSupport {
    * @param moreSplats any splat parameters beyond the first
    * @return a URI that matches the route for the given splats
    * @throws Exception if the route is not reversible
+   * @throws IllegalStateException if the route's base path cannot be
+   * determined.  This may occur outside of an HTTP request's lifecycle.
    */
   def url(route: Route, splat: String, moreSplats: String*): String =
     url(route, Map[String, String](), splat +: moreSplats)
@@ -36,6 +40,8 @@ trait UrlGeneratorSupport {
    * @param splats a series of splat parameters
    * @return a URI that matches the route for the given splats
    * @throws Exception if the route is not reversible
+   * @throws IllegalStateException if the route's base path cannot be
+   * determined.  This may occur outside of an HTTP request's lifecycle.
    */
   def url(
     route: Route,
