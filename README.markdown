@@ -3,13 +3,15 @@ Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for
 
 ## Example
 
-    import org.scalatra._
+```scala
+import org.scalatra._
 
-    class ScalatraExample extends ScalatraServlet {
-      get("/") {
-        <h1>Hello, world!</h1>
-      }
-    }
+class ScalatraExample extends ScalatraServlet {
+  get("/") {
+    <h1>Hello, world!</h1>
+  }
+}
+```
 
 ## Documentation
 
