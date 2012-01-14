@@ -252,7 +252,7 @@ object ScalatraBuild extends Build {
 
     def slf4s(scalaVersion: String) = {
       // Temporary hack pending 2.8.2 release of slf4s.
-      val artifactId = "sfl4s_"+(scalaVersion match {
+      val artifactId = "slf4s_"+(scalaVersion match {
         case "2.8.2" => "2.8.1"
         case v => v
       })
@@ -260,7 +260,7 @@ object ScalatraBuild extends Build {
         case "2.9.0" => "1.0.6"
         case _ => "1.0.7"
       }
-      "com.weiglewilczek.slf4s" %% "slf4s" % libVersion
+      "com.weiglewilczek.slf4s" % artifactId % libVersion
     }
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
