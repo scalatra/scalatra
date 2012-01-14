@@ -12,7 +12,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.3-SNAPSHOT",
-    crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.1"),
+    crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.2", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
@@ -176,7 +176,7 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    private def liftDep(name: String) = "net.liftweb" %% name % "2.4-M5"
+    private def liftDep(name: String) = "net.liftweb" %% name % "2.4"
     val liftJson = liftDep("lift-json")
     val liftTestkit = liftDep("lift-testkit") % "test"
 
@@ -186,7 +186,8 @@ object ScalatraBuild extends Build {
       val libVersion = scalaVersion match {
         // 1.5.3-scala_2.8.2 fails on 2.8.1 loading
         // scala/tools/nsc/interactive/Global$
-        case x if x startsWith "2.8.1" => "1.5.2-scala_2.8.1"
+        case "2.8.1" => "1.5.2-scala_2.8.1"
+        case x if x startsWith "2.8." => "1.5.3-scala_2.8.2"
         case _ => "1.5.3"
       }
       "org.fusesource.scalate" % "scalate-core" % libVersion
@@ -201,11 +202,18 @@ object ScalatraBuild extends Build {
     }
 
     def specs(scalaVersion: String) = {
+      // Normally we don't depend on wrong crossbuilds, but we're going to
+      // cheat in the snapshot pending a solution to
+      // https://github.com/etorreborre/specs/issues/5
+      val artifactId = "specs_"+(scalaVersion match {
+        case "2.8.2" => "2.8.1"
+        case v => v
+      })
       val libVersion = scalaVersion match {
         case "2.9.1" => "1.6.9"
         case _ => "1.6.8"
       }
-      "org.scala-tools.testing" %% "specs" % libVersion
+      "org.scala-tools.testing" % artifactId % libVersion
     }
 
     def specs2(scalaVersion: String) = {
