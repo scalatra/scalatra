@@ -1,2 +1,10 @@
+* Add support for Scala 2.8.2.
+
 ### scalatra-auth
 * Fix crash in BasicAuthStrategy when no auth header is present. [(GH-143)](http://github.com/scalatra/scalatra/issues/143)
+
+### scalatra-fileupload
+* Create hook to customize `ServletFileUpload`, for instance to set maximum upload size.
+
+### scalatra-tests
+* Support testing of HEAD requests in Jetty > 7.5.1. [(JETTY-363393)](https://bugs.eclipse.org/bugs/show_bug.cgi?id=363993)
