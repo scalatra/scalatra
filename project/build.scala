@@ -254,8 +254,8 @@ object ScalatraBuild extends Build {
       // Temporary hack pending 2.8.2 release of slf4s.
       val artifactId = "sfl4s_"+(scalaVersion match {
         case "2.8.2" => "2.8.1"
-        case "v" => _
-      }
+        case v => v
+      })
       val libVersion = scalaVersion match {
         case "2.9.0" => "1.0.6"
         case _ => "1.0.7"
