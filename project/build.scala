@@ -142,7 +142,10 @@ object ScalatraBuild extends Build {
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <+= scalaVersion(specs),
-      description := "Specs support for the Scalatra test framework"
+      description := "Specs support for the Scalatra test framework", 
+      // The one in Maven Central has a bad checksum for 2.8.2.  
+      // Try ScalaTools first.
+      resolvers ~= { rs => ScalaToolsReleases +: rs }
     )
   ) dependsOn(scalatraTest)
 
@@ -227,18 +230,11 @@ object ScalatraBuild extends Build {
     }
 
     def specs(scalaVersion: String) = {
-      // Normally we don't depend on wrong crossbuilds, but we're going to
-      // cheat in the snapshot pending a solution to
-      // https://github.com/etorreborre/specs/issues/5
-      val artifactId = "specs_"+(scalaVersion match {
-        case "2.8.2" => "2.8.1"
-        case v => v
-      })
       val libVersion = scalaVersion match {
         case "2.9.1" => "1.6.9"
         case _ => "1.6.8"
       }
-      "org.scala-tools.testing" % artifactId % libVersion
+      "org.scala-tools.testing" %% "specs" % libVersion
     }
 
     def specs2(scalaVersion: String) = {
