@@ -6,7 +6,7 @@ import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.testing.ServletTester
 import java.net.HttpCookie
 import java.util.Enumeration
-import com.weiglewilczek.slf4s.Logger
+import grizzled.slf4j.Logger
 
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with

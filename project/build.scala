@@ -117,7 +117,7 @@ object ScalatraBuild extends Build {
     base = file("test"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(
-        slf4s(sv),
+        grizzledSlf4j(sv),
         testJettyServlet,
         mockitoAll,
         commonsLang3,
@@ -199,6 +199,15 @@ object ScalatraBuild extends Build {
 
     val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5"
 
+    def grizzledSlf4j(scalaVersion: String) = {
+      // Temporary hack pending 2.8.2 release of slf4s.
+      val artifactId = "grizzled-slf4j_"+(scalaVersion match {
+        case "2.8.2" => "2.8.1"
+        case v => v
+      })
+      "org.clapper" % artifactId % "0.6.6"
+    }
+
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.RC2"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
@@ -249,19 +258,6 @@ object ScalatraBuild extends Build {
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
-
-    def slf4s(scalaVersion: String) = {
-      // Temporary hack pending 2.8.2 release of slf4s.
-      val artifactId = "slf4s_"+(scalaVersion match {
-        case "2.8.2" => "2.8.1"
-        case v => v
-      })
-      val libVersion = scalaVersion match {
-        case "2.9.0" => "1.0.6"
-        case _ => "1.0.7"
-      }
-      "com.weiglewilczek.slf4s" % artifactId % libVersion
-    }
 
     def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
