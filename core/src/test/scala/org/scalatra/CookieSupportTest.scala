@@ -2,6 +2,7 @@ package org.scalatra
 
 import test.scalatest.ScalatraFunSuite
 import org.scalatest.matchers.MustMatchers
+import java.net.HttpCookie
 
 class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
@@ -60,10 +61,12 @@ class CookieSupportTest extends ScalatraFunSuite {
     }
   }
 
-  // Jetty apparently translates Max-Age into Expires?
-  ignore("POST /setexpiringcookie should set the max age of the cookie") {
+  test("POST /setexpiringcookie should set the max age of the cookie") {
     post("/foo/setexpiringcookie", "cookieval" -> "The value", "maxAge" -> oneWeek.toString) {
-      response.getHeader("Set-Cookie") must equal("""thecookie="The value"; Max-Age=604800""")
+      val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
+      println(response.getHeader("Set-Cookie"))
+      // Allow some slop, since it's a new call to currentTimeMillis
+      cookie.getMaxAge.toInt must be (oneWeek plusOrMinus 10000)
     }
   }
 
