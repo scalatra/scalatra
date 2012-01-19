@@ -20,7 +20,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   protected def fromSession: PartialFunction[String, UserType]
   protected def toSession: PartialFunction[UserType, String]
-  protected val scentryConfig: ScentryConfiguration
+  protected def scentryConfig: ScentryConfiguration
 
   private var _strategiesFromConfig = List[String]()
 
