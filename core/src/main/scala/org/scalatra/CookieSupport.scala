@@ -60,7 +60,7 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
 
   def update(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
     cookies += name -> value
-    addServletCookie(name, value, cookieOptions.copy(maxAge = 0))
+    addServletCookie(name, value, cookieOptions)
   }
 
   def set(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
