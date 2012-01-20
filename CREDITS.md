@@ -17,6 +17,7 @@
 - [Gregg Carrier](http://janxspirit.blogspot.com/)
 - [Robbie Clutton](http://blog.iclutton.com/)
 - [Thibault Duplessis](http://ornicar.github.com/)
+- [David Heidrich](http://github.com/BowlingX)
 - [Tuomas Kareinen](http://www.iki.fi/kareinen/)
 - [Miso Korkiakoski](http://github.com/mwing)
 - [Yusuke Kuoka](http://d.hatena.ne.jp/mumoshu/)
