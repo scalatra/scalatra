@@ -39,7 +39,7 @@ class I18nSupportSpec extends ScalatraWordSpec {
     }
     "handle locale change via Accept-Language header as the last option" in {
       session {
-        get("/name", Map.empty[String, String], Map("Accept-Language" -> "en_AU")) {
+        get("/name", Map.empty[String, String], Map("Accept-Language" -> "en-AU,de;q=0.8,en-US;q=0.6,en;q=0.4")) {
           body must equal("Name en_AU")
         }
         get("/getcookie") {
@@ -49,7 +49,7 @@ class I18nSupportSpec extends ScalatraWordSpec {
     }
     "prefer locale change via HTTP param over Accept-Language header" in {
       session {
-        get("/name", Map(I18nSupport.localeKey -> "id_ID"), Map("Accept-Language" -> "en_AU")) {
+        get("/name", Map(I18nSupport.localeKey -> "id_ID"), Map("Accept-Language" -> "en-AU,de;q=0.8,en-US;q=0.6,en;q=0.4")) {
           body must equal("Nama")
         }
         get("/getcookie") {
@@ -72,7 +72,7 @@ class I18nSupportSpec extends ScalatraWordSpec {
         }
 
         // Set the locale in HTTP param
-        get("/name", Map(I18nSupport.localeKey -> "id_ID"), Map("Accept-Language" -> "en_AU")) {
+        get("/name", Map(I18nSupport.localeKey -> "id_ID"), Map("Accept-Language" -> "en-AU,de;q=0.8,en-US;q=0.6,en;q=0.4")) {
           body must equal("Nama")
         }
         get("/getcookie") {
