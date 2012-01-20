@@ -16,6 +16,7 @@ object I18nSupport {
 }
 
 trait I18nSupport {
+
   this: ScalatraKernel with CookieSupport =>
 
   import I18nSupport._
