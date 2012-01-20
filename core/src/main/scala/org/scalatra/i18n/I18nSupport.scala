@@ -1,8 +1,3 @@
-/*
- * Copyright (c) 2012 Dynamo Deutschland Medien GmbH
- * All rights reserved
- */
-
 package org.scalatra.i18n
 
 import java.util.Locale
