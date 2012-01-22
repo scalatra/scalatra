@@ -37,3 +37,4 @@
   test suite, and documentation we've shamelessly copied.
 - [Mark Harrah](http://github.com/harrah) for his support on the [sbt mailing
   list](http://groups.google.com/group/simple-build-tool)
+- [Șeyi Ogunyemi](http://www.micrypt.com) for design of the [website](http://www.scalatra.org)
