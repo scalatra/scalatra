@@ -26,7 +26,7 @@ subjects.  If you find one, please [let us know](http://github.com/scalatra/scal
 The latest version of Scalatra is `2.0.2`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.0.2"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.0.3"
 ```
 
 ### Development version
