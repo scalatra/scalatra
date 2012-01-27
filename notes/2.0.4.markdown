@@ -1,0 +1,9 @@
+### core
+
+* Allow `pass` from `methodNotAllowed`
+
+* In ScalatraFilter, the default `methodNotAllowed` handler now delegates to
+  the filter chain to look for a matching route.  To restore the previous
+  behavior, call:
+
+        doMethodNotAllowed = ScalatraKernel.sendMethodNotAllowed

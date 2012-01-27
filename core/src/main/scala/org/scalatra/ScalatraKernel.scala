@@ -169,12 +169,15 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected def invoke(matchedRoute: MatchedRoute) =
     withRouteMultiParams(Some(matchedRoute)) {
-      try {
-        Some(matchedRoute.action())
-      }
-      catch {
-        case e: PassException => None
-      }
+      liftAction(matchedRoute.action)
+    }
+
+  private def liftAction(action: Action): Option[Any] = 
+    try {
+      Some(action())
+    }
+    catch {
+      case e: PassException => None
     }
 
   /**
@@ -210,7 +213,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
 
   private def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.method)
-    if (allow.isEmpty) None else Some(doMethodNotAllowed(allow))
+    if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
 
   /**
