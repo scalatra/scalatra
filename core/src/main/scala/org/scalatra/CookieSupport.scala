@@ -102,7 +102,11 @@ trait CookieSupport extends Handler {
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
-    req(CookieOptionsKey) = CookieOptions(path = req.getContextPath)
+    val path = req.getContextPath match {
+      case "" => "/" // The root servlet is "", but the root cookie path is "/"
+      case p => p
+    }
+    req(CookieOptionsKey) = CookieOptions(path = path)
     super.handle(req, res)
   }
 

@@ -7,3 +7,6 @@
   behavior, call:
 
         doMethodNotAllowed = ScalatraKernel.sendMethodNotAllowed
+
+* Set cookie path to "/" by default in the root context.  It was being
+  omitted, which scoped the cookie to the request path.
