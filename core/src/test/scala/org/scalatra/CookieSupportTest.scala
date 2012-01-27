@@ -64,7 +64,6 @@ class CookieSupportTest extends ScalatraFunSuite {
   test("POST /setexpiringcookie should set the max age of the cookie") {
     post("/foo/setexpiringcookie", "cookieval" -> "The value", "maxAge" -> oneWeek.toString) {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
-      println(response.getHeader("Set-Cookie"))
       // Allow some slop, since it's a new call to currentTimeMillis
       cookie.getMaxAge.toInt must be (oneWeek plusOrMinus 10000)
     }
@@ -84,6 +83,15 @@ class CookieSupportTest extends ScalatraFunSuite {
     }
   }
 
+  test("cookie path defaults to '/' in root context") {
+    withContextPath("") {
+      post("/setcookie", "cookieval" -> "whatever") {
+        val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
+        cookie.getPath must be ("/")
+      }
+    }
+  }
+
   // This is as much a test of ScalatraTests as it is of CookieSupport.
   // http://github.com/scalatra/scalatra/issue/84
   test("handles multiple cookies") {
@@ -95,6 +103,17 @@ class CookieSupportTest extends ScalatraFunSuite {
         body must equal("The value")
         header("X-Another-Cookie") must equal ("Another Cookie")
       }
+    }
+  }
+
+  def withContextPath[A](path: String)(f: => A): A = {
+    val old = tester.getContext.getContextPath
+    try {
+      tester.setContextPath(path)
+      f
+    }
+    finally {
+      tester.setContextPath(old)
     }
   }
 }
