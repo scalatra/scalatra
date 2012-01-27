@@ -12,6 +12,10 @@ import javax.servlet._
  *     delegate unmatched requests.  This is very useful when migrating
  *     legacy applications one page or resource at a time.
  *
+ *
+ * Unlike a ScalatraServlet, does not send 404 or 405 errors on non-matching
+ * routes.  Instead, it delegates to the filter chain.
+ *
  * If in doubt, extend ScalatraServlet instead.
  *
  * @see ScalatraServlet
@@ -42,6 +46,8 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   }
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)
+
+  methodNotAllowed { _ => filterChain.doFilter(request, response) }
 
   var servletContext: ServletContext = _
 
