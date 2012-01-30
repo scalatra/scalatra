@@ -120,7 +120,6 @@ class CookieSupportTest extends ScalatraFunSuite {
     }
   }
 
-<<<<<<< HEAD
   test("respects the HttpOnly option") {
     post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
