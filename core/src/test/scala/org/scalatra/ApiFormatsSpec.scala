@@ -8,10 +8,6 @@ class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
   get("/hello(.:format)") {
     format
   }
-
-  mount(new SubKernel(this, "/sub") {
-    get("/hello")
-  })
 }
 
 class ApiFormatsSpec extends ScalatraSpecification {
