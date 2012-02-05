@@ -12,9 +12,9 @@ import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import java.lang.{Integer => JInteger}
 import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
+import java.util.concurrent.{CopyOnWriteArrayList, ConcurrentHashMap}
 
 object ScalatraKernel
 {
@@ -34,6 +34,142 @@ object ScalatraKernel
   val EnvironmentKey = "org.scalatra.environment".intern
 
   val MultiParamsKey = "org.scalatra.MultiParams".intern
+
+  trait Routing {
+
+
+    private val subapps = new CopyOnWriteArrayList[SubKernel]()
+    def mount(subApp: SubKernel) { subapps.add(subApp) }
+
+    /**
+     * Pluggable way to convert a path expression to a route matcher.
+     * The default implementation is compatible with Sinatra's route syntax.
+     *
+     * @param path a path expression
+     * @return a route matcher based on `path`
+     */
+    protected implicit def string2RouteMatcher(path: String): RouteMatcher =
+      new SinatraRouteMatcher(path, requestPath)
+
+    protected implicit def string2RouteTransformer(path: String): RouteTransformer =
+      Route.appendMatcher(path)
+
+    /**
+     * Path pattern is decoupled from requests.  This adapts the PathPattern to
+     * a RouteMatcher by supplying the request path.
+     */
+    protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
+      new PathPatternRouteMatcher(pattern, requestPath)
+
+    protected implicit def pathPattern2RouteTransformer(pattern: PathPattern): RouteTransformer =
+      Route.appendMatcher(pattern)
+
+    /**
+     * Converts a regular expression to a route matcher.
+     *
+     * @param regex the regular expression
+     * @return a route matcher based on `regex`
+     * @see [[org.scalatra.RegexRouteMatcher]]
+     */
+    protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
+      new RegexRouteMatcher(regex, requestPath)
+
+    protected implicit def regex2RouteTransformer(regex: Regex): RouteTransformer =
+      Route.appendMatcher(regex)
+
+    /**
+     * Converts a boolean expression to a route matcher.
+     *
+     * @param block a block that evaluates to a boolean
+     *
+     * @return a route matcher based on `block`.  The route matcher should
+     * return `Some` if the block is true and `None` if the block is false.
+     *
+     * @see [[org.scalatra.BooleanBlockRouteMatcher]]
+     */
+    protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
+      new BooleanBlockRouteMatcher(block)
+
+    protected implicit def booleanBlock2RouteTransformer(block: => Boolean): RouteTransformer =
+      Route.appendMatcher(block)
+
+    protected implicit def routeMatcher2RouteTransformer(matcher: RouteMatcher): RouteTransformer =
+      Route.appendMatcher(matcher)
+
+    /**
+     * The effective path against which routes are matched.  The definition
+     * varies between servlets and filters.
+     */
+    def requestPath: String
+
+    /**
+     * Prepends a new route for the given HTTP method.
+     *
+     * Can be overriden so that subtraits can use their own logic.
+     * Possible examples:
+     * $ - restricting protocols
+     * $ - namespace routes based on class name
+     * $ - raising errors on overlapping entries.
+     *
+     * This is the method invoked by get(), post() etc.
+     *
+     * @see org.scalatra.ScalatraKernel#removeRoute
+     */
+    protected[scalatra] def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route
+
+    /**
+     * The base path for URL generation
+     */
+    protected[scalatra] def routeBasePath: String
+
+    protected[scalatra] def appendBeforeFilter(route: Route): Unit
+
+    protected[scalatra] def appendAfterFilter(route: Route): Unit
+
+
+    def before(transformers: RouteTransformer*)(fun: => Any) =
+      appendBeforeFilter(Route(transformers, () => fun))
+
+    def after(transformers: RouteTransformer*)(fun: => Any) =
+      appendAfterFilter(Route(transformers, () => fun))
+
+
+    def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
+
+    def post(transformers: RouteTransformer*)(action: => Any) = addRoute(Post, transformers, action)
+
+    def put(transformers: RouteTransformer*)(action: => Any) = addRoute(Put, transformers, action)
+
+    def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
+
+    /**
+     * @see [[org.scalatra.ScalatraKernel.get]]
+     */
+    def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
+
+    /**
+     * @see [[org.scalatra.ScalatraKernel.get]]
+     */
+    def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
+
+
+    @deprecated("Use addRoute(HttpMethod, Seq[RouteMatcher], =>Any)")
+    protected[scalatra] def addRoute(verb: String, transformers: Seq[RouteTransformer], action: => Any): Route =
+      addRoute(HttpMethod(verb), transformers, action)
+
+    /**
+     * Removes _all_ the actions of a given route for a given HTTP method.
+     * If addRoute is overridden then this should probably be overriden too.
+     *
+     * @see org.scalatra.ScalatraKernel#addRoute
+     */
+    protected[scalatra] def removeRoute(method: HttpMethod, route: Route): Unit
+
+    protected def removeRoute(method: String, route: Route): Unit =
+      removeRoute(HttpMethod(method), route)
+
+
+  }
 }
 import ScalatraKernel._
 
@@ -42,13 +178,13 @@ import ScalatraKernel._
  * It is typically extended by [[org.scalatra.ScalatraServlet]] or
  * [[org.scalatra.ScalatraFilter]] to create a Scalatra application.
  */
-trait ScalatraKernel extends Handler with CoreDsl with Initializable
+trait ScalatraKernel extends Handler with CoreDsl with Initializable with ScalatraKernel.Routing
   with servlet.ServletApiImplicits
 {
   /**
    * The routes registered in this kernel.
    */
-  protected lazy val routes: RouteRegistry = new RouteRegistry
+  protected[scalatra] lazy val routes: RouteRegistry = new RouteRegistry
 
   /**
    * The default character encoding for requests and responses.
@@ -71,6 +207,34 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected val _request    = new DynamicVariable[HttpServletRequest](null)
 
+  /**
+   * Prepends a new route for the given HTTP method.
+   *
+   * Can be overriden so that subtraits can use their own logic.
+   * Possible examples:
+   * $ - restricting protocols
+   * $ - namespace routes based on class name
+   * $ - raising errors on overlapping entries.
+   *
+   * This is the method invoked by get(), post() etc.
+   *
+   * @see org.scalatra.ScalatraKernel#removeRoute
+   */
+  protected[scalatra] def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route = {
+    val route = Route(transformers, () => action, () => routeBasePath)
+    routes.prependRoute(method, route)
+    route
+  }
+
+  /**
+   * Removes _all_ the actions of a given route for a given HTTP method.
+   * If addRoute is overridden then this should probably be overriden too.
+   *
+   * @see org.scalatra.ScalatraKernel#addRoute
+   */
+  protected[scalatra] def removeRoute(method: HttpMethod, route: Route): Unit =
+    routes.removeRoute(method, route)
+
 
   /**
    * Handles a request and renders a response.
@@ -83,6 +247,10 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
    *      `executeRoutes()`.
    */
+  protected[scalatra] def appendBeforeFilter(route: Route) { routes.appendBeforeFilter(route) }
+
+  protected[scalatra] def appendAfterFilter(route: Route) { routes.appendAfterFilter(route) }
+
   def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
@@ -180,17 +348,6 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       case e: PassException => None
     }
 
-  /**
-   * The effective path against which routes are matched.  The definition
-   * varies between servlets and filters.
-   */
-  def requestPath: String
-
-  def before(transformers: RouteTransformer*)(fun: => Any) =
-    routes.appendBeforeFilter(Route(transformers, () => fun))
-
-  def after(transformers: RouteTransformer*)(fun: => Any) =
-    routes.appendAfterFilter(Route(transformers, () => fun))
 
   /**
    * Called if no route matches the current request for any method.  The
@@ -313,61 +470,6 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   implicit def request = _request value
 
   /**
-   * Pluggable way to convert a path expression to a route matcher.
-   * The default implementation is compatible with Sinatra's route syntax.
-   *
-   * @param path a path expression
-   * @return a route matcher based on `path`
-   */
-  protected implicit def string2RouteMatcher(path: String): RouteMatcher =
-    new SinatraRouteMatcher(path, requestPath)
-
-  protected implicit def string2RouteTransformer(path: String): RouteTransformer =
-    Route.appendMatcher(path)
-
-  /**
-   * Path pattern is decoupled from requests.  This adapts the PathPattern to
-   * a RouteMatcher by supplying the request path.
-   */
-  protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
-    new PathPatternRouteMatcher(pattern, requestPath)
-
-  protected implicit def pathPattern2RouteTransformer(pattern: PathPattern): RouteTransformer =
-    Route.appendMatcher(pattern)
-
-  /**
-   * Converts a regular expression to a route matcher.
-   *
-   * @param regex the regular expression
-   * @return a route matcher based on `regex`
-   * @see [[org.scalatra.RegexRouteMatcher]]
-   */
-  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
-    new RegexRouteMatcher(regex, requestPath)
-
-  protected implicit def regex2RouteTransformer(regex: Regex): RouteTransformer =
-    Route.appendMatcher(regex)
-
-  /**
-   * Converts a boolean expression to a route matcher.
-   *
-   * @param block a block that evaluates to a boolean
-   *
-   * @return a route matcher based on `block`.  The route matcher should
-   * return `Some` if the block is true and `None` if the block is false.
-   *
-   * @see [[org.scalatra.BooleanBlockRouteMatcher]]
-   */
-  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
-    new BooleanBlockRouteMatcher(block)
-
-  protected implicit def booleanBlock2RouteTransformer(block: => Boolean): RouteTransformer =
-    Route.appendMatcher(block)
-
-  protected implicit def routeMatcher2RouteTransformer(matcher: RouteMatcher): RouteTransformer =
-    Route.appendMatcher(matcher)
-
-  /**
    * The currently scoped response.  Invalid outside `handle`.
    */
   implicit def response = _response value
@@ -381,64 +483,6 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     e.headers foreach { case(name, value) => response.addHeader(name, value) }
     renderResponse(e.body)
   }
-
-  def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
-
-  def post(transformers: RouteTransformer*)(action: => Any) = addRoute(Post, transformers, action)
-
-  def put(transformers: RouteTransformer*)(action: => Any) = addRoute(Put, transformers, action)
-
-  def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
-
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
-  def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
-
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
-  def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
-
-  /**
-   * Prepends a new route for the given HTTP method.
-   *
-   * Can be overriden so that subtraits can use their own logic.
-   * Possible examples:
-   * $ - restricting protocols
-   * $ - namespace routes based on class name
-   * $ - raising errors on overlapping entries.
-   *
-   * This is the method invoked by get(), post() etc.
-   *
-   * @see org.scalatra.ScalatraKernel#removeRoute
-   */
-  protected def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route = {
-    val route = Route(transformers, () => action, () => routeBasePath)
-    routes.prependRoute(method, route)
-    route
-  }
-
-  /**
-   * The base path for URL generation
-   */
-  protected def routeBasePath: String
-
-  @deprecated("Use addRoute(HttpMethod, Seq[RouteMatcher], =>Any)")
-  protected[scalatra] def addRoute(verb: String, transformers: Seq[RouteTransformer], action: => Any): Route =
-    addRoute(HttpMethod(verb), transformers, action)
-
-  /**
-   * Removes _all_ the actions of a given route for a given HTTP method.
-   * If addRoute is overridden then this should probably be overriden too.
-   *
-   * @see org.scalatra.ScalatraKernel#addRoute
-   */
-  protected def removeRoute(method: HttpMethod, route: Route): Unit =
-    routes.removeRoute(method, route)
-
-  protected def removeRoute(method: String, route: Route): Unit =
-    removeRoute(HttpMethod(method), route)
 
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
