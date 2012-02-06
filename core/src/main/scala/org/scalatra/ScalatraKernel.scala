@@ -124,7 +124,10 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     val result = try {
       runFilters(routes.beforeFilters)
       val actionResult = runRoutes(routes(request.method)).headOption
-      actionResult orElse matchOtherMethods() getOrElse doNotFound()
+      actionResult match {
+        case Some(code: Int) => matchStatusCodes(code)
+        case other => other orElse matchOtherMethods() getOrElse doNotFound()
+      }
     }
     catch {
       case e: HaltException => renderHaltException(e)
@@ -214,6 +217,12 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   private def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.method)
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
+  }
+
+  private def matchStatusCodes(code: Int): Option[Any] = {
+    status = code
+    val _routes = routes(Status)
+    runRoutes(_routes).headOption
   }
 
   /**
@@ -349,6 +358,13 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     Route.appendMatcher(regex)
 
   /**
+   * Convert a status code into a route matcher.
+   */
+  protected implicit def statusCodes2RouteMatcher(codes: Range): RouteMatcher = new StatusCodeRouteMatcher(codes, status)
+
+  protected def statusCodes2RouteTransformer(codes: Range): RouteTransformer= Route.appendMatcher(codes)
+
+  /**
    * Converts a boolean expression to a route matcher.
    *
    * @param block a block that evaluates to a boolean
@@ -399,6 +415,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    * @see [[org.scalatra.ScalatraKernel.get]]
    */
   def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
+
+  def trap(codes: Range)(block: => Any) = addRoute(Status, Seq(statusCodes2RouteTransformer(codes)), block)
 
   /**
    * Prepends a new route for the given HTTP method.

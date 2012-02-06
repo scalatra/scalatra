@@ -195,4 +195,10 @@ trait CoreDsl extends Control {
    * @see patch
    */
   def patch(transformers: RouteTransformer*)(block: => Any): Route
+
+  // Trap error codes  (EXPERIMENTAL)
+  def trap(codes: Range)(block: => Any): Route
+
+  def trap(code: Int)(block: => Any): Route = trap(Range(code, code+1))(block)
+
 }

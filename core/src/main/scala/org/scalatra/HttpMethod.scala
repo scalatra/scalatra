@@ -44,6 +44,11 @@ case object Patch extends HttpMethod {
   val isSafe = false
   override def toString = "PATCH"
 }
+case object Status extends HttpMethod {
+  val isSafe = false
+  override def toString = "STATUS"
+}
+
 case class ExtensionMethod(name: String) extends HttpMethod {
   val isSafe = false
 }
