@@ -1,6 +1,9 @@
 package org.scalatra
 
 abstract class SubKernel(parent: CoreDsl with ScalatraKernel.Routing, path: String) extends CoreDsl with ScalatraKernel.Routing {
+  
+  protected[scalatra] def routes: RouteRegistry = parent.routes
+  
   implicit def servletContext = parent.servletContext
 
   implicit def request = parent.request
