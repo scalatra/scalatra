@@ -5,7 +5,7 @@ import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
 trait ScentryStrategy[UserType <: AnyRef] extends servlet.ServletApiImplicits {
 
-  protected val app: ScalatraKernel
+  protected def app: ScalatraKernel
   def name: Symbol = 'NameMe
 
   def registerWith(registrar: Scentry[UserType]) {
