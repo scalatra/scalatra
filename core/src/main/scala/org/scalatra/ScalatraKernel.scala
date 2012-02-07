@@ -37,7 +37,8 @@ object ScalatraKernel
 
   trait Routing {
 
-
+    protected[scalatra] def routes: RouteRegistry
+    
     private val subapps = new CopyOnWriteArrayList[SubKernel]()
     def mount(subApp: SubKernel) { subapps.add(subApp) }
 
