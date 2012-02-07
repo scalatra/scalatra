@@ -26,8 +26,10 @@ abstract class SubKernel(parent: CoreDsl with ScalatraKernel.Routing, path: Stri
   protected[scalatra] def routeBasePath = parent.routeBasePath + path
 
 
-  protected[scalatra] def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any) = {
-    parent.addRoute(method, transformers, action)
+  protected[scalatra] def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route = {
+    val route = Route(transformers, () => action, () => routeBasePath)
+    parent.routes.prependRoute(method, route)
+    route
   }
 
   protected[scalatra] def appendBeforeFilter(route: Route) { parent.appendBeforeFilter(route) }
