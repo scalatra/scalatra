@@ -206,11 +206,11 @@ trait CoreDsl extends Control {
    *   }
    }* }}}
    }}*/
-  def error(codes: Range, transformers: RouteTransformer*)(block: => Any): Route
+  def error(codes: Range, transformers: RouteTransformer*)(block: => Any): Unit
 
   /**
    * @see error
    */
-  def error(code: Int, transformers: RouteTransformer*)(block: => Any): Route = error(Range(code, code+1), transformers:_*)(block)
+  def error(code: Int, transformers: RouteTransformer*)(block: => Any): Unit = error(Range(code, code+1), transformers:_*)(block)
 
 }

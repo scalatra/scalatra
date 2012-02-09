@@ -206,6 +206,8 @@ with servlet.ServletApiImplicits {
    * default implementation varies between servlet and filter.
    */
   protected var doNotFound: Action
+  def notFound(fun: => Any) = doNotFound = { () => fun }
+
 
   /**
    * Called if no route matches the current request method, but routes
@@ -448,10 +450,9 @@ with servlet.ServletApiImplicits {
     route
   }
 
-  protected def addStatusRoute(codes: Range, transformers: Seq[RouteTransformer], action: => Any): Route = {
+  protected def addStatusRoute(codes: Range, transformers: Seq[RouteTransformer], action: => Any)  {
     val route = Route(transformers, () => action, () => routeBasePath)
     routes.addStatusRoute(codes, route)
-    route
   }
 
   /**
