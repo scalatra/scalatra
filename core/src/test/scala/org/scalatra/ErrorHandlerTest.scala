@@ -13,12 +13,18 @@ class ErrorHandlerTest extends ScalatraFunSuite {
       throw new Exception1
     }
     get("/uncaught") { throw new RuntimeException }
-    error { case e: TestException => "base" }
+
+    val myhandler: ErrorHandler =  { case e: TestException => "base" }
+
+    error(myhandler)
   }
 
   class ChildServlet extends BaseServlet {
     get("/2") { throw new Exception2 }
-    error { case e: Exception2 => "child" }
+
+    val myhandler2: ErrorHandler =  { case e: Exception2 => "child" }
+
+    error(myhandler2)
   }
 
   addServlet(new BaseServlet, "/base/*")

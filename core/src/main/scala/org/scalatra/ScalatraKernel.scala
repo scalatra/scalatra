@@ -16,17 +16,22 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 
-object ScalatraKernel
-{
+object ScalatraKernel {
   type MultiParams = MultiMap
 
   type Action = () => Any
 
   @deprecated("Use HttpMethods.methods")
-  val httpMethods = HttpMethod.methods map { _.toString }
+  val httpMethods = HttpMethod.methods map {
+    _.toString
+  }
 
   @deprecated("Use HttpMethods.methods filter { !_.isSafe }")
-  val writeMethods = HttpMethod.methods filter { !_.isSafe } map { _.toString }
+  val writeMethods = HttpMethod.methods filter {
+    !_.isSafe
+  } map {
+    _.toString
+  }
 
   @deprecated("Use CsrfTokenSupport.DefaultKey")
   val csrfKey = CsrfTokenSupport.DefaultKey
@@ -43,8 +48,7 @@ import ScalatraKernel._
  * [[org.scalatra.ScalatraFilter]] to create a Scalatra application.
  */
 trait ScalatraKernel extends Handler with CoreDsl with Initializable
-  with servlet.ServletApiImplicits
-{
+with servlet.ServletApiImplicits {
   /**
    * The routes registered in this kernel.
    */
@@ -61,7 +65,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    *
    * @see #response
    */
-  protected val _response   = new DynamicVariable[HttpServletResponse](null)
+  protected val _response = new DynamicVariable[HttpServletResponse](null)
 
   /**
    * A dynamic variable containing the currently-scoped request.  Should
@@ -69,7 +73,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    *
    * @see #request
    */
-  protected val _request    = new DynamicVariable[HttpServletRequest](null)
+  protected val _request = new DynamicVariable[HttpServletRequest](null)
 
 
   /**
@@ -123,11 +127,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   protected def executeRoutes() = {
     val result = try {
       runFilters(routes.beforeFilters)
-      val actionResult = runRoutes(routes(request.method)).headOption
-      actionResult match {
-        case Some(code: Int) => matchStatusCodes(code)
-        case other => other orElse matchOtherMethods() getOrElse doNotFound()
-      }
+      val actionResult = runRoutes(routes(request.method)).headOption orElse matchOtherMethods() orElse markAsNotFound()
+      handleStatusCode(status) orElse actionResult getOrElse notFound()
     }
     catch {
       case e: HaltException => renderHaltException(e)
@@ -175,7 +176,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       liftAction(matchedRoute.action)
     }
 
-  private def liftAction(action: Action): Option[Any] = 
+  private def liftAction(action: Action): Option[Any] =
     try {
       Some(action())
     }
@@ -195,12 +196,16 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   def after(transformers: RouteTransformer*)(fun: => Any) =
     routes.appendAfterFilter(Route(transformers, () => fun))
 
+  private def markAsNotFound(): Option[Any] = {
+    response.setStatus(404)
+    None
+  }
+  
   /**
    * Called if no route matches the current request for any method.  The
    * default implementation varies between servlet and filter.
    */
   protected var doNotFound: Action
-  def notFound(fun: => Any) = doNotFound = { () => fun }
 
   /**
    * Called if no route matches the current request method, but routes
@@ -212,6 +217,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     status = 405
     response.setHeader("Allow", allow.mkString(", "))
   }
+
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
   private def matchOtherMethods(): Option[Any] = {
@@ -219,11 +225,12 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
 
-  private def matchStatusCodes(code: Int): Option[Any] = {
-    status = code
-    val _routes = routes(Status)
-    runRoutes(_routes).headOption
-  }
+  private def handleStatusCode(status: Int): Option[Any] =
+    for (handler <- routes(status);
+         matchedHandler <- handler();
+         handlerResult <- invoke(matchedHandler)
+    ) yield handlerResult
+
 
   /**
    * The error handler function, called if an exception is thrown during
@@ -271,7 +278,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
       case _: Unit | Unit =>
-      case a => loop(renderPipeline.lift(a) getOrElse ())
+      case a => loop(renderPipeline.lift(a) getOrElse())
     }
     loop(actionResult)
   }
@@ -285,10 +292,12 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
     case bytes: Array[Byte] =>
       response.getOutputStream.write(bytes)
     case file: File =>
-      using(new FileInputStream(file)) { in => zeroCopy(in, response.getOutputStream) }
+      using(new FileInputStream(file)) {
+        in => zeroCopy(in, response.getOutputStream)
+      }
     case _: Unit | Unit =>
-      // If an action returns Unit, it assumes responsibility for the response
-    case x: Any  =>
+    // If an action returns Unit, it assumes responsibility for the response
+    case x: Any =>
       response.getWriter.print(x.toString)
   }
 
@@ -362,7 +371,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   protected implicit def statusCodes2RouteMatcher(codes: Range): RouteMatcher = new StatusCodeRouteMatcher(codes, status)
 
-  protected def statusCodes2RouteTransformer(codes: Range): RouteTransformer= Route.appendMatcher(codes)
+  protected def statusCodes2RouteTransformer(codes: Range): RouteTransformer = Route.appendMatcher(codes)
 
   /**
    * Converts a boolean expression to a route matcher.
@@ -394,8 +403,10 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
       case HaltException(Some(status), None, _, _) => response.setStatus(status)
       case HaltException(None, _, _, _) => // leave status line alone
     }
-    e.headers foreach { case(name, value) => response.addHeader(name, value) }
-    renderResponse(e.body)
+    e.headers foreach {
+      case (name, value) => response.addHeader(name, value)
+    }
+    renderResponse(handleStatusCode(response.getStatus) getOrElse e.body)
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
@@ -416,7 +427,7 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
    */
   def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
 
-  def trap(codes: Range)(block: => Any) = addRoute(Status, Seq(statusCodes2RouteTransformer(codes)), block)
+  def error(codes: Range, transformers: RouteTransformer*)(block: => Any) = addStatusRoute(codes, Seq(statusCodes2RouteTransformer(codes)) ++ transformers, block)
 
   /**
    * Prepends a new route for the given HTTP method.
@@ -434,6 +445,12 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable
   protected def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route = {
     val route = Route(transformers, () => action, () => routeBasePath)
     routes.prependRoute(method, route)
+    route
+  }
+
+  protected def addStatusRoute(codes: Range, transformers: Seq[RouteTransformer], action: => Any): Route = {
+    val route = Route(transformers, () => action, () => routeBasePath)
+    routes.addStatusRoute(codes, route)
     route
   }
 

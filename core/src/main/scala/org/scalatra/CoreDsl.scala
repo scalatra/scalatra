@@ -4,6 +4,7 @@ import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
 
 import ScalatraKernel.MultiParams
+import scala.util.DynamicVariable
 
 /**
  * The core DSL of a Scalatra application.
@@ -196,9 +197,20 @@ trait CoreDsl extends Control {
    */
   def patch(transformers: RouteTransformer*)(block: => Any): Route
 
-  // Trap error codes  (EXPERIMENTAL)
-  def trap(codes: Range)(block: => Any): Route
+  /**
+   * Error handler for HTTP response status code range. You can intercept every response code previously
+   * specified with #status or even generic 404 error.
+   * {{{
+   *   error(403) {
+   *    "You are not authorized"
+   *   }
+   }* }}}
+   }}*/
+  def error(codes: Range, transformers: RouteTransformer*)(block: => Any): Route
 
-  def trap(code: Int)(block: => Any): Route = trap(Range(code, code+1))(block)
+  /**
+   * @see error
+   */
+  def error(code: Int, transformers: RouteTransformer*)(block: => Any): Route = error(Range(code, code+1), transformers:_*)(block)
 
 }
