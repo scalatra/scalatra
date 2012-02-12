@@ -29,7 +29,7 @@ object ScalatraBuild extends Build {
       (name in Posterous) := "scalatra"
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
-      scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
+      scalatraScalate, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraAkka, scalatraDocs)
   )
@@ -81,16 +81,6 @@ object ScalatraBuild extends Build {
       libraryDependencies <+= scalaVersion(scalate),
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
-    )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-  lazy val scalatraSocketio = Project(
-    id = "scalatra-socketio",
-    base = file("socketio"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= version(v => Seq(jettyWebsocket, socketioCore(v))),
-      resolvers += sonatypeNexusSnapshots,
-      description := "Socket IO support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -174,7 +164,7 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(
     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-    scalatraAuth, scalatraFileupload, scalatraSocketio, scalatraAkka, scalatraDocs
+    scalatraAuth, scalatraFileupload, scalatraAkka, scalatraDocs
   )
 
   object Dependencies {
@@ -258,8 +248,6 @@ object ScalatraBuild extends Build {
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
-
-    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
 
     val testng = "org.testng" % "testng" % "6.3" % "optional"
   }

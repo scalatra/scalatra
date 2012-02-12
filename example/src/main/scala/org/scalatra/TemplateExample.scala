@@ -94,23 +94,6 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
     }
   }
 
-  get("/echoclient") {
-    Template.page("Scalatra: Echo Server Client Example",
-      <pre>
-        <script type="text/javascript" src="/js/json.js" ></script>
-        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
-        {"var socket = new io.Socket(null, { port: 8080, rememberTransport: false });"}
-        {"""socket.on("message", function(messageType, data) { console.log(data) });"""}
-        {"socket.connect();"}
-        {"""socket.send("hello");"""}
-      </pre>
-    )
-  }
-
-  get("/chat") {
-    layoutTemplate("chat.ssp")
-  }
-
   post("/login") {
     (params("first"), params("last")) match {
       case (first:String, last:String) => {

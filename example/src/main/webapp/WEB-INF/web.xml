@@ -20,26 +20,6 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     <servlet-class>org.scalatra.DocumentExample</servlet-class>
   </servlet>
   <servlet>
-    <servlet-name>SocketIOExample</servlet-name>
-    <servlet-class>org.scalatra.SocketIOExample</servlet-class>
-    <init-param>
-      <param-name>flashPolicyServerHost</param-name>
-      <param-value>localhost</param-value>
-    </init-param>
-    <init-param>
-      <param-name>flashPolicyServerPort</param-name>
-      <param-value>843</param-value>
-    </init-param>
-    <init-param>
-      <param-name>flashPolicyDomain</param-name>
-      <param-value>localhost</param-value>
-    </init-param>
-    <init-param>
-      <param-name>flashPolicyPorts</param-name>
-      <param-value>8080</param-value>
-    </init-param>
-  </servlet>
-  <servlet>
     <servlet-name>Servlet30ChatExample</servlet-name>
     <servlet-class>org.scalatra.Servlet30ChatExample</servlet-class>
     <async-supported>true</async-supported>
@@ -47,26 +27,6 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
   <servlet>
     <servlet-name>CookiesExample</servlet-name>
     <servlet-class>org.scalatra.CookiesExample</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>ChatApplication</servlet-name>
-    <servlet-class>org.scalatra.ChatServlet</servlet-class>
-    <init-param>
-      <param-name>flashPolicyServerHost</param-name>
-      <param-value>localhost</param-value>
-    </init-param>
-    <init-param>
-      <param-name>flashPolicyServerPort</param-name>
-      <param-value>843</param-value>
-    </init-param>
-    <init-param>
-      <param-name>flashPolicyDomain</param-name>
-      <param-value>localhost</param-value>
-    </init-param>
-    <init-param>
-      <param-name>flashPolicyPorts</param-name>
-      <param-value>8080</param-value>
-    </init-param>
   </servlet>
   <servlet>
       <description>MeteorServlet</description>
@@ -88,20 +48,12 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
       <url-pattern>/meteor/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
-    <servlet-name>ChatApplication</servlet-name>
-    <url-pattern>/socket.io/*</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
     <servlet-name>TemplateExample</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>BasicAuthExample</servlet-name>
     <url-pattern>/auth/*</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>SocketIOExample</servlet-name>
-    <url-pattern>/echoserver/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>CookiesExample</servlet-name>
