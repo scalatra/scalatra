@@ -240,7 +240,8 @@ object ScalatraBuild extends Build {
       val libVersion = scalaVersion match {
         case x if x startsWith "2.8." => "1.5"
         case "2.9.0" => "1.5" // https://github.com/etorreborre/specs2/issues/33
-        case _ => "1.8.1" 
+        case "2.9.0-1" => "1.7.1" 
+        case _ => "1.8.2" 
       }
       "org.specs2" %% "specs2" % libVersion
     }
