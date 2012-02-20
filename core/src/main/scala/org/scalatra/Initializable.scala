@@ -1,5 +1,7 @@
 package org.scalatra
 
+import javax.servlet.ServletContext
+
 /**
  * Trait representing an object that can't be fully initialized by its
  * constructor.  Useful for unifying the initialization process of an
@@ -10,7 +12,10 @@ trait Initializable {
    * Abstract type member for the configuration to use during initialization.
    * Examples include `ServletConfig` and `FilterConfig`.
    */
-  type Config
+  type Config <: { 
+    def getServletContext(): ServletContext
+    def getInitParameter(name: String): String
+  }
 
   /**
    * A hook to initialize the class with some configuration after it has

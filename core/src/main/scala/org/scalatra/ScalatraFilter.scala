@@ -49,17 +49,10 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
 
   methodNotAllowed { _ => filterChain.doFilter(request, response) }
 
-  var servletContext: ServletContext = _
-
   type Config = FilterConfig
 
   // see Initializable.initialize for why
   def init(filterConfig: FilterConfig) = initialize(filterConfig)
-
-  override def initialize(config: FilterConfig): Unit = {
-    super.initialize(config)
-    servletContext = config.getServletContext
-  }
 
   def destroy = {}
 }

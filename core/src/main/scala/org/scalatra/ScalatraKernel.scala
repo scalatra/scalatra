@@ -500,25 +500,20 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable with Scalat
   def initialize(config: Config) = this.config = config
 
   /**
-   * Gets an init paramter from the config if it is a ServletConfig or a
-   * FilterConfig.
+   * Gets an init paramter from the config.
    *
    * @param name the name of the key
    *
    * @return an option containing the value of the parameter if defined, or
-   * `None` if the parameter is not set or the config type has no concept of
-   * init parameters.
+   * `None` if the parameter is not set.
    */
-  def initParameter(name: String): Option[String] = config match {
-    case config: ServletConfig => Option(config.getInitParameter(name))
-    case config: FilterConfig => Option(config.getInitParameter(name))
-    case _ => None
-  }
+  def initParameter(name: String): Option[String] = 
+    Option(config.getInitParameter(name))
 
   /**
    * The servlet context in which this kernel runs.
    */
-  def servletContext: ServletContext
+  def servletContext: ServletContext = config.getServletContext
 
   /**
    * A free form string representing the environment.

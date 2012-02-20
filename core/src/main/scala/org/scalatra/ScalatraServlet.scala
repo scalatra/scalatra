@@ -87,8 +87,6 @@ abstract class ScalatraServlet
     }
   }
 
-  def servletContext: ServletContext = getServletContext
-
   type Config = ServletConfig
 
   override def init(config: ServletConfig) = {
