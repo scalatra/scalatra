@@ -12,3 +12,4 @@ target/
 .*.sw?
 .idea
 .DS_Store
+.ensime
