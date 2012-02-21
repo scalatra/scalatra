@@ -5,7 +5,7 @@ import java.net.InetSocketAddress
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 
-import org.scalatra.servlet.DefaultDispatchers
+import org.scalatra.servlet.{DefaultDispatchers, ScalatraListener}
 
 /**
  * Runs a Servlet or a Filter on an embedded Jetty server.
@@ -17,8 +17,9 @@ class JettyServer(
   private val server = new Server(socketAddress)
   server.setHandler(context)
 
-  private val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
+  val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
   context.setContextPath("/")
+  context.addEventListener(new ScalatraListener)
   context.setResourceBase(resourceBase)
   server.setHandler(context)
 

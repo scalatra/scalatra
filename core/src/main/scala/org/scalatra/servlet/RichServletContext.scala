@@ -2,8 +2,9 @@ package org.scalatra
 package servlet
 
 import java.net.{MalformedURLException, URL}
-import javax.servlet.ServletContext
-import javax.servlet.http.HttpServletRequest
+import java.util.EnumSet
+import javax.servlet.{DispatcherType, Filter, ServletContext}
+import javax.servlet.http.{HttpServlet, HttpServletRequest}
 
 /**
  * Extension methods to the standard ServletContext.
@@ -37,6 +38,16 @@ class RichServletContext(sc: ServletContext) extends AttributesMap {
   def resource(req: HttpServletRequest): Option[URL] = {
     val path = req.getServletPath + (Option(req.getPathInfo) getOrElse "")
     resource(path)
+  }
+
+  def mount(servlet: HttpServlet, urlPattern: String) {
+    val reg = sc.addServlet(servlet.getClass.getName, servlet)
+    reg.addMapping(urlPattern)
+  }
+
+  def mount(filter: Filter, urlPattern: String)(implicit dispatchers: EnumSet[DispatcherType]) {
+    val reg = sc.addFilter(filter.getClass.getName, filter)
+    reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
 }
 

@@ -1,8 +1,5 @@
 package org.scalatra
 
-import java.util.EnumSet
-import javax.servlet.DispatcherType
-
 package object servlet extends ServletApiImplicits {
   /**
    * Structural type for the various Servlet API objects that have attributes.
@@ -14,7 +11,4 @@ package object servlet extends ServletApiImplicits {
     def setAttribute(name: String, value: AnyRef): Unit
     def removeAttribute(name: String): Unit
   }
-
-  implicit def DefaultDispatchers: EnumSet[DispatcherType] =
-    EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC)
 }
