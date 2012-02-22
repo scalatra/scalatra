@@ -171,7 +171,7 @@ object ScalatraBuild extends Build {
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
       resolvers ++= Seq(sonatypeNexusSnapshots),
-      libraryDependencies ++= Seq(atmosphere, jettyWebapp),
+      libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
       description := "Scalatra example project"
     )
   ) dependsOn(
