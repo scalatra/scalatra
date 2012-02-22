@@ -18,7 +18,16 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
  *
  * `Handler` instances are usually shared among threads thus any state change produced in this method (outsid of side effects on the arguments to `handle(req,res)` should be wrapped in a [[scala.util.DynamicVariable]] , which is thread-local.
  */
-trait Handler {
+@deprecated("This is coupled to the Servlet API and not chainable. Use org.scalatra.Service") // since 2.1
+trait Handler extends Service {
+  type Request = HttpServletRequest
+  type Response = HttpServletResponse
+
+  def apply(request: Request, response: Response): Option[Unit] = {
+    handle(request, response)
+    Some(())
+  }
+
   /**
    * Handles a request and writes to the response.
    */
