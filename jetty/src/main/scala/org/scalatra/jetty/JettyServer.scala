@@ -23,14 +23,6 @@ class JettyServer(
   context.setResourceBase(resourceBase)
   server.setHandler(context)
 
-  /**
-   * Mounts a filter or a servlet to the given context.
-   */
-  def mount(mountable: Mountable[_], pathSpec: String): this.type = {
-    mountable.mount(context, pathSpec)
-    this
-  }
-
   def start(): this.type = {
     server.start()
     this
