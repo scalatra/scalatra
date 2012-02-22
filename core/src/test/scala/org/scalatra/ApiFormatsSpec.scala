@@ -8,6 +8,8 @@ class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
   get("/hello(.:format)") {
     format
   }
+
+
 }
 
 class ApiFormatsSpec extends ScalatraSpecification {
