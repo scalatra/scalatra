@@ -38,7 +38,10 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi, slf4jSimple % "test"),
+      libraryDependencies <++= scalaVersion(sv => Seq(
+	servletApi,
+        grizzledSlf4j(sv)
+      )),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
