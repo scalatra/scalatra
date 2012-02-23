@@ -62,7 +62,7 @@ trait CsrfTokenSupport { self: ScalatraService =>
    * the session key of the same name.
    */
   protected def isForged: Boolean = {
-    !httpRequest.method.isSafe && session.get(csrfKey) != params.get(csrfKey)
+    !request.method.isSafe && session.get(csrfKey) != params.get(csrfKey)
   }
 
   /**

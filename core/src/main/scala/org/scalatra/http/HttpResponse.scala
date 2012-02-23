@@ -3,19 +3,17 @@ package http
 
 import java.io.{OutputStream, PrintWriter}
 
-trait HttpResponse[A] extends HttpMessage[A] {
-  def default: A
+trait HttpResponse extends HttpMessage {
+  def status: Int
+  def status_=(status: Int): Unit
+  def status_=(status: (Int, String)): Unit
 
-  def status(implicit a: A): Int
-  def status_=(status: Int)(implicit a: A): Unit
-  def status_=(status: (Int, String))(implicit a: A): Unit
+  def addHeader(name: String, value: String): Unit
+  def setHeader(name: String, value: String): Unit
 
-  def addHeader(name: String, value: String)(implicit a: A): Unit
-  def setHeader(name: String, value: String)(implicit a: A): Unit
+  def contentType_=(contentType: Option[String]): Unit
+  def redirect(uri: String): Unit
 
-  def contentType_=(contentType: Option[String])(implicit a: A): Unit
-  def redirect(uri: String)(implicit a: A): Unit
-
-  def outputStream(implicit a: A): OutputStream
-  def writer(implicit a: A): PrintWriter
+  def outputStream: OutputStream
+  def writer: PrintWriter
 }

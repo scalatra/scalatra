@@ -53,7 +53,4 @@ trait ScalatraKernel extends ScalatraService with Handler {
   def session = request.getSession
 
   def sessionOption = Option(request.getSession(false))
-
-  protected lazy val httpResponse = ServletHttpResponse
-  protected lazy val httpRequest = ServletHttpRequest
 }

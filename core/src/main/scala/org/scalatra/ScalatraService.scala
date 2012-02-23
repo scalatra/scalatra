@@ -42,7 +42,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    *
    * @see #response
    */
-  protected val _response = new DynamicVariable[Response](httpResponse.default)
+  protected val _response = new DynamicVariable[Response](null)
 
   /**
    * A dynamic variable containing the currently-scoped request.  Should
@@ -50,7 +50,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    *
    * @see #request
    */
-  protected val _request = new DynamicVariable[Request](httpRequest.default)
+  protected val _request = new DynamicVariable[Request](null)
 
 
   /**
@@ -67,16 +67,16 @@ trait ScalatraService extends Service with CoreDsl with Initializable
   def apply(implicit request: Request, response: Response) = {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
-    if (httpRequest.characterEncoding == null)
-      httpRequest.characterEncoding = Some(defaultCharacterEncoding)
+    if (request.characterEncoding == null)
+      request.characterEncoding = Some(defaultCharacterEncoding)
 
-    val realMultiParams = httpRequest.parameters
+    val realMultiParams = request.parameters
 
-    httpResponse.characterEncoding = Some(defaultCharacterEncoding)
+    response.characterEncoding = Some(defaultCharacterEncoding)
 
     _request.withValue(request) {
       _response.withValue(response) {
-        httpRequest(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
+        request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
         executeRoutes() // IPC: taken out because I needed the extension point
       }
     }
@@ -104,7 +104,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
   protected def executeRoutes() = {
     val result = try {
       runFilters(routes.beforeFilters)
-      val actionResult = runRoutes(routes(httpRequest.method)).headOption
+      val actionResult = runRoutes(routes(request.method)).headOption
       actionResult orElse matchOtherMethods() getOrElse doNotFound()
     }
     catch {
@@ -188,12 +188,12 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    */
   protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = { allow =>
     status = 405
-    httpResponse.setHeader("Allow", allow.mkString(", "))
+    response.setHeader("Allow", allow.mkString(", "))
   }
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
   private def matchOtherMethods(): Option[Any] = {
-    val allow = routes.matchingMethodsExcept(httpRequest.method)
+    val allow = routes.matchingMethodsExcept(request.method)
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
 
@@ -206,10 +206,10 @@ trait ScalatraService extends Service with CoreDsl with Initializable
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
-    httpRequest(MultiParamsKey) = 
+    request(MultiParamsKey) = 
       originalParams ++ matchedRoute.map(_.multiParams).getOrElse(Map.empty)
     try { thunk } finally { 
-      httpRequest(MultiParamsKey) = originalParams 
+      request(MultiParamsKey) = originalParams 
     }
   }
 
@@ -258,15 +258,15 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    */
   protected def renderPipeline: RenderPipeline = {
     case bytes: Array[Byte] =>
-      httpResponse.outputStream.write(bytes)
+      response.outputStream.write(bytes)
     case file: File =>
       using(new FileInputStream(file)) { in => 
-	zeroCopy(in, httpResponse.outputStream) 
+	zeroCopy(in, response.outputStream) 
       }
     case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response
     case x: Any  =>
-      httpResponse.writer.print(x.toString)
+      response.writer.print(x.toString)
   }
 
   /**
@@ -276,7 +276,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    * The default value for an unknown param is the empty sequence.  Invalid
    * outside `handle`.
    */
-  def multiParams: MultiParams = httpRequest(MultiParamsKey).asInstanceOf[MultiParams]
+  def multiParams: MultiParams = request(MultiParamsKey).asInstanceOf[MultiParams]
     .withDefaultValue(Seq.empty)
 
   /*
@@ -361,13 +361,13 @@ trait ScalatraService extends Service with CoreDsl with Initializable
   protected def renderHaltException(e: HaltException) {
     e match {
       case HaltException(Some(status), Some(reason), _, _) => 
-	httpResponse.status = (status, reason)
+	response.status = (status, reason)
       case HaltException(Some(status), None, _, _) =>
-	httpResponse.status = status
+	response.status = status
       case HaltException(None, _, _, _) => // leave status line alone
     }
     e.headers foreach { case(name, value) => 
-      httpResponse.addHeader(name, value) 
+      response.addHeader(name, value) 
     }
     renderResponse(e.body)
   }

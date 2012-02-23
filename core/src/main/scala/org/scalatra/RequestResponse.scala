@@ -3,11 +3,9 @@ package org.scalatra
 import http.{HttpRequest, HttpResponse}
 
 trait RequestResponse {
-  type Request
+  type Request >: Null
+  protected implicit def requestWrapper(request: Request): HttpRequest
 
-  protected def httpRequest: HttpRequest[Request]
-
-  type Response
-
-  protected def httpResponse: HttpResponse[Response]
+  type Response >: Null
+  protected implicit def responseWrapper(response: Response): HttpResponse
 }

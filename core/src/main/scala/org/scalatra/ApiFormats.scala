@@ -87,14 +87,14 @@ trait ApiFormats extends ScalatraService {
   }
 
   private def getFromAcceptHeader = {
-    val hdrs = httpRequest.contentType map { contentType =>
+    val hdrs = request.contentType map { contentType =>
       (acceptHeader ::: List(contentType)).distinct 
     } getOrElse acceptHeader
     formatForMimeTypes(hdrs: _*)
   }
 
   private def parseAcceptHeader = {
-    httpRequest.header("Accept") map { s =>
+    request.header("Accept") map { s =>
       val fmts = s.split(",").map(_.trim)
       val accepted = (fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
         val parts = f.split(";").map(_.trim)
@@ -150,9 +150,9 @@ trait ApiFormats extends ScalatraService {
    * $ - the default format
    */
   def format = {
-    httpRequest.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
+    request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
       val fmt = getFormat
-      httpRequest(FormatKey) = fmt
+      request(FormatKey) = fmt
       fmt
     }
   }
@@ -162,7 +162,7 @@ trait ApiFormats extends ScalatraService {
    * whatever was inferred from the request.
    */
   def format_=(formatValue: Symbol) {
-    httpRequest(FormatKey) = formatValue.name
+    request(FormatKey) = formatValue.name
   }
 
   /**
@@ -170,6 +170,6 @@ trait ApiFormats extends ScalatraService {
    * whatever was inferred from the request.
    */
   def format_=(formatValue: String) {
-    httpRequest(FormatKey) = formatValue
+    request(FormatKey) = formatValue
   }
 }
