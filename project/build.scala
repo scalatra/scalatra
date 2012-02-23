@@ -14,7 +14,7 @@ object ScalatraBuild extends Build {
     version := "2.1.0-SNAPSHOT",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-unchecked", "-deprecation"),
+    scalacOptions ++= Seq("-unchecked"),
     manifestSetting,
     publishSetting,
     resolvers += ScalaToolsSnapshots
