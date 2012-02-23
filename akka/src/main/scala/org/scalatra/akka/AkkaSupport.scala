@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.servlet.{AsyncContext, AsyncEvent, AsyncListener}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
+import servlet.AsyncSupport
+
 trait AkkaSupport extends AsyncSupport {
   import ScalatraKernel.Action
   
