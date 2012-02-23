@@ -97,6 +97,19 @@ object ScalatraKernel
     protected implicit def routeMatcher2RouteTransformer(matcher: RouteMatcher): RouteTransformer =
       Route.appendMatcher(matcher)
 
+
+    /**
+     * Convert a status code into a route matcher.
+     */
+    protected implicit def statusCodes2RouteMatcher(codes: Range): RouteMatcher = new StatusCodeRouteMatcher(codes, status)
+
+    protected def statusCodes2RouteTransformer(codes: Range): RouteTransformer = Route.appendMatcher(codes)
+
+    /**
+     * The HTTP response code
+     */
+    def status: Int
+
     /**
      * The effective path against which routes are matched.  The definition
      * varies between servlets and filters.
@@ -143,6 +156,8 @@ object ScalatraKernel
 
     def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
 
+    def trap(codes: Range, transformers: RouteTransformer*)(block: => Any) = addStatusRoute(codes, Seq(statusCodes2RouteTransformer(codes)) ++ transformers, block)
+
     /**
      * @see [[org.scalatra.ScalatraKernel.get]]
      */
@@ -169,6 +184,7 @@ object ScalatraKernel
     protected def removeRoute(method: String, route: Route): Unit =
       removeRoute(HttpMethod(method), route)
 
+    protected[scalatra] def addStatusRoute(codes: Range, transformers: Seq[RouteTransformer], action: => Any): Unit
 
   }
 }
@@ -236,7 +252,11 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable with Scalat
   protected[scalatra] def removeRoute(method: HttpMethod, route: Route): Unit =
     routes.removeRoute(method, route)
 
-
+  protected[scalatra] def addStatusRoute(codes: Range, transformers: Seq[RouteTransformer], action: => Any)  {
+    val route = Route(transformers, () => action, () => routeBasePath)
+    routes.addStatusRoute(codes, route)
+  }
+  
   /**
    * Handles a request and renders a response.
    *
@@ -292,8 +312,8 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable with Scalat
   protected def executeRoutes() = {
     val result = try {
       runFilters(routes.beforeFilters)
-      val actionResult = runRoutes(routes(request.method)).headOption
-      actionResult orElse matchOtherMethods() getOrElse doNotFound()
+      val actionResult = runRoutes(routes(request.method)).headOption orElse matchOtherMethods() orElse markAsNotFound()
+      handleStatusCode(status) orElse actionResult getOrElse notFound()
     }
     catch {
       case e: HaltException => renderHaltException(e)
@@ -351,6 +371,14 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable with Scalat
 
 
   /**
+   * Set a 404 (NOT FOUND) as current response code.
+   */
+  private def markAsNotFound(): Option[Any] = {
+    response.setStatus(404)
+    None
+  }
+  
+  /**
    * Called if no route matches the current request for any method.  The
    * default implementation varies between servlet and filter.
    */
@@ -373,6 +401,13 @@ trait ScalatraKernel extends Handler with CoreDsl with Initializable with Scalat
     val allow = routes.matchingMethodsExcept(request.method)
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
+
+  private def handleStatusCode(status: Int): Option[Any] =
+    for (handler <- routes(status);
+         matchedHandler <- handler();
+         handlerResult <- invoke(matchedHandler)
+    ) yield handlerResult
+
 
   /**
    * The error handler function, called if an exception is thrown during
