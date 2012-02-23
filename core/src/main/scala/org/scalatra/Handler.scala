@@ -1,7 +1,6 @@
 package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import servlet.ServletApiImplicits
 
 /**
  * An `Handler` is the Scalatra abstraction for an object that operates on a request/response pair.
@@ -26,4 +25,3 @@ trait Handler {
    */
   def handle(req: HttpServletRequest, res: HttpServletResponse): Unit
 }
-
