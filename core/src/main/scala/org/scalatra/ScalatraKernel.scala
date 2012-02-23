@@ -43,9 +43,6 @@ import ScalatraKernel._
  * [[org.scalatra.ScalatraFilter]] to create a Scalatra application.
  */
 trait ScalatraKernel extends ScalatraService with Handler {
-  type Request = HttpServletRequest
-  type Response = HttpServletResponse
-
   def handle(req: HttpServletRequest, res: HttpServletResponse) {
     apply(req, res)
   }

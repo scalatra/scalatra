@@ -34,7 +34,9 @@ object CsrfTokenSupport {
  * `handleForgery()` hook is invoked.  Otherwise, a token for the next
  * request is prepared with `prepareCsrfToken`.
  */
-trait CsrfTokenSupport { self: ScalatraService =>
+trait CsrfTokenSupport {
+  self: ScalatraService with Backend with servlet.ServletApiImplicits =>
+
   /**
    * The key used to store the token on the session, as well as the parameter
    * of the request.

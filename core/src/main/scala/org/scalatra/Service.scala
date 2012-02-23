@@ -2,6 +2,6 @@ package org.scalatra
 
 import http.{HttpRequest, HttpResponse}
 
-trait Service extends RequestResponse {
+trait Service { this: Backend =>
   def apply(implicit request: Request, response: Response): Option[Unit]
 }

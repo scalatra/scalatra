@@ -24,8 +24,9 @@ import ScalatraKernel._
  * [[org.scalatra.ScalatraFilter]] to create a Scalatra application.
  */
 trait ScalatraService extends Service with CoreDsl with Initializable
-  with servlet.ServletApiImplicits
 {
+  this: Backend =>
+
   /**
    * The routes registered in this kernel.
    */

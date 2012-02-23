@@ -8,7 +8,9 @@ import ScalatraKernel.MultiParams
 /**
  * The core DSL of a Scalatra application.
  */
-trait CoreDsl extends Control with RequestResponse {
+trait CoreDsl extends Control {
+  this: Backend =>
+
   /**
    * The current servlet context
    */

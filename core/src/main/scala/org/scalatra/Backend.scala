@@ -2,7 +2,7 @@ package org.scalatra
 
 import http.{HttpRequest, HttpResponse}
 
-trait RequestResponse {
+trait Backend {
   type Request >: Null
   protected implicit def requestWrapper(request: Request): HttpRequest
 

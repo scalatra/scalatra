@@ -23,6 +23,8 @@ object ApiFormats {
  * $ - Augments the content-type inferrer to use the format
  */
 trait ApiFormats extends ScalatraService {
+  this: Backend =>
+
   /**
    * A map of suffixes to content types.
    */

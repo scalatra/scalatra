@@ -6,6 +6,8 @@ import java.net.URI
  * Redirects unsecured requests to the corresponding secure URL.
  */
 trait SslRequirement extends Service { 
+  this: Backend =>
+
   abstract override def apply(implicit req: Request, res: Response) = {
     if (!req.isSecure) {
       val oldUri = req.uri
