@@ -209,3 +209,10 @@ final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
 
   override def toString = "[Boolean Guard]"
 }
+
+final class StatusCodeRouteMatcher(codes: Range, responseStatus: => Int)  extends RouteMatcher {
+
+  def apply() = if(codes.contains(responseStatus)) Some(MultiMap()) else None
+
+  override def toString = codes.toString()
+}

@@ -7,8 +7,12 @@ import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 
 class RouteRegistry {
+
   private val _methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
     new ConcurrentHashMap[HttpMethod, Seq[Route]]
+
+  private val _statusRoutes: ConcurrentMap[Int, Route] =
+    new ConcurrentHashMap[Int, Route]
 
   private var _beforeFilters: Seq[Route] = Vector.empty
   private var _afterFilters: Seq[Route] = Vector.empty
@@ -24,6 +28,13 @@ class RouteRegistry {
       case Head => _methodRoutes.getOrElse(Get, Vector.empty)
       case m => _methodRoutes.getOrElse(m, Vector.empty)
     }
+
+  /**
+   * Return a route for a specific HTTP response status code.
+   * @param statusCode the status code.
+   *
+   */
+  def apply(statusCode: Int): Option[Route] = _statusRoutes.get(statusCode)
 
   /**
    * Returns a set of methods with a matching route.
@@ -49,13 +60,21 @@ class RouteRegistry {
   }
 
   private def matchingMethodsExcept(p: HttpMethod => Boolean) = {
-    var methods = (_methodRoutes filter { case (method, routes) =>
-      !p(method) && (routes exists { _().isDefined })
+    var methods = (_methodRoutes filter {
+      case (method, routes) =>
+        !p(method) && (routes exists {
+          _().isDefined
+        })
     }).keys.toSet
     if (methods.contains(Get))
       methods += Head
     methods
   }
+
+  /**
+   * Add a route that explicitly matches one or more response codes.
+   */
+  def addStatusRoute(codes: Range, route: Route) = codes.foreach { code => _statusRoutes.put(code, route) }
 
   /**
    * Prepends a route to the method's route sequence.
@@ -93,7 +112,7 @@ class RouteRegistry {
     if (_methodRoutes.putIfAbsent(method, f(Vector.empty)).isDefined) {
       val oldRoutes = _methodRoutes(method)
       if (!_methodRoutes.replace(method, oldRoutes, f(oldRoutes)))
-       modifyRoutes(method, f)
+        modifyRoutes(method, f)
     }
   }
 
