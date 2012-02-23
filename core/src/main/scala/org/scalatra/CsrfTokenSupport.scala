@@ -34,7 +34,7 @@ object CsrfTokenSupport {
  * `handleForgery()` hook is invoked.  Otherwise, a token for the next
  * request is prepared with `prepareCsrfToken`.
  */
-trait CsrfTokenSupport { self: ScalatraKernel =>
+trait CsrfTokenSupport { self: ScalatraService =>
   /**
    * The key used to store the token on the session, as well as the parameter
    * of the request.
@@ -62,7 +62,7 @@ trait CsrfTokenSupport { self: ScalatraKernel =>
    * the session key of the same name.
    */
   protected def isForged: Boolean = {
-    request.isWrite && session.get(csrfKey) != params.get(csrfKey)
+    !httpRequest.method.isSafe && session.get(csrfKey) != params.get(csrfKey)
   }
 
   /**
