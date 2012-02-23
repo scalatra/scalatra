@@ -68,11 +68,11 @@ trait ScalatraService extends Service with CoreDsl with Initializable
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
     if (httpRequest.characterEncoding == null)
-      httpRequest.characterEncoding = defaultCharacterEncoding
+      httpRequest.characterEncoding = Some(defaultCharacterEncoding)
 
     val realMultiParams = httpRequest.parameters
 
-    httpResponse.characterEncoding = defaultCharacterEncoding
+    httpResponse.characterEncoding = Some(defaultCharacterEncoding)
 
     _request.withValue(request) {
       _response.withValue(response) {

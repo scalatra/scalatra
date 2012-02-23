@@ -37,15 +37,15 @@ trait ServletApiImplicits {
     def header(name: String)(implicit req: HttpServletRequest): Option[String] =
       Option(req.getHeader(name))
 
-    def characterEncoding(implicit req: HttpServletRequest): String =
-      req.getCharacterEncoding
+    def characterEncoding(implicit req: HttpServletRequest): Option[String] =
+      Option(req.getCharacterEncoding)
 
-    def characterEncoding_=(encoding: String)(implicit req: HttpServletRequest) {
-      req.setCharacterEncoding(encoding)
+    def characterEncoding_=(encoding: Option[String])(implicit req: HttpServletRequest) {
+      req.setCharacterEncoding(encoding getOrElse null)
     }
     
-    def contentType(implicit req: HttpServletRequest): String =
-      req.getContentType
+    def contentType(implicit req: HttpServletRequest): Option[String] =
+      Option(req.getContentType)
     
     def get(key: String)(implicit req: HttpServletRequest) =
       Option(req.getAttribute(key))
@@ -78,18 +78,18 @@ trait ServletApiImplicits {
       res.setHeader(name, value)
     }
 
-    def characterEncoding(implicit res: HttpServletResponse): String =
-      res.getCharacterEncoding
+    def characterEncoding(implicit res: HttpServletResponse): Option[String] =
+      Option(res.getCharacterEncoding)
 
-    def characterEncoding_=(encoding: String)(implicit res: HttpServletResponse) {
-      res.setCharacterEncoding(encoding)
+    def characterEncoding_=(encoding: Option[String])(implicit res: HttpServletResponse) {
+      res.setCharacterEncoding(encoding getOrElse null)
     }
     
-    def contentType(implicit res: HttpServletResponse): String =
-      res.getContentType
+    def contentType(implicit res: HttpServletResponse): Option[String] =
+      Option(res.getContentType)
 
-    def contentType_=(contentType: String)(implicit res: HttpServletResponse) {
-      res.setContentType(contentType)
+    def contentType_=(contentType: Option[String])(implicit res: HttpServletResponse) {
+      res.setContentType(contentType getOrElse null) 
     }
     
     def redirect(uri: String)(implicit res: HttpServletResponse) {

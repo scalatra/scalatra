@@ -87,8 +87,9 @@ trait ApiFormats extends ScalatraService {
   }
 
   private def getFromAcceptHeader = {
-    val hdrs = if (httpRequest.contentType != null) 
-      (acceptHeader ::: List(httpRequest.contentType)).distinct else acceptHeader
+    val hdrs = httpRequest.contentType map { contentType =>
+      (acceptHeader ::: List(contentType)).distinct 
+    } getOrElse acceptHeader
     formatForMimeTypes(hdrs: _*)
   }
 

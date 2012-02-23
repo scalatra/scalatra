@@ -13,7 +13,7 @@ trait HttpResponse[A] extends HttpMessage[A] {
   def addHeader(name: String, value: String)(implicit a: A): Unit
   def setHeader(name: String, value: String)(implicit a: A): Unit
 
-  def contentType_=(contentType: String)(implicit a: A): Unit
+  def contentType_=(contentType: Option[String])(implicit a: A): Unit
   def redirect(uri: String)(implicit a: A): Unit
 
   def outputStream(implicit a: A): OutputStream

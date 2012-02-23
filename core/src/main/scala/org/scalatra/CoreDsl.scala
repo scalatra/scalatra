@@ -43,13 +43,13 @@ trait CoreDsl extends Control with RequestResponse {
   /**
    * Gets the content type of the current response.
    */
-  def contentType: String = httpResponse.contentType
+  def contentType: String = httpResponse.contentType getOrElse null
 
   /**
    * Sets the content type of the current response.
    */
   def contentType_=(contentType: String): Unit = 
-    httpResponse.contentType = contentType
+    httpResponse.contentType = Option(contentType)
 
   @deprecated("Use status_=(Int) instead") // since 2.1
   def status(code: Int) = status_=(code)
