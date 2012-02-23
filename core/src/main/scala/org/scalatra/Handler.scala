@@ -1,6 +1,7 @@
 package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import servlet.ServletApiImplicits
 
 /**
  * An `Handler` is the Scalatra abstraction for an object that operates on a request/response pair.
@@ -19,9 +20,14 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
  * `Handler` instances are usually shared among threads thus any state change produced in this method (outsid of side effects on the arguments to `handle(req,res)` should be wrapped in a [[scala.util.DynamicVariable]] , which is thread-local.
  */
 @deprecated("This is coupled to the Servlet API and not chainable. Use org.scalatra.Service") // since 2.1
-trait Handler extends Service {
+trait Handler extends Service with ServletApiImplicits {
   type Request = HttpServletRequest
+  
+  protected implicit lazy val httpRequest = ServletHttpRequest
+
   type Response = HttpServletResponse
+
+  protected implicit lazy val httpResponse = ServletHttpResponse
 
   def apply(request: Request, response: Response): Option[Unit] = {
     handle(request, response)
