@@ -2,6 +2,7 @@ package org.scalatra
 package servlet
 
 import java.io.{OutputStream, PrintWriter}
+import java.net.URI
 import java.util.EnumSet
 import javax.servlet.DispatcherType
 import javax.servlet.ServletContext
@@ -22,6 +23,10 @@ trait ServletApiImplicits {
 
   implicit object ServletHttpRequest extends HttpRequest[HttpServletRequest] {
     val default = null
+
+    def uri(implicit req: HttpServletRequest) = new URI(req.getRequestURL.toString)
+
+    def isSecure(implicit req: HttpServletRequest) = req.isSecure 
 
     def method(implicit req: HttpServletRequest) = req.method
     def parameters(implicit req: HttpServletRequest): ScalatraKernel.MultiParams = {
