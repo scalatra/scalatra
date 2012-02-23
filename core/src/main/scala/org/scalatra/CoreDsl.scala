@@ -1,14 +1,14 @@
 package org.scalatra
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
+import javax.servlet.http.{HttpSession}
 
 import ScalatraKernel.MultiParams
 
 /**
  * The core DSL of a Scalatra application.
  */
-trait CoreDsl extends Control {
+trait CoreDsl extends Control with RequestResponse {
   /**
    * The current servlet context
    */
@@ -17,7 +17,7 @@ trait CoreDsl extends Control {
   /**
    * The current request
    */
-  implicit def request: HttpServletRequest
+  implicit def request: Request
 
   /**
    * A map of the current parameters.  The map contains the head of every
@@ -38,49 +38,49 @@ trait CoreDsl extends Control {
   /**
    * The current response.
    */
-  implicit def response: HttpServletResponse
+  implicit def response: Response
 
   /**
    * Gets the content type of the current response.
    */
-  def contentType: String = response.getContentType
+  def contentType: String = httpResponse.contentType
 
   /**
    * Sets the content type of the current response.
    */
-  def contentType_=(contentType: String): Unit =
-    response.setContentType(contentType)
+  def contentType_=(contentType: String): Unit = 
+    httpResponse.contentType = contentType
 
   @deprecated("Use status_=(Int) instead") // since 2.1
-  def status(code: Int) = response.setStatus(code)
+  def status(code: Int) = status_=(code)
 
   /**
    * Sets the status code of the current response.
    */
-  def status_=(code: Int): Unit = response.setStatus(code)
+  def status_=(code: Int): Unit = httpResponse.status = code
 
   /**
    * Gets the status code of the current response.
    */
-  def status: Int = response.getStatus
+  def status: Int = httpResponse.status
 
   /**
    * Sends a redirect response and immediately halts the current action.
    */
   def redirect(uri: String): Unit = {
-    response.sendRedirect(uri)
+    httpResponse.redirect(uri)
     halt()
   }
 
   /**
    * The current HTTP session.  Creates a session if none exists.
    */
-  implicit def session: HttpSession = request.getSession
+  implicit def session: HttpSession
 
   /**
    * The current HTTP session.  If none exists, None is returned.
    */
-  def sessionOption: Option[HttpSession] = Option(request.getSession(false))
+  def sessionOption: Option[HttpSession]
 
   /**
    * Adds a filter to run before the route.  The filter only runs if each
