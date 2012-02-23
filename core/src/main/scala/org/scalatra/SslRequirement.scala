@@ -1,6 +1,5 @@
 package org.scalatra
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import java.net.URI
 
 /**
