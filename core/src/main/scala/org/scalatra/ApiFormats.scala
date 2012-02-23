@@ -22,7 +22,9 @@ object ApiFormats {
  * $ - Maps formats to content types and vice versa
  * $ - Augments the content-type inferrer to use the format
  */
-trait ApiFormats extends ScalatraKernel {
+trait ApiFormats extends ScalatraService {
+  this: Backend =>
+
   /**
    * A map of suffixes to content types.
    */
@@ -87,13 +89,14 @@ trait ApiFormats extends ScalatraKernel {
   }
 
   private def getFromAcceptHeader = {
-    val hdrs = if (request.getContentType != null) (acceptHeader ::: List(request.getContentType)).distinct else acceptHeader
+    val hdrs = request.contentType map { contentType =>
+      (acceptHeader ::: List(contentType)).distinct 
+    } getOrElse acceptHeader
     formatForMimeTypes(hdrs: _*)
   }
 
   private def parseAcceptHeader = {
-    val s = request.getHeader("Accept")
-    if (s.isBlank) Nil else {
+    request.header("Accept") map { s =>
       val fmts = s.split(",").map(_.trim)
       val accepted = (fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
         val parts = f.split(";").map(_.trim)
@@ -105,7 +108,7 @@ trait ApiFormats extends ScalatraKernel {
         acc + (i -> (parts(0) :: acc.get(i).getOrElse(List.empty)))
       })
       (accepted.toList sortWith ((kv1, kv2) => kv1._1 > kv2._1) flatMap (_._2.reverse) toList)
-    }
+    } getOrElse Nil
   }
 
   protected def formatForMimeTypes(mimeTypes: String*): Option[String] = {

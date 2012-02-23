@@ -2,8 +2,11 @@ package org.scalatra
 package servlet
 
 import scala.collection.{Map => CMap}
+import scala.collection.JavaConversions._
 import scala.io.Source
+import java.net.URI
 import javax.servlet.http.HttpServletRequest
+import http.HttpRequest
 import util.{MultiMap, MultiMapHeadView}
 
 object RichRequest {
@@ -13,9 +16,36 @@ object RichRequest {
 /**
  * Extension methods to a standard HttpServletRequest.
  */
-case class RichRequest(r: HttpServletRequest) extends AttributesMap {
+case class RichRequest(r: HttpServletRequest) extends HttpRequest with AttributesMap {
   import RichRequest._
 
+  def uri = new URI(r.getRequestURL.toString)
+
+  def isSecure = r.isSecure 
+
+  /**
+   * Returns the request's method.
+   */
+  def method = HttpMethod(r.getMethod)
+
+  def parameters: ScalatraKernel.MultiParams = {
+    r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
+      .transform { (k, v) => v: Seq[String] }
+  }
+  
+  def header(name: String): Option[String] =
+    Option(r.getHeader(name))
+  
+  def characterEncoding: Option[String] =
+    Option(r.getCharacterEncoding)
+  
+  def characterEncoding_=(encoding: Option[String]) {
+    r.setCharacterEncoding(encoding getOrElse null)
+  }
+  
+  def contentType: Option[String] =
+    Option(r.getContentType)
+  
   @deprecated(message = "Use HttpServletRequest.getServerName() instead")
   def host = r.getServerName
 
@@ -87,10 +117,4 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
 
   protected def attributes = r
-
-  /**
-   * Returns the request's method.
-   */
-  def method: HttpMethod = HttpMethod(r.getMethod)
 }
-
