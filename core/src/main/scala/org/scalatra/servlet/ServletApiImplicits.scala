@@ -34,6 +34,9 @@ trait ServletApiImplicits {
         .transform { (k, v) => v: Seq[String] }
     }
 
+    def header(name: String)(implicit req: HttpServletRequest): Option[String] =
+      Option(req.getHeader(name))
+
     def characterEncoding(implicit req: HttpServletRequest): String =
       req.getCharacterEncoding
 
@@ -44,8 +47,8 @@ trait ServletApiImplicits {
     def contentType(implicit req: HttpServletRequest): String =
       req.getContentType
     
-    def apply(key: String)(implicit req: HttpServletRequest) =
-      req.getAttribute(key)
+    def get(key: String)(implicit req: HttpServletRequest) =
+      Option(req.getAttribute(key))
 
     def update(key: String, value: Any)(implicit req: HttpServletRequest) {
       req.setAttribute(key, value)
@@ -65,6 +68,9 @@ trait ServletApiImplicits {
       res.setStatus(status._1, status._2)
     }
     
+    def header(name: String)(implicit res: HttpServletResponse) =
+      Option(res.getHeader(name))
+
     def addHeader(name: String, value: String)(implicit res: HttpServletResponse) {
       res.addHeader(name, value)
     }

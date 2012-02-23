@@ -22,7 +22,7 @@ object ApiFormats {
  * $ - Maps formats to content types and vice versa
  * $ - Augments the content-type inferrer to use the format
  */
-trait ApiFormats extends ScalatraKernel {
+trait ApiFormats extends ScalatraService {
   /**
    * A map of suffixes to content types.
    */
@@ -87,13 +87,13 @@ trait ApiFormats extends ScalatraKernel {
   }
 
   private def getFromAcceptHeader = {
-    val hdrs = if (request.getContentType != null) (acceptHeader ::: List(request.getContentType)).distinct else acceptHeader
+    val hdrs = if (httpRequest.contentType != null) 
+      (acceptHeader ::: List(httpRequest.contentType)).distinct else acceptHeader
     formatForMimeTypes(hdrs: _*)
   }
 
   private def parseAcceptHeader = {
-    val s = request.getHeader("Accept")
-    if (s.isBlank) Nil else {
+    httpRequest.header("Accept") map { s =>
       val fmts = s.split(",").map(_.trim)
       val accepted = (fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
         val parts = f.split(";").map(_.trim)
@@ -105,7 +105,7 @@ trait ApiFormats extends ScalatraKernel {
         acc + (i -> (parts(0) :: acc.get(i).getOrElse(List.empty)))
       })
       (accepted.toList sortWith ((kv1, kv2) => kv1._1 > kv2._1) flatMap (_._2.reverse) toList)
-    }
+    } getOrElse Nil
   }
 
   protected def formatForMimeTypes(mimeTypes: String*): Option[String] = {
@@ -149,9 +149,9 @@ trait ApiFormats extends ScalatraKernel {
    * $ - the default format
    */
   def format = {
-    request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
+    httpRequest.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
       val fmt = getFormat
-      request(FormatKey) = fmt
+      httpRequest(FormatKey) = fmt
       fmt
     }
   }
@@ -161,7 +161,7 @@ trait ApiFormats extends ScalatraKernel {
    * whatever was inferred from the request.
    */
   def format_=(formatValue: Symbol) {
-    request(FormatKey) = formatValue.name
+    httpRequest(FormatKey) = formatValue.name
   }
 
   /**
@@ -169,6 +169,6 @@ trait ApiFormats extends ScalatraKernel {
    * whatever was inferred from the request.
    */
   def format_=(formatValue: String) {
-    request(FormatKey) = formatValue
+    httpRequest(FormatKey) = formatValue
   }
 }

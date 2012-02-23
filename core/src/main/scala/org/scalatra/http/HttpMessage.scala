@@ -6,4 +6,6 @@ trait HttpMessage[A] {
   def characterEncoding_=(encoding: String)(implicit a: A): Unit
 
   def contentType(implicit a: A): String
+
+  def header(name: String)(implicit a: A): Option[String]
 }

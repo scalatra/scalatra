@@ -14,7 +14,8 @@ trait HttpRequest[A] extends HttpMessage[A] {
   def method(implicit a: A): HttpMethod
 
   def parameters(implicit a: A): ScalatraKernel.MultiParams
- 
-  def apply(key: String)(implicit a: A): Any
+
+  def get(key: String)(implicit a: A): Option[Any]
+  def apply(key: String)(implicit a: A): Any = get(key).get
   def update(key: String, value: Any)(implicit a: A): Unit
 }
