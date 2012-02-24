@@ -8,7 +8,6 @@ import javax.servlet.DispatcherType
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import http.{HttpRequest, HttpResponse}
 import scala.collection.JavaConversions._
 
 /**

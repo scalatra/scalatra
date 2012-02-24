@@ -3,7 +3,6 @@ package servlet
 
 import java.io.{OutputStream, PrintWriter}
 import javax.servlet.http.HttpServletResponse
-import http.HttpResponse
 
 case class RichResponse(res: HttpServletResponse) extends HttpResponse {
   def status: Int = { res.getStatus }

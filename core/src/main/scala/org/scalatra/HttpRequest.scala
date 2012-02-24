@@ -1,5 +1,4 @@
 package org.scalatra
-package http
 
 import java.net.URI
 import scala.collection.mutable

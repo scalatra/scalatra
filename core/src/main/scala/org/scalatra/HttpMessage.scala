@@ -1,5 +1,4 @@
 package org.scalatra
-package http
 
 trait HttpMessage {
   def characterEncoding: Option[String]

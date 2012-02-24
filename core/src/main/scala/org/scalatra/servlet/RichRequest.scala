@@ -6,7 +6,6 @@ import scala.collection.JavaConversions._
 import scala.io.Source
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
-import http.HttpRequest
 import util.{MultiMap, MultiMapHeadView}
 
 object RichRequest {
