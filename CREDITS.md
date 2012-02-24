@@ -24,6 +24,7 @@
 - [Yung-Luen Lan](http://yllan.org/)
 - [Paul Lambert](http://paulitex.com/)
 - [Dag Liodden](http://github.com/daggerrz)
+- [Massimiliano Mazzarolo](http://github.com/m20o)
 - [Ted Nyman](http://github.com/tnm)
 - [Erik Rozendaal](http://github.com/erikrozendaal)
 - [Srirangan](http://srirangan.net)
