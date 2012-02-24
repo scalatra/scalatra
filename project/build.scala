@@ -25,7 +25,9 @@ object ScalatraBuild extends Build {
     base = file("."),
     settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
-      Unidoc.unidocExclude := Seq("scalatra-example"),
+      // akka and akka2 can't coexist, and it's crashing the scaladoc.
+      // HACK: don't scaladoc akka.
+      Unidoc.unidocExclude := Seq("scalatra-example", "scalatra-akka"),
       (name in Posterous) := "scalatra"
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
