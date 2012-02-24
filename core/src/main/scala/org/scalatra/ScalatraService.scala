@@ -106,7 +106,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
     val result = try {
       runFilters(routes.beforeFilters)
       val actionResult = runRoutes(routes(request.method)).headOption orElse matchOtherMethods() orElse markAsNotFound()
-      handleStatusCode(status) orElse actionResult getOrElse notFound()
+      handleStatusCode(status) orElse actionResult getOrElse doNotFound()
     }
     catch {
       case e: HaltException => renderHaltException(e)
