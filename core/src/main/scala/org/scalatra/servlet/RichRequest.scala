@@ -1,11 +1,12 @@
 package org.scalatra
 package servlet
 
-import scala.collection.{Map => CMap}
+import scala.collection.{Map => CMap, DefaultMap}
 import scala.collection.JavaConversions._
 import scala.io.Source
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
+import java.io.InputStream
 import util.{MultiMap, MultiMapHeadView}
 
 object RichRequest {
@@ -18,7 +19,14 @@ object RichRequest {
 case class RichRequest(r: HttpServletRequest) extends HttpRequest with AttributesMap {
   import RichRequest._
 
+  def serverProtocol = r.getProtocol match {
+    case "HTTP/1.1" => Http11
+    case "HTTP/1.0" => Http10
+  }
+
   def uri = new URI(r.getRequestURL.toString)
+
+  def scheme = r.getScheme
 
   def isSecure = r.isSecure 
 
@@ -27,9 +35,20 @@ case class RichRequest(r: HttpServletRequest) extends HttpRequest with Attribute
    */
   def method = HttpMethod(r.getMethod)
 
+  def path: String = r.getServletPath
+
+  def appPath: String = r.getPathInfo
+
   def parameters: ScalatraKernel.MultiParams = {
     r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
       .transform { (k, v) => v: Seq[String] }
+  }
+
+  object headers extends DefaultMap[String, String] {
+    def get(name: String): Option[String] = Option(r.getHeader(name))
+
+    def iterator: Iterator[(String, String)] = 
+      r.getHeaderNames map { name => (name, r.getHeader(name)) }
   }
   
   def header(name: String): Option[String] =
@@ -45,10 +64,19 @@ case class RichRequest(r: HttpServletRequest) extends HttpRequest with Attribute
   def contentType: Option[String] =
     Option(r.getContentType)
   
-  @deprecated(message = "Use HttpServletRequest.getServerName() instead")
-  def host = r.getServerName
+  def contentLength: Option[Long] = r.getContentLength match {
+    case -1 => None
+    case length => Some(length)
+  }
 
-  @deprecated(message = "Use HttpServletRequest.getServerPort() instead")
+  def serverName = r.getServerName
+
+  @deprecated(message = "Use HttpServletRequest.serverName instead")
+  def host = serverName
+
+  def serverPort = r.getServerPort
+
+  @deprecated(message = "Use HttpServletRequest.serverPort instead")
   def port = Integer.toString(r.getServerPort)
 
   /**
@@ -116,4 +144,7 @@ case class RichRequest(r: HttpServletRequest) extends HttpRequest with Attribute
   def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
 
   protected def attributes = r
+
+  def inputStream: InputStream = r.getInputStream
 }
+
