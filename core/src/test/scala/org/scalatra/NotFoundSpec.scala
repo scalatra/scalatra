@@ -5,6 +5,7 @@ import test.specs2.ScalatraSpec
 class NotFoundSpec extends ScalatraSpec { def is =
   "The notFound block"                          ^
     "should run when no route matches"          ! customNotFound^
+    "should not result in a 404 if the block doesn't" ! customNotFoundStatus^
     "in ScalatraServlet"                        ^
       "should send a 404"                       ! servletNotFoundSends404 ^
                                                 bt^
@@ -52,6 +53,10 @@ class NotFoundSpec extends ScalatraSpec { def is =
 
   def customNotFound = get("/custom/matches-nothing") {
     body must_== "custom not found"
+  }
+
+  def customNotFoundStatus = get("/custom/matches-nothing") {
+    status must_== 200
   }
 
   def servletNotFoundSends404 = get("/default/matches-nothing") {

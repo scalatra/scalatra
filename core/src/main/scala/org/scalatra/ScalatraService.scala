@@ -106,8 +106,10 @@ trait ScalatraService extends Service with CoreDsl with Initializable
   protected def executeRoutes() = {
     val result = try {
       runFilters(routes.beforeFilters)
-      val actionResult = runRoutes(routes(request.method)).headOption orElse matchOtherMethods() orElse markAsNotFound()
-      handleStatusCode(status) orElse actionResult getOrElse doNotFound()
+      val actionResult = runRoutes(routes(request.method)).headOption orElse
+	matchOtherMethods() getOrElse doNotFound()
+      // Give the status code handler a chance to override the actionResult
+      handleStatusCode(status) getOrElse actionResult
     }
     catch {
       case e: HaltException => renderHaltException(e)
@@ -176,18 +178,11 @@ trait ScalatraService extends Service with CoreDsl with Initializable
     routes.appendAfterFilter(Route(transformers, () => fun))
 
   /**
-   * Set a 404 (NOT FOUND) as current response code.
-   */
-  private def markAsNotFound(): Option[Any] = {
-    status = 404
-    None
-  }
-
-  /**
    * Called if no route matches the current request for any method.  The
    * default implementation varies between servlet and filter.
    */
   protected var doNotFound: Action
+
   def notFound(fun: => Any) = doNotFound = { () => fun }
 
   /**
