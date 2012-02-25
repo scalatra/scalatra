@@ -4,7 +4,7 @@ package org.scalatra
 import java.io.{InputStream}
 import util.MultiMap
 import java.net.URI
-import collection.{GenSeq, Map, mutable}
+import collection.{Map, mutable}
 
 /**
  * A representation of an HTTP request.
