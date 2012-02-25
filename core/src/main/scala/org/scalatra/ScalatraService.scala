@@ -1,4 +1,5 @@
 package org.scalatra
+import java.nio.charset.Charset
 
 import javax.servlet._
 import javax.servlet.http._
@@ -178,7 +179,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    * Set a 404 (NOT FOUND) as current response code.
    */
   private def markAsNotFound(): Option[Any] = {
-    response.status = 404
+    status = 404
     None
   }
 
@@ -197,7 +198,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    */
   protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = { allow =>
     status = 405
-    response.setHeader("Allow", allow.mkString(", "))
+    response.headers("Allow") = allow.mkString(", ")
   }
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
@@ -383,9 +384,9 @@ trait ScalatraService extends Service with CoreDsl with Initializable
   protected def renderHaltException(e: HaltException) {
     e match {
       case HaltException(Some(status), Some(reason), _, _) => 
-	response.status = (status, reason)
+	response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) =>
-	response.status = status
+	response.status = ResponseStatus(status)
       case HaltException(None, _, _, _) => // leave status line alone
     }
     e.headers foreach { case(name, value) => 

@@ -3,16 +3,36 @@ package servlet
 
 import java.io.{OutputStream, PrintWriter}
 import javax.servlet.http.HttpServletResponse
+import scala.collection.JavaConversions._
+import scala.collection.mutable.Map
 
 case class RichResponse(res: HttpServletResponse) extends HttpResponse {
-  def status: Int = { res.getStatus }
+  def status: ResponseStatus = ResponseStatus(res.getStatus)
     
-  def status_=(status: Int) { 
-    res.setStatus(status)
+  def status_=(status: ResponseStatus) { 
+    res.setStatus(status.code, status.message)
   }
-  
-  def status_=(status: (Int, String)) { 
-    res.setStatus(status._1, status._2)
+
+  object headers extends Map[String, String] {
+    def get(key: String): Option[String] = 
+      res.getHeaders(key) match {
+	case xs if xs.isEmpty => None
+	case xs => Some(xs mkString ", ")
+      }
+
+    def iterator: Iterator[(String, String)] = 
+      for (name <- res.getHeaderNames.iterator) 
+      yield (name, res.getHeaders(name) mkString ", ")
+
+    def +=(kv: (String, String)): this.type = {
+      res.setHeader(kv._1, kv._2)
+      this
+    }
+
+    def -=(key: String): this.type = {
+      res.setHeader(key, "")
+      this
+    }
   }
   
   def header(name: String) =
@@ -48,4 +68,9 @@ case class RichResponse(res: HttpServletResponse) extends HttpResponse {
 
   def writer: PrintWriter =
     res.getWriter
+
+  def end() = {
+    res.flushBuffer()
+    res.getOutputStream.close()
+  }
 }
