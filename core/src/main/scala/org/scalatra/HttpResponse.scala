@@ -32,8 +32,11 @@ trait HttpResponse extends HttpMessage {
   // Consider an alternate approach.
   def headers: Map[String, String]
 
-  def status: ResponseStatus
-  def status_=(status: ResponseStatus)
+  def statusLine: ResponseStatus
+  def statusLine_=(statusLine: ResponseStatus)
+
+  def status: Int
+  def status_=(code: Int)
   def contentType_=(contentType: Option[String])
   def characterEncoding_=(cs: Option[String])
 //  def chunked: Boolean

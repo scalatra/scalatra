@@ -7,11 +7,14 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 
 case class RichResponse(res: HttpServletResponse) extends HttpResponse {
-  def status: ResponseStatus = ResponseStatus(res.getStatus)
+  def statusLine: ResponseStatus = ResponseStatus(res.getStatus)
+
+  def statusLine_=(statusLine: ResponseStatus) = 
+    res.setStatus(statusLine.code, statusLine.message)
+
+  def status: Int = res.getStatus
     
-  def status_=(status: ResponseStatus) { 
-    res.setStatus(status.code, status.message)
-  }
+  def status_=(code: Int) = statusLine = ResponseStatus(code)
 
   object headers extends Map[String, String] {
     def get(key: String): Option[String] = 

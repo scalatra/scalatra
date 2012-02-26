@@ -378,10 +378,10 @@ trait ScalatraService extends Service with CoreDsl with Initializable
 
   protected def renderHaltException(e: HaltException) {
     e match {
-      case HaltException(Some(status), Some(reason), _, _) => 
-	response.status = ResponseStatus(status, reason)
-      case HaltException(Some(status), None, _, _) =>
-	response.status = ResponseStatus(status)
+      case HaltException(Some(code), Some(reason), _, _) => 
+	response.statusLine = ResponseStatus(code, reason)
+      case HaltException(Some(code), None, _, _) =>
+	response.status = code
       case HaltException(None, _, _, _) => // leave status line alone
     }
     e.headers foreach { case(name, value) => 
