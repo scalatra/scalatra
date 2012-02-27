@@ -7,6 +7,9 @@ trait Backend {
   type Response >: Null
   protected implicit def responseWrapper(response: Response): HttpResponse
 
+  type Session
+  protected implicit def sessionWrapper(session: Session): HttpSession
+
   type Context
   /**
    * This is called servletContextWrapper for historical reasons

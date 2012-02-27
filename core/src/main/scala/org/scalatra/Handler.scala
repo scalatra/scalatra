@@ -1,7 +1,7 @@
 package org.scalatra
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession => ServletSession}
 
 /**
  * An `Handler` is the Scalatra abstraction for an object that operates on a request/response pair.
@@ -23,6 +23,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 trait Handler extends Backend with servlet.ServletApiImplicits {
   type Request = HttpServletRequest
   type Response = HttpServletResponse
+  type Session = ServletSession
   type Context = ServletContext
 
   /**

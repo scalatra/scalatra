@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession => ServletSession}
 import scala.collection.mutable.{Map => MMap, Set => MSet}
 import scala.util.DynamicVariable
 import util.MutableMapWithIndifferentAccess

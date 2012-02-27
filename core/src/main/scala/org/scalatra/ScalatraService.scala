@@ -1,8 +1,6 @@
 package org.scalatra
 import java.nio.charset.Charset
 
-import javax.servlet._
-import javax.servlet.http._
 import scala.util.DynamicVariable
 import scala.util.matching.Regex
 import scala.util.control.ControlThrowable

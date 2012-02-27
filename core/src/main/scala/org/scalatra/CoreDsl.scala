@@ -1,8 +1,5 @@
 package org.scalatra
 
-import javax.servlet.ServletContext
-import javax.servlet.http.{HttpSession}
-
 import ScalatraKernel.MultiParams
 import scala.util.DynamicVariable
 
@@ -78,12 +75,12 @@ trait CoreDsl extends Control {
   /**
    * The current HTTP session.  Creates a session if none exists.
    */
-  implicit def session: HttpSession
+  implicit def session: Session
 
   /**
    * The current HTTP session.  If none exists, None is returned.
    */
-  def sessionOption: Option[HttpSession]
+  def sessionOption: Option[Session]
 
   /**
    * Adds a filter to run before the route.  The filter only runs if each
