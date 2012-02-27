@@ -1,7 +1,6 @@
 package org.scalatra
 
 import java.net.URLEncoder.encode
-import javax.servlet.http.HttpServletResponse
 
 /**
  * Provides utility methods for the creation of URL strings.
