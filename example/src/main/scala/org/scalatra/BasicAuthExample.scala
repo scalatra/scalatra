@@ -22,7 +22,6 @@ object BasicAuthExample {
   trait AuthenticationSupport extends ScentrySupport[MyUser] with BasicAuthSupport[MyUser] { self: ScalatraKernel =>
 
     val realm = "Scalatra Basic Auth Example"
-    protected def contextPath = request.getContextPath
 
     protected def fromSession = { case id: String => MyUser(id)  }
     protected def toSession   = { case usr: MyUser => usr.id }

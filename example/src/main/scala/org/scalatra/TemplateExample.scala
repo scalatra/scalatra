@@ -166,8 +166,6 @@ class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadS
     )
   }
 
-  protected def contextPath = request.getContextPath
-
   post("/echo") {
     java.net.URLEncoder.encode(params("echo"), "UTF-8")
   }

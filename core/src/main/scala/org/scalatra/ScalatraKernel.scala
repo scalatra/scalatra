@@ -50,4 +50,7 @@ trait ScalatraKernel extends ScalatraService with Handler {
   def session = request.getSession
 
   def sessionOption = Option(request.getSession(false))
+
+  override def rewriteUriForSessionTracking(uri: String) = 
+    response.encodeURL(uri)
 }

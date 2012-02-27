@@ -1,32 +1,19 @@
 package org.scalatra
 
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
-import scala.util.DynamicVariable
-import javax.servlet.http.HttpServletResponse
-import org.mockito.Mockito._
-import org.mockito.Matchers._
-import org.mockito.stubbing.Answer
-import org.mockito.invocation.InvocationOnMock
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatra.test.scalatest._
 
-@RunWith(classOf[JUnitRunner])
-class UrlSupportTest extends FunSuite with ShouldMatchers {
-  private val urlSupport = new UrlSupport {
-    def contextPath = "/context"
+class UrlSupportTest extends ScalatraFunSuite {
+  tester.setContextPath("/context")
 
-    val _response = new DynamicVariable[HttpServletResponse]({
-      val response = mock(classOf[HttpServletResponse])
-      when(response.encodeURL(anyString)).thenAnswer(new Answer[String] {
-        def answer(invocation: InvocationOnMock) = invocation.getArguments.head.asInstanceOf[String]
-      })
-      response
-    })
-    def response = _response.value
-  }
+  addServlet(new ScalatraServlet {
+    get("/") {
+      if (params.contains("session")) session // trigger a jsessionid
+      url(params("url"), params - "url") 
+    }
+  }, "/*")
 
-  import urlSupport.url
+  def url(url: String, params: Map[String, String] = Map.empty) = 
+    get("/context/", params + ("url" -> url)) { response.body }
 
   test("a page-relative URL should not have the context path prepended") {
     url("page-relative") should equal ("page-relative")
@@ -45,7 +32,11 @@ class UrlSupportTest extends FunSuite with ShouldMatchers {
   }
 
   test("params should be rendered as a query string") {
-    url("en-to-es", Map("one" -> "uno", "two" -> "dos")) should equal ("en-to-es?one=uno&two=dos")
+    val params = Map("one" -> "uno", "two" -> "dos")
+    val result = url("en-to-es", params) 
+    val Array(path, query) = result.split("""\?""")
+    val urlParams = query.split("&")
+    urlParams.toSet should equal (Set("one=uno", "two=dos"))
   }
 
   test("params should url encode both keys and values in UTF-8") {
@@ -53,10 +44,8 @@ class UrlSupportTest extends FunSuite with ShouldMatchers {
   }
 
   test("encodes URL through response") {
-    val response = mock(classOf[HttpServletResponse])
-    when(response.encodeURL(anyString)).thenReturn("foo;jsessionid=1234")
-    urlSupport._response.withValue(response) {
-      url("foo") should equal ("foo;jsessionid=1234")
+    session {
+      url("foo", Map("session" -> "session")) should include("jsessionid=")
     }
   }
 }

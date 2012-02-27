@@ -12,6 +12,7 @@ import scala.xml.NodeSeq
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import java.lang.{Integer => JInteger}
+import java.net.URLEncoder.encode
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
@@ -498,4 +499,38 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    * insensitve.
    */
   def isDevelopmentMode = environment.toLowerCase.startsWith("dev")
+
+  /**
+   * Returns a context-relative, session-aware URL for a path and specified
+   * parameters.
+   * Finally, the result is run through `response.encodeURL` for a session
+   * ID, if necessary.
+   *
+   * @param path the base path.  If a path begins with '/', then the context
+   * path will be prepended to the result
+   *
+   * @param params params, to be appended in the form of a query string
+   *
+   * @return the path plus the query string, if any.  The path is run through
+   * `response.encodeURL` to add any necessary session tracking parameters.
+   */
+  def url(path: String, params: Iterable[(String, Any)] = Iterable.empty): String = {
+    val newPath = path match {
+      case x if x.startsWith("/") => contextPath + path
+      case _ => path
+    }
+    val pairs = params map { case(key, value) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8") }
+    val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
+    rewriteUriForSessionTracking(newPath+queryString)
+  }
+
+  protected def contextPath: String = servletContext.getContextPath
+
+  /**
+   * Some backends support rewriting URLs for tracking sessions without
+   * cookies.  This abstracts that process across backends.
+   *
+   * The default implementation returns its argument.
+   */
+  def rewriteUriForSessionTracking(uri: String) = uri
 }
