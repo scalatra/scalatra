@@ -1,6 +1,5 @@
 package org.scalatra
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession => ServletSession}
 import scala.collection.mutable.{Map => MMap, Set => MSet}
 import scala.util.DynamicVariable
 import util.MutableMapWithIndifferentAccess
@@ -128,10 +127,11 @@ object FlashMapSupport {
  * }}}
  * @see FlashMap
  */
-trait FlashMapSupport extends ScalatraKernel {
+trait FlashMapSupport extends ScalatraService { this: Backend =>
   import FlashMapSupport._
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  abstract override def apply(implicit req: Request, res: Response) = {
+    _request.withValue(req) {
       val f = getFlash(req)
       val isOutermost = !req.contains(lockKey)
       if (isOutermost) {
@@ -140,8 +140,8 @@ trait FlashMapSupport extends ScalatraKernel {
           f.flag()
         }
       }
-      req.getSession.setAttribute(sessionKey, f)
-      super.handle(req, res)
+      session(sessionKey) = f
+      val result = super.apply(req, res)
       /*
        * http://github.org/scalatra/scalatra/issues/41
        * http://github.org/scalatra/scalatra/issues/57
@@ -152,13 +152,13 @@ trait FlashMapSupport extends ScalatraKernel {
       if (isOutermost) {
         f.sweep()
       }
+      result
+    }
   }
 
-  private def getFlash(req: HttpServletRequest) =
-    req.getSession.getAttribute(sessionKey) match {
-      case flashMap: FlashMap => flashMap
-      case _ => new FlashMap()
-    }
+  private def getFlash(req: Request): FlashMap =
+    session.get(sessionKey).map { _.asInstanceOf[FlashMap] }
+      .getOrElse(new FlashMap)
 
   /**
    * Returns the [[org.scalatra.FlashMap]] instance for the current request.
@@ -168,5 +168,5 @@ trait FlashMapSupport extends ScalatraKernel {
   /**
    * Determines whether unused flash entries should be swept.  The default is false.
    */
-  protected def sweepUnusedFlashEntries(req: HttpServletRequest) = false
+  protected def sweepUnusedFlashEntries(req: Request) = false
 }
