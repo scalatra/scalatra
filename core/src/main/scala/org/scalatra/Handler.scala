@@ -1,5 +1,6 @@
 package org.scalatra
 
+import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /**
@@ -22,6 +23,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 trait Handler extends Backend with servlet.ServletApiImplicits {
   type Request = HttpServletRequest
   type Response = HttpServletResponse
+  type Context = ServletContext
 
   /**
    * Handles a request and writes to the response.

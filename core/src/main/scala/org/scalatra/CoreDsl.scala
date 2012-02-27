@@ -15,7 +15,7 @@ trait CoreDsl extends Control {
   /**
    * The current servlet context
    */
-  implicit def servletContext: ServletContext
+  implicit def servletContext: Context
 
   /**
    * The current request

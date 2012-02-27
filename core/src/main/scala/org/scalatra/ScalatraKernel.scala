@@ -2,19 +2,10 @@ package org.scalatra
 
 import javax.servlet._
 import javax.servlet.http._
-import scala.util.DynamicVariable
-import scala.util.matching.Regex
-import scala.util.control.ControlThrowable
 import scala.collection.JavaConversions._
-import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, SynchronizedBuffer}
-import scala.xml.NodeSeq
-import util.io.zeroCopy
-import java.io.{File, FileInputStream}
-import java.lang.{Integer => JInteger}
-import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
-import scala.annotation.tailrec
+import scala.collection.immutable.DefaultMap
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
+import java.{util => ju}
 
 object ScalatraKernel
 {
@@ -53,4 +44,23 @@ trait ScalatraKernel extends ScalatraService with Handler {
 
   override def rewriteUriForSessionTracking(uri: String) = 
     response.encodeURL(uri)
+
+  type Config <: {
+    def getServletContext(): ServletContext
+    def getInitParameter(name: String): String
+    def getInitParameterNames(): ju.Enumeration[_]
+  }
+
+  protected implicit def configWrapper(config: Config) = new RichConfig {
+    def context = config.getServletContext
+
+    object initParameters extends DefaultMap[String, String] {
+      def get(key: String): Option[String] =
+	Option(config.getInitParameter(key))
+
+      def iterator: Iterator[(String, String)] =
+	for (name <- config.getInitParameterNames.asInstanceOf[ju.Enumeration[String]].toIterator) 
+	  yield (name, config.getInitParameter(name))
+    }
+  }
 }

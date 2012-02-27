@@ -479,12 +479,12 @@ trait ScalatraService extends Service with CoreDsl with Initializable
    * `None` if the parameter is not set.
    */
   def initParameter(name: String): Option[String] = 
-    Option(config.getInitParameter(name))
+    config.initParameters.get(name)
 
   /**
    * The servlet context in which this kernel runs.
    */
-  def servletContext: ServletContext = config.getServletContext
+  def servletContext: Context = config.context
 
   /**
    * A free form string representing the environment.
@@ -524,7 +524,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
     rewriteUriForSessionTracking(newPath+queryString)
   }
 
-  protected def contextPath: String = servletContext.getContextPath
+  protected def contextPath: String = servletContext.contextPath
 
   /**
    * Some backends support rewriting URLs for tracking sessions without
