@@ -5,11 +5,13 @@ import java.net.{MalformedURLException, URL}
 import java.util.EnumSet
 import javax.servlet.{DispatcherType, Filter, ServletContext}
 import javax.servlet.http.{HttpServlet, HttpServletRequest}
+import scala.collection.JavaConversions._
+import scala.collection.mutable
 
 /**
  * Extension methods to the standard ServletContext.
  */
-class RichServletContext(sc: ServletContext) extends AttributesMap {
+class RichServletContext(sc: ServletContext) extends ApplicationContext with AttributesMap {
   protected def attributes = sc
 
   /**
@@ -40,14 +42,45 @@ class RichServletContext(sc: ServletContext) extends AttributesMap {
     resource(path)
   }
 
-  def mount(servlet: HttpServlet, urlPattern: String) {
+  def mount(service: Service, urlPattern: String) {
+    service match {
+      case servlet: HttpServlet => mountServlet(servlet, urlPattern)
+      case filter: Filter => mountFilter(filter, urlPattern)
+      case _ => error("Don't know how to mount this service to a servletContext: " + service.getClass)
+    }
+  }
+
+  private def mountServlet(servlet: HttpServlet, urlPattern: String) {
     val reg = sc.addServlet(servlet.getClass.getName, servlet)
     reg.addMapping(urlPattern)
   }
 
-  def mount(filter: Filter, urlPattern: String)(implicit dispatchers: EnumSet[DispatcherType]) {
+  private def mountFilter(filter: Filter, urlPattern: String) {
     val reg = sc.addFilter(filter.getClass.getName, filter)
+    // We don't have an elegant way of threading this all the way through
+    // in an abstract fashion, so we'll dispatch on everything.
+    val dispatchers = EnumSet.allOf(classOf[DispatcherType])
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
+
+  object initParameters extends mutable.Map[String, String] {
+    def get(key: String): Option[String] = Option(sc.getInitParameter(key))
+
+    def iterator: Iterator[(String, String)] = 
+      for (name <- sc.getInitParameterNames.toIterator) 
+      yield (name, sc.getInitParameter(name))
+
+    def +=(kv: (String, String)): this.type = {
+      sc.setInitParameter(kv._1, kv._2)
+      this
+    }
+
+    def -=(key: String): this.type = {
+      sc.setInitParameter(key, null)
+      this
+    }
+  }
+
+  def contextPath = sc.getContextPath
 }
 

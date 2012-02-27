@@ -1,16 +1,15 @@
 import org.scalatra._
-import javax.servlet.ServletContext
 
 class Scalatra extends LifeCycle {
-  override def init(servletContext: ServletContext) {
-    servletContext.mount(new TemplateExample, "/*")
-    servletContext.mount(new BasicAuthExample, "/auth/*")
-    servletContext.mount(new DocumentExample, "/docs/*")
-    servletContext.mount(new Servlet30ChatExample, "/chat_30/*")
+  override def init(context: ApplicationContext) {
+    context.mount(new TemplateExample, "/*")
+    context.mount(new BasicAuthExample, "/auth/*")
+    context.mount(new DocumentExample, "/docs/*")
+    context.mount(new Servlet30ChatExample, "/chat_30/*")
     // TODO servlet init params
     // servletContext.mount(new MeteorServlet, "/meteor/*")
     // org.atmosphere.servlet -> org.scalatra.MeteorChatExample
-    servletContext.mount(new CookiesExample, "/cookies-example/*")
-    servletContext.mount(new FilterExample, "/*")
+    context.mount(new CookiesExample, "/cookies-example/*")
+    context.mount(new FilterExample, "/*")
   }
 }
