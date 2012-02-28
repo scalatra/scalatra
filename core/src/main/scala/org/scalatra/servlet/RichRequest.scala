@@ -30,14 +30,17 @@ case class RichRequest(r: HttpServletRequest) extends HttpRequest with Attribute
 
   def isSecure = r.isSecure 
 
-  /**
-   * Returns the request's method.
-   */
-  def method = HttpMethod(r.getMethod)
+  def requestMethod = HttpMethod(r.getMethod)
 
-  def path: String = r.getServletPath
+  // Moved to conform with what similar specs call it
+  @deprecated("Use requestMethod") // Since 2.1
+  def method = requestMethod
 
-  def appPath: String = r.getPathInfo
+  def pathInfo: String = Option(r.getPathInfo) getOrElse ""
+
+  def scriptName: String = r.getServletPath
+
+  def queryString: String = Option(r.getQueryString) getOrElse ""
 
   def parameters: ScalatraKernel.MultiParams = {
     r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap

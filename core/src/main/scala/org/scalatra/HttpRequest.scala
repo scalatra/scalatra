@@ -13,30 +13,33 @@ trait HttpRequest extends HttpMessage with mutable.Map[String, AnyRef] {
   /**
    * The HTTP request method, such as GET or POST
    */
-  def method: HttpMethod
+  def requestMethod: HttpMethod
 
   def uri: URI
 
   def isSecure: Boolean
 
   /**
-   * The initial portion of the request URL's "path" that corresponds to the application object, so that the
-   * application knows its virtual "location". This may be an empty string, if the application corresponds to
-   * the "root" of the server.
+   * The initial portion of the request URL's "path" that corresponds to
+   * the application object, so that the application knows its virtual
+   * "location". This may be an empty string, if the application corresponds
+   * to the "root" of the server.
    */
-  def appPath: String
+  def scriptName: String
 
   /**
-   * The remainder of the request URL's "path", designating the virtual "location" of the request's target within
-   * the application. This may be an empty string, if the request URL targets the application root and does not have
-   * a trailing slash.
+   * The remainder of the request URL's "path", designating the virtual
+   * "location" of the request's target within the application. This may be
+   * an empty string, if the request URL targets the application root and
+   * does not have a trailing slash.
    */
-  def path: String
+  def pathInfo: String
 
   /**
-   * The portion of the request URL that follows the ?, if any. May be empty, but is always required!
+   * The portion of the request URL that follows the ?, if any. May be
+   * empty, but is always required!
    */
-  // def queryString: MultiMap
+  def queryString: String
 
   /**
    * The contents of any Content-Type fields in the HTTP request, or None if absent.
@@ -49,15 +52,16 @@ trait HttpRequest extends HttpMessage with mutable.Map[String, AnyRef] {
   def contentLength: Option[Long]
 
   /**
-   * When combined with scriptName, pathInfo, and serverPort, these variables can be used to complete the URL.
-   * Note, however, that the "Host" header, if present, should be used in preference to serverName for reconstructing
+   * When combined with scriptName, pathInfo, and serverPort, these variables
+   * can be used to complete the URL.  Note, however, that the "Host" header,
+   * if present, should be used in preference to serverName for reconstructing
    * the request URL.
    */
   def serverName: String
 
   /**
-   * When combined with scriptName, pathInfo, and serverName, these variables can be used to complete the URL.
-   * See serverName for more details.
+   * When combined with scriptName, pathInfo, and serverName, these variables
+   * can be used to complete the URL.  See serverName for more details.
    */
   def serverPort: Int
 

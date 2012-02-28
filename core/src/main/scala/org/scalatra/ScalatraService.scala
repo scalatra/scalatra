@@ -105,7 +105,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
   protected def executeRoutes() = {
     val result = try {
       runFilters(routes.beforeFilters)
-      val actionResult = runRoutes(routes(request.method)).headOption orElse
+      val actionResult = runRoutes(routes(request.requestMethod)).headOption orElse
 	matchOtherMethods() getOrElse doNotFound()
       // Give the status code handler a chance to override the actionResult
       handleStatusCode(status) getOrElse actionResult
@@ -197,7 +197,7 @@ trait ScalatraService extends Service with CoreDsl with Initializable
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
   private def matchOtherMethods(): Option[Any] = {
-    val allow = routes.matchingMethodsExcept(request.method)
+    val allow = routes.matchingMethodsExcept(request.requestMethod)
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
 
