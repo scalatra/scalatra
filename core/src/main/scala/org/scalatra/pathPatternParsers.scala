@@ -1,6 +1,5 @@
 package org.scalatra
 
-import scala.collection.mutable.{HashMap, ListBuffer}
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 import java.util.regex.Pattern.{quote => escape}
@@ -13,15 +12,21 @@ import util.MultiMap
  */
 case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
   def apply(path: String): Option[MultiParams] = {
-    regex.findFirstMatchIn(path)
-      .map { captureGroupNames zip _.subgroups }
-      .map { pairs =>
-      val multiParams = new HashMap[String, ListBuffer[String]]
-      pairs foreach { case (k, v) =>
-        if (v != null) multiParams.getOrElseUpdate(k, new ListBuffer) += v
+    // This is a performance hotspot.  Hideous mutatations ahead.
+    val m = regex.pattern.matcher(path)
+    var multiParams = Map[String, Seq[String]]()
+    if (m.matches) {
+      var i = 0
+      captureGroupNames foreach { name =>
+	i += 1
+	val value = m.group(i)
+        if (value != null) {
+	  val values = multiParams.getOrElse(name, Vector()) :+ value
+	  multiParams = multiParams.updated(name, values)
+	}
       }
-      MultiMap(Map() ++ multiParams)
-    }
+      Some(multiParams)
+    } else None
   }
 
   def +(pathPattern: PathPattern): PathPattern = PathPattern(
