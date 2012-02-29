@@ -4,7 +4,10 @@ import java.net.URL
 import scala.collection.mutable
 
 trait ApplicationContext extends mutable.Map[String, AnyRef] {
-  def mount(service: Service, urlPattern: String): Unit
+  def mount(service: Service, urlPattern: String, name: String): Unit
+
+  def mount(service: Service, urlPattern: String): Unit =
+    mount(service, urlPattern, service.getClass.getName)
 
   def contextPath: String
 

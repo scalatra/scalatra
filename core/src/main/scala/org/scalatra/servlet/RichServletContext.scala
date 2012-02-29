@@ -42,21 +42,21 @@ class RichServletContext(sc: ServletContext) extends ApplicationContext with Att
     resource(path)
   }
 
-  def mount(service: Service, urlPattern: String) {
+  def mount(service: Service, urlPattern: String, name: String) {
     service match {
-      case servlet: HttpServlet => mountServlet(servlet, urlPattern)
-      case filter: Filter => mountFilter(filter, urlPattern)
+      case servlet: HttpServlet => mountServlet(servlet, urlPattern, name)
+      case filter: Filter => mountFilter(filter, urlPattern, name)
       case _ => error("Don't know how to mount this service to a servletContext: " + service.getClass)
     }
   }
 
-  private def mountServlet(servlet: HttpServlet, urlPattern: String) {
-    val reg = sc.addServlet(servlet.getClass.getName, servlet)
+  private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String) {
+    val reg = sc.addServlet(name, servlet)
     reg.addMapping(urlPattern)
   }
 
-  private def mountFilter(filter: Filter, urlPattern: String) {
-    val reg = sc.addFilter(filter.getClass.getName, filter)
+  private def mountFilter(filter: Filter, urlPattern: String, name: String) {
+    val reg = sc.addFilter(name, filter)
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
     val dispatchers = EnumSet.allOf(classOf[DispatcherType])
