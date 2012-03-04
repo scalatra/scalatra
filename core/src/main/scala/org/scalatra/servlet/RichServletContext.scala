@@ -42,11 +42,11 @@ class RichServletContext(sc: ServletContext) extends ApplicationContext with Att
     resource(path)
   }
 
-  def mount(service: Service, urlPattern: String, name: String) {
-    service match {
+  def mount(handler: Handler, urlPattern: String, name: String) {
+    handler match {
       case servlet: HttpServlet => mountServlet(servlet, urlPattern, name)
       case filter: Filter => mountFilter(filter, urlPattern, name)
-      case _ => error("Don't know how to mount this service to a servletContext: " + service.getClass)
+      case _ => error("Don't know how to mount this service to a servletContext: " + handler.getClass)
     }
   }
 

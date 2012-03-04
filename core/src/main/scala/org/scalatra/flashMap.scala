@@ -127,10 +127,12 @@ object FlashMapSupport {
  * }}}
  * @see FlashMap
  */
-trait FlashMapSupport extends ScalatraService { this: Backend =>
+trait FlashMapSupport extends Handler {
+  this: ScalatraKernel =>
+
   import FlashMapSupport._
 
-  abstract override def apply(implicit req: Request, res: Response) = {
+  abstract override def handle(req: Request, res: Response) {
     _request.withValue(req) {
       val f = getFlash(req)
       val isOutermost = !req.contains(lockKey)
@@ -141,7 +143,7 @@ trait FlashMapSupport extends ScalatraService { this: Backend =>
         }
       }
       session(sessionKey) = f
-      val result = super.apply(req, res)
+      super.handle(req, res)
       /*
        * http://github.org/scalatra/scalatra/issues/41
        * http://github.org/scalatra/scalatra/issues/57
@@ -152,7 +154,6 @@ trait FlashMapSupport extends ScalatraService { this: Backend =>
       if (isOutermost) {
         f.sweep()
       }
-      result
     }
   }
 

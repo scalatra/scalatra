@@ -6,8 +6,7 @@ package org.scalatra
  * HttpServlet and a Filter.
  */
 trait Initializable { 
-  this: Backend =>
-  
+  type Context
   type Config 
 
   trait RichConfig {

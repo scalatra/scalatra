@@ -6,8 +6,18 @@ import scala.util.DynamicVariable
 /**
  * The core DSL of a Scalatra application.
  */
-trait CoreDsl extends Control {
-  this: Backend =>
+trait CoreDsl extends Handler with Control {
+  type Session
+  type Context
+
+  // Traits can't have view bounds.  These methods guarantee that we can
+  // convert the raw types to operate over them abstractly.
+  // 
+  // Type classes would be a more appealing solution than views, but
+  // we wish to maintain source compatibility with Scalatra 2.0, which
+  // expects servlet types for `session`.
+  protected implicit def sessionWrapper(session: Session): HttpSession
+  protected implicit def servletContextWrapper(context: Context): ApplicationContext
 
   /**
    * The current servlet context
@@ -211,5 +221,4 @@ trait CoreDsl extends Control {
    * @see error
    */
   def trap(code: Int, transformers: RouteTransformer*)(block: => Any): Unit = trap(Range(code, code+1), transformers:_*)(block)
-
 }
