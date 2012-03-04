@@ -15,14 +15,17 @@ trait CoreDsl extends Handler with Control {
   // 
   // Type classes would be a more appealing solution than views, but
   // we wish to maintain source compatibility with Scalatra 2.0, which
-  // expects servlet types for `session`.
+  // expects servlet types for `session` and `applicationContext`.
   protected implicit def sessionWrapper(session: SessionT): Session
-  protected implicit def servletContextWrapper(context: ApplicationContextT): ApplicationContext
+  protected implicit def applicationContextWrapper(context: ApplicationContextT): ApplicationContext
 
   /**
    * The current servlet context
    */
-  implicit def servletContext: ApplicationContextT
+  implicit def applicationContext: ApplicationContextT
+
+  @deprecated("Use applicationContext instead") // Since 2.1
+  def servletContext: ApplicationContextT = applicationContext
 
   /**
    * The current request

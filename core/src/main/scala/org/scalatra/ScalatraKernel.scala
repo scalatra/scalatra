@@ -490,7 +490,7 @@ trait ScalatraKernel extends ServletDsl with Initializable
   /**
    * The servlet context in which this kernel runs.
    */
-  def servletContext: ApplicationContextT = config.context
+  def applicationContext: ApplicationContextT = config.context
 
   /**
    * A free form string representing the environment.

@@ -17,7 +17,8 @@ trait ServletApiImplicits {
   implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
   implicit def responseWrapper(r: HttpServletResponse) = RichResponse(r)
   implicit def sessionWrapper(s: ServletSession) = new RichSession(s)
-  implicit def servletContextWrapper(sc: ServletContext) = new RichServletContext(sc)
+  implicit def applicationContextWrapper(sc: ServletContext) = 
+    new RichServletContext(sc)
   implicit def DefaultDispatchers: EnumSet[DispatcherType] =
     EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC)
 }
