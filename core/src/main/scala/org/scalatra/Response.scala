@@ -26,7 +26,7 @@ case class ResponseStatus(code: Int, message: String = "TODO") extends Ordered[R
   }
 }
 
-trait HttpResponse extends HttpMessage {
+trait Response extends HttpMessage {
   
   // Implementing this as a Map in the Servlet API is awkward.
   // Consider an alternate approach.

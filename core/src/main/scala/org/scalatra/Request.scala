@@ -9,7 +9,7 @@ import collection.{Map, mutable}
 /**
  * A representation of an HTTP request.
  */
-trait HttpRequest extends HttpMessage with mutable.Map[String, AnyRef] {
+trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
   /**
    * The HTTP request method, such as GET or POST
    */

@@ -7,8 +7,8 @@ import scala.util.DynamicVariable
  * The core DSL of a Scalatra application.
  */
 trait CoreDsl extends Handler with Control {
-  type Session
-  type Context
+  type SessionT
+  type ApplicationContextT
 
   // Traits can't have view bounds.  These methods guarantee that we can
   // convert the raw types to operate over them abstractly.
@@ -16,18 +16,18 @@ trait CoreDsl extends Handler with Control {
   // Type classes would be a more appealing solution than views, but
   // we wish to maintain source compatibility with Scalatra 2.0, which
   // expects servlet types for `session`.
-  protected implicit def sessionWrapper(session: Session): HttpSession
-  protected implicit def servletContextWrapper(context: Context): ApplicationContext
+  protected implicit def sessionWrapper(session: SessionT): Session
+  protected implicit def servletContextWrapper(context: ApplicationContextT): ApplicationContext
 
   /**
    * The current servlet context
    */
-  implicit def servletContext: Context
+  implicit def servletContext: ApplicationContextT
 
   /**
    * The current request
    */
-  implicit def request: Request
+  implicit def request: RequestT
 
   /**
    * A map of the current parameters.  The map contains the head of every
@@ -48,7 +48,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * The current response.
    */
-  implicit def response: Response
+  implicit def response: ResponseT
 
   /**
    * Gets the content type of the current response.
@@ -85,12 +85,12 @@ trait CoreDsl extends Handler with Control {
   /**
    * The current HTTP session.  Creates a session if none exists.
    */
-  implicit def session: Session
+  implicit def session: SessionT
 
   /**
    * The current HTTP session.  If none exists, None is returned.
    */
-  def sessionOption: Option[Session]
+  def sessionOption: Option[SessionT]
 
   /**
    * Adds a filter to run before the route.  The filter only runs if each

@@ -8,15 +8,15 @@ import scala.collection.immutable.DefaultMap
 import scala.collection.JavaConversions._
 
 trait ServletDsl extends CoreDsl with ServletHandler with Initializable {
-  type Session = HttpSession
-  type Context = ServletContext
-  type Config <: {
+  type SessionT = HttpSession
+  type ApplicationContextT = ServletContext
+  type ConfigT <: {
     def getServletContext(): ServletContext
     def getInitParameter(name: String): String
     def getInitParameterNames(): ju.Enumeration[String]
   }
 
-  protected implicit def configWrapper(config: Config) = new RichConfig {
+  protected implicit def configWrapper(config: ConfigT) = new Config {
     def context = config.getServletContext
 
     object initParameters extends DefaultMap[String, String] {
@@ -29,8 +29,8 @@ trait ServletDsl extends CoreDsl with ServletHandler with Initializable {
     }
   }
 
-  override implicit def session: Session = request.getSession
+  override implicit def session: SessionT = request.getSession
 
-  override implicit def sessionOption: Option[Session] =
+  override implicit def sessionOption: Option[SessionT] =
     Option(request.getSession(false))
 }

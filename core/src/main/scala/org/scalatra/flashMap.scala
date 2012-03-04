@@ -132,7 +132,7 @@ trait FlashMapSupport extends Handler {
 
   import FlashMapSupport._
 
-  abstract override def handle(req: Request, res: Response) {
+  abstract override def handle(req: RequestT, res: ResponseT) {
     _request.withValue(req) {
       val f = getFlash(req)
       val isOutermost = !req.contains(lockKey)
@@ -157,7 +157,7 @@ trait FlashMapSupport extends Handler {
     }
   }
 
-  private def getFlash(req: Request): FlashMap =
+  private def getFlash(req: RequestT): FlashMap =
     session.get(sessionKey).map { _.asInstanceOf[FlashMap] }
       .getOrElse(new FlashMap)
 
@@ -169,5 +169,5 @@ trait FlashMapSupport extends Handler {
   /**
    * Determines whether unused flash entries should be swept.  The default is false.
    */
-  protected def sweepUnusedFlashEntries(req: Request) = false
+  protected def sweepUnusedFlashEntries(req: RequestT) = false
 }

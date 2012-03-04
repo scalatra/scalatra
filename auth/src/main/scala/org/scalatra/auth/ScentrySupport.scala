@@ -24,7 +24,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   private var _strategiesFromConfig = List[String]()
 
-  abstract override def initialize(config: Config) {
+  abstract override def initialize(config: ConfigT) {
     super.initialize(config)
     readStrategiesFromConfig(config)
   }

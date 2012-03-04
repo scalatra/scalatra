@@ -49,7 +49,7 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
 
   methodNotAllowed { _ => filterChain.doFilter(request, response) }
 
-  type Config = FilterConfig
+  type ConfigT = FilterConfig
 
   // see Initializable.initialize for why
   def init(filterConfig: FilterConfig) = initialize(filterConfig)

@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 
-case class RichResponse(res: HttpServletResponse) extends HttpResponse {
+case class RichResponse(res: HttpServletResponse) extends Response {
   def statusLine: ResponseStatus = ResponseStatus(res.getStatus)
 
   def statusLine_=(statusLine: ResponseStatus) = 

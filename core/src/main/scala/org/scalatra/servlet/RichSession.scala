@@ -6,7 +6,7 @@ import javax.servlet.http.{HttpSession => ServletSession}
 /**
  * Extension methods to the standard HttpSession.
  */
-class RichSession(session: ServletSession) extends HttpSession with AttributesMap {
+class RichSession(session: ServletSession) extends Session with AttributesMap {
   def id = session.getId
 
   protected def attributes = session

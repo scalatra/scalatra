@@ -87,7 +87,7 @@ abstract class ScalatraServlet
     }
   }
 
-  type Config = ServletConfig
+  type ConfigT = ServletConfig
 
   override def init(config: ServletConfig) = {
     super.init(config)

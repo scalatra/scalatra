@@ -6,7 +6,7 @@ import java.net.URI
  * Redirects unsecured requests to the corresponding secure URL.
  */
 trait SslRequirement extends Handler { 
-  abstract override def handle(req: Request, res: Response) {
+  abstract override def handle(req: RequestT, res: ResponseT) {
     if (!req.isSecure) {
       val oldUri = req.uri
       val port = securePortMap.lift(oldUri.getPort) getOrElse 443

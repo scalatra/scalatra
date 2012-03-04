@@ -6,14 +6,14 @@ package org.scalatra
  * HttpServlet and a Filter.
  */
 trait Initializable { 
-  type Context
-  type Config 
+  type ApplicationContextT
+  type ConfigT
 
-  trait RichConfig {
-    def context: Context
+  trait Config {
+    def context: ApplicationContextT
     def initParameters: Map[String, String]
   }
-  protected implicit def configWrapper(config: Config): RichConfig
+  protected implicit def configWrapper(config: ConfigT): Config
 
   /**
    * A hook to initialize the class with some configuration after it has
@@ -22,5 +22,5 @@ trait Initializable {
    * Not called init because GenericServlet doesn't override it, and then
    * we get into https://lampsvn.epfl.ch/trac/scala/ticket/2497.
    */
-  def initialize(config: Config)
+  def initialize(config: ConfigT)
 }

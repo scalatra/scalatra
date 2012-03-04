@@ -61,7 +61,7 @@ trait ScalatraKernel extends ServletDsl with Initializable
    *
    * @see #response
    */
-  protected val _response = new DynamicVariable[Response](null)
+  protected val _response = new DynamicVariable[ResponseT](null)
 
   /**
    * A dynamic variable containing the currently-scoped request.  Should
@@ -69,7 +69,7 @@ trait ScalatraKernel extends ServletDsl with Initializable
    *
    * @see #request
    */
-  protected val _request = new DynamicVariable[Request](null)
+  protected val _request = new DynamicVariable[RequestT](null)
 
 
   /**
@@ -83,7 +83,7 @@ trait ScalatraKernel extends ServletDsl with Initializable
    * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
    *      `executeRoutes()`.
    */
-  def handle(request: Request, response: Response) {
+  def handle(request: RequestT, response: ResponseT) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
     if (request.getCharacterEncoding == null)
@@ -474,7 +474,7 @@ trait ScalatraKernel extends ServletDsl with Initializable
    *
    * @param config the configuration.
    */
-  def initialize(config: Config) = this.config = config
+  def initialize(config: ConfigT) = this.config = config
 
   /**
    * Gets an init paramter from the config.
@@ -490,7 +490,7 @@ trait ScalatraKernel extends ServletDsl with Initializable
   /**
    * The servlet context in which this kernel runs.
    */
-  def servletContext: Context = config.context
+  def servletContext: ApplicationContextT = config.context
 
   /**
    * A free form string representing the environment.

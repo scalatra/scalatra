@@ -19,13 +19,13 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
  * `Handler` instances are usually shared among threads thus any state change produced in this method (outsid of side effects on the arguments to `handle(req,res)` should be wrapped in a [[scala.util.DynamicVariable]] , which is thread-local.
  */
 trait Handler {
-  type Request
-  type Response
+  type RequestT
+  type ResponseT
 
   /**
    * Handles a request and writes to the response.
    */
-  def handle(request: Request, res: Response): Unit
+  def handle(request: RequestT, res: ResponseT): Unit
 
   // Traits can't have view bounds.  These methods guarantee that we can
   // convert the raw types to operate over them abstractly.
@@ -33,7 +33,7 @@ trait Handler {
   // Type classes would be a more appealing solution than views, but
   // we wish to maintain source compatibility with Scalatra 2.0, which
   // expects servlet types for `request` and `response`.
-  protected implicit def requestWrapper(request: Request): HttpRequest
-  protected implicit def responseWrapper(response: Response): HttpResponse
+  protected implicit def requestWrapper(request: RequestT): Request
+  protected implicit def responseWrapper(response: ResponseT): Response
 }
 

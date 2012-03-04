@@ -40,7 +40,7 @@ trait ScalateSupport extends ScalatraKernel {
    */
   protected[scalatra] var templateEngine: TemplateEngine = _
 
-  abstract override def initialize(config: Config) {
+  abstract override def initialize(config: ConfigT) {
     super.initialize(config)
     templateEngine = createTemplateEngine(config)
   }
@@ -50,7 +50,7 @@ trait ScalateSupport extends ScalatraKernel {
    * override this unless you have created a ScalatraKernel extension outside
    * an HttpServlet or Filter.
    */
-  protected def createTemplateEngine(config: Config): TemplateEngine =
+  protected def createTemplateEngine(config: ConfigT): TemplateEngine =
     config match {
       case servletConfig: ServletConfig =>
         new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine

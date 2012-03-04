@@ -16,7 +16,7 @@ object RichRequest {
 /**
  * Extension methods to a standard HttpServletRequest.
  */
-case class RichRequest(r: HttpServletRequest) extends HttpRequest with AttributesMap {
+case class RichRequest(r: HttpServletRequest) extends Request with AttributesMap {
   import RichRequest._
 
   def serverProtocol = r.getProtocol match {
