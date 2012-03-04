@@ -4,23 +4,38 @@ import ScalatraKernel.MultiParams
 import scala.util.DynamicVariable
 
 /**
- * The core DSL of a Scalatra application.
+ * The core Scalatra DSL.
  */
 trait CoreDsl extends Handler with Control {
+  /**
+   * The type of session supported by this handler.  May be clientside or
+   * serverside.  Must be viewable as a [[org.scalatra.Request]].
+   */
   type SessionT
+
+  /**
+   * A view of SessionT as a [[org.scalatra.Session]].  This allows
+   * backward compatibility with Scalatra applications written directly
+   * against the Servlet API.
+   */
+  protected implicit def sessionWrapper(session: SessionT): Session
+
+  /**
+   * The type of application context supported by this application.
+   * Must be viewable as an [[org.scalatra.ApplicationContext]].
+   */
   type ApplicationContextT
 
-  // Traits can't have view bounds.  These methods guarantee that we can
-  // convert the raw types to operate over them abstractly.
-  // 
-  // Type classes would be a more appealing solution than views, but
-  // we wish to maintain source compatibility with Scalatra 2.0, which
-  // expects servlet types for `session` and `applicationContext`.
-  protected implicit def sessionWrapper(session: SessionT): Session
+  /**
+   * A view of ApplicationContextT as a [[org.scalatra.ApplicationContext]].
+   * This allows backward compatibility with Scalatra applications written
+   * directly against the Servlet API.
+   */
   protected implicit def applicationContextWrapper(context: ApplicationContextT): ApplicationContext
 
   /**
-   * The current servlet context
+   * The application context.  It is shared among all handlers within this
+   * application.
    */
   implicit def applicationContext: ApplicationContextT
 
