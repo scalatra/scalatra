@@ -210,10 +210,11 @@ trait CoreDsl extends Handler with Control {
    *   }
    }* }}}
    }}*/
-  def trap(codes: Range, transformers: RouteTransformer*)(block: => Any): Unit
+  def trap(codes: Range)(block: => Any): Unit
 
   /**
    * @see error
    */
-  def trap(code: Int, transformers: RouteTransformer*)(block: => Any): Unit = trap(Range(code, code+1), transformers:_*)(block)
+  def trap(code: Int)(block: => Any): Unit = 
+    trap(Range(code, code+1))(block)
 }

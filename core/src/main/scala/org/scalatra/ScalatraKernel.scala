@@ -376,7 +376,8 @@ trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
 
   def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
 
-  def trap(codes: Range, transformers: RouteTransformer*)(block: => Any) = addStatusRoute(codes, Seq(statusCodes2RouteTransformer(codes)) ++ transformers, block)
+  def trap(codes: Range)(block: => Any) = 
+    addStatusRoute(codes, Seq(statusCodes2RouteTransformer(codes)), block)
 
   /**
    * @see [[org.scalatra.ScalatraKernel.get]]
