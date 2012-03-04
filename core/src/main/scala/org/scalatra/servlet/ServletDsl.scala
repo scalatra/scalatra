@@ -7,7 +7,12 @@ import java.{util => ju}
 import scala.collection.immutable.DefaultMap
 import scala.collection.JavaConversions._
 
-trait ServletDsl extends CoreDsl with ServletHandler with Initializable {
+trait ServletDsl 
+  extends CoreDsl 
+  with ServletHandler 
+  with SessionSupport 
+  with Initializable
+{
   type SessionT = HttpSession
   type ApplicationContextT = ServletContext
   type ConfigT <: {

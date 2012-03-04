@@ -8,19 +8,6 @@ import scala.util.DynamicVariable
  */
 trait CoreDsl extends Handler with Control {
   /**
-   * The type of session supported by this handler.  May be clientside or
-   * serverside.  Must be viewable as a [[org.scalatra.Request]].
-   */
-  type SessionT
-
-  /**
-   * A view of SessionT as a [[org.scalatra.Session]].  This allows
-   * backward compatibility with Scalatra applications written directly
-   * against the Servlet API.
-   */
-  protected implicit def sessionWrapper(session: SessionT): Session
-
-  /**
    * The type of application context supported by this application.
    * Must be viewable as an [[org.scalatra.ApplicationContext]].
    */
@@ -99,16 +86,6 @@ trait CoreDsl extends Handler with Control {
     response.redirect(uri)
     halt()
   }
-
-  /**
-   * The current HTTP session.  Creates a session if none exists.
-   */
-  implicit def session: SessionT
-
-  /**
-   * The current HTTP session.  If none exists, None is returned.
-   */
-  def sessionOption: Option[SessionT]
 
   /**
    * Adds a filter to run before the route.  The filter only runs if each
