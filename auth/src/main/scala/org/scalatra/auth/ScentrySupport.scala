@@ -30,7 +30,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   }
 
   abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
-    _request.withValue(servletRequest) {
+    withRequest(servletRequest) {
       request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession)
       configureScentry
       registerStrategiesFromConfig

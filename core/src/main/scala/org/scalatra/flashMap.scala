@@ -133,7 +133,7 @@ trait FlashMapSupport extends Handler {
   import FlashMapSupport._
 
   abstract override def handle(req: RequestT, res: ResponseT) {
-    _request.withValue(req) {
+    withRequest(req) {
       val f = getFlash(req)
       val isOutermost = !req.contains(lockKey)
       if (isOutermost) {

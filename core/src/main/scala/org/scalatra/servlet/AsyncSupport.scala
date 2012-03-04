@@ -13,8 +13,8 @@ trait AsyncSupport extends ScalatraKernel {
   protected def asynchronously(f: => Any): Action
 
   protected def onAsyncEvent(event: AsyncEvent)(thunk: => Any) {
-    _request.withValue(event.getSuppliedRequest.asInstanceOf[HttpServletRequest]) {
-      _response.withValue(event.getSuppliedResponse.asInstanceOf[HttpServletResponse]) {
+    withRequest(event.getSuppliedRequest.asInstanceOf[HttpServletRequest]) {
+      withResponse(event.getSuppliedResponse.asInstanceOf[HttpServletResponse]) {
         thunk
       }
     }
@@ -22,8 +22,8 @@ trait AsyncSupport extends ScalatraKernel {
 
   protected def withinAsyncContext(context: AsyncContext)(thunk: => Any) {
     if (context.hasOriginalRequestAndResponse) {
-      _request.withValue(context.getRequest.asInstanceOf[HttpServletRequest]) {
-        _response.withValue(context.getResponse.asInstanceOf[HttpServletResponse]) {
+      withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
+        withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
           thunk
         }
       }

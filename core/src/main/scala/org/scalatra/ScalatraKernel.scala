@@ -43,7 +43,7 @@ import ScalatraKernel._
  * It is typically extended by [[org.scalatra.ScalatraServlet]] or
  * [[org.scalatra.ScalatraFilter]] to create a Scalatra application.
  */
-trait ScalatraKernel extends ServletDsl with Initializable
+trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
 {
   /**
    * The routes registered in this kernel.
@@ -54,23 +54,6 @@ trait ScalatraKernel extends ServletDsl with Initializable
    * The default character encoding for requests and responses.
    */
   protected val defaultCharacterEncoding = "UTF-8"
-
-  /**
-   * A dynamic variable containing the currently-scoped response.  Should
-   * not typically be invoked directly.  Prefer `response`.
-   *
-   * @see #response
-   */
-  protected val _response = new DynamicVariable[ResponseT](null)
-
-  /**
-   * A dynamic variable containing the currently-scoped request.  Should
-   * not typically be invoked directly.  Prefer `request`.
-   *
-   * @see #request
-   */
-  protected val _request = new DynamicVariable[RequestT](null)
-
 
   /**
    * Handles a request and renders a response.
@@ -94,11 +77,9 @@ trait ScalatraKernel extends ServletDsl with Initializable
 
     response.setCharacterEncoding(defaultCharacterEncoding)
 
-    _request.withValue(request) {
-      _response.withValue(response) {
-        request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
-        executeRoutes() // IPC: taken out because I needed the extension point
-      }
+    withRequestResponse(request, response) {
+      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
+      executeRoutes()
     }
   }
 
@@ -316,11 +297,6 @@ trait ScalatraKernel extends ServletDsl with Initializable
   def params = _params
 
   /**
-   * The currently scoped request.  Invalid outside `handle`.
-   */
-  implicit def request = _request value
-
-  /**
    * Pluggable way to convert a path expression to a route matcher.
    * The default implementation is compatible with Sinatra's route syntax.
    *
@@ -381,11 +357,6 @@ trait ScalatraKernel extends ServletDsl with Initializable
   protected implicit def statusCodes2RouteMatcher(codes: Range): RouteMatcher = new StatusCodeRouteMatcher(codes, status)
 
   protected def statusCodes2RouteTransformer(codes: Range): RouteTransformer = Route.appendMatcher(codes)
-
-  /**
-   * The currently scoped response.  Invalid outside `handle`.
-   */
-  implicit def response = _response value
 
   protected def renderHaltException(e: HaltException) {
     e match {
