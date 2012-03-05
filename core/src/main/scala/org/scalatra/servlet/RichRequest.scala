@@ -42,7 +42,7 @@ case class RichRequest(r: HttpServletRequest) extends Request with AttributesMap
 
   def queryString: String = Option(r.getQueryString) getOrElse ""
 
-  def parameters: ScalatraKernel.MultiParams = {
+  def parameters: MultiParams = {
     r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
       .transform { (k, v) => v: Seq[String] }
   }

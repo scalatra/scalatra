@@ -10,8 +10,6 @@ import _root_.akka.actor.{ Actor, ActorSystem }
 import servlet.AsyncSupport
 
 trait Akka2Support extends AsyncSupport {
-  import ScalatraKernel.Action
-
   implicit protected def system: ActorSystem
 
   protected def akkaDispatcherName: Option[String] = None

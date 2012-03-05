@@ -10,7 +10,7 @@ import util.MultiMap
  * a (possibly empty) multi-map of parameters if the route is deemed to match.
  */
 trait RouteMatcher extends RouteTransformer {
-  def apply(): Option[ScalatraKernel.MultiParams]
+  def apply(): Option[MultiParams]
 
   def apply(route: Route): Route = Route.appendMatcher(this)(route)
 }

@@ -103,7 +103,7 @@ trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
   /**
    * A Map of the parameters of this request. Parameters are contained in the query string or posted form data.
    */
-  def parameters: ScalatraKernel.MultiParams
+  def parameters: MultiParams
 
   // TODO def files: GenSeq[HttpFile]
 

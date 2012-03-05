@@ -5,7 +5,6 @@ import java.io.PrintWriter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.ServletRenderContext
-import ScalatraKernel.MultiParams
 
 /**
  * A render context integrated with Scalatra.  Exposes a few extra
