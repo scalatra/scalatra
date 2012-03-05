@@ -308,18 +308,12 @@ trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
   protected implicit def string2RouteMatcher(path: String): RouteMatcher =
     new SinatraRouteMatcher(path, requestPath)
 
-  protected implicit def string2RouteTransformer(path: String): RouteTransformer =
-    Route.appendMatcher(path)
-
   /**
    * Path pattern is decoupled from requests.  This adapts the PathPattern to
    * a RouteMatcher by supplying the request path.
    */
   protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
     new PathPatternRouteMatcher(pattern, requestPath)
-
-  protected implicit def pathPattern2RouteTransformer(pattern: PathPattern): RouteTransformer =
-    Route.appendMatcher(pattern)
 
   /**
    * Converts a regular expression to a route matcher.
@@ -330,9 +324,6 @@ trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
    */
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
     new RegexRouteMatcher(regex, requestPath)
-
-  protected implicit def regex2RouteTransformer(regex: Regex): RouteTransformer =
-    Route.appendMatcher(regex)
 
   /**
    * Converts a boolean expression to a route matcher.
@@ -346,12 +337,6 @@ trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
    */
   protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
     new BooleanBlockRouteMatcher(block)
-
-  protected implicit def booleanBlock2RouteTransformer(block: => Boolean): RouteTransformer =
-    Route.appendMatcher(block)
-
-  protected implicit def routeMatcher2RouteTransformer(matcher: RouteMatcher): RouteTransformer =
-    Route.appendMatcher(matcher)
 
   protected def renderHaltException(e: HaltException) {
     e match {
