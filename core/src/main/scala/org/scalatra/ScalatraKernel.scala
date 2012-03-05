@@ -19,14 +19,16 @@ import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 
 object ScalatraKernel
 {
+  @deprecated("Use org.scalatra.MultiParams") // since 2.1
   type MultiParams = MultiMap
 
+  @deprecated("Use org.scalatra.Action") // since 2.1
   type Action = () => Any
 
-  @deprecated("Use HttpMethods.methods")
+  @deprecated("Use HttpMethod.methods")
   val httpMethods = HttpMethod.methods map { _.toString }
 
-  @deprecated("Use HttpMethods.methods filter { !_.isSafe }")
+  @deprecated("Use HttpMethod.methods filter { !_.isSafe }")
   val writeMethods = HttpMethod.methods filter { !_.isSafe } map { _.toString }
 
   @deprecated("Use CsrfTokenSupport.DefaultKey")

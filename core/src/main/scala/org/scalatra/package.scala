@@ -3,10 +3,16 @@ package org
 package object scalatra 
   extends Control // make halt and pass visible to helpers outside the DSL
 {
+  import util.MultiMap
+
   type RouteTransformer = (Route => Route)
 
   @deprecated("Use CsrfTokenSupport")
   type CSRFTokenSupport = CsrfTokenSupport
+  
+  type MultiParams = MultiMap
+
+  type Action = () => Any
 
   type ErrorHandler = PartialFunction[Throwable, Any]
 

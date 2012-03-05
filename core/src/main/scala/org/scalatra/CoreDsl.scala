@@ -1,6 +1,5 @@
 package org.scalatra
 
-import ScalatraKernel.MultiParams
 import scala.util.DynamicVariable
 
 /**
