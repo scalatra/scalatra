@@ -353,13 +353,6 @@ trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
   protected implicit def routeMatcher2RouteTransformer(matcher: RouteMatcher): RouteTransformer =
     Route.appendMatcher(matcher)
 
- /**
-  * Convert a status code into a route matcher.
-  */
-  protected implicit def statusCodes2RouteMatcher(codes: Range): RouteMatcher = new StatusCodeRouteMatcher(codes, status)
-
-  protected def statusCodes2RouteTransformer(codes: Range): RouteTransformer = Route.appendMatcher(codes)
-
   protected def renderHaltException(e: HaltException) {
     e match {
       case HaltException(Some(status), Some(reason), _, _) => response.setStatus(status, reason)
@@ -378,8 +371,7 @@ trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
 
   def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
 
-  def trap(codes: Range)(block: => Any) = 
-    addStatusRoute(codes, Seq(statusCodes2RouteTransformer(codes)), block)
+  def trap(codes: Range)(block: => Any) = addStatusRoute(codes, block)
 
   /**
    * @see [[org.scalatra.ScalatraKernel.get]]
@@ -431,8 +423,8 @@ trait ScalatraKernel extends ServletDsl with DynamicScope with Initializable
   protected def removeRoute(method: String, route: Route): Unit =
     removeRoute(HttpMethod(method), route)
 
-  protected[scalatra] def addStatusRoute(codes: Range, transformers: Seq[RouteTransformer], action: => Any)  {
-    val route = Route(transformers, () => action, () => routeBasePath)
+  protected[scalatra] def addStatusRoute(codes: Range, action: => Any)  {
+    val route = Route(Seq.empty, () => action, () => routeBasePath)
     routes.addStatusRoute(codes, route)
   }
 
