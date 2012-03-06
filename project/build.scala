@@ -210,7 +210,7 @@ object ScalatraBuild extends Build {
     val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3"
     val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3" % "test"
 
-    val akka2Actor = "com.typesafe.akka" % "akka-actor" % "2.0-RC4"
+    val akka2Actor = "com.typesafe.akka" % "akka-actor" % "2.0"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
