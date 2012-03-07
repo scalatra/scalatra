@@ -21,7 +21,7 @@ trait AkkaSupport extends AsyncSupport {
   // In the meantime, this gives us enough control for our test.
   private[scalatra] def asyncTimeout = 30 seconds
 
-  override protected def renderResponseBody(actionResult: Any) = {
+  override protected def renderResponse(actionResult: Any) = {
     actionResult match {
       case f: Future[_] ⇒ {
         val gotResponseAlready = new AtomicBoolean(false)
@@ -48,7 +48,7 @@ trait AkkaSupport extends AsyncSupport {
           case a ⇒ {
             withinAsyncContext(context) {
               if (gotResponseAlready.compareAndSet(false, true)) {
-                super.renderResponseBody(a)
+                super.renderResponse(a)
                 context.complete()
               }
             }
@@ -59,7 +59,7 @@ trait AkkaSupport extends AsyncSupport {
               if (gotResponseAlready.compareAndSet(false, true)) {
                 t match {
                   case e: HaltException ⇒ renderHaltException(e)
-                  case e                ⇒ renderResponseBody(errorHandler(e))
+                  case e                ⇒ renderResponse(errorHandler(e))
                 }
                 context.complete()
               }
@@ -68,7 +68,7 @@ trait AkkaSupport extends AsyncSupport {
         }
       }
       case a ⇒ {
-        super.renderResponseBody(a)
+        super.renderResponse(a)
       }
     }
   }

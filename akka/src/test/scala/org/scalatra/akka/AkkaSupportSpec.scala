@@ -30,6 +30,14 @@ class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
     halt(419)
   }
 
+  asyncGet("/*.jpg") {
+    "jpeg"
+  }
+
+  override protected def contentTypeInferrer = ({
+    case "jpeg" => "image/jpeg"
+  }: ContentTypeInferrer) orElse super.contentTypeInferrer
+
   error {
     case e => "caught"
   }
@@ -66,6 +74,12 @@ class AkkaSupportSpec extends ScalatraSpecification {
     "render a halt" in {
       get("/halt") {
         status must_== 419
+      }
+    }
+
+    "infers the content type of the future result" in {
+      get("/foo.jpg") {
+	header("Content-Type") must startWith ("image/jpeg")
       }
     }
   }
