@@ -17,7 +17,7 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting,
-    resolvers += ScalaToolsSnapshots
+    resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots)
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
@@ -75,7 +75,6 @@ object ScalatraBuild extends Build {
     base = file("socketio"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= version(v => Seq(jettyWebsocket, socketioCore(v))),
-      resolvers += sonatypeNexusSnapshots,
       description := "Socket IO support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -132,7 +131,6 @@ object ScalatraBuild extends Build {
     id = "scalatra-specs2",
     base = file("specs2"),
     settings = scalatraSettings ++ Seq(
-      resolvers += sonatypeNexusSnapshots, // for specs2-scalaz
       libraryDependencies <+= scalaVersion(specs2),
       description := "Specs2 support for the Scalatra test framework"
     )
@@ -142,7 +140,6 @@ object ScalatraBuild extends Build {
     id = "scalatra-example",
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
-      resolvers += sonatypeNexusSnapshots,
       libraryDependencies ++= Seq(servletApi, jettyWebapp % "container"),
       description := "Scalatra example project"
     )
