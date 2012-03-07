@@ -155,6 +155,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-specs2",
     base = file("specs2"),
     settings = scalatraSettings ++ Seq(
+      resolvers += sonatypeNexusSnapshots, // for specs2-scalaz
       libraryDependencies <+= scalaVersion(specs2),
       description := "Specs2 support for the Scalatra test framework"
     )
