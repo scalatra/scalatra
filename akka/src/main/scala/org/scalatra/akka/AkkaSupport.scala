@@ -1,26 +1,28 @@
 package org.scalatra
 package akka
 
-import _root_.akka.actor.Actor
-import _root_.akka.dispatch.Future
 import _root_.akka.util.duration._
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.{AsyncContext, AsyncEvent, AsyncListener}
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-
+import javax.servlet.{ AsyncContext, AsyncEvent, AsyncListener }
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import _root_.akka.dispatch.{ Await, Future }
+import _root_.akka.actor.{ Actor, ActorSystem }
 import servlet.AsyncSupport
 
 trait AkkaSupport extends AsyncSupport {
-  import ScalatraKernel.Action
-  
-  override def asynchronously(f: => Any): Action = () => Future(f)
+  implicit protected def system: ActorSystem
+
+  protected def akkaDispatcherName: Option[String] = None
+
+  private implicit lazy val _executor = akkaDispatcherName map system.dispatchers.lookup getOrElse system.dispatcher
+  override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
 
   override protected def renderResponseBody(actionResult: Any) = {
     actionResult match {
-      case f: Future[_] => {
+      case f: Future[_] ⇒ {
         val gotResponseAlready = new AtomicBoolean(false)
         val context = request.startAsync()
-        context.setTimeout(f.timeoutInNanos.nanos.toMillis)
+        context.setTimeout(5000L)
         context addListener (new AsyncListener {
           def onComplete(event: AsyncEvent) {}
 
@@ -38,8 +40,8 @@ trait AkkaSupport extends AsyncSupport {
           def onStartAsync(event: AsyncEvent) {}
         })
 
-        f onResult {
-          case a => {
+        f onSuccess {
+          case a ⇒ {
             withinAsyncContext(context) {
               if (gotResponseAlready.compareAndSet(false, true)) {
                 super.renderResponseBody(a)
@@ -47,13 +49,13 @@ trait AkkaSupport extends AsyncSupport {
               }
             }
           }
-        } recover {
-          case t => {
+        } onFailure {
+          case t ⇒ {
             withinAsyncContext(context) {
               if (gotResponseAlready.compareAndSet(false, true)) {
                 t match {
-                  case e: HaltException => renderHaltException(e)
-                  case e => errorHandler(e)
+                  case e: HaltException ⇒ renderHaltException(e)
+                  case e                ⇒ errorHandler(e)
                 }
                 context.complete()
               }
@@ -61,7 +63,7 @@ trait AkkaSupport extends AsyncSupport {
           }
         }
       }
-      case a => {
+      case a ⇒ {
         super.renderResponseBody(a)
       }
     }

@@ -2,58 +2,42 @@ package org.scalatra
 package akka
 
 import _root_.akka.actor._
-import _root_.akka.config.Supervision._
-import Actor._
+import _root_.akka.dispatch.Await
+import _root_.akka.pattern.ask
+import _root_.akka.actor.SupervisorStrategy._
+import _root_.akka.util.duration._
+
+import _root_.akka.util.Timeout
 import test.specs.ScalatraSpecification
 
-object AkkaSupportSpec {
-
-  val probe = actorOf(new Actor {
-    protected def receive = {
-      case "working" => self reply "the-working-reply"
-      case "dontreply" =>
-      case "throw" => halt(500, "The error")
-    }
-  }).start()
+class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
+  val system = ActorSystem()
   
-  val superv = actorOf(new Actor {
-    self.faultHandler = OneForOneStrategy(classOf[Exception] :: Nil, 5, 3000)
-    protected def receive = {
-      case _ =>
-    }
-  }).start()
+  asyncGet("/working") {
+    "the-working-reply"
+  }
+    
+  asyncGet("/timeout") {
+    Thread.sleep(10000)
+  }
+  
+  asyncGet("/fail") {
+    throw new RuntimeException
+  }
+    
+  asyncGet("/halt") {
+    halt(419)
+  }
 
-  class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
-    
-    get("/working") {
-      probe ? "working"
-    }
-    
-    get("/timeout") {
-      probe ? "dontreply"
-    }
-    
-    get("/throw") {
-      probe ? "throw"
-    }
-    
-    get("/supervised_error") {
-      superv link probe
-      probe ? "throw" onComplete { _ => superv.unlink(probe) }
-    }
-
-
-    
+  error {
+    case e => "caught"
   }
 }
 
 class AkkaSupportSpec extends ScalatraSpecification {
-
-  import AkkaSupportSpec.AkkaSupportServlet
   addServlet(new AkkaSupportServlet, "/*")
 
   "The AkkaSupport" should {
-    
     "render the reply of an actor" in {
       get("/working") {
         body must_== "the-working-reply"
@@ -67,15 +51,18 @@ class AkkaSupportSpec extends ScalatraSpecification {
       }
     }
 
-    "respond with error message" in {
-      get("/throw") {
-        body must startWith("The error")
+/*
+    "handle a async exception" in {
+      get("/fail") {
+	body must include("caught")
       }
     }
-  }
+*/
 
-  doAfterSpec {
-    Actor.registry.shutdownAll()
-    Scheduler.restart()
+    "render a halt" in {
+      get("/halt") {
+        status must_== 419
+      }
+    }
   }
 }

@@ -25,15 +25,13 @@ object ScalatraBuild extends Build {
     base = file("."),
     settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
-      // akka and akka2 can't coexist, and it's crashing the scaladoc.
-      // HACK: don't scaladoc akka.
-      Unidoc.unidocExclude := Seq("scalatra-example", "scalatra-akka"),
+      Unidoc.unidocExclude := Seq("scalatra-example"),
       (name in Posterous) := "scalatra"
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample, scalatraAkka, scalatraAkka2, scalatraDocs, scalatraJetty)
+      scalatraExample, scalatraAkka, scalatraDocs, scalatraJetty)
   )
 
   lazy val scalatraCore = Project(
@@ -61,22 +59,9 @@ object ScalatraBuild extends Build {
     id = "scalatra-akka",
     base = file("akka"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(akka, akkaTestkit),
+      libraryDependencies ++= Seq(akkaActor, akkaTestkit),
       resolvers += "Akka Repo" at "http://akka.io/repository",
       description := "Scalatra akka integration module",
-      // Akka only supports 2.9.x, so don't build this module for 2.8.x.
-      skip <<= scalaVersion map { v => v startsWith "2.8." },
-      publishArtifact in (Compile, packageDoc) <<= scalaVersion(v => !(v startsWith "2.8."))
-    ) 
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-  lazy val scalatraAkka2 = Project(
-    id = "scalatra-akka2",
-    base = file("akka2"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(akka2Actor),
-      resolvers += "Akka Repo" at "http://akka.io/repository",
-      description := "Scalatra akka2 integration module",
       // Akka only supports 2.9.x, so don't build this module for 2.8.x.
       skip <<= scalaVersion map { v => v startsWith "2.8." },
       publishArtifact in (Compile, packageDoc) <<= scalaVersion(v => !(v startsWith "2.8."))
@@ -207,10 +192,8 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3"
-    val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3" % "test"
-
-    val akka2Actor = "com.typesafe.akka" % "akka-actor" % "2.0"
+    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0"
+    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0" % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
