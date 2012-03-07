@@ -18,6 +18,7 @@
 - [Robbie Clutton](http://blog.iclutton.com/)
 - [Thibault Duplessis](http://ornicar.github.com/)
 - [David Heidrich](http://github.com/BowlingX)
+- [David Hyrcyszyn](http://headlondon.com/david-hrycyszyn/blog-posts)
 - [Tuomas Kareinen](http://www.iki.fi/kareinen/)
 - [Miso Korkiakoski](http://github.com/mwing)
 - [Yusuke Kuoka](http://d.hatena.ne.jp/mumoshu/)
@@ -26,7 +27,8 @@
 - [Dag Liodden](http://github.com/daggerrz)
 - [Massimiliano Mazzarolo](http://github.com/m20o)
 - [Ted Nyman](http://github.com/tnm)
-- [Erik Rozendaal](http://github.com/erikrozendaal)
+- [Șeyi Ogunyẹ́mi](http://www.micrypt.com)
+- [Stefan Ollinger](http://github.com/dozed)
 - [Srirangan](http://srirangan.net)
 - [Eric Torreborre](http://etorreborre.blogspot.com/)
 - [Lucas Torri](http://github.com/lucastorri)
@@ -40,4 +42,4 @@
   test suite, and documentation we've shamelessly copied.
 - [Mark Harrah](http://github.com/harrah) for his support on the [sbt mailing
   list](http://groups.google.com/group/simple-build-tool)
-- [Șeyi Ogunyẹ́mi](http://www.micrypt.com) for design of the [website](http://www.scalatra.org)
+
