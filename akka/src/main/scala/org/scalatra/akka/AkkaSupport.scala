@@ -17,12 +17,16 @@ trait AkkaSupport extends AsyncSupport {
   private implicit lazy val _executor = akkaDispatcherName map system.dispatchers.lookup getOrElse system.dispatcher
   override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
 
+  // Still thinking of the best way to specify this before making it public. 
+  // In the meantime, this gives us enough control for our test.
+  private[scalatra] def asyncTimeout = 30 seconds
+
   override protected def renderResponseBody(actionResult: Any) = {
     actionResult match {
       case f: Future[_] ⇒ {
         val gotResponseAlready = new AtomicBoolean(false)
         val context = request.startAsync()
-        context.setTimeout(5000L)
+	context.setTimeout(asyncTimeout.toMillis)
         context addListener (new AsyncListener {
           def onComplete(event: AsyncEvent) {}
 

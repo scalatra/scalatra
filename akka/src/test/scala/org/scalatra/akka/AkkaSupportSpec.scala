@@ -12,13 +12,14 @@ import test.specs.ScalatraSpecification
 
 class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
   val system = ActorSystem()
+  override def asyncTimeout = 2 seconds
   
   asyncGet("/working") {
     "the-working-reply"
   }
     
   asyncGet("/timeout") {
-    Thread.sleep(10000)
+    Thread.sleep((asyncTimeout plus 1.second).toMillis)
   }
   
   asyncGet("/fail") {
