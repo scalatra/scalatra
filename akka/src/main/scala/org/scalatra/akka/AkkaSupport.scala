@@ -55,7 +55,7 @@ trait AkkaSupport extends AsyncSupport {
               if (gotResponseAlready.compareAndSet(false, true)) {
                 t match {
                   case e: HaltException ⇒ renderHaltException(e)
-                  case e                ⇒ errorHandler(e)
+                  case e                ⇒ renderResponseBody(errorHandler(e))
                 }
                 context.complete()
               }

@@ -32,6 +32,11 @@ class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
   error {
     case e => "caught"
   }
+
+  override def destroy() { 
+    super.destroy()
+    system.shutdown() 
+  }
 }
 
 class AkkaSupportSpec extends ScalatraSpecification {
@@ -51,13 +56,11 @@ class AkkaSupportSpec extends ScalatraSpecification {
       }
     }
 
-/*
-    "handle a async exception" in {
+    "handle an async exception" in {
       get("/fail") {
 	body must include("caught")
       }
     }
-*/
 
     "render a halt" in {
       get("/halt") {
