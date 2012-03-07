@@ -18,7 +18,7 @@
 - [Robbie Clutton](http://blog.iclutton.com/)
 - [Thibault Duplessis](http://ornicar.github.com/)
 - [David Heidrich](http://github.com/BowlingX)
-- [David Hyrcyszyn](http://headlondon.com/david-hrycyszyn/blog-posts)
+- [David Hrycyszyn](http://headlondon.com/david-hrycyszyn/blog-posts)
 - [Tuomas Kareinen](http://www.iki.fi/kareinen/)
 - [Miso Korkiakoski](http://github.com/mwing)
 - [Yusuke Kuoka](http://d.hatena.ne.jp/mumoshu/)
