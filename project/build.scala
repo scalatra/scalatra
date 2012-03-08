@@ -168,10 +168,10 @@ object ScalatraBuild extends Build {
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
-    private def jettyDep(name: String, version: String = "7.6.0.RC1") =
+    private def jettyDep(name: String, version: String = "7.6.1.v20120215") =
       "org.eclipse.jetty" % name % version
     val testJettyServlet = jettyDep("test-jetty-servlet")
-    val testJettyServlet_8 = jettyDep("test-jetty-servlet", "8.1.0.RC1")
+    val testJettyServlet_8 = jettyDep("test-jetty-servlet", "8.1.1.v20120215")
     val jettyWebsocket = jettyDep("jetty-websocket")
     val jettyWebapp = jettyDep("jetty-webapp")
 
