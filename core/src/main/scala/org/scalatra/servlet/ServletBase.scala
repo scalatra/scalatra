@@ -50,4 +50,13 @@ trait ServletBase
     new HttpServletRequestWrapper(req) {
       override def getMethod = method.toString.toUpperCase(Locale.ENGLISH)
     }
+
+  override def handle(request: RequestT, response: ResponseT) {
+    // As default, the servlet tries to decode params with ISO_8859-1.
+    // It causes an EOFException if params are actually encoded with the 
+    // other code (such as UTF-8)
+    if (request.getCharacterEncoding == null)
+      request.setCharacterEncoding(defaultCharacterEncoding)
+    super.handle(request, response)
+  }
 }

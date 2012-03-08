@@ -43,10 +43,6 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    *      `executeRoutes()`.
    */
   def handle(request: RequestT, response: ResponseT) {
-    // As default, the servlet tries to decode params with ISO_8859-1.
-    // It causes an EOFException if params are actually encoded with the other code (such as UTF-8)
-    if (!request.characterEncoding.isDefined)
-      request.characterEncoding = Some(defaultCharacterEncoding)
 
     val realMultiParams = request.parameters
 
