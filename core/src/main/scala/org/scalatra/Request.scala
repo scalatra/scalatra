@@ -107,7 +107,7 @@ trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
 
   // TODO def files: GenSeq[HttpFile]
 
-  // TODO def cookies: CookieJar
+  def cookies: Map[String, String]
 
   /**
    * Caches and returns the body of the response.  The method is idempotent

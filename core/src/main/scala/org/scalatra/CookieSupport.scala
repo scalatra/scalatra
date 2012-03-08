@@ -82,7 +82,7 @@ object CookieSupport {
   val CookieOptionsKey = "org.scalatra.CookieOptions".intern
 }
 trait CookieSupport extends Handler {
-  self: ScalatraKernel =>
+  self: ScalatraBase =>
 
   import CookieSupport._
   implicit def cookieOptions: CookieOptions = request(CookieOptionsKey).asInstanceOf[CookieOptions]
@@ -91,7 +91,7 @@ trait CookieSupport extends Handler {
 
   abstract override def handle(req: RequestT, res: ResponseT) {
     req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
-    val path = req.getContextPath match {
+    val path = contextPath match {
       case "" => "/" // The root servlet is "", but the root cookie path is "/"
       case p => p
     }
