@@ -13,7 +13,7 @@ object LiftJsonRequestBody {
   val ParsedBodyKey = "org.scalatra.liftjson.ParsedBody".intern
 }
 
-trait LiftJsonRequestBodyWithoutFormats extends ScalatraKernel with ApiFormats {
+trait LiftJsonRequestBodyWithoutFormats extends ScalatraBase with ApiFormats {
   import LiftJsonRequestBody._
    
     protected def parseRequestBody(format: String, content: String) = try {
@@ -28,7 +28,7 @@ trait LiftJsonRequestBodyWithoutFormats extends ScalatraKernel with ApiFormats {
   
     override protected def invoke(matchedRoute: MatchedRoute) = {
       withRouteMultiParams(Some(matchedRoute)) {
-        val mt = request.getContentType.toOption map { _.split(";").head } getOrElse "application/x-www-form-urlencoded"
+        val mt = request.contentType map { _.split(";").head } getOrElse "application/x-www-form-urlencoded"
         val fmt = mimeTypes get mt getOrElse "html"
         if (shouldParseBody(fmt)) {
           request(ParsedBodyKey) = parseRequestBody(fmt, request.body)

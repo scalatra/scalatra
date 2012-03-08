@@ -2,7 +2,8 @@ package org.scalatra.docs
 
 import org.scalatra._
 
-trait DocumentationSupport extends ScalatraKernel {
+trait DocumentationSupport {
+  this: ScalatraBase =>
 
   def name(value: String): RouteTransformer = { route =>
     route.copy(metadata = route.metadata + (docsNameSymbol -> value))

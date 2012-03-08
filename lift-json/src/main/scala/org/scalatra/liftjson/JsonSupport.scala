@@ -1,13 +1,13 @@
 package org.scalatra
 package liftjson
 
-import org.scalatra.{ContentTypeInferrer, ScalatraKernel}
+import org.scalatra.ContentTypeInferrer
 import net.liftweb.json.JsonAST.JValue
 
 /**
  * Trait which renders Lift JValues as JSON.
  */
-trait JsonSupport extends ScalatraKernel {
+trait JsonSupport extends ScalatraBase {
 
   /**
    * If a request is made with a parameter in jsonpCallbackParameterNames it will

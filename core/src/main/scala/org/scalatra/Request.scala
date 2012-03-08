@@ -108,4 +108,14 @@ trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
   // TODO def files: GenSeq[HttpFile]
 
   // TODO def cookies: CookieJar
+
+  /**
+   * Caches and returns the body of the response.  The method is idempotent
+   * for any given request.  The result is cached in memory regardless of size,
+   * so be careful.  Calling this method consumes the request's input stream.
+   *
+   * @return the message body as a string according to the request's encoding
+   * (defult ISO-8859-1).
+   */
+  def body: String
 }
