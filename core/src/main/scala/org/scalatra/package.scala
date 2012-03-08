@@ -37,4 +37,8 @@ package object scalatra
   type ServletApiImplicits = servlet.ServletApiImplicits
   @deprecated("Use org.scalatra.servlet") // since 2.1
   object ServletApiImplicits extends servlet.ServletApiImplicits
+
+  val EnvironmentKey = "org.scalatra.environment".intern
+
+  val MultiParamsKey = "org.scalatra.MultiParams".intern
 }
