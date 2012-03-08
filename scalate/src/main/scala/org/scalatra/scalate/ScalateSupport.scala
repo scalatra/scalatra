@@ -128,6 +128,7 @@ trait ScalateSupport extends ScalatraKernel {
   // Hack: Have to pass it the request and response, because we're outside the
   // scope of the super handler.
   private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
+    resp.setStatus(500)
     resp.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
     val context = createRenderContext(req, resp, resp.getWriter)

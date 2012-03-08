@@ -28,7 +28,8 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "implicitly bind session"                                     ! e19^
     "implicitly bind params"                                      ! e20^
     "implicitly bind multiParams"                                 ! e21^
-    "render to a string instead of response"                      ! e22
+    "render to a string instead of response"                      ! e22^
+    "set status to 500 when rendering 500.scaml"                  ! e23
 
   addServlet(new ScalatraServlet with ScalateSupport
     with ScalateUrlGeneratorSupport with FlashMapSupport with CookieSupport {
@@ -217,5 +218,9 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
   def e22 = get("/render-to-string") {
     header("X-Template-Output") must_== "<div>SSP template</div>"
+  }
+
+  def e23 = get("/barf") {
+    status must_== 500
   }
 }
