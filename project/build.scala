@@ -50,42 +50,42 @@ object ScalatraBuild extends Build {
     id = "scalatra-auth",
     base = file("auth"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies += base64,
+      libraryDependencies ++= Seq(base64, servletApi),
       description := "Scalatra authentication module"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraAkka = Project(
     id = "scalatra-akka",
     base = file("akka"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(akkaActor, akkaTestkit),
+      libraryDependencies ++= Seq(akkaActor, akkaTestkit, servletApi),
       resolvers += "Akka Repo" at "http://akka.io/repository",
       description := "Scalatra akka integration module",
       // Akka only supports 2.9.x, so don't build this module for 2.8.x.
       skip <<= scalaVersion map { v => v startsWith "2.8." },
       publishArtifact in (Compile, packageDoc) <<= scalaVersion(v => !(v startsWith "2.8."))
     ) 
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraFileupload = Project(
     id = "scalatra-fileupload",
     base = file("fileupload"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(commonsFileupload, commonsIo),
+      libraryDependencies ++= Seq(commonsFileupload, commonsIo, servletApi),
       description := "Commons-Fileupload integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraScalate = Project(
     id = "scalatra-scalate",
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(scalate),
+      libraryDependencies <++= scalaVersion(sv => Seq(scalate(sv), servletApi)),
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraLiftJson = Project(
     id = "scalatra-lift-json",
@@ -94,7 +94,7 @@ object ScalatraBuild extends Build {
       libraryDependencies += liftJson,
       description := "Lift JSON support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraAntiXml = Project(
     id = "scalatra-anti-xml",
@@ -103,7 +103,7 @@ object ScalatraBuild extends Build {
       libraryDependencies <+= scalaVersion(antiXml),
       description := "Anti-XML support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
@@ -112,7 +112,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(jettyServlet),
       description := "Embedded Jetty server for Scalatra apps"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraTest = Project(
     id = "scalatra-test",
@@ -165,7 +165,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-docs",
     base = file("docs"),
     settings = scalatraSettings
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraExample = Project(
     id = "scalatra-example",
