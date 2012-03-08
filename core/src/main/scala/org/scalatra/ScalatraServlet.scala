@@ -1,5 +1,7 @@
 package org.scalatra
 
+import servlet.ServletBase
+
 import javax.servlet._
 import javax.servlet.http._
 import java.net.URL
@@ -21,9 +23,9 @@ import scala.xml.NodeSeq
  *
  * @see ScalatraFilter
  */
-abstract class ScalatraServlet
+abstract class ScalatraServlet 
   extends HttpServlet
-  with ScalatraKernel
+  with ServletBase
   with Initializable
 {
   override def service(request: HttpServletRequest, response: HttpServletResponse) = handle(request, response)

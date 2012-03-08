@@ -53,4 +53,6 @@ trait Response extends HttpMessage {
   def addHeader(name: String, value: String): Unit
 
   def setHeader(name: String, value: String): Unit
+
+  def addCookie(cookie: Cookie): Unit
 }

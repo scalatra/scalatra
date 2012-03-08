@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import java.io.{OutputStream, PrintWriter}
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.{HttpServletResponse, Cookie => ServletCookie}
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 
@@ -46,6 +46,10 @@ case class RichResponse(res: HttpServletResponse) extends Response {
   }
   def setHeader(name: String, value: String) {
     res.setHeader(name, value)
+  }
+
+  def addCookie(cookie: Cookie) {
+    res.addCookie(cookie: ServletCookie)
   }
 
   def characterEncoding: Option[String] =

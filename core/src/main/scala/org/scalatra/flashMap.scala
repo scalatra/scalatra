@@ -128,7 +128,7 @@ object FlashMapSupport {
  * @see FlashMap
  */
 trait FlashMapSupport extends Handler {
-  this: ScalatraKernel =>
+  this: CoreDsl with DynamicScope with SessionSupport =>
 
   import FlashMapSupport._
 

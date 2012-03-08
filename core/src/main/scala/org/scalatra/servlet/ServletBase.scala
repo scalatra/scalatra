@@ -2,8 +2,9 @@ package org.scalatra
 package servlet
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
+import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse, HttpSession}
 import java.{util => ju}
+import java.util.Locale
 import scala.collection.immutable.DefaultMap
 import scala.collection.JavaConversions._
 
@@ -44,4 +45,9 @@ trait ServletBase
     Option(request.getSession(false))
 
   override def addSessionId(uri: String) = response.encodeUrl(uri)
+
+  protected def requestWithMethod(req: RequestT, method: HttpMethod) =
+    new HttpServletRequestWrapper(req) {
+      override def getMethod = method.toString.toUpperCase(Locale.ENGLISH)
+    }
 }

@@ -2,7 +2,6 @@ package org.scalatra
 
 import collection._
 import java.util.Locale
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
 import scala.util.DynamicVariable
 import util.RicherString._
 
@@ -16,16 +15,7 @@ case class CookieOptions(
         encoding: String  = "UTF-8")
 
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
-  def toServletCookie = {
-    val sCookie = new ServletCookie(name, value)
-    if(cookieOptions.domain.isNonBlank) sCookie.setDomain(cookieOptions.domain)
-    if(cookieOptions.path.isNonBlank) sCookie.setPath(cookieOptions.path)
-    sCookie.setMaxAge(cookieOptions.maxAge)
-    if(cookieOptions.secure) sCookie.setSecure(cookieOptions.secure)
-    if(cookieOptions.comment.isNonBlank) sCookie.setComment(cookieOptions.comment)
-    sCookie.setHttpOnly(cookieOptions.httpOnly)
-    sCookie
-  }
+  val options = cookieOptions
 
   def toCookieString = {
     val sb = new StringBuffer
@@ -51,7 +41,7 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
   }
 }
 
-class SweetCookies(private val reqCookies: Map[String, String], private val response: HttpServletResponse) {
+class SweetCookies(private val reqCookies: Map[String, String], private val response: Response) {
   private lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
   def get(key: String) = cookies.get(key)
@@ -60,7 +50,7 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
 
   def update(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
     cookies += name -> value
-    addServletCookie(name, value, cookieOptions)
+    addCookie(name, value, cookieOptions)
   }
 
   def set(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
@@ -69,7 +59,7 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
 
   def delete(name: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
     cookies -= name
-    addServletCookie(name, "", cookieOptions.copy(maxAge = 0))
+    addCookie(name, "", cookieOptions.copy(maxAge = 0))
   }
 
   def +=(keyValuePair: (String, String))(implicit cookieOptions: CookieOptions = CookieOptions()) = {
@@ -80,11 +70,10 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
     delete(key)(cookieOptions)
   }
 
-  private def addServletCookie(name: String, value: String, options: CookieOptions) = {
+  private def addCookie(name: String, value: String, options: CookieOptions) = {
     val cookie = new Cookie(name, value)(options)
-    val servletCookie = cookie.toServletCookie
-    response.addCookie(servletCookie)
-    servletCookie
+    response.addCookie(cookie)
+    cookie
   }
 }
 
@@ -100,7 +89,7 @@ trait CookieSupport extends Handler {
 
   def cookies = request(SweetCookiesKey).asInstanceOf[SweetCookies]
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  abstract override def handle(req: RequestT, res: ResponseT) {
     req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
     val path = req.getContextPath match {
       case "" => "/" // The root servlet is "", but the root cookie path is "/"

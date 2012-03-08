@@ -1,5 +1,7 @@
 package org.scalatra
 
+import servlet.ServletBase
+
 import scala.util.DynamicVariable
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import javax.servlet._
@@ -20,7 +22,7 @@ import javax.servlet._
  *
  * @see ScalatraServlet
  */
-trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
+trait ScalatraFilter extends Filter with ServletBase {
   private val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 

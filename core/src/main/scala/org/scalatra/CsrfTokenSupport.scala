@@ -35,7 +35,7 @@ object CsrfTokenSupport {
  * request is prepared with `prepareCsrfToken`.
  */
 trait CsrfTokenSupport {
-  this: ScalatraKernel =>
+  this: CoreDsl with SessionSupport =>
 
   /**
    * The key used to store the token on the session, as well as the parameter
