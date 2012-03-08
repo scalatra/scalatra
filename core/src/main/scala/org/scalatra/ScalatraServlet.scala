@@ -26,8 +26,6 @@ abstract class ScalatraServlet
   with ScalatraKernel
   with Initializable
 {
-  import ScalatraKernel._
-
   override def service(request: HttpServletRequest, response: HttpServletResponse) = handle(request, response)
 
   /**

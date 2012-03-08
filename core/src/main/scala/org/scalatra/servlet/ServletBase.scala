@@ -7,9 +7,13 @@ import java.{util => ju}
 import scala.collection.immutable.DefaultMap
 import scala.collection.JavaConversions._
 
-trait ServletDsl 
-  extends CoreDsl 
-  with ServletHandler 
+/**
+ * ServletBase implements the Scalatra DSL with the Servlet API, and can be
+ * a base trait of a Servlet or a Filter.
+ */
+trait ServletBase 
+  extends ScalatraBase
+  with ServletHandler
   with SessionSupport 
   with Initializable
 {
@@ -38,4 +42,6 @@ trait ServletDsl
 
   override implicit def sessionOption: Option[SessionT] =
     Option(request.getSession(false))
+
+  override def addSessionId(uri: String) = response.encodeUrl(uri)
 }

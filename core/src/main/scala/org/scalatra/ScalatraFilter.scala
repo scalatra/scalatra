@@ -21,8 +21,6 @@ import javax.servlet._
  * @see ScalatraServlet
  */
 trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
-  import ScalatraKernel._
-
   private val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 
