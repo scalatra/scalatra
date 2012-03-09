@@ -7,25 +7,6 @@ import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConversions._
 import scala.collection.mutable.Map
 
-object ResponseStatus {
-/*
-  def apply(nettyStatus: HttpResponseStatus): ResponseStatus = 
-    ResponseStatus(nettyStatus.getCode, nettyStatus.getReasonPhrase)
-*/
-}
-case class ResponseStatus(code: Int, message: String = "TODO") extends Ordered[ResponseStatus] {
-
-  def compare(that: ResponseStatus) = code.compareTo(that.code)
-
-  def line = {
-    val buf = new StringBuilder(message.length + 5);
-    buf.append(code)
-    buf.append(' ')
-    buf.append(message)
-    buf.toString()
-  }
-}
-
 trait Response extends HttpMessage {
   /**
    * The HTTP status code and reason phrase.
