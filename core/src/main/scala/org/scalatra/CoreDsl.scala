@@ -71,12 +71,12 @@ trait CoreDsl extends Handler with Control {
   /**
    * Sets the status code of the current response.
    */
-  def status_=(code: Int): Unit = response.status = code
+  def status_=(code: Int): Unit = response.status = ResponseStatus(code)
 
   /**
    * Gets the status code of the current response.
    */
-  def status: Int = response.status
+  def status: Int = response.status.code
 
   /**
    * Sends a redirect response and immediately halts the current action.

@@ -161,7 +161,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = { allow =>
     status = 405
-    response.setHeader("Allow", allow.mkString(", "))
+    response.headers("Allow") = allow.mkString(", ")
   }
   def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
 
@@ -310,9 +310,9 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def renderHaltException(e: HaltException) {
     e match {
       case HaltException(Some(status), Some(reason), _, _) => 
-	response.statusLine = ResponseStatus(status, reason)
+	response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) => 
-	response.status = status
+	response.status = ResponseStatus(status)
       case HaltException(None, _, _, _) => // leave status line alone
     }
     e.headers foreach { case(name, value) => response.addHeader(name, value) }

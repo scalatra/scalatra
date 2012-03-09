@@ -1,7 +1,8 @@
 package org.scalatra
 package servlet
 
-import scala.collection.{Map => CMap, DefaultMap}
+import scala.collection.{Map => CMap}
+import scala.collection.immutable.DefaultMap
 import scala.collection.JavaConversions._
 import scala.io.Source
 import java.net.URI
@@ -26,7 +27,10 @@ case class RichRequest(r: HttpServletRequest) extends Request with AttributesMap
 
   def uri = new URI(r.getRequestURL.toString)
 
-  def scheme = r.getScheme
+  def urlScheme = r.getScheme match {
+    case "http" => Http
+    case "https" => Https
+  }
 
   def isSecure = r.isSecure 
 

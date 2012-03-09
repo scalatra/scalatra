@@ -7,20 +7,20 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 
 case class RichResponse(res: HttpServletResponse) extends Response {
-  def statusLine: ResponseStatus = ResponseStatus(res.getStatus)
+  /**
+   * Note: the servlet API doesn't remember the reason.  If a custom
+   * reason was set, it will be returned incorrectly here,
+   */
+  def status: ResponseStatus = ResponseStatus(res.getStatus)
 
-  def statusLine_=(statusLine: ResponseStatus) = 
+  def status_=(statusLine: ResponseStatus) = 
     res.setStatus(statusLine.code, statusLine.message)
-
-  def status: Int = res.getStatus
-    
-  def status_=(code: Int) = statusLine = ResponseStatus(code)
 
   object headers extends Map[String, String] {
     def get(key: String): Option[String] = 
       res.getHeaders(key) match {
 	case xs if xs.isEmpty => None
-	case xs => Some(xs mkString ", ")
+	case xs => Some(xs mkString ",")
       }
 
     def iterator: Iterator[(String, String)] = 
@@ -36,16 +36,6 @@ case class RichResponse(res: HttpServletResponse) extends Response {
       res.setHeader(key, "")
       this
     }
-  }
-  
-  def header(name: String) =
-    Option(res.getHeader(name))
-
-  def addHeader(name: String, value: String) {
-    res.addHeader(name, value)
-  }
-  def setHeader(name: String, value: String) {
-    res.setHeader(name, value)
   }
 
   def addCookie(cookie: Cookie) {

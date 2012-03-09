@@ -94,7 +94,7 @@ trait ApiFormats extends ScalatraBase {
   }
 
   private def parseAcceptHeader = {
-    request.header("Accept") map { s =>
+    request.headers.get("Accept") map { s =>
       val fmts = s.split(",").map(_.trim)
       val accepted = (fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
         val parts = f.split(";").map(_.trim)

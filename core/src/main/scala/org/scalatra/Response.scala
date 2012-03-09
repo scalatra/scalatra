@@ -27,20 +27,16 @@ case class ResponseStatus(code: Int, message: String = "TODO") extends Ordered[R
 }
 
 trait Response extends HttpMessage {
-  
-  // Implementing this as a Map in the Servlet API is awkward.
-  // Consider an alternate approach.
+  /**
+   * The HTTP status code and reason phrase.
+   */
+  var status: ResponseStatus
+
   def headers: Map[String, String]
 
-  def statusLine: ResponseStatus
-  def statusLine_=(statusLine: ResponseStatus)
-
-  def status: Int
-  def status_=(code: Int)
   def contentType_=(contentType: Option[String])
+
   def characterEncoding_=(cs: Option[String])
-//  def chunked: Boolean
-//  def chunked_=(chunked: Boolean)
 
   def outputStream: OutputStream
 
@@ -50,9 +46,16 @@ trait Response extends HttpMessage {
 
   def end()
 
-  def addHeader(name: String, value: String): Unit
-
-  def setHeader(name: String, value: String): Unit
+  def addHeader(name: String, value: String) {
+    val newValue = headers.get(name) map { oldValue =>
+      "%s,%s".format(oldValue, value)
+    } getOrElse value
+    headers(name) = newValue
+  }
 
   def addCookie(cookie: Cookie): Unit
+
+//  def chunked: Boolean
+//  def chunked_=(chunked: Boolean)
+
 }
