@@ -199,7 +199,17 @@ object ScalatraBuild extends Build {
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
+<<<<<<< HEAD
     val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5"
+=======
+    // Exclude is due to http://jira.codehaus.org/browse/JETTY-1493
+    private def jettyDep(name: String, version: String = "7.6.0.v20120127") =
+      "org.eclipse.jetty" % name % version
+    val testJettyServlet = jettyDep("test-jetty-servlet")
+    val testJettyServlet_8 = jettyDep("test-jetty-servlet", "8.1.0.v20120127")
+    val jettyWebsocket = jettyDep("jetty-websocket")
+    val jettyWebapp = jettyDep("jetty-webapp")
+>>>>>>> support/2.0.x
 
     def grizzledSlf4j(scalaVersion: String) = {
       // Temporary hack pending 2.8.2 release of slf4s.
@@ -210,7 +220,7 @@ object ScalatraBuild extends Build {
       "org.clapper" % artifactId % "0.6.6"
     }
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.1.v20120215"
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.v20120127"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyServlet = jettyDep("jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
