@@ -210,7 +210,7 @@ object ScalatraBuild extends Build {
       "org.clapper" % artifactId % "0.6.6"
     }
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.v20120215"
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.1.v20120215"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyServlet = jettyDep("jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
