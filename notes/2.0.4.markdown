@@ -10,3 +10,7 @@
 
 * Set cookie path to "/" by default in the root context.  It was being
   omitted, which scoped the cookie to the request path.
+
+### scalate
+
+* Set response status to 500 on Scalate error page 
