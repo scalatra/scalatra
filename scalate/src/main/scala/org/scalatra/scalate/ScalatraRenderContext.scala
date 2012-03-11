@@ -27,9 +27,9 @@ class ScalatraRenderContext(
     case _ => Map.empty
   }
 
-  def session: HttpSession = kernel.session
+  def session: Session = kernel.session
 
-  def sessionOption: Option[HttpSession] = kernel.sessionOption
+  def sessionOption: Option[Session] = kernel.sessionOption
 
   def params: Map[String, String] = kernel.params
 

@@ -18,7 +18,7 @@ trait ServletBase
   with SessionSupport 
   with Initializable
 {
-  type SessionT = HttpSession
+  type SessionT = ServletSession
   type ApplicationContextT = ServletApplicationContext
   type ConfigT <: {
     def getServletContext(): ServletContext
@@ -39,10 +39,10 @@ trait ServletBase
     }
   }
 
-  override implicit def session: SessionT = request.getSession
+  override implicit def session: SessionT = ServletSession(request.getSession)
 
   override implicit def sessionOption: Option[SessionT] =
-    Option(request.getSession(false))
+    Option(request.getSession(false)) map ServletSession.apply
 
   override def addSessionId(uri: String) = response.encodeUrl(uri)
 

@@ -1,6 +1,8 @@
 package org.scalatra
 package auth
 
+import servlet.ServletSession
+
 import org.specs._
 import mock.Mockito
 import org.mockito.Matchers._
@@ -17,7 +19,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     var invalidateCalled = false
     val context = new ScalatraFilter {
       private val sessionMap = scala.collection.mutable.HashMap[String, Any](Scentry.scentryAuthKey -> "6789")
-      override val session = smartMock[HttpSession]
+      override val session = smartMock[ServletSession]
       session.getAttribute(anyString) answers { k => sessionMap.getOrElse(k.asInstanceOf[String], null).asInstanceOf[AnyRef] }
       session.setAttribute(anyString(), anyObject()) answers { kv =>
         val kvArray = kv.asInstanceOf[Array[AnyRef]]
