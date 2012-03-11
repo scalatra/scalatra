@@ -1,5 +1,7 @@
 package org.scalatra
 
+import servlet.ServletRequest
+
 import test.scalatest.ScalatraFunSuite
 import javax.servlet.http.HttpServletRequest
 
@@ -18,11 +20,12 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   }
 
   get("/unused") {}
-
-  override def sweepUnusedFlashEntries(req: HttpServletRequest) = req.getParameter("sweep") match {
-    case null => false
-    case x => x.toBoolean
-  }
+  
+  override def sweepUnusedFlashEntries(req: ServletRequest) = 
+    req.getParameter("sweep") match {
+      case null => false
+      case x => x.toBoolean
+    }
 }
 
 class FlashMapSupportSecondTestServlet extends ScalatraServlet with FlashMapSupport {

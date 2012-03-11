@@ -1,4 +1,5 @@
 package org.scalatra
+package servlet
 
 import java.io.ByteArrayInputStream
 import javax.servlet.ServletInputStream
@@ -8,8 +9,8 @@ import org.mockito.Mockito._
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 
-class RichRequestTest extends FunSuite with ShouldMatchers {
-  implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
+class ServletRequestTest extends FunSuite with ShouldMatchers {
+  implicit def requestWrapper(r: HttpServletRequest) = ServletRequest(r)
 
   test("decodes body according to the character encoding") {
     val encoding = "ISO-8859-5"

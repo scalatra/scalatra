@@ -28,7 +28,9 @@ abstract class ScalatraServlet
   with ServletBase
   with Initializable
 {
-  override def service(request: HttpServletRequest, response: HttpServletResponse) = handle(request, response)
+  override def service(request: HttpServletRequest, response: HttpServletResponse) {
+    handle(request, response)
+  }
 
   /**
    * Defines the request path to be matched by routers.  The default

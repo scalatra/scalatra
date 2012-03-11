@@ -10,8 +10,8 @@ import scala.util.DynamicVariable
  * http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework
  */
 trait DynamicScope {
-  type RequestT >: Null
-  type ResponseT >: Null
+  type RequestT >: Null <: Request
+  type ResponseT >: Null <: Response
 
   /**
    * The currently scoped request.  Valid only inside the `handle` method.

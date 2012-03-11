@@ -2,11 +2,18 @@ package org.scalatra
 package servlet
 
 import java.io.{OutputStream, PrintWriter}
-import javax.servlet.http.{HttpServletResponse, Cookie => ServletCookie}
+import javax.servlet.http.{HttpServletResponse, HttpServletResponseWrapper, Cookie => ServletCookie}
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 
-case class RichResponse(res: HttpServletResponse) extends Response {
+object ServletResponse {
+  def apply(response: HttpServletResponse) = new ServletResponse(response)
+}
+
+class ServletResponse(res: HttpServletResponse) 
+  extends HttpServletResponseWrapper(res)
+  with Response 
+{
   /**
    * Note: the servlet API doesn't remember the reason.  If a custom
    * reason was set, it will be returned incorrectly here,
@@ -70,4 +77,7 @@ case class RichResponse(res: HttpServletResponse) extends Response {
     res.flushBuffer()
     res.getOutputStream.close()
   }
+
+  override def addHeader(name: String, value: String) = 
+    super.addHeader(name, value)
 }

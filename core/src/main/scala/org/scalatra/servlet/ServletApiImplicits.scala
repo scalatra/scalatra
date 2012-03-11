@@ -15,8 +15,6 @@ import scala.collection.JavaConversions._
  * Some implicits to make the Servlet API more Scala-idiomatic.
  */
 trait ServletApiImplicits {
-  implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
-  implicit def responseWrapper(r: HttpServletResponse) = RichResponse(r)
   implicit def sessionWrapper(s: ServletSession) = new RichSession(s)
   implicit def applicationContextWrapper(sc: ServletContext) = 
     new RichServletContext(sc)
