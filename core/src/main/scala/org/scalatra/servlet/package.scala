@@ -1,6 +1,6 @@
 package org.scalatra
 
-package object servlet extends ServletApiImplicits {
+package object servlet {
   /**
    * Structural type for the various Servlet API objects that have attributes.
    * These include ServletContext, HttpSession, and ServletRequest.

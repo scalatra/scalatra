@@ -20,16 +20,6 @@ package object scalatra
 
   type RenderPipeline = PartialFunction[Any, Any]
 
-  // The servlet extensions were moved to the servlet package
-  @deprecated("Use org.scalatra.servlet.Attributes") // since 2.1
-  type Attributes = servlet.Attributes
-  @deprecated("Use org.scalatra.servlet.AttributesMap") // since 2.1
-  type AttributesMap = servlet.AttributesMap
-  @deprecated("Use org.scalatra.servlet.ServletApiImplicits") // since 2.1
-  type ServletApiImplicits = servlet.ServletApiImplicits
-  @deprecated("Use org.scalatra.servlet") // since 2.1
-  object ServletApiImplicits extends servlet.ServletApiImplicits
-
   val EnvironmentKey = "org.scalatra.environment".intern
 
   val MultiParamsKey = "org.scalatra.MultiParams".intern

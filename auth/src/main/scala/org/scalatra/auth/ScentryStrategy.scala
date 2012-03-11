@@ -3,7 +3,7 @@ package auth
 
 import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
-trait ScentryStrategy[UserType <: AnyRef] extends servlet.ServletApiImplicits {
+trait ScentryStrategy[UserType <: AnyRef] {
 
   protected def app: ScalatraKernel
   def name: Symbol = 'NameMe
