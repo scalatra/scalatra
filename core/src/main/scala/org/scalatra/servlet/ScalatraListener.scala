@@ -11,20 +11,22 @@ class ScalatraListener extends ServletContextListener {
   
   private var cycle: LifeCycle = _
 
+  private var appCtx: ServletApplicationContext = _
+
   def contextInitialized(sce: ServletContextEvent) = {
-    val ctx = sce.getServletContext
+    appCtx = ServletApplicationContext(sce.getServletContext)
     val cycleClassName = 
-      Option(ctx.getInitParameter(LifeCycleKey)) getOrElse DefaultLifeCycle
+      Option(appCtx.getInitParameter(LifeCycleKey)) getOrElse DefaultLifeCycle
     val cycleClass = Class.forName(cycleClassName)
     cycle = cycleClass.newInstance.asInstanceOf[LifeCycle]
     logger.info("Initializing life cycle class: %s".format(cycleClassName))
-    cycle.init(ctx)
+    cycle.init(appCtx)
   }
 
   def contextDestroyed(sce: ServletContextEvent) = {
     if (cycle != null) {
       logger.info("Destroying life cycle class: %s".format(cycle.getClass.getName))
-      cycle.destroy(sce.getServletContext)
+      cycle.destroy(appCtx)
     }
   }
 }

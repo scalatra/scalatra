@@ -6,7 +6,7 @@ package org.scalatra
  * HttpServlet and a Filter.
  */
 trait Initializable { 
-  type ApplicationContextT
+  type ApplicationContextT <: ApplicationContext
   type ConfigT
 
   trait Config {

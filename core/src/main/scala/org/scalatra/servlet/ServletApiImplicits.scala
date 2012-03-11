@@ -16,8 +16,6 @@ import scala.collection.JavaConversions._
  */
 trait ServletApiImplicits {
   implicit def sessionWrapper(s: ServletSession) = new RichSession(s)
-  implicit def applicationContextWrapper(sc: ServletContext) = 
-    new RichServletContext(sc)
   implicit def DefaultDispatchers: EnumSet[DispatcherType] =
     EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC)
 

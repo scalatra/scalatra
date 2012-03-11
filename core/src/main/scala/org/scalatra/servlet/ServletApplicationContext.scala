@@ -8,10 +8,19 @@ import javax.servlet.http.{HttpServlet, HttpServletRequest}
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
+object ServletApplicationContext {
+  def apply(servletContext: ServletContext) = 
+    new ServletApplicationContext(servletContext)
+}
+
 /**
  * Extension methods to the standard ServletContext.
  */
-class RichServletContext(sc: ServletContext) extends ApplicationContext with AttributesMap {
+class ServletApplicationContext(sc: ServletContext) 
+  extends ServletContextWrapper(sc)
+  with ApplicationContext 
+  with AttributesMap 
+{
   protected def attributes = sc
 
   /**

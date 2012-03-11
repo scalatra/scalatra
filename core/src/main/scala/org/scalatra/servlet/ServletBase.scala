@@ -19,7 +19,7 @@ trait ServletBase
   with Initializable
 {
   type SessionT = HttpSession
-  type ApplicationContextT = ServletContext
+  type ApplicationContextT = ServletApplicationContext
   type ConfigT <: {
     def getServletContext(): ServletContext
     def getInitParameter(name: String): String
@@ -27,7 +27,7 @@ trait ServletBase
   }
 
   protected implicit def configWrapper(config: ConfigT) = new Config {
-    def context = config.getServletContext
+    def context = ServletApplicationContext(config.getServletContext)
 
     object initParameters extends DefaultMap[String, String] {
       def get(key: String): Option[String] =

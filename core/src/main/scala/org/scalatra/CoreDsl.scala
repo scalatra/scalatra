@@ -7,17 +7,10 @@ import scala.util.DynamicVariable
  */
 trait CoreDsl extends Handler with Control {
   /**
-   * The type of application context supported by this application.
-   * Must be viewable as an [[org.scalatra.ApplicationContext]].
+   * The type of application context supported by this application.  Made
+   * abstract for compatibility with the servlet implementation.
    */
-  type ApplicationContextT
-
-  /**
-   * A view of ApplicationContextT as a [[org.scalatra.ApplicationContext]].
-   * This allows backward compatibility with Scalatra applications written
-   * directly against the Servlet API.
-   */
-  protected implicit def applicationContextWrapper(context: ApplicationContextT): ApplicationContext
+  type ApplicationContextT <: ApplicationContext
 
   /**
    * The application context.  It is shared among all handlers within this

@@ -27,8 +27,6 @@ package object scalatra
   type AttributesMap = servlet.AttributesMap
   @deprecated("Use org.scalatra.servlet.RichSession") // since 2.1
   type RichSession = servlet.RichSession
-  @deprecated("Use org.scalatra.servlet.RichServletContext") // since 2.1
-  type RichServletContext = servlet.RichServletContext
   @deprecated("Use org.scalatra.servlet.ServletApiImplicits") // since 2.1
   type ServletApiImplicits = servlet.ServletApiImplicits
   @deprecated("Use org.scalatra.servlet") // since 2.1
