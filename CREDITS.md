@@ -12,6 +12,7 @@
 ## Other contributors
 
 - [Luke Amdor](http://rubbish.io/)
+- [Stefan De Boey](http://stefandeboey.be/)
 - [JR Boyens](http://jrboyens.github.com/)
 - [Jon Buffington](http://blog.jon.buffington.name/)
 - [Gregg Carrier](http://janxspirit.blogspot.com/)

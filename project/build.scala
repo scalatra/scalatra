@@ -164,7 +164,16 @@ object ScalatraBuild extends Build {
     id = "scalatra-docs",
     base = file("docs"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(liftJson, liftJsonExt)
+      description := "Scalatra legacy documentation; see scalatra-swagger"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test")
+
+  lazy val scalatraSwagger = Project(
+    id = "scalatra-swagger",
+    base = file("swagger"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(liftJson, liftJsonExt),
+      description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;test->test")
 
