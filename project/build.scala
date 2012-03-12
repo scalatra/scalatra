@@ -163,7 +163,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraDocs = Project(
     id = "scalatra-docs",
     base = file("docs"),
-    settings = scalatraSettings
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(liftJson, liftJsonExt)
+    )
   ) dependsOn(scalatraCore % "compile;test->test")
 
   lazy val scalatraExample = Project(
@@ -218,6 +220,7 @@ object ScalatraBuild extends Build {
     val junit = "junit" % "junit" % "4.10"
 
     val liftJson = "net.liftweb" %% "lift-json" % "2.4"
+    val liftJsonExt = "net.liftweb" %% "lift-json-ext" % "2.4"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
