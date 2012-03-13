@@ -49,7 +49,7 @@ class ServletRequest(r: HttpServletRequest)
 
   def queryString: String = Option(r.getQueryString) getOrElse ""
 
-  def parameters: MultiParams = {
+  def multiParameters: MultiParams = {
     r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
       .transform { (k, v) => v: Seq[String] }
   }

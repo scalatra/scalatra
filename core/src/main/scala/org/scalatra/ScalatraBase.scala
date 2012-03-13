@@ -44,7 +44,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   def handle(request: RequestT, response: ResponseT) {
 
-    val realMultiParams = request.parameters
+    val realMultiParams = request.multiParameters
 
     response.characterEncoding = Some(defaultCharacterEncoding)
 

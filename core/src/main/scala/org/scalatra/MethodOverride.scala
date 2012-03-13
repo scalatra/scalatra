@@ -10,7 +10,7 @@ trait MethodOverride extends Handler {
     val req2 = req.requestMethod match {
       case Post =>
         req.parameters.get(paramName) map { method =>
-	  requestWithMethod(req, HttpMethod(method.head))
+	  requestWithMethod(req, HttpMethod(method))
         } getOrElse req
       case _ =>
         req

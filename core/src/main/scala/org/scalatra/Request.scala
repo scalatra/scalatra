@@ -1,8 +1,8 @@
-
 package org.scalatra
 
+import util.{MultiMap, MultiMapHeadView}
+
 import java.io.{InputStream}
-import util.MultiMap
 import java.net.URI
 import collection.{Map, mutable}
 
@@ -87,7 +87,11 @@ trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
    * A Map of the parameters of this request. Parameters are contained in
    * the query string or posted form data.
    */
-  def parameters: MultiParams
+  def multiParameters: MultiParams
+
+  object parameters extends MultiMapHeadView[String, String] {
+    protected def multiMap = multiParameters
+  }
 
   // TODO def files: GenSeq[HttpFile]
 
