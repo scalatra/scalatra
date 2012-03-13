@@ -11,7 +11,7 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
-    version := "2.1.0-SNAPSHOT",
+    version := "2.1.0.M1",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked"),
