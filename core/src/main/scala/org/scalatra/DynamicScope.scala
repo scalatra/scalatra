@@ -56,6 +56,6 @@ trait DynamicScope {
   @deprecated("Do not invoke directly. Use `withRequest` to change the binding, or request to get the value") // since 2.1
   protected def _request = dynamicRequest
 
-  @deprecated("Do not invoke directly. Use `withRequest` to change the binding, or `response` to get the value") // since 2.1
+  @deprecated("Do not invoke directly. Use `withResponse` to change the binding, or `response` to get the value") // since 2.1
   protected def _response = dynamicResponse
 }
