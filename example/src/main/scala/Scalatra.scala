@@ -13,7 +13,7 @@ class Scalatra extends LifeCycle {
     val meteor = new ServletHolder(classOf[org.atmosphere.cpr.MeteorServlet])
     meteor.setInitParameter("org.atmosphere.servlet", "org.scalatra.MeteorChatExample")
     meteor.setInitOrder(0)
-    context.mount(meteor, "/meteor/*") 
+    context.mount(meteor, "/meteor/*") */
     */
     
     context.mount(new CookiesExample, "/cookies-example/*")
