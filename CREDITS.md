@@ -8,6 +8,7 @@
 - [Hiram Chirino](http://hiramchirino.com/)
 - [Ivan Porto Carrero](http://flanders.co.nz/) 
 - [Jared Armstrong](http://www.jaredarmstrong.name/) 
+- [Stefan De Boey](http://stefandeboey.be/home/)
 
 ## Other contributors
 
@@ -28,7 +29,7 @@
 - [Dag Liodden](http://github.com/daggerrz)
 - [Massimiliano Mazzarolo](http://github.com/m20o)
 - [Ted Nyman](http://github.com/tnm)
-- [Șeyi Ogunyẹ́mi](http://www.micrypt.com)
+- [Șeyi Ogunyẹ́mi](http://www.micrypt.com)
 - [Stefan Ollinger](http://github.com/dozed)
 - [Srirangan](http://srirangan.net)
 - [Eric Torreborre](http://etorreborre.blogspot.com/)
