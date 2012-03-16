@@ -51,10 +51,28 @@ class ServletApplicationContext(sc: ServletContext)
     resource(path)
   }
 
+  /**
+   * Mounts a handler to the servlet context.  Must be an HttpServlet or a
+   * Filter.
+   *
+   * @handler the handler to mount
+   * 
+   * @urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
+   * not already, as path-mapping is the most natural fit for Scalatra.
+   * If you don't want path mapping, use the native Servlet API.
+   * 
+   * @name the name of the handler
+   */
   def mount(handler: Handler, urlPattern: String, name: String) {
+    val pathMap = urlPattern match {
+      case s if s.endsWith("/*") => s
+      case s if s.endsWith("/") => s + "*"
+      case s => s + "/*"
+    }
+
     handler match {
-      case servlet: HttpServlet => mountServlet(servlet, urlPattern, name)
-      case filter: Filter => mountFilter(filter, urlPattern, name)
+      case servlet: HttpServlet => mountServlet(servlet, pathMap, name)
+      case filter: Filter => mountFilter(filter, pathMap, name)
       case _ => error("Don't know how to mount this service to a servletContext: " + handler.getClass)
     }
   }
