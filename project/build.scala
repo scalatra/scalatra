@@ -16,6 +16,7 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting,
+    crossPaths := false,
     resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots)
   ) ++ mavenCentralFrouFrou
 
