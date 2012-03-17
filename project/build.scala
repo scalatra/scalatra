@@ -12,9 +12,8 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.1.0-SNAPSHOT",
-    crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
-    scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-unchecked"),
+    scalaVersion := "2.9.1",
+    scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting,
     resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots)
@@ -38,10 +37,10 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(
+      libraryDependencies ++= Seq(
 	servletApi,
-        grizzledSlf4j(sv)
-      )),
+        grizzledSlf4j
+      ),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
@@ -81,7 +80,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalate",
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(scalate(sv), servletApi)),
+      libraryDependencies ++= Seq(scalate, servletApi),
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
@@ -100,7 +99,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-anti-xml",
     base = file("anti-xml"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(antiXml),
+      libraryDependencies += antiXml,
       description := "Anti-XML support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test")
@@ -118,14 +117,14 @@ object ScalatraBuild extends Build {
     id = "scalatra-test",
     base = file("test"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(
-        grizzledSlf4j(sv),
+      libraryDependencies ++= Seq(
+        grizzledSlf4j,
         testJettyServlet,
         mockitoAll,
         commonsLang3,
-        specs2(sv) % "test",
+        specs2 % "test",
         dispatch
-      )),
+      ),
       description := "The abstract Scalatra test framework"
     )
   )
@@ -134,7 +133,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalatest",
     base = file("scalatest"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(scalatest(sv), junit, testng)),
+      libraryDependencies ++= Seq(scalatest, junit, testng),
       description := "ScalaTest support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
@@ -143,7 +142,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-specs",
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(specs),
+      libraryDependencies += specs,
       description := "Specs support for the Scalatra test framework", 
       // The one in Maven Central has a bad checksum for 2.8.2.  
       // Try ScalaTools first.
@@ -155,7 +154,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-specs2",
     base = file("specs2"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(specs2),
+      libraryDependencies += specs2,
       description := "Specs2 support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
@@ -191,13 +190,7 @@ object ScalatraBuild extends Build {
   )
 
   object Dependencies {
-    def antiXml(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "0.2"
-        case _ => "0.3"
-      }
-      "com.codecommit" %% "anti-xml" % libVersion
-    }
+    def antiXml = "com.codecommit" %% "anti-xml" % "0.3"
 
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
 
@@ -212,20 +205,14 @@ object ScalatraBuild extends Build {
 
     val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5"
 
-    def grizzledSlf4j(scalaVersion: String) = {
-      // Temporary hack pending 2.8.2 release of slf4s.
-      val artifactId = "grizzled-slf4j_"+(scalaVersion match {
-        case "2.8.2" => "2.8.1"
-        case v => v
-      })
-      "org.clapper" % artifactId % "0.6.6"
-    }
+    def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.v20120127"
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyServlet = jettyDep("jetty-servlet")
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
+
     val junit = "junit" % "junit" % "4.10"
 
     val liftJson = "net.liftweb" %% "lift-json" % "2.4"
@@ -233,42 +220,13 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
-    def scalate(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        // 1.5.3-scala_2.8.2 fails on 2.8.1 loading
-        // scala/tools/nsc/interactive/Global$
-        case "2.8.1" => "1.5.2-scala_2.8.1"
-        case x if x startsWith "2.8." => "1.5.3-scala_2.8.2"
-        case _ => "1.5.3"
-      }
-      "org.fusesource.scalate" % "scalate-core" % libVersion
-    }
+    def scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
 
-    def scalatest(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5.1"
-        case _ => "1.6.1"
-      }
-      "org.scalatest" %% "scalatest" % libVersion
-    }
+    def scalatest = "org.scalatest" %% "scalatest" % "1.6.1"
 
-    def specs(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case "2.9.1" => "1.6.9"
-        case _ => "1.6.8"
-      }
-      "org.scala-tools.testing" %% "specs" % libVersion
-    }
+    def specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    def specs2(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5"
-        case "2.9.0" => "1.5" // https://github.com/etorreborre/specs2/issues/33
-        case "2.9.0-1" => "1.7.1" 
-        case _ => "1.8.2" 
-      }
-      "org.specs2" %% "specs2" % libVersion
-    }
+    def specs2 = "org.specs2" %% "specs2" % "1.8.2"
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
