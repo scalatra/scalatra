@@ -40,7 +40,7 @@ class ServletRequest(r: HttpServletRequest)
   def requestMethod = HttpMethod(getMethod)
 
   // Moved to conform with what similar specs call it
-  @deprecated("Use requestMethod") // Since 2.1
+  @deprecated("Use requestMethod", "2.1.0")
   def method = requestMethod
 
   def pathInfo: String = Option(r.getPathInfo) getOrElse ""
@@ -50,7 +50,7 @@ class ServletRequest(r: HttpServletRequest)
   def queryString: String = Option(r.getQueryString) getOrElse ""
 
   def multiParameters: MultiParams = {
-    r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
+    getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
       .transform { (k, v) => v: Seq[String] }
   }
 
@@ -81,12 +81,12 @@ class ServletRequest(r: HttpServletRequest)
 
   def serverName = r.getServerName
 
-  @deprecated(message = "Use HttpServletRequest.serverName instead")
+  @deprecated(message = "Use HttpServletRequest.serverName instead", "2.0.0")
   def host = serverName
 
   def serverPort = r.getServerPort
 
-  @deprecated(message = "Use HttpServletRequest.serverPort instead")
+  @deprecated(message = "Use HttpServletRequest.serverPort instead", "2.0.0")
   def port = Integer.toString(r.getServerPort)
 
   /**
@@ -99,7 +99,7 @@ class ServletRequest(r: HttpServletRequest)
     case null => None
   }
 
-  @deprecated("Use referrer")
+  @deprecated("Use referrer", "2.0.0")
   def referer: Option[String] = referrer
 
   /**
@@ -153,7 +153,7 @@ class ServletRequest(r: HttpServletRequest)
    */
   def cookies: CMap[String, String] = new MultiMapHeadView[String, String] { protected def multiMap = multiCookies }
 
-  protected def attributes = r
+  protected[scalatra] def attributes = r
 
   def inputStream: InputStream = r.getInputStream
 }

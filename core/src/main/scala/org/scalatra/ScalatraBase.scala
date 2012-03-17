@@ -363,7 +363,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   protected def routeBasePath: String
 
-  @deprecated("Use addRoute(HttpMethod, Seq[RouteMatcher], =>Any)")
+  @deprecated("Use addRoute(HttpMethod, Seq[RouteMatcher], =>Any)", "2.0.0")
   protected[scalatra] def addRoute(verb: String, transformers: Seq[RouteTransformer], action: => Any): Route =
     addRoute(HttpMethod(verb), transformers, action)
 

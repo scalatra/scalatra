@@ -5,7 +5,7 @@ import org.apache.commons.io.IOUtils
 import fileupload.FileUploadSupport
 import scalate.ScalateSupport
 
-class TemplateExample extends ScalatraServlet with UrlSupport /*with FileUploadSupport*/ with FlashMapSupport with ScalateSupport {
+class TemplateExample extends ScalatraServlet /*with FileUploadSupport*/ with FlashMapSupport with ScalateSupport {
 
   object Template {
 

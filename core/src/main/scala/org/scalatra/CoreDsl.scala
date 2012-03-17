@@ -18,7 +18,7 @@ trait CoreDsl extends Handler with Control {
    */
   implicit def applicationContext: ApplicationContextT
 
-  @deprecated("Use applicationContext instead") // Since 2.1
+  @deprecated("Use applicationContext instead", "2.1.0")
   def servletContext: ApplicationContextT = applicationContext
 
   /**
@@ -58,7 +58,7 @@ trait CoreDsl extends Handler with Control {
   def contentType_=(contentType: String): Unit = 
     response.contentType = Option(contentType)
 
-  @deprecated("Use status_=(Int) instead") // since 2.1
+  @deprecated("Use status_=(Int) instead", "2.1.0")
   def status(code: Int) = status_=(code)
 
   /**
@@ -86,10 +86,10 @@ trait CoreDsl extends Handler with Control {
    */
   def before(transformers: RouteTransformer*)(block: => Any): Unit
 
-  @deprecated("Use before() { ... }")
+  @deprecated("Use before() { ... }", "2.0.0")
   final def beforeAll(block: => Any): Unit = before()(block)
 
-  @deprecated("Use before(RouteTransformer*) { ... }")
+  @deprecated("Use before(RouteTransformer*) { ... }", "2.0.0")
   final def beforeSome(transformers: RouteTransformer*)(block: => Any): Unit =
     before(transformers: _*)(block)
 
@@ -100,10 +100,10 @@ trait CoreDsl extends Handler with Control {
    */
   def after(transformers: RouteTransformer*)(block: => Any): Unit
 
-  @deprecated("Use after() { ... }")
+  @deprecated("Use after() { ... }", "2.0.0")
   final def afterAll(block: => Any): Unit = after()(block)
 
-  @deprecated("Use after(RouteTransformer*) { ... }")
+  @deprecated("Use after(RouteTransformer*) { ... }", "2.0.0")
   final def afterSome(transformers: RouteTransformer*)(block: => Any): Unit =
     before(transformers: _*)(block)
 

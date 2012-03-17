@@ -73,7 +73,7 @@ class ServletApplicationContext(sc: ServletContext)
     handler match {
       case servlet: HttpServlet => mountServlet(servlet, pathMap, name)
       case filter: Filter => mountFilter(filter, pathMap, name)
-      case _ => error("Don't know how to mount this service to a servletContext: " + handler.getClass)
+      case _ => sys.error("Don't know how to mount this service to a servletContext: " + handler.getClass)
     }
   }
 

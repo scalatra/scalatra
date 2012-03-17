@@ -1,10 +1,10 @@
 package org.scalatra
 
-import servlet.ServletBase
+import servlet.{ServletBase, ServletRequest, ServletResponse}
 
 import scala.util.DynamicVariable
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import javax.servlet._
+import javax.servlet.{ServletRequest => JServletRequest, ServletResponse => JServletResponse, _}
 
 /**
  * An implementation of the Scalatra DSL in a filter.  You may prefer a filter
@@ -26,12 +26,12 @@ trait ScalatraFilter extends Filter with ServletBase {
   private val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 
-  def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) = {
+  def doFilter(request: JServletRequest, response: JServletResponse, chain: FilterChain) = {
     val httpRequest = request.asInstanceOf[HttpServletRequest]
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
     _filterChain.withValue(chain) {
-      handle(httpRequest, httpResponse)
+      handle(ServletRequest(httpRequest), ServletResponse(httpResponse))
     }
   }
 
@@ -40,9 +40,9 @@ trait ScalatraFilter extends Filter with ServletBase {
   def requestPath = request.getServletPath + (if (request.getPathInfo != null) request.getPathInfo else "")
 
   protected def routeBasePath = {
-    if (servletContext == null)
+    if (applicationContext == null)
       throw new IllegalStateException("routeBasePath requires an initialized servlet context to determine the context path")
-    servletContext.getContextPath
+    applicationContext.getContextPath
   }
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)

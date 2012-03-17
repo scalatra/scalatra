@@ -1,6 +1,8 @@
 package org.scalatra
 package auth
 
+import servlet.ServletBase
+
 import javax.servlet.http.HttpSession
 
 object ScentryAuthStore {
@@ -11,7 +13,7 @@ object ScentryAuthStore {
     def invalidate
   }
 
-  class HttpOnlyCookieAuthStore(app: => (ScalatraKernel with CookieSupport), secureOnly: Boolean = false)
+  class HttpOnlyCookieAuthStore(app: => (ServletBase with CookieSupport), secureOnly: Boolean = false)
       extends CookieAuthStore(app.cookies, secureOnly) {
 
     private val SET_COOKIE = "Set-Cookie".intern

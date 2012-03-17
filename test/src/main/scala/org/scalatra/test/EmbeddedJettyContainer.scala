@@ -38,7 +38,7 @@ trait EmbeddedJettyContainer extends JettyContainer {
         val port = conn.getLocalPort
         "http://%s:%d".format(host, port)
       case None =>
-        error("can't calculate base URL: no connector")
+        sys.error("can't calculate base URL: no connector")
     }
 }
 

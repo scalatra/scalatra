@@ -1,6 +1,6 @@
 package org.scalatra
 
-import servlet.ServletBase
+import servlet.{ServletBase, ServletRequest, ServletResponse}
 
 import javax.servlet._
 import javax.servlet.http._
@@ -29,7 +29,7 @@ abstract class ScalatraServlet
   with Initializable
 {
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
-    handle(request, response)
+    handle(ServletRequest(request), ServletResponse(response))
   }
 
   /**
@@ -69,8 +69,8 @@ abstract class ScalatraServlet
    * to return None to stop this.
    */
   protected def serveStaticResource(): Option[Any] =
-    servletContext.resource(request) map { _ =>
-      servletContext.getNamedDispatcher("default").forward(request, response)
+    applicationContext.resource(request) map { _ =>
+      applicationContext.getNamedDispatcher("default").forward(request, response)
     }
 
   /**

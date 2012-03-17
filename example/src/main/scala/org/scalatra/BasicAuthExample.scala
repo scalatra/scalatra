@@ -2,13 +2,15 @@ package org.scalatra
 
 import auth.strategy.{BasicAuthStrategy, BasicAuthSupport}
 import auth.{ScentrySupport, ScentryConfig}
+import servlet.{ServletBase}
+
 import org.scalatra.BasicAuthExample.AuthenticationSupport
 
 object BasicAuthExample {
 
   case class MyUser(id: String)
 
-  class OurBasicAuthStrategy(protected override val app: ScalatraKernel, realm: String)
+  class OurBasicAuthStrategy(protected override val app: ServletBase, realm: String)
     extends BasicAuthStrategy[MyUser](app, realm) {
 
     protected def validate(userName: String, password: String): Option[MyUser] = {
@@ -19,7 +21,8 @@ object BasicAuthExample {
     protected def getUserId(user: MyUser): String = user.id
   }
 
-  trait AuthenticationSupport extends ScentrySupport[MyUser] with BasicAuthSupport[MyUser] { self: ScalatraKernel =>
+  trait AuthenticationSupport extends ScentrySupport[MyUser] with BasicAuthSupport[MyUser] { 
+    self: ServletBase =>
 
     val realm = "Scalatra Basic Auth Example"
 

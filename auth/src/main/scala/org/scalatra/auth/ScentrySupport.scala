@@ -1,9 +1,10 @@
-package org.scalatra.auth
+package org.scalatra
+package auth
 
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import util.DynamicVariable
+import servlet.{ServletBase, ServletRequest, ServletResponse}
+
 import javax.servlet.{FilterConfig, ServletConfig}
-import org.scalatra.{CookieSupport, Initializable, Handler, ScalatraKernel}
+import scala.util.DynamicVariable
 
 trait ScentryConfig {
   val login = "/login"
@@ -13,7 +14,7 @@ trait ScentryConfig {
 }
 
 trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable with CookieSupport {
-  self : ScalatraKernel =>
+  self: ServletBase =>
 
   type UserType = TypeForUser
   type ScentryConfiguration <: ScentryConfig
@@ -29,7 +30,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
     readStrategiesFromConfig(config)
   }
 
-  abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
+  abstract override def handle(servletRequest: ServletRequest, servletResponse: ServletResponse) = {
     withRequest(servletRequest) {
       request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession)
       configureScentry
@@ -75,9 +76,9 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   protected def user_=(user: UserType) = scentry.user = user
   protected def isAuthenticated : Boolean = scentry.isAuthenticated
   protected def isAnonymous : Boolean = !isAuthenticated
-  @deprecated("use isAuthenticated")
+  @deprecated("use isAuthenticated", "2.0.0")
   protected def authenticated_? : Boolean = isAuthenticated
-  @deprecated("use !isAuthenticated")
+  @deprecated("use !isAuthenticated", "2.0.0")
   protected def unAuthenticated_? : Boolean = !isAuthenticated
 
   protected def authenticate() = {
@@ -86,6 +87,6 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   protected def logOut() = scentry.logout()
 
-  @deprecated("use logOut()")
+  @deprecated("use logOut()", "2.0.0")
   protected def logOut_! = logOut()
 }

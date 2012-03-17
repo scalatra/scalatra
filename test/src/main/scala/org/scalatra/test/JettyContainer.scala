@@ -15,7 +15,7 @@ trait JettyContainer extends Container {
 
   def servletContextHandler: ServletContextHandler
 
-  @deprecated("use addServlet(Class, String) or addFilter(Class, String)")
+  @deprecated("use addServlet(Class, String) or addFilter(Class, String)", "2.0.0")
   def route(klass: Class[_], path: String) = klass match {
     case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
       addServlet(servlet.asInstanceOf[Class[_ <: HttpServlet]], path)
@@ -25,7 +25,7 @@ trait JettyContainer extends Container {
       throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
   }
 
-  @deprecated("renamed to addServlet")
+  @deprecated("renamed to addServlet", "2.0.0")
   def route(servlet: HttpServlet, path: String) = addServlet(servlet, path)
 
   def addServlet(servlet: HttpServlet, path: String) =
@@ -49,7 +49,7 @@ trait JettyContainer extends Container {
   def addFilter(filter: Class[_ <: Filter], path: String, dispatches: EnumSet[DispatcherType]): FilterHolder =
     servletContextHandler.addFilter(filter, path, dispatches)
 
-  @deprecated("renamed to addFilter")
+  @deprecated("renamed to addFilter", "2.0.0")
   def routeFilter(filter: Class[_ <: Filter], path: String) =
     addFilter(filter, path)
 

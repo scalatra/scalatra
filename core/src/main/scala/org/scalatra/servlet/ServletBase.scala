@@ -44,7 +44,7 @@ trait ServletBase
   override implicit def sessionOption: Option[SessionT] =
     Option(request.getSession(false)) map ServletSession.apply
 
-  override def addSessionId(uri: String) = response.encodeUrl(uri)
+  override def addSessionId(uri: String) = response.encodeURL(uri)
 
   protected def requestWithMethod(req: RequestT, m: HttpMethod) =
     new ServletRequest(req) {
@@ -60,7 +60,7 @@ trait ServletBase
     super.handle(request, response)
   }
 
-  @deprecated("Use handle(ServletRequest, ServletResponse)") // since 2.1
+  @deprecated("Use handle(ServletRequest, ServletResponse)", "2.1.0")
   def handle(req: HttpServletRequest, res: HttpServletResponse) {
     handle(ServletRequest(req), ServletResponse(res))
   }
@@ -69,7 +69,7 @@ trait ServletBase
    * For compatibility.  Ensures that the request is wrapped in Scalatra's
    * request abstraction.
    */
-  @deprecated("Remove references to HttpServletRequest from Scalatra apps") // since 2.1
+  @deprecated("Remove references to HttpServletRequest from Scalatra apps", "2.1.0")
   protected implicit def ensureServletRequest(request: HttpServletRequest): ServletRequest =
     request match {
       case r: ServletRequest => r
@@ -80,7 +80,7 @@ trait ServletBase
    * For compatibility.  Ensures that the request is wrapped in Scalatra's
    * response abstraction.
    */
-  @deprecated("Remove references to HttpServletResponse from Scalatra apps") // since 2.1
+  @deprecated("Remove references to HttpServletResponse from Scalatra apps", "2.1.0")
   protected implicit def ensureServletResponse(response: HttpServletResponse): ServletResponse =
     request match {
       case r: ServletResponse => r

@@ -7,7 +7,7 @@ package object scalatra
 
   type RouteTransformer = (Route => Route)
 
-  @deprecated("Use CsrfTokenSupport")
+  @deprecated("Use CsrfTokenSupport", "2.0.0")
   type CSRFTokenSupport = CsrfTokenSupport
   
   type MultiParams = MultiMap
@@ -24,6 +24,6 @@ package object scalatra
 
   val MultiParamsKey = "org.scalatra.MultiParams".intern
   
-  @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraBase if you don't.") // since 2.1
+  @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraBase if you don't.", "2.1.0")
   type ScalatraKernel = servlet.ServletBase
 }

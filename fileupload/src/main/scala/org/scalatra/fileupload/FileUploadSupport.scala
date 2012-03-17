@@ -1,6 +1,8 @@
 package org.scalatra
 package fileupload
 
+import servlet._
+
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.fileupload.{FileItemFactory, FileItem}
 import org.apache.commons.fileupload.disk.{DiskFileItem, DiskFileItemFactory}
@@ -19,10 +21,10 @@ import java.lang.String
    *
    * @note Once any handler with FileUploadSupport has accessed the request, the fileParams returned by FileUploadSupport will remain fixed for
    * the lifetime of the request. */
-trait FileUploadSupport extends ScalatraKernel {
+trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
-  override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
+  override def handle(req: ServletRequest, resp: ServletResponse) {
     val req2 =
       if (ServletFileUpload.isMultipartContent(req)) {
         val bodyParams = extractMultipartParams(req)
@@ -39,7 +41,7 @@ trait FileUploadSupport extends ScalatraKernel {
     super.handle(req2, resp)
   }
 
-  private def extractMultipartParams(req: HttpServletRequest): BodyParams =
+  private def extractMultipartParams(req: ServletRequest): BodyParams =
     // First look for it cached on the request, because we can't parse it twice.  See GH-16.
     req.get(BodyParamsKey).asInstanceOf[Option[BodyParams]] match {
       case Some(bodyParams) =>
@@ -79,13 +81,15 @@ trait FileUploadSupport extends ScalatraKernel {
     item.getString(charset getOrElse defaultCharacterEncoding)
   }
 
-  private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) =
-    new HttpServletRequestWrapper(req) {
+  private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
+    val wrapped = new ServletRequest(req) {
       override def getParameter(name: String) = formMap.get(name) map { _.head } getOrElse null
       override def getParameterNames = formMap.keysIterator
       override def getParameterValues(name: String) = formMap.get(name) map { _.toArray } getOrElse null
       override def getParameterMap = new JHashMap[String, Array[String]] ++ (formMap transform { (k, v) => v.toArray })
     }
+    wrapped
+  }
 
   /**
    * Creates a new file upload handler to parse the request.  By default, it

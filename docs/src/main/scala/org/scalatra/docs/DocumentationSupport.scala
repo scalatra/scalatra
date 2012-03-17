@@ -2,7 +2,7 @@ package org.scalatra.docs
 
 import org.scalatra._
 
-@deprecated("See scalatra-swagger")
+@deprecated("See scalatra-swagger", "2.1.0")
 trait DocumentationSupport {
   this: ScalatraBase =>
 

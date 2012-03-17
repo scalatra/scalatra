@@ -19,7 +19,7 @@ object GenerateId {
     hexEncode(tokenVal)
   }
 
-  @deprecated("Use generateCsrfToken()")
+  @deprecated("Use generateCsrfToken()", "2.0.0")
   protected def generateCSRFToken() = generateCsrfToken()
 }
 
@@ -83,7 +83,7 @@ trait CsrfTokenSupport {
     session.getOrElseUpdate(csrfKey, GenerateId())
   }
 
-  @deprecated("Use prepareCsrfToken()")
+  @deprecated("Use prepareCsrfToken()", "2.0.0")
   protected def prepareCSRFToken() = prepareCsrfToken()
 }
 

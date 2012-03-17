@@ -1,11 +1,13 @@
 package org.scalatra
 package auth
 
+import servlet.ServletBase
+
 import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
 trait ScentryStrategy[UserType <: AnyRef] {
 
-  protected def app: ScalatraKernel
+  protected def app: ServletBase
   def name: Symbol = 'NameMe
 
   def registerWith(registrar: Scentry[UserType]) {
@@ -14,7 +16,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
   }
 
 
-  def createStrategy(app: ScalatraKernel): this.type = {
+  def createStrategy(app: ServletBase): this.type = {
     throwOverrideException
   }
 
@@ -32,7 +34,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
    */
   def isValid = true
 
-  @deprecated("use isValid")
+  @deprecated("use isValid", "2.0.0")
   def valid_? = isValid
 
   /**
@@ -42,7 +44,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
    */
   def authenticate(): Option[UserType]
 
-  @deprecated("use authenticate()")
+  @deprecated("use authenticate()", "2.0.0")
   def authenticate_! = authenticate()
 
   /**

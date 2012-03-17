@@ -1,6 +1,8 @@
 package org.scalatra
 package auth
 
+import servlet.ServletBase
+
 import collection.mutable.{ HashMap, Map => MMap }
 import scala.PartialFunction
 import ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
@@ -9,7 +11,7 @@ import collection.immutable.List._
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = ScalatraKernel => ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ServletBase => ScentryStrategy[UserType]
 
   private val _globalStrategies = new HashMap[Symbol, StrategyFactory[_ <: AnyRef]]()
 
@@ -24,21 +26,21 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-        app: ScalatraKernel,
+        app: ServletBase,
         serialize: PartialFunction[UserType, String],
         deserialize: PartialFunction[String, UserType] ) {
 
   import RicherString._
 
   type StrategyType = ScentryStrategy[UserType]
-  type StrategyFactory = ScalatraKernel => StrategyType
+  type StrategyFactory = ServletBase => StrategyType
 
   import Scentry._
   private val _strategies = new HashMap[Symbol, StrategyFactory]()
   private var _user: UserType = null.asInstanceOf[UserType]
   private var _store: ScentryAuthStore = new SessionAuthStore(app.session)
 
-  @deprecated("use store_= instead")
+  @deprecated("use store_= instead", "2.0.0")
   def setStore(newStore: ScentryAuthStore) { store = newStore }
   def store = _store
   def store_=(newStore: ScentryAuthStore) {
@@ -48,7 +50,7 @@ class Scentry[UserType <: AnyRef](
   def isAuthenticated = {
     userOption.isDefined
   }
-  @deprecated("use isAuthenticated")
+  @deprecated("use isAuthenticated", "2.0.0")
   def authenticated_? = isAuthenticated
 
   //def session = app.session

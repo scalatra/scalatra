@@ -14,8 +14,7 @@ import util.MutableMapWithIndifferentAccess
  *
  * @see FlashMapSupport
  */
-@serializable
-class FlashMap extends MutableMapWithIndifferentAccess[Any] {
+class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
   private val m = MMap[String, Any]()
   private val flagged = MSet[String]()
 

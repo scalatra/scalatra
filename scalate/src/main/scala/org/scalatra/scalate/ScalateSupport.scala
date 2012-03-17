@@ -1,6 +1,8 @@
 package org.scalatra
 package scalate
 
+import servlet.{ServletRequest, ServletResponse}
+
 import scala.collection.mutable
 import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
@@ -110,7 +112,7 @@ trait ScalateSupport extends ScalatraKernel {
    * search is performed, and the layout strategy is circumvented.  Clients
    * are urged to consider layoutTemplate instead.
    */
-  @deprecated("not idiomatic Scalate; consider layoutTemplate instead")
+  @deprecated("not idiomatic Scalate; consider layoutTemplate instead", "2.0.0")
   def renderTemplate(path: String, attributes: (String, Any)*) =
     createRenderContext().render(path, Map(attributes : _*))
 
@@ -122,7 +124,7 @@ trait ScalateSupport extends ScalatraKernel {
    */
   protected def isScalateErrorPageEnabled = true
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  abstract override def handle(req: ServletRequest, res: ServletResponse) {
     try {
       super.handle(req, res)
     }
