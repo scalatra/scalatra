@@ -60,10 +60,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(akkaActor, akkaTestkit, servletApi),
       resolvers += "Akka Repo" at "http://repo.akka.io/repository",
-      description := "Scalatra akka integration module",
-      // Akka only supports 2.9.x, so don't build this module for 2.8.x.
-      skip <<= scalaVersion map { v => v startsWith "2.8." },
-      publishArtifact in (Compile, packageDoc) <<= scalaVersion(v => !(v startsWith "2.8."))
+      description := "Scalatra akka integration module"
     ) 
   ) dependsOn(scalatraCore % "compile;test->test")
 
