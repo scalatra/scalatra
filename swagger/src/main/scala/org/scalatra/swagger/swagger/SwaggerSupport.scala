@@ -6,10 +6,11 @@ import Symbols._
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
-trait DocumentationSupport {
+trait SwaggerSupport {
   self: ScalatraBase =>
 
-  var models: Map[String, Model] = Map.empty
+  private var _models: Map[String, Model] = Map.empty
+  protected def models_=(m: Map[String, Model]) = _models = m
 
   private var _description: PartialFunction[String, String] = Map.empty
   protected def description(f: PartialFunction[String, String]) = _description = _description orElse f
@@ -24,13 +25,17 @@ trait DocumentationSupport {
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
   protected def parameters(value: Parameter*) = swaggerMeta(Parameters, value.toList)
   protected def parameters(value: List[Parameter]) = swaggerMeta(Parameters, value)
+  protected def errors(value: Error*) = swaggerMeta(Errors, value.toList)
+  protected def errors(value: List[Error]) = swaggerMeta(Errors, value)
 
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
     route.copy(metadata = route.metadata + (s -> v))
   }
+  
+  def models = _models
 
   /**
-   * Builds the documentation for all the endpoints discovered in a Scalatra 'app'.
+   * Builds the documentation for all the endpoints discovered in an API.
    */
   def endpoints(basePath: String) = {
     case class Entry(key: String, value: List[Operation])
@@ -55,6 +60,7 @@ trait DocumentationSupport {
    */
   protected def operations(route: Route, method: HttpMethod): List[Operation] = {
     val params = route.metadata.get(Symbols.Parameters)
+    val errors = route.metadata.get(Symbols.Errors)
     val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[String]) getOrElse DataType.Void.name
     val summary = route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String]) orNull
     val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
@@ -63,7 +69,8 @@ trait DocumentationSupport {
       summary = summary,
       notes = notes,
       nickname = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String]),
-      parameters = params map (_.asInstanceOf[List[Parameter]]) getOrElse Nil))
+      parameters = params map (_.asInstanceOf[List[Parameter]]) getOrElse Nil,
+      errorResponses = errors map (_.asInstanceOf[List[Error]]) getOrElse Nil))
   }
 
   implicit def dataType2string(dt: DataType.DataType) = dt.name

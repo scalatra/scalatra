@@ -7,6 +7,7 @@ package object swagger {
     lazy val Nickname = Symbol("swagger.nickname")
     lazy val ResponseClass = Symbol("swagger.responseClass")
     lazy val Parameters = Symbol("swagger.parameters")
+    lazy val Errors = Symbol("swagger.errors")
     lazy val Endpoint = Symbol("swagger.endpoint")
   }
 }
