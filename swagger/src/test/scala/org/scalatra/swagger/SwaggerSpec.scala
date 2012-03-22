@@ -15,7 +15,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
 
   val swagger = new Swagger("1.0", "1")
   val testServlet = new SwaggerTestServlet
-  swagger register("test", "Test", testServlet)
+  swagger register("test", "/test", "Test", testServlet)
   addServlet(testServlet, "/test/*")
   addServlet(new SwaggerResourcesServlet(swagger), "/*")
 

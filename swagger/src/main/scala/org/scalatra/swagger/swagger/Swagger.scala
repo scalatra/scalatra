@@ -23,9 +23,8 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) {
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(path: String, description: String, s: SwaggerSupport) = {
-    val p = "/%s" format path
-    _docs = _docs + (path -> Api(p, description, s.endpoints(p), s.models))
+  def register(name: String, path: String, description: String, s: SwaggerSupport) = {
+    _docs = _docs + (name -> Api(path, description, s.endpoints(path), s.models))
   }
 }
 
