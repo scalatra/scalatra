@@ -31,7 +31,7 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample, scalatraAkka, scalatraDocs, scalatraJetty)
+      scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
   )
 
   lazy val scalatraCore = Project(
