@@ -3,7 +3,10 @@ package org.scalatra
 object ResponseStatus {
   def apply(code: Int): ResponseStatus =
     ResponseStatus(code, ReasonMap.getOrElse(code, ""))
-    
+  
+  /**
+   * Status code list taken from http://www.iana.org/assignments/http-status-codes/http-status-codes.xml
+   */
   private val ReasonMap = Map(
     100 -> "Continue",
     101 -> "Switching Protocols",
@@ -16,6 +19,8 @@ object ResponseStatus {
     205 -> "Reset Content",
     206 -> "Partial Content",
     207 -> "Multi-Status",
+    208 -> "Already Reported",
+    226 -> "IM Used",
     300 -> "Multiple Choices",
     301 -> "Moved Permanently",
     302 -> "Found",
@@ -46,7 +51,10 @@ object ResponseStatus {
     423 -> "Locked",
     424 -> "Failed Dependency",
     425 -> "Unordered Collection",
-    426 -> "Upgrade required",
+    426 -> "Upgrade Required",
+    428 -> "Precondition Required",
+    429 -> "Too Many Requests",
+    431 -> "Request Header Fields Too Large",
     500 -> "Internal Server Error",
     501 -> "Not Implemented",
     502 -> "Bad Gateway",
@@ -55,7 +63,9 @@ object ResponseStatus {
     505 -> "HTTP Version Not Supported",
     506 -> "Variant Also Negotiates",
     507 -> "Insufficient Storage",
-    510 -> "Not Extended"
+    508 -> "Loop Detected",
+    510 -> "Not Extended",
+    511 -> "Network Authentication Required"
   )
 }
 
