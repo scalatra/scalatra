@@ -7,6 +7,7 @@ object ResponseStatus {
   private val ReasonMap = Map(
     100 -> "Continue",
     101 -> "Switching Protocols",
+    102 -> "Processing",
     200 -> "OK",
     201 -> "Created",
     202 -> "Accepted",
@@ -14,6 +15,7 @@ object ResponseStatus {
     204 -> "No Content",
     205 -> "Reset Content",
     206 -> "Partial Content",
+    207 -> "Multi-Status",
     300 -> "Multiple Choices",
     301 -> "Moved Permanently",
     302 -> "Found",
@@ -40,12 +42,20 @@ object ResponseStatus {
     416 -> "Requested Range Not Satisfiable",
     417 -> "Expectation Failed",
     418 -> "I'm a teapot",
+    422 -> "Unprocessable Entity",
+    423 -> "Locked",
+    424 -> "Failed Dependency",
+    425 -> "Unordered Collection",
+    426 -> "Upgrade required",
     500 -> "Internal Server Error",
     501 -> "Not Implemented",
     502 -> "Bad Gateway",
     503 -> "Service Unavailable",
     504 -> "Gateway Timeout",
-    505 -> "HTTP Version Not Supported"
+    505 -> "HTTP Version Not Supported",
+    506 -> "Variant Also Negotiates",
+    507 -> "Insufficient Storage",
+    510 -> "Not Extended"
   )
 }
 
