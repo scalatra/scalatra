@@ -219,7 +219,6 @@ trait ScalateSupport extends ScalatraKernel {
    * Finds and renders a template with the current layout strategy,
    * looking for all known extensions, returning the result.
    *
-   * @param ext The extension to look for a template.
    * @param path The path of the template, passed to `findTemplate`.
    * @param attributes Attributes to path to the render context.  Disable
    * layouts by passing `layout -> ""`.
