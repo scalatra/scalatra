@@ -4,6 +4,7 @@ import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
 import dispatch._
 import org.apache.http.{HttpEntity, HttpResponse}
+import java.io.File
 
 trait DispatchClient extends Client {
   type Response = SimpleResponse
@@ -29,6 +30,16 @@ trait DispatchClient extends Client {
       SimpleResponse(status, headerMap(res), body())
     }
     withResponse(res) { f }
+  }
+
+  protected def submitMultipart[A](
+      method: String,
+      uri: String,
+      params: Iterable[(String, String)] = Map.empty,
+      headers: Map[String, String] = Map.empty,
+      files: Iterable[(String, File)] = Map.empty
+    )(f: => A): A = {
+    throw new UnsupportedOperationException()
   }
 
   def status = response.status
