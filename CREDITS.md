@@ -28,6 +28,7 @@
 - [Paul Lambert](http://paulitex.com/)
 - [Dag Liodden](http://github.com/daggerrz)
 - [Massimiliano Mazzarolo](http://github.com/m20o)
+- [Mikko Nylén](http://github.com/mnylen)
 - [Ted Nyman](http://github.com/tnm)
 - [Șeyi Ogunyẹ́mi](http://www.micrypt.com)
 - [Stefan Ollinger](http://github.com/dozed)
