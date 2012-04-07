@@ -9,6 +9,7 @@ import java.net.URI
 import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
 import java.io.InputStream
 import util.{MultiMap, MultiMapHeadView}
+import util.RicherString._
 
 object ServletRequest {
   def apply(req: HttpServletRequest) = new ServletRequest(req)
@@ -137,7 +138,7 @@ class ServletRequest(r: HttpServletRequest)
 
   /**
    * Returns a map of cookie names to lists of their values.  The default
-   * value of the map is the empty seuqence.
+   * value of the map is the empty sequence.
    */
   def multiCookies: MultiMap = {
     val rr = Option(r.getCookies).getOrElse(Array()).toSeq.
@@ -156,5 +157,7 @@ class ServletRequest(r: HttpServletRequest)
   protected[scalatra] def attributes = r
 
   def inputStream: InputStream = r.getInputStream
+
+  def remoteAddress = header("X-FORWARDED-FOR").flatMap(_.blankOption) getOrElse r.getRemoteAddr
 }
 

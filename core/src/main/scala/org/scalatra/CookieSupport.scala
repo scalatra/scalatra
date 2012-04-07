@@ -22,16 +22,16 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
     sb append name append "="
     sb append value
 
-    if(cookieOptions.domain.isNonBlank) sb.append("; Domain=").append(
+    if(cookieOptions.domain.nonBlank) sb.append("; Domain=").append(
       (if (!cookieOptions.domain.startsWith(".")) "." + cookieOptions.domain else cookieOptions.domain).toLowerCase(Locale.ENGLISH)
     )
 
     val pth = cookieOptions.path
-    if(pth.isNonBlank) sb append "; Path=" append (if(!pth.startsWith("/")) {
+    if(pth.nonBlank) sb append "; Path=" append (if(!pth.startsWith("/")) {
       "/" + pth
     } else { pth })
 
-    if(cookieOptions.comment.isNonBlank) sb append ("; Comment=") append cookieOptions.comment
+    if(cookieOptions.comment.nonBlank) sb append ("; Comment=") append cookieOptions.comment
 
     if(cookieOptions.maxAge > -1) sb append "; Max-Age=" append cookieOptions.maxAge
 

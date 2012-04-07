@@ -51,11 +51,11 @@ class ServletResponse(res: HttpServletResponse)
     import cookie._
 
     val sCookie = new ServletCookie(name, value)
-    if (options.domain.isNonBlank) sCookie.setDomain(options.domain)
-    if(options.path.isNonBlank) sCookie.setPath(options.path)
+    if (options.domain.nonBlank) sCookie.setDomain(options.domain)
+    if(options.path.nonBlank) sCookie.setPath(options.path)
     sCookie.setMaxAge(options.maxAge)
     if(options.secure) sCookie.setSecure(options.secure)
-    if(options.comment.isNonBlank) sCookie.setComment(options.comment)
+    if(options.comment.nonBlank) sCookie.setComment(options.comment)
     sCookie.setHttpOnly(options.httpOnly)
     addCookie(sCookie)
   }

@@ -15,7 +15,7 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
 
   protected def remoteAddress ={
     val proxied = app.request.getHeader("X-FORWARDED-FOR")
-    val res = if (proxied.isNonBlank) proxied else app.request.getRemoteAddr
+    val res = if (proxied.nonBlank) proxied else app.request.getRemoteAddr
     res
   }
 }

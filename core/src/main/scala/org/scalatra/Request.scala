@@ -106,4 +106,11 @@ trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
    * (defult ISO-8859-1).
    */
   def body: String
+
+  /**
+   * The remote address the client is connected from.
+   * This takes the load balancing header X-Forwarded-For into account
+   * @return the client ip address
+   */
+  def remoteAddress: String
 }

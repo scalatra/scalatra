@@ -128,7 +128,7 @@ trait ApiFormats extends ScalatraBase {
    * one.
    */
   protected def inferFromFormats: ContentTypeInferrer = {
-    case _ if format.isNonBlank => formats.get(format) getOrElse "application/octet-stream"
+    case _ if format.nonBlank => formats.get(format) getOrElse "application/octet-stream"
   }
 
   override protected def contentTypeInferrer: ContentTypeInferrer = inferFromFormats orElse super.contentTypeInferrer
