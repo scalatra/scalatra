@@ -11,7 +11,7 @@ import java.util.{List => JList, HashMap => JHashMap, Map => JMap}
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
 import collection.Iterable
 import java.lang.String
-import org.apache.commons.fileupload.{FileUploadBase, FileItemFactory, FileItem}
+import org.apache.commons.fileupload.{FileUploadException, FileUploadBase, FileItemFactory, FileItem}
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
    * as part of a multipart HTTP request.  Commonly this is used for retrieving uploaded files.
@@ -25,7 +25,7 @@ trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
   override def handle(req: ServletRequest, resp: ServletResponse) {
-    val req2 =
+    val req2 = try {
       if (isMultipartContent(req)) {
         val bodyParams = extractMultipartParams(req)
         var mergedParams = bodyParams.formParams
@@ -38,6 +38,13 @@ trait FileUploadSupport extends ServletBase {
         wrapRequest(req, mergedParams)
       }
       else req
+    } catch {
+      case e: FileUploadException => {
+        req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
+        req
+      }
+    }
+
     super.handle(req2, resp)
   }
 
