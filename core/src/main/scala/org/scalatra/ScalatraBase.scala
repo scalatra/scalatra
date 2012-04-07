@@ -15,6 +15,16 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 
+object ScalatraBase {
+  /**
+   * A key for request attribute that contains any exception
+   * that might have occured before the handling has been
+   * propagated to ScalatraBase#handle (such as in
+   * FileUploadSupport)
+   */
+  val PrehandleExceptionKey = "org.scalatra.PrehandleException"
+}
+
 /**
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
@@ -43,7 +53,6 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    *      `executeRoutes()`.
    */
   def handle(request: RequestT, response: ResponseT) {
-
     val realMultiParams = request.multiParameters
 
     response.characterEncoding = Some(defaultCharacterEncoding)
@@ -74,15 +83,27 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   protected def executeRoutes() = {
     val result = try {
-      runFilters(routes.beforeFilters)
-      val actionResult = runRoutes(routes(request.requestMethod)).headOption orElse
-        matchOtherMethods() getOrElse doNotFound()
-      // Give the status code handler a chance to override the actionResult
-      handleStatusCode(status) getOrElse actionResult
+      val prehandleException = request.get("org.scalatra.PrehandleException")
+
+      if (prehandleException.isEmpty) {
+        runFilters(routes.beforeFilters)
+        val actionResult = runRoutes(routes(request.requestMethod)).headOption orElse
+          matchOtherMethods() getOrElse doNotFound()
+        // Give the status code handler a chance to override the actionResult
+        handleStatusCode(status) getOrElse actionResult
+      } else {
+        throw prehandleException.get.asInstanceOf[Exception]
+      }
     }
     catch {
       case e: HaltException => renderHaltException(e)
-      case e => errorHandler(e)
+      case e => {
+        try {
+          errorHandler(e)
+        } catch {
+          case e2: HaltException => renderHaltException(e2)
+        }
+      }
     }
     finally {
       runFilters(routes.afterFilters)
