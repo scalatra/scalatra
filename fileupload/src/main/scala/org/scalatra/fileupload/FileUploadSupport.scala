@@ -4,7 +4,6 @@ package fileupload
 import servlet._
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload
-import org.apache.commons.fileupload.{FileItemFactory, FileItem}
 import org.apache.commons.fileupload.disk.{DiskFileItem, DiskFileItemFactory}
 import collection.JavaConversions._
 import scala.util.DynamicVariable
@@ -12,6 +11,7 @@ import java.util.{List => JList, HashMap => JHashMap, Map => JMap}
 import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
 import collection.Iterable
 import java.lang.String
+import org.apache.commons.fileupload.{FileUploadBase, FileItemFactory, FileItem}
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
    * as part of a multipart HTTP request.  Commonly this is used for retrieving uploaded files.
@@ -26,7 +26,7 @@ trait FileUploadSupport extends ServletBase {
 
   override def handle(req: ServletRequest, resp: ServletResponse) {
     val req2 =
-      if (ServletFileUpload.isMultipartContent(req)) {
+      if (isMultipartContent(req)) {
         val bodyParams = extractMultipartParams(req)
         var mergedParams = bodyParams.formParams
         // Add the query string parameters
@@ -39,6 +39,20 @@ trait FileUploadSupport extends ServletBase {
       }
       else req
     super.handle(req2, resp)
+  }
+
+  /*
+    ServletFileUpload.isMultipartContent only detects POST requests that have
+    Content-Type header starting with "multipart/" as multipart content. This
+    allows PUT requests to be also considered as multipart content.
+  */
+  private def isMultipartContent(req: ServletRequest) = {
+    val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
+
+    isPostOrPut && (req.contentType match {
+      case Some(contentType) => contentType.startsWith(FileUploadBase.MULTIPART)
+      case _                 => false
+    })
   }
 
   private def extractMultipartParams(req: ServletRequest): BodyParams =
