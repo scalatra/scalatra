@@ -2,6 +2,7 @@ package org.scalatra.test
 
 import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
+import java.io.File
 
 trait Client {
   type Response >: Null
@@ -23,6 +24,14 @@ trait Client {
     headers: Map[String, String] = Map.empty,
     body: String = null)(f: => A): A
 
+  protected def submitMultipart[A](
+    method: String,
+    uri: String,
+    params: Iterable[(String, String)] = Map.empty,
+    headers: Map[String, String] = Map.empty,
+    files: Iterable[(String, File)] = Map.empty
+  )(f: => A): A
+
   def get[A](uri: String)(f: => A): A = submit("GET", uri) { f }
   def get[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     get(uri, params, Map[String, String]())(f)
@@ -43,7 +52,10 @@ trait Client {
     post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
   def post[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("POST", uri, Seq.empty, headers, body) { f }
-  // @todo support POST multipart/form-data for file uploads
+  def post[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, File)])(f: => A): A =
+    post(uri, params, files, Map[String, String]()) { f }
+  def post[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, File)], headers: Map[String, String])(f: => A): A =
+    submitMultipart("POST", uri, params, headers, files) { f }
 
   def put[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =
     put(uri, params)(f)
@@ -53,7 +65,10 @@ trait Client {
     put(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
   def put[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A) =
     submit("PUT", uri, Seq.empty, headers, body) { f }
-  // @todo support PUT multipart/form-data for file uploads
+  def put[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, File)])(f: => A): A =
+    put(uri, params, files, Map[String, String]()) { f }
+  def put[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, File)], headers: Map[String, String])(f: => A): A =
+    submitMultipart("PUT", uri, params, headers, files) { f }
 
   def delete[A](uri: String, params: Iterable[(String, String)] = Seq.empty, headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("DELETE", uri, params, headers) { f }
