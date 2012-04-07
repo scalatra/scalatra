@@ -47,7 +47,7 @@ class MaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
   }
 
   error {
-    case e: FileUploadBase.SizeLimitExceededException => "boom"
+    case e: FileUploadBase.SizeLimitExceededException => halt(413, "boom")
   }
 
   override def newServletFileUpload = {
@@ -129,11 +129,10 @@ class FileUploadSupportTest extends ScalatraFunSuite {
   }
 
   test("max size is respected") {
-    multipartResponse("/max-size/").status should equal (500)
+    multipartResponse("/max-size/").status should equal (413)
   }
 
   test("file upload exceptions are handled by standard error handler") {
-    // multipartResponse("/max-size/").body should equal ("boom")
-    pending
+    multipartResponse("/max-size/").body should equal ("boom")
   }
 }

@@ -6,6 +6,7 @@ class ErrorHandlerTest extends ScalatraFunSuite {
   trait TestException extends RuntimeException
   case class Exception1() extends TestException
   case class Exception2() extends TestException
+  case class Exception3() extends TestException
 
   class BaseServlet extends ScalatraServlet {
     get("/1") {
@@ -21,8 +22,14 @@ class ErrorHandlerTest extends ScalatraFunSuite {
     error { case e: Exception2 => "child" }
   }
 
+  class HaltServlet extends BaseServlet {
+    get("/3") { throw new Exception3 }
+    error { case e: Exception3 => halt(413, "no more") }
+  }
+
   addServlet(new BaseServlet, "/base/*")
   addServlet(new ChildServlet, "/child/*")
+  addServlet(new HaltServlet, "/halt/*")
 
   test("result of error handler should be rendered") {
     get("/base/1") {
@@ -49,6 +56,13 @@ class ErrorHandlerTest extends ScalatraFunSuite {
   test("rethrows uncaught exceptions") {
     get("/base/uncaught") {
       status should equal (500)
+    }
+  }
+
+  test("halt() can be used from error handler") {
+    get("/halt/3") {
+      status should equal (413)
+      body should equal ("no more")
     }
   }
 }
