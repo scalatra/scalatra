@@ -6,10 +6,10 @@ class RicherString(orig: String) {
   def isBlank = orig == null || orig.trim.isEmpty
   @deprecated("Use nonBlank instead", "2.0")
   def isNonBlank = !isBlank
-  
+
   @deprecated("Use blankOption instead", "2.0")
-  def toOption = if (isBlank) None else Some(orig)
-  def blankOption = toOption
+  def toOption = blankOption
+  def blankOption = if (isBlank) None else Some(orig)
   def nonBlank = !isBlank
 //  def urlDecode(charset: Charset =)
 }
