@@ -104,35 +104,35 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
   }
 
   "POST with multipart/form-data" should {
-    "routes correctly to action" in {
+    "route correctly to action" in {
       postExample {
         status must_== 200
         body must_== "post(/upload)"
       }
     }
 
-    "makes multipart form params available from params" in {
+    "make multipart form params available through params" in {
       postExample {
         header("param1") must_== "one"
         header("param2") must_== "two"
       }
     }
 
-    "makes querystring params available from params" in {
+    "make query string params available from params" in {
       postExample {
         header("qsparam1") must_== "three"
         header("qsparam2") must_== "four"
       }
     }
 
-    "does not twiddle with the headers" in {
+    "keep headers as they were in the request" in {
       postExample {
         header("X-Header")  must_== "I'm a header"
         header("X-Header2") must_== "I'm another header"
       }
     }
 
-    "makes files available through fileParams" in {
+    "make all files available through fileParams" in {
       postExample {
         header("File-text-Name") must_== "lorem_ipsum.txt"
         header("File-text-Size") must_== "651"
@@ -144,7 +144,7 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
       }
     }
 
-    "makes multiple files with [] syntax available through fileMultiParams" in {
+    "make multiple files with [] syntax available through fileMultiParams" in {
       postMultiExample {
         header("File-files[]0-Name") must_== "lorem_ipsum.txt"
         header("File-files[]0-Size") must_== "651"
@@ -156,20 +156,20 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
       }
     }
 
-    "makes first file available of multiple file params through fileParams" in {
+    "make first file available of multiple file params through fileParams" in {
       postMultiExample {
         header("File-files[]-First") must_== "lorem_ipsum.txt"
       }
     }
 
-    "does not make fileParams available as params" in {
+    "not make the fileParams available through params" in {
       postExample {
         Option(header("text")) must_== None
         Option(header("binary")) must_== None
       }
     }
 
-    "keeps file params on pass" in {
+    "keep file params on pass" in {
       postPass {
         header("File-text-Name") must_== "lorem_ipsum.txt"
         header("File-text-Size") must_== "651"
