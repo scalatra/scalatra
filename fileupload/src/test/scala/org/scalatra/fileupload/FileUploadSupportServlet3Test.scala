@@ -41,6 +41,12 @@ class FileUploadSupportServlet3TestServlet extends ScalatraServlet with FileUplo
 
     "post(/uploadFileMultiParams)"
   }
+
+  post("/regular") {
+    params.foreach(param =>
+      response.setHeader(param._1, param._2)
+    )
+  }
 }
 
 class FileUploadSupportServlet3Test extends MutableScalatraSpec {
@@ -118,6 +124,13 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
         header("File-files[]1-Name") must_== "smiley.png"
         header("File-files[]1-Size") must_== "3432"
         header("File-files[]1-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856"
+      }
+    }
+  "regular POST" should {
+    "not be affected by FileUploadSupport handling" in {
+      post("/regular", Map("param1" -> "one", "param2" -> "two")) {
+        header("param1") must_== "one"
+        header("param2") must_== "two"
       }
     }
   }
