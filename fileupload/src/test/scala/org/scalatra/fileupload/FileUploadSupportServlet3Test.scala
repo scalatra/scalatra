@@ -4,6 +4,8 @@ import scala.collection.JavaConversions._
 import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraServlet
 import java.io.File
+import org.apache.commons.io.IOUtils
+import org.eclipse.jetty.testing.HttpTester
 
 class FileUploadSupportServlet3TestServlet extends ScalatraServlet with FileUploadSupportServlet3 {
   def headersToHeaders() {
@@ -32,6 +34,12 @@ class FileUploadSupportServlet3TestServlet extends ScalatraServlet with FileUplo
     fileParamsToHeaders()
 
     "post(/upload)"
+  }
+
+  post("/params") {
+    paramsToHeaders()
+
+    "post(/params)"
   }
 
   post("/passUpload/*") {
@@ -101,6 +109,17 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
     val files  = Map("text" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"))
 
     post("/passUpload/file", params, files) { f }
+  }
+
+  def multipartResponse(path: String, file: String = "multipart_request.txt") = {
+    // TODO We've had problems with the tester not running as iso-8859-1, even if the
+    // request really isn't iso-8859-1.  This is a hack, but this hack passes iff the
+    // browser behavior is correct.
+    val req = new String(IOUtils.toString(getClass.getResourceAsStream(file))
+      .replace("${PATH}", path).getBytes, "iso-8859-1")
+    val res = new HttpTester("iso-8859-1")
+    res.parse(tester.getResponses(req))
+    res
   }
 
   "POST with multipart/form-data" should {
@@ -182,6 +201,16 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
         header("param1") must_== "one"
         header("param2") must_== "two"
       }
+    }
+
+    "use default charset (UTF-8) for decoding form params if not explicitly set to something else" in {
+      val res = multipartResponse("/params")
+      res.header("utf8-string") must_== "föo"
+    }
+
+    "use the charset specified in Content-Type header of a part for decoding form params" in {
+      val res = multipartResponse("/params", "multipart_request_charset_handling.txt")
+      res.header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
     }
   }
 

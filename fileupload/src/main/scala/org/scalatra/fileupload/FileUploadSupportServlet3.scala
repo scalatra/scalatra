@@ -62,7 +62,21 @@ trait FileUploadSupportServlet3 extends ServletBase {
   private def partToString(part: Part): String = {
     import org.scalatra.util.io.readBytes
 
-    new String(readBytes(part.getInputStream))
+    val contentTypeOrNone = Option(part.getContentType)
+    val charset = contentTypeOrNone match {
+      case Some(contentType) => {
+        contentType.split(";").find(_.trim().startsWith("charset")) match {
+          case Some(cs) => cs.substring(cs.indexOf('=') + 1).trim().replace("\"", "")
+          case _        => defaultCharacterEncoding
+        }
+      }
+
+      case _ => defaultCharacterEncoding
+    }
+
+    println(charset)
+
+    new String(readBytes(part.getInputStream), charset)
   }
 
   private def fileName(part: Part): Option[String] = {
