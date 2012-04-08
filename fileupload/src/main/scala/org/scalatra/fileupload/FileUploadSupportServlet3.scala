@@ -62,38 +62,12 @@ trait FileUploadSupportServlet3 extends ServletBase {
   private def partToString(part: Part): String = {
     import org.scalatra.util.io.readBytes
 
-    val contentTypeOrNone = Option(part.getContentType)
-    val charset = contentTypeOrNone match {
-      case Some(contentType) => {
-        contentType.split(";").find(_.trim().startsWith("charset")) match {
-          case Some(cs) => cs.substring(cs.indexOf('=') + 1).trim().replace("\"", "")
-          case _        => defaultCharacterEncoding
-        }
-      }
-
-      case _ => defaultCharacterEncoding
-    }
-
-    println(charset)
-
+    val charset = getHeaderAttribute(part, "content-type", "charset", defaultCharacterEncoding)
     new String(readBytes(part.getInputStream), charset)
   }
 
   private def fileName(part: Part): Option[String] = {
-    val partHeaderOrNone = Option(part.getHeader("content-disposition"))
-
-    partHeaderOrNone match {
-      case Some(partHeader) => {
-        val fileNameAttrOrNone = partHeader.split(";").find(_.trim().startsWith("filename"))
-
-        fileNameAttrOrNone match {
-          case Some(fileName) => Some(fileName.substring(fileName.indexOf('=') + 1).trim().replace("\"", ""))
-          case _              => None
-        }
-      }
-
-      case _               => None
-    }
+    Option(getHeaderAttribute(part, "content-disposition", "filename", null))
   }
 
   private def mergeFormParamsWithQueryString(req: RequestT, bodyParams: BodyParams): Map[String, List[String]] = {
@@ -115,6 +89,17 @@ trait FileUploadSupportServlet3 extends ServletBase {
       override def getParameterMap = new JHashMap[String, Array[String]] ++ (formMap transform { (k, v) => v.toArray })
     }
     wrapped
+  }
+
+  private def getHeaderAttribute(part: Part, headerName: String, attributeName: String, defaultValue: String = "") = Option(part.getHeader(headerName)) match {
+    case Some(value) => {
+      value.split(";").find(_.trim().startsWith(attributeName)) match {
+        case Some(attributeValue) => attributeValue.substring(attributeValue.indexOf('=') + 1).trim().replace("\"", "")
+        case _                    => defaultValue
+      }
+    }
+
+    case _ => defaultValue
   }
 
   protected def fileMultiParams: FileMultiParamsServlet3 = extractMultipartParams(request).fileParams
