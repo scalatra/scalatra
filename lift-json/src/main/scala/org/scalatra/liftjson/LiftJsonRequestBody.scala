@@ -2,8 +2,8 @@ package org.scalatra
 package liftjson
 
 import net.liftweb.json._
-import annotation.tailrec
 import net.liftweb.json.Xml._
+import java.io.InputStreamReader
 import util.RicherString._
 import java.nio.CharBuffer
 
@@ -16,31 +16,35 @@ object LiftJsonRequestBody {
 trait LiftJsonRequestBodyWithoutFormats extends ScalatraBase with ApiFormats {
   import LiftJsonRequestBody._
    
-    protected def parseRequestBody(format: String, content: String) = try {
-      if (format == "json") {
-        transformRequestBody(JsonParser.parse(content))
-      } else if (format == "xml") {
-        transformRequestBody(toJson(scala.xml.XML.loadString(content)))
-      } else JString(content)
-    } catch { case _ ⇒ JNothing }
-  
-    protected def transformRequestBody(body: JValue) = body
-  
-    override protected def invoke(matchedRoute: MatchedRoute) = {
-      withRouteMultiParams(Some(matchedRoute)) {
-        val mt = request.contentType map { _.split(";").head } getOrElse "application/x-www-form-urlencoded"
-        val fmt = mimeTypes get mt getOrElse "html"
-        if (shouldParseBody(fmt)) {
-          request(ParsedBodyKey) = parseRequestBody(fmt, request.body)
-        }
-        super.invoke(matchedRoute)
-      }
-    }
+  protected def parseRequestBody(format: String) = try {
+    if (format == "json") {
+      transformRequestBody(JsonParser.parse(new InputStreamReader(request.inputStream)))
+    } else if (format == "xml") {
+      transformRequestBody(toJson(scala.xml.XML.load(request.inputStream)))
+    } else JNothing
+  } catch {
+    case _ ⇒ JNothing
+  }
 
-    private def shouldParseBody(fmt: String) =
-      (fmt == "json" || fmt == "xml") && request.get(LiftJsonRequestBody.ParsedBodyKey).isEmpty
-  
-    def parsedBody = request.get(ParsedBodyKey) getOrElse JNothing
+  protected def transformRequestBody(body: JValue) = body
+
+  override protected def invoke(matchedRoute: MatchedRoute) = {
+    withRouteMultiParams(Some(matchedRoute)) {
+      val mt = request.contentType map {
+        _.split(";").head
+      } getOrElse "application/x-www-form-urlencoded"
+      val fmt = mimeTypes get mt getOrElse "html"
+      if (shouldParseBody(fmt)) {
+        request(ParsedBodyKey) = parseRequestBody(fmt)
+      }
+      super.invoke(matchedRoute)
+    }
+  }
+
+  private def shouldParseBody(fmt: String) =
+    (fmt == "json" || fmt == "xml") && parsedBody != JNothing
+
+  def parsedBody = request.get(ParsedBodyKey) getOrElse JNothing
 }
 
 /**
