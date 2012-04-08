@@ -23,6 +23,24 @@ class FileUploadSupportServlet3TestServlet extends ScalatraServlet with FileUplo
 
     "post(/upload)"
   }
+
+  post("/uploadFileMultiParams") {
+    fileMultiParams.foreach(file => {
+      val name = file._1
+      val items = file._2
+      var i     = 0
+
+      items.foreach(item => {
+        response.setHeader("File-" + name + i + "-Name", item.name)
+        response.setHeader("File-" + name + i + "-Size", item.size.toString)
+        response.setHeader("File-" + name + i+ "-SHA", DigestUtils.shaHex(item.bytes))
+
+        i += 1
+      })
+    })
+
+    "post(/uploadFileMultiParams)"
+  }
 }
 
 class FileUploadSupportServlet3Test extends MutableScalatraSpec {
@@ -40,6 +58,14 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
     )
 
     post("/upload?qsparam1=three&qsparam2=four", params, files, headers) { f }
+  }
+
+  def postMultiExample[A](f: => A): A = {
+    val files  =
+      ("files[]", new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt")) ::
+      ("files[]", new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")) :: Nil
+
+    post("/uploadFileMultiParams", Map(), files) { f }
   }
 
   "POST with multipart/form-data" should {
@@ -80,6 +106,18 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
         header("File-binary-Name") must_== "smiley.png"
         header("File-binary-Size") must_== "3432"
         header("File-binary-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856"
+      }
+    }
+
+    "makes multiple files with same form name through fileMultiParams" in {
+      postMultiExample {
+        header("File-files[]0-Name") must_== "lorem_ipsum.txt"
+        header("File-files[]0-Size") must_== "651"
+        header("File-files[]0-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0"
+
+        header("File-files[]1-Name") must_== "smiley.png"
+        header("File-files[]1-Size") must_== "3432"
+        header("File-files[]1-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856"
       }
     }
   }
