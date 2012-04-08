@@ -36,6 +36,13 @@ package object io {
     using(in.getChannel) { ch => ch.transferTo(0, ch.size, Channels.newChannel(out)) }
   }
 
+  def readBytes(in: InputStream): Array[Byte] = {
+    val out = new ByteArrayOutputStream()
+    copy(in, out)
+
+    out.toByteArray
+  }
+
   /**
    * Creates a temp file, passes it to a block, and removes the temp file on the block's completion.
    *
