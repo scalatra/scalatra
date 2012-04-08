@@ -6,18 +6,6 @@ import org.scalatra.ScalatraServlet
 import java.security.MessageDigest
 import java.io.{ByteArrayOutputStream, InputStream, File}
 
-object DigestUtils {
-  def shaHex(bytes: Array[Byte]): String = {
-    val digest = MessageDigest.getInstance("SHA")
-    val digestBytes = digest.digest(bytes)
-
-    hexEncode(digestBytes.toList)
-  }
-
-  def hexEncode(bytes: List[Byte]): String = {
-    bytes.map{ b => String.format("%02X", java.lang.Byte.valueOf(b)) }.mkString("").toLowerCase
-  }
-}
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
   def handleRequest() {
