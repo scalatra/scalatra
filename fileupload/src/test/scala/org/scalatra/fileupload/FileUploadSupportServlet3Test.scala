@@ -6,30 +6,39 @@ import org.scalatra.ScalatraServlet
 import java.io.File
 
 class FileUploadSupportServlet3TestServlet extends ScalatraServlet with FileUploadSupportServlet3 {
-  post("/upload") {
-    params.foreach(param =>
-      response.setHeader(param._1, param._2)
-    )
-
+  def headersToHeaders() {
     request.getHeaderNames.filter(_.startsWith("X")).foreach(header =>
       response.setHeader(header, request.getHeader(header))
     )
+  }
 
+  def fileParamsToHeaders() {
     fileParams.foreach(fileParam => {
       response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
       response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
       response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.bytes))
     })
+  }
+
+  def paramsToHeaders() {
+    params.foreach(param =>
+      response.setHeader(param._1, param._2)
+    )
+  }
+
+  post("/upload") {
+    headersToHeaders()
+    paramsToHeaders()
+    fileParamsToHeaders()
 
     "post(/upload)"
   }
 
   post("/passUpload/*") {
-    fileParams.foreach(fileParam => {
-      response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
-      response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
-      response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.bytes))
-    })
+    fileParamsToHeaders()
+    paramsToHeaders()
+
+    "post(/passUpload/*)"
   }
 
   post("/passUpload/file") {
@@ -58,9 +67,7 @@ class FileUploadSupportServlet3TestServlet extends ScalatraServlet with FileUplo
   }
 
   post("/regular") {
-    params.foreach(param =>
-      response.setHeader(param._1, param._2)
-    )
+    paramsToHeaders()
   }
 }
 
@@ -87,6 +94,13 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
       ("files[]", new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")) :: Nil
 
     post("/uploadFileMultiParams", Map(), files) { f }
+  }
+
+  def postPass[A](f: => A): A = {
+    val params = Map("param1" -> "one", "param2" -> "two")
+    val files  = Map("text" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"))
+
+    post("/passUpload/file", params, files) { f }
   }
 
   "POST with multipart/form-data" should {
@@ -156,10 +170,17 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
     }
 
     "keeps file params on pass" in {
-      post("/passUpload/file", Map(), Map("text" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"))) {
+      postPass {
         header("File-text-Name") must_== "lorem_ipsum.txt"
         header("File-text-Size") must_== "651"
         header("File-text-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0"
+      }
+    }
+
+    "keep params on pass" in {
+      postPass {
+        header("param1") must_== "one"
+        header("param2") must_== "two"
       }
     }
   }
