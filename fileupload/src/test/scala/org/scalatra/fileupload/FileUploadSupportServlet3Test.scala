@@ -26,9 +26,12 @@ class FileUploadSupportServlet3TestServlet extends ScalatraServlet with FileUplo
 
   post("/uploadFileMultiParams") {
     fileMultiParams.foreach(file => {
-      val name = file._1
-      val items = file._2
+      val name   = file._1
+      val items  = file._2
+      val first  = fileParams(name)
       var i     = 0
+
+      response.setHeader("File-" + name + "-First", first.name)
 
       items.foreach(item => {
         response.setHeader("File-" + name + i + "-Name", item.name)
@@ -115,7 +118,7 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
       }
     }
 
-    "makes multiple files with same form name through fileMultiParams" in {
+    "makes multiple files with [] syntax available through fileMultiParams" in {
       postMultiExample {
         header("File-files[]0-Name") must_== "lorem_ipsum.txt"
         header("File-files[]0-Size") must_== "651"
@@ -126,6 +129,21 @@ class FileUploadSupportServlet3Test extends MutableScalatraSpec {
         header("File-files[]1-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856"
       }
     }
+
+    "makes first file available of multiple file params through fileParams" in {
+      postMultiExample {
+        header("File-files[]-First") must_== "lorem_ipsum.txt"
+      }
+    }
+
+    "does not make fileParams available as params" in {
+      postExample {
+        Option(header("text")) must_== None
+        Option(header("binary")) must_== None
+      }
+    }
+  }
+
   "regular POST" should {
     "not be affected by FileUploadSupport handling" in {
       post("/regular", Map("param1" -> "one", "param2" -> "two")) {
