@@ -3,9 +3,7 @@ package org.scalatra.fileupload
 import scala.collection.JavaConversions._
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatra.ScalatraServlet
-import java.security.MessageDigest
-import java.io.{ByteArrayOutputStream, InputStream, File}
-
+import java.io.File
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
   def handleRequest() {
@@ -17,9 +15,9 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
     )
 
     fileParams.foreach(fileParam => {
-      response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.getName)
-      response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.getSize.toString)
-      response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.get()))
+      response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
+      response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
+      response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.bytes))
     })
   }
 

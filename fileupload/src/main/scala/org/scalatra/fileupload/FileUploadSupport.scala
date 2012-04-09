@@ -1,105 +1,84 @@
-package org.scalatra
-package fileupload
+package org.scalatra.fileupload
 
-import servlet._
+import scala.collection.JavaConversions._
+import javax.servlet.annotation.MultipartConfig
+import javax.servlet.http.{HttpServletRequest, Part}
+import org.scalatra.servlet.{ServletRequest, ServletBase}
+import java.util.{HashMap => JHashMap, Map => JMap}
 
-import org.apache.commons.fileupload.servlet.ServletFileUpload
-import org.apache.commons.fileupload.disk.{DiskFileItem, DiskFileItemFactory}
-import collection.JavaConversions._
-import scala.util.DynamicVariable
-import java.util.{List => JList, HashMap => JHashMap, Map => JMap}
-import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
-import collection.Iterable
-import java.lang.String
-import org.apache.commons.fileupload.{FileUploadException, FileUploadBase, FileItemFactory, FileItem}
-
-/** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
-   * as part of a multipart HTTP request.  Commonly this is used for retrieving uploaded files.
-   *
-   * Once the trait has been mixed into your handler you can access any files uploaded using {{{ fileParams("myFile") }}} where ''myFile'' is the name
-   * of the parameter used to upload the file being retrieved.
-   *
-   * @note Once any handler with FileUploadSupport has accessed the request, the fileParams returned by FileUploadSupport will remain fixed for
-   * the lifetime of the request. */
+@MultipartConfig
 trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
-  override def handle(req: ServletRequest, resp: ServletResponse) {
+  override def handle(req: RequestT, res: ResponseT) {
     val req2 = try {
-      if (isMultipartContent(req)) {
-        val bodyParams = extractMultipartParams(req)
-        var mergedParams = bodyParams.formParams
-        // Add the query string parameters
-        req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
-          case (name, values) =>
-            val formValues = mergedParams.getOrElse(name, List.empty)
-            mergedParams += name -> (values.toList ++ formValues)
-        }
-        wrapRequest(req, mergedParams)
-      }
-      else req
+      if (isMultipartRequest(req)) {
+        val bodyParams       = extractMultipartParams(req)
+        val mergedFormParams = mergeFormParamsWithQueryString(req, bodyParams)
+
+        wrapRequest(req, mergedFormParams)
+      } else req
     } catch {
-      case e: FileUploadException => {
-        req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
-        req
-      }
+      case e: Exception => req
     }
 
-    super.handle(req2, resp)
+    super.handle(req2, res)
   }
 
-  /*
-    ServletFileUpload.isMultipartContent only detects POST requests that have
-    Content-Type header starting with "multipart/" as multipart content. This
-    allows PUT requests to be also considered as multipart content.
-  */
-  private def isMultipartContent(req: ServletRequest) = {
+  private def isMultipartRequest(req: RequestT): Boolean = {
     val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
 
     isPostOrPut && (req.contentType match {
-      case Some(contentType) => contentType.startsWith(FileUploadBase.MULTIPART)
+      case Some(contentType) => contentType.startsWith("multipart/")
       case _                 => false
     })
   }
 
-  private def extractMultipartParams(req: ServletRequest): BodyParams =
-    // First look for it cached on the request, because we can't parse it twice.  See GH-16.
+  private def extractMultipartParams(req: RequestT): BodyParams = {
     req.get(BodyParamsKey).asInstanceOf[Option[BodyParams]] match {
       case Some(bodyParams) =>
         bodyParams
-      case None =>
-        val upload = newServletFileUpload
-        val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
-        val bodyParams = items.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (item, params) =>
-          if (item.isFormField)
-            BodyParams(params.fileParams, params.formParams + ((item.getFieldName, fileItemToString(req, item) :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
-          else
-            BodyParams(params.fileParams + ((item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
+
+      case None => {
+        req.getParts.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (part, params) =>
+          val fname = fileName(part)
+
+          if (fname.isDefined) {
+            BodyParams(params.fileParams + ((
+              part.getName, FileItem(fname.get, part) +: params.fileParams.getOrElse(part.getName, List[FileItem]())
+              )), params.formParams)
+          } else {
+            BodyParams(params.fileParams, params.formParams + (
+              (part.getName, partToString(part) ::
+                params.formParams.getOrElse(part.getName, List[String]())
+              )
+            ))
           }
-        req(BodyParamsKey) = bodyParams
-        bodyParams
+        }
+      }
+    }
+  }
+
+  private def partToString(part: Part): String = {
+    import org.scalatra.util.io.readBytes
+
+    val charset = getHeaderAttribute(part, "content-type", "charset", defaultCharacterEncoding)
+    new String(readBytes(part.getInputStream), charset)
+  }
+
+  private def fileName(part: Part): Option[String] = {
+    Option(getHeaderAttribute(part, "content-disposition", "filename", null))
+  }
+
+  private def mergeFormParamsWithQueryString(req: RequestT, bodyParams: BodyParams): Map[String, List[String]] = {
+    var mergedParams = bodyParams.formParams
+    req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
+      case (name, values) =>
+        val formValues = mergedParams.getOrElse(name, List.empty)
+        mergedParams += name -> (values.toList ++ formValues)
     }
 
-  /**
-   * Converts a file item to a string.
-   *
-   * Browsers tend to be sloppy about providing content type headers with
-   * charset information to form-data parts.  Worse, browsers are
-   * inconsistent about how they encode these parameters.
-   *
-   * The default implementation attempts to use the charset specified on
-   * the request.  If that is unspecified, and it usually isn't, then it
-   * falls back to the kernel's charset.
-   */
-  protected def fileItemToString(req: HttpServletRequest, item: FileItem): String = {
-    val charset = item match {
-      case diskItem: DiskFileItem =>
-        // Why doesn't FileItem have this method???
-        Option(diskItem.getCharSet())
-      case _ =>
-        None
-    }
-    item.getString(charset getOrElse defaultCharacterEncoding)
+    mergedParams
   }
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
@@ -112,34 +91,25 @@ trait FileUploadSupport extends ServletBase {
     wrapped
   }
 
-  /**
-   * Creates a new file upload handler to parse the request.  By default, it
-   * creates a `ServletFileUpload` instance with the file item factory 
-   * returned by the `fileItemFactory` method.  Override this method to
-   * customize properties such as the maximum file size, progress listener,
-   * etc.
-   *
-   * @return a new file upload handler.
-   */
-  protected def newServletFileUpload: ServletFileUpload = 
-    new ServletFileUpload(fileItemFactory)
+  private def getHeaderAttribute(part: Part, headerName: String, attributeName: String, defaultValue: String = "") = Option(part.getHeader(headerName)) match {
+    case Some(value) => {
+      value.split(";").find(_.trim().startsWith(attributeName)) match {
+        case Some(attributeValue) => attributeValue.substring(attributeValue.indexOf('=') + 1).trim().replace("\"", "")
+        case _                    => defaultValue
+      }
+    }
 
-  /**
-   * The file item factory used by the default implementation of 
-   * `newServletFileUpload`.  By default, we use a DiskFileItemFactory.
-   */
-  /*
-   * [non-scaladoc] This method predates newServletFileUpload.  If I had it 
-   * to do over again, we'd have that instead of this.  Oops.
-   */
-  protected def fileItemFactory: FileItemFactory = new DiskFileItemFactory
+    case _ => defaultValue
+  }
 
   protected def fileMultiParams: FileMultiParams = extractMultipartParams(request).fileParams
 
   protected val _fileParams = new collection.Map[String, FileItem] {
     def get(key: String) = fileMultiParams.get(key) flatMap { _.headOption }
     override def size = fileMultiParams.size
-    override def iterator = fileMultiParams map { case(k, v) => (k, v.head) } iterator
+    override def iterator = (fileMultiParams map {
+      case (k, v) => (k, v.head)
+    }).iterator
     override def -(key: String) = Map() ++ this - key
     override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
   }
@@ -149,8 +119,6 @@ trait FileUploadSupport extends ServletBase {
 }
 
 object FileUploadSupport {
-  case class BodyParams(fileParams: FileMultiParams, formParams: Map[String, List[String]])
   private val BodyParamsKey = "org.scalatra.fileupload.bodyParams"
+  case class BodyParams(fileParams: FileMultiParams, formParams: Map[String, List[String]])
 }
-
-

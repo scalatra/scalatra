@@ -1,138 +1,225 @@
-package org.scalatra
-package fileupload
+package org.scalatra.fileupload
 
-import java.net.{URLDecoder, URLEncoder}
-import org.scalatest.FunSuite
-import org.eclipse.jetty.testing.{ServletTester, HttpTester}
+import scala.collection.JavaConversions._
+import org.scalatra.test.specs2.MutableScalatraSpec
+import org.scalatra.ScalatraServlet
+import java.io.File
 import org.apache.commons.io.IOUtils
-import org.scalatest.junit.JUnitRunner
-import org.junit.runner.RunWith
-import test.scalatest.ScalatraFunSuite
-import org.apache.commons.fileupload.FileUploadBase
+import org.eclipse.jetty.testing.HttpTester
 
 class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
-  post("""/multipart.*""".r) {
-    multiParams.get("string") foreach { ps: Seq[String] => response.setHeader("string", ps.mkString(";")) }
-    fileParams.get("file") foreach { fi => response.setHeader("file", new String(fi.get)) }
-    fileParams.get("file-none") foreach { fi => response.setHeader("file-none", new String(fi.get)) }
-    fileParams.get("file-two[]") foreach { fi => response.setHeader("file-two", new String(fi.get)) }
-    fileMultiParams.get("file-two[]") foreach { fis =>
-      response.setHeader("file-two-with-brackets", fis.foldLeft(""){ (acc, fi) => acc + new String(fi.get) })
-    }
-    fileMultiParams.get("file-two") foreach { fis =>
-      response.setHeader("file-two-without-brackets", fis.foldLeft(""){ (acc, fi) => acc + new String(fi.get) })
-    }
-    params.get("file") foreach { response.setHeader("file-as-param", _) }
-    params("utf8-string")
+  def headersToHeaders() {
+    request.getHeaderNames.filter(_.startsWith("X")).foreach(header =>
+      response.setHeader(header, request.getHeader(header))
+    )
   }
 
-  post("/multipart-pass") {
+  def fileParamsToHeaders() {
+    fileParams.foreach(fileParam => {
+      response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
+      response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
+      response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.bytes))
+    })
+  }
+
+  def paramsToHeaders() {
+    params.foreach(param =>
+      response.setHeader(param._1, param._2)
+    )
+  }
+
+  post("/upload") {
+    headersToHeaders()
+    paramsToHeaders()
+    fileParamsToHeaders()
+
+    "post(/upload)"
+  }
+
+  post("/params") {
+    paramsToHeaders()
+
+    "post(/params)"
+  }
+
+  post("/passUpload/*") {
+    fileParamsToHeaders()
+    paramsToHeaders()
+
+    "post(/passUpload/*)"
+  }
+
+  post("/passUpload/file") {
     pass()
   }
 
-  post("/multipart-param") {
-    params.get("queryParam") foreach { p =>
-      response.addHeader("Query-Param", p)
-    }
-    pass()
+  post("/uploadFileMultiParams") {
+    fileMultiParams.foreach(file => {
+      val name   = file._1
+      val items  = file._2
+      val first  = fileParams(name)
+      var i     = 0
+
+      response.setHeader("File-" + name + "-First", first.name)
+
+      items.foreach(item => {
+        response.setHeader("File-" + name + i + "-Name", item.name)
+        response.setHeader("File-" + name + i + "-Size", item.size.toString)
+        response.setHeader("File-" + name + i+ "-SHA", DigestUtils.shaHex(item.bytes))
+
+        i += 1
+      })
+    })
+
+    "post(/uploadFileMultiParams)"
   }
 
-  post("/echo") {
-    params.getOrElse("echo", "")
+  post("/regular") {
+    paramsToHeaders()
   }
 }
 
-class MaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
-  post() {
-  }
-
-  error {
-    case e: FileUploadBase.SizeLimitExceededException => halt(413, "boom")
-  }
-
-  override def newServletFileUpload = {
-    val upload = super.newServletFileUpload
-    upload.setSizeMax(1)
-    upload
-  }
-}
-
-
-@RunWith(classOf[JUnitRunner])
-class FileUploadSupportTest extends ScalatraFunSuite {
+class FileUploadSupportTest extends MutableScalatraSpec {
   addServlet(classOf[FileUploadSupportTestServlet], "/*")
-  addServlet(classOf[MaxSizeTestServlet], "/max-size/*")
+  def postExample[A](f: => A): A = {
+    val params = Map("param1" -> "one", "param2" -> "two")
+    val files  = Map(
+      "text"   -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"),
+      "binary" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")
+    )
 
-  def multipartResponse(path: String = "/multipart") = {
+    val headers = Map(
+      "X-Header"  -> "I'm a header",
+      "X-Header2" -> "I'm another header"
+    )
+
+    post("/upload?qsparam1=three&qsparam2=four", params, files, headers) { f }
+  }
+
+  def postMultiExample[A](f: => A): A = {
+    val files  =
+      ("files[]", new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt")) ::
+      ("files[]", new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")) :: Nil
+
+    post("/uploadFileMultiParams", Map(), files) { f }
+  }
+
+  def postPass[A](f: => A): A = {
+    val params = Map("param1" -> "one", "param2" -> "two")
+    val files  = Map("text" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"))
+
+    post("/passUpload/file", params, files) { f }
+  }
+
+  def multipartResponse(path: String, file: String = "multipart_request.txt") = {
     // TODO We've had problems with the tester not running as iso-8859-1, even if the
     // request really isn't iso-8859-1.  This is a hack, but this hack passes iff the
     // browser behavior is correct.
-    val req = new String(IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
+    val req = new String(IOUtils.toString(getClass.getResourceAsStream(file))
       .replace("${PATH}", path).getBytes, "iso-8859-1")
     val res = new HttpTester("iso-8859-1")
     res.parse(tester.getResponses(req))
     res
   }
 
-  test("keeps input parameters on multipart request") {
-    multipartResponse().getHeader("string") should equal ("foo")
-  }
+  "POST with multipart/form-data" should {
+    "route correctly to action" in {
+      postExample {
+        status must_== 200
+        body must_== "post(/upload)"
+      }
+    }
 
-  test("decodes input parameters according to request encoding") {
-    multipartResponse().getContent() should equal ("föo")
-  }
+    "make multipart form params available through params" in {
+      postExample {
+        header("param1") must_== "one"
+        header("param2") must_== "two"
+      }
+    }
 
-  test("sets file params") {
-    multipartResponse().getHeader("file") should equal ("one")
-  }
+    "make query string params available from params" in {
+      postExample {
+        header("qsparam1") must_== "three"
+        header("qsparam2") must_== "four"
+      }
+    }
 
-  test("sets file param with no bytes when no file is uploaded") {
-    multipartResponse().getHeader("file-none") should equal ("")
-  }
+    "keep headers as they were in the request" in {
+      postExample {
+        header("X-Header")  must_== "I'm a header"
+        header("X-Header2") must_== "I'm another header"
+      }
+    }
 
-  test("sets multiple file params") {
-    multipartResponse().getHeader("file-two-with-brackets") should equal ("twothree")
-  }
+    "make all files available through fileParams" in {
+      postExample {
+        header("File-text-Name") must_== "lorem_ipsum.txt"
+        header("File-text-Size") must_== "651"
+        header("File-text-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0"
 
-  test("looks for params with [] suffix, Ruby style") {
-    multipartResponse().getHeader("file-two-without-brackets") should equal ("twothree")
-  }
+        header("File-binary-Name") must_== "smiley.png"
+        header("File-binary-Size") must_== "3432"
+        header("File-binary-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856"
+      }
+    }
 
-  test("fileParams returns first input for multiple file params") {
-    multipartResponse().getHeader("file-two") should equal ("two")
-  }
+    "make multiple files with [] syntax available through fileMultiParams" in {
+      postMultiExample {
+        header("File-files[]0-Name") must_== "lorem_ipsum.txt"
+        header("File-files[]0-Size") must_== "651"
+        header("File-files[]0-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0"
 
-  test("file params are not params") {
-    multipartResponse().getHeader("file-as-param") should equal (null)
-  }
+        header("File-files[]1-Name") must_== "smiley.png"
+        header("File-files[]1-Size") must_== "3432"
+        header("File-files[]1-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856"
+      }
+    }
 
-  test("keeps input params on pass") {
-    multipartResponse("/multipart-pass").getHeader("string") should equal ("foo")
-  }
+    "make first file available of multiple file params through fileParams" in {
+      postMultiExample {
+        header("File-files[]-First") must_== "lorem_ipsum.txt"
+      }
+    }
 
-  test("keeps file params on pass") {
-    multipartResponse("/multipart-pass").getHeader("file") should equal ("one")
-  }
+    "not make the fileParams available through params" in {
+      postExample {
+        Option(header("text")) must_== None
+        Option(header("binary")) must_== None
+      }
+    }
 
-  test("reads form params on non-multipart request") {
-    post("/echo", "echo" -> "foo") {
-      body should equal("foo")
+    "keep file params on pass" in {
+      postPass {
+        header("File-text-Name") must_== "lorem_ipsum.txt"
+        header("File-text-Size") must_== "651"
+        header("File-text-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0"
+      }
+    }
+
+    "keep params on pass" in {
+      postPass {
+        header("param1") must_== "one"
+        header("param2") must_== "two"
+      }
+    }
+
+    "use default charset (UTF-8) for decoding form params if not explicitly set to something else" in {
+      val res = multipartResponse("/params")
+      res.header("utf8-string") must_== "föo"
+    }
+
+    "use the charset specified in Content-Type header of a part for decoding form params" in {
+      val res = multipartResponse("/params", "multipart_request_charset_handling.txt")
+      res.header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
     }
   }
 
-  test("keeps query parameters") {
-    multipartResponse("/multipart-param?queryParam=foo").getHeader("Query-Param") should equal ("foo")
-  }
-
-  test("query parameters don't shadow post parameters") {
-    multipartResponse("/multipart-param?string=bar").getHeader("string") should equal ("bar;foo")
-  }
-
-  test("max size is respected") {
-    multipartResponse("/max-size/").status should equal (413)
-  }
-
-  test("file upload exceptions are handled by standard error handler") {
-    multipartResponse("/max-size/").body should equal ("boom")
+  "regular POST" should {
+    "not be affected by FileUploadSupport handling" in {
+      post("/regular", Map("param1" -> "one", "param2" -> "two")) {
+        header("param1") must_== "one"
+        header("param2") must_== "two"
+      }
+    }
   }
 }

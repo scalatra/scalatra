@@ -1,13 +1,5 @@
-package org.scalatra
-package fileupload
+package org.scalatra.fileupload
 
-import org.apache.commons.fileupload.FileItem
-
-/**
- * TODO This is a copy-and-paste abomination that needs to be merged with
- * [[org.scalatra.util.MultiMap]].  We can't properly genericize that this
- * close to a release.
- */
 class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty) extends Map[String, Seq[FileItem]] {
 
   def get(key: String): Option[Seq[FileItem]] = {
@@ -32,5 +24,3 @@ object FileMultiParams {
   def apply[SeqType <: Seq[FileItem]](wrapped: Map[String, Seq[FileItem]]) =
     new FileMultiParams(wrapped)
 }
-
-
