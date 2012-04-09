@@ -1,5 +1,9 @@
 package org.scalatra
 
+object MethodOverride {
+  val ParamName = "_method"
+  val HeaderName = "X-HTTP-METHOD-OVERRIDE"
+}
 /**
  * Mixin for clients that only support a limited set of HTTP verbs.  If the
  * request is a POST and the `_method` request parameter is set, the value of
@@ -27,10 +31,8 @@ trait MethodOverride extends Handler {
    */
   protected def requestWithMethod(req: RequestT, method: HttpMethod): RequestT 
 
-  private val paramName = "_method"
-  private val headerName= "X-HTTP-METHOD-OVERRIDE"
-
   private def methodOverride(req: RequestT) = {
-    (req.parameters.get(paramName) orElse req.headers.get(headerName))
+    import MethodOverride._
+    (req.parameters.get(ParamName) orElse req.headers.get(HeaderName))
   }
 }
