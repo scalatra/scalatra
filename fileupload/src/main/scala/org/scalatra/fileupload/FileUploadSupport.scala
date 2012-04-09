@@ -1,12 +1,10 @@
 package org.scalatra.fileupload
 
 import scala.collection.JavaConversions._
-import javax.servlet.annotation.MultipartConfig
 import javax.servlet.http.HttpServletRequest
 import org.scalatra.servlet.{ServletRequest, ServletBase}
 import java.util.{HashMap => JHashMap, Map => JMap}
 
-@MultipartConfig
 trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
