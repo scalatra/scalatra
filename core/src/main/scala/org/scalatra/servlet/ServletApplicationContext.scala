@@ -77,13 +77,42 @@ class ServletApplicationContext(sc: ServletContext)
     }
   }
 
+  def mount[T](handlerClass: Class[T], urlPattern: String, name: String) {
+    val pathMap = urlPattern match {
+      case s if s.endsWith("/*") => s
+      case s if s.endsWith("/") => s + "*"
+      case s => s + "/*"
+    }
+
+    if (classOf[HttpServlet].isAssignableFrom(handlerClass)) {
+      mountServlet(handlerClass.asInstanceOf[Class[HttpServlet]], urlPattern, name)
+    } else if (classOf[Filter].isAssignableFrom(handlerClass)) {
+      mountFilter(handlerClass.asInstanceOf[Class[Filter]], urlPattern, name)
+    } else {
+      sys.error("Don't know how to mount this service to a servletContext: " + handlerClass)
+    }
+  }
+
   private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String) {
     val reg = sc.addServlet(name, servlet)
     reg.addMapping(urlPattern)
   }
 
+  private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String) {
+      val reg = sc.addServlet(name, servletClass)
+      reg.addMapping(urlPattern)
+    }
+
   private def mountFilter(filter: Filter, urlPattern: String, name: String) {
     val reg = sc.addFilter(name, filter)
+    // We don't have an elegant way of threading this all the way through
+    // in an abstract fashion, so we'll dispatch on everything.
+    val dispatchers = EnumSet.allOf(classOf[DispatcherType])
+    reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
+  }
+
+  private def mountFilter(filterClass: Class[Filter], urlPattern: String, name: String) {
+    val reg = sc.addFilter(name, filterClass)
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
     val dispatchers = EnumSet.allOf(classOf[DispatcherType])
