@@ -9,8 +9,8 @@ trait MethodOverride extends Handler {
   abstract override def handle(req: RequestT, res: ResponseT) {
     val req2 = req.requestMethod match {
       case Post =>
-        req.parameters.get(paramName) map { method =>
-	  requestWithMethod(req, HttpMethod(method))
+        methodOverride(req) map { method =>
+	        requestWithMethod(req, HttpMethod(method))
         } getOrElse req
       case _ =>
         req
@@ -28,4 +28,9 @@ trait MethodOverride extends Handler {
   protected def requestWithMethod(req: RequestT, method: HttpMethod): RequestT 
 
   private val paramName = "_method"
+  private val headerName= "X-HTTP-METHOD-OVERRIDE"
+
+  private def methodOverride(req: RequestT) = {
+    (req.parameters.get(paramName) orElse req.headers.get(headerName))
+  }
 }
