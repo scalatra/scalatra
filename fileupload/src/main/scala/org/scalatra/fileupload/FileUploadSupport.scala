@@ -4,6 +4,7 @@ import scala.collection.JavaConversions._
 import javax.servlet.http.HttpServletRequest
 import org.scalatra.servlet.{ServletRequest, ServletBase}
 import java.util.{HashMap => JHashMap, Map => JMap}
+import org.scalatra.ScalatraBase
 
 trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
@@ -17,7 +18,10 @@ trait FileUploadSupport extends ServletBase {
         wrapRequest(req, mergedFormParams)
       } else req
     } catch {
-      case e: Exception => req
+      case e: Exception => {
+        req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
+        req
+      }
     }
 
     super.handle(req2, res)
