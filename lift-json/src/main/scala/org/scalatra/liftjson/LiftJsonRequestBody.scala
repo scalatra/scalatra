@@ -42,7 +42,7 @@ trait LiftJsonRequestBodyWithoutFormats extends ScalatraBase with ApiFormats {
   }
 
   private def shouldParseBody(fmt: String) =
-    (fmt == "json" || fmt == "xml") && parsedBody != JNothing
+    (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
   def parsedBody = request.get(ParsedBodyKey) getOrElse JNothing
 }
