@@ -2,7 +2,7 @@ package org.scalatra.fileupload
 
 import scala.collection.JavaConversions._
 import javax.servlet.annotation.MultipartConfig
-import javax.servlet.http.{HttpServletRequest, Part}
+import javax.servlet.http.HttpServletRequest
 import org.scalatra.servlet.{ServletRequest, ServletBase}
 import java.util.{HashMap => JHashMap, Map => JMap}
 
@@ -40,34 +40,31 @@ trait FileUploadSupport extends ServletBase {
         bodyParams
 
       case None => {
-        req.getParts.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (part, params) =>
-          val fname = fileName(part)
+        val bodyParams = req.getParts.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (part, params) =>
+          val item  = FileItem(part)
 
-          if (fname.isDefined) {
+          if (!(item.isFormField)) {
             BodyParams(params.fileParams + ((
-              part.getName, FileItem(fname.get, part) +: params.fileParams.getOrElse(part.getName, List[FileItem]())
+              item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]())
               )), params.formParams)
           } else {
             BodyParams(params.fileParams, params.formParams + (
-              (part.getName, partToString(part) ::
-                params.formParams.getOrElse(part.getName, List[String]())
+              (item.getFieldName, fileItemToString(item) ::
+                params.formParams.getOrElse(item.getFieldName, List[String]())
               )
             ))
           }
         }
+
+        req.setAttribute(BodyParamsKey, bodyParams)
+        bodyParams
       }
     }
   }
 
-  private def partToString(part: Part): String = {
-    import org.scalatra.util.io.readBytes
-
-    val charset = getHeaderAttribute(part, "content-type", "charset", defaultCharacterEncoding)
-    new String(readBytes(part.getInputStream), charset)
-  }
-
-  private def fileName(part: Part): Option[String] = {
-    Option(getHeaderAttribute(part, "content-disposition", "filename", null))
+  private def fileItemToString(item: FileItem): String = {
+    val charset = item.charset.getOrElse(defaultCharacterEncoding)
+    new String(item.get(), charset)
   }
 
   private def mergeFormParamsWithQueryString(req: RequestT, bodyParams: BodyParams): Map[String, List[String]] = {
@@ -91,17 +88,6 @@ trait FileUploadSupport extends ServletBase {
     wrapped
   }
 
-  private def getHeaderAttribute(part: Part, headerName: String, attributeName: String, defaultValue: String = "") = Option(part.getHeader(headerName)) match {
-    case Some(value) => {
-      value.split(";").find(_.trim().startsWith(attributeName)) match {
-        case Some(attributeValue) => attributeValue.substring(attributeValue.indexOf('=') + 1).trim().replace("\"", "")
-        case _                    => defaultValue
-      }
-    }
-
-    case _ => defaultValue
-  }
-
   protected def fileMultiParams: FileMultiParams = extractMultipartParams(request).fileParams
 
   protected val _fileParams = new collection.Map[String, FileItem] {
@@ -114,7 +100,10 @@ trait FileUploadSupport extends ServletBase {
     override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
   }
 
-  /** @return a Map, keyed on the names of multipart file upload parameters, of all multipart files submitted with the request */
+  /**
+   * @return a Map, keyed on the names of multipart file upload parameters,
+   *          of all multipart files submitted with the request
+   */
   def fileParams = _fileParams
 }
 

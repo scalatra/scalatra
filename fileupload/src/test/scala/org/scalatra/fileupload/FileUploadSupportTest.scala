@@ -18,7 +18,7 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
     fileParams.foreach(fileParam => {
       response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
       response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
-      response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.bytes))
+      response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.get()))
     })
   }
 
@@ -65,7 +65,7 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
       items.foreach(item => {
         response.setHeader("File-" + name + i + "-Name", item.name)
         response.setHeader("File-" + name + i + "-Size", item.size.toString)
-        response.setHeader("File-" + name + i+ "-SHA", DigestUtils.shaHex(item.bytes))
+        response.setHeader("File-" + name + i+ "-SHA", DigestUtils.shaHex(item.get()))
 
         i += 1
       })
