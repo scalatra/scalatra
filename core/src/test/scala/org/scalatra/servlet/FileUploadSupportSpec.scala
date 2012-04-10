@@ -1,13 +1,12 @@
-package org.scalatra.fileupload
+package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
 import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraServlet
 import java.io.File
-import org.apache.commons.io.IOUtils
 import org.eclipse.jetty.testing.HttpTester
 
-class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
+class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders() {
     request.getHeaderNames.filter(_.startsWith("X")).foreach(header =>
       response.setHeader(header, request.getHeader(header))
@@ -55,17 +54,17 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
 
   post("/uploadFileMultiParams") {
     fileMultiParams.foreach(file => {
-      val name   = file._1
-      val items  = file._2
-      val first  = fileParams(name)
-      var i     = 0
+      val name = file._1
+      val items = file._2
+      val first = fileParams(name)
+      var i = 0
 
       response.setHeader("File-" + name + "-First", first.name)
 
       items.foreach(item => {
         response.setHeader("File-" + name + i + "-Name", item.name)
         response.setHeader("File-" + name + i + "-Size", item.size.toString)
-        response.setHeader("File-" + name + i+ "-SHA", DigestUtils.shaHex(item.get()))
+        response.setHeader("File-" + name + i + "-SHA", DigestUtils.shaHex(item.get()))
 
         i += 1
       })
@@ -79,44 +78,54 @@ class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSuppor
   }
 }
 
-class FileUploadSupportTest extends MutableScalatraSpec {
-  addServlet(classOf[FileUploadSupportTestServlet], "/*")
+class FileUploadSupportSpec extends MutableScalatraSpec {
+  addServlet(classOf[FileUploadSupportSpecServlet], "/*")
+
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
-    val files  = Map(
-      "text"   -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"),
-      "binary" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")
+    val files = Map(
+      "text" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
+      "binary" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
     )
 
     val headers = Map(
-      "X-Header"  -> "I'm a header",
+      "X-Header" -> "I'm a header",
       "X-Header2" -> "I'm another header"
     )
 
-    post("/upload?qsparam1=three&qsparam2=four", params, files, headers) { f }
+    post("/upload?qsparam1=three&qsparam2=four", params, files, headers) {
+      f
+    }
   }
 
   def postMultiExample[A](f: => A): A = {
-    val files  =
-      ("files[]", new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt")) ::
-      ("files[]", new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")) :: Nil
+    val files =
+      ("files[]", new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt")) ::
+        ("files[]", new File("core/src/test/resources/org/scalatra/servlet/smiley.png")) :: Nil
 
-    post("/uploadFileMultiParams", Map(), files) { f }
+    post("/uploadFileMultiParams", Map(), files) {
+      f
+    }
   }
 
   def postPass[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
-    val files  = Map("text" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"))
+    val files = Map("text" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"))
 
-    post("/passUpload/file", params, files) { f }
+    post("/passUpload/file", params, files) {
+      f
+    }
   }
 
   def multipartResponse(path: String, file: String = "multipart_request.txt") = {
     // TODO We've had problems with the tester not running as iso-8859-1, even if the
     // request really isn't iso-8859-1.  This is a hack, but this hack passes iff the
     // browser behavior is correct.
-    val req = new String(IOUtils.toString(getClass.getResourceAsStream(file))
-      .replace("${PATH}", path).getBytes, "iso-8859-1")
+    val req = new String(
+      (new String(
+        org.scalatra.util.io.readBytes(getClass.getResourceAsStream(file)
+      )).replace("${PATH}", path)).getBytes, "iso-8859-1")
+    
     val res = new HttpTester("iso-8859-1")
     res.parse(tester.getResponses(req))
     res
@@ -126,50 +135,50 @@ class FileUploadSupportTest extends MutableScalatraSpec {
     "route correctly to action" in {
       postExample {
         (status must_== 200) and
-        (body must_== "post(/upload)")
+          (body must_== "post(/upload)")
       }
     }
 
     "make multipart form params available through params" in {
       postExample {
         (header("param1") must_== "one") and
-        (header("param2") must_== "two")
+          (header("param2") must_== "two")
       }
     }
 
     "make query string params available from params" in {
       postExample {
         (header("qsparam1") must_== "three") and
-        (header("qsparam2") must_== "four")
+          (header("qsparam2") must_== "four")
       }
     }
 
     "keep headers as they were in the request" in {
       postExample {
-        (header("X-Header")  must_== "I'm a header") and
-        (header("X-Header2") must_== "I'm another header")
+        (header("X-Header") must_== "I'm a header") and
+          (header("X-Header2") must_== "I'm another header")
       }
     }
 
     "make all files available through fileParams" in {
       postExample {
         (header("File-text-Name") must_== "lorem_ipsum.txt") and
-        (header("File-text-Size") must_== "651") and
-        (header("File-text-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0") and
-        (header("File-binary-Name") must_== "smiley.png") and
-        (header("File-binary-Size") must_== "3432") and
-        (header("File-binary-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856")
+          (header("File-text-Size") must_== "651") and
+          (header("File-text-SHA") must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0") and
+          (header("File-binary-Name") must_== "smiley.png") and
+          (header("File-binary-Size") must_== "3432") and
+          (header("File-binary-SHA") must_== "0e777b71581c631d056ee810b4550c5dcd9eb856")
       }
     }
 
     "make multiple files with [] syntax available through fileMultiParams" in {
       postMultiExample {
         (header("File-files[]0-Name") must_== "lorem_ipsum.txt") and
-        (header("File-files[]0-Size") must_== "651") and
-        (header("File-files[]0-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0") and
-        (header("File-files[]1-Name") must_== "smiley.png") and
-        (header("File-files[]1-Size") must_== "3432") and
-        (header("File-files[]1-SHA")  must_== "0e777b71581c631d056ee810b4550c5dcd9eb856")
+          (header("File-files[]0-Size") must_== "651") and
+          (header("File-files[]0-SHA") must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0") and
+          (header("File-files[]1-Name") must_== "smiley.png") and
+          (header("File-files[]1-Size") must_== "3432") and
+          (header("File-files[]1-SHA") must_== "0e777b71581c631d056ee810b4550c5dcd9eb856")
       }
     }
 
@@ -182,22 +191,22 @@ class FileUploadSupportTest extends MutableScalatraSpec {
     "not make the fileParams available through params" in {
       postExample {
         (Option(header("text")) must_== None) and
-        (Option(header("binary")) must_== None)
+          (Option(header("binary")) must_== None)
       }
     }
 
     "keep file params on pass" in {
       postPass {
         (header("File-text-Name") must_== "lorem_ipsum.txt") and
-        (header("File-text-Size") must_== "651") and
-        (header("File-text-SHA")  must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0")
+          (header("File-text-Size") must_== "651") and
+          (header("File-text-SHA") must_== "b3572a890c5005aed6409cf81d13fd19f6d004f0")
       }
     }
 
     "keep params on pass" in {
       postPass {
         (header("param1") must_== "one") and
-        (header("param2") must_== "two")
+          (header("param2") must_== "two")
       }
     }
 
@@ -216,7 +225,7 @@ class FileUploadSupportTest extends MutableScalatraSpec {
     "not be affected by FileUploadSupport handling" in {
       post("/regular", Map("param1" -> "one", "param2" -> "two")) {
         (header("param1") must_== "one") and
-        (header("param2") must_== "two")
+          (header("param2") must_== "two")
       }
     }
   }

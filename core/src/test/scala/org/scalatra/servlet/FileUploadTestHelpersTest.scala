@@ -1,4 +1,4 @@
-package org.scalatra.fileupload
+package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
 import org.scalatra.test.scalatest.ScalatraFunSuite
@@ -37,9 +37,9 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
 class FileUploadTestHelpersTest extends ScalatraFunSuite {
   addServlet(classOf[FileUploadTestHelpersTestServlet], "/*")
 
-  val files  = Map(
-    "textFile"   -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"),
-    "binaryFile" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")
+  val files = Map(
+    "textFile" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
+    "binaryFile" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
   )
 
   val params = Map("one" -> "1", "two" -> "2")
