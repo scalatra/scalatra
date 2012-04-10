@@ -6,6 +6,47 @@ import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
 import java.io.File
 
+/** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
+  * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
+  * submitted as part of a multipart HTTP request.  Commonly this is used for
+  * retrieving uploaded files.
+  *
+  * Once the trait has been mixed into your handler, you need to enable multipart
+  * configuration in your ''web.xml'' or by using `@MultipartConfig` annotation. To
+  * configure in ''web.xml'' add `<multipart-config />` to your `<servlet>` element. If you
+  * prefer annotations instead, place `@MultipartConfig` to your handler. Both ways
+  * provide some further configuration options, such as specifying the max total request size
+  * and max size for invidual files in the request. You might want to set these to prevent
+  * users from uploading too large files.
+  *
+  * When the configuration has been done, you can access any files using
+  * `fileParams("myFile")` where ''myFile'' is the name
+  * of the parameter used to upload the file being retrieved. If you are
+  * expecting multiple files with the same name, you can use
+  * `fileMultiParams("files[]")` to access them all.
+  *
+  * To handle any errors that are caused by multipart handling, you need
+  * to configure an error handler to your handler class:
+  *
+  * {{{
+  * import org.scalatra.servlet.FileUploadSupport
+  * @MultipartConfig(maxFileSize=1024*1024)
+  * class FileEaterServlet extends ScalatraServlet with FileUploadSupport {
+  *   error {
+  *     case e: IllegalStateException => "Oh, too much! Can't take it all."
+  *     case e: IOException           => "Server denied me my meal, thanks anyway."
+  *   }
+  *
+  *   post("/eatfile") {
+  *     "Thanks! You just provided me " + fileParams("lunch").size + " bytes for a lunch."
+  *   }
+  * }
+  * }}}
+  *
+  * @note Once any handler with FileUploadSupport has accessed the request, the
+  *       fileParams returned by FileUploadSupport will remain fixed for the
+  *       lifetime of the request.
+  */
 trait FileUploadSupport extends ServletBase {
 
   import FileUploadSupport._
