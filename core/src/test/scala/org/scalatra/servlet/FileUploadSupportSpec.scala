@@ -5,6 +5,9 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraServlet
 import java.io.File
 import org.eclipse.jetty.testing.HttpTester
+import org.eclipse.jetty.servlet.ServletHolder
+import javax.servlet.MultipartConfigElement
+import org.specs2.execute.Pending
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders() {
@@ -78,8 +81,28 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
   }
 }
 
+class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
+  error {
+    case e: IllegalStateException => {
+      status = 413
+
+      "too much!"
+    }
+  }
+
+  post("/upload") {
+    "ok"
+  }
+}
+
 class FileUploadSupportSpec extends MutableScalatraSpec {
   addServlet(classOf[FileUploadSupportSpecServlet], "/*")
+
+  // this is needed because embedded Jetty doesn't support
+  // reading annotations
+  val holder = new ServletHolder(new FileUploadSupportMaxSizeTestServlet)
+  holder.getRegistration.setMultipartConfig(new MultipartConfigElement("", 1024, -1, 1024*1024*1024))
+  servletContextHandler.addServlet(holder, "/max-size/*")
 
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
@@ -218,6 +241,18 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     "use the charset specified in Content-Type header of a part for decoding form params" in {
       val res = multipartResponse("/params", "multipart_request_charset_handling.txt")
       res.header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
+    }
+  }
+
+  "POST with multipart/form-data and maxFileSize set" should {
+    "handle too large file by throwing IllegalStateException error handled by the default error handler" in {
+      Pending("Waiting for Jetty 8.1.3")
+    }
+
+    "allow file uploads smaller than the specified max file size" in {
+      post("/max-size/upload", Map(), Map("file" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"))) {
+        body must_== "ok"
+      }
     }
   }
 
