@@ -46,6 +46,11 @@ import java.io.File
   * @note Once any handler with FileUploadSupport has accessed the request, the
   *       fileParams returned by FileUploadSupport will remain fixed for the
   *       lifetime of the request.
+  *
+  * @note Will not work on Jetty versions prior to 8.1.3.  See
+  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=376324.  The old
+  * scalatra-fileupload module still works for earlier versions
+  * of Jetty.
   */
 trait FileUploadSupport extends ServletBase {
 
