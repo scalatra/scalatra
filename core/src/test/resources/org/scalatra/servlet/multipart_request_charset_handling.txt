@@ -1,0 +1,14 @@
+POST ${PATH} HTTP/1.0
+Content-Type: multipart/form-data; boundary=---------------------------3924013385056820061124200860
+Content-Length: 333
+
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="string"
+
+decoded as utf8ääääöööååååå
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="latin1-string"
+Content-Type: text/plain; charset=ISO-8859-1
+
+äöööölfldflfldfdföödfödfödfåååååå
+-----------------------------3924013385056820061124200860--
