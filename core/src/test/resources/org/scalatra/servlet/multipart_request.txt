@@ -1,0 +1,36 @@
+POST ${PATH} HTTP/1.0
+Content-Type: multipart/form-data; boundary=---------------------------3924013385056820061124200860
+Content-Length: 944
+
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="string"
+
+foo
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="utf8-string"
+
+föo
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="file"; filename="1.txt"
+Content-Type: text/plain
+
+one
+
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="file-none"; filename=""
+Content-Type: application/octet-stream
+
+
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="file-two[]"; filename="2.txt"
+Content-Type: text/plain
+
+two
+
+-----------------------------3924013385056820061124200860
+Content-Disposition: form-data; name="file-two[]"; filename="3.txt"
+Content-Type: text/plain
+
+three
+
+-----------------------------3924013385056820061124200860--

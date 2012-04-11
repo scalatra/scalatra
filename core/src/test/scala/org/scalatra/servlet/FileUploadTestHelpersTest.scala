@@ -1,23 +1,9 @@
-package org.scalatra.fileupload
+package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatra.ScalatraServlet
-import java.security.MessageDigest
-import java.io.{ByteArrayOutputStream, InputStream, File}
-
-object DigestUtils {
-  def shaHex(bytes: Array[Byte]): String = {
-    val digest = MessageDigest.getInstance("SHA")
-    val digestBytes = digest.digest(bytes)
-
-    hexEncode(digestBytes.toList)
-  }
-
-  def hexEncode(bytes: List[Byte]): String = {
-    bytes.map{ b => String.format("%02X", java.lang.Byte.valueOf(b)) }.mkString("").toLowerCase
-  }
-}
+import java.io.File
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
   def handleRequest() {
@@ -29,8 +15,8 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
     )
 
     fileParams.foreach(fileParam => {
-      response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.getName)
-      response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.getSize.toString)
+      response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
+      response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
       response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.get()))
     })
   }
@@ -51,9 +37,9 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
 class FileUploadTestHelpersTest extends ScalatraFunSuite {
   addServlet(classOf[FileUploadTestHelpersTestServlet], "/*")
 
-  val files  = Map(
-    "textFile"   -> new File("fileupload/src/test/resources/org/scalatra/fileupload/lorem_ipsum.txt"),
-    "binaryFile" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/smiley.png")
+  val files = Map(
+    "textFile" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
+    "binaryFile" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
   )
 
   val params = Map("one" -> "1", "two" -> "2")
