@@ -8,6 +8,7 @@ import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.servlet.ServletHolder
 import javax.servlet.MultipartConfigElement
 import org.specs2.execute.Pending
+import org.scalatra.test.MultipartHttpTester
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders() {
@@ -154,6 +155,30 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     res
   }
 
+  def multipartResponseWithEncodingFixture(path: String) = {
+    val req = new MultipartHttpTester()
+    req.setURI(path)
+    req.setMethod("POST")
+    req.setVersion("HTTP/1.0")
+    req.setHeader("Content-Type", "multipart/form-data; boundary=XyXyXyXyXyXy")
+
+    val content = (
+      "--XyXyXyXyXyXy\r\n" +
+      "Content-Disposition: form-data; name=\"latin1-string\"\r\n" +
+      "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+      "\r\n" +
+      "äöööölfldflfldfdföödfödfödfåååååå\r\n" +
+      "--XyXyXyXyXyXy--"
+    ).getBytes("ISO-8859-1")
+
+    req.setContent(content)
+
+    val res = new HttpTester("iso-8859-1")
+    res.parse(tester.getResponses(req.generateBytes()).array())
+
+    res
+  }
+
   "POST with multipart/form-data" should {
     "route correctly to action" in {
       postExample {
@@ -239,7 +264,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     }
 
     "use the charset specified in Content-Type header of a part for decoding form params" in {
-      val res = multipartResponse("/params", "multipart_request_charset_handling.txt")
+      val res = multipartResponseWithEncodingFixture("/params")
       res.header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
     }
   }
