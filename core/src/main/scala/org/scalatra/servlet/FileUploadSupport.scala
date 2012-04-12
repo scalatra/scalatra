@@ -29,12 +29,14 @@ import java.io.File
   * to configure an error handler to your handler class:
   *
   * {{{
+  * import org.scalatra.servlet.SizeLimitExceededException
   * import org.scalatra.servlet.FileUploadSupport
+  * 
   * @MultipartConfig(maxFileSize=1024*1024)
   * class FileEaterServlet extends ScalatraServlet with FileUploadSupport {
   *   error {
-  *     case e: IllegalStateException => "Oh, too much! Can't take it all."
-  *     case e: IOException           => "Server denied me my meal, thanks anyway."
+  *     case e: SizeConstrainttExceededException => "Oh, too much! Can't take it all."
+  *     case e: IOException                      => "Server denied me my meal, thanks anyway."
   *   }
   *
   *   post("/eatfile") {
@@ -65,6 +67,12 @@ trait FileUploadSupport extends ServletBase {
         wrapRequest(req, mergedFormParams)
       } else req
     } catch {
+      case e: IllegalStateException => {
+	req.setAttribute(ScalatraBase.PrehandleExceptionKey,
+			 new SizeConstraintExceededException("Too large request and/or file", e))
+	req
+      }
+
       case e: Exception => {
         req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
         req

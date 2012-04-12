@@ -84,7 +84,7 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
 
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
   error {
-    case e: IllegalStateException => {
+    case e: SizeConstraintExceededException => {
       status = 413
 
       "too much!"
@@ -270,7 +270,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
   }
 
   "POST with multipart/form-data and maxFileSize set" should {
-    "handle too large file by throwing IllegalStateException error handled by the default error handler" in {
+    "handle IllegalStateException by wrapping it as SizeConstraintExceededException handled by error handler" in {
       Pending("Waiting for Jetty 8.1.3")
     }
 
