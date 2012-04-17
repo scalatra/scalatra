@@ -243,6 +243,12 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
       case _: Unit | Unit =>
+      case a: ActionResult => {
+        status = a.status
+        a.headers.foreach { case(name, value) => response.addHeader(name, value) }
+        loop(renderPipeline.lift(a.body) getOrElse ())
+      }
+
       case a => loop(renderPipeline.lift(a) getOrElse ())
     }
     loop(actionResult)
