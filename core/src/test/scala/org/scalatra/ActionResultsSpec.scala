@@ -28,6 +28,10 @@ class ActionResultServlet extends ScalatraServlet {
   get("/error") {
     throw new RuntimeException()
   }
+
+  get("/redirect") {
+    Found("/ok")
+  }
 }
 
 class ActionResultsSpec extends MutableScalatraSpec {
@@ -73,6 +77,26 @@ class ActionResultsSpec extends MutableScalatraSpec {
     "render the body" in {
       get("/error") {
         body mustEqual "something went wrong"
+      }
+    }
+  }
+
+  "returning Found" should {
+    "set status to 302" in {
+      get("/redirect") {
+        status mustEqual 302
+      }
+    }
+
+    "set the Location header" in {
+      get("/redirect") {
+        header("Location") mustEqual "/ok"
+      }
+    }
+
+    "keep body empty" in {
+      get("/redirect") {
+        body mustEqual ""
       }
     }
   }
