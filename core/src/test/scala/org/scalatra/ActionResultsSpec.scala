@@ -13,6 +13,10 @@ class ActionResultServlet extends ScalatraServlet {
     Ok("Hello, world!")
   }
 
+  get("/ok-no-body") {
+    Ok()
+  }
+
   get("/bad") {
     BadRequest("Hello")
   }
@@ -96,6 +100,14 @@ class ActionResultsSpec extends MutableScalatraSpec {
 
     "keep body empty" in {
       get("/redirect") {
+        body mustEqual ""
+      }
+    }
+  }
+
+  "return Ok without body" should {
+    "keep body empty" in {
+      get("/ok-no-body") {
         body mustEqual ""
       }
     }
