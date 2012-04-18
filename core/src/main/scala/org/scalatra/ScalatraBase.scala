@@ -218,7 +218,17 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
-    renderResponseBody(actionResult)
+    
+    actionResult match {
+      case result: ActionResult => renderActionResult(result)
+      case _                    => renderResponseBody(actionResult)
+    }
+  }
+
+  protected def renderActionResult(actionResult: ActionResult) {
+    status = actionResult.status
+    actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }    
+    renderResponseBody(actionResult.body)
   }
 
   /**
@@ -243,12 +253,6 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
       case _: Unit | Unit =>
-      case a: ActionResult => {
-        status = a.status
-        a.headers.foreach { case(name, value) => response.addHeader(name, value) }
-        loop(renderPipeline.lift(a.body) getOrElse ())
-      }
-
       case a => loop(renderPipeline.lift(a) getOrElse ())
     }
     loop(actionResult)
