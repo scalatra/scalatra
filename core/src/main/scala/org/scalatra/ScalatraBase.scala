@@ -226,7 +226,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   }
 
   protected def renderActionResult(actionResult: ActionResult) {
-    status = actionResult.status
+    response.status = actionResult.status
     actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }    
     renderResponseBody(actionResult.body)
   }

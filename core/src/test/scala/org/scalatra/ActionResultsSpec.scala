@@ -36,6 +36,10 @@ class ActionResultServlet extends ScalatraServlet {
   get("/redirect") {
     Found("/ok")
   }
+
+  get("/custom-reason") {
+    BadRequest(body = "abc", reason = "Bad Bad Bad")
+  }
 }
 
 class ActionResultsSpec extends MutableScalatraSpec {
@@ -51,6 +55,12 @@ class ActionResultsSpec extends MutableScalatraSpec {
     "render the body" in {
       get("/ok") {
         body mustEqual "Hello, world!"
+      }
+    }
+
+    "set default reason" in {
+      get("/bad") {
+        response.getReason mustEqual "Bad Request"
       }
     }
   }
@@ -109,6 +119,14 @@ class ActionResultsSpec extends MutableScalatraSpec {
     "keep body empty" in {
       get("/ok-no-body") {
         body mustEqual ""
+      }
+    }
+  }
+
+  "returning ActionResult with custom reason" should {
+    "set a custom reason on status line" in {
+      get("/custom-reason") {
+        response.getReason mustEqual "Bad Bad Bad"
       }
     }
   }
