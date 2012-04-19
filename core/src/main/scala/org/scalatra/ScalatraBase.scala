@@ -222,10 +222,6 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
     renderResponseBody(actionResult)
   }
 
-  protected def renderActionResult(actionResult: ActionResult) {
-    renderResponseBody(actionResult.body)
-  }
-
   /**
    * A partial function to infer the content type from the action result.
    *
