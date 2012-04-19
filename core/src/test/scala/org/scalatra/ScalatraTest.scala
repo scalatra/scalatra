@@ -20,10 +20,6 @@ class ScalatraTestServlet extends ScalatraServlet {
     <h1>{ params("must")+params("val") }</h1>
   }
 
-  get("/number") {
-    42
-  }
-
   post("/post/test") {
     params.get("posted_value") match {
       case None => "posted_value is null"
@@ -37,6 +33,10 @@ class ScalatraTestServlet extends ScalatraServlet {
 
   get("/no_content") {
     status = 204
+  }
+
+  get("/return-int") {
+    404
   }
 
   get("/redirect") {
@@ -101,12 +101,6 @@ class ScalatraTest extends ScalatraFunSuite {
   test("GET /xml/really/works should return '<h1>reallyworks</h1>'") {
     get("/xml/really/works") {
       body should equal ("<h1>reallyworks</h1>")
-    }
-  }
-
-  test("GET /number should return '42'") {
-    get("/number") {
-      body should equal ("42")
     }
   }
 
@@ -214,6 +208,13 @@ class ScalatraTest extends ScalatraFunSuite {
   test("init parameter returns None if not set") {
     get("/init-param/derp") {
       body should equal ("None")
+    }
+  }
+
+  test("int return value sets status and no body") {
+    get("/return-int") {
+      status should equal (404)
+      body should equal ("")
     }
   }
 }

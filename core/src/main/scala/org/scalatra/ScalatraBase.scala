@@ -255,6 +255,8 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * response has been rendered.
    */
   protected def renderPipeline: RenderPipeline = {
+    case status: Int =>
+      response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
       response.outputStream.write(bytes)
     case file: File =>
