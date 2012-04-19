@@ -219,15 +219,10 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
     if (contentType == null)
       contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
     
-    actionResult match {
-      case result: ActionResult => renderActionResult(result)
-      case _                    => renderResponseBody(actionResult)
-    }
+    renderResponseBody(actionResult)
   }
 
   protected def renderActionResult(actionResult: ActionResult) {
-    response.status = actionResult.status
-    actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }    
     renderResponseBody(actionResult.body)
   }
 
@@ -270,6 +265,10 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
     case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response
+    case actionResult: ActionResult =>
+      response.status = actionResult.status
+      actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }
+      actionResult.body
     case x: Any  =>
       response.writer.print(x.toString)
   }
