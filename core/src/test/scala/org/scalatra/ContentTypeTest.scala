@@ -119,7 +119,7 @@ class ContentTypeTest extends ScalatraFunSuite {
     }
   }
 
-  test("contentType is threadsafe") {
+  ignore("contentType is threadsafe") {
     import Actor._
 
     def doRequest = actor {
