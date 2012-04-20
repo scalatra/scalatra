@@ -39,11 +39,10 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-	    servletApi % "provided",
       grizzledSlf4j),
       description := "The core Scalatra framework"
     )
-  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
+  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile;provided->provided" } :_*)
 
   lazy val scalatraAuth = Project(
     id = "scalatra-auth",
