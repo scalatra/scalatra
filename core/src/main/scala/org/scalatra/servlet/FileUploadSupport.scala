@@ -59,6 +59,19 @@ trait FileUploadSupport extends ServletBase {
 
   import FileUploadSupport._
 
+  /* Called for any exceptions thrown by handling file uploads
+   * to detect whether it signifies a too large file being
+   * uploaded or a too large request in general.
+   *
+   * This can be overriden for the container being used if it
+   * doesn't throw `IllegalStateException` or if it throws
+   * `IllegalStateException` for some other reason.
+   */
+  protected def isSizeConstraintException(e: Exception) = e match {
+    case _: IllegalStateException => true
+    case _ => false
+  }
+
   override def handle(req: RequestT, res: ResponseT) {
     val req2 = try {
       if (isMultipartRequest(req)) {
@@ -68,24 +81,9 @@ trait FileUploadSupport extends ServletBase {
         wrapRequest(req, mergedFormParams)
       } else req
     } catch {
-      case e: IllegalStateException => {
+      case e: Exception if isSizeConstraintException(e) => {
 	req.setAttribute(ScalatraBase.PrehandleExceptionKey,
 			 new SizeConstraintExceededException("Too large request and/or file", e))
-	req
-      }
-
-       /*
-        Jetty 8.1.3 doesn't respect the 3.0's spec, which states
-	that IllegalStateException should be thrown when the request length
-	or file size exceeds the configured maximum values. It throws
-	ServletException instead.
-      */
-      case e: ServletException if e.getMessage.contains("exceeds max filesize") ||
-				  e.getMessage.startsWith("Request exceeds maxRequestSize") => {
-
-	req.setAttribute(ScalatraBase.PrehandleExceptionKey,
-			  new SizeConstraintExceededException("Too large request and/or file", e))
-
 	req
       }
 

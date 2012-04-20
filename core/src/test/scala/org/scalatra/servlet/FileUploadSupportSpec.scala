@@ -6,7 +6,7 @@ import org.scalatra.ScalatraServlet
 import java.io.File
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.servlet.ServletHolder
-import javax.servlet.MultipartConfigElement
+import javax.servlet.{MultipartConfigElement, ServletException}
 import org.specs2.execute.Pending
 import org.scalatra.test.MultipartHttpTester
 
@@ -89,6 +89,12 @@ class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploa
 
       "too much!"
     }
+  }
+
+  //Jetty 8.1.3 throws ServletException instead of IllegalStateException.
+  override def isSizeConstraintException(e: Exception) = e match {
+    case _: ServletException => true
+    case _ => false
   }
 
   post("/upload") {
