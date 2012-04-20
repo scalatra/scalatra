@@ -271,7 +271,10 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
 
   "POST with multipart/form-data and maxFileSize set" should {
     "handle IllegalStateException by wrapping it as SizeConstraintExceededException handled by error handler" in {
-      Pending("Waiting for Jetty 8.1.3")
+      post("/max-size/upload", Map(), Map("file" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))) {
+	(status mustEqual 413) and
+	(body mustEqual "too much!")
+      }
     }
 
     "allow file uploads smaller than the specified max file size" in {

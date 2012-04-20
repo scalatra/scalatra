@@ -1,6 +1,7 @@
 package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
+import javax.servlet.ServletException
 import javax.servlet.http.{HttpServletRequest, Part}
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
@@ -70,6 +71,21 @@ trait FileUploadSupport extends ServletBase {
       case e: IllegalStateException => {
 	req.setAttribute(ScalatraBase.PrehandleExceptionKey,
 			 new SizeConstraintExceededException("Too large request and/or file", e))
+	req
+      }
+
+       /*
+        Jetty 8.1.3 doesn't respect the 3.0's spec, which states
+	that IllegalStateException should be thrown when the request length
+	or file size exceeds the configured maximum values. It throws
+	ServletException instead.
+      */
+      case e: ServletException if e.getMessage.contains("exceeds max filesize") ||
+				  e.getMessage.startsWith("Request exceeds maxRequestSize") => {
+
+	req.setAttribute(ScalatraBase.PrehandleExceptionKey,
+			  new SizeConstraintExceededException("Too large request and/or file", e))
+
 	req
       }
 
