@@ -107,6 +107,11 @@ object ScalatraBuild extends Build {
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(jettyServlet),
+      ivyXML := <dependencies>
+        <dependency org="org.eclipse.jetty.orbit" name="javax.servlet" rev="3.0.0.v201112011016">
+          <artifact name="javax.servlet" type="orbit" ext="jar"/>
+        </dependency>
+      </dependencies>,
       description := "Embedded Jetty server for Scalatra apps"
     )
   ) dependsOn(scalatraCore % "compile;test->test")
@@ -117,12 +122,18 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
-        testJettyServlet,
+        jettyServer,
+        testJettyServlet excludeAll(ExclusionRule(organization = "org.eclipse.jetty.orbit")),
         mockitoAll,
         commonsLang3,
         specs2 % "test",
         dispatch
       ),
+      ivyXML := <dependencies>
+        <dependency org="org.eclipse.jetty.orbit" name="javax.servlet" rev="3.0.0.v201112011016">
+          <artifact name="javax.servlet" type="orbit" ext="jar"/>
+        </dependency>
+      </dependencies>,
       description := "The abstract Scalatra test framework"
     )
   )
@@ -180,6 +191,11 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
       resolvers ++= Seq(sonatypeNexusSnapshots),
       libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
+      ivyXML := <dependencies>
+        <dependency org="org.eclipse.jetty.orbit" name="javax.servlet" rev="3.0.0.v201112011016">
+          <artifact name="javax.servlet" type="orbit" ext="jar"/>
+        </dependency>
+      </dependencies>,
       description := "Scalatra example project"
     )
   ) dependsOn(
@@ -206,8 +222,9 @@ object ScalatraBuild extends Build {
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.v20120127"
-    val testJettyServlet = jettyDep("test-jetty-servlet")
-    val jettyServlet = jettyDep("jetty-servlet")
+    val testJettyServlet = jettyDep("test-jetty-servlet") 
+    val jettyServlet = jettyDep("jetty-servlet") 
+    val jettyServer = jettyDep("jetty-server") excludeAll(ExclusionRule(organization = "org.eclipse.jetty.orbit"))
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
