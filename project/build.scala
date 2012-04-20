@@ -48,7 +48,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-auth",
     base = file("auth"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(base64, servletApi % "provided"),
+      libraryDependencies ++= Seq(base64),
       description := "Scalatra authentication module"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -57,7 +57,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-akka",
     base = file("akka"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(akkaActor, akkaTestkit, servletApi % "provided"),
+      libraryDependencies ++= Seq(akkaActor, akkaTestkit),
       resolvers += "Akka Repo" at "http://repo.akka.io/repository",
       description := "Scalatra akka integration module"
     ) 
@@ -67,7 +67,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-fileupload",
     base = file("fileupload"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(commonsFileupload, commonsIo, servletApi  % "provided"),
+      libraryDependencies ++= Seq(commonsFileupload, commonsIo),
       description := "Commons-Fileupload integration with Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -76,7 +76,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalate",
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(scalate, servletApi % "provided"),
+      libraryDependencies ++= Seq(scalate),
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
@@ -119,7 +119,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
-        servletApi % "provided;test",
+        servletApi,
         mockitoAll,
         commonsLang3,
         specs2 % "test",
@@ -240,7 +240,7 @@ object ScalatraBuild extends Build {
 
     def specs2 = "org.specs2" %% "specs2" % "1.8.2"
 
-    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
+    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided;test"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
