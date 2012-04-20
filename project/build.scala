@@ -106,10 +106,13 @@ object ScalatraBuild extends Build {
     id = "scalatra-jetty",
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(jettyServlet),
-      ivyXML := <dependencies>
-        <dependency org="org.eclipse.jetty.orbit" name="javax.servlet" rev="3.0.0.v201112011016">
-          <artifact name="javax.servlet" type="orbit" ext="jar"/>
+      libraryDependencies ++= Seq(servletApi),
+      ivyXML := <dependencies> 
+        <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.1.3.v20120416">
+          <exclude org="org.eclipse.jetty.orbit" />
+        </dependency>
+        <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.1.3.v20120416">
+          <exclude org="org.eclipse.jetty.orbit" />
         </dependency>
       </dependencies>,
       description := "Embedded Jetty server for Scalatra apps"
@@ -122,16 +125,21 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
-        jettyServer,
-        testJettyServlet excludeAll(ExclusionRule(organization = "org.eclipse.jetty.orbit")),
+        servletApi % "provided;test",
         mockitoAll,
         commonsLang3,
         specs2 % "test",
         dispatch
       ),
       ivyXML := <dependencies>
-        <dependency org="org.eclipse.jetty.orbit" name="javax.servlet" rev="3.0.0.v201112011016">
-          <artifact name="javax.servlet" type="orbit" ext="jar"/>
+         <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.1.3.v20120416">
+          <exclude org="org.eclipse.jetty.orbit" />
+        </dependency>
+        <dependency org="org.eclipse.jetty" name="test-jetty-servlet" rev="8.1.3.v20120416">
+          <exclude org="org.eclipse.jetty.orbit" />
+        </dependency>
+        <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.1.3.v20120416">
+          <exclude org="org.eclipse.jetty.orbit" />
         </dependency>
       </dependencies>,
       description := "The abstract Scalatra test framework"
@@ -142,7 +150,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalatest",
     base = file("scalatest"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(scalatest, junit, testng),
+      libraryDependencies ++= Seq(scalatest, junit, testng, servletApi % "provided;test"),
       description := "ScalaTest support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
@@ -152,6 +160,7 @@ object ScalatraBuild extends Build {
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies += specs,
+      libraryDependencies += servletApi % "provided;test",
       description := "Specs support for the Scalatra test framework", 
       // The one in Maven Central has a bad checksum for 2.8.2.  
       // Try ScalaTools first.
@@ -164,6 +173,7 @@ object ScalatraBuild extends Build {
     base = file("specs2"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies += specs2,
+      libraryDependencies += servletApi % "provided;test",
       description := "Specs2 support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
@@ -190,10 +200,16 @@ object ScalatraBuild extends Build {
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
       resolvers ++= Seq(sonatypeNexusSnapshots),
-      libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
+      libraryDependencies ++= Seq(atmosphere, slf4jSimple),
       ivyXML := <dependencies>
-        <dependency org="org.eclipse.jetty.orbit" name="javax.servlet" rev="3.0.0.v201112011016">
-          <artifact name="javax.servlet" type="orbit" ext="jar"/>
+        <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.1.3.v20120416" conf="test;container">
+          <exclude org="org.eclipse.jetty.orbit" />
+        </dependency>
+        <dependency org="org.eclipse.jetty" name="jetty-webapp" rev="8.1.3.v20120416" conf="test;container" >
+          <exclude org="org.eclipse.jetty.orbit" />
+        </dependency>
+        <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.1.3.v20120416" conf="test;container">
+          <exclude org="org.eclipse.jetty.orbit" />
         </dependency>
       </dependencies>,
       description := "Scalatra example project"
@@ -221,10 +237,11 @@ object ScalatraBuild extends Build {
 
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.0.v20120127"
-    val testJettyServlet = jettyDep("test-jetty-servlet") 
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416"
+
+    val testJettyServlet = jettyDep("test-jetty-servlet")    
     val jettyServlet = jettyDep("jetty-servlet") 
-    val jettyServer = jettyDep("jetty-server") excludeAll(ExclusionRule(organization = "org.eclipse.jetty.orbit"))
+    val jettyServer = jettyDep("jetty-server") 
     val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
@@ -243,7 +260,7 @@ object ScalatraBuild extends Build {
 
     def specs2 = "org.specs2" %% "specs2" % "1.8.2"
 
-    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
+    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
