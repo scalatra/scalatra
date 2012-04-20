@@ -39,9 +39,8 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-	servletApi,
-        grizzledSlf4j
-      ),
+	    servletApi % "provided",
+      grizzledSlf4j),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
@@ -50,7 +49,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-auth",
     base = file("auth"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(base64, servletApi),
+      libraryDependencies ++= Seq(base64, servletApi % "provided"),
       description := "Scalatra authentication module"
     )
   ) dependsOn(scalatraCore % "compile;test->test")
@@ -59,7 +58,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-akka",
     base = file("akka"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(akkaActor, akkaTestkit, servletApi),
+      libraryDependencies ++= Seq(akkaActor, akkaTestkit, servletApi % "provided"),
       resolvers += "Akka Repo" at "http://repo.akka.io/repository",
       description := "Scalatra akka integration module"
     ) 
@@ -69,7 +68,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-fileupload",
     base = file("fileupload"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(commonsFileupload, commonsIo, servletApi),
+      libraryDependencies ++= Seq(commonsFileupload, commonsIo, servletApi  % "provided"),
       description := "Commons-Fileupload integration with Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test")
@@ -78,7 +77,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalate",
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(scalate, servletApi),
+      libraryDependencies ++= Seq(scalate, servletApi % "provided"),
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
@@ -106,7 +105,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-jetty",
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi),
+      libraryDependencies ++= Seq(servletApi % "provided"),
       ivyXML := <dependencies> 
         <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.1.3.v20120416">
           <exclude org="org.eclipse.jetty.orbit" />
