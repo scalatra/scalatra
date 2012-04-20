@@ -52,7 +52,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(base64, servletApi % "provided"),
       description := "Scalatra authentication module"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraAkka = Project(
     id = "scalatra-akka",
@@ -62,7 +62,7 @@ object ScalatraBuild extends Build {
       resolvers += "Akka Repo" at "http://repo.akka.io/repository",
       description := "Scalatra akka integration module"
     ) 
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraFileupload = Project(
     id = "scalatra-fileupload",
@@ -71,7 +71,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(commonsFileupload, commonsIo, servletApi  % "provided"),
       description := "Commons-Fileupload integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraScalate = Project(
     id = "scalatra-scalate",
@@ -81,7 +81,7 @@ object ScalatraBuild extends Build {
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraLiftJson = Project(
     id = "scalatra-lift-json",
@@ -90,7 +90,7 @@ object ScalatraBuild extends Build {
       libraryDependencies += liftJson,
       description := "Lift JSON support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraAntiXml = Project(
     id = "scalatra-anti-xml",
@@ -99,24 +99,20 @@ object ScalatraBuild extends Build {
       libraryDependencies += antiXml,
       description := "Anti-XML support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi % "provided"),
       ivyXML := <dependencies> 
-        <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.1.3.v20120416">
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
         <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.1.3.v20120416">
           <exclude org="org.eclipse.jetty.orbit" />
         </dependency>
       </dependencies>,
       description := "Embedded Jetty server for Scalatra apps"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraTest = Project(
     id = "scalatra-test",
@@ -131,13 +127,7 @@ object ScalatraBuild extends Build {
         dispatch
       ),
       ivyXML := <dependencies>
-         <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.1.3.v20120416">
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
         <dependency org="org.eclipse.jetty" name="test-jetty-servlet" rev="8.1.3.v20120416">
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
-        <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.1.3.v20120416">
           <exclude org="org.eclipse.jetty.orbit" />
         </dependency>
       </dependencies>,
@@ -149,33 +139,31 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalatest",
     base = file("scalatest"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(scalatest, junit, testng, servletApi % "provided;test"),
+      libraryDependencies ++= Seq(scalatest, junit, testng),
       description := "ScalaTest support for the Scalatra test framework"
     )
-  ) dependsOn(scalatraTest)
+  ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
   lazy val scalatraSpecs = Project(
     id = "scalatra-specs",
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies += specs,
-      libraryDependencies += servletApi % "provided;test",
       description := "Specs support for the Scalatra test framework", 
       // The one in Maven Central has a bad checksum for 2.8.2.  
       // Try ScalaTools first.
       resolvers ~= { rs => ScalaToolsReleases +: rs }
     )
-  ) dependsOn(scalatraTest)
+  ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
   lazy val scalatraSpecs2 = Project(
     id = "scalatra-specs2",
     base = file("specs2"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies += specs2,
-      libraryDependencies += servletApi % "provided;test",
       description := "Specs2 support for the Scalatra test framework"
     )
-  ) dependsOn(scalatraTest)
+  ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
   lazy val scalatraDocs = Project(
     id = "scalatra-docs",
@@ -183,7 +171,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       description := "Scalatra legacy documentation; see scalatra-swagger"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraSwagger = Project(
     id = "scalatra-swagger",
@@ -192,7 +180,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(liftJson, liftJsonExt),
       description := "Scalatra integration with Swagger"
     )
-  ) dependsOn(scalatraCore % "compile;test->test")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraExample = Project(
     id = "scalatra-example",
@@ -201,13 +189,7 @@ object ScalatraBuild extends Build {
       resolvers ++= Seq(sonatypeNexusSnapshots),
       libraryDependencies ++= Seq(atmosphere, slf4jSimple),
       ivyXML := <dependencies>
-        <dependency org="org.eclipse.jetty" name="jetty-server" rev="8.1.3.v20120416" conf="test;container">
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
         <dependency org="org.eclipse.jetty" name="jetty-webapp" rev="8.1.3.v20120416" conf="test;container" >
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
-        <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.1.3.v20120416" conf="test;container">
           <exclude org="org.eclipse.jetty.orbit" />
         </dependency>
       </dependencies>,
