@@ -278,8 +278,8 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
   "POST with multipart/form-data and maxFileSize set" should {
     "handle IllegalStateException by wrapping it as SizeConstraintExceededException handled by error handler" in {
       post("/max-size/upload", Map(), Map("file" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))) {
-	(status mustEqual 413) and
-	(body mustEqual "too much!")
+        (status mustEqual 413) and
+        (body mustEqual "too much!")
       }
     }
 
@@ -294,7 +294,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     "not be affected by FileUploadSupport handling" in {
       post("/regular", Map("param1" -> "one", "param2" -> "two")) {
         (header("param1") must_== "one") and
-          (header("param2") must_== "two")
+        (header("param2") must_== "two")
       }
     }
   }
