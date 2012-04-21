@@ -13,3 +13,5 @@ target/
 .idea
 .DS_Store
 .ensime
+.history
+
