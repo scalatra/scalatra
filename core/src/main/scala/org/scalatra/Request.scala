@@ -93,8 +93,6 @@ trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
     protected def multiMap = multiParameters
   }
 
-  // TODO def files: GenSeq[HttpFile]
-
   def cookies: Map[String, String]
 
   /**

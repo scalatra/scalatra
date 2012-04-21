@@ -82,12 +82,12 @@ class ServletRequest(r: HttpServletRequest)
 
   def serverName = r.getServerName
 
-  @deprecated(message = "Use HttpServletRequest.serverName instead", "2.0.0")
+  @deprecated(message = "Use HttpServletRequest.serverName instead", since = "2.0.0")
   def host = serverName
 
   def serverPort = r.getServerPort
 
-  @deprecated(message = "Use HttpServletRequest.serverPort instead", "2.0.0")
+  @deprecated(message = "Use HttpServletRequest.serverPort instead", since = "2.0.0")
   def port = Integer.toString(r.getServerPort)
 
   /**
