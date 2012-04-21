@@ -6,7 +6,7 @@ import org.scalatra.ScalatraServlet
 import java.io.File
 import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.servlet.ServletHolder
-import javax.servlet.MultipartConfigElement
+import javax.servlet.{MultipartConfigElement, ServletException}
 import org.specs2.execute.Pending
 import org.scalatra.test.MultipartHttpTester
 
@@ -84,11 +84,17 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
 
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
   error {
-    case e: IllegalStateException => {
+    case e: SizeConstraintExceededException => {
       status = 413
 
       "too much!"
     }
+  }
+
+  //Jetty 8.1.3 throws ServletException instead of IllegalStateException.
+  override def isSizeConstraintException(e: Exception) = e match {
+    case _: ServletException => true
+    case _ => false
   }
 
   post("/upload") {
@@ -270,8 +276,11 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
   }
 
   "POST with multipart/form-data and maxFileSize set" should {
-    "handle too large file by throwing IllegalStateException error handled by the default error handler" in {
-      Pending("Waiting for Jetty 8.1.3")
+    "handle IllegalStateException by wrapping it as SizeConstraintExceededException handled by error handler" in {
+      post("/max-size/upload", Map(), Map("file" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))) {
+        (status mustEqual 413) and
+        (body mustEqual "too much!")
+      }
     }
 
     "allow file uploads smaller than the specified max file size" in {
@@ -285,7 +294,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     "not be affected by FileUploadSupport handling" in {
       post("/regular", Map("param1" -> "one", "param2" -> "two")) {
         (header("param1") must_== "one") and
-          (header("param2") must_== "two")
+        (header("param2") must_== "two")
       }
     }
   }
