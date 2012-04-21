@@ -217,7 +217,10 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
-      contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
+      contentTypeInferrer.lift(actionResult match {
+        case a: ActionResult => a.body
+        case _ => actionResult
+      }) foreach { contentType = _ }
     
     renderResponseBody(actionResult)
   }
