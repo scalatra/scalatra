@@ -4,12 +4,6 @@ import servlet.{ServletBase, ServletRequest, ServletResponse}
 
 import javax.servlet._
 import javax.servlet.http._
-import java.net.URL
-import scala.util.DynamicVariable
-import scala.util.matching.Regex
-import scala.collection.mutable.HashSet
-import scala.collection.JavaConversions._
-import scala.xml.NodeSeq
 
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended

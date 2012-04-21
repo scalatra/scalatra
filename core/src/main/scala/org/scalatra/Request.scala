@@ -1,6 +1,6 @@
 package org.scalatra
 
-import util.{MultiMap, MultiMapHeadView}
+import util.MultiMapHeadView
 
 import java.io.{InputStream}
 import java.net.URI

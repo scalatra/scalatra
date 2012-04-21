@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse, HttpSession}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import java.{util => ju}
 import java.util.Locale
 import scala.collection.immutable.DefaultMap

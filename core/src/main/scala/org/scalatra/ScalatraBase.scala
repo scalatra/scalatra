@@ -1,17 +1,9 @@
 package org.scalatra
 
-import scala.util.DynamicVariable
 import scala.util.matching.Regex
-import scala.util.control.ControlThrowable
-import scala.collection.JavaConversions._
-import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, SynchronizedBuffer}
-import scala.xml.NodeSeq
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
-import java.lang.{Integer => JInteger}
 import java.net.URLEncoder.encode
-import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 

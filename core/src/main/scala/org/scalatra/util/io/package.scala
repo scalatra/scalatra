@@ -3,7 +3,6 @@ package org.scalatra.util
 import scala.annotation.tailrec
 import java.io._
 import java.nio.channels.Channels
-import java.nio.ByteBuffer
 
 /**
  * A collection of I/O ulility methods.

@@ -1,7 +1,5 @@
 package org.scalatra
 
-import scala.util.DynamicVariable
-
 /**
  * The core Scalatra DSL.
  */

@@ -1,7 +1,6 @@
 package org.scalatra
 
 import scala.collection.mutable.{Map => MMap, Set => MSet}
-import scala.util.DynamicVariable
 import util.MutableMapWithIndifferentAccess
 
 /**
