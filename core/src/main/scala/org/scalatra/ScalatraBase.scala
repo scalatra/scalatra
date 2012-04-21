@@ -131,7 +131,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    *
    * @param matchedRoute the matched route to execute
    *
-   * @param return the result of the matched route's action wrapped in `Some`,
+   * @return the result of the matched route's action wrapped in `Some`,
    * or `None` if the action calls `pass`.
    */
   protected def invoke(matchedRoute: MatchedRoute) =
@@ -347,14 +347,8 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
 
   def trap(codes: Range)(block: => Any) = addStatusRoute(codes, block)
 
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
   def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
 
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
   def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
 
   /**
