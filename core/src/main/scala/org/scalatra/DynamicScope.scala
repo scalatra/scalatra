@@ -30,7 +30,7 @@ trait DynamicScope {
   protected def withRequestResponse[A](request: RequestT, response: ResponseT)(f: => A) = {
     withRequest(request) {
       withResponse(response) {
-	f
+        f
       }
     }
   }
