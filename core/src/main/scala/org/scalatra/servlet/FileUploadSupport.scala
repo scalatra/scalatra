@@ -1,6 +1,7 @@
 package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
+import javax.servlet.ServletException
 import javax.servlet.http.{HttpServletRequest, Part}
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
@@ -29,12 +30,14 @@ import java.io.File
   * to configure an error handler to your handler class:
   *
   * {{{
+  * import org.scalatra.servlet.SizeLimitExceededException
   * import org.scalatra.servlet.FileUploadSupport
+  * 
   * @MultipartConfig(maxFileSize=1024*1024)
   * class FileEaterServlet extends ScalatraServlet with FileUploadSupport {
   *   error {
-  *     case e: IllegalStateException => "Oh, too much! Can't take it all."
-  *     case e: IOException           => "Server denied me my meal, thanks anyway."
+  *     case e: SizeConstrainttExceededException => "Oh, too much! Can't take it all."
+  *     case e: IOException                      => "Server denied me my meal, thanks anyway."
   *   }
   *
   *   post("/eatfile") {
@@ -55,6 +58,19 @@ import java.io.File
 trait FileUploadSupport extends ServletBase {
 
   import FileUploadSupport._
+
+  /* Called for any exceptions thrown by handling file uploads
+   * to detect whether it signifies a too large file being
+   * uploaded or a too large request in general.
+   *
+   * This can be overriden for the container being used if it
+   * doesn't throw `IllegalStateException` or if it throws
+   * `IllegalStateException` for some other reason.
+   */
+  protected def isSizeConstraintException(e: Exception) = e match {
+    case _: IllegalStateException => true
+    case _ => false
+  }
 
   override def handle(req: RequestT, res: ResponseT) {
     val req2 = try {
@@ -89,7 +105,7 @@ trait FileUploadSupport extends ServletBase {
         bodyParams
 
       case None => {
-        val bodyParams = req.getParts.foldRight(BodyParams(FileMultiParams(), Map.empty)) {
+        val bodyParams = getParts(req).foldRight(BodyParams(FileMultiParams(), Map.empty)) {
           (part, params) =>
             val item = FileItem(part)
 
@@ -109,6 +125,14 @@ trait FileUploadSupport extends ServletBase {
         req.setAttribute(BodyParamsKey, bodyParams)
         bodyParams
       }
+    }
+  }
+
+  private def getParts(req: RequestT) = {
+    try {
+      req.getParts
+    } catch {
+      case e: Exception if isSizeConstraintException(e) => throw new SizeConstraintExceededException("Too large request or file", e)
     }
   }
 
