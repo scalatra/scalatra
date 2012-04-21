@@ -53,8 +53,9 @@ trait CoreDsl extends Handler with Control {
   /**
    * Sets the content type of the current response.
    */
-  def contentType_=(contentType: String): Unit = 
+  def contentType_=(contentType: String) {
     response.contentType = Option(contentType)
+  }
 
   @deprecated("Use status_=(Int) instead", "2.1.0")
   def status(code: Int) = status_=(code)
@@ -62,7 +63,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * Sets the status code of the current response.
    */
-  def status_=(code: Int): Unit = response.status = ResponseStatus(code)
+  def status_=(code: Int) { response.status = ResponseStatus(code) }
 
   /**
    * Gets the status code of the current response.
@@ -72,7 +73,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * Sends a redirect response and immediately halts the current action.
    */
-  def redirect(uri: String): Unit = {
+  def redirect(uri: String) {
     response.redirect(uri)
     halt()
   }
@@ -85,11 +86,14 @@ trait CoreDsl extends Handler with Control {
   def before(transformers: RouteTransformer*)(block: => Any): Unit
 
   @deprecated("Use before() { ... }", "2.0.0")
-  final def beforeAll(block: => Any): Unit = before()(block)
+  final def beforeAll(block: => Any) {
+    before()(block)
+  }
 
   @deprecated("Use before(RouteTransformer*) { ... }", "2.0.0")
-  final def beforeSome(transformers: RouteTransformer*)(block: => Any): Unit =
+  final def beforeSome(transformers: RouteTransformer*)(block: => Any) {
     before(transformers: _*)(block)
+  }
 
   /**
    * Adds a filter to run after the route.  The filter only runs if each
@@ -102,8 +106,9 @@ trait CoreDsl extends Handler with Control {
   final def afterAll(block: => Any): Unit = after()(block)
 
   @deprecated("Use after(RouteTransformer*) { ... }", "2.0.0")
-  final def afterSome(transformers: RouteTransformer*)(block: => Any): Unit =
+  final def afterSome(transformers: RouteTransformer*)(block: => Any) {
     before(transformers: _*)(block)
+  }
 
   /**
    * Defines a block to run if no matching routes are found, or if all
@@ -205,6 +210,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * @see error
    */
-  def trap(code: Int)(block: => Any): Unit = 
+  def trap(code: Int)(block: => Any) {
     trap(Range(code, code+1))(block)
+  }
 }
