@@ -22,8 +22,9 @@ class ServletResponse(res: HttpServletResponse)
    */
   def status: ResponseStatus = ResponseStatus(res.getStatus)
 
-  def status_=(statusLine: ResponseStatus) = 
+  def status_=(statusLine: ResponseStatus) {
     res.setStatus(statusLine.code, statusLine.message)
+  }
 
   object headers extends Map[String, String] {
     def get(key: String): Option[String] = 
@@ -84,11 +85,12 @@ class ServletResponse(res: HttpServletResponse)
   def writer: PrintWriter =
     res.getWriter
 
-  def end() = {
+  def end() {
     res.flushBuffer()
     res.getOutputStream.close()
   }
 
-  override def addHeader(name: String, value: String) = 
+  override def addHeader(name: String, value: String) {
     super.addHeader(name, value)
+  }
 }

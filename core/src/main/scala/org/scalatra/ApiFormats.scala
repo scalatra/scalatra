@@ -5,7 +5,6 @@ import collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
-import collection.{SortedMap, mutable}
 
 object ApiFormats {
   /**

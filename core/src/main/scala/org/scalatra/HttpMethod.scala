@@ -57,7 +57,7 @@ object HttpMethod {
   /**
    * Maps a String as an HttpMethod.
    *
-   * @param a string representing an HttpMethod
+   * @param name a string representing an HttpMethod
    * @return the matching common HttpMethod, or an instance of `ExtensionMethod`
    * if no method matches
    */

@@ -1,7 +1,7 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.{AsyncContext, AsyncEvent, AsyncListener}
+import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 trait AsyncSupport extends ServletBase {
@@ -36,7 +36,7 @@ trait AsyncSupport extends ServletBase {
    * The block of these methods is executed in a lightweight event-driven thread
    * from Akka's dispatchers
    *
-   * See [[org.scalatra.ScalatraKernel.renderResponseBody]] for the detailed
+   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
    * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *

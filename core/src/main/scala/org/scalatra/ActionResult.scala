@@ -1,6 +1,6 @@
 package org.scalatra
 
-case class ActionResult(val status: ResponseStatus, val body: Any, val headers: Map[String, String])
+case class ActionResult(status: ResponseStatus, body: Any, headers: Map[String, String])
 
 private object Helpers {
   def responseStatus(status: Int, reason: String) = reason match {

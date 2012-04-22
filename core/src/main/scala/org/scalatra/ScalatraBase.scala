@@ -1,17 +1,9 @@
 package org.scalatra
 
-import scala.util.DynamicVariable
 import scala.util.matching.Regex
-import scala.util.control.ControlThrowable
-import scala.collection.JavaConversions._
-import scala.collection.mutable.{ConcurrentMap, HashMap, ListBuffer, SynchronizedBuffer}
-import scala.xml.NodeSeq
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
-import java.lang.{Integer => JInteger}
 import java.net.URLEncoder.encode
-import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 
@@ -81,7 +73,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * $ 4. Executes the after filters with `runFilters`.
    * $ 5. The action result is passed to `renderResponse`.
    */
-  protected def executeRoutes() = {
+  protected def executeRoutes() {
     val result = try {
       val prehandleException = request.get("org.scalatra.PrehandleException")
 
@@ -115,11 +107,12 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * Invokes each filters with `invoke`.  The results of the filters
    * are discarded.
    */
-  protected def runFilters(filters: Traversable[Route]) =
+  protected def runFilters(filters: Traversable[Route]) {
     for {
       route <- filters
       matchedRoute <- route()
     } invoke(matchedRoute)
+  }
 
   /**
    * Lazily invokes routes with `invoke`.  The results of the routes
@@ -139,7 +132,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    *
    * @param matchedRoute the matched route to execute
    *
-   * @param return the result of the matched route's action wrapped in `Some`,
+   * @return the result of the matched route's action wrapped in `Some`,
    * or `None` if the action calls `pass`.
    */
   protected def invoke(matchedRoute: MatchedRoute) =
@@ -161,18 +154,20 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   def requestPath: String
 
-  def before(transformers: RouteTransformer*)(fun: => Any) =
+  def before(transformers: RouteTransformer*)(fun: => Any) {
     routes.appendBeforeFilter(Route(transformers, () => fun))
+  }
 
-  def after(transformers: RouteTransformer*)(fun: => Any) =
+  def after(transformers: RouteTransformer*)(fun: => Any) {
     routes.appendAfterFilter(Route(transformers, () => fun))
+  }
 
   /**
    * Called if no route matches the current request for any method.  The
    * default implementation varies between servlet and filter.
    */
   protected var doNotFound: Action
-  def notFound(fun: => Any) = doNotFound = { () => fun }
+  def notFound(fun: => Any) { doNotFound = { () => fun } }
 
   /**
    * Called if no route matches the current request method, but routes
@@ -184,7 +179,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
     status = 405
     response.headers("Allow") = allow.mkString(", ")
   }
-  def methodNotAllowed(f: Set[HttpMethod] => Any) = doMethodNotAllowed = f
+  def methodNotAllowed(f: Set[HttpMethod] => Any) { doMethodNotAllowed = f }
 
   private def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod)
@@ -202,7 +197,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * before filters or the routes.
    */
   protected var errorHandler: ErrorHandler = { case t => throw t }
-  def error(handler: ErrorHandler) = errorHandler = handler orElse errorHandler
+  def error(handler: ErrorHandler) { errorHandler = handler orElse errorHandler }
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
@@ -336,10 +331,10 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
 
   protected def renderHaltException(e: HaltException) {
     e match {
-      case HaltException(Some(status), Some(reason), _, _) => 
-	response.status = ResponseStatus(status, reason)
-      case HaltException(Some(status), None, _, _) => 
-	response.status = ResponseStatus(status)
+      case HaltException(Some(status), Some(reason), _, _) =>
+        response.status = ResponseStatus(status, reason)
+      case HaltException(Some(status), None, _, _) =>
+        response.status = ResponseStatus(status)
       case HaltException(None, _, _, _) => // leave status line alone
     }
     e.headers foreach { case(name, value) => response.addHeader(name, value) }
@@ -354,16 +349,10 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
 
   def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
 
-  def trap(codes: Range)(block: => Any) = addStatusRoute(codes, block)
+  def trap(codes: Range)(block: => Any) { addStatusRoute(codes, block) }
 
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
   def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
 
-  /**
-   * @see [[org.scalatra.ScalatraKernel.get]]
-   */
   def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
 
   /**
@@ -400,11 +389,13 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    *
    * @see org.scalatra.ScalatraKernel#addRoute
    */
-  protected def removeRoute(method: HttpMethod, route: Route): Unit =
+  protected def removeRoute(method: HttpMethod, route: Route) {
     routes.removeRoute(method, route)
+  }
 
-  protected def removeRoute(method: String, route: Route): Unit =
+  protected def removeRoute(method: String, route: Route) {
     removeRoute(HttpMethod(method), route)
+  }
 
   protected[scalatra] def addStatusRoute(codes: Range, action: => Any)  {
     val route = Route(Seq.empty, () => action, () => routeBasePath)
@@ -423,7 +414,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    *
    * @param config the configuration.
    */
-  def initialize(config: ConfigT) = this.config = config
+  def initialize(config: ConfigT) { this.config = config }
 
   /**
    * Gets an init paramter from the config.
