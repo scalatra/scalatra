@@ -63,6 +63,18 @@ class ActionResultsSpec extends MutableScalatraSpec {
         response.getReason mustEqual "Bad Request"
       }
     }
+
+    "infer contentType for String" in {
+      get("/ok") {
+        response.getContentType mustEqual "text/plain;charset=UTF-8"
+      }
+    }
+
+    "infer contentType for Array[Byte]" in {
+      get("/bytes") {
+        response.getContentType mustEqual "application/octet-stream;charset=UTF-8"
+      }
+    }
   }
 
   "returning ActionResult with additional headers" should {

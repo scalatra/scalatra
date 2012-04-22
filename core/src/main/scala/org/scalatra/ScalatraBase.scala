@@ -233,6 +233,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def contentTypeInferrer: ContentTypeInferrer = {
     case _: String => "text/plain"
     case _: Array[Byte] => "application/octet-stream"
+    case actionResult: ActionResult => contentTypeInferrer(actionResult.body)
     case _ => "text/html"
   }
 
