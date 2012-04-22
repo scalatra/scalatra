@@ -4,12 +4,6 @@ import servlet.{ServletBase, ServletRequest, ServletResponse}
 
 import javax.servlet._
 import javax.servlet.http._
-import java.net.URL
-import scala.util.DynamicVariable
-import scala.util.matching.Regex
-import scala.collection.mutable.HashSet
-import scala.collection.JavaConversions._
-import scala.xml.NodeSeq
 
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended
@@ -91,10 +85,12 @@ abstract class ScalatraServlet
 
   type ConfigT = ServletConfig
 
-  override def init(config: ServletConfig) = {
+  override def init(config: ServletConfig) {
     super.init(config)
     initialize(config) // see Initializable.initialize for why
   }
 
-  override def initialize(config: ServletConfig): Unit = super.initialize(config)
+  override def initialize(config: ServletConfig) {
+    super.initialize(config)
+  }
 }

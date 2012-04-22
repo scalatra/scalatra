@@ -2,7 +2,6 @@ package org.scalatra
 
 import collection._
 import java.util.Locale
-import scala.util.DynamicVariable
 import util.RicherString._
 
 case class CookieOptions(

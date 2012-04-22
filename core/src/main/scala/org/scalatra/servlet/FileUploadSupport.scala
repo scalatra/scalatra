@@ -1,7 +1,6 @@
 package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
-import javax.servlet.ServletException
 import javax.servlet.http.{HttpServletRequest, Part}
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase

@@ -2,7 +2,6 @@ package org.scalatra
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 

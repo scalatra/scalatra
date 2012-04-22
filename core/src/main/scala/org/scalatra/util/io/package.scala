@@ -3,7 +3,6 @@ package org.scalatra.util
 import scala.annotation.tailrec
 import java.io._
 import java.nio.channels.Channels
-import java.nio.ByteBuffer
 
 /**
  * A collection of I/O ulility methods.
@@ -17,7 +16,7 @@ package object io {
    * @param out the output stream to write
    * @param bufferSize the size of buffer to use for each read
    */
-  def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
+  def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096) {
     using(in) { in =>
       val buf = new Array[Byte](bufferSize)
       @tailrec

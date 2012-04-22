@@ -42,7 +42,7 @@ class ServletApplicationContext(sc: ServletContext)
   /**
    * Optionally returns the resource mapped to the request's path.
    *
-   * @param the request
+   * @param req the request
    * @return the resource located at the result of concatenating the request's
    * servlet path and its path info, or None if there is no resource at that path.
    */
@@ -55,13 +55,13 @@ class ServletApplicationContext(sc: ServletContext)
    * Mounts a handler to the servlet context.  Must be an HttpServlet or a
    * Filter.
    *
-   * @handler the handler to mount
+   * @param handler the handler to mount
    * 
-   * @urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
+   * @param urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
    * not already, as path-mapping is the most natural fit for Scalatra.
    * If you don't want path mapping, use the native Servlet API.
    * 
-   * @name the name of the handler
+   * @param name the name of the handler
    */
   def mount(handler: Handler, urlPattern: String, name: String) {
     val pathMap = urlPattern match {

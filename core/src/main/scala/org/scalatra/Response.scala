@@ -1,10 +1,6 @@
 package org.scalatra
 
-import java.nio.charset.Charset
-import collection.mutable.ConcurrentMap
 import java.io.{OutputStream, PrintWriter}
-import java.util.concurrent.ConcurrentHashMap
-import collection.JavaConversions._
 import scala.collection.mutable.Map
 
 trait Response extends HttpMessage {

@@ -26,7 +26,7 @@ trait ScalatraFilter extends Filter with ServletBase {
   private val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 
-  def doFilter(request: JServletRequest, response: JServletResponse, chain: FilterChain) = {
+  def doFilter(request: JServletRequest, response: JServletResponse, chain: FilterChain) {
     val httpRequest = request.asInstanceOf[HttpServletRequest]
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
@@ -52,7 +52,9 @@ trait ScalatraFilter extends Filter with ServletBase {
   type ConfigT = FilterConfig
 
   // see Initializable.initialize for why
-  def init(filterConfig: FilterConfig) = initialize(filterConfig)
+  def init(filterConfig: FilterConfig) {
+    initialize(filterConfig)
+  }
 
-  def destroy = {}
+  def destroy {}
 }

@@ -1,6 +1,6 @@
 package org.scalatra
 
-import util.{MultiMap, MultiMapHeadView}
+import util.MultiMapHeadView
 
 import java.io.{InputStream}
 import java.net.URI
@@ -92,8 +92,6 @@ trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
   object parameters extends MultiMapHeadView[String, String] {
     protected def multiMap = multiParameters
   }
-
-  // TODO def files: GenSeq[HttpFile]
 
   def cookies: Map[String, String]
 
