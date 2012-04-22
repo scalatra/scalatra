@@ -49,18 +49,19 @@ trait CoreDsl {
   /**
    * Sets the content type of the current response.
    */
-  def contentType_=(contentType: String): Unit =
+  def contentType_=(contentType: String) {
     response.setContentType(contentType)
+  }
 
   /**
    * Sets the status code of the current response.
    */
-  def status(code: Int): Unit = response.setStatus(code)
+  def status(code: Int) { response.setStatus(code) }
 
   /**
    * Sends a redirect response and immediately halts the current action.
    */
-  def redirect(uri: String): Unit = {
+  def redirect(uri: String) {
     response.sendRedirect(uri)
     halt()
   }
@@ -83,11 +84,12 @@ trait CoreDsl {
   def before(routeMatchers: RouteMatcher*)(block: => Any): Unit
 
   @deprecated("Use before() { ... }")
-  final def beforeAll(block: => Any): Unit = before()(block)
+  final def beforeAll(block: => Any) { before()(block) }
 
   @deprecated("Use before(RouteMatcher*) { ... }")
-  final def beforeSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
+  final def beforeSome(routeMatchers: RouteMatcher*)(block: => Any) {
     before(routeMatchers : _*)(block)
+  }
 
   /**
    * Adds a filter to run after the route.  The filter only runs if each
@@ -97,11 +99,12 @@ trait CoreDsl {
   def after(routeMatchers: RouteMatcher*)(block: => Any): Unit
 
   @deprecated("Use after() { ... }")
-  final def afterAll(block: => Any): Unit = after()(block)
+  final def afterAll(block: => Any) { after()(block) }
 
   @deprecated("Use after(RouteMatcher*) { ... }")
-  final def afterSome(routeMatchers: RouteMatcher*)(block: => Any): Unit =
+  final def afterSome(routeMatchers: RouteMatcher*)(block: => Any) {
     before(routeMatchers : _*)(block)
+  }
 
   /**
    * Defines a block to run if no matching routes are found, or if all

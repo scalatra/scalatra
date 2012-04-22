@@ -26,7 +26,7 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   private val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 
-  def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) = {
+  def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
     val httpRequest = request.asInstanceOf[HttpServletRequest]
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
@@ -54,12 +54,14 @@ trait ScalatraFilter extends Filter with ScalatraKernel with Initializable {
   type Config = FilterConfig
 
   // see Initializable.initialize for why
-  def init(filterConfig: FilterConfig) = initialize(filterConfig)
+  def init(filterConfig: FilterConfig) {
+    initialize(filterConfig)
+  }
 
-  override def initialize(config: FilterConfig): Unit = {
+  override def initialize(config: FilterConfig) {
     super.initialize(config)
     servletContext = config.getServletContext
   }
 
-  def destroy = {}
+  def destroy {}
 }

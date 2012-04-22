@@ -91,10 +91,12 @@ abstract class ScalatraServlet
 
   type Config = ServletConfig
 
-  override def init(config: ServletConfig) = {
+  override def init(config: ServletConfig) {
     super.init(config)
     initialize(config) // see Initializable.initialize for why
   }
 
-  override def initialize(config: ServletConfig): Unit = super.initialize(config)
+  override def initialize(config: ServletConfig) {
+    super.initialize(config)
+  }
 }
