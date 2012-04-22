@@ -85,9 +85,9 @@ class ServletApplicationContext(sc: ServletContext)
     }
 
     if (classOf[HttpServlet].isAssignableFrom(handlerClass)) {
-      mountServlet(handlerClass.asInstanceOf[Class[HttpServlet]], urlPattern, name)
+      mountServlet(handlerClass.asInstanceOf[Class[HttpServlet]], pathMap, name)
     } else if (classOf[Filter].isAssignableFrom(handlerClass)) {
-      mountFilter(handlerClass.asInstanceOf[Class[Filter]], urlPattern, name)
+      mountFilter(handlerClass.asInstanceOf[Class[Filter]], pathMap, name)
     } else {
       sys.error("Don't know how to mount this service to a servletContext: " + handlerClass)
     }
