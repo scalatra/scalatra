@@ -25,9 +25,9 @@ class FilterTestServlet extends ScalatraServlet {
 
   get("/") {}
 
-  get("/before-counter") { beforeCount }
+  get("/before-counter") { beforeCount.toString }
 
-  get("/after-counter") { afterCount }
+  get("/after-counter") { afterCount.toString }
 
   get("/demons-be-here") {
     throw new RuntimeException
