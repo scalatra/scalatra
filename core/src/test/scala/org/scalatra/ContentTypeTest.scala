@@ -61,6 +61,8 @@ class ContentTypeTestServlet extends ScalatraServlet {
     contentType = "1"
     // Wait for second request to complete
     (conductor !! 1)()
+
+    200
   }
 
   get("/concurrent/2") {
@@ -133,7 +135,8 @@ class ContentTypeTest extends ScalatraFunSuite {
             // Execute in own thread in servlet with LocalConnector
             val conn = tester.createLocalConnector()
             val res = new HttpTester
-            res.parse(tester.getResponses(req.generate(), conn))
+            val resString = tester.getResponses(req.generate(), conn)
+            res.parse(resString)
             sender ! (i, res.mediaType)
             exit()
         }
