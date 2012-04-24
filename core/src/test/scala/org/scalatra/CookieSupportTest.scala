@@ -26,6 +26,10 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
     cookies.update("thecookie", params("cookieval"))(CookieOptions(maxAge = params("maxAge").toInt))
   }
 
+  post("/set-http-only-cookie") {
+    cookies.update("thecookie", params("cookieval"))(CookieOptions(httpOnly = true))
+  }
+
   post("/maplikeset") {
     cookies += ("somecookie" -> params("cookieval"))
     "OK"
@@ -46,7 +50,7 @@ class CookieSupportTest extends ScalatraFunSuite {
 
   test("POST /setcookie with a value should return OK") {
     post("/foo/setcookie", "cookieval" -> "The value") {
-      response.getHeader("Set-Cookie") must startWith ("""somecookie="The value";""")
+      response.getHeader("Set-Cookie") must startWith ("""somecookie=The value;""")
     }
   }
 
@@ -69,9 +73,15 @@ class CookieSupportTest extends ScalatraFunSuite {
     }
   }
 
+  test("POST /set-http-only-cookie should set the HttpOnly flag of the cookie") {
+    post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
+      response.getHeader("Set-Cookie") must endWith ("; HttpOnly")
+    }
+  }
+
   test("cookie path defaults to context path") {
     post("/foo/setcookie", "cookieval" -> "whatever") {
-      response.getHeader("Set-Cookie") must endWith (";Path=/foo")
+      response.getHeader("Set-Cookie") must endWith ("; Path=/foo")
     }
   }
 
@@ -79,7 +89,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/maplikeset", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
       hdr must startWith ("""somecookie=whatever;""")
-      hdr must endWith (";Path=/foo")
+      hdr must endWith ("; Path=/foo")
     }
   }
 
