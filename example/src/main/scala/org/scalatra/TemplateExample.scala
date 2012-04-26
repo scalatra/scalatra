@@ -1,11 +1,9 @@
 package org.scalatra
 
 import scala.xml.{Text, Node}
-import org.apache.commons.io.IOUtils
-import fileupload.FileUploadSupport
 import scalate.ScalateSupport
 
-class TemplateExample extends ScalatraServlet /*with FileUploadSupport*/ with FlashMapSupport with ScalateSupport {
+class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateSupport {
 
   object Template {
 
@@ -127,23 +125,6 @@ class TemplateExample extends ScalatraServlet /*with FileUploadSupport*/ with Fl
     val content = "this is some fake content for the web page"
     layoutTemplate("index.scaml", "content"-> content)
   }
-
-  get("/upload") {
-    Template.page("Scalatra: Session Example",
-    <form method="post" enctype="multipart/form-data">
-      Upload a file.  Its contents will be displayed in the browser.<br />
-      <label>File: <input type="file" name="file" /></label><br />
-      <input type="submit" />
-    </form>
-    )
-  }
-
-  /*
-  post("/upload") {
-    contentType = "text/plain"
-    fileParams.get("file") foreach { file => IOUtils.copy(file.getInputStream, response.getOutputStream) }
-  }
-  */
 
   get("/flash-map/form") {
     Template.page("Scalatra: Flash Map Example",
