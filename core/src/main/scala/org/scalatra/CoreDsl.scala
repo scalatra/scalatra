@@ -58,7 +58,7 @@ trait CoreDsl extends Handler with Control {
   }
 
   @deprecated("Use status_=(Int) instead", "2.1.0")
-  def status(code: Int) = status_=(code)
+  def status(code: Int) { status_=(code) }
 
   /**
    * Sets the status code of the current response.
@@ -103,7 +103,7 @@ trait CoreDsl extends Handler with Control {
   def after(transformers: RouteTransformer*)(block: => Any): Unit
 
   @deprecated("Use after() { ... }", "2.0.0")
-  final def afterAll(block: => Any): Unit = after()(block)
+  final def afterAll(block: => Any) { after()(block) }
 
   @deprecated("Use after(RouteTransformer*) { ... }", "2.0.0")
   final def afterSome(transformers: RouteTransformer*)(block: => Any) {

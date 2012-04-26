@@ -58,9 +58,10 @@ class CookieSupportTest extends ScalatraFunSuite {
     }
   }
 
-  test("POST /setcookie with a value should return OK") {
+  test("POST /setcookie with a value should return the value") {
     post("/foo/setcookie", "cookieval" -> "The value") {
-      response.getHeader("Set-Cookie") must startWith ("""somecookie="The value";""")
+      val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
+      cookie.getValue must be ("The value")
     }
   }
 
@@ -80,6 +81,13 @@ class CookieSupportTest extends ScalatraFunSuite {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
       // Allow some slop, since it's a new call to currentTimeMillis
       cookie.getMaxAge.toInt must be (oneWeek plusOrMinus 10000)
+    }
+  }
+
+  test("POST /set-http-only-cookie should set the HttpOnly flag of the cookie") {
+    post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
+      val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
+      cookie.isHttpOnly must be (true)
     }
   }
 
