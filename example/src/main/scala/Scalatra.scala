@@ -3,10 +3,12 @@ import org.eclipse.jetty.servlet.ServletHolder
 
 class Scalatra extends LifeCycle {
   override def init(context: ApplicationContext) {
-    context.mount(new TemplateExample, "/*")
     context.mount(new BasicAuthExample, "/auth/*")
+    context.mount(new CookiesExample, "/cookies-example/*")
     context.mount(new DocumentExample, "/docs/*")
+    context.mount(new FilterExample, "/*")
     context.mount(new Servlet30ChatExample, "/chat_30/*")
+    context.mount(new TemplateExample, "/*")
     
     /*
     // TODO: make work without web.xml, per servlet init parameters
@@ -16,7 +18,5 @@ class Scalatra extends LifeCycle {
     context.mount(meteor, "/meteor/*") */
     */
     
-    context.mount(new CookiesExample, "/cookies-example/*")
-    context.mount(new FilterExample, "/*")
   }
 }
