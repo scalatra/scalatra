@@ -5,6 +5,7 @@ class Scalatra extends LifeCycle {
   override def init(context: ApplicationContext) {
     context.mount(new BasicAuthExample, "/auth/*")
     context.mount(new CookiesExample, "/cookies-example/*")
+    context.mount(new FileUploadExample, "/uploads/*")
     context.mount(new DocumentExample, "/docs/*")
     context.mount(new FilterExample, "/*")
     context.mount(new Servlet30ChatExample, "/chat_30/*")
