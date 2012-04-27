@@ -39,10 +39,13 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-      grizzledSlf4j),
+        realServletApi % "provided;test",
+        servletApi,
+        grizzledSlf4j
+      ),
       description := "The core Scalatra framework"
     )
-  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile;provided->provided" } :_*)
+  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
 
   lazy val scalatraAuth = Project(
     id = "scalatra-auth",
@@ -104,11 +107,10 @@ object ScalatraBuild extends Build {
     id = "scalatra-jetty",
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
-      ivyXML := <dependencies> 
-        <dependency org="org.eclipse.jetty" name="jetty-servlet" rev="8.1.3.v20120416">
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
-      </dependencies>,
+      libraryDependencies ++= Seq(
+        realServletApi,
+        jettyServlet,
+        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts(Artifact("javax.servlet", "orbit", "jar"))),
       description := "Embedded Jetty server for Scalatra apps"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -119,17 +121,14 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
-        servletApi,
+        realServletApi,
+        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts(Artifact("javax.servlet", "orbit", "jar")),
+        testJettyServlet,
         mockitoAll,
         commonsLang3,
         specs2 % "test",
         dispatch
       ),
-      ivyXML := <dependencies>
-        <dependency org="org.eclipse.jetty" name="test-jetty-servlet" rev="8.1.3.v20120416">
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
-      </dependencies>,
       description := "The abstract Scalatra test framework"
     )
   )
@@ -186,12 +185,9 @@ object ScalatraBuild extends Build {
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
       resolvers ++= Seq(sonatypeNexusSnapshots),
-      libraryDependencies ++= Seq(atmosphere, slf4jSimple),
-      ivyXML := <dependencies>
-        <dependency org="org.eclipse.jetty" name="jetty-webapp" rev="8.1.3.v20120416" conf="test;container" >
-          <exclude org="org.eclipse.jetty.orbit" />
-        </dependency>
-      </dependencies>,
+      libraryDependencies += "org.eclipse.jetty.orbit" % "javax.servlet"     % "3.0.0.v201112011016" % "container;test" artifacts(Artifact("javax.servlet", "orbit", "jar")),
+      libraryDependencies += realServletApi % "container;test",
+      libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
       description := "Scalatra example project"
     )
   ) dependsOn(
@@ -217,12 +213,12 @@ object ScalatraBuild extends Build {
 
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416"
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" exclude("org.eclipse.jetty.orbit", "javax.servlet")
 
     val testJettyServlet = jettyDep("test-jetty-servlet")    
     val jettyServlet = jettyDep("jetty-servlet") 
     val jettyServer = jettyDep("jetty-server") 
-    val jettyWebsocket = jettyDep("jetty-websocket") % "provided"
+    val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % "8.1.3.v20120416"  % "provided" exclude("org.eclipse.jetty.orbit", "javax.servlet")
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
     val junit = "junit" % "junit" % "4.10"
@@ -240,7 +236,9 @@ object ScalatraBuild extends Build {
 
     def specs2 = "org.specs2" %% "specs2" % "1.8.2"
 
-    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided;test"
+    val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet"     % "3.0.0.v201112011016" % "provided;test" artifacts(Artifact("javax.servlet", "orbit", "jar"))
+
+    val realServletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
