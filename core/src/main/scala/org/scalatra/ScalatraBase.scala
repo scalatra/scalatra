@@ -467,7 +467,12 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
       case x if x.startsWith("/") => contextPath + path
       case _ => path
     }
-    val pairs = params map { case(key, value) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8") }
+
+    val pairs = params map {
+      case (key, None) => encode(key, "utf-8")+"="
+      case (key, Some(value)) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8")
+      case(key, value) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8")
+    }
     val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
     addSessionId(newPath+queryString)
   }

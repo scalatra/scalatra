@@ -8,7 +8,11 @@ class UrlSupportTest extends ScalatraFunSuite {
   addServlet(new ScalatraServlet {
     get("/") {
       if (params.contains("session")) session // trigger a jsessionid
-      url(params("url"), params - "url") 
+      this.url(params("url"), params - "url")
+    }
+
+    get("/option") {
+      this.url(params("url"), Seq("id" -> params.get("id")))
     }
   }, "/*")
 
@@ -17,6 +21,10 @@ class UrlSupportTest extends ScalatraFunSuite {
 
   test("a page-relative URL should not have the context path prepended") {
     url("page-relative") should equal ("page-relative")
+  }
+
+  test("a should expand an option") {
+    url("page-relative", Map("id" -> "the-id")) should equal ("page-relative?id=the-id")
   }
 
   test("a context-relative URL should have the context path prepended") {
