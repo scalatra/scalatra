@@ -234,7 +234,7 @@ object ScalatraBuild extends Build {
 
     def specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    def specs2 = "org.specs2" %% "specs2" % "1.8.2"
+    def specs2 = "org.specs2" %% "specs2" % "1.9"
 
     val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet"     % "3.0.0.v201112011016" % "provided;test" artifacts(Artifact("javax.servlet", "orbit", "jar"))
 
