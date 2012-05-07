@@ -21,3 +21,7 @@
 ### swagger
 
 * Support for route documentation with [Swagger](http://swagger.wordnik.com/)
+
+### test
+
+* Support for testing multipart requests.
