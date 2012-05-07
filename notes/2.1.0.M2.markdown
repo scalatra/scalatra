@@ -1,0 +1,23 @@
+### core
+
+* Drop support for Scala 2.8.x.
+
+* Cross builds dropped.  Same build runs for all 2.9.x.
+
+* Support `X-Http-Method-Override` header.
+
+* Support mounting handlers by class as well of instance.
+
+* Support ActionResult class hierarchy to bundle status, headers, and
+  body into one case class.
+
+* Returning an Int sets the status, just like Sinatra.
+
+### fileupload
+
+* Deprecated in favor of native servlet handling.  (Jetty users:
+  requires >= 8.1.3.)
+
+### swagger
+
+* Support for route documentation with [Swagger](http://swagger.wordnik.com/)
