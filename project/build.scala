@@ -4,20 +4,25 @@ import scala.xml._
 import java.net.URL
 import com.github.siasia.WebPlugin.webSettings
 import posterous.Publish._
+import ls.Plugin.LsKeys
 
 object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
+  lazy val majorVersion = "2.1"
+
+  lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    version := "2.1.0-SNAPSHOT",
+    version := "%s.0-SNAPSHOT" format majorVersion,
     scalaVersion := "2.9.1",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting,
     crossPaths := false,
-    resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots)
+    resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots),
+    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
+    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
@@ -26,7 +31,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      (name in Posterous) := "scalatra"
+      (name in Posterous) := "scalatra",
+      LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml,
