@@ -64,7 +64,7 @@ trait CsrfTokenSupport {
    * the session key of the same name.
    */
   protected def isForged: Boolean = {
-    !request.requestMethod.isSafe && session.get(csrfKey) != params.get(csrfKey)
+    !request.requestMethod.isSafe && session.get(csrfKey) != params.get(csrfKey) && session.get(csrfKey) != request.header(csrfKey)
   }
 
   /**
