@@ -23,7 +23,7 @@ object ScalatraBuild extends Build {
     resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
-  ) ++ mavenCentralFrouFrou
+  ) ++ jettyOrbitHack ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
@@ -45,8 +45,7 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        realServletApi % "provided;test",
-        servletApi,
+        servletApi % "provided;test",
         grizzledSlf4j
       ),
       description := "The core Scalatra framework"
@@ -114,9 +113,9 @@ object ScalatraBuild extends Build {
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        realServletApi,
-        jettyServlet,
-        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts(Artifact("javax.servlet", "orbit", "jar"))),
+        servletApi,
+        jettyServlet
+      ),
       description := "Embedded Jetty server for Scalatra apps"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -127,9 +126,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
-        realServletApi,
-        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts(Artifact("javax.servlet", "orbit", "jar")),
         testJettyServlet,
+	servletApi % "provided",
         mockitoAll,
         commonsLang3,
         specs2 % "test",
@@ -191,8 +189,7 @@ object ScalatraBuild extends Build {
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
       resolvers ++= Seq(sonatypeNexusSnapshots),
-      libraryDependencies += "org.eclipse.jetty.orbit" % "javax.servlet"     % "3.0.0.v201112011016" % "container;test" artifacts(Artifact("javax.servlet", "orbit", "jar")),
-      libraryDependencies += realServletApi % "container;test",
+      libraryDependencies += servletApi % "container;test",
       libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
       description := "Scalatra example project"
     )
@@ -219,6 +216,7 @@ object ScalatraBuild extends Build {
 
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 
+    // See jettyOrbitHack below.
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" exclude("org.eclipse.jetty.orbit", "javax.servlet")
 
     val testJettyServlet = jettyDep("test-jetty-servlet")    
@@ -242,9 +240,7 @@ object ScalatraBuild extends Build {
 
     def specs2 = "org.specs2" %% "specs2" % "1.9"
 
-    val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet"     % "3.0.0.v201112011016" % "provided;test" artifacts(Artifact("javax.servlet", "orbit", "jar"))
-
-    val realServletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
+    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
@@ -325,4 +321,17 @@ object ScalatraBuild extends Build {
   )
 
   lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
+
+  // http://jira.codehaus.org/browse/JETTY-1493
+  // https://issues.apache.org/jira/browse/IVY-899
+  //
+  // This prevents Ivy from attempting to resolve these dependencies,
+  // but does not put the exclusions in the pom.  For that, every
+  // module that depends on this atrocity needs an explicit exclude
+  // statement.
+  lazy val jettyOrbitHack = Seq(
+    ivyXML := <dependencies>
+      <exclude org="org.eclipse.jetty.orbit" />
+    </dependencies>
+  )
 }
