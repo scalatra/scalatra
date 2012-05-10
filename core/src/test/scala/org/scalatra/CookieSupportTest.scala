@@ -86,8 +86,7 @@ class CookieSupportTest extends ScalatraFunSuite {
 
   test("POST /set-http-only-cookie should set the HttpOnly flag of the cookie") {
     post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
-      val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
-      cookie.isHttpOnly must be (true)
+      response.getHeader("Set-Cookie") must include ("HttpOnly")
     }
   }
 
