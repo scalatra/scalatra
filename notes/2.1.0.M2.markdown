@@ -13,6 +13,8 @@
 
 * Returning an Int sets the status, just like Sinatra.
 
+* CsrfTokenSupport recognizes the 'X-CSRF-Token' header.
+
 ### fileupload
 
 * Deprecated in favor of native servlet handling.  (Jetty users:

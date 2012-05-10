@@ -63,9 +63,10 @@ trait CsrfTokenSupport {
    * CONNECT, PATCH) and the request parameter at `csrfKey` does not match
    * the session key of the same name.
    */
-  protected def isForged: Boolean = {
-    !request.requestMethod.isSafe && session.get(csrfKey) != params.get(csrfKey) && session.get(csrfKey) != request.headers.get(csrfKey)
-  }
+  protected def isForged: Boolean =
+    !request.requestMethod.isSafe 
+      && session.get(csrfKey) != params.get(csrfKey) 
+      && session.get(csrfKey) != request.headers.get("X-CSRF-Token")
 
   /**
    * Take an action when a forgery is detected. The default action
