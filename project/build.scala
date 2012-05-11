@@ -33,7 +33,7 @@ object ScalatraBuild extends Build {
       Unidoc.unidocExclude := Seq("scalatra-example"),
       (name in Posterous) := "scalatra",
       LsKeys.skipWrite := true
-    ),
+    ) ++ posterousSettings,
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
