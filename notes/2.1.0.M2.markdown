@@ -1,12 +1,8 @@
 ### core
 
-* Drop support for Scala 2.8.x.
-
-* Cross builds dropped.  Same build runs for all 2.9.x.
-
 * Support `X-Http-Method-Override` header.
 
-* Support mounting handlers by class as well of instance.
+* Support mounting handlers by class as well as instance.
 
 * Support ActionResult class hierarchy to bundle status, headers, and
   body into one case class.
@@ -14,6 +10,11 @@
 * Returning an Int sets the status, just like Sinatra.
 
 * CsrfTokenSupport recognizes the 'X-CSRF-Token' header.
+
+* Cross build dropped from artifact ID.  The same build runs for all 
+  Scala 2.9.x.
+
+* Dropped support for Scala 2.8.x.
 
 ### fileupload
 
