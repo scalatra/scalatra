@@ -1,4 +1,4 @@
-## Scalatra [![Build Status](https://secure.travis-ci.org/scalatra/scalatra.png?branch=develop)](http://travis-ci.org/scalatra/scalatra)
+## Scalatra 
 
 Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for
 [Scala](http://www.scala-lang.org/).
