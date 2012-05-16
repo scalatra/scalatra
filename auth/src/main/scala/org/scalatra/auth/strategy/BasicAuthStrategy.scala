@@ -48,7 +48,7 @@ trait BasicAuthSupport[UserType <: AnyRef] { self: (ServletBase with ScentrySupp
 object BasicAuthStrategy {
 
   private val AUTHORIZATION_KEYS = List("Authorization", "HTTP_AUTHORIZATION", "X-HTTP_AUTHORIZATION", "X_HTTP_AUTHORIZATION")
-  private[strategy] class BasicAuthRequest(r: HttpServletRequest) {
+  class BasicAuthRequest(r: HttpServletRequest) {
 
     def parts = authorizationKey map { r.getHeader(_).split(" ", 2).toList } getOrElse Nil
     def scheme: Option[Symbol] = parts.headOption.map(sch => Symbol(sch.toLowerCase(Locale.ENGLISH)))
