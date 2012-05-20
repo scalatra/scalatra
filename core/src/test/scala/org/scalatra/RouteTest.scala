@@ -297,7 +297,7 @@ class RouteTest extends ScalatraFunSuite {
 
     // mixing encoded with decoded characters
     get("/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
-      status should equal (405)
+      status should equal (200)
     }
 
   }

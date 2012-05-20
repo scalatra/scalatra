@@ -206,7 +206,7 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "io.backchat.rl" %% "rl" % "0.3.1-SNAPSHOT"
+    val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2-SNAPSHOT"
 
     val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.1"
     val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.1" % "test"
