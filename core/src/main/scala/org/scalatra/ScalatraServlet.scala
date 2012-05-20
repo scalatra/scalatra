@@ -1,9 +1,9 @@
 package org.scalatra
 
-import servlet.{ServletBase, ServletRequest, ServletResponse}
-
+import servlet.{ ServletBase, ServletRequest, ServletResponse }
 import javax.servlet._
 import javax.servlet.http._
+import rl.UrlCodingUtils
 
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended
@@ -17,11 +17,10 @@ import javax.servlet.http._
  *
  * @see ScalatraFilter
  */
-abstract class ScalatraServlet 
+abstract class ScalatraServlet
   extends HttpServlet
   with ServletBase
-  with Initializable
-{
+  with Initializable {
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
     handle(ServletRequest(request), ServletResponse(response))
   }
@@ -37,8 +36,13 @@ abstract class ScalatraServlet
    * All other servlet mappings likely want to return request.getServletPath.
    * Custom implementations are allowed for unusual cases.
    */
-  def requestPath = request.getPathInfo match {
-    case pathInfo: String => pathInfo
+  def requestPath = request.getRequestURI match {
+    case requestURI: String =>
+      var uri = requestURI
+      if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
+      if (request.getServletPath.length > 0) uri = uri.substring(request.getServletPath.length)
+      if (uri.length == 0) uri = "/"
+      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = "/?#")
     case null => "/"
   }
 
@@ -73,7 +77,7 @@ abstract class ScalatraServlet
    */
   protected def resourceNotFound(): Any = {
     response.setStatus(404)
-    if (isDevelopmentMode){
+    if (isDevelopmentMode) {
       val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
       response.getWriter println error.format(
         request.getMethod,

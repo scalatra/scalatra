@@ -4,6 +4,8 @@
 package org.scalatra
 
 import test.scalatest.ScalatraFunSuite
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
 class RouteTestServlet extends ScalatraServlet {
   get("/foo") {
@@ -15,11 +17,11 @@ class RouteTestServlet extends ScalatraServlet {
   }
 
   get("/optional/?:foo?/?:bar?") {
-    (for (key <- List("foo", "bar") if params.isDefinedAt(key)) yield key+"="+params(key)).mkString(";")
+    (for (key <- List("foo", "bar") if params.isDefinedAt(key)) yield key + "=" + params(key)).mkString(";")
   }
 
   get("/optional-ext.?:ext?") {
-    (for (key <- List("ext") if params.isDefinedAt(key)) yield key+"="+params(key)).mkString(";")
+    (for (key <- List("ext") if params.isDefinedAt(key)) yield key + "=" + params(key)).mkString(";")
   }
 
   get("/single-splat/*") {
@@ -31,7 +33,7 @@ class RouteTestServlet extends ScalatraServlet {
   }
 
   get("/mix-named-and-splat-params/:foo/*") {
-    params("foo")+":"+params("splat")
+    params("foo") + ":" + params("splat")
   }
 
   get("/dot-in-named-param/:foo/:bar") {
@@ -95,8 +97,17 @@ class RouteTestServlet extends ScalatraServlet {
   }) {
     "shouldn't return"
   }
+
+  get("/encoded-uri/:name") {
+    params("name")
+  }
+
+  get("/encoded-uri-2/中国话不用彁字。") {
+    "中国话不用彁字。"
+  }
 }
 
+@RunWith(classOf[JUnitRunner])
 class RouteTest extends ScalatraFunSuite {
   addServlet(classOf[RouteTestServlet], "/*")
 
@@ -162,7 +173,7 @@ class RouteTest extends ScalatraFunSuite {
 
   test("matches a dot ('.') as part of a named param") {
     get("/dot-in-named-param/user@example.com/name") {
-      body should equal("user@example.com")
+      body should equal ("user@example.com")
     }
   }
 
@@ -175,7 +186,7 @@ class RouteTest extends ScalatraFunSuite {
 
   test("literally matches . in paths") {
     get("/literal.dot.in.path") {
-      body should equal("matched literal dot")
+      body should equal ("matched literal dot")
     }
   }
 
@@ -249,5 +260,45 @@ class RouteTest extends ScalatraFunSuite {
     get("/subcontext/") {
       body should equal ("root")
     }
+  }
+
+  test("handles encoded characters in uri") {
+    get("/encoded-uri/ac/dc") {
+      status should equal (405)
+    }
+
+    get("/encoded-uri/ac%2Fdc") {
+      status should equal (200)
+      body should equal ("ac/dc")
+    }
+
+    get("/encoded-uri/%23toc") {
+      status should equal (200)
+      body should equal ("#toc")
+    }
+
+    get("/encoded-uri/%3Fquery") {
+      status should equal (200)
+      body should equal ("?query")
+    }
+
+    get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
+      status should equal (200)
+      body should equal ("Fußgängerübergänge/?#")
+    }
+
+    get("/encoded-uri-2/中国话不用彁字。") {
+      status should equal (200)
+    }
+
+    get("/encoded-uri-2/%E4%B8%AD%E5%9B%BD%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
+      status should equal (200)
+    }
+
+    // mixing encoded with decoded characters
+    get("/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
+      status should equal (405)
+    }
+
   }
 }

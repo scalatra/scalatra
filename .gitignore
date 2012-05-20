@@ -13,3 +13,9 @@ target/
 .idea
 .DS_Store
 .ensime
+
+# eclipse artifacts
+.settings
+.project
+.classpath
+.cache
