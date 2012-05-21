@@ -204,7 +204,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
     val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map { case (key, values) =>
-      key -> values.map(v => v.replaceAll("%23", "#").replaceAll("%2F", "/").replaceAll("%3F", "?"))
+      key -> values.map(UrlCodingUtils.urlDecode(_))
     }
     request(MultiParamsKey) = originalParams ++ routeParams
     try { thunk } finally { request(MultiParamsKey) = originalParams }
