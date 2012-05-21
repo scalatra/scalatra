@@ -39,6 +39,10 @@ trait PathPatternParser {
   def apply(pattern: String): PathPattern
 }
 
+object PathPatternParser {
+  val PathReservedCharacters = "/?#"
+}
+
 trait RegexPathPatternParser extends PathPatternParser with RegexParsers {
   /**
    * This parser gradually builds a regular expression.  Some intermediate
