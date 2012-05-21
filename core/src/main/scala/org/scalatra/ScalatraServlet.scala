@@ -3,7 +3,6 @@ package org.scalatra
 import servlet.{ ServletBase, ServletRequest, ServletResponse }
 import javax.servlet._
 import javax.servlet.http._
-import rl.UrlCodingUtils
 
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended
@@ -42,7 +41,7 @@ abstract class ScalatraServlet
       if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
       if (request.getServletPath.length > 0) uri = uri.substring(request.getServletPath.length)
       if (uri.length == 0) uri = "/"
-      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
+      UriDecoder.firstStep(uri)
     case null => "/"
   }
 

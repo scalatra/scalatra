@@ -9,6 +9,11 @@ import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 import rl.UrlCodingUtils
 import java.nio.charset.Charset
 
+object UriDecoder {
+  def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
+  def secondStep(uri: String) = uri.replaceAll("%23", "#").replaceAll("%2F", "/").replaceAll("%3F", "?")
+}
+
 object ScalatraBase {
   /**
    * A key for request attribute that contains any exception
@@ -204,7 +209,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
     val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map { case (key, values) =>
-      key -> values.map(UrlCodingUtils.urlDecode(_))
+      key -> values.map(UriDecoder.secondStep(_))
     }
     request(MultiParamsKey) = originalParams ++ routeParams
     try { thunk } finally { request(MultiParamsKey) = originalParams }

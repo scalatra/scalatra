@@ -4,7 +4,6 @@ import servlet.{ ServletBase, ServletRequest, ServletResponse }
 import scala.util.DynamicVariable
 import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import javax.servlet.{ ServletRequest => JServletRequest, ServletResponse => JServletResponse, _ }
-import rl.UrlCodingUtils
 
 /**
  * An implementation of the Scalatra DSL in a filter.  You may prefer a filter
@@ -42,7 +41,7 @@ trait ScalatraFilter extends Filter with ServletBase {
       var uri = requestURI
       if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
       if (uri.length == 0) uri = "/"
-      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
+      UriDecoder.firstStep(uri)
     case null => "/"
   }
 
