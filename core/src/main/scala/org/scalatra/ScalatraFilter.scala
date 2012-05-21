@@ -1,10 +1,10 @@
 package org.scalatra
 
-import servlet.{ServletBase, ServletRequest, ServletResponse}
-
+import servlet.{ ServletBase, ServletRequest, ServletResponse }
 import scala.util.DynamicVariable
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import javax.servlet.{ServletRequest => JServletRequest, ServletResponse => JServletResponse, _}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import javax.servlet.{ ServletRequest => JServletRequest, ServletResponse => JServletResponse, _ }
+import rl.UrlCodingUtils
 
 /**
  * An implementation of the Scalatra DSL in a filter.  You may prefer a filter
@@ -37,7 +37,14 @@ trait ScalatraFilter extends Filter with ServletBase {
 
   // What goes in servletPath and what goes in pathInfo depends on how the underlying servlet is mapped.
   // Unlike the Scalatra servlet, we'll use both here by default.  Don't like it?  Override it.
-  def requestPath = request.getServletPath + (if (request.getPathInfo != null) request.getPathInfo else "")
+  def requestPath = request.getRequestURI match {
+    case requestURI: String =>
+      var uri = requestURI
+      if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
+      if (uri.length == 0) uri = "/"
+      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = "/?#")
+    case null => "/"
+  }
 
   protected def routeBasePath = {
     if (applicationContext == null)
