@@ -291,6 +291,11 @@ class RouteTest extends ScalatraFunSuite {
       body should equal ("Fußgängerübergänge/?#")
     }
 
+    get("/encoded-uri/ö%C3%B6%25C3%25B6") {
+      status should equal (200)
+      body should equal ("öö%C3%B6")
+    }
+
     get("/encoded-uri-2/中国话不用彁字。") {
       status should equal (200)
     }
