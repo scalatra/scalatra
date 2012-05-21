@@ -6,6 +6,13 @@ import java.io.{File, FileInputStream}
 import java.net.URLEncoder.encode
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
+import rl.UrlCodingUtils
+import java.nio.charset.Charset
+
+object UriDecoder {
+  def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
+  def secondStep(uri: String) = uri.replaceAll("%23", "#").replaceAll("%2F", "/").replaceAll("%3F", "?")
+}
 
 object ScalatraBase {
   /**
@@ -201,7 +208,10 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
-    request(MultiParamsKey) = originalParams ++ matchedRoute.map(_.multiParams).getOrElse(Map.empty)
+    val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map { case (key, values) =>
+      key -> values.map(UriDecoder.secondStep(_))
+    }
+    request(MultiParamsKey) = originalParams ++ routeParams
     try { thunk } finally { request(MultiParamsKey) = originalParams }
   }
 

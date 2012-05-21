@@ -46,7 +46,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         servletApi % "provided;test",
-        grizzledSlf4j
+        grizzledSlf4j,
+        backchatRl
       ),
       description := "The core Scalatra framework"
     )
@@ -204,6 +205,8 @@ object ScalatraBuild extends Build {
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
+
+    val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2-SNAPSHOT"
 
     val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.1"
     val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.1" % "test"
