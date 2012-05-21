@@ -42,7 +42,7 @@ trait ScalatraFilter extends Filter with ServletBase {
       var uri = requestURI
       if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
       if (uri.length == 0) uri = "/"
-      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = "/?#")
+      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
     case null => "/"
   }
 

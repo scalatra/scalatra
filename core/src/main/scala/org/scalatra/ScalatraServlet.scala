@@ -42,7 +42,7 @@ abstract class ScalatraServlet
       if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
       if (request.getServletPath.length > 0) uri = uri.substring(request.getServletPath.length)
       if (uri.length == 0) uri = "/"
-      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = "/?#")
+      UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
     case null => "/"
   }
 
