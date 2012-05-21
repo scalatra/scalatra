@@ -105,6 +105,10 @@ class RouteTestServlet extends ScalatraServlet {
   get("/encoded-uri-2/中国话不用彁字。") {
     "中国话不用彁字。"
   }
+
+  get("/encoded-uri-3/%C3%B6") {
+    "ö"
+  }
 }
 
 @RunWith(classOf[JUnitRunner])
@@ -300,5 +304,8 @@ class RouteTest extends ScalatraFunSuite {
       status should equal (200)
     }
 
+    get("/encoded-uri-3/%25C3%25B6") {
+      status should equal (200)
+    }
   }
 }
