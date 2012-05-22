@@ -40,7 +40,12 @@ trait ScalatraFilter extends Filter with ServletBase {
     case requestURI: String =>
       var uri = requestURI
       if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
-      if (uri.length == 0) uri = "/"
+      if (uri.length == 0) {
+        uri = "/"
+      } else {
+        val pos = uri.indexOf(';')
+        if (pos >= 0) uri = uri.substring(0, pos)
+      }
       UriDecoder.firstStep(uri)
     case null => "/"
   }
