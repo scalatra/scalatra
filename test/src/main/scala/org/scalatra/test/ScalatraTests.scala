@@ -52,9 +52,7 @@ trait ScalatraTests extends JettyContainer with Client {
 
       case _ => {
         val reqString = req.generate
-        log.debug("request\n"+reqString)
         val resString = tester.getResponses(req.generate)
-        log.debug("response\n"+resString)
         res.parse(resString, req.getMethod == "HEAD")
       }
     }
