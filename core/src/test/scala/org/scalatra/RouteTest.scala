@@ -109,6 +109,14 @@ class RouteTestServlet extends ScalatraServlet {
   get("/encoded-uri-3/%C3%B6") {
     "ö"
   }
+  
+  get("/semicolon/?") {
+    "semicolon"
+  }
+
+  get("/semicolon/document") {
+    "document"
+  }
 }
 
 @RunWith(classOf[JUnitRunner])
@@ -209,6 +217,12 @@ class RouteTest extends ScalatraFunSuite {
   test("literally matches () in paths") {
     get("/test(bar)") {
       body should equal ("test(bar)")
+    }
+  }
+  
+  test("literally matches ; in paths") {
+    get("/foo;123") {
+      status should equal (200)
     }
   }
 
@@ -313,4 +327,22 @@ class RouteTest extends ScalatraFunSuite {
       status should equal (200)
     }
   }
+  
+   test("should chop off uri starting from semicolon") {
+    get("/semicolon;jessionid=9328475932475") {
+      status should equal(200)
+      body should equal("semicolon")
+    }
+
+    get("/semicolon/;jessionid=9328475932475") {
+      status should equal(200)
+      body should equal("semicolon")
+    }
+
+    get("/semicolon/document;version=3/section/2") {
+      status should equal(200)
+      body should equal("document")
+    }
+  }
+
 }
