@@ -85,64 +85,70 @@ trait ScalatraTests extends JettyContainer with Client {
 
 
   protected def submitMultipart[A](method: String, uri: String, params: Iterable[(String, String)], headers: Map[String, String], files: Iterable[(String, File)])(f: => A) = {
-    val boundary = "2ChY5dI4PKmv51s7Hs2n"
-    val headersMulti = headers ++ Map(
-      "Content-Type" -> ("multipart/form-data; boundary=" + boundary)
-    )
+    if (params.isEmpty &&
+        files.isEmpty &&
+        !(headers.getOrElse("Content-Type", "").startsWith("multipart/form-data"))) {
+      submit(method, uri, params, headers) { f }
+    } else {
+      val boundary = "2ChY5dI4PKmv51s7Hs2n"
+      val headersMulti = headers ++ Map(
+        "Content-Type" -> ("multipart/form-data; boundary=" + boundary)
+      )
 
-    val req = new MultipartHttpTester()
-    req.setVersion("HTTP/1.0")
-    req.setMethod(method)
-    req.setURI(uri)
-    headersMulti.foreach(t => req.setHeader(t._1, t._2))
-    _cookies.value foreach(c => req.addHeader("Cookie", c.toString))
+      val req = new MultipartHttpTester()
+      req.setVersion("HTTP/1.0")
+      req.setMethod(method)
+      req.setURI(uri)
+      headersMulti.foreach(t => req.setHeader(t._1, t._2))
+      _cookies.value foreach(c => req.addHeader("Cookie", c.toString))
 
-    def genContent = {
-      val out    = new ByteArrayOutputStream()
-      val buffer = new Array[Byte](2048)
+      def genContent = {
+        val out    = new ByteArrayOutputStream()
+        val buffer = new Array[Byte](2048)
 
-      @tailrec
-      def copyStream(in: InputStream) {
-        val bytesRead = in.read(buffer)
+        @tailrec
+        def copyStream(in: InputStream) {
+          val bytesRead = in.read(buffer)
 
-        if (bytesRead > 0) {
-          out.write(buffer, 0, bytesRead)
-          copyStream(in)
+          if (bytesRead > 0) {
+            out.write(buffer, 0, bytesRead)
+            copyStream(in)
+          }
         }
+
+        def writeParamPart(param: (String, String)) {
+          out.write(
+            ("--" + boundary + "\r\n" +
+             "Content-Disposition: form-data; name=\"" + param._1 + "\"\r\n\r\n" +
+             param._2 + "\r\n"
+            ).getBytes
+          )
+        }
+
+        def writeFilePart(file: (String, File)) {
+          out.write(
+            ("--" + boundary + "\r\n" +
+             "Content-Disposition: form-data; name=\"" + file._1 + "\"; filename=\"" + file._2.getName + "\"\r\n" +
+             "Content-Type: application/octet-stream\r\n\r\n"
+            ).getBytes
+          )
+
+          copyStream(new FileInputStream(file._2))
+          out.write("\r\n".getBytes)
+        }
+
+        params.foreach(writeParamPart)
+        files.foreach(writeFilePart)
+
+        out.write(("--" + boundary + "--").getBytes)
+
+        out.toByteArray
       }
 
-      def writeParamPart(param: (String, String)) {
-        out.write(
-          ("--" + boundary + "\r\n" +
-           "Content-Disposition: form-data; name=\"" + param._1 + "\"\r\n\r\n" +
-           param._2 + "\r\n"
-          ).getBytes
-        )
-      }
+      req.setContent(genContent)
 
-      def writeFilePart(file: (String, File)) {
-        out.write(
-          ("--" + boundary + "\r\n" +
-           "Content-Disposition: form-data; name=\"" + file._1 + "\"; filename=\"" + file._2.getName + "\"\r\n" +
-           "Content-Type: application/octet-stream\r\n\r\n"
-          ).getBytes
-        )
-
-        copyStream(new FileInputStream(file._2))
-        out.write("\r\n".getBytes)
-      }
-
-      params.foreach(writeParamPart)
-      files.foreach(writeFilePart)
-
-      out.write(("--" + boundary + "--").getBytes)
-
-      out.toByteArray
+      submit(req) { f }
     }
-
-    req.setContent(genContent)
-
-    submit(req) { f }
   }
 
   def session[A](f: => A): A = {
