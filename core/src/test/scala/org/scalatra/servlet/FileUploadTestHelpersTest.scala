@@ -27,6 +27,18 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
     "OK"
   }
 
+  post("/no-files") {
+    handleRequest()
+
+    "/no-files"
+  }
+
+  post("/no-files-or-params") {
+    handleRequest()
+
+    "/no-files-or-params"
+  }
+
   put("/") {
     handleRequest()
 
@@ -94,6 +106,20 @@ class FileUploadTestHelpersTest extends ScalatraFunSuite {
       assert(header("File-binaryFile-Name") === "smiley.png")
       assert(header("File-binaryFile-Size") === "3432")
       assert(header("File-binaryFile-SHA") === "0e777b71581c631d056ee810b4550c5dcd9eb856")
+    }
+  }
+
+  test("post with empty files map works") {
+    post("/", params, Map[String, File](), Map[String, String]()) {
+      assert(header("Param-one") === "1")
+      assert(header("Param-two") === "2")
+    }
+  }
+
+  test("post with empty files and params map works") {
+    post("/no-files-or-params", Map[String, String](), Map[String, File](), Map[String, String]()) {
+      assert(status === 200)
+      assert(body   === "/no-files-or-params")
     }
   }
 }
