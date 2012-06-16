@@ -21,14 +21,21 @@ trait AkkaSupport extends AsyncSupport {
   // In the meantime, this gives us enough control for our test.
   private[scalatra] def asyncTimeout = 30 seconds
 
+
+  override protected def isAsyncExecutable(result: Any) = result match {
+    case _: Future[_] => true
+    case _ => false
+  }
+
   override protected def renderResponse(actionResult: Any) = {
+
     actionResult match {
       case f: Future[_] ⇒ {
         val gotResponseAlready = new AtomicBoolean(false)
         val context = request.startAsync()
-	context.setTimeout(asyncTimeout.toMillis)
+        context.setTimeout(asyncTimeout.toMillis)
         context addListener (new AsyncListener {
-          def onComplete(event: AsyncEvent) {}
+          def onComplete(event: AsyncEvent) { }
 
           def onTimeout(event: AsyncEvent) {
             onAsyncEvent(event) {
@@ -48,7 +55,9 @@ trait AkkaSupport extends AsyncSupport {
           case a ⇒ {
             withinAsyncContext(context) {
               if (gotResponseAlready.compareAndSet(false, true)) {
+                runFilters(routes.afterFilters)
                 super.renderResponse(a)
+
                 context.complete()
               }
             }
