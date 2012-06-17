@@ -61,6 +61,7 @@ class AkkaSupportAfterFilterSpec extends ScalatraSpecification {
   sequential
 
   val servlet = new AkkaSupportAfterFilterServlet()
+  addServlet(servlet, "/foo/*")
   addServlet(servlet, "/*")
 
   "after filters for asynchronous actions" should {
@@ -84,6 +85,14 @@ class AkkaSupportAfterFilterSpec extends ScalatraSpecification {
       servlet.reset()
 
       get("/async-two-afters") {
+        servlet.afterCount mustEqual 2
+      }
+    }
+
+    "work when contextPath != /" in {
+      servlet.reset()
+
+      get("/foo/async-two-afters") {
         servlet.afterCount mustEqual 2
       }
     }

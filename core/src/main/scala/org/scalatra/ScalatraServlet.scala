@@ -35,19 +35,30 @@ abstract class ScalatraServlet
    * All other servlet mappings likely want to return request.getServletPath.
    * Custom implementations are allowed for unusual cases.
    */
-  def requestPath = request.getRequestURI match {
-    case requestURI: String =>
-      var uri = requestURI
-      if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
-      if (request.getServletPath.length > 0) uri = uri.substring(request.getServletPath.length)
-      if (uri.length == 0) {
-        uri = "/"
-      } else {
-        val pos = uri.indexOf(';')
-        if (pos >= 0) uri = uri.substring(0, pos)
+  def requestPath = {
+    def getRequestPath = request.getRequestURI match {
+      case requestURI: String =>
+        var uri = requestURI
+        if (request.getContextPath != null && request.getContextPath.trim.nonEmpty) uri = uri.substring(request.getContextPath.length)
+        if (request.getServletPath != null && request.getServletPath.trim.nonEmpty) uri = uri.substring(request.getServletPath.length)
+        if (uri.isEmpty) {
+          uri = "/"
+        } else {
+          val pos = uri.indexOf(';')
+          if (pos >= 0) uri = uri.substring(0, pos)
+        }
+        UriDecoder.firstStep(uri)
+      case null => "/"
+    }
+
+    request.get("therequesturi") match {
+      case Some(uri) => uri.toString
+      case _         => {
+        val requestPath = getRequestPath
+        request.setAttribute("therequesturi", requestPath)
+        requestPath.toString
       }
-      UriDecoder.firstStep(uri)
-    case null => "/"
+    }
   }
 
   protected def routeBasePath = {
