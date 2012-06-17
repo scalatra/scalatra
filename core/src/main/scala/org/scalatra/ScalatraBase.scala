@@ -106,7 +106,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
       }
     }
     finally {
-      if (result == null || (result != null && !(isAsyncExecutable(result)))) {
+      if (result == null || !isAsyncExecutable(result)) {
         runFilters(routes.afterFilters)
       }
     }
