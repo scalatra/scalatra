@@ -79,7 +79,7 @@ class AkkaSupportSpec extends ScalatraSpecification {
 
     "infers the content type of the future result" in {
       get("/foo.jpg") {
-	header("Content-Type") must startWith ("image/jpeg")
+        header("Content-Type") must startWith ("image/jpeg")
       }
     }
   }
