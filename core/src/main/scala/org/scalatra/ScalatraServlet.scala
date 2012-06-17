@@ -51,11 +51,11 @@ abstract class ScalatraServlet
       case null => "/"
     }
 
-    request.get("therequesturi") match {
+    request.get("org.scalatra.ScalatraServlet.requestPath") match {
       case Some(uri) => uri.toString
       case _         => {
         val requestPath = getRequestPath
-        request.setAttribute("therequesturi", requestPath)
+        request.setAttribute("org.scalatra.ScalatraServlet.requestPath", requestPath)
         requestPath.toString
       }
     }
