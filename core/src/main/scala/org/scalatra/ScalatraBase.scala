@@ -1,6 +1,7 @@
 package org.scalatra
 
 import scala.util.matching.Regex
+import servlet.AsyncSupport
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import java.net.URLEncoder.encode
@@ -81,15 +82,15 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * $ 5. The action result is passed to `renderResponse`.
    */
   protected def executeRoutes() {
-    val result = try {
+    var result: Any = null
+    try {
       val prehandleException = request.get("org.scalatra.PrehandleException")
-
       if (prehandleException.isEmpty) {
         runFilters(routes.beforeFilters)
         val actionResult = runRoutes(routes(request.requestMethod)).headOption orElse
           matchOtherMethods() getOrElse doNotFound()
         // Give the status code handler a chance to override the actionResult
-        handleStatusCode(status) getOrElse actionResult
+        result = handleStatusCode(status) getOrElse actionResult
       } else {
         throw prehandleException.get.asInstanceOf[Exception]
       }
@@ -98,17 +99,22 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
       case e: HaltException => renderHaltException(e)
       case e => {
         try {
-          errorHandler(e)
+          result = errorHandler(e)
         } catch {
           case e2: HaltException => renderHaltException(e2)
         }
       }
     }
     finally {
-      runFilters(routes.afterFilters)
+      if (result == null || !isAsyncExecutable(result)) {
+        runFilters(routes.afterFilters)
+      }
     }
+
     renderResponse(result)
   }
+
+  protected def isAsyncExecutable(result: Any) = false
 
   /**
    * Invokes each filters with `invoke`.  The results of the filters
