@@ -17,6 +17,7 @@ object ScalatraBuild extends Build {
     version := "%s.0-SNAPSHOT" format majorVersion,
     scalaVersion := "2.9.1",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
+    javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
     crossPaths := false,
