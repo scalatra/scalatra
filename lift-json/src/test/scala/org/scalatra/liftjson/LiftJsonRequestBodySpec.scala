@@ -4,7 +4,7 @@ package liftjson
 import net.liftweb.json._
 import test.specs.ScalatraSpecification
 
-class LiftJsonRequestBodyServlet extends ScalatraServlet with LiftJsonRequestBody {
+class LiftJsonSupportServlet extends ScalatraServlet with LiftJsonSupport {
 
   post("/json") {
     parsedBody match {
@@ -20,9 +20,9 @@ class LiftJsonRequestBodyServlet extends ScalatraServlet with LiftJsonRequestBod
 
 class LiftJsonRequestBodySpec extends ScalatraSpecification {
 
-  addServlet(new LiftJsonRequestBodyServlet, "/*")
+  addServlet(new LiftJsonSupportServlet, "/*")
 
-  "The LiftJsonRequestBody" should {
+  "The LiftJsonSupport" should {
 
     "parse the json body of a request" in {
       val rbody = """{"name": "hello world"}"""

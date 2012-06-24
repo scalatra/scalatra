@@ -4,18 +4,29 @@ package liftjson
 import net.liftweb.json._
 import net.liftweb.json.Xml._
 import java.io.InputStreamReader
-import util.RicherString._
-import java.nio.CharBuffer
+import scala.io.Codec.UTF8
 
-
-object LiftJsonRequestBody {
+object LiftJsonSupport {
 
   val ParsedBodyKey = "org.scalatra.liftjson.ParsedBody".intern
 }
 
-trait LiftJsonRequestBodyWithoutFormats extends ScalatraBase with ApiFormats {
-  import LiftJsonRequestBody._
-   
+trait LiftJsonSupportWithoutFormats extends ScalatraBase with ApiFormats {
+  import LiftJsonSupport._
+
+  /**
+   * If a request is made with a parameter in jsonpCallbackParameterNames it will
+   * be assumed that it is a JSONP request and the json will be returned as the
+   * argument to a function with the name specified in the corresponding parameter.
+   *
+   * By default no parameterNames will be checked
+   */
+  def jsonpCallbackParameterNames:  Iterable[String] = None
+
+  override protected def contentTypeInferrer = ({
+    case _ : JValue => "application/json; charset="+(request.characterEncoding getOrElse defaultCharacterEncoding).toLowerCase
+  }: ContentTypeInferrer) orElse super.contentTypeInferrer
+
   protected def parseRequestBody(format: String) = try {
     if (format == "json") {
       transformRequestBody(JsonParser.parse(new InputStreamReader(request.inputStream)))
@@ -45,13 +56,25 @@ trait LiftJsonRequestBodyWithoutFormats extends ScalatraBase with ApiFormats {
     (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
   def parsedBody = request.get(ParsedBodyKey) getOrElse JNothing
+
+  override protected def renderPipeline = ({
+    case jv : JValue =>
+      val jsonString = compact(render(jv))
+
+      val jsonWithCallback = for {
+        paramName <- jsonpCallbackParameterNames
+        callback <- params.get(paramName)
+      } yield "%s(%s);" format (callback, jsonString)
+
+      (jsonWithCallback.headOption.getOrElse(jsonString)).getBytes(UTF8)
+  }: RenderPipeline) orElse super.renderPipeline
 }
 
 /**
  * Parses request bodies with lift json if the appropriate content type is set.
  * Be aware that it also parses XML and returns a JValue of the parsed XML.
  */
-trait LiftJsonRequestBody extends LiftJsonRequestBodyWithoutFormats {
+trait LiftJsonSupport extends LiftJsonSupportWithoutFormats {
 
   protected implicit def jsonFormats: Formats = DefaultFormats
 

@@ -30,7 +30,7 @@ class JsonSupportTest extends ScalatraFunSuite {
 }
 
 
-class JsonSupportTestServlet extends ScalatraServlet with JsonSupport {
+class JsonSupportTestServlet extends ScalatraServlet with LiftJsonSupport {
   get("/json") {
     import net.liftweb.json.JsonDSL._
     ("k1" -> "v1") ~
@@ -38,7 +38,7 @@ class JsonSupportTestServlet extends ScalatraServlet with JsonSupport {
   }
 }
 
-class JsonPTestServlet extends ScalatraServlet with JsonSupport {
+class JsonPTestServlet extends ScalatraServlet with LiftJsonSupport {
   override def jsonpCallbackParameterNames = Some("callback")
 
   get("/jsonp") {
