@@ -3,7 +3,7 @@ import Keys._
 import scala.xml._
 import java.net.URL
 import com.github.siasia.WebPlugin.webSettings
-import posterous.Publish._
+// import posterous.Publish._
 import ls.Plugin.LsKeys
 
 object ScalatraBuild extends Build {
@@ -32,9 +32,9 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      (name in Posterous) := "scalatra",
+      // (name in Posterous) := "scalatra",
       LsKeys.skipWrite := true
-    ) ++ posterousSettings,
+    ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
@@ -203,20 +203,20 @@ object ScalatraBuild extends Build {
   object Dependencies {
     def antiXml = "com.codecommit" %% "anti-xml" % "0.3"
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0.beta1"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2-SNAPSHOT"
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.1"
-    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.1" % "test"
+    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.2"
+    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.2" % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
-    val dispatch = "net.databinder" %% "dispatch-http" % "0.8.5"
+    val dispatch = "net.databinder" %% "dispatch-http" % "0.8.7"
 
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 
@@ -242,7 +242,7 @@ object ScalatraBuild extends Build {
 
     def specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    def specs2 = "org.specs2" %% "specs2" % "1.9"
+    def specs2 = "org.specs2" %% "specs2" % "1.11"
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
 

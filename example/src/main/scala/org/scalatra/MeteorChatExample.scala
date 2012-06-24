@@ -9,23 +9,23 @@ import collection.JavaConversions._
 import javax.servlet.annotation.WebServlet
 
 class EventsLogger extends AtmosphereResourceEventListener {
-  def onThrowable(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
+  def onThrowable(event: AtmosphereResourceEvent) {
     println ("onThrowable(): %s" format event)
   }
 
-  def onBroadcast(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
+  def onBroadcast(event: AtmosphereResourceEvent) {
     println ("onBroadcast(): %s" format event)
   }
 
-  def onDisconnect(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
+  def onDisconnect(event: AtmosphereResourceEvent) {
     println ("onDisconnect(): %s" format event)
   }
 
-  def onResume(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
+  def onResume(event: AtmosphereResourceEvent) {
     println ("onResume(): %s" format event)
   }
 
-  def onSuspend(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
+  def onSuspend(event: AtmosphereResourceEvent) {
     println ("onSuspend(): %s" format event)
   }
 }
