@@ -4,28 +4,22 @@ package liftjson
 import net.liftweb.json._
 import net.liftweb.json.Xml._
 import java.io.InputStreamReader
-import scala.io.Codec.UTF8
+
 
 object LiftJsonSupport {
 
   val ParsedBodyKey = "org.scalatra.liftjson.ParsedBody".intern
 }
 
-trait LiftJsonSupportWithoutFormats extends ScalatraBase with ApiFormats {
+@deprecated("Use LiftJsonSupportWithoutFormats instead", "2.1.0")
+trait LiftJsonRequestBodyWithoutFormats extends LiftJsonSupportWithoutFormats
+
+@deprecated("Use LiftJsonSupport instead", "2.1.0")
+trait LiftJsonRequestBody extends LiftJsonSupport
+
+trait LiftJsonSupportWithoutFormats extends JsonOutput {
   import LiftJsonSupport._
 
-  /**
-   * If a request is made with a parameter in jsonpCallbackParameterNames it will
-   * be assumed that it is a JSONP request and the json will be returned as the
-   * argument to a function with the name specified in the corresponding parameter.
-   *
-   * By default no parameterNames will be checked
-   */
-  def jsonpCallbackParameterNames:  Iterable[String] = None
-
-  override protected def contentTypeInferrer = ({
-    case _ : JValue => "application/json; charset="+(request.characterEncoding getOrElse defaultCharacterEncoding).toLowerCase
-  }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
   protected def parseRequestBody(format: String) = try {
     if (format == "json") {
@@ -57,17 +51,7 @@ trait LiftJsonSupportWithoutFormats extends ScalatraBase with ApiFormats {
 
   def parsedBody = request.get(ParsedBodyKey) getOrElse JNothing
 
-  override protected def renderPipeline = ({
-    case jv : JValue =>
-      val jsonString = compact(render(jv))
 
-      val jsonWithCallback = for {
-        paramName <- jsonpCallbackParameterNames
-        callback <- params.get(paramName)
-      } yield "%s(%s);" format (callback, jsonString)
-
-      (jsonWithCallback.headOption.getOrElse(jsonString)).getBytes(UTF8)
-  }: RenderPipeline) orElse super.renderPipeline
 }
 
 /**
