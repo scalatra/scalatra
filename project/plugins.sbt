@@ -1,6 +1,8 @@
 resolvers ++= Seq(
   Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns),
-  "less is" at "http://repo.lessis.me",
+  Resolver.url("sbt-plugin-releases", new URL(
+    "http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(
+      Resolver.ivyStylePatterns),
   "coda" at "http://repo.codahale.com"
 )
 
