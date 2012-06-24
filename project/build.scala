@@ -142,7 +142,8 @@ object ScalatraBuild extends Build {
         mockitoAll,
         commonsLang3,
         specs2 % "test",
-        dispatch
+        dispatch,
+        httpClient
       ),
       description := "The abstract Scalatra test framework"
     )
@@ -226,6 +227,8 @@ object ScalatraBuild extends Build {
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
     val dispatch = "net.databinder" %% "dispatch-http" % "0.8.7"
+
+    val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.2"
 
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 
