@@ -4,7 +4,7 @@ case class ActionResult(status: ResponseStatus, body: Any, headers: Map[String, 
 
 private object Helpers {
   def responseStatus(status: Int, reason: String) = reason match {
-    case "" => ResponseStatus(status)
+    case "" | null => ResponseStatus(status)
     case _  => new ResponseStatus(status, reason) 
   }
 }

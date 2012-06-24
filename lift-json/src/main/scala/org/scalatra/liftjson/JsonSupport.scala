@@ -5,9 +5,9 @@ import net.liftweb.json._
 import scala.io.Codec.UTF8
 
 @deprecated("Use LiftJsonSupport instead", "2.1.0")
-trait JsonSupport extends JsonOutput
+trait JsonSupport extends LiftJsonOutput
 
-private[scalatra] trait JsonOutput extends ApiFormats {
+private[liftjson] trait LiftJsonOutput extends ApiFormats {
 
   /**
    * If a request is made with a parameter in jsonpCallbackParameterNames it will

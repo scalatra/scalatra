@@ -17,7 +17,7 @@ trait LiftJsonRequestBodyWithoutFormats extends LiftJsonSupportWithoutFormats
 @deprecated("Use LiftJsonSupport instead", "2.1.0")
 trait LiftJsonRequestBody extends LiftJsonSupport
 
-trait LiftJsonSupportWithoutFormats extends JsonOutput {
+trait LiftJsonSupportWithoutFormats extends LiftJsonOutput {
   import LiftJsonSupport._
 
 
