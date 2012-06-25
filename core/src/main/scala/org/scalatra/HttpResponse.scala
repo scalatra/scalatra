@@ -3,7 +3,7 @@ package org.scalatra
 import java.io.{OutputStream, PrintWriter}
 import scala.collection.mutable.Map
 
-trait Response extends HttpMessage {
+trait HttpResponse extends HttpMessage {
   /**
    * The HTTP status code and reason phrase.
    */

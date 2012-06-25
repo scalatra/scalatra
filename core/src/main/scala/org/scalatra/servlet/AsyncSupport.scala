@@ -4,7 +4,7 @@ package servlet
 import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-trait AsyncSupport extends ServletBase {
+trait AsyncSupport { self: ServletBase =>
 
   /**
    * Takes a block and converts it to an action that can be run asynchronously.
@@ -12,8 +12,8 @@ trait AsyncSupport extends ServletBase {
   protected def asynchronously(f: => Any): Action
 
   protected def onAsyncEvent(event: AsyncEvent)(thunk: => Any) {
-    withRequest(ServletRequest(event.getSuppliedRequest.asInstanceOf[HttpServletRequest])) {
-      withResponse(ServletResponse(event.getSuppliedResponse.asInstanceOf[HttpServletResponse])) {
+    self.withRequest(ServletRequest(event.getSuppliedRequest.asInstanceOf[HttpServletRequest])) {
+      self.withResponse(ServletResponse(event.getSuppliedResponse.asInstanceOf[HttpServletResponse])) {
         thunk
       }
     }
@@ -21,8 +21,8 @@ trait AsyncSupport extends ServletBase {
 
   protected def withinAsyncContext(context: AsyncContext)(thunk: => Any) {
     if (context.hasOriginalRequestAndResponse) {
-      withRequest(ServletRequest(context.getRequest.asInstanceOf[HttpServletRequest])) {
-        withResponse(ServletResponse(context.getResponse.asInstanceOf[HttpServletResponse])) {
+      self.withRequest(ServletRequest(context.getRequest.asInstanceOf[HttpServletRequest])) {
+        self.withResponse(ServletResponse(context.getResponse.asInstanceOf[HttpServletResponse])) {
           thunk
         }
       }

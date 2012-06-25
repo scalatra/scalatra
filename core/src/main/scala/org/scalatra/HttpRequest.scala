@@ -10,7 +10,7 @@ import collection.{Map, mutable}
  * A representation of an HTTP request.  Heavily influenced by the Rack
  * specification.
  */
-trait Request extends HttpMessage with mutable.Map[String, AnyRef] {
+trait HttpRequest extends HttpMessage with mutable.Map[String, AnyRef] {
   /**
    * The HTTP request method, such as GET or POST
    */

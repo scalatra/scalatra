@@ -40,7 +40,7 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
   }
 }
 
-class SweetCookies(private val reqCookies: Map[String, String], private val response: Response) {
+class SweetCookies(private val reqCookies: Map[String, String], private val response: HttpResponse) {
   private lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
   def get(key: String) = cookies.get(key)

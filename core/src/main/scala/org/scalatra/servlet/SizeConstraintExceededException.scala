@@ -1,4 +1,4 @@
-package org.scalatra.servlet
-
-class SizeConstraintExceededException(message: String, t: Throwable) extends Exception
-
+//package org.scalatra.servlet
+//
+//class SizeConstraintExceededException(message: String, t: Throwable) extends Exception
+//

@@ -21,7 +21,7 @@ object ScalatraBuild extends Build {
     manifestSetting,
     publishSetting,
     crossPaths := false,
-    resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots),
+    resolvers ++= Seq(sonatypeNexusSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
   ) ++ jettyOrbitHack ++ mavenCentralFrouFrou
@@ -32,7 +32,6 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      // (name in Posterous) := "scalatra",
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
@@ -46,13 +45,14 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        servletApi % "provided;test",
         grizzledSlf4j,
+        chardet,
+        mimeUtil,
         backchatRl
       ),
       description := "The core Scalatra framework"
-    )
-  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
+    ))
+//  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
 
   lazy val scalatraAuth = Project(
     id = "scalatra-auth",
@@ -119,15 +119,35 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraServlet = Project(
+    id = "scalatra-servlet",
+    base = file("servlet"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(
+        servletApi % "compile;test"
+      ),
+      description := "Servlet backend for Scalatra apps"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        servletApi,
         jettyServlet
       ),
       description := "Embedded Jetty server for Scalatra apps"
+    )
+  ) dependsOn(scalatraServlet % "compile;test->test;provided->provided")
+
+  lazy val scalatraNetty = Project(
+    id = "scalatra-netty",
+    base = file("netty"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(netty, nettyExtension),
+      resolvers += goldenGate,
+      description := "Netty backend for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -138,11 +158,11 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(
         grizzledSlf4j,
         testJettyServlet,
-	servletApi % "provided",
+	      servletApi % "provided",
         mockitoAll,
         commonsLang3,
         specs2 % "test",
-        dispatch
+        dispatch % "provided"
       ),
       description := "The abstract Scalatra test framework"
     )
@@ -209,39 +229,57 @@ object ScalatraBuild extends Build {
     scalatraAuth, scalatraFileupload, scalatraAkka, scalatraDocs, scalatraJetty
   )
 
-  object Dependencies {
-    def antiXml = "com.codecommit" %% "anti-xml" % "0.3"
+  object V {
+    val antiXml = "0.3"
+    val atmosphere = "1.0.0.beta1"
+    val jetty = "8.1.3.v20120416"
+    val lift = "2.4"
+    val akka = "2.0.2"
+    val dispatch = "0.8.7"
+    val grizzledSlf4j = "0.6.6"
+    val netty = "3.5.0.Final"
+  }
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0.beta1"
+  object Dependencies {
+    def antiXml = "com.codecommit" %% "anti-xml" % V.antiXml
+
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % V.atmosphere
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2-SNAPSHOT"
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.2"
-    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.2" % "test"
+    val chardet = "com.googlecode.juniversalchardet"  % "juniversalchardet" % "1.0.3"
+
+    val mimeUtil = "eu.medsea.mimeutil"                % "mime-util"         % "2.1.3"
+
+    val akkaActor = "com.typesafe.akka" % "akka-actor" % V.akka
+    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % V.akka % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
-    val dispatch = "net.databinder" %% "dispatch-http" % "0.8.7"
+    val dispatch = "net.databinder" %% "dispatch-http" % V.dispatch
 
-    def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
+    def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % V.grizzledSlf4j
 
     // See jettyOrbitHack below.
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" exclude("org.eclipse.jetty.orbit", "javax.servlet")
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % V.jetty exclude("org.eclipse.jetty.orbit", "javax.servlet")
 
     val testJettyServlet = jettyDep("test-jetty-servlet")    
     val jettyServlet = jettyDep("jetty-servlet") 
     val jettyServer = jettyDep("jetty-server") 
-    val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % "8.1.3.v20120416"  % "provided" exclude("org.eclipse.jetty.orbit", "javax.servlet")
+    val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % V.jetty  % "provided" exclude("org.eclipse.jetty.orbit", "javax.servlet")
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
+
+    val netty = "io.netty" % "netty" % V.netty
+    val nettyExtension = "NettyExtension" % "NettyExtension" % "1.1.12"
 
     val junit = "junit" % "junit" % "4.10"
 
-    val liftJson = "net.liftweb" %% "lift-json" % "2.4"
-    val liftJsonExt = "net.liftweb" %% "lift-json-ext" % "2.4"
+    val liftJson = "net.liftweb" %% "lift-json" % V.lift
+    val liftJsonExt = "net.liftweb" %% "lift-json-ext" % V.lift
 
     val jerkson = "io.backchat.jerkson" %% "jerkson" % "0.7.0-SNAPSHOT"
 
@@ -265,6 +303,7 @@ object ScalatraBuild extends Build {
   object Resolvers {
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+    val goldenGate = "GoldenGate" at "http://openr66.free.fr/maven2"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
