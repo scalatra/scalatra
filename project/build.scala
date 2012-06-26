@@ -22,7 +22,7 @@ object ScalatraBuild extends Build {
     manifestSetting,
     publishSetting,
     crossPaths := false,
-    resolvers ++= Seq(sonatypeNexusSnapshots),
+    resolvers ++= Seq(sonatypeNexusSnapshots, akkaRepository),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
   ) ++ jettyOrbitHack ++ mavenCentralFrouFrou
@@ -315,6 +315,7 @@ object ScalatraBuild extends Build {
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
     val goldenGate = "GoldenGate" at "http://openr66.free.fr/maven2"
+    val akkaRepository = "Akka Repository" at "http://akka.io/repository"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
