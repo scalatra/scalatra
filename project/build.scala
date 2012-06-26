@@ -315,7 +315,7 @@ object ScalatraBuild extends Build {
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
     val goldenGate = "GoldenGate" at "http://openr66.free.fr/maven2"
-    val akkaRepository = "Akka Repository" at "http://akka.io/repository"
+    val akkaRepository = "Akka Repository" at "http://repo.akka.io/releases/"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
