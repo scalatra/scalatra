@@ -5,7 +5,6 @@ package io
 import java.io.{FileInputStream, File}
 import org.mozilla.universalchardet.UniversalDetector
 import java.nio.charset.Charset
-import io.Codec
 import scala.io.Codec
 
 object FileCharset {

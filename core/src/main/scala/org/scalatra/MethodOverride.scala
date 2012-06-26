@@ -10,7 +10,7 @@ object MethodOverride {
  * the `_method` parameter is treated as the request's method.
  */
 trait MethodOverride extends Handler {
-  abstract override def handle(req: RequestT, res: ResponseT) {
+  abstract override def handle(req: HttpRequest, res: HttpResponse) {
     val req2 = req.requestMethod match {
       case Post =>
         methodOverride(req) map { method =>
@@ -29,9 +29,9 @@ trait MethodOverride extends Handler {
    * For backward compatibility, we need to transform the underlying request
    * type to pass to the super handler.
    */
-  protected def requestWithMethod(req: RequestT, method: HttpMethod): RequestT 
+  protected def requestWithMethod(req: HttpRequest, method: HttpMethod): HttpRequest
 
-  private def methodOverride(req: RequestT) = {
+  private def methodOverride(req: HttpRequest) = {
     import MethodOverride._
     (req.parameters.get(ParamName) orElse req.headers.get(HeaderName))
   }

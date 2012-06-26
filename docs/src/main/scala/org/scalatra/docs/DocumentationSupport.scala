@@ -4,7 +4,7 @@ import org.scalatra._
 
 @deprecated("See scalatra-swagger", "2.1.0")
 trait DocumentationSupport {
-  this: ScalatraBase =>
+  this: ScalatraApp =>
 
   def name(value: String): RouteTransformer = { route =>
     route.copy(metadata = route.metadata + (docsNameSymbol -> value))

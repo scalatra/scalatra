@@ -1,3 +1,4 @@
+/*
 package org.scalatra.servlet;
 
 import javax.servlet.*;
@@ -272,3 +273,4 @@ public class ServletContextWrapper implements ServletContext {
         servletContext.declareRoles(roleNames);
     }
 }
+*/

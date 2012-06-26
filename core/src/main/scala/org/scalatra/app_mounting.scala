@@ -2,9 +2,10 @@ package org.scalatra
 
 import java.net.URI
 import collection.mutable.ConcurrentMap
-import collection.JavaConversions._
+import collection.JavaConverters._
 import util.io.PathManipulation
-
+import java.util.concurrent.ConcurrentHashMap
+import scalax.file.ImplicitConverters._
 
 trait Mountable extends PathManipulation with Initializable {
   @volatile private[scalatra] var mounter: AppMounter = _
@@ -19,19 +20,20 @@ trait Mountable extends PathManipulation with Initializable {
   def destroy() {}
 }
 
-case class NullMountable() extends Mountable {
+trait NullMountable extends Mountable {
 
   def isEmpty = true
 
   def initialize(config: AppContext) {}
   def hasMatchingRoute(req: HttpRequest) = false
 }
+case object NullMountable extends NullMountable
 
 trait AppMounterLike extends PathManipulation { self: ScalatraLogging =>
   implicit def appContext: AppContext
 
-  def applications = appContext.applications
-  def get(path: String) = appContext.application(normalizePath(path))
+  def applications: AppMounter.ApplicationRegistry = this.appContext.applications
+  def get(path: String): Option[AppMounter] = this.appContext.application(normalizePath(path))
   def apply(path: String): AppMounter = (applications get normalizePath(path)).get
   def apply(path: URI): AppMounter = apply(normalizePath(path.getRawPath))
 
@@ -40,7 +42,7 @@ trait AppMounterLike extends PathManipulation { self: ScalatraLogging =>
     applications.get(pth) getOrElse {
       val (parent, _) = splitPaths(pth)
       val app = if (pth == "/") {
-        new AppMounter("/", "", NullMountable())
+        new AppMounter("/", "", NullMountable)
       } else {
         ensureApps(parent)
       }
@@ -58,12 +60,12 @@ trait AppMounterLike extends PathManipulation { self: ScalatraLogging =>
       logger info ("mounting app at: %s" format (parent.appPath / name))
       applications(parent.appPath / name) = curr.get
     }
-    curr.get.asInstanceOf[AppMounter]
+    curr.get
   }
 }
 object AppMounter {
   type ApplicationRegistry = ConcurrentMap[String, AppMounter]
-  def newAppRegistry: ApplicationRegistry = new MapMaker().makeMap[String, AppMounter]
+  def newAppRegistry: ApplicationRegistry = new ConcurrentHashMap[String, AppMounter]().asScala
 }
 final class AppMounter(val basePath: String, val pathName: String, app: => Mountable)(implicit val appContext: AppContext) extends ScalatraLogging with AppMounterLike {
   lazy val mounted = {
@@ -76,7 +78,7 @@ final class AppMounter(val basePath: String, val pathName: String, app: => Mount
   def mount(path: String): AppMounter = {
     val (longest, name) = splitPaths(path)
     val parent: AppMounter = ensureApps(longest)
-    mount(parent.appPath / name, NullMountable())
+    mount(parent.appPath / name, NullMountable)
   }
 
   override def toString = "MountedApp(%s)" format mounted.getClass.getName

@@ -1,18 +1,20 @@
 package org.scalatra
 
-import org.scalatra.{ScalatraApp, ServerInfo, ScalatraLogging}
-import collection.mutable.ConcurrentMap
+import _root_.akka.actor.ActorSystem
+import _root_.akka.util.Duration
+import _root_.akka.util.duration._
 import util.io.{PathManipulationOps, MimeTypes}
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
+import collection.mutable
 
 object AppContext {
-  val Production = "production".intern
-  val Development = "development".intern
-  val Staging = "staging".intern
-  val Test = "test".intern
+  val Production = "production"
+  val Development = "development"
+  val Staging = "staging"
+  val Test = "test"
 
-  private val cloader = getClass.getClassLoader
+  private[this] val cloader = getClass.getClassLoader
   private val environment = readEnvironmentKey(System.err.println _)
 
   private def readEnvironmentKey(failWith: String ⇒ Unit = _ ⇒ null) = {
@@ -49,9 +51,9 @@ trait AppContext extends ScalatraLogging {
   implicit def applications: AppMounter.ApplicationRegistry
   def server: ServerInfo
 
-  lazy val attributes: ConcurrentMap[String, Any] = new ConcurrentHashMap[String, Any]().asScala
+  lazy val attributes: mutable.ConcurrentMap[String, Any] = new ConcurrentHashMap[String, Any]().asScala
 
-//  lazy val mimes = new MimeTypes
+  lazy val mimes = new MimeTypes
 
   import AppContext._
   val mode = environment
@@ -61,14 +63,14 @@ trait AppContext extends ScalatraLogging {
   def isTest = isEnvironment(Test)
   def isEnvironment(env: String) = mode equalsIgnoreCase env
 
-//  var sessionIdKey = "JSESSIONID"
-//  var sessionTimeout: Duration = 20.minutes
-//
-//  private[scalatra] val actorSystem = ActorSystem("scalatra")
+  var sessionIdKey = "JSESSIONID"
+  var sessionTimeout: Duration = 20.minutes
+
+  private[scalatra] val actorSystem = ActorSystem("scalatra")
 
   def get(key: String) = attributes.get(key)
   def apply(key: String) = attributes(key)
-  def update(key: String, value: Any) = attributes(key) = value
+  def update(key: String, value: Any) = { attributes(key) = value; this }
 
   def application(req: HttpRequest): Option[ScalatraApp] = {
     logger.debug("The registered applications:")
@@ -117,5 +119,6 @@ case class DefaultAppContext(
 
   implicit val appContext = this
 
-  protected def absolutizePath(path: String) = PathManipulationOps.ensureSlash(if (path.startsWith("/")) path else server.base / path)
+  protected def absolutizePath(path: String) =
+    PathManipulationOps.ensureSlash(if (path.startsWith("/")) path else server.base / path)
 }

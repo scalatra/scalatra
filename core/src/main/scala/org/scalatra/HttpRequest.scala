@@ -10,7 +10,7 @@ import collection.{Map, mutable}
  * A representation of an HTTP request.  Heavily influenced by the Rack
  * specification.
  */
-trait HttpRequest extends HttpMessage with mutable.Map[String, AnyRef] {
+trait HttpRequest extends HttpMessage {
   /**
    * The HTTP request method, such as GET or POST
    */
@@ -93,7 +93,7 @@ trait HttpRequest extends HttpMessage with mutable.Map[String, AnyRef] {
     protected def multiMap = multiParameters
   }
 
-  def cookies: Map[String, String]
+  def cookies: CookieJar
 
   /**
    * Caches and returns the body of the response.  The method is idempotent
@@ -111,4 +111,13 @@ trait HttpRequest extends HttpMessage with mutable.Map[String, AnyRef] {
    * @return the client ip address
    */
   def remoteAddress: String
+
+  /**
+   * A map in which the server or application may store its own data.
+   */
+  lazy val attributes: mutable.Map[String, Any] = mutable.Map.empty
+  def contains(key: String) = attributes.contains(key)
+  def get(key: String) = attributes.get(key)
+  def apply(key: String) = attributes(key)
+  def update(key: String, value: Any) = attributes(key) = value
 }

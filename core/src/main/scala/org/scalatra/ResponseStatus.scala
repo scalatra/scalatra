@@ -74,11 +74,5 @@ case class ResponseStatus(code: Int, message: String)
 {
   def compare(that: ResponseStatus) = code.compareTo(that.code)
 
-  def line = {
-    val buf = new StringBuilder(message.length + 5);
-    buf.append(code)
-    buf.append(' ')
-    buf.append(message)
-    buf.toString()
-  }
+  def line = new StringBuilder(message.length + 5).append(code).append(' ').append(message).toString()
 }

@@ -13,7 +13,7 @@
 // * a base trait of a Servlet or a Filter.
 // */
 //trait ServletBase
-//  extends ScalatraBase
+//  extends ScalatraApp
 //  with ServletHandler
 //  with SessionSupport
 //  with Initializable
@@ -46,12 +46,12 @@
 //
 //  override def addSessionId(uri: String) = response.encodeURL(uri)
 //
-//  protected def requestWithMethod(req: RequestT, m: HttpMethod) =
+//  protected def requestWithMethod(req: HttpRequest, m: HttpMethod) =
 //    new ServletRequest(req) {
 //      override def getMethod = m.toString.toUpperCase(Locale.ENGLISH)
 //    }
 //
-//  override def handle(request: RequestT, response: ResponseT) {
+//  override def handle(request: HttpRequest, response: HttpResponse) {
 //    // As default, the servlet tries to decode params with ISO_8859-1.
 //    // It causes an EOFException if params are actually encoded with the
 //    // other code (such as UTF-8)

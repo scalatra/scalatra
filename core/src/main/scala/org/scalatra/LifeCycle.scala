@@ -1,7 +1,7 @@
 package org.scalatra
 
 trait LifeCycle {
-  def init(context: ApplicationContext) {}
+  def init(context: AppContext) {}
 
-  def destroy(context: ApplicationContext) {}
+  def destroy(context: AppContext) {}
 }

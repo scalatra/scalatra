@@ -4,25 +4,17 @@ package org.scalatra
  * The core Scalatra DSL.
  */
 trait CoreDsl extends Handler with Control {
-  /**
-   * The type of application context supported by this application.  Made
-   * abstract for compatibility with the servlet implementation.
-   */
-  type ApplicationContextT <: ApplicationContext
 
   /**
    * The application context.  It is shared among all handlers within this
    * application.
    */
-  implicit def applicationContext: ApplicationContextT
-
-  @deprecated("Use applicationContext instead", "2.1.0")
-  def servletContext: ApplicationContextT = applicationContext
+  implicit def applicationContext: AppContext
 
   /**
    * The current request
    */
-  implicit def request: RequestT
+  implicit def request: HttpRequest
 
   /**
    * A map of the current parameters.  The map contains the head of every
@@ -43,7 +35,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * The current response.
    */
-  implicit def response: ResponseT
+  implicit def response: HttpResponse
 
   /**
    * Gets the content type of the current response.
@@ -85,30 +77,12 @@ trait CoreDsl extends Handler with Control {
    */
   def before(transformers: RouteTransformer*)(block: => Any): Unit
 
-  @deprecated("Use before() { ... }", "2.0.0")
-  final def beforeAll(block: => Any) {
-    before()(block)
-  }
-
-  @deprecated("Use before(RouteTransformer*) { ... }", "2.0.0")
-  final def beforeSome(transformers: RouteTransformer*)(block: => Any) {
-    before(transformers: _*)(block)
-  }
-
   /**
    * Adds a filter to run after the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
   def after(transformers: RouteTransformer*)(block: => Any): Unit
-
-  @deprecated("Use after() { ... }", "2.0.0")
-  final def afterAll(block: => Any) { after()(block) }
-
-  @deprecated("Use after(RouteTransformer*) { ... }", "2.0.0")
-  final def afterSome(transformers: RouteTransformer*)(block: => Any) {
-    before(transformers: _*)(block)
-  }
 
   /**
    * Defines a block to run if no matching routes are found, or if all
@@ -141,7 +115,7 @@ trait CoreDsl extends Handler with Control {
    * and a block as the action body.  The return value of the block is
    * rendered through the pipeline and sent to the client as the response body.
    *
-   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
+   * See [[org.scalatra.ScalatraApp#renderResponseBody]] for the detailed
    * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *

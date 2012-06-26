@@ -11,7 +11,7 @@ object I18nSupport {
 
 trait I18nSupport {
 
-  this: ScalatraBase with CookieSupport =>
+  this: ScalatraApp =>
 
   import I18nSupport._
 
@@ -45,9 +45,9 @@ trait I18nSupport {
   private def resolveHttpLocale: Option[Locale] = {
     (params.get(localeKey) match {
       case Some(localeValue) =>
-        cookies.set(localeKey, localeValue)
+        request.cookies.set(localeKey, localeValue)
         Some(localeValue)
-      case _ => cookies.get(localeKey)
+      case _ => request.cookies.get(localeKey)
     }).map(localeFromString(_)) orElse resolveHttpLocaleFromUserAgent
   }
 

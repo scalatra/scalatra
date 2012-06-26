@@ -18,7 +18,7 @@ class RicherString(orig: String) {
   def urlDecode = UrlCodingUtils.urlDecode(orig)
   def formDecode = UrlCodingUtils.urlDecode(orig, plusIsSpace = true)
 
-  def /(path: String) = (s.endsWith("/"), path.startsWith("/")) match {
+  def /(path: String) = (orig.endsWith("/"), path.startsWith("/")) match {
     case (true, false) | (false, true) ⇒ orig + path
     case (false, false)                ⇒ orig + "/" + path
     case (true, true)                  ⇒ orig + path substring 1

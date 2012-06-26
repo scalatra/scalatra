@@ -1,3 +1,4 @@
+/*
 package org.scalatra.servlet;
 
 import javax.servlet.ServletContext;
@@ -97,3 +98,4 @@ public class SessionWrapper implements HttpSession {
         return session.isNew();
     }
 }
+*/

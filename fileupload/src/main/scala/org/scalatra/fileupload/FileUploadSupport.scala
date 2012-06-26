@@ -43,7 +43,7 @@ trait FileUploadSupport extends ServletBase {
       else req
     } catch {
       case e: FileUploadException => {
-        req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
+        req.setAttribute(ScalatraApp.PrehandleExceptionKey, e)
         req
       }
     }

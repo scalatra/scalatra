@@ -3,7 +3,7 @@
 //import scala.collection.JavaConversions._
 //import javax.servlet.http.{HttpServletRequest, Part}
 //import java.util.{HashMap => JHashMap, Map => JMap}
-//import org.scalatra.ScalatraBase
+//import org.scalatra.ScalatraApp
 //import java.io.File
 //
 ///** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
@@ -71,7 +71,7 @@
 //    case _ => false
 //  }
 //
-//  override def handle(req: RequestT, res: ResponseT) {
+//  override def handle(req: HttpRequest, res: HttpResponse) {
 //    val req2 = try {
 //      if (isMultipartRequest(req)) {
 //        val bodyParams = extractMultipartParams(req)
@@ -81,7 +81,7 @@
 //      } else req
 //    } catch {
 //      case e: Exception => {
-//        req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
+//        req.setAttribute(ScalatraApp.PrehandleExceptionKey, e)
 //        req
 //      }
 //    }
@@ -89,7 +89,7 @@
 //    super.handle(req2, res)
 //  }
 //
-//  private def isMultipartRequest(req: RequestT): Boolean = {
+//  private def isMultipartRequest(req: HttpRequest): Boolean = {
 //    val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
 //
 //    isPostOrPut && (req.contentType match {
@@ -98,7 +98,7 @@
 //    })
 //  }
 //
-//  private def extractMultipartParams(req: RequestT): BodyParams = {
+//  private def extractMultipartParams(req: HttpRequest): BodyParams = {
 //    req.get(BodyParamsKey).asInstanceOf[Option[BodyParams]] match {
 //      case Some(bodyParams) =>
 //        bodyParams
@@ -127,7 +127,7 @@
 //    }
 //  }
 //
-//  private def getParts(req: RequestT) = {
+//  private def getParts(req: HttpRequest) = {
 //    try {
 //      req.getParts
 //    } catch {
@@ -140,7 +140,7 @@
 //    new String(item.get(), charset)
 //  }
 //
-//  private def mergeFormParamsWithQueryString(req: RequestT, bodyParams: BodyParams): Map[String, List[String]] = {
+//  private def mergeFormParamsWithQueryString(req: HttpRequest, bodyParams: BodyParams): Map[String, List[String]] = {
 //    var mergedParams = bodyParams.formParams
 //    req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
 //      case (name, values) =>

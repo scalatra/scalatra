@@ -5,6 +5,7 @@ import java.net.URL
 import com.github.siasia.WebPlugin.webSettings
 // import posterous.Publish._
 import ls.Plugin.LsKeys
+import sbtbuildinfo.Plugin._
 
 object ScalatraBuild extends Build {
   import Dependencies._
@@ -43,14 +44,19 @@ object ScalatraBuild extends Build {
   lazy val scalatraCore = Project(
     id = "scalatra",
     base = file("core"),
-    settings = scalatraSettings ++ Seq(
+    settings = scalatraSettings ++ buildInfoSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
         chardet,
         mimeUtil,
-        backchatRl
+        backchatRl,
+        akkaActor
       ),
-      description := "The core Scalatra framework"
+      libraryDependencies ++= scalaIO,
+      description := "The core Scalatra framework",
+      sourceGenerators in Compile <+= buildInfo,
+      buildInfoKeys := Seq[Scoped](name, version, scalaVersion, sbtVersion),
+      buildInfoPackage := "org.scalatra"
     ))
 //  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
 
@@ -275,6 +281,11 @@ object ScalatraBuild extends Build {
 
     val netty = "io.netty" % "netty" % V.netty
     val nettyExtension = "NettyExtension" % "NettyExtension" % "1.1.12"
+
+    val scalaIO = Seq(
+      "com.github.scala-incubator.io"    %% "scala-io-core"     % "0.4.0",
+      "com.github.scala-incubator.io"    %% "scala-io-file"     % "0.4.0")
+
 
     val junit = "junit" % "junit" % "4.10"
 

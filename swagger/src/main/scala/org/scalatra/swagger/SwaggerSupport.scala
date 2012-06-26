@@ -7,7 +7,7 @@ import Symbols._
  * Provides the necessary support for adding documentation to your routes.
  */
 trait SwaggerSupport {
-  self: ScalatraBase =>
+  self: ScalatraApp =>
 
   private var _models: Map[String, Model] = Map.empty
   protected def models_=(m: Map[String, Model]) = _models = m

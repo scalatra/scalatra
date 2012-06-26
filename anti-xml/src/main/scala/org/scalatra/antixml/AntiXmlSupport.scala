@@ -6,7 +6,7 @@ import com.codecommit.antixml._
 /**
  * Trait which renders Anti-XML elements as serialized XML.
  */
-trait AntiXmlSupport extends ScalatraBase {
+trait AntiXmlSupport extends ScalatraApp {
 
   override protected def contentTypeInferrer = ({
     case _: Elem => "text/html"

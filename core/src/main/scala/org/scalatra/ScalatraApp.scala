@@ -1,40 +1,74 @@
 package org.scalatra
 
 import scala.util.matching.Regex
-import servlet.AsyncSupport
+import collection.mutable
+
+//import servlet.AsyncSupport
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
-import java.net.URLEncoder.encode
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 import rl.UrlCodingUtils
-import java.nio.charset.Charset
+import util.io.PathManipulationOps
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
   def secondStep(uri: String) = uri.replaceAll("%23", "#").replaceAll("%2F", "/").replaceAll("%3F", "?")
 }
 
-object ScalatraBase {
+object ScalatraApp {
   /**
    * A key for request attribute that contains any exception
    * that might have occured before the handling has been
-   * propagated to ScalatraBase#handle (such as in
+   * propagated to ScalatraApp#handle (such as in
    * FileUploadSupport)
    */
   val PrehandleExceptionKey = "org.scalatra.PrehandleException"
 }
 
 /**
- * The base implementation of the Scalatra DSL.  Intended to be portable
- * to all supported backends.
- */
-trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
-{
+* The base implementation of the Scalatra DSL.  Intended to be portable
+* to all supported backends.
+*/
+trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
+
+  def isEmpty = false
+
+  def name = getClass.getName
+
+  /**
+   * The default cookie options
+   */
+  protected implicit lazy val cookieOptions = CookieOptions(path = appPath)
+
+  override def toString = "ScalatraApp(%s,%s)" format (appPath, name)
+
+  private val submounts = mutable.ListBuffer[AppMounter => Any]()
+  def initialize(config: AppContext) {
+    submounts foreach (_ apply mounter)
+    submounts.clear()
+  }
+
+  protected def mount[TheSubApp <: ScalatraApp](path: String, app: => TheSubApp) {
+    if (mounter == null) {
+      submounts += { (m: AppMounter) => m.mount(path, app) }
+    } else {
+      mounter.mount(path, app)
+    }
+  }
+
+
   /**
    * The routes registered in this kernel.
    */
   protected lazy val routes: RouteRegistry = new RouteRegistry
+
+
+  def hasMatchingRoute(req: HttpRequest) = {
+    withRequest(req) {
+      (routes.matchingMethods flatMap (routes(_)) filter(_().isDefined)).nonEmpty
+    }
+  }
 
   /**
    * The default character encoding for requests and responses.
@@ -52,7 +86,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
    *      `executeRoutes()`.
    */
-  def handle(request: RequestT, response: ResponseT) {
+  def handle(request: HttpRequest, response: HttpResponse) {
     val realMultiParams = request.multiParameters
 
     response.characterEncoding = Some(defaultCharacterEncoding)
@@ -60,6 +94,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
     withRequestResponse(request, response) {
       request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
       executeRoutes()
+      response.end()
     }
   }
 
@@ -153,7 +188,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
       liftAction(matchedRoute.action)
     }
 
-  private def liftAction(action: Action): Option[Any] = 
+  private def liftAction(action: Action): Option[Any] =
     try {
       Some(action())
     }
@@ -165,7 +200,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * The effective path against which routes are matched.  The definition
    * varies between servlets and filters.
    */
-  def requestPath: String
+  def requestPath: String = PathManipulationOps.ensureSlash(request.pathInfo.replaceFirst(appPath, ""))
 
   def before(transformers: RouteTransformer*)(fun: => Any) {
     routes.appendBeforeFilter(Route(transformers, () => fun))
@@ -200,10 +235,11 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   }
 
   private def handleStatusCode(status: Int): Option[Any] =
-    for (handler <- routes(status);
-	 matchedHandler <- handler();
-         handlerResult <- invoke(matchedHandler)
-    ) yield handlerResult
+    for {
+      handler <- routes(status)
+      matchedHandler <- handler()
+      handlerResult <- invoke(matchedHandler)
+    } yield handlerResult
 
   /**
    * The error handler function, called if an exception is thrown during
@@ -229,7 +265,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
-    
+
     renderResponseBody(actionResult)
   }
 
@@ -357,6 +393,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
     }
     e.headers foreach { case(name, value) => response.addHeader(name, value) }
     renderResponse(e.body)
+    response.end()
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
@@ -387,15 +424,12 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * @see org.scalatra.ScalatraKernel#removeRoute
    */
   protected def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route = {
-    val route = Route(transformers, () => action, () => routeBasePath)
+    val route = Route(transformers, () => action, () => appPath)
     routes.prependRoute(method, route)
     route
   }
 
-  /**
-   * The base path for URL generation
-   */
-  protected def routeBasePath: String
+
 
   @deprecated("Use addRoute(HttpMethod, Seq[RouteMatcher], =>Any)", "2.0.0")
   protected[scalatra] def addRoute(verb: String, transformers: Seq[RouteTransformer], action: => Any): Route =
@@ -416,46 +450,41 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   }
 
   protected[scalatra] def addStatusRoute(codes: Range, action: => Any)  {
-    val route = Route(Seq.empty, () => action, () => routeBasePath)
+    val route = Route(Seq.empty, () => action, () => appPath)
     routes.addStatusRoute(codes, route)
   }
 
-  /**
-   * The configuration, typically a ServletConfig or FilterConfig.
-   */
-  private var config: Config = _
+//  /**
+//   * The configuration, typically a ServletConfig or FilterConfig.
+//   */
+//  private var config: Config = _
 
-  /**
-   * Initializes the kernel.  Used to provide context that is unavailable
-   * when the instance is constructed, for example the servlet lifecycle.
-   * Should set the `config` variable to the parameter.
-   *
-   * @param config the configuration.
-   */
-  def initialize(config: ConfigT) { this.config = config }
+//  /**
+//   * Initializes the kernel.  Used to provide context that is unavailable
+//   * when the instance is constructed, for example the servlet lifecycle.
+//   * Should set the `config` variable to the parameter.
+//   *
+//   * @param config the configuration.
+//   */
+//  def initialize(config: AppContext) { this.config = config }
 
-  /**
-   * Gets an init paramter from the config.
-   *
-   * @param name the name of the key
-   *
-   * @return an option containing the value of the parameter if defined, or
-   * `None` if the parameter is not set.
-   */
-  def initParameter(name: String): Option[String] = 
-    config.initParameters.get(name)
-
-  /**
-   * The servlet context in which this kernel runs.
-   */
-  def applicationContext: ApplicationContextT = config.context
+//  /**
+//   * Gets an init paramter from the config.
+//   *
+//   * @param name the name of the key
+//   *
+//   * @return an option containing the value of the parameter if defined, or
+//   * `None` if the parameter is not set.
+//   */
+//  def initParameter(name: String): Option[String] =
+//    config.initParameters.get(name)
 
   /**
    * A free form string representing the environment.
    * `org.scalatra.Environment` is looked up as a system property, and if
    * absent, and init parameter.  The default value is `development`.
    */
-  def environment: String = System.getProperty(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("development"))
+  def environment: String = appContext.mode
 
   /**
    * A boolean flag representing whether the kernel is in development mode.
@@ -480,20 +509,20 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   def url(path: String, params: Iterable[(String, Any)] = Iterable.empty): String = {
     val newPath = path match {
-      case x if x.startsWith("/") => contextPath + path
+      case x if x.startsWith("/") => appPath + path
       case _ => path
     }
 
     val pairs = params map {
-      case (key, None) => encode(key, "utf-8")+"="
-      case (key, Some(value)) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8")
-      case(key, value) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8")
+      case (key, None) => key.urlEncode + "="
+      case (key, Some(value)) => key.urlEncode + "=" + value.toString.urlEncode
+      case(key, value) => key.urlEncode + "=" +value.toString.urlEncode
     }
     val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
     addSessionId(newPath+queryString)
   }
 
-  protected def contextPath: String = applicationContext.contextPath
+  protected def contextPath: String = appPath
 
   protected def addSessionId(uri: String): String
 }

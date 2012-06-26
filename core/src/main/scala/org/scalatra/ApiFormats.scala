@@ -21,7 +21,7 @@ object ApiFormats {
  * $ - Maps formats to content types and vice versa
  * $ - Augments the content-type inferrer to use the format
  */
-trait ApiFormats extends ScalatraBase {
+trait ApiFormats extends ScalatraApp {
   /**
    * A map of suffixes to content types.
    */
