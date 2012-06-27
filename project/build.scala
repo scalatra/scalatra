@@ -35,10 +35,11 @@ object ScalatraBuild extends Build {
       Unidoc.unidocExclude := Seq("scalatra-example"),
       LsKeys.skipWrite := true
     ),
-    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
-      scalatraScalate, scalatraLiftJson, scalatraAntiXml, scalatraJerkson,
+    aggregate = Seq(
+      scalatraCore, scalatraAuth, scalatraScalate, scalatraLiftJson,
+      scalatraAntiXml, scalatraJerkson, scalatraAkka, scalatraSwagger,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
+      scalatraExample, scalatraJetty, scalatraJetty, scalatraServlet)
   )
 
   lazy val scalatraCore = Project(
@@ -78,15 +79,6 @@ object ScalatraBuild extends Build {
       resolvers += "Akka Repo" at "http://repo.akka.io/repository",
       description := "Scalatra akka integration module"
     ) 
-  ) dependsOn(scalatraCore % "compile;provided->provided")
-
-  lazy val scalatraFileupload = Project(
-    id = "scalatra-fileupload",
-    base = file("fileupload"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(commonsFileupload, commonsIo),
-      description := "Commons-Fileupload integration with Scalatra"
-    )
   ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraScalate = Project(
@@ -203,14 +195,6 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
-  lazy val scalatraDocs = Project(
-    id = "scalatra-docs",
-    base = file("docs"),
-    settings = scalatraSettings ++ Seq(
-      description := "Scalatra legacy documentation; see scalatra-swagger"
-    )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
-
   lazy val scalatraSwagger = Project(
     id = "scalatra-swagger",
     base = file("swagger"),
@@ -262,8 +246,6 @@ object ScalatraBuild extends Build {
     val akkaActor = "com.typesafe.akka" % "akka-actor" % V.akka
     val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % V.akka % "test"
 
-    val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
-    val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
     val asyncHttpClient = "com.ning" % "async-http-client" % V.asyncHttpClient
