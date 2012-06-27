@@ -23,12 +23,13 @@ trait ScalatraTests extends Client {
 
   protected implicit def fileToSeq(file: File): Seq[File] = Seq(file)
 
-  private[test] def startScalatra() {
+
+  override def start() {
     backend.start()
     backendClient.start()
   }
 
-  private[test] def stopScalatra() {
+  override def stop() {
     backendClient.stop()
     backend.stop()
   }
