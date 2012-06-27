@@ -1,12 +1,13 @@
 package org.scalatra
 
 import java.net.URI
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /**
  * Redirects unsecured requests to the corresponding secure URL.
  */
 trait SslRequirement extends Handler { 
-  abstract override def handle(req: RequestT, res: ResponseT) {
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     if (!req.isSecure) {
       val oldUri = req.uri
       val port = securePortMap.lift(oldUri.getPort) getOrElse 443

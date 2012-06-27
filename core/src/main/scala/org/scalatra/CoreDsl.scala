@@ -1,5 +1,7 @@
 package org.scalatra
 
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
 /**
  * The core Scalatra DSL.
  */
@@ -22,7 +24,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * The current request
    */
-  implicit def request: RequestT
+  implicit def request: HttpServletRequest
 
   /**
    * A map of the current parameters.  The map contains the head of every
@@ -43,7 +45,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * The current response.
    */
-  implicit def response: ResponseT
+  implicit def response: HttpServletResponse
 
   /**
    * Gets the content type of the current response.

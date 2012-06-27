@@ -9,6 +9,7 @@ import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 import rl.UrlCodingUtils
 import java.nio.charset.Charset
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
@@ -52,7 +53,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
    *      `executeRoutes()`.
    */
-  def handle(request: RequestT, response: ResponseT) {
+  override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     val realMultiParams = request.multiParameters
 
     response.characterEncoding = Some(defaultCharacterEncoding)

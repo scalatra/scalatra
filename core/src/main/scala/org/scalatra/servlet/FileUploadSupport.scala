@@ -5,6 +5,7 @@ import javax.servlet.http.{HttpServletRequest, Part}
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
 import java.io.File
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
   * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
@@ -71,7 +72,7 @@ trait FileUploadSupport extends ServletBase {
     case _ => false
   }
 
-  override def handle(req: RequestT, res: ResponseT) {
+  override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     val req2 = try {
       if (isMultipartRequest(req)) {
         val bodyParams = extractMultipartParams(req)

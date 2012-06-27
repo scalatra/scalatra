@@ -2,6 +2,7 @@ package org.scalatra
 
 import collection._
 import java.util.Locale
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import util.RicherString._
 
 case class CookieOptions(
@@ -88,7 +89,7 @@ trait CookieSupport extends Handler {
 
   def cookies = request(SweetCookiesKey).asInstanceOf[SweetCookies]
 
-  abstract override def handle(req: RequestT, res: ResponseT) {
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
     val path = contextPath match {
       case "" => "/" // The root servlet is "", but the root cookie path is "/"

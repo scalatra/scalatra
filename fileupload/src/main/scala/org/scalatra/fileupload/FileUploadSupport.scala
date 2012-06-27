@@ -27,7 +27,7 @@ import org.apache.commons.fileupload.{FileUploadException, FileUploadBase, FileI
 trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
-  override def handle(req: ServletRequest, resp: ServletResponse) {
+  override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
     val req2 = try {
       if (isMultipartContent(req)) {
         val bodyParams = extractMultipartParams(req)
