@@ -7,12 +7,16 @@ package org.scalatra
 trait SessionSupport {
 
   /**
-   * The current session.  Creates a session if none exists.
-   */
-  implicit def session: HttpSession
-
-  /**
    * The current session.  If none exists, None is returned.
    */
   def sessionOption: Option[HttpSession]
+
+  private var _session: Option[HttpSession] = None
+  implicit def session: HttpSession = _session getOrElse SessionsDisableException()
+
+  private[scalatra] def session_=(session: HttpSession) = {
+    require(session != null, "The session can't be null")
+    _session = Some(session)
+    session
+  }
 }
