@@ -9,6 +9,8 @@ import java.io.{ InputStream, File }
 import java.net.{URI, URL}
 
 object Mimes {
+
+  val DefaultMime = "application/octet-stream"
   /**
    * Sets supported encodings for the mime-util library if they have not been
    * set. Since the supported encodings is stored as a static Set we
@@ -28,7 +30,7 @@ object Mimes {
  */
 trait Mimes {
 
-  lazy val DEFAULT_MIME = "application/octet-stream"
+  import Mimes._
 
   private val mimeUtil = new MimeUtil2()
   quiet { mimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector") }
@@ -36,17 +38,17 @@ trait Mimes {
 
 
 
-  def bytesMime(content: Array[Byte], fallback: String = DEFAULT_MIME) = {
+  def bytesMime(content: Array[Byte], fallback: String = DefaultMime) = {
     detectMime(fallback) {
       MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(content, new MimeType(fallback))).toString
     }
   }
-  def fileMime(file: File, fallback: String = DEFAULT_MIME) = {
+  def fileMime(file: File, fallback: String = DefaultMime) = {
     detectMime(fallback) {
       MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(file, new MimeType(fallback))).toString
     }
   }
-  def inputStreamMime(input: InputStream, fallback: String = DEFAULT_MIME) = {
+  def inputStreamMime(input: InputStream, fallback: String = DefaultMime) = {
     detectMime(fallback) {
       MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(input, new MimeType(fallback))).toString
     }
@@ -58,7 +60,7 @@ trait Mimes {
    * @param path The path for which to detect the mime type
    * @param fallback A fallback value in case no mime type can be found
    */
-  def mimeType(path: String, fallback: String = DEFAULT_MIME) = {
+  def mimeType(path: String, fallback: String = DefaultMime) = {
     detectMime(fallback) {
       MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(path, new MimeType(fallback))).toString
     }
@@ -70,13 +72,13 @@ trait Mimes {
    * @param url The url for which to detect the mime type
    * @param fallback A fallback value in case no mime type can be found
    */
-  def urlMime(url: String, fallback: String = DEFAULT_MIME) = {
+  def urlMime(url: String, fallback: String = DefaultMime) = {
     detectMime(fallback) {
       MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(new URL(url), new MimeType(fallback))).toString
     }
   }
 
-  private def detectMime(fallback: String = DEFAULT_MIME)(mimeDetect: ⇒ String) = {
+  private def detectMime(fallback: String = DefaultMime)(mimeDetect: ⇒ String) = {
     try {
       mimeDetect
     } catch {

@@ -23,7 +23,7 @@ class Messages(locale: Locale) {
    */
   def get(key: String): Option[String] = {
     try {
-      Some(bundle.getString(key))
+      bundle.getString(key).blankOption
     } catch {
       case e: MissingResourceException => None
     }
@@ -36,7 +36,7 @@ class Messages(locale: Locale) {
   /**
    * Returned the value for the key or the default
    */
-  def apply(key: String, default: String): String = {
+  def apply(key: String, default: => String): String = {
     try {
       bundle.getString(key)
     } catch {

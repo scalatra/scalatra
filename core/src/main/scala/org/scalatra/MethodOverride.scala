@@ -33,6 +33,6 @@ trait MethodOverride extends Handler {
 
   private def methodOverride(req: HttpRequest) = {
     import MethodOverride._
-    (req.parameters.get(ParamName) orElse req.headers.get(HeaderName))
+    req.parameters.get(ParamName) orElse req.headers.get(HeaderName)
   }
 }

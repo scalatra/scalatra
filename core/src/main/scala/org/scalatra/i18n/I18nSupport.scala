@@ -4,9 +4,9 @@ package i18n
 import java.util.Locale
 
 object I18nSupport {
-  def localeKey = "locale"
+  val LocaleKey = "org.scalatra.i18n.Locale"
 
-  def messagesKey = "messages"
+  val MessagesKey = "org.scalatra.i18n.Messages"
 }
 
 trait I18nSupport {
@@ -43,11 +43,11 @@ trait I18nSupport {
    *
    */
   private def resolveHttpLocale: Option[Locale] = {
-    (params.get(localeKey) match {
+    (params.get(LocaleKey) match {
       case Some(localeValue) =>
-        request.cookies.set(localeKey, localeValue)
+        request.cookies.set(LocaleKey, localeValue)
         Some(localeValue)
-      case _ => request.cookies.get(localeKey)
+      case _ => request.cookies.get(LocaleKey)
     }).map(localeFromString(_)) orElse resolveHttpLocaleFromUserAgent
   }
 
@@ -87,11 +87,11 @@ trait I18nSupport {
 
   /**
    * Reads a locale from a String
-   * @param in a string like en_GB or de_DE
+   * @param in a string like en_GB or de-DE
    */
   private def localeFromString(in: String): Locale = {
 
-      val token = in.split("_")
+      val token = in.split("_|-")
       new Locale(token.head, token.last)
   }
 

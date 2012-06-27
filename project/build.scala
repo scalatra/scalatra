@@ -67,7 +67,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(base64),
       description := "Scalatra authentication module"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraAkka = Project(
     id = "scalatra-akka",
@@ -77,7 +77,7 @@ object ScalatraBuild extends Build {
       resolvers += "Akka Repo" at "http://repo.akka.io/repository",
       description := "Scalatra akka integration module"
     ) 
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraFileupload = Project(
     id = "scalatra-fileupload",
@@ -86,7 +86,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(commonsFileupload, commonsIo),
       description := "Commons-Fileupload integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraScalate = Project(
     id = "scalatra-scalate",
@@ -96,7 +96,7 @@ object ScalatraBuild extends Build {
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraLiftJson = Project(
     id = "scalatra-lift-json",
@@ -105,7 +105,7 @@ object ScalatraBuild extends Build {
       libraryDependencies += liftJson,
       description := "Lift JSON support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraJerkson = Project(
     id = "scalatra-jerkson",
@@ -114,7 +114,7 @@ object ScalatraBuild extends Build {
       libraryDependencies += jerkson,
       description := "Jackson/Jerkson JSON support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraAntiXml = Project(
     id = "scalatra-anti-xml",
@@ -123,7 +123,7 @@ object ScalatraBuild extends Build {
       libraryDependencies += antiXml,
       description := "Anti-XML support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraServlet = Project(
     id = "scalatra-servlet",
@@ -134,7 +134,7 @@ object ScalatraBuild extends Build {
       ),
       description := "Servlet backend for Scalatra apps"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
@@ -155,7 +155,7 @@ object ScalatraBuild extends Build {
       resolvers += goldenGate,
       description := "Netty backend for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraTest = Project(
     id = "scalatra-test",
@@ -163,16 +163,14 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
-        testJettyServlet,
-	      servletApi % "provided",
         mockitoAll,
         commonsLang3,
-        specs2 % "test",
-        dispatch % "provided"
+        asyncHttpClient,
+        specs2 % "test"
       ),
       description := "The abstract Scalatra test framework"
     )
-  )
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraScalatest = Project(
     id = "scalatra-scalatest",
@@ -210,7 +208,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       description := "Scalatra legacy documentation; see scalatra-swagger"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraSwagger = Project(
     id = "scalatra-swagger",
@@ -219,7 +217,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(liftJson, liftJsonExt),
       description := "Scalatra integration with Swagger"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided")
 
   lazy val scalatraExample = Project(
     id = "scalatra-example",
@@ -231,7 +229,7 @@ object ScalatraBuild extends Build {
       description := "Scalatra example project"
     )
   ) dependsOn(
-    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
+    scalatraCore % "compile;provided->provided", scalatraScalate,
     scalatraAuth, scalatraFileupload, scalatraAkka, scalatraDocs, scalatraJetty
   )
 
@@ -244,6 +242,7 @@ object ScalatraBuild extends Build {
     val dispatch = "0.8.7"
     val grizzledSlf4j = "0.6.6"
     val netty = "3.5.0.Final"
+    val asyncHttpClient = "1.7.5"
   }
 
   object Dependencies {
@@ -257,7 +256,7 @@ object ScalatraBuild extends Build {
 
     val chardet = "com.googlecode.juniversalchardet"  % "juniversalchardet" % "1.0.3"
 
-    val mimeUtil = "eu.medsea.mimeutil"                % "mime-util"         % "2.1.3"
+    val mimeUtil = "eu.medsea.mimeutil"                % "mime-util"         % "2.1.3" exclude("org.slf4j", "slf4j-log4j12")
 
     val akkaActor = "com.typesafe.akka" % "akka-actor" % V.akka
     val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % V.akka % "test"
@@ -266,14 +265,16 @@ object ScalatraBuild extends Build {
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
-    val dispatch = "net.databinder" %% "dispatch-http" % V.dispatch
+    val asyncHttpClient = "com.ning" % "async-http-client" % V.asyncHttpClient
+
+//    val dispatch = "net.databinder" %% "dispatch-http" % V.dispatch
 
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % V.grizzledSlf4j
 
     // See jettyOrbitHack below.
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % V.jetty exclude("org.eclipse.jetty.orbit", "javax.servlet")
 
-    val testJettyServlet = jettyDep("test-jetty-servlet")    
+//    val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyServlet = jettyDep("jetty-servlet") 
     val jettyServer = jettyDep("jetty-server") 
     val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % V.jetty  % "provided" exclude("org.eclipse.jetty.orbit", "javax.servlet")
