@@ -8,15 +8,10 @@ object GenerateId {
     generateCsrfToken()
   }
 
-  private def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
-    if((b.toInt & 0xff) < 0x10) sb.append("0")
-    sb.append(Integer.toString(b.toInt & 0xff, 16))
-  }).toString
-
   protected def generateCsrfToken() = {
     val tokenVal = new Array[Byte](20)
     (new SecureRandom).nextBytes(tokenVal)
-    hexEncode(tokenVal)
+    tokenVal.hexEncode
   }
 
   @deprecated("Use generateCsrfToken()", "2.0.0")

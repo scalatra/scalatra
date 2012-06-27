@@ -13,7 +13,7 @@ import org.fusesource.scalate.servlet.ServletRenderContext
  * standard bindings to the template.
  */
 class ScalatraRenderContext(
-    protected val kernel: ServletBase,
+    protected val kernel: ServletBase with SessionSupport,
     engine: TemplateEngine,
     out: PrintWriter,
     request: HttpServletRequest,
@@ -29,9 +29,9 @@ class ScalatraRenderContext(
     case _ => Map.empty
   }
 
-  def session: Session = kernel.session
-
-  def sessionOption: Option[Session] = kernel.sessionOption
+//  def session: Session = kernel.session
+//
+//  def sessionOption: Option[Session] = kernel.sessionOption
 
   def params: Map[String, String] = kernel.params
 

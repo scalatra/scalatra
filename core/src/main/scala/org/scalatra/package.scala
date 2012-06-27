@@ -31,6 +31,13 @@ package object scalatra
 
   private[scalatra] implicit def stringToRicherString(s: String) = new RicherString(s)
 
+  private[scalatra] implicit def extendedByteArray(bytes: Array[Byte]) = new {
+    def hexEncode =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
+        if((b.toInt & 0xff) < 0x10) sb.append("0")
+        sb.append(Integer.toString(b.toInt & 0xff, 16))
+      }).toString
+  }
+
   implicit def appMounter2app(appMounter: AppMounter): Mountable = appMounter.mounted
   implicit def app2AppMounter(app: Mountable): AppMounter = app.mounter
 }

@@ -5,19 +5,14 @@ package org.scalatra
  * The session may be clientside or serverside.
  */
 trait SessionSupport {
-  /**
-   * The type of session supported by this handler.  Must be viewable as
-   * a [[org.scalatra.HttpRequest]].
-   */
-  type SessionT <: Session
 
   /**
    * The current session.  Creates a session if none exists.
    */
-  implicit def session: SessionT
+  implicit def session: HttpSession
 
   /**
    * The current session.  If none exists, None is returned.
    */
-  def sessionOption: Option[SessionT]
+  def sessionOption: Option[HttpSession]
 }
