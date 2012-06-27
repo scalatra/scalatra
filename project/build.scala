@@ -215,7 +215,22 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(
     scalatraCore % "compile;provided->provided", scalatraScalate,
-    scalatraAuth, scalatraFileupload, scalatraAkka, scalatraDocs, scalatraJetty
+    scalatraAuth, scalatraAkka, scalatraJetty
+  )
+
+  lazy val scalatraFrameworkTests = Project(
+    id = "scalatra-framework-tests",
+    base = file("framework-tests"),
+    settings = scalatraSettings ++ jettyOrbitHack ++ doNotPublish ++ Seq(
+      description := "Scalatra framework tests"
+    )
+  ) dependsOn(
+    scalatraCore % "compile;provided->provided",
+    scalatraNetty % "compile;provided->provided",
+    scalatraJetty % "compile;provided->provided",
+    scalatraScalatest % "test->compile;provided->provided",
+    scalatraSpecs % "test->compile;provided->provided",
+    scalatraSpecs2 % "test->compile;provided->provided"
   )
 
   object V {
@@ -365,6 +380,16 @@ object ScalatraBuild extends Build {
           <id>jlarmstrong</id>
           <name>Jared Armstrong</name>
           <url>http://www.jaredarmstrong.name/</url>
+        </developer>
+        <developer>
+          <id>sdeboey</id>
+          <name>Stefan De Boey</name>
+          <url>http://www.ellefant.be/</url>
+        </developer>
+        <developer>
+          <id>mnylen</id>
+          <name>Mikko Nylén</name>
+          <url>http://mnylen.tumblr.com/</url>
         </developer>
       </developers>
     )}

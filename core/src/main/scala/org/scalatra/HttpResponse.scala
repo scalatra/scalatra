@@ -1,23 +1,22 @@
 package org.scalatra
 
-import java.io.{OutputStream, PrintWriter}
-import scala.collection.mutable.Map
+import java.io.{OutputStream}
+import collection.mutable
 
 trait HttpResponse extends HttpMessage {
   /**
    * The HTTP status code and reason phrase.
    */
-  var status: ResponseStatus
+  def status: ResponseStatus
+  def status_=(newStatus: ResponseStatus)
 
-  def headers: Map[String, String]
+  def headers: mutable.Map[String, String]
 
-  def contentType_=(contentType: Option[String])
+  def contentType_=(contentType: String)
 
-  def characterEncoding_=(cs: Option[String])
+  def characterEncoding_=(cs: String)
 
   def outputStream: OutputStream
-
-  def writer: PrintWriter
 
   def redirect(uri: String)
 
@@ -30,9 +29,9 @@ trait HttpResponse extends HttpMessage {
     headers(name) = newValue
   }
 
-  def addCookie(cookie: Cookie): Unit
+  def addCookie(cookie: Cookie)
 
-//  def chunked: Boolean
-//  def chunked_=(chunked: Boolean)
+  def chunked: Boolean
+  def chunked_=(chunked: Boolean)
 
 }

@@ -89,7 +89,8 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
   def handle(request: HttpRequest, response: HttpResponse) {
     val realMultiParams = request.multiParameters
 
-    response.characterEncoding = Some(defaultCharacterEncoding)
+    // TODO: Move this to the servlet implementation
+    response.characterEncoding = defaultCharacterEncoding
 
     withRequestResponse(request, response) {
       request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
@@ -302,7 +303,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
    * called recursively until it returns ().  () indicates that the
    * response has been rendered.
    */
-  protected def renderPipeline: RenderPipeline = {
+  protected def renderPipeline: RenderPipeline = { // TODO: Move this to specific backend implementation
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
@@ -316,7 +317,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
       actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }
       actionResult.body
     case x: Any  =>
-      response.writer.print(x.toString)
+      response.outputStream.write(x.toString.getBytes(response.characterEncoding getOrElse defaultCharacterEncoding))
   }
 
   /**

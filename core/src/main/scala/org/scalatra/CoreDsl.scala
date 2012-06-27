@@ -5,11 +5,6 @@ package org.scalatra
  */
 trait CoreDsl extends Handler with Control {
 
-  /**
-   * The application context.  It is shared among all handlers within this
-   * application.
-   */
-  implicit def applicationContext: AppContext
 
   /**
    * The current request
@@ -46,7 +41,7 @@ trait CoreDsl extends Handler with Control {
    * Sets the content type of the current response.
    */
   def contentType_=(contentType: String) {
-    response.contentType = Option(contentType)
+    response.contentType = contentType
   }
 
   @deprecated("Use status_=(Int) instead", "2.1.0")
