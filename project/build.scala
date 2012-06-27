@@ -52,7 +52,8 @@ object ScalatraBuild extends Build {
         mimeUtil,
         backchatRl,
         akkaActor,
-        specs2 % "test"
+        specs2 % "test",
+        scalaCheck
       ),
       libraryDependencies ++= scalaIO,
       description := "The core Scalatra framework",
@@ -264,6 +265,8 @@ object ScalatraBuild extends Build {
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
     val asyncHttpClient = "com.ning" % "async-http-client" % V.asyncHttpClient
+
+    val scalaCheck = "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test"
 
 //    val dispatch = "net.databinder" %% "dispatch-http" % V.dispatch
 
