@@ -52,6 +52,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
       case request: JHttpRequest => {
         clearDecoder()
         this.request = request
+
         method = request.getMethod
         bodyBuffer = None
         if (isHtmlPost)

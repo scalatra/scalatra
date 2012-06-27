@@ -28,7 +28,7 @@ class NettyHttpRequest(
 
   val scriptName = PathManipulationOps.ensureSlash(appContext.server.base)
 
-  val scheme = uri.getScheme
+  val scheme = "http" //uri.getScheme
 
   val cookies = {
     val nettyCookies = new CookieDecoder(true).decode(headers.getOrElse(Names.COOKIE, ""))
@@ -57,7 +57,7 @@ class NettyHttpRequest(
   /**
    * Http or Https, depending on the request URL.
    */
-  val urlScheme: Scheme = Scheme(uri.getScheme)  // TODO: Take X-Forwarded-Proto into account
+  val urlScheme: Scheme = Scheme("http") //Scheme(uri.getScheme)  // TODO: Take X-Forwarded-Proto into account
 
   def isSecure: Boolean = urlScheme == Https
 
