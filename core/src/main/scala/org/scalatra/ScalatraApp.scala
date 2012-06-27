@@ -525,5 +525,5 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
 
   protected def contextPath: String = appPath
 
-  protected def addSessionId(uri: String): String
+  protected def addSessionId(uri: String): String = uri
 }
