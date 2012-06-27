@@ -12,7 +12,7 @@ import collection.JavaConverters._
 
 class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerContext) extends HttpResponse {
   private val _ended = new AtomicBoolean(false)
-  private val underlying = new DefaultHttpResponse(nettyProtocol, HttpResponseStatus.OK)
+  val underlying = new DefaultHttpResponse(nettyProtocol, HttpResponseStatus.OK)
   val headers: collection.mutable.Map[String, String] = new ConcurrentHashMap[String, String]().asScala
   private def nettyProtocol = request.serverProtocol match {
     case Http10 => JHttpVersion.HTTP_1_0

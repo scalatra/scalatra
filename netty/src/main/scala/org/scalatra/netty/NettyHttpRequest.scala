@@ -22,7 +22,7 @@ class NettyHttpRequest(
         val files: GenSeq[HttpFile],
         val serverProtocol: HttpVersion,
         val inputStream: InputStream,
-        ctx: ChannelHandlerContext)(implicit appContext: AppContext) extends HttpRequest {
+        private[netty] val ctx: ChannelHandlerContext)(implicit appContext: AppContext) extends HttpRequest {
 
   val pathInfo = uri.getPath.replaceFirst("^" + scriptName, "")
 
