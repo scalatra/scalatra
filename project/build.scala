@@ -25,7 +25,7 @@ object ScalatraBuild extends Build {
     resolvers ++= Seq(sonatypeNexusSnapshots, akkaRepository),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
-  ) ++ jettyOrbitHack ++ mavenCentralFrouFrou
+  ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
@@ -50,7 +50,8 @@ object ScalatraBuild extends Build {
         chardet,
         mimeUtil,
         backchatRl,
-        akkaActor
+        akkaActor,
+        specs2 % "test"
       ),
       libraryDependencies ++= scalaIO,
       description := "The core Scalatra framework",
@@ -139,7 +140,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
     base = file("jetty"),
-    settings = scalatraSettings ++ Seq(
+    settings = scalatraSettings ++ jettyOrbitHack ++ Seq(
       libraryDependencies ++= Seq(
         jettyServlet
       ),
@@ -222,7 +223,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraExample = Project(
     id = "scalatra-example",
     base = file("example"),
-    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
+    settings = scalatraSettings ++ webSettings ++ jettyOrbitHack ++ doNotPublish ++ Seq(
       resolvers ++= Seq(sonatypeNexusSnapshots),
       libraryDependencies += servletApi % "container;test",
       libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
