@@ -1,7 +1,9 @@
 package org.scalatra
 
-import collection._
+import collection.mutable
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+import collection.JavaConverters._
 
 case class CookieOptions(
         domain  : String  = "",
@@ -53,7 +55,7 @@ case class Cookie(name: String, value: String)(implicit val cookieOptions: Cooki
 
 
 class CookieJar(private val reqCookies: Map[String, RequestCookie]) {
-  private lazy val cookies = mutable.HashMap[String, HttpCookie]() ++ reqCookies
+  private lazy val cookies = new ConcurrentHashMap[String, HttpCookie]().asScala ++ reqCookies
 
   def get(key: String) = cookies.get(key) filter (_.cookieOptions.maxAge != 0) map (_.value)
 

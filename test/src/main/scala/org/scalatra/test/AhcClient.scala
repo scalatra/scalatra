@@ -6,7 +6,7 @@ import collection.JavaConversions._
 import org.scalatra.util.io.{FileCharset, Mimes}
 import java.util.Locale._
 import java.nio.charset.Charset
-import io.Codec
+import scala.io.Codec
 import java.io.File
 import java.net.URI
 import java.util.Locale

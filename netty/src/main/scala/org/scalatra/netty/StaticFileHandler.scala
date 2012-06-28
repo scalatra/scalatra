@@ -13,7 +13,7 @@ import java.net.URLDecoder
 import javax.activation.MimetypesFileTypeMap
 import java.util.{TimeZone, Date}
 import java.text.SimpleDateFormat
-import io.Codec
+import scala.io.Codec
 
 object StaticFileHandler {
 

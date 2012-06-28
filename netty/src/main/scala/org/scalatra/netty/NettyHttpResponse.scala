@@ -9,9 +9,12 @@ import org.jboss.netty.handler.codec.http2.{HttpHeaders, DefaultHttpResponse, Ht
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
+import io.backchat.http.{ContentType, HttpHeader}
 
 object NettyHttpResponse {
   val EncodingKey = "org.scalatra.response.encoding"
+  val ContentHeaderKey = "org.scalatra.contentTypeHeader"
+  val ParsedContentHeaderKey = "org.scalatra.parsedContentTypeHeader"
 }
 class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerContext) extends HttpResponse {
 
@@ -20,6 +23,8 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
   private val _ended = new AtomicBoolean(false)
   val underlying = new DefaultHttpResponse(nettyProtocol, HttpResponseStatus.OK)
   val headers: collection.mutable.Map[String, String] = new ConcurrentHashMap[String, String]().asScala
+
+
   private def nettyProtocol = request.serverProtocol match {
     case Http10 => JHttpVersion.HTTP_1_0
     case Http11 => JHttpVersion.HTTP_1_1
@@ -31,10 +36,41 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
   def contentType = {
     headers.get(Names.CONTENT_TYPE).flatMap(_.blankOption)
   }
-  def contentType_=(ct: String) = headers(Names.CONTENT_TYPE) = ct
+  def contentType_=(ct: String) = {
+    headers(Names.CONTENT_TYPE) = ct
+//    request(ContentHeaderKey) = ct
+//    request(ParsedContentHeaderKey) = null
+  }
 
-  // TODO: get this stuff from some headers
-  def characterEncoding = request.get(EncodingKey).flatMap(_.toString.blankOption) orElse Some(Codec.UTF8.name)
+//  private def contentTypeHeader = {
+//    import io.backchat.http.{HttpHeaders => BH}
+//    val cacheInvalid = request.get(ContentHeaderKey) == contentType
+//    val cached =
+//      if (cacheInvalid) None else request.get(ParsedContentHeaderKey).flatMap(Option(_)).map(_.asInstanceOf[ContentType])
+//    cached orElse {
+//
+//      contentType flatMap { ct =>
+//        HttpHeader(Names.CONTENT_TYPE, ct) match {
+//          case BH.`Content-Type`(ctt) => {
+//            request(ParsedContentHeaderKey) = ctt
+//            Some(ctt)
+//          }
+//          case _ => None
+//        }
+//      }
+//    }
+//  }
+
+  def characterEncoding = {
+    val hdrCharset = contentType flatMap { ct =>
+      val parts = ct.split(';').map(_.trim)
+      val cs = if (parts.size > 1) parts(1) else ""
+      val csparts = cs.split('=').map(_.trim)
+      val csName = if (csparts.size > 1) csparts(1) else ""
+      csName.blankOption
+    }
+    hdrCharset orElse request.get(EncodingKey).flatMap(_.toString.blankOption)
+  }
   def characterEncoding_=(enc: String) = request(EncodingKey) = enc
 
   val outputStream  = new ChannelBufferOutputStream(ChannelBuffers.dynamicBuffer())
@@ -43,16 +79,19 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
     if (_ended.compareAndSet(false, true)) {
       headers foreach {
         case (k, v) if k == Names.CONTENT_TYPE => {
-          val Array(mediaType, hdrCharset) = {
+          val mediaType = {
             val parts = v.split(';').map(_.trim)
-            if (parts.size > 1) parts else Array(parts(0), "")
+            parts(0)
           }
-
-          underlying.setHeader(k, mediaType + ";" + (hdrCharset.blankOption getOrElse "charset=%s".format(characterEncoding.orNull)))
+          val appendCharset = characterEncoding.map("; charset="+_).orNull
+          underlying.setHeader(k, mediaType.blankOption.getOrElse("text/plain") + appendCharset)
         }
         case (k, v) => {
           underlying.setHeader(k, v)
         }
+      }
+      if (!headers.contains(Names.CONTENT_TYPE) && request.characterEncoding.isDefined) {
+        underlying.setHeader(Names.CONTENT_TYPE, "text/plain; charset="+request.characterEncoding.get)
       }
       request.cookies.responseCookies foreach { cookie => underlying.addHeader(Names.SET_COOKIE, cookie.toCookieString) }
       val content = outputStream.buffer()

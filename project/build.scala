@@ -51,6 +51,7 @@ object ScalatraBuild extends Build {
         chardet,
         mimeUtil,
         backchatRl,
+        httpParsers,
         akkaActor,
         specs2 % "test",
         scalaCheck
@@ -145,7 +146,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-netty",
     base = file("netty"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(netty, nettyExtension),
+      libraryDependencies ++= Seq(netty, nettyExtension, httpParsers),
       resolvers += goldenGate,
       description := "Netty backend for Scalatra"
     )
@@ -223,6 +224,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-framework-tests",
     base = file("framework-tests"),
     settings = scalatraSettings ++ jettyOrbitHack ++ doNotPublish ++ Seq(
+      libraryDependencies ++= Seq(httpParsers),
       description := "Scalatra framework tests"
     )
   ) dependsOn(
@@ -254,6 +256,8 @@ object ScalatraBuild extends Build {
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
     val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2-SNAPSHOT"
+
+    val httpParsers = "io.backchat.http" %% "http-parsers" % "0.3.2-SNAPSHOT"
 
     val chardet = "com.googlecode.juniversalchardet"  % "juniversalchardet" % "1.0.3"
 

@@ -105,6 +105,7 @@ trait WebServer extends ScalatraLogging with AppMounterLike {
   protected lazy val started = new Switch
   final def start() {
     started switchOn {
+      io.backchat.http.warmUp()
       initializeApps() // If we don't initialize the apps here there are race conditions
       startCallbacks foreach (_.apply())
       sys.addShutdownHook(stop())

@@ -92,7 +92,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
     val realMultiParams = request.multiParameters
 
     // TODO: Move this to the servlet implementation
-    response.characterEncoding = defaultCharacterEncoding
+    response.characterEncoding = request.characterEncoding getOrElse defaultCharacterEncoding
 
     withRequestResponse(request, response) {
       request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)

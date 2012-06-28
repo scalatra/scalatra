@@ -6,7 +6,7 @@ import java.io.InputStream
 import java.net.URI
 import scalax.io.{Codec => Codecx, Resource}
 import java.nio.charset.Charset
-import io.Codec
+import scala.io.Codec
 
 abstract class ClientResponse {
 

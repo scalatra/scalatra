@@ -7,12 +7,14 @@ import util.MultiMap
 import collection.JavaConversions._
 import org.jboss.netty.handler.codec.http2.HttpHeaders.Names
 import org.jboss.netty.handler.codec.http2.InterfaceHttpData.HttpDataType
-import org.jboss.netty.handler.codec.http2.{HttpChunkTrailer, HttpVersion => JHttpVersion, HttpHeaders, FileUpload, Attribute, QueryStringDecoder, HttpChunk, DefaultHttpDataFactory, HttpPostRequestDecoder, HttpRequest => JHttpRequest}
+import org.jboss.netty.handler.codec.http2.{HttpChunkTrailer, HttpVersion => JHttpVersion, HttpHeaders => JHttpHeaders, FileUpload, Attribute, QueryStringDecoder, HttpChunk, DefaultHttpDataFactory, HttpPostRequestDecoder, HttpRequest => JHttpRequest}
 import java.net.{SocketAddress, URI}
 import scala.collection.mutable
 import java.io.{FileOutputStream, FileInputStream, File}
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBufferFactory, ChannelBuffers, ChannelBufferInputStream}
 import scala.util.control.Exception._
+import io.backchat.http.{ContentType, HttpHeader, HttpHeaders}
+import HttpHeaders.`Content-Type`
 
 class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appContext: AppContext) extends ScalatraUpstreamHandler {
 
@@ -44,19 +46,25 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
   
   private def isHtmlPost = {
     val ct = request.getHeader(Names.CONTENT_TYPE).blankOption.map(_.toLowerCase)
-    method.allowsBody && ct.forall(t => t.startsWith("application/x-www-form-urlencoded") || t.startsWith("multipart/form-data"))
+    method.allowsBody && ct.forall(t =>
+      t.startsWith("application/x-www-form-urlencoded") || t.startsWith("multipart/form-data"))
   }
+  private var contentType: Option[ContentType] = None
 
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
     e.getMessage match {
       case request: JHttpRequest => {
         clearDecoder()
         this.request = request
-
+        if (request.containsHeader(Names.CONTENT_TYPE)) {
+          HttpHeader(Names.CONTENT_TYPE, request.getHeader(Names.CONTENT_TYPE)) match {
+            case `Content-Type`(ct) => contentType = Some(ct)
+          }
+        }
         method = request.getMethod
         bodyBuffer = None
         if (isHtmlPost)
-          postDecoder = Some(new HttpPostRequestDecoder(factory, request, Codec.UTF8))
+          postDecoder = Some(new HttpPostRequestDecoder(factory, request, contentType.flatMap(_.charset.map(_.nioCharset)) getOrElse Codec.UTF8))
         
         if (!request.isChunked) sendOn(ctx, e.getRemoteAddress)
         else {
@@ -109,7 +117,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
   
   private def mangleTransferEncodingHeaders() {
     val encodings = request.getHeaders(Names.TRANSFER_ENCODING)
-    encodings remove HttpHeaders.Values.CHUNKED
+    encodings remove JHttpHeaders.Values.CHUNKED
     if (encodings.isEmpty) request.removeHeader(Names.TRANSFER_ENCODING)
     else request.setHeader(Names.TRANSFER_ENCODING, encodings)
   }
@@ -150,6 +158,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
         method,
         URI.create(request.getUri),
         headers,
+        contentType,
         queryString,
         parameters,
         files,
@@ -161,6 +170,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
         method,
         URI.create(request.getUri),
         headers,
+        contentType,
         queryString,
         MultiMap(),
         Seq.empty,

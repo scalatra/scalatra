@@ -40,4 +40,10 @@ package object scalatra
 
   implicit def appMounter2app(appMounter: AppMounter): Mountable = appMounter.mounted
   implicit def app2AppMounter(app: Mountable): AppMounter = app.mounter
+
+  object HeaderNames {
+    val XForwardedFor = "X-Forwarded-For"
+    val XForwardedProto = "X-Forwarded-Proto"
+    val FrontEndHttps = "Front-End-Https"
+  }
 }

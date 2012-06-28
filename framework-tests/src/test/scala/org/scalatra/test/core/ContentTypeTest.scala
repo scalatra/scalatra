@@ -151,24 +151,17 @@ abstract class ContentTypeTest extends ScalatraFunSuite {
     }
   }
 
-// TODO: Re-enable this test
-//  test("does not override request character encoding when explicitly set") {
-//    val charset = "iso-8859-5"
-//    val message = "Здравствуйте!"
-//
-//    val req = new HttpTester("iso-8859-1")
-//    req.setVersion("HTTP/1.0")
-//    req.setMethod("POST")
-//    req.setURI("/echo")
-//    req.setHeader("Content-Type", "application/x-www-form-urlencoded; charset="+charset)
-//    req.setContent("echo="+URLEncoder.encode(message, charset))
-//    println(req.generate())
-//
-//    val res = new HttpTester("iso-8859-1")
-//    res.parse(tester.getResponses(req.generate()))
-//    println(res.getCharacterEncoding)
-//    res.getContent should equal(message)
-//  }
+  test("does not override request character encoding when explicitly set") {
+    val charset = "iso-8859-5"
+    val message = "Здравствуйте!"
+
+    post("/echo",
+         headers = Map("Content-Type" -> ("application/x-www-form-urlencoded; charset="+charset)),
+         body = "echo="+URLEncoder.encode(message, charset)) {
+      response.charset must be (Some(charset.toUpperCase))
+      response.body must equal (message)
+    }
+  }
 }
 
 class NettyContentTypeTest extends ContentTypeTest with NettyBackend

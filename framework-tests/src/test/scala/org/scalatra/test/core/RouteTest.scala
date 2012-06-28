@@ -149,7 +149,7 @@ abstract class RouteTest extends ScalatraFunSuite {
     }
 
     get("/optional") {
-      body should equal ("")
+      body should be ('empty)
     }
 
     get("/optional-ext.json") {
@@ -157,7 +157,7 @@ abstract class RouteTest extends ScalatraFunSuite {
     }
 
     get("/optional-ext") {
-      body should equal ("")
+      body should be ('empty)
     }
   }
 
@@ -282,65 +282,65 @@ abstract class RouteTest extends ScalatraFunSuite {
 
   test("handles encoded characters in uri") {
     get("/encoded-uri/ac/dc") {
-      status should equal (405)
+      response.statusCode should equal (405)
     }
 
     get("/encoded-uri/ac%2Fdc") {
-      status should equal (200)
+      response.statusCode should equal (200)
       body should equal ("ac/dc")
     }
 
     get("/encoded-uri/%23toc") {
-      status should equal (200)
+      response.statusCode should equal (200)
       body should equal ("#toc")
     }
 
     get("/encoded-uri/%3Fquery") {
-      status should equal (200)
+      response.statusCode should equal (200)
       body should equal ("?query")
     }
 
     get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
-      status should equal (200)
+      response.statusCode should equal (200)
       body should equal ("Fußgängerübergänge/?#")
     }
 
     get("/encoded-uri/ö%C3%B6%25C3%25B6") {
-      status should equal (200)
+      response.statusCode should equal (200)
       body should equal ("öö%C3%B6")
     }
 
     get("/encoded-uri-2/中国话不用彁字。") {
-      status should equal (200)
+      response.statusCode should equal (200)
     }
 
     get("/encoded-uri-2/%E4%B8%AD%E5%9B%BD%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
-      status should equal (200)
+      response.statusCode should equal (200)
     }
 
     // mixing encoded with decoded characters
     get("/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
-      status should equal (200)
+      response.statusCode should equal (200)
     }
 
     get("/encoded-uri-3/%25C3%25B6") {
-      status should equal (200)
+      response.statusCode should equal (200)
     }
   }
 
    test("should chop off uri starting from semicolon") {
     get("/semicolon;jessionid=9328475932475") {
-      status should equal(200)
+      response.statusCode should equal(200)
       body should equal("semicolon")
     }
 
     get("/semicolon/;jessionid=9328475932475") {
-      status should equal(200)
+      response.statusCode should equal(200)
       body should equal("semicolon")
     }
 
     get("/semicolon/document;version=3/section/2") {
-      status should equal(200)
+      response.statusCode should equal(200)
       body should equal("document")
     }
   }

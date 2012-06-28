@@ -11,12 +11,15 @@ import util.io.PathManipulationOps
 import java.io.InputStream
 import collection.GenSeq
 import org.jboss.netty.handler.codec.http2.QueryStringDecoder
+import org.jboss.netty.handler.ssl.SslHandler
+import io.backchat.http.ContentType
 
 
 class NettyHttpRequest(
         val requestMethod: HttpMethod,
         val uri: URI, 
         val headers: Map[String, String],
+        contentTypeHeader: Option[ContentType],
         val queryString: String,
         postParameters: MultiMap,
         val files: GenSeq[HttpFile],
@@ -28,7 +31,16 @@ class NettyHttpRequest(
 
   val scriptName = PathManipulationOps.ensureSlash(appContext.server.base)
 
-  val scheme = "http" //uri.getScheme
+  import HeaderNames._
+
+  val scheme = {
+    headers.get(XForwardedProto).flatMap(_.blankOption) orElse {
+      val fhs = headers.get(FrontEndHttps).flatMap(_.blankOption)
+      fhs.filter(_.toLowerCase == "on").map(_ => "https")
+    } getOrElse {
+      if (ctx.getPipeline.get(classOf[SslHandler]) != null) "http" else "https"
+    }
+  }
 
   val cookies = {
     val nettyCookies = new CookieDecoder(true).decode(headers.getOrElse(Names.COOKIE, ""))
@@ -40,7 +52,7 @@ class NettyHttpRequest(
     new CookieJar(requestCookies)
   }
 
-  val contentType = headers.get(Names.CONTENT_TYPE).flatMap(_.blankOption)
+  val contentType = contentTypeHeader.map(_.mediaType.value).flatMap(_.blankOption)
 
   private def isWsHandshake =
     requestMethod == Get && headers.contains(Names.SEC_WEBSOCKET_KEY1) && headers.contains(Names.SEC_WEBSOCKET_KEY2)
@@ -57,7 +69,7 @@ class NettyHttpRequest(
   /**
    * Http or Https, depending on the request URL.
    */
-  val urlScheme: Scheme = Scheme("http") //Scheme(uri.getScheme)  // TODO: Take X-Forwarded-Proto into account
+  val urlScheme: Scheme = Scheme(scheme)
 
   def isSecure: Boolean = urlScheme == Https
 
@@ -82,7 +94,7 @@ class NettyHttpRequest(
    * Returns the name of the character encoding of the body, or None if no
    * character encoding is specified.
    */
-  def characterEncoding: Option[String] = None
+  def characterEncoding: Option[String] = contentTypeHeader.flatMap(_.charset.map(_.value))
 
   //  val parameters = MultiMap(queryString ++ postParameters)
   val queryParams = MultiMap(new QueryStringDecoder(uri.toASCIIString).getParameters.mapValues(_.toSeq).toMap)
