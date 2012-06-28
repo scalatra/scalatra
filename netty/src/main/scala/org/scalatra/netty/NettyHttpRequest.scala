@@ -16,7 +16,7 @@ import io.backchat.http.ContentType
 
 
 class NettyHttpRequest(
-        val requestMethod: HttpMethod,
+        initialMethod: HttpMethod,
         val uri: URI, 
         val headers: Map[String, String],
         contentTypeHeader: Option[ContentType],
@@ -32,6 +32,13 @@ class NettyHttpRequest(
   val scriptName = PathManipulationOps.ensureSlash(appContext.server.base)
 
   import HeaderNames._
+
+  attributes("org.scalatra.RequestMethod") = initialMethod
+  def requestMethod: HttpMethod = attributes("org.scalatra.RequestMethod").asInstanceOf[HttpMethod]
+
+  private[scalatra] def requestMethod_=(meth: HttpMethod) {
+    attributes("org.scalatra.RequestMethod") = meth
+  }
 
   val scheme = {
     headers.get(XForwardedProto).flatMap(_.blankOption) orElse {

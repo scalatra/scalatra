@@ -16,6 +16,8 @@ trait HttpRequest extends HttpMessage {
    */
   def requestMethod: HttpMethod
 
+  private[scalatra] def requestMethod_=(meth: HttpMethod)
+
   /**
    * The initial portion of the request URL's "path" that corresponds to
    * the application object, so that the application knows its virtual
