@@ -394,6 +394,11 @@ object ScalatraBuild extends Build {
           <name>Mikko Nylén</name>
           <url>http://mnylen.tumblr.com/</url>
         </developer>
+        <developer>
+          <id>dozed</id>
+          <name>Stefan Ollinger</name>
+          <url>https://twitter.com/elmac0r</url>
+        </developer>
       </developers>
     )}
   )
