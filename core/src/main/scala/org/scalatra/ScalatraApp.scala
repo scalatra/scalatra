@@ -217,6 +217,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
    * default implementation varies between servlet and filter.
    */
   protected var doNotFound: Action = () => NotFound("Not Found.")
+
   def notFound(fun: => Any) { doNotFound = { () => fun } }
 
   /**

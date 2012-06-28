@@ -13,9 +13,7 @@ import collection.GenSeq
 import org.jboss.netty.handler.codec.http2.QueryStringDecoder
 import org.jboss.netty.handler.ssl.SslHandler
 import io.backchat.http.ContentType
-import scalax.io.Resource
 import scala.io.Source
-
 
 class NettyHttpRequest(
         initialMethod: HttpMethod,
