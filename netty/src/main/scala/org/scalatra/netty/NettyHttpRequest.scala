@@ -13,6 +13,8 @@ import collection.GenSeq
 import org.jboss.netty.handler.codec.http2.QueryStringDecoder
 import org.jboss.netty.handler.ssl.SslHandler
 import io.backchat.http.ContentType
+import scalax.io.Resource
+import scala.io.Source
 
 
 class NettyHttpRequest(
@@ -86,9 +88,19 @@ class NettyHttpRequest(
    * so be careful.  Calling this method consumes the request's input stream.
    *
    * @return the message body as a string according to the request's encoding
-   *         (defult ISO-8859-1).
+   * (defult ISO-8859-1).
    */
-  def body: String = null
+  def body:String = {
+    cachedBody getOrElse {
+      val encoding = characterEncoding getOrElse "ISO-8859-1"
+      val body = Source.fromInputStream(inputStream, encoding).mkString
+      update(CachedBodyKey, body)
+      body
+    }
+  }
+
+  private def cachedBody: Option[String] =
+    get(CachedBodyKey).asInstanceOf[Option[String]]
 
   /**
    * The remote address the client is connected from.
@@ -101,7 +113,7 @@ class NettyHttpRequest(
    * Returns the name of the character encoding of the body, or None if no
    * character encoding is specified.
    */
-  def characterEncoding: Option[String] = contentTypeHeader.flatMap(_.charset.map(_.value))
+  val characterEncoding: Option[String] = contentTypeHeader.flatMap(_.charset.map(_.value))
 
   //  val parameters = MultiMap(queryString ++ postParameters)
   val queryParams = MultiMap(new QueryStringDecoder(uri.toASCIIString).getParameters.mapValues(_.toSeq).toMap)

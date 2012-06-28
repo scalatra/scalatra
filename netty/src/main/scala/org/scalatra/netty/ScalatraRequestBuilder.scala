@@ -64,10 +64,11 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
         method = request.getMethod
         bodyBuffer = None
         if (isHtmlPost)
-          postDecoder = Some(new HttpPostRequestDecoder(factory, request, contentType.flatMap(_.charset.map(_.nioCharset)) getOrElse Codec.UTF8))
-        
-        if (!request.isChunked) sendOn(ctx, e.getRemoteAddress)
-        else {
+          postDecoder = Some(new HttpPostRequestDecoder(factory, request, contentType.flatMap(_.charset.map(_.nioCharset)) getOrElse Codec.ISO8859))
+
+        if (!request.isChunked) {
+          sendOn(ctx, e.getRemoteAddress)
+        } else {
           mangleTransferEncodingHeaders()
           if(!isHtmlPost) initializeChunkedBody(e.getChannel.getConfig.getBufferFactory)
         }
@@ -185,9 +186,10 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
   private def headers = Map((request.getHeaders map { e => e.getKey -> e.getValue.blankOption.orNull }):_*)
   
   private def inputStream = {
-    if (bodyBuffer.isEmpty)
+    if (bodyBuffer.isEmpty) {
+      println("body:" + request.getContent.toString(Codec.UTF8))
       new ChannelBufferInputStream(request.getContent)
-    else
+    } else
       new FileInputStream(bodyBuffer.get)
   }
   
