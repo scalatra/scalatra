@@ -10,7 +10,6 @@ abstract class ScalatraSpecSpec extends ScalatraSpec { def is =
 
 
   mount(new ScalatraApp {
-    protected var doNotFound: _root_.org.scalatra.Action = () => NotFound()
     get("/") { "Hello, world." }
   })
 

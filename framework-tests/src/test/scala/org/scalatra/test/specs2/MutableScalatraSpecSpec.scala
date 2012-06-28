@@ -5,7 +5,6 @@ package specs2
 abstract class MutableSalatraSpecSpec extends MutableScalatraSpec {
 
   mount(new ScalatraApp {
-    protected var doNotFound: _root_.org.scalatra.Action = () => NotFound()
     get("/") { "Hello, world." }
   })
 
