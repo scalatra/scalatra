@@ -4,7 +4,7 @@
 //import org.scalatest.matchers.MustMatchers
 //import java.net.HttpCookie
 //
-//class CookieSupportServlet extends ScalatraServlet with CookieSupport {
+//class CookieSupportApp extends ScalatraApp {
 //
 //  get("/getcookie") {
 //    cookies.get("anothercookie") foreach { cookie =>

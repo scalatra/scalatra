@@ -10,7 +10,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
 
+object NettyHttpResponse {
+  val EncodingKey = "org.scalatra.response.encoding"
+}
 class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerContext) extends HttpResponse {
+
+  import NettyHttpResponse._
+
   private val _ended = new AtomicBoolean(false)
   val underlying = new DefaultHttpResponse(nettyProtocol, HttpResponseStatus.OK)
   val headers: collection.mutable.Map[String, String] = new ConcurrentHashMap[String, String]().asScala
@@ -28,8 +34,8 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
   def contentType_=(ct: String) = headers(Names.CONTENT_TYPE) = ct
 
   // TODO: get this stuff from some headers
-  def characterEncoding = Some(Codec.UTF8.name)
-  def characterEncoding_=(enc: String) = {}
+  def characterEncoding = request.get(EncodingKey).flatMap(_.toString.blankOption) orElse Some(Codec.UTF8.name)
+  def characterEncoding_=(enc: String) = request(EncodingKey) = enc
 
   val outputStream  = new ChannelBufferOutputStream(ChannelBuffers.dynamicBuffer())
 
@@ -41,6 +47,7 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
             val parts = v.split(';').map(_.trim)
             if (parts.size > 1) parts else Array(parts(0), "")
           }
+
           underlying.setHeader(k, mediaType + ";" + (hdrCharset.blankOption getOrElse "charset=%s".format(characterEncoding.orNull)))
         }
         case (k, v) => {

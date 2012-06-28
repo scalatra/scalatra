@@ -2,8 +2,6 @@ package org.scalatra
 package netty
 
 import test.specs2.ScalatraSpec
-import test.FreePort
-import scalax.file.ImplicitConversions._
 
 class TestSupApp extends ScalatraApp {
   get("/") {
@@ -27,9 +25,7 @@ class TestScalatraApp extends ScalatraApp  {
 
   mount("/sub", new TestSupApp)
 }
-class RoutingSpec extends ScalatraSpec {
-
-  val backend: WebServer = NettyServer(FreePort(), PublicDirectory("src/main/webapp"))
+class RoutingSpec extends ScalatraSpec with NettyBackend {
 
   mount(new TestScalatraApp)
 
