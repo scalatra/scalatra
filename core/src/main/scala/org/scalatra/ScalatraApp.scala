@@ -41,6 +41,8 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
    */
   protected implicit lazy val cookieOptions = CookieOptions(path = appPath)
 
+  def cookies: CookieJar = request.cookies
+
   override def toString = "ScalatraApp(%s,%s)" format (appPath, name)
 
   private val submounts = mutable.ListBuffer[AppMounter => Any]()
