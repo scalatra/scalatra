@@ -10,7 +10,7 @@ object ApiFormats {
   /**
    * The request attribute key in which the format is stored.
    */
-  val FormatKey = "org.scalatra.FormatKey".intern
+  val FormatKey = "org.scalatra.FormatKey"
 
 }
 
@@ -68,12 +68,12 @@ trait ApiFormats extends ScalatraApp {
   /**
    * The default format.
    */
-  def defaultFormat: Symbol = 'html
+  def defaultFormat: String = "html"
 
   /**
    * A list of formats accepted by default.
    */
-  def defaultAcceptedFormats: List[Symbol] = List.empty
+  def defaultAcceptedFormats: List[String] = List.empty
 
   /**
    * The list of media types accepted by the current request.  Parsed from the
@@ -109,7 +109,7 @@ trait ApiFormats extends ScalatraApp {
   }
 
   protected def formatForMimeTypes(mimeTypes: String*): Option[String] = {
-    val defaultMimeType = formats(defaultFormat.name)
+    val defaultMimeType = formats(defaultFormat)
     def matchMimeType(tm: String, f: String) = {
       tm.toLowerCase(ENGLISH).startsWith(f) || (defaultMimeType == f && tm.contains(defaultMimeType))
     }
@@ -132,12 +132,12 @@ trait ApiFormats extends ScalatraApp {
 
   override protected def contentTypeInferrer: ContentTypeInferrer = inferFromFormats orElse super.contentTypeInferrer
 
-  protected def acceptedFormats(accepted: Symbol*) = {
+  protected def acceptedFormats(accepted: String*) = {
     val conditions = if (accepted.isEmpty) defaultAcceptedFormats else accepted.toList
-    conditions.isEmpty || (conditions filter { s => formats.get(s.name).isDefined } contains contentType)
+    conditions.isEmpty || (conditions filter { s => formats.get(s).isDefined } contains contentType)
   }
 
-  private def getFormat = getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
+  private def getFormat = getFromParams orElse getFromAcceptHeader getOrElse defaultFormat
 
   import ApiFormats.FormatKey
 
