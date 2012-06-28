@@ -149,7 +149,7 @@ object ScalatraBuild extends Build {
       resolvers += goldenGate,
       description := "Netty backend for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided", scalatraSpecs2 % "test->compile")
 
   lazy val scalatraTest = Project(
     id = "scalatra-test",
@@ -298,7 +298,7 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
-    def scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
 
     def scalatest = "org.scalatest" %% "scalatest" % "1.6.1"
 
