@@ -187,7 +187,6 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
   
   private def inputStream = {
     if (bodyBuffer.isEmpty) {
-      println("body:" + request.getContent.toString(Codec.UTF8))
       new ChannelBufferInputStream(request.getContent)
     } else
       new FileInputStream(bodyBuffer.get)
