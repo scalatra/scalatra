@@ -86,11 +86,13 @@ class NettyHttpRequest(
 
   //  val parameters = MultiMap(queryString ++ postParameters)
   val queryParams = MultiMap(new QueryStringDecoder(uri.toASCIIString).getParameters.mapValues(_.toSeq).toMap)
+
+  attributes(MultiParamsKey) = MultiMap(queryParams ++ postParameters)
   /**
    * A Map of the parameters of this request. Parameters are contained in
    * the query string or posted form data.
    */
-  val multiParameters: MultiParams = MultiMap(queryParams ++ postParameters)
+  val multiParameters: MultiParams = attributes(MultiParamsKey).asInstanceOf[MultiParams]
 
   protected[scalatra] def newResponse = new NettyHttpResponse(this, ctx)
 
