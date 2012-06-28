@@ -44,7 +44,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
   
   private def isHtmlPost = {
     val ct = request.getHeader(Names.CONTENT_TYPE).blankOption.map(_.toLowerCase)
-    !method.isSafe && ct.forall(t => t.startsWith("application/x-www-form-urlencoded") || t.startsWith("multipart/form-data"))
+    method.allowsBody && ct.forall(t => t.startsWith("application/x-www-form-urlencoded") || t.startsWith("multipart/form-data"))
   }
 
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {

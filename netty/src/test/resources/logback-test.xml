@@ -1,0 +1,22 @@
+<configuration>
+  <conversionRule conversionWord="levelcolor"
+                    converterClass="org.scalatra.logback.LevelColorizer" />
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>[%4levelcolor] [%d{ISO8601}] [%t] %c{1}: %m%n</pattern>
+      <!--<pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>-->
+    </encoder>
+  </appender>
+
+  <logger name="org.scalatra" level="INFO" />
+  <logger name="org.scalatra.netty" level="TRACE" />
+  <root level="ERROR">
+    <appender-ref ref="STDOUT"/>
+    <!--<appender-ref ref="FLOWDOCK"/>-->
+    <!--<appender-ref ref="LOGSTASH" />-->
+  </root>
+
+</configuration>

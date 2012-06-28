@@ -4,7 +4,7 @@ import util.MultiMapHeadView
 
 import java.io.{InputStream}
 import java.net.URI
-import collection.{Map, mutable}
+import collection.{GenSeq, Map, mutable}
 
 /**
  * A representation of an HTTP request.  Heavily influenced by the Rack
@@ -101,9 +101,11 @@ trait HttpRequest extends HttpMessage {
    * so be careful.  Calling this method consumes the request's input stream.
    *
    * @return the message body as a string according to the request's encoding
-   * (defult ISO-8859-1).
+   * (default ISO-8859-1).
    */
   def body: String
+
+  def files: GenSeq[HttpFile]
 
   /**
    * The remote address the client is connected from.

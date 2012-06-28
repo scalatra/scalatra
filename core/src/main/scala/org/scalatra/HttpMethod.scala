@@ -6,47 +6,61 @@ sealed trait HttpMethod {
   /**
    * Flag as to whether the method is "safe", as defined by RFC 2616.
    */
-  val isSafe: Boolean
+  def isSafe: Boolean
+  /**
+   * Flag as to whether the method allows a body, as defined by RFC 2616.
+   */
+  def allowsBody: Boolean
+
+
 }
 case object Options extends HttpMethod {
   val isSafe = true
+  val allowsBody = false
   override def toString = "OPTIONS"
 }
 case object Get extends HttpMethod {
   val isSafe = true
+  val allowsBody = false
   override def toString = "GET"
 }
 case object Head extends HttpMethod {
   val isSafe = true
+  val allowsBody = false
   override def toString = "HEAD"
 }
 case object Post extends HttpMethod {
   val isSafe = false
+  val allowsBody = true
   override def toString = "POST"
 }
 case object Put extends HttpMethod {
   val isSafe = false
+  val allowsBody = true
   override def toString = "PUT"
 }
 case object Delete extends HttpMethod {
   val isSafe = false
+  val allowsBody = false
   override def toString = "DELETE"
 }
 case object Trace extends HttpMethod {
   val isSafe = true
+  val allowsBody = false
   override def toString = "TRACE"
 }
 case object Connect extends HttpMethod {
   val isSafe = false
+  val allowsBody = false
   override def toString = "CONNECT"
 }
 case object Patch extends HttpMethod {
   val isSafe = false
+  val allowsBody = true
   override def toString = "PATCH"
 }
-case class ExtensionMethod(name: String) extends HttpMethod {
-  val isSafe = false
-}
+case class ExtensionMethod(name: String, isSafe: Boolean = false, allowsBody: Boolean = false) extends HttpMethod
+
 
 object HttpMethod {
   private val methodMap =
