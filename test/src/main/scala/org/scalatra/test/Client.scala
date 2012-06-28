@@ -26,10 +26,12 @@ trait Client {
   def useSession = _useSession.value
 
   def body = response.body
+  def bodyBytes = response.bodyBytes
 
   def headers = response.headers
 
   def status = response.status
+  def statusCode = status.code
 
   protected def withResponse[A](res: ClientResponse)(f: => A): A = {
     if (_useSession.value && res.cookies.size > 0)
