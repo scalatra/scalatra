@@ -65,9 +65,7 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
     val hdrCharset = contentType flatMap { ct =>
       val parts = ct.split(';').map(_.trim)
       val cs = if (parts.size > 1) parts(1) else ""
-      val csparts = cs.split('=').map(_.trim)
-      val csName = if (csparts.size > 1) csparts(1) else ""
-      csName.blankOption
+      cs.blankOption.flatMap(_.toUpperCase.replace("CHARSET=", "").trim.blankOption)
     }
     hdrCharset orElse request.get(EncodingKey).flatMap(_.toString.blankOption)
   }

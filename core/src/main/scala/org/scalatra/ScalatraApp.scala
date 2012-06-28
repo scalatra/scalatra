@@ -91,7 +91,6 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
   def handle(request: HttpRequest, response: HttpResponse) {
     val realMultiParams = request.multiParameters
 
-    // TODO: Move this to the servlet implementation
     response.characterEncoding = request.characterEncoding getOrElse defaultCharacterEncoding
 
     withRequestResponse(request, response) {
@@ -144,7 +143,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
       }
     }
     finally {
-      if (result == null || !isAsyncExecutable(result)) {
+      if (!isAsyncExecutable(result)) {
         runFilters(routes.afterFilters)
       }
     }
@@ -396,7 +395,6 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
     }
     e.headers foreach { case(name, value) => response.addHeader(name, value) }
     renderResponse(e.body)
-    response.end()
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)

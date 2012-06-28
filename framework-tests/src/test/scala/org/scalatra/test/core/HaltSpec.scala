@@ -57,7 +57,7 @@ abstract class HaltSpec extends ScalatraSpec { def is =
                                                 end^
   "halt with only a status should"              ^
     "behave like a common halt"                 ^ commonHalt("/status")^
-    "set the status"                            ! status("/status-and-reason", 403)^
+    "set the status"                            ! status("/status-and-reason", 404)^
                                                 end^
   "halt with only a body should"                ^
     "behave like a common halt"                 ^ commonHalt("/body")^
@@ -66,7 +66,7 @@ abstract class HaltSpec extends ScalatraSpec { def is =
                                                 end^
   "halt with a status and body should"          ^
     "behave like a common halt"                 ^ commonHalt("/status-and-body")^
-    "set the status"                            ! status("/status-and-body", 404)^
+    "set the status"                            ! status("/status-and-body", 403)^
     "render the body"                           ! bodyEquals("/status-and-body", "<h1>Go away</h1>")^
                                                 end^
   "halt with all arguments should"              ^

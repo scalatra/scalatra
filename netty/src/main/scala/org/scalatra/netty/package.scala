@@ -20,6 +20,6 @@ package object netty {
   implicit def nettyCookieToRequestCookie(orig: JCookie) =
     RequestCookie(orig.getName, orig.getValue, CookieOptions(orig.getDomain, orig.getPath, orig.getMaxAge, comment = orig.getComment))
 
-  implicit def respStatus2nettyStatus(stat: ResponseStatus) = new HttpResponseStatus(stat.code, stat.message)
+  implicit def respStatus2nettyStatus(stat: ResponseStatus) = new HttpResponseStatus(stat.code, stat.message.blankOption.getOrElse(""))
   implicit def respStatus2nettyStatus(stat: HttpResponseStatus) = ResponseStatus(stat.getCode, stat.getReasonPhrase)
 }
