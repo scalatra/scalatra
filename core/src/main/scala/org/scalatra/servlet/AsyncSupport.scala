@@ -12,8 +12,8 @@ trait AsyncSupport extends ServletBase {
   protected def asynchronously(f: => Any): Action
 
   protected def onAsyncEvent(event: AsyncEvent)(thunk: => Any) {
-    withRequest(ServletRequest(event.getSuppliedRequest.asInstanceOf[HttpServletRequest])) {
-      withResponse(ServletResponse(event.getSuppliedResponse.asInstanceOf[HttpServletResponse])) {
+    withRequest(event.getSuppliedRequest.asInstanceOf[HttpServletRequest]) {
+      withResponse(event.getSuppliedResponse.asInstanceOf[HttpServletResponse]) {
         thunk
       }
     }
@@ -21,8 +21,8 @@ trait AsyncSupport extends ServletBase {
 
   protected def withinAsyncContext(context: AsyncContext)(thunk: => Any) {
     if (context.hasOriginalRequestAndResponse) {
-      withRequest(ServletRequest(context.getRequest.asInstanceOf[HttpServletRequest])) {
-        withResponse(ServletResponse(context.getResponse.asInstanceOf[HttpServletResponse])) {
+      withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
+        withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
           thunk
         }
       }

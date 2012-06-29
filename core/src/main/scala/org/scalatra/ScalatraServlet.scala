@@ -1,6 +1,6 @@
 package org.scalatra
 
-import servlet.{ ServletBase, ServletRequest, ServletResponse }
+import servlet.{ ServletBase, ServletResponse }
 import javax.servlet._
 import javax.servlet.http._
 
@@ -21,7 +21,7 @@ abstract class ScalatraServlet
   with ServletBase
   with Initializable {
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
-    handle(ServletRequest(request), ServletResponse(response))
+    handle(request, response)
   }
 
   /**

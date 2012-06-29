@@ -2,7 +2,8 @@ package org.scalatra
 
 import collection._
 import java.util.Locale
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
+import servlet.ServletApiImplicits
 import util.RicherString._
 
 case class CookieOptions(
@@ -41,7 +42,7 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
   }
 }
 
-class SweetCookies(private val reqCookies: Map[String, String], private val response: Response) {
+class SweetCookies(private val reqCookies: Map[String, String], private val response: HttpServletResponse) extends ServletApiImplicits {
   private lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
   def get(key: String) = cookies.get(key)

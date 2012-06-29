@@ -1,9 +1,9 @@
 package org.scalatra
 
-import servlet.{ ServletBase, ServletRequest, ServletResponse }
+import servlet.ServletBase
 import scala.util.DynamicVariable
 import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import javax.servlet.{ ServletRequest => JServletRequest, ServletResponse => JServletResponse, _ }
+import javax.servlet._
 
 /**
  * An implementation of the Scalatra DSL in a filter.  You may prefer a filter
@@ -25,12 +25,12 @@ trait ScalatraFilter extends Filter with ServletBase {
   private val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 
-  def doFilter(request: JServletRequest, response: JServletResponse, chain: FilterChain) {
+  def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
     val httpRequest = request.asInstanceOf[HttpServletRequest]
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
     _filterChain.withValue(chain) {
-      handle(ServletRequest(httpRequest), ServletResponse(httpResponse))
+      handle(httpRequest, httpResponse)
     }
   }
 

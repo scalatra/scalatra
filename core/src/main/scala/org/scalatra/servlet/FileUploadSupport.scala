@@ -1,11 +1,10 @@
 package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
-import javax.servlet.http.{HttpServletRequest, Part}
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
 import java.io.File
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http._
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
   * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
@@ -153,7 +152,7 @@ trait FileUploadSupport extends ServletBase {
   }
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
-    val wrapped = new ServletRequest(req) {
+    val wrapped = new HttpServletRequestWrapper(req) {
       override def getParameter(name: String) = formMap.get(name) map {
         _.head
       } getOrElse null

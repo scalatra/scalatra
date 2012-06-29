@@ -6,7 +6,7 @@ import scala.collection.immutable.DefaultMap
 import scala.collection.JavaConversions._
 import scala.io.Source
 import java.net.URI
-import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
+import javax.servlet.http.HttpServletRequest
 import java.io.InputStream
 import util.{MultiMap, MultiMapHeadView}
 import util.RicherString._
@@ -16,16 +16,15 @@ object ServletRequest {
   private val cachedBodyKey = "org.scalatra.RichRequest.cachedBody"
 }
 
-/**
- * Extension methods to a standard HttpServletRequest.
- */
-class ServletRequest(r: HttpServletRequest) 
-  extends HttpServletRequestWrapper(r)
-  with Request
-  with AttributesMap
-{
+class ServletRequest(r: HttpServletRequest) extends AttributesMap {
   import ServletRequest.cachedBodyKey
 
+  /**
+   * The version of the protocol the client used to send the request.
+   * Typically this will be something like "HTTP/1.0"  or "HTTP/1.1" and may
+   * be used by the application to determine how to treat any HTTP request
+   * headers.
+   */
   def serverProtocol = r.getProtocol match {
     case "HTTP/1.1" => Http11
     case "HTTP/1.0" => Http10
@@ -33,28 +32,62 @@ class ServletRequest(r: HttpServletRequest)
 
   def uri = new URI(r.getRequestURL.toString)
 
+  /**
+   * Http or Https, depending on the request URL.
+   */
   def urlScheme = r.getScheme match {
     case "http" => Http
     case "https" => Https
   }
 
-  def requestMethod = HttpMethod(getMethod)
+  /**
+   * The HTTP request method, such as GET or POST
+   */
+  def requestMethod = HttpMethod(r.getMethod)
 
   // Moved to conform with what similar specs call it
   @deprecated("Use requestMethod", "2.1.0")
   def method = requestMethod
 
+  /**
+   * The remainder of the request URL's "path", designating the virtual
+   * "location" of the request's target within the application. This may be
+   * an empty string, if the request URL targets the application root and
+   * does not have a trailing slash.
+   */
   def pathInfo: String = Option(r.getPathInfo) getOrElse ""
 
+  /**
+   * The initial portion of the request URL's "path" that corresponds to
+   * the application object, so that the application knows its virtual
+   * "location". This may be an empty string, if the application corresponds
+   * to the "root" of the server.
+   */
   def scriptName: String = r.getServletPath
 
+  /**
+   * The portion of the request URL that follows the ?, if any. May be
+   * empty, but is always required!
+   */
   def queryString: String = Option(r.getQueryString) getOrElse ""
 
+  /**
+   * A Map of the parameters of this request. Parameters are contained in
+   * the query string or posted form data.
+   */
   def multiParameters: MultiParams = {
-    getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
+    r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
       .transform { (k, v) => v: Seq[String] }
   }
 
+  object parameters extends MultiMapHeadView[String, String] {
+    protected def multiMap = multiParameters
+  }
+
+  /**
+   * A map of headers.  Multiple header values are separated by a ','
+   * character.  The keys of this map are case-insensitive.
+   */
   object headers extends DefaultMap[String, String] {
     def get(name: String): Option[String] = Option(r.getHeader(name))
 
@@ -65,6 +98,10 @@ class ServletRequest(r: HttpServletRequest)
   def header(name: String): Option[String] =
     Option(r.getHeader(name))
   
+  /**
+   * Returns the name of the character encoding of the body, or None if no
+   * character encoding is specified.
+   */
   def characterEncoding: Option[String] =
     Option(r.getCharacterEncoding)
   
@@ -72,19 +109,35 @@ class ServletRequest(r: HttpServletRequest)
     r.setCharacterEncoding(encoding getOrElse null)
   }
   
+  /**
+   * The content of the Content-Type header, or None if absent.
+   */
   def contentType: Option[String] =
     Option(r.getContentType)
   
+  /**
+   * Returns the length, in bytes, of the body, or None if not known.
+   */
   def contentLength: Option[Long] = r.getContentLength match {
     case -1 => None
     case length => Some(length)
   }
 
+  /**
+   * When combined with scriptName, pathInfo, and serverPort, can be used to
+   * complete the URL.  Note, however, that the "Host" header, if present,
+   * should be used in preference to serverName for reconstructing the request
+   * URL.
+   */
   def serverName = r.getServerName
 
   @deprecated(message = "Use HttpServletRequest.serverName instead", since = "2.0.0")
   def host = serverName
 
+  /**
+   * When combined with scriptName, pathInfo, and serverName, can be used to
+   * complete the URL.  See serverName for more details.
+   */
   def serverPort = r.getServerPort
 
   @deprecated(message = "Use HttpServletRequest.serverPort instead", since = "2.0.0")
@@ -156,8 +209,19 @@ class ServletRequest(r: HttpServletRequest)
 
   protected[scalatra] def attributes = r
 
+  /**
+   * The input stream is an InputStream which contains the raw HTTP POST
+   * data.  The caller should not close this stream.
+   *
+   * In contrast to Rack, this stream is not rewindable.  
+   */
   def inputStream: InputStream = r.getInputStream
 
+  /**
+   * The remote address the client is connected from.
+   * This takes the load balancing header X-Forwarded-For into account
+   * @return the client ip address
+   */
   def remoteAddress = header("X-FORWARDED-FOR").flatMap(_.blankOption) getOrElse r.getRemoteAddr
 }
 
