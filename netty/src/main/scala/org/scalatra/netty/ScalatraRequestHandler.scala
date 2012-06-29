@@ -13,6 +13,7 @@ class ScalatraRequestHandler(implicit val appContext: AppContext) extends Scalat
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
     e.getMessage match {
       case req: NettyHttpRequest => {
+        println("Received request to: %s" format req.uri.toASCIIString)
         logger debug ("Received request to: %s" format req.uri.toASCIIString)
         val resp = req.newResponse
         val app = appContext.application(req)

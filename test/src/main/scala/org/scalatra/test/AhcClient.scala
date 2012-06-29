@@ -88,14 +88,14 @@ class AhcClient(val host: String, val port: Int) extends Client {
     req
   }
 
-  private def addHeaders(headers: Map[String, String])(req: AsyncHttpClient#BoundRequestBuilder) = {
-    headers foreach { case (k, v) => req.setHeader(k, v) }
+  private def addHeaders(headers: Iterable[(String, String)])(req: AsyncHttpClient#BoundRequestBuilder) = {
+    headers foreach { case (k, v) => req.addHeader(k, v) }
     req
   }
 
   private val allowsBody = Vector(PUT, POST, PATCH)
 
-  def submit[A](method: String, uri: String, params: Iterable[(String, String)], headers: Map[String, String], files: Seq[File], body: String)(f: => A) = {
+  def submit[A](method: String, uri: String, params: Iterable[(String, String)], headers: Iterable[(String, String)], files: Seq[File], body: String)(f: => A) = {
     val u = URI.create(uri)
     val isMultipart = {
       allowsBody.contains(method.toUpperCase(Locale.ENGLISH)) && {

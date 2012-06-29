@@ -218,13 +218,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
    */
   protected var doNotFound: Action = () => NotFound("Not Found.")
 
-  println("initialized not found to: "+ doNotFound.##)
-
-  def notFound(fun: => Any) {
-    println("setting not found")
-    doNotFound = { () => fun }
-    println("set doNotFound to: " + doNotFound.##)
-  }
+  def notFound(fun: => Any) { doNotFound = { () => fun } }
 
   /**
    * Called if no route matches the current request method, but routes

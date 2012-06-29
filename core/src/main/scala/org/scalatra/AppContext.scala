@@ -77,12 +77,10 @@ trait AppContext extends ScalatraLogging {
     logger.debug("%s" format applications)
     application(req.uri.getPath) map (_.mounted) flatMap {
       case f: ScalatraApp if f.hasMatchingRoute(req) => {
-        println("We found an App")
         logger.debug("We found an App")
         Some(f)
       }
       case f: ScalatraApp => {
-        println("We found an App, But no matching route")
         logger.debug("We found an App, But no matching route")
         Some(f)
       }

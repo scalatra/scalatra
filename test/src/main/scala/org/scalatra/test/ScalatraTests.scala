@@ -43,7 +43,7 @@ trait ScalatraTests extends Client {
   }
 
 
-  def submit[A](method: String, uri: String, params: Iterable[(String, String)], headers: Map[String, String], files: Seq[File], body: String)(f: => A) =
+  def submit[A](method: String, uri: String, params: Iterable[(String, String)], headers: Iterable[(String, String)], files: Seq[File], body: String)(f: => A) =
     backendClient.submit(method, uri, params, headers, files, body){
       withResponse(backendClient.response)(f)
     }

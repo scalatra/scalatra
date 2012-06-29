@@ -45,7 +45,7 @@ trait Client {
                  method: String,
                  uri: String,
                  params: Iterable[(String, String)] = Map.empty,
-                 headers: Map[String, String] = Map.empty,
+                 headers: Iterable[(String, String)] = Map.empty,
                  files: Seq[File] = Seq.empty,
                  body: String = null)(f: => A): A
 

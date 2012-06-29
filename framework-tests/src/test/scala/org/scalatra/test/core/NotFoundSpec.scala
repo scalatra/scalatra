@@ -52,7 +52,6 @@ abstract class NotFoundSpec extends ScalatraSpec { def is =
   })
 
   def customNotFound = {
-    println("testing custom not found")
     get("/custom/matches-nothing") {
       body must_== "custom not found"
     }
