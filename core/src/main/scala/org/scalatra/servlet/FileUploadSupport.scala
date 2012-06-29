@@ -90,7 +90,7 @@ trait FileUploadSupport extends ServletBase {
     super.handle(req2, res)
   }
 
-  private def isMultipartRequest(req: RequestT): Boolean = {
+  private def isMultipartRequest(req: HttpServletRequest): Boolean = {
     val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
 
     isPostOrPut && (req.contentType match {
@@ -99,7 +99,7 @@ trait FileUploadSupport extends ServletBase {
     })
   }
 
-  private def extractMultipartParams(req: RequestT): BodyParams = {
+  private def extractMultipartParams(req: HttpServletRequest): BodyParams = {
     req.get(BodyParamsKey).asInstanceOf[Option[BodyParams]] match {
       case Some(bodyParams) =>
         bodyParams
@@ -128,7 +128,7 @@ trait FileUploadSupport extends ServletBase {
     }
   }
 
-  private def getParts(req: RequestT) = {
+  private def getParts(req: HttpServletRequest) = {
     try {
       req.getParts
     } catch {
@@ -141,7 +141,7 @@ trait FileUploadSupport extends ServletBase {
     new String(item.get(), charset)
   }
 
-  private def mergeFormParamsWithQueryString(req: RequestT, bodyParams: BodyParams): Map[String, List[String]] = {
+  private def mergeFormParamsWithQueryString(req: HttpServletRequest, bodyParams: BodyParams): Map[String, List[String]] = {
     var mergedParams = bodyParams.formParams
     req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
       case (name, values) =>

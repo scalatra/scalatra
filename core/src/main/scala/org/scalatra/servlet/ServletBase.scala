@@ -14,7 +14,6 @@ import scala.collection.JavaConversions._
  */
 trait ServletBase 
   extends ScalatraBase
-  with ServletHandler
   with SessionSupport 
   with Initializable
 {
@@ -46,7 +45,7 @@ trait ServletBase
 
   override def addSessionId(uri: String) = response.encodeURL(uri)
 
-  protected def requestWithMethod(req: RequestT, m: HttpMethod) =
+  protected def requestWithMethod(req: HttpServletRequest, m: HttpMethod) =
     new ServletRequest(req) {
       override def getMethod = m.toString.toUpperCase(Locale.ENGLISH)
     }
