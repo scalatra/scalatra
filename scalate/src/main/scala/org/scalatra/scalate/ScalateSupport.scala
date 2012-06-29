@@ -91,6 +91,7 @@ trait ScalateSupport extends ScalatraKernel {
     ScalateSupport.setLayoutStrategy(this)
     templateDirectories = defaultTemplatePath
     bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, true, isImplicit = true)
+    importStatements ::= "import org.scalatra.servlet.ServletApiImplicits._"
   }
 
   /**
