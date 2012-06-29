@@ -1,12 +1,12 @@
 package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpSession}
-import servlet.ServletSession
+import servlet.ServletApiImplicits
 
 /**
  * This trait provides session support for stateful applications.
  */
-trait SessionSupport {
+trait SessionSupport extends ServletApiImplicits {
   def request: HttpServletRequest
 
   /**
@@ -18,7 +18,4 @@ trait SessionSupport {
    * The current session.  If none exists, None is returned.
    */
   def sessionOption: Option[HttpSession] = Option(request.getSession(false))
-
-  protected implicit def enrichSession(session: HttpSession): ServletSession = 
-    ServletSession(session)
 }
