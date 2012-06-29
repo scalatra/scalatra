@@ -1,7 +1,6 @@
 package org.scalatra
 
-class UrlGeneratorTestApp extends ScalatraApp
-{
+class UrlGeneratorTestApp extends ScalatraApp {
   val cat: String = "meea"
 
   val simpleString = get("/foo") { }
