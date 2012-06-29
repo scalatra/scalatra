@@ -17,7 +17,6 @@ trait ServletBase
   with SessionSupport 
   with Initializable
 {
-  type ApplicationContextT = ServletApplicationContext
   type ConfigT <: {
     def getServletContext(): ServletContext
     def getInitParameter(name: String): String

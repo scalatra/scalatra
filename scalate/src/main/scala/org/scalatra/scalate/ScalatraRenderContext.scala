@@ -18,7 +18,7 @@ class ScalatraRenderContext(
     out: PrintWriter,
     request: HttpServletRequest,
     response: HttpServletResponse)
-  extends ServletRenderContext(engine, out, request, response, kernel.applicationContext)
+  extends ServletRenderContext(engine, out, request, response, kernel.servletContext)
 {
   def this(scalate: ScalateSupport, request: HttpServletRequest, response: HttpServletResponse) = this(scalate, scalate.templateEngine, response.getWriter, request, response)
 

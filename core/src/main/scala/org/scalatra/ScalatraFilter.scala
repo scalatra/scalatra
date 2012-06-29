@@ -62,9 +62,9 @@ trait ScalatraFilter extends Filter with ServletBase {
   }
 
   protected def routeBasePath = {
-    if (applicationContext == null)
+    if (servletContext == null)
       throw new IllegalStateException("routeBasePath requires an initialized servlet context to determine the context path")
-    applicationContext.getContextPath
+    servletContext.getContextPath
   }
 
   protected var doNotFound: Action = () => filterChain.doFilter(request, response)

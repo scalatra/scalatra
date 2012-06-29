@@ -1,7 +1,13 @@
 package org.scalatra
 
-trait LifeCycle {
-  def init(context: ApplicationContext) {}
+import javax.servlet.ServletContext
+import servlet.ServletApplicationContext
 
-  def destroy(context: ApplicationContext) {}
+trait LifeCycle {
+  def init(context: ServletContext) {}
+
+  def destroy(context: ServletContext) {}
+
+  protected implicit def enrichServletContext(servletContext: ServletContext) =
+    new ServletApplicationContext(servletContext)
 }
