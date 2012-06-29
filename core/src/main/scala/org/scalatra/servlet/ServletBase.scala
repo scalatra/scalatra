@@ -17,7 +17,6 @@ trait ServletBase
   with SessionSupport 
   with Initializable
 {
-  type SessionT = ServletSession
   type ApplicationContextT = ServletApplicationContext
   type ConfigT <: {
     def getServletContext(): ServletContext
@@ -37,11 +36,6 @@ trait ServletBase
 	  yield (name, config.getInitParameter(name))
     }
   }
-
-  override implicit def session: SessionT = ServletSession(request.getSession)
-
-  override implicit def sessionOption: Option[SessionT] =
-    Option(request.getSession(false)) map ServletSession.apply
 
   override def addSessionId(uri: String) = response.encodeURL(uri)
 
