@@ -21,35 +21,35 @@
 //      "HEAD should be implied by GET"           ! getImpliesHead^
 //    "should pass in a filter by default"        ! methodNotAllowedFilterPass^
 //                                                end
+////
+////  addFilter(new ScalatraFilter {
+////    post("/filtered/get") { "wrong method" }
+////  }, "/filtered/*")
+////
+////  addServlet(new ScalatraServlet {
+////    get("/fall-through") { "fell through" }
+////    get("/get") { "servlet get" }
+////  }, "/filtered/*")
+////
+////  addServlet(new ScalatraServlet {
+////    get("/get") { "foo" }
+////    post("/no-get") { "foo" }
+////    put("/no-get") { "foo" }
+////  }, "/default/*")
+////
+////  addServlet(new ScalatraServlet {
+////    post("/no-get") { "foo" }
+////    put("/no-get") { "foo" }
+////
+////    notFound { "custom not found" }
+////    methodNotAllowed { _ => "custom method not allowed" }
+////  }, "/custom/*")
 //
-//  addFilter(new ScalatraFilter {
-//    post("/filtered/get") { "wrong method" }
-//  }, "/filtered/*")
-//
-//  addServlet(new ScalatraServlet {
-//    get("/fall-through") { "fell through" }
-//    get("/get") { "servlet get" }
-//  }, "/filtered/*")
-//
-//  addServlet(new ScalatraServlet {
-//    get("/get") { "foo" }
-//    post("/no-get") { "foo" }
-//    put("/no-get") { "foo" }
-//  }, "/default/*")
-//
-//  addServlet(new ScalatraServlet {
-//    post("/no-get") { "foo" }
-//    put("/no-get") { "foo" }
-//
-//    notFound { "custom not found" }
-//    methodNotAllowed { _ => "custom method not allowed" }
-//  }, "/custom/*")
-//
-//  addServlet(new ScalatraServlet {
+//  mount("/pass-from-not-allowed", new ScalatraApp {
 //    post("/no-get") { "foo" }
 //    notFound { "fell through" }
 //    methodNotAllowed { _ => pass() }
-//  }, "/pass-from-not-allowed/*")
+//  })
 //
 //  def customNotFound = get("/custom/matches-nothing") {
 //    body must_== "custom not found"
@@ -76,11 +76,11 @@
 //  }
 //
 //  def allowHeader = get("/default/no-get") {
-//    header("Allow").split(", ").toSet must_== Set("POST", "PUT")
+//    headers("Allow").split(", ").toSet must_== Set("POST", "PUT")
 //  }
 //
 //  def getImpliesHead = post("/default/get") {
-//    header("Allow").split(", ").toSet must_== Set("GET", "HEAD")
+//    headers("Allow").split(", ").toSet must_== Set("GET", "HEAD")
 //  }
 //
 //  def passFromNotAllowed = get("/pass-from-not-allowed/no-get") {
