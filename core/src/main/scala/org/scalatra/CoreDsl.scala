@@ -1,28 +1,21 @@
 package org.scalatra
 
+import javax.servlet.ServletContext
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
 /**
  * The core Scalatra DSL.
  */
 trait CoreDsl extends Handler with Control {
-  /**
-   * The type of application context supported by this application.  Made
-   * abstract for compatibility with the servlet implementation.
-   */
-  type ApplicationContextT <: ApplicationContext
+  @deprecated("Use servletContext instead", "2.1.0")
+  def applicationContext: ServletContext = servletContext
 
-  /**
-   * The application context.  It is shared among all handlers within this
-   * application.
-   */
-  implicit def applicationContext: ApplicationContextT
-
-  @deprecated("Use applicationContext instead", "2.1.0")
-  def servletContext: ApplicationContextT = applicationContext
+  implicit def servletContext: ServletContext
 
   /**
    * The current request
    */
-  implicit def request: RequestT
+  implicit def request: HttpServletRequest
 
   /**
    * A map of the current parameters.  The map contains the head of every
@@ -43,7 +36,7 @@ trait CoreDsl extends Handler with Control {
   /**
    * The current response.
    */
-  implicit def response: ResponseT
+  implicit def response: HttpServletResponse
 
   /**
    * Gets the content type of the current response.

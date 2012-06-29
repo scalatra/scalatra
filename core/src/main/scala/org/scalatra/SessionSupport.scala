@@ -1,23 +1,21 @@
 package org.scalatra
 
+import javax.servlet.http.{HttpServletRequest, HttpSession}
+import servlet.ServletApiImplicits
+
 /**
- * This trait provides abstract session support for stateful applications.
- * The session may be clientside or serverside.
+ * This trait provides session support for stateful applications.
  */
-trait SessionSupport {
-  /**
-   * The type of session supported by this handler.  Must be viewable as
-   * a [[org.scalatra.Request]].
-   */
-  type SessionT <: Session
+trait SessionSupport extends ServletApiImplicits {
+  def request: HttpServletRequest
 
   /**
    * The current session.  Creates a session if none exists.
    */
-  implicit def session: SessionT
+  implicit def session: HttpSession = request.getSession
 
   /**
    * The current session.  If none exists, None is returned.
    */
-  def sessionOption: Option[SessionT]
+  def sessionOption: Option[HttpSession] = Option(request.getSession(false))
 }

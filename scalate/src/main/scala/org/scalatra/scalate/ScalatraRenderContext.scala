@@ -1,7 +1,7 @@
 package org.scalatra
 package scalate
 
-import servlet.{ServletBase, ServletRequest, ServletResponse}
+import servlet.ServletBase
 
 import java.io.PrintWriter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
@@ -18,7 +18,7 @@ class ScalatraRenderContext(
     out: PrintWriter,
     request: HttpServletRequest,
     response: HttpServletResponse)
-  extends ServletRenderContext(engine, out, request, response, kernel.applicationContext)
+  extends ServletRenderContext(engine, out, request, response, kernel.servletContext)
 {
   def this(scalate: ScalateSupport, request: HttpServletRequest, response: HttpServletResponse) = this(scalate, scalate.templateEngine, response.getWriter, request, response)
 
@@ -29,9 +29,9 @@ class ScalatraRenderContext(
     case _ => Map.empty
   }
 
-  def session: Session = kernel.session
+  def session: HttpSession = kernel.session
 
-  def sessionOption: Option[Session] = kernel.sessionOption
+  def sessionOption: Option[HttpSession] = kernel.sessionOption
 
   def params: Map[String, String] = kernel.params
 

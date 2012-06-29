@@ -1,7 +1,10 @@
 package org.scalatra
 
-trait LifeCycle {
-  def init(context: ApplicationContext) {}
+import javax.servlet.ServletContext
+import servlet.ServletApiImplicits
 
-  def destroy(context: ApplicationContext) {}
+trait LifeCycle extends ServletApiImplicits {
+  def init(context: ServletContext) {}
+
+  def destroy(context: ServletContext) {}
 }

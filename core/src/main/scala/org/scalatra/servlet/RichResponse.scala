@@ -8,14 +8,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletResponseWrapper, Cook
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 
-object ServletResponse {
-  def apply(response: HttpServletResponse) = new ServletResponse(response)
-}
-
-class ServletResponse(res: HttpServletResponse) 
-  extends HttpServletResponseWrapper(res)
-  with Response 
-{
+case class RichResponse(res: HttpServletResponse) {
   /**
    * Note: the servlet API doesn't remember the reason.  If a custom
    * reason was set, it will be returned incorrectly here,
@@ -58,7 +51,7 @@ class ServletResponse(res: HttpServletResponse)
     if(options.secure) sCookie.setSecure(options.secure)
     if(options.comment.nonBlank) sCookie.setComment(options.comment)
     sCookie.setHttpOnly(options.httpOnly)
-    addCookie(sCookie)
+    res.addCookie(sCookie)
   }
 
   def characterEncoding: Option[String] =
@@ -88,9 +81,5 @@ class ServletResponse(res: HttpServletResponse)
   def end() {
     res.flushBuffer()
     res.getOutputStream.close()
-  }
-
-  override def addHeader(name: String, value: String) {
-    super.addHeader(name, value)
   }
 }

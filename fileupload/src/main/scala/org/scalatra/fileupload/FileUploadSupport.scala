@@ -27,7 +27,7 @@ import org.apache.commons.fileupload.{FileUploadException, FileUploadBase, FileI
 trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
-  override def handle(req: ServletRequest, resp: ServletResponse) {
+  override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
     val req2 = try {
       if (isMultipartContent(req)) {
         val bodyParams = extractMultipartParams(req)
@@ -56,7 +56,7 @@ trait FileUploadSupport extends ServletBase {
     Content-Type header starting with "multipart/" as multipart content. This
     allows PUT requests to be also considered as multipart content.
   */
-  private def isMultipartContent(req: ServletRequest) = {
+  private def isMultipartContent(req: HttpServletRequest) = {
     val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
 
     isPostOrPut && (req.contentType match {
@@ -65,7 +65,7 @@ trait FileUploadSupport extends ServletBase {
     })
   }
 
-  private def extractMultipartParams(req: ServletRequest): BodyParams =
+  private def extractMultipartParams(req: HttpServletRequest): BodyParams =
     // First look for it cached on the request, because we can't parse it twice.  See GH-16.
     req.get(BodyParamsKey).asInstanceOf[Option[BodyParams]] match {
       case Some(bodyParams) =>
@@ -106,7 +106,7 @@ trait FileUploadSupport extends ServletBase {
   }
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
-    val wrapped = new ServletRequest(req) {
+    val wrapped = new HttpServletRequestWrapper(req) {
       override def getParameter(name: String) = formMap.get(name) map { _.head } getOrElse null
       override def getParameterNames = formMap.keysIterator
       override def getParameterValues(name: String) = formMap.get(name) map { _.toArray } getOrElse null

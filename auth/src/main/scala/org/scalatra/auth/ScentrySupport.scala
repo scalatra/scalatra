@@ -1,10 +1,10 @@
 package org.scalatra
 package auth
 
-import servlet.{ServletBase, ServletRequest, ServletResponse}
-
 import javax.servlet.{FilterConfig, ServletConfig}
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.util.DynamicVariable
+import servlet.ServletBase
 
 trait ScentryConfig {
   val login = "/login"
@@ -30,7 +30,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
     readStrategiesFromConfig(config)
   }
 
-  abstract override def handle(servletRequest: ServletRequest, servletResponse: ServletResponse) = {
+  abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
     withRequest(servletRequest) {
       request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession)
       configureScentry
