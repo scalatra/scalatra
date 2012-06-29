@@ -24,7 +24,7 @@ trait ServletBase
   }
 
   protected implicit def configWrapper(config: ConfigT) = new Config {
-    def context = ServletApplicationContext(config.getServletContext)
+    def context = config.getServletContext
 
     object initParameters extends DefaultMap[String, String] {
       def get(key: String): Option[String] =

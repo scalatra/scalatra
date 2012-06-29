@@ -1,7 +1,7 @@
 package org.scalatra
 package scalate
 
-import servlet.{ServletBase, ServletRequest, ServletResponse}
+import servlet.ServletBase
 
 import java.io.PrintWriter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}

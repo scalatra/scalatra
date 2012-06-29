@@ -1,13 +1,10 @@
 package org.scalatra
 
 import javax.servlet.ServletContext
-import servlet.ServletApplicationContext
+import servlet.ServletApiImplicits
 
-trait LifeCycle {
+trait LifeCycle extends ServletApiImplicits {
   def init(context: ServletContext) {}
 
   def destroy(context: ServletContext) {}
-
-  protected implicit def enrichServletContext(servletContext: ServletContext) =
-    new ServletApplicationContext(servletContext)
 }

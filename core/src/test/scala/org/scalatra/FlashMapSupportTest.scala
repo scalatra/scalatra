@@ -1,7 +1,5 @@
 package org.scalatra
 
-import servlet.ServletRequest
-
 import test.scalatest.ScalatraFunSuite
 import javax.servlet.http.HttpServletRequest
 

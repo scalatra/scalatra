@@ -8,11 +8,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletResponseWrapper, Cook
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 
-object ServletResponse {
-  def apply(response: HttpServletResponse) = new ServletResponse(response)
-}
-
-class ServletResponse(res: HttpServletResponse) {
+case class RichResponse(res: HttpServletResponse) {
   /**
    * Note: the servlet API doesn't remember the reason.  If a custom
    * reason was set, it will be returned incorrectly here,

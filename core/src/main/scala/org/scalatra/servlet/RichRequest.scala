@@ -11,13 +11,12 @@ import java.io.InputStream
 import util.{MultiMap, MultiMapHeadView}
 import util.RicherString._
 
-object ServletRequest {
-  def apply(req: HttpServletRequest) = new ServletRequest(req)
+object RichRequest {
   private val cachedBodyKey = "org.scalatra.RichRequest.cachedBody"
 }
 
-class ServletRequest(r: HttpServletRequest) extends AttributesMap {
-  import ServletRequest.cachedBodyKey
+case class RichRequest(r: HttpServletRequest) extends AttributesMap {
+  import RichRequest.cachedBodyKey
 
   /**
    * The version of the protocol the client used to send the request.
