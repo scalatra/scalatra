@@ -11,10 +11,7 @@ import scala.collection.mutable
 /**
  * Extension methods to the standard ServletContext.
  */
-case class RichServletContext(sc: ServletContext) 
-  extends ServletContextWrapper(sc)
-  with ApplicationContext 
-  with AttributesMap 
+case class RichServletContext(sc: ServletContext) extends AttributesMap 
 {
   protected def attributes = sc
 
@@ -72,6 +69,9 @@ case class RichServletContext(sc: ServletContext)
     }
   }
 
+  def mount(handler: Handler, urlPattern: String): Unit =
+    mount(handler, urlPattern, handler.getClass.getName)
+
   def mount[T](handlerClass: Class[T], urlPattern: String, name: String) {
     val pathMap = urlPattern match {
       case s if s.endsWith("/*") => s
@@ -87,6 +87,9 @@ case class RichServletContext(sc: ServletContext)
       sys.error("Don't know how to mount this service to a servletContext: " + handlerClass)
     }
   }
+
+  def mount[T](handlerClass: Class[T], urlPattern: String): Unit =
+    mount(handlerClass, urlPattern, handlerClass.getName)
 
   private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String) {
     val reg = sc.addServlet(name, servlet)
