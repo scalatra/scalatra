@@ -18,11 +18,6 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   }
 
   get("/unused") {}
-
-  override def sweepUnusedFlashEntries(req: HttpServletRequest) = req.getParameter("sweep") match {
-    case null => false
-    case x => x.toBoolean
-  }
 }
 
 class FlashMapSupportSecondTestServlet extends ScalatraServlet with FlashMapSupport {
@@ -35,6 +30,11 @@ class FlashMapSupportSecondTestServlet extends ScalatraServlet with FlashMapSupp
 class FlashMapSupportTestFilter extends ScalatraFilter with FlashMapSupport {
   get("/filter") {
     flash.get("message") foreach { x => response.setHeader("message", x.toString) }
+  }
+
+  override def sweepUnusedFlashEntries(req: HttpServletRequest) = req.getParameter("sweep") match {
+    case null => false
+    case x => x.toBoolean
   }
 }
 
@@ -102,7 +102,7 @@ class FlashMapSupportTest extends ScalatraFunSuite {
       get("/unused", "sweep" -> "true") {}
 
       get("/message") {
-        header("message") should equal ("posted")
+        header("message") should equal (null)
       }
     }
   }
