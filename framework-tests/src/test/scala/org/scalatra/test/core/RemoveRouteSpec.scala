@@ -10,6 +10,10 @@ class RemoveRouteApp extends ScalatraApp {
     removeRoute("GET", foo)
   }
 
+  notFound {
+    status = 404
+    "not found"
+  }
 }
 
 abstract class RemoveRouteSpec extends ScalatraWordSpec {
@@ -23,7 +27,7 @@ abstract class RemoveRouteSpec extends ScalatraWordSpec {
         }
         post("/remove") {}
         get("/foo") {
-          body should equal ("Not Found")
+          body should equal ("not found")
         }
       }
     }

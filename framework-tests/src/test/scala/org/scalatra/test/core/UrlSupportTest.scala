@@ -1,11 +1,11 @@
 //package org.scalatra
 //
 //import org.scalatra.test.scalatest._
+//import test.NettyBackend
 //
-//class UrlSupportTest extends ScalatraFunSuite {
-//  tester.setContextPath("/context")
+//abstract class UrlSupportTest extends ScalatraFunSuite {
 //
-//  addServlet(new ScalatraServlet {
+//  mount("/context", new ScalatraApp with SessionSupport {
 //    get("/") {
 //      if (params.contains("session")) session // trigger a jsessionid
 //      this.url(params("url"), params - "url")
@@ -14,7 +14,7 @@
 //    get("/option") {
 //      this.url(params("url"), Seq("id" -> params.get("id")))
 //    }
-//  }, "/*")
+//  })
 //
 //  def url(url: String, params: Map[String, String] = Map.empty) =
 //    get("/context/", params + ("url" -> url)) { response.body }
@@ -57,3 +57,5 @@
 //    }
 //  }
 //}
+//
+//class NettyUrlSupportTest extends UrlSupportTest with NettyBackend

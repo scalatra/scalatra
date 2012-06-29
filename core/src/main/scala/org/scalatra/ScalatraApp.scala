@@ -124,8 +124,8 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
       val prehandleException = request.get("org.scalatra.PrehandleException")
       if (prehandleException.isEmpty) {
         runFilters(routes.beforeFilters)
-        val actionResult = runRoutes(routes(request.requestMethod)).headOption orElse
-          matchOtherMethods() getOrElse doNotFound()
+        val actionResult =
+          (runRoutes(routes(request.requestMethod)).headOption orElse  matchOtherMethods()) getOrElse doNotFound()
         // Give the status code handler a chance to override the actionResult
         result = handleStatusCode(status) getOrElse actionResult
       } else {
@@ -218,7 +218,13 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
    */
   protected var doNotFound: Action = () => NotFound("Not Found.")
 
-  def notFound(fun: => Any) { doNotFound = { () => fun } }
+  println("initialized not found to: "+ doNotFound.##)
+
+  def notFound(fun: => Any) {
+    println("setting not found")
+    doNotFound = { () => fun }
+    println("set doNotFound to: " + doNotFound.##)
+  }
 
   /**
    * Called if no route matches the current request method, but routes
