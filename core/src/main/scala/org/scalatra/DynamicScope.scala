@@ -1,6 +1,7 @@
 package org.scalatra
 
 import scala.util.DynamicVariable
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /**
  * The Scalatra DSL requires a dynamically scoped request and response.
@@ -10,24 +11,21 @@ import scala.util.DynamicVariable
  * http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework
  */
 trait DynamicScope {
-  type RequestT >: Null <: Request
-  type ResponseT >: Null <: Response
-
   /**
    * The currently scoped request.  Valid only inside the `handle` method.
    */
-  implicit def request: RequestT = dynamicRequest.value
+  implicit def request: HttpServletRequest = dynamicRequest.value
 
-  private[this] val dynamicRequest = new DynamicVariable[RequestT](null)
+  private[this] val dynamicRequest = new DynamicVariable[HttpServletRequest](null)
 
   /**
    * The currently scoped response.  Valid only inside the `handle` method.
    */
-  implicit def response: ResponseT = dynamicResponse.value
+  implicit def response: HttpServletResponse = dynamicResponse.value
 
-  private[this] val dynamicResponse = new DynamicVariable[ResponseT](null)
+  private[this] val dynamicResponse = new DynamicVariable[HttpServletResponse](null)
 
-  protected def withRequestResponse[A](request: RequestT, response: ResponseT)(f: => A) = {
+  protected def withRequestResponse[A](request: HttpServletRequest, response: HttpServletResponse)(f: => A) = {
     withRequest(request) {
       withResponse(response) {
         f
@@ -39,7 +37,7 @@ trait DynamicScope {
    * Executes the block with the given request bound to the `request`
    * method.
    */
-  protected def withRequest[A](request: RequestT)(f: => A) = 
+  protected def withRequest[A](request: HttpServletRequest)(f: => A) = 
     dynamicRequest.withValue(request) {
       f
     }
@@ -48,7 +46,7 @@ trait DynamicScope {
    * Executes the block with the given response bound to the `response`
    * method.
    */
-  protected def withResponse[A](response: ResponseT)(f: => A) =
+  protected def withResponse[A](response: HttpServletResponse)(f: => A) =
     dynamicResponse.withValue(response) {
       f
     }

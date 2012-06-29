@@ -2,6 +2,7 @@ package org.scalatra
 
 import scala.collection.mutable.{Map => MMap, Set => MSet}
 import util.MutableMapWithIndifferentAccess
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
@@ -130,7 +131,7 @@ trait FlashMapSupport extends Handler {
 
   import FlashMapSupport._
 
-  abstract override def handle(req: RequestT, res: ResponseT) {
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     withRequest(req) {
       val f = getFlash(req)
       val isOutermost = !req.contains(lockKey)
@@ -155,7 +156,7 @@ trait FlashMapSupport extends Handler {
     }
   }
 
-  private def getFlash(req: RequestT): FlashMap =
+  private def getFlash(req: HttpServletRequest): FlashMap =
     session.get(sessionKey).map { _.asInstanceOf[FlashMap] }
       .getOrElse(new FlashMap)
 
@@ -167,5 +168,5 @@ trait FlashMapSupport extends Handler {
   /**
    * Determines whether unused flash entries should be swept.  The default is false.
    */
-  protected def sweepUnusedFlashEntries(req: RequestT) = false
+  protected def sweepUnusedFlashEntries(req: HttpServletRequest) = false
 }

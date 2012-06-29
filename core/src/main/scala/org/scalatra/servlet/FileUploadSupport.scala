@@ -1,10 +1,10 @@
 package org.scalatra.servlet
 
 import scala.collection.JavaConversions._
-import javax.servlet.http.{HttpServletRequest, Part}
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
 import java.io.File
+import javax.servlet.http._
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
   * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
@@ -71,7 +71,7 @@ trait FileUploadSupport extends ServletBase {
     case _ => false
   }
 
-  override def handle(req: RequestT, res: ResponseT) {
+  override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     val req2 = try {
       if (isMultipartRequest(req)) {
         val bodyParams = extractMultipartParams(req)
@@ -89,7 +89,7 @@ trait FileUploadSupport extends ServletBase {
     super.handle(req2, res)
   }
 
-  private def isMultipartRequest(req: RequestT): Boolean = {
+  private def isMultipartRequest(req: HttpServletRequest): Boolean = {
     val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
 
     isPostOrPut && (req.contentType match {
@@ -98,7 +98,7 @@ trait FileUploadSupport extends ServletBase {
     })
   }
 
-  private def extractMultipartParams(req: RequestT): BodyParams = {
+  private def extractMultipartParams(req: HttpServletRequest): BodyParams = {
     req.get(BodyParamsKey).asInstanceOf[Option[BodyParams]] match {
       case Some(bodyParams) =>
         bodyParams
@@ -127,7 +127,7 @@ trait FileUploadSupport extends ServletBase {
     }
   }
 
-  private def getParts(req: RequestT) = {
+  private def getParts(req: HttpServletRequest) = {
     try {
       req.getParts
     } catch {
@@ -140,7 +140,7 @@ trait FileUploadSupport extends ServletBase {
     new String(item.get(), charset)
   }
 
-  private def mergeFormParamsWithQueryString(req: RequestT, bodyParams: BodyParams): Map[String, List[String]] = {
+  private def mergeFormParamsWithQueryString(req: HttpServletRequest, bodyParams: BodyParams): Map[String, List[String]] = {
     var mergedParams = bodyParams.formParams
     req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
       case (name, values) =>
@@ -152,7 +152,7 @@ trait FileUploadSupport extends ServletBase {
   }
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
-    val wrapped = new ServletRequest(req) {
+    val wrapped = new HttpServletRequestWrapper(req) {
       override def getParameter(name: String) = formMap.get(name) map {
         _.head
       } getOrElse null

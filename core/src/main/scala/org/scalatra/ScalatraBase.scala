@@ -9,6 +9,8 @@ import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
 import rl.UrlCodingUtils
 import java.nio.charset.Charset
+import javax.servlet.ServletContext
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
@@ -52,7 +54,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
    *      `executeRoutes()`.
    */
-  def handle(request: RequestT, response: ResponseT) {
+  override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     val realMultiParams = request.multiParameters
 
     response.characterEncoding = Some(defaultCharacterEncoding)
@@ -448,7 +450,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   /**
    * The servlet context in which this kernel runs.
    */
-  def applicationContext: ApplicationContextT = config.context
+  def servletContext: ServletContext = config.context
 
   /**
    * A free form string representing the environment.
@@ -493,7 +495,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
     addSessionId(newPath+queryString)
   }
 
-  protected def contextPath: String = applicationContext.contextPath
+  protected def contextPath: String = servletContext.contextPath
 
   protected def addSessionId(uri: String): String
 }

@@ -1,7 +1,9 @@
 import org.scalatra._
 
+import javax.servlet.ServletContext
+
 class Scalatra extends LifeCycle {
-  override def init(context: ApplicationContext) {
+  override def init(context: ServletContext) {
     context.mount(classOf[BasicAuthExample], "/auth")
     context.mount(classOf[CookiesExample], "/cookies-example")
     context.mount(classOf[DocumentExample], "/docs")

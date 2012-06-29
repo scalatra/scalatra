@@ -1,16 +1,17 @@
 package org.scalatra
 
+import javax.servlet.ServletContext
+
 /**
  * Trait representing an object that can't be fully initialized by its
  * constructor.  Useful for unifying the initialization process of an
  * HttpServlet and a Filter.
  */
 trait Initializable { 
-  type ApplicationContextT <: ApplicationContext
   type ConfigT
 
   trait Config {
-    def context: ApplicationContextT
+    def context: ServletContext
     def initParameters: Map[String, String]
   }
   protected implicit def configWrapper(config: ConfigT): Config
