@@ -11,7 +11,7 @@ object RouteRegistryTestApp extends ScalatraApp {
 
   def renderRouteRegistry: String = routes.toString
 
-  protected var doNotFound: _root_.org.scalatra.Action = () => NotFound()
+  doNotFound = () => NotFound()
 }
 
 class RouteRegistryTest extends Specification { def is =

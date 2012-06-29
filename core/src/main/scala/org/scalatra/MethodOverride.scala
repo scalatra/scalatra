@@ -21,15 +21,6 @@ trait MethodOverride extends Handler {
     super.handle(req, res)
   }
 
-//  /**
-//   * Returns a request identical to the current request, but with the
-//   * specified method.
-//   *
-//   * For backward compatibility, we need to transform the underlying request
-//   * type to pass to the super handler.
-//   */
-//  protected def requestWithMethod(req: HttpRequest, method: HttpMethod): HttpRequest
-
   private def methodOverride(req: HttpRequest) = {
     import MethodOverride._
     req.parameters.get(ParamName) orElse req.headers.get(HeaderName)

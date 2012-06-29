@@ -1,8 +1,7 @@
 package org.scalatra
 
 /**
- * This trait provides abstract session support for stateful applications.
- * The session may be clientside or serverside.
+ * This trait provides session support for stateful applications.
  */
 trait SessionSupport {
 

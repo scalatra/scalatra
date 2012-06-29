@@ -456,30 +456,32 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
     routes.addStatusRoute(codes, route)
   }
 
-//  /**
-//   * The configuration, typically a ServletConfig or FilterConfig.
-//   */
-//  private var config: Config = _
+/*
+  /**
+   * The configuration, typically a ServletConfig or FilterConfig.
+   */
+  private var config: Config = _
 
-//  /**
-//   * Initializes the kernel.  Used to provide context that is unavailable
-//   * when the instance is constructed, for example the servlet lifecycle.
-//   * Should set the `config` variable to the parameter.
-//   *
-//   * @param config the configuration.
-//   */
-//  def initialize(config: AppContext) { this.config = config }
+  /**
+   * Initializes the kernel.  Used to provide context that is unavailable
+   * when the instance is constructed, for example the servlet lifecycle.
+   * Should set the `config` variable to the parameter.
+   *
+   * @param config the configuration.
+   */
+  def initialize(config: ConfigT) { this.config = config }
 
-//  /**
-//   * Gets an init paramter from the config.
-//   *
-//   * @param name the name of the key
-//   *
-//   * @return an option containing the value of the parameter if defined, or
-//   * `None` if the parameter is not set.
-//   */
-//  def initParameter(name: String): Option[String] =
-//    config.initParameters.get(name)
+  /**
+   * Gets an init paramter from the config.
+   *
+   * @param name the name of the key
+   *
+   * @return an option containing the value of the parameter if defined, or
+   * `None` if the parameter is not set.
+   */
+  def initParameter(name: String): Option[String] = 
+    config.initParameters.get(name)
+*/
 
   /**
    * A free form string representing the environment.

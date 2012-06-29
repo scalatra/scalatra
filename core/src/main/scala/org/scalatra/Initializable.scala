@@ -6,8 +6,6 @@ package org.scalatra
  * HttpServlet and a Filter.
  */
 trait Initializable { 
-
-
   /**
    * A hook to initialize the class with some configuration after it has
    * been constructed.

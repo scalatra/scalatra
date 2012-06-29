@@ -1,8 +1,6 @@
 package org.scalatra
 package scalate
 
-import servlet.{ServletRequest, ServletResponse}
-
 import scala.collection.mutable
 import java.io.PrintWriter
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
@@ -93,6 +91,7 @@ trait ScalateSupport extends ScalatraKernel {
     ScalateSupport.setLayoutStrategy(this)
     templateDirectories = defaultTemplatePath
     bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, true, isImplicit = true)
+    importStatements ::= "import org.scalatra.servlet.ServletApiImplicits._"
   }
 
   /**
@@ -124,7 +123,7 @@ trait ScalateSupport extends ScalatraKernel {
    */
   protected def isScalateErrorPageEnabled = true
 
-  abstract override def handle(req: ServletRequest, res: ServletResponse) {
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     try {
       super.handle(req, res)
     }

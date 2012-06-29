@@ -4,8 +4,6 @@ package org.scalatra
  * The core Scalatra DSL.
  */
 trait CoreDsl extends Handler with Control {
-
-
   /**
    * The current request
    */
