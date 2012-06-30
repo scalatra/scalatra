@@ -52,7 +52,7 @@ object ScalatraBuild extends Build {
       ),
       description := "The core Scalatra framework"
     )
-  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
+  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest, scalatraTestTomcat) map { _ % "test->compile" } :_*)
 
   lazy val scalatraAuth = Project(
     id = "scalatra-auth",
@@ -143,7 +143,8 @@ object ScalatraBuild extends Build {
         commonsLang3,
         specs2 % "test",
         dispatch,
-        httpClient
+        httpClient,
+        httpMime
       ),
       description := "The abstract Scalatra test framework"
     )
@@ -229,6 +230,8 @@ object ScalatraBuild extends Build {
     val dispatch = "net.databinder" %% "dispatch-http" % "0.8.7"
 
     val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.2"
+
+    val httpMime   = "org.apache.httpcomponents" % "httpmime"   % "4.2"
 
     def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
 

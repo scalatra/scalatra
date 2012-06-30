@@ -48,8 +48,8 @@ class CookieSupportServlet extends ScalatraServlet with CookieSupport {
 
 class CookieSupportTest extends ScalatraFunSuite {
   val oneWeek = 7 * 24 * 3600
+  override def contextPath = "/foo"
 
-  tester.setContextPath("/foo")
   addServlet(classOf[CookieSupportServlet], "/*")
 
   test("GET /getcookie with no cookies set should return 'None'") {
@@ -104,15 +104,6 @@ class CookieSupportTest extends ScalatraFunSuite {
     }
   }
 
-  test("cookie path defaults to '/' in root context") {
-    withContextPath("") {
-      post("/setcookie", "cookieval" -> "whatever") {
-        val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
-        cookie.getPath must be ("/")
-      }
-    }
-  }
-
   // This is as much a test of ScalatraTests as it is of CookieSupport.
   // http://github.com/scalatra/scalatra/issue/84
   test("handles multiple cookies") {
@@ -159,15 +150,16 @@ class CookieSupportTest extends ScalatraFunSuite {
       }
     }
   }
+}
 
-  def withContextPath[A](path: String)(f: => A): A = {
-    val old = tester.getContext.getContextPath
-    try {
-      tester.setContextPath(path)
-      f
-    }
-    finally {
-      tester.setContextPath(old)
+class CookieSupportRootContextTest extends ScalatraFunSuite {
+  override def contextPath = ""
+  addServlet(classOf[CookieSupportServlet], "/*")
+
+  test("cookie path defaults to '/' in root context") {
+    post("/setcookie", "cookieval" -> "whatever") {
+      val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
+      cookie.getPath must be ("/")
     }
   }
 }

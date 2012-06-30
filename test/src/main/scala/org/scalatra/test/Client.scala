@@ -5,17 +5,26 @@ import java.net.URLEncoder.encode
 import java.io.File
 
 trait Client {
-  type Response >: Null
+  private val _response = new DynamicVariable[ClientResponse](null)
 
-  private val _response = new DynamicVariable[Response](null)
+  def session[A](f: => A): A
 
   /**
    * Returns the current response within the scope of the submit method.
    */
-  def response: Response = _response.value
+  def response: ClientResponse = _response.value
 
-  protected def withResponse[A](res: Response)(f: => A): A =
+  def body = response.body
+
+  def bodyBytes = response.bodyBytes
+
+  def status = response.statusLine.code
+
+  def header = response.header
+
+  protected def withResponse[A](res: ClientResponse)(f: => A): A = {
    _response.withValue(res) { f }
+  }
 
   def submit[A](
     method: String,

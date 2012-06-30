@@ -7,7 +7,7 @@ import org.specs2.specification.{Step, Fragments}
 
 class EmbeddedJettyContainerSpec extends Specification
   with EmbeddedJettyContainer
-  with DispatchClient
+  with HttpComponentsClient
 {
   override def map(fs: =>Fragments) =
     Step(start()) ^ super.map(fs) ^ Step(stop())

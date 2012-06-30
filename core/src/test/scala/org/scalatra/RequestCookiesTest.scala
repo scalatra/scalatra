@@ -20,34 +20,18 @@ class RequestCookiesTest extends ScalatraFunSuite {
   }, "/*")
 
   test("multiCookies is a multi-map of names to values") {
-    val req = new HttpTester
-    req.setMethod("GET")
-    req.setURI("/multi-cookies")
-    req.setVersion("HTTP/1.0")
-    req.addHeader("Cookie", "one=uno")
-    req.addHeader("Cookie", "one=eins")
-    req.addHeader("Cookie", "two=zwei")
-
-    val res = new HttpTester
-    res.parse(tester.getResponses(req.generate))
-    res.getHeader("one") should be ("uno:eins")
-    res.getHeader("two") should be ("zwei")
-    res.getHeader("three") should be ("")
+    get("/multi-cookies", headers = Map("Cookie" -> "one=uno; one=eins; two=zwei")) {
+      header("one") should be ("uno:eins")
+      header("two") should be ("zwei")
+      header("three") should be ("")
+    }
   }
 
   test("cookies is a map of names to values") {
-    val req = new HttpTester
-    req.setMethod("GET")
-    req.setURI("/cookies")
-    req.setVersion("HTTP/1.0")
-    req.addHeader("Cookie", "one=uno")
-    req.addHeader("Cookie", "one=eins")
-    req.addHeader("Cookie", "two=zwei")
-
-    val res = new HttpTester
-    res.parse(tester.getResponses(req.generate))
-    res.getHeader("one") should be ("uno")
-    res.getHeader("two") should be ("zwei")
-    res.getHeader("three") should be ("NONE")
+    get("/cookies", headers = Map("Cookie" -> "one=uno; one=eins; two=zwei")) {
+      header("one") should be ("uno")
+      header("two") should be ("zwei")
+      header("three") should be ("NONE")
+    }
   }
 }

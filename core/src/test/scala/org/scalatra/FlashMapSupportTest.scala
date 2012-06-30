@@ -18,6 +18,13 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   }
 
   get("/unused") {}
+
+  override def sweepUnusedFlashEntries(req: ServletRequest) = {
+    req.getParameter("sweep") match {
+      case null => false
+      case x => x.toBoolean
+    }
+  }
 }
 
 class FlashMapSupportSecondTestServlet extends ScalatraServlet with FlashMapSupport {
@@ -96,6 +103,7 @@ class FlashMapSupportTest extends ScalatraFunSuite {
   }
 
   test("sweeps unused entries if flag is true") {
+    println("TEST: sweeps unused entries if flag is true")
     session {
       post("/message") {}
 
