@@ -3,7 +3,7 @@ package org.scalatra
 import scala.actors.{Actor, TIMEOUT}
 import scala.xml.Text
 import java.net.URLEncoder
-import test.{NettyBackend, AhcClientResponse}
+import test.{NettyBackend, JettyBackend, AhcClientResponse}
 import test.scalatest.ScalatraFunSuite
 import com.ning.http.client.AsyncHttpClient
 
@@ -165,3 +165,4 @@ abstract class ContentTypeTest extends ScalatraFunSuite {
 }
 
 class NettyContentTypeTest extends ContentTypeTest with NettyBackend
+class JettyContentTypeTest extends ContentTypeTest with JettyBackend

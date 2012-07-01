@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.specs2.ScalatraSpec
 
 abstract class HeadSpec extends ScalatraSpec { def is =
@@ -26,3 +27,4 @@ class HeadSpecApp extends ScalatraApp {
 }
 
 class NettyHeadSpec extends HeadSpec with NettyBackend
+class JettyHeadSpec extends HeadSpec with JettyBackend

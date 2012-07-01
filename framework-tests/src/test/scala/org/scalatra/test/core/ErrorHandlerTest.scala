@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 abstract class ErrorHandlerTest extends ScalatraFunSuite {
@@ -69,3 +70,4 @@ abstract class ErrorHandlerTest extends ScalatraFunSuite {
 }
 
 class NettyErrorHandlerTest extends ErrorHandlerTest with NettyBackend
+class JettyErrorHandlerTest extends ErrorHandlerTest with JettyBackend

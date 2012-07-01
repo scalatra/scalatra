@@ -1,9 +1,11 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.specs2.MutableScalatraSpec
 
 class NettyRouteMetadataSpec extends RouteMetadataSpec with NettyBackend
+class JettyRouteMetadataSpec extends RouteMetadataSpec with JettyBackend
 
 abstract class RouteMetadataSpec extends MutableScalatraSpec {
   mount(RouteMetadataSpec.servlet)

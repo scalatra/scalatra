@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.specs2.ScalatraSpec
 
 abstract class NotFoundSpec extends ScalatraSpec { def is =
@@ -95,3 +96,4 @@ abstract class NotFoundSpec extends ScalatraSpec { def is =
 }
 
 class NettyNotFoundSpec extends NotFoundSpec with NettyBackend
+class JettyNotFoundSpec extends NotFoundSpec with JettyBackend

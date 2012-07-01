@@ -4,6 +4,7 @@ import scala.actors.Actor
 import scala.actors.TIMEOUT
 import scala.xml.Text
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 import java.io.File
 import util.io.withTempFile
@@ -221,3 +222,4 @@ abstract class ScalatraTest extends ScalatraFunSuite {
 }
 
 class NettyScalatraTest extends ScalatraTest with NettyBackend
+class JettyScalatraTest extends ScalatraTest with JettyBackend

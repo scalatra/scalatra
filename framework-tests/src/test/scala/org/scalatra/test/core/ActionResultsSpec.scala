@@ -3,6 +3,7 @@ package org.scalatra
 import ActionResult._
 
 import test.NettyBackend
+import test.JettyBackend
 import test.specs2.MutableScalatraSpec
 
 class ActionResultApp extends ScalatraApp {
@@ -146,3 +147,4 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
 }
 
 class NettyActionResultsSpec extends ActionResultsSpec with NettyBackend
+class JettyActionResultsSpec extends ActionResultsSpec with JettyBackend

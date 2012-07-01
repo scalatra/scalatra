@@ -3,6 +3,7 @@ package org.scalatra
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class RequestBodyTestApp extends ScalatraApp {
@@ -32,3 +33,4 @@ abstract class RequestBodyTest extends ScalatraFunSuite {
 }
 
 class NettyRequestBodyTest extends RequestBodyTest with NettyBackend
+class JettyRequestBodyTest extends RequestBodyTest with JettyBackend

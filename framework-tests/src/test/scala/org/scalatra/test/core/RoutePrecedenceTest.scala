@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class RoutePrecedenceTestBaseServlet extends ScalatraApp {
@@ -95,3 +96,4 @@ abstract class RoutePrecedenceTest extends ScalatraFunSuite {
 }
 
 class NettyRoutePrecedenceTest extends RoutePrecedenceTest with NettyBackend
+class JettyRoutePrecedenceTest extends RoutePrecedenceTest with JettyBackend

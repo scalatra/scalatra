@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class AfterTestApp extends ScalatraApp {
@@ -46,3 +47,4 @@ abstract class AfterTest extends ScalatraFunSuite {
 }
 
 class NettyAfterTest extends AfterTest with NettyBackend
+class JettyAfterTest extends AfterTest with JettyBackend

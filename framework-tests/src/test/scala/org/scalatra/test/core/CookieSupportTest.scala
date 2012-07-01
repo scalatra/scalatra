@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 import java.net.{HttpCookie => JHttpCookie}
 
@@ -161,3 +162,4 @@ abstract class CookieSupportTest extends ScalatraFunSuite {
 }
 
 class NettyCookieSupportTest extends CookieSupportTest with NettyBackend
+class JettyCookieSupportTest extends CookieSupportTest with JettyBackend

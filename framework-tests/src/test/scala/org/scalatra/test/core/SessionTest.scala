@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class SessionTestApp extends ScalatraApp with SessionSupport {
@@ -94,3 +95,4 @@ abstract class SessionTest extends ScalatraFunSuite {
 }
 
 class NettySessionTest extends SessionTest with NettyBackend
+class JettySessionTest extends SessionTest with JettyBackend

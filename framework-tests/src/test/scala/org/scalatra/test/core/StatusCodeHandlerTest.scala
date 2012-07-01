@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 abstract class StatusCodeHandlerTest extends ScalatraFunSuite {
@@ -87,3 +88,4 @@ abstract class StatusCodeHandlerTest extends ScalatraFunSuite {
 }
 
 class NettyStatusCodeHandlerTest extends StatusCodeHandlerTest with NettyBackend
+class JettyStatusCodeHandlerTest extends StatusCodeHandlerTest with JettyBackend
