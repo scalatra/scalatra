@@ -4,10 +4,10 @@ import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods._
 import org.apache.http.entity.ByteArrayEntity
-import java.io.{File, ByteArrayOutputStream}
+import java.io.{OutputStream, File, ByteArrayOutputStream}
 import org.apache.http.client.params.{CookiePolicy, ClientPNames}
 import org.apache.http.entity.mime.{FormBodyPart, MultipartEntity, HttpMultipartMode}
-import org.apache.http.entity.mime.content.{FileBody, StringBody}
+import org.apache.http.entity.mime.content.{ContentBody, FileBody, StringBody}
 import util.DynamicVariable
 import org.apache.http.client.CookieStore
 
@@ -76,7 +76,7 @@ trait HttpComponentsClient extends Client {
     path: String,
     params: Iterable[(String, String)],
     headers: Map[String, String],
-    files: Iterable[(String, File)])(f: => A): A =
+    files: Iterable[(String, Any)])(f: => A): A =
   {
     val client = createClient
     val url = "%s/%s".format(baseUrl, path)
@@ -137,7 +137,7 @@ trait HttpComponentsClient extends Client {
   private def attachMultipartBody(
     req: HttpRequestBase,
     params: Iterable[(String, String)],
-    files: Iterable[(String, File)])
+    files: Iterable[(String, Any)])
   {
 
     if (params.isEmpty && files.isEmpty) {
@@ -154,7 +154,7 @@ trait HttpComponentsClient extends Client {
 
         files.foreach {
           case (name, file) =>
-            multipartEntity.addPart(name, new FileBody(file))
+            multipartEntity.addPart(name, createBody(file))
         }
 
         r.setEntity(multipartEntity)
@@ -167,4 +167,26 @@ trait HttpComponentsClient extends Client {
     }
   }
 
+  private def createBody(part: Any): ContentBody = part match {
+    case file: File => new FileBody(file)
+    case _          => new StringBody(part.toString)
+  }
+}
+
+case class UploadableBody(uploadable: Uploadable) extends ContentBody {
+  def getMimeType = uploadable.contentType
+
+  def getMediaType = "MULTIPART"
+
+  def getSubType = "FORM-DATA"
+
+  def getCharset = null
+
+  def getTransferEncoding = "binary"
+
+  def getContentLength = 0L
+
+  def getFilename = ""
+
+  def writeTo(out: OutputStream) {}
 }
