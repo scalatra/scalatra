@@ -50,12 +50,12 @@ abstract class UrlSupportTest extends ScalatraFunSuite {
   test("params should url encode both keys and values in UTF-8") {
     url("de-to-ru", Map("fünf" -> "пять")) should equal ("de-to-ru?f%C3%BCnf=%D0%BF%D1%8F%D1%82%D1%8C")
   }
-
-  test("encodes URL through response") {
-    session {
-      url("foo", Map("session" -> "session")) should include("jsessionid=")
-    }
-  }
+//
+//  test("encodes URL through response") {
+//    session {
+//      url("foo", Map("session" -> "session")) should include("jsessionid=")
+//    }
+//  }
 }
 
 class NettyUrlSupportTest extends UrlSupportTest with NettyBackend

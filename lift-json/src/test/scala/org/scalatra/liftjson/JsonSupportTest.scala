@@ -1,11 +1,12 @@
-package org.scalatra.liftjson
+package org.scalatra
+package liftjson
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatra.ScalatraServlet
+import test.NettyBackend
 
-class JsonSupportTest extends ScalatraFunSuite {
-  addServlet(classOf[JsonSupportTestServlet], "/*")
-  addServlet(classOf[JsonPTestServlet], "/p/*")
+abstract class JsonSupportTest extends ScalatraFunSuite {
+  mount(new JsonSupportTestApp)
+  mount("/p", new JsonPTestApp)
 
   test("JSON support test") {
     get("/json") {
@@ -30,7 +31,7 @@ class JsonSupportTest extends ScalatraFunSuite {
 }
 
 
-class JsonSupportTestServlet extends ScalatraServlet with LiftJsonSupport {
+class JsonSupportTestApp extends ScalatraApp with LiftJsonSupport {
   get("/json") {
     import net.liftweb.json.JsonDSL._
     ("k1" -> "v1") ~
@@ -38,7 +39,7 @@ class JsonSupportTestServlet extends ScalatraServlet with LiftJsonSupport {
   }
 }
 
-class JsonPTestServlet extends ScalatraServlet with LiftJsonSupport {
+class JsonPTestApp extends ScalatraApp with LiftJsonSupport {
   override def jsonpCallbackParameterNames = Some("callback")
 
   get("/jsonp") {
@@ -47,3 +48,5 @@ class JsonPTestServlet extends ScalatraServlet with LiftJsonSupport {
     ("k2" -> "v2")
   }
 }
+
+class NettyJsonSupportTest extends JsonSupportTest with NettyBackend
