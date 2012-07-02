@@ -202,7 +202,19 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
    * The effective path against which routes are matched.  The definition
    * varies between servlets and filters.
    */
-  def requestPath: String = PathManipulationOps.ensureSlash(request.pathInfo.replaceFirst(appPath, ""))
+  def requestPath: String = {
+    PathManipulationOps.ensureSlash(request.pathInfo.replaceFirst(appPath, "")) match {
+      case null | "" => "/"
+      case s =>
+        val u = {
+          val pos = s.indexOf(';')
+          if (pos >= 0) s.substring(0, pos)
+          else s
+        }
+
+        UriDecoder.firstStep(u)
+    }
+  }
 
   def before(transformers: RouteTransformer*)(fun: => Any) {
     routes.appendBeforeFilter(Route(transformers, () => fun))

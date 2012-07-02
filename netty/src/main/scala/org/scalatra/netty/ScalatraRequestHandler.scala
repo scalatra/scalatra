@@ -6,15 +6,14 @@ import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http2.{HttpVersion => JHttpVersion, HttpResponseStatus, DefaultHttpResponse}
 
 /**
- * This handler is akin to the handle method of scalatra
+ * This handler is akin to the service method on a servlet
  */
 class ScalatraRequestHandler(implicit val appContext: AppContext) extends ScalatraUpstreamHandler {
 
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
     e.getMessage match {
       case req: NettyHttpRequest => {
-        println("Received request to: %s" format req.uri.toASCIIString)
-        logger debug ("Received request to: %s" format req.uri.toASCIIString)
+        logger debug ("Received a %s request to: %s" format (req.requestMethod, req.uri.toASCIIString))
         val resp = req.newResponse
         val app = appContext.application(req)
         if (app.isDefined) {
