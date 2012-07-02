@@ -2,22 +2,23 @@ package org.scalatra
 package swagger
 
 import test.specs2.ScalatraSpec
+import test.NettyBackend
 import org.specs2._
 import matcher.JsonMatchers
 import net.liftweb.json._
 import JsonDSL._
 
-class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
+abstract class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
   "Swagger integration should"                                  ^
     "list resources"                       ! listResoures       ^
     "list operations"                      ! listOperations     ^
   end
 
   val swagger = new Swagger("1.0", "1")
-  val testServlet = new SwaggerTestServlet
+  val testServlet = new SwaggerTestApp
   swagger register("test", "/test", "Test", testServlet)
-  addServlet(testServlet, "/test/*")
-  addServlet(new SwaggerResourcesServlet(swagger), "/*")
+  mount("/test", testServlet)
+  mount(new SwaggerResourcesApp(swagger))
 
   def listResoures = get("/resources.json") {
     parseOpt(body) must beSome.like {
@@ -70,13 +71,15 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
   }
 }
 
-class SwaggerTestServlet extends ScalatraServlet with SwaggerSupport {
+class SwaggerTestApp extends ScalatraApp with SwaggerSupport {
   get("/", summary("Test"), nickname("test")) {}
   get("/:id", summary("Find by ID"), nickname("findById"), responseClass("Book"), endpoint("{id}"), parameters(
     Parameter("id", "ID", DataType.String, paramType = ParamType.Path)
   )) {}
 }
 
-class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with SwaggerBase {
+class SwaggerResourcesApp(val swagger: Swagger) extends ScalatraApp with SwaggerBase {
   protected def buildFullUrl(path: String) = "http://localhost/%s" format path
 }
+
+class NettySwaggerSpec extends SwaggerSpec with NettyBackend

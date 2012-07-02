@@ -122,7 +122,10 @@ object ScalatraBuild extends Build {
       libraryDependencies += antiXml,
       description := "Anti-XML support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(
+    scalatraCore % "compile;provided->provided",
+    scalatraFrameworkTests % "test->compile;test->test;provided->provided",
+    scalatraSpecs2 % "test->compile;provided->provided")
 
   lazy val scalatraServlet = Project(
     id = "scalatra-servlet",
@@ -208,7 +211,8 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(liftJson, liftJsonExt),
       description := "Scalatra integration with Swagger"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided",
+      scalatraFrameworkTests % "test->compile;test->test;provided->provided")
 
   lazy val scalatraExample = Project(
     id = "scalatra-example",
