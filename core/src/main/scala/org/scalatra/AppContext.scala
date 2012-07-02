@@ -72,6 +72,8 @@ trait AppContext extends ScalatraLogging {
   def apply(key: String) = attributes(key)
   def update(key: String, value: Any) = { attributes(key) = value; this }
 
+  def sessions: SessionStore[_ <: HttpSession]
+
   def application(req: HttpRequest): Option[ScalatraApp] = {
     logger.debug("The registered applications:")
     logger.debug("%s" format applications)
@@ -121,4 +123,7 @@ case class DefaultAppContext(
 
   protected def absolutizePath(path: String) =
     PathManipulationOps.ensureSlash(if (path.startsWith("/")) path else server.base / path)
+
+  val sessions: SessionStore[_ <: HttpSession] = server.sessions.map(_.store) getOrElse (new NoopSessionStore)
+  sessions.initialize(this)
 }

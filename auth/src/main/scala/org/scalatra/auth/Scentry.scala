@@ -1,8 +1,6 @@
 package org.scalatra
 package auth
 
-import servlet.ServletBase
-
 import collection.mutable.{ HashMap, Map => MMap }
 import scala.PartialFunction
 import ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
@@ -11,7 +9,7 @@ import collection.immutable.List._
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = ServletBase => ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ScalatraApp => ScentryStrategy[UserType]
 
   private val _globalStrategies = new HashMap[Symbol, StrategyFactory[_ <: AnyRef]]()
 
@@ -26,14 +24,14 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-        app: ServletBase,
+        app: ScalatraApp with SessionSupport,
         serialize: PartialFunction[UserType, String],
         deserialize: PartialFunction[String, UserType] ) {
 
   import RicherString._
 
   type StrategyType = ScentryStrategy[UserType]
-  type StrategyFactory = ServletBase => StrategyType
+  type StrategyFactory = ScalatraApp => StrategyType
 
   import Scentry._
   private val _strategies = new HashMap[Symbol, StrategyFactory]()

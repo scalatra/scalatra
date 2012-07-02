@@ -4,6 +4,7 @@ package auth
 import servlet.ServletBase
 
 import javax.servlet.http.HttpSession
+import sun.plugin2.main.server.CookieSupport
 
 object ScentryAuthStore {
 
@@ -13,7 +14,7 @@ object ScentryAuthStore {
     def invalidate
   }
 
-  class HttpOnlyCookieAuthStore(app: => (ServletBase with CookieSupport), secureOnly: Boolean = false)
+  class HttpOnlyCookieAuthStore(app: => (ScalatraApp with CookieSupport), secureOnly: Boolean = false)
       extends CookieAuthStore(app.cookies, secureOnly) {
 
     private val SET_COOKIE = "Set-Cookie".intern
@@ -29,7 +30,7 @@ object ScentryAuthStore {
 
   }
 
-  class CookieAuthStore(cookies: => SweetCookies, secureOnly: Boolean = false) extends ScentryAuthStore {
+  class CookieAuthStore(cookies: => CookieJar, secureOnly: Boolean = false)(implicit appContext: AppContext) extends ScentryAuthStore {
 
     def get: String = {
       cookies.get(Scentry.scentryAuthKey) getOrElse ""
@@ -42,16 +43,16 @@ object ScentryAuthStore {
     }
   }
 
-  class SessionAuthStore(session: => HttpSession) extends ScentryAuthStore{
+  class SessionAuthStore(session: => HttpSession)(implicit appContext: AppContext) extends ScentryAuthStore{
 
     def get: String = {
-      session.getAttribute(Scentry.scentryAuthKey).asInstanceOf[String]
+      session.get(Scentry.scentryAuthKey).map(_.toString).orNull
     }
     def set(value: String) {
-      session.setAttribute(Scentry.scentryAuthKey, value)
+      session(Scentry.scentryAuthKey) = value
     }
     def invalidate {
-      session.invalidate()
+
     }
   }
 }
