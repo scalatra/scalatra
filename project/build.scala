@@ -224,7 +224,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-framework-tests",
     base = file("framework-tests"),
     settings = scalatraSettings ++ jettyOrbitHack ++ doNotPublish ++ Seq(
-      libraryDependencies ++= Seq(httpParsers),
+      libraryDependencies ++= Seq(httpParsers, logback),
       description := "Scalatra framework tests"
     )
   ) dependsOn(
@@ -244,8 +244,9 @@ object ScalatraBuild extends Build {
     val akka = "2.0.2"
     val dispatch = "0.8.7"
     val grizzledSlf4j = "0.6.6"
-    val netty = "3.5.0.Final"
+    val netty = "3.5.1.Final"
     val asyncHttpClient = "1.7.5"
+    val logback = "1.0.6"
   }
 
   object Dependencies {
@@ -274,7 +275,7 @@ object ScalatraBuild extends Build {
 
 //    val dispatch = "net.databinder" %% "dispatch-http" % V.dispatch
 
-    def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % V.grizzledSlf4j
+    val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % V.grizzledSlf4j
 
     // See jettyOrbitHack below.
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % V.jetty exclude("org.eclipse.jetty.orbit", "javax.servlet")
@@ -286,7 +287,7 @@ object ScalatraBuild extends Build {
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
     val netty = "io.netty" % "netty" % V.netty
-    val nettyExtension = "NettyExtension" % "NettyExtension" % "1.1.12"
+    val nettyExtension = "NettyExtension" % "NettyExtension" % "1.1.13"
 
     val scalaIO = Seq(
       "com.github.scala-incubator.io"    %% "scala-io-core"     % "0.4.0",
@@ -304,17 +305,19 @@ object ScalatraBuild extends Build {
 
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
 
-    def scalatest = "org.scalatest" %% "scalatest" % "1.6.1"
+    val scalatest = "org.scalatest" %% "scalatest" % "1.6.1"
 
-    def specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
+    val specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    def specs2 = "org.specs2" %% "specs2" % "1.11"
+    val specs2 = "org.specs2" %% "specs2" % "1.11"
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
     val testng = "org.testng" % "testng" % "6.3" % "optional"
+
+    val logback = "ch.qos.logback" % "logback-classic" % V.logback % "provided"
   }
 
   object Resolvers {
@@ -391,7 +394,7 @@ object ScalatraBuild extends Build {
         <developer>
           <id>sdeboey</id>
           <name>Stefan De Boey</name>
-          <url>http://www.ellefant.be/</url>
+          <url>http://twitter.com/sdeboey</url>
         </developer>
         <developer>
           <id>mnylen</id>

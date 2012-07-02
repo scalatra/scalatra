@@ -45,7 +45,9 @@ private[test] object StringHttpMethod {
 
 class AhcClient(val host: String, val port: Int) extends Client {
   import StringHttpMethod._
-  private val clientConfig = new AsyncHttpClientConfig.Builder().setFollowRedirects(false).build()
+  private val clientConfig =
+    (new AsyncHttpClientConfig.Builder()
+      setFollowRedirects false).build()
   private val underlying = new AsyncHttpClient(clientConfig) {
     def preparePatch(uri: String): AsyncHttpClient#BoundRequestBuilder = requestBuilder("PATCH", uri)
     def prepareTrace(uri: String): AsyncHttpClient#BoundRequestBuilder = requestBuilder("TRACE", uri)
@@ -103,7 +105,7 @@ class AhcClient(val host: String, val port: Int) extends Client {
         ct.toLowerCase(Locale.ENGLISH).startsWith("multipart/form-data")
       }
     }
-    val reqUri = if (u.isAbsolute) u else new URI("http", null, host, port, u.getPath, u.getQuery, u.getFragment)
+    val reqUri = if (u.isAbsolute) u else new URI("http", null, host, port, u.getRawPath, u.getRawQuery, u.getRawFragment)
     val req = (requestFactory(method)
       andThen (addHeaders(headers) _)
       andThen (addParameters(method, params, isMultipart) _))(reqUri.toASCIIString)

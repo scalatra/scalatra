@@ -54,6 +54,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
     e.getMessage match {
       case request: JHttpRequest => {
+        println(request)
         clearDecoder()
         this.request = request
         if (request.containsHeader(Names.CONTENT_TYPE)) {
