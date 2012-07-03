@@ -24,9 +24,10 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-        app: ScalatraApp with SessionSupport,
+        app: ScalatraApp,
+        store: ScentryAuthStore,
         serialize: PartialFunction[UserType, String],
-        deserialize: PartialFunction[String, UserType] ) {
+        deserialize: PartialFunction[String, UserType]) {
 
   import RicherString._
 
@@ -36,20 +37,10 @@ class Scentry[UserType <: AnyRef](
   import Scentry._
   private val _strategies = new HashMap[Symbol, StrategyFactory]()
   private var _user: UserType = null.asInstanceOf[UserType]
-  private var _store: ScentryAuthStore = new SessionAuthStore(app.session)
-
-  @deprecated("use store_= instead", "2.0.0")
-  def setStore(newStore: ScentryAuthStore) { store = newStore }
-  def store = _store
-  def store_=(newStore: ScentryAuthStore) {
-    _store = newStore
-  }
 
   def isAuthenticated = {
     userOption.isDefined
   }
-  @deprecated("use isAuthenticated", "2.0.0")
-  def authenticated_? = isAuthenticated
 
   //def session = app.session
   def params = app.params
@@ -117,11 +108,11 @@ class Scentry[UserType <: AnyRef](
         }
        } else List.empty[(Symbol, UserType)]
       acc ::: r
-    } headOption
+    }.headOption
   }
 
   private def runUnauthenticated = {
-    strategies filter { case (_, strat) => strat.isValid } map { case (_, s) => s } toList match {
+    strategies.filter { case (_, strat) => strat.isValid }.values.toList match {
       case Nil => defaultUnauthenticated foreach { _.apply() }
       case l => {
         l foreach { s => runCallbacks() { _.unauthenticated() } }

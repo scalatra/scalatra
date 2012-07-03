@@ -89,5 +89,7 @@ trait HttpSession extends mutable.Map[String, Any] with mutable.MapLike[String, 
     this
   }
 
+  def invalidate()(implicit appContext: AppContext) { appContext.sessions.invalidate(this) }
+
 }
 

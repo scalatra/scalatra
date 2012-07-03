@@ -71,7 +71,11 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(base64),
       description := "Scalatra authentication module"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(
+      scalatraCore % "compile;provided->provided",
+      scalatraFrameworkTests % "test->compile;test->test;provided->provided",
+      scalatraTest % "test->compile;provided->provided",
+      scalatraSpecs % "test->compile;provided->provided")
 
   lazy val scalatraAkka = Project(
     id = "scalatra-akka",
