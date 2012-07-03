@@ -35,6 +35,8 @@ class AppMounterSpec extends Specification { def is =
       implicit def appContext = this
 
       implicit val applications: AppMounter.ApplicationRegistry = new ConcurrentHashMap[String, AppMounter]
+
+      def sessions: SessionStore[_ <: HttpSession] = new NoopSessionStore
     }
     val root = new AppMounter("/", "", NullMountable)
 

@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
     ),
     aggregate = Seq(
       scalatraCore, scalatraAuth, scalatraScalate, scalatraLiftJson,
-      scalatraAntiXml, scalatraJerkson, scalatraAkka, scalatraSwagger,
+      scalatraJerkson, scalatraAkka, scalatraSwagger,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraJetty, scalatraJetty, scalatraServlet)
   )
@@ -114,18 +114,6 @@ object ScalatraBuild extends Build {
       description := "Jackson/Jerkson JSON support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;provided->provided")
-
-  lazy val scalatraAntiXml = Project(
-    id = "scalatra-anti-xml",
-    base = file("anti-xml"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies += antiXml,
-      description := "Anti-XML support for Scalatra"
-    )
-  ) dependsOn(
-    scalatraCore % "compile;provided->provided",
-    scalatraFrameworkTests % "test->compile;test->test;provided->provided",
-    scalatraSpecs2 % "test->compile;provided->provided")
 
   lazy val scalatraServlet = Project(
     id = "scalatra-servlet",
