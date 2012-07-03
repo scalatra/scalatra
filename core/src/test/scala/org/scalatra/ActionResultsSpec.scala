@@ -37,6 +37,19 @@ class ActionResultServlet extends ScalatraServlet {
     Found("/ok")
   }
 
+  get("/contentType") {
+    val headerName =
+      if (params.getOrElse("lcase", "false") == "true")
+        "content-type"
+      else
+        "Content-Type"
+
+
+    Ok("Hello, world!", headers = Map(
+      headerName -> "application/vnd.ms-excel"
+    ))
+  }
+
   get("/custom-reason") {
     BadRequest(body = "abc", reason = "Bad Bad Bad")
   }
@@ -81,6 +94,18 @@ class ActionResultsSpec extends MutableScalatraSpec {
     "set the headers" in {
       get("/headers") {
         header("X-Something") mustEqual "Something"
+      }
+    }
+
+    "set the Content-Type header if it exists in the headers map" in {
+      get("/contentType") {
+        header("Content-Type") mustEqual "application/vnd.ms-excel;charset=UTF-8"
+      }
+    }
+
+    "set the Content-Type header if it's in lowercase in the headers map" in {
+      get("/contentType?lcase=true") {
+        header("Content-Type") mustEqual "application/vnd.ms-excel;charset=UTF-8"
       }
     }
   }
