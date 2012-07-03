@@ -4,6 +4,7 @@ package netty
 import org.jboss.netty.channel.ChannelHandler.Sharable
 import org.jboss.netty.channel.{ChannelStateEvent, MessageEvent, ChannelHandlerContext}
 import store.session.InMemorySessionStore
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * This handler is shared across the entire server, providing application level settings
@@ -11,15 +12,13 @@ import store.session.InMemorySessionStore
 @Sharable
 class ScalatraApplicationHandler(implicit val appContext: AppContext) extends ScalatraUpstreamHandler {
 
-  protected val sessions = new InMemorySessionStore()
-
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
     e.getMessage match {
       case req: NettyHttpRequest => {
         appContext.application(req) match {
           case Some(app: ScalatraApp with SessionSupport) => {
-            val current = req.cookies get appContext.sessionIdKey flatMap sessions.get
-            app.session = current getOrElse sessions.newSession
+            val current = req.cookies get appContext.sessionIdKey flatMap appContext.sessions.get
+            app.session = current getOrElse appContext.sessions.newSession
             if (current.isEmpty) req.cookies += appContext.sessionIdKey -> app.session.id
           }
           case _ =>
@@ -32,6 +31,8 @@ class ScalatraApplicationHandler(implicit val appContext: AppContext) extends Sc
     }
   }
 
-  def stop() = sessions.stop()
+  def stop() = {
+    appContext.sessions.stop()
+  }
 
 }

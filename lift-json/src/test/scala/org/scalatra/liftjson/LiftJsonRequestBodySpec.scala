@@ -3,8 +3,9 @@ package liftjson
 
 import net.liftweb.json._
 import test.specs.ScalatraSpecification
+import test.NettyBackend
 
-class LiftJsonSupportServlet extends ScalatraServlet with LiftJsonSupport {
+class LiftJsonSupportApp extends ScalatraApp with LiftJsonSupport {
 
   post("/json") {
     parsedBody match {
@@ -18,16 +19,16 @@ class LiftJsonSupportServlet extends ScalatraServlet with LiftJsonSupport {
 
 }
 
-class LiftJsonRequestBodySpec extends ScalatraSpecification {
+abstract class LiftJsonRequestBodySpec extends ScalatraSpecification {
 
-  addServlet(new LiftJsonSupportServlet, "/*")
+  mount(new LiftJsonSupportApp)
 
   "The LiftJsonSupport" should {
 
     "parse the json body of a request" in {
       val rbody = """{"name": "hello world"}"""
       post("/json", headers = Map("Accept" -> "application/json", "Content-Type" -> "application/json"), body = rbody) {
-        status must_== 200
+        status.code must_== 200
         body must_== "hello world"
       }
     }
@@ -35,10 +36,12 @@ class LiftJsonRequestBodySpec extends ScalatraSpecification {
     "parse the xml body of a request" in {
       val rbody = """<name>hello world</name>"""
       post("/json", headers = Map("Accept" -> "application/xml", "Content-Type" -> "application/xml"), body = rbody) {
-        status must_== 200
+        status.code must_== 200
         body must_== "hello world"
       }
     }
 
   }
 }
+
+class NettyLiftJsonRequestBodySpec extends LiftJsonRequestBodySpec with NettyBackend

@@ -2,20 +2,18 @@ package org.scalatra
 package auth
 package strategy
 
-import servlet.ServletBase
 import util.RicherString._
 
 import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
 import net.iharder.Base64
 import java.nio.charset.Charset
 import java.util.Locale
-import javax.servlet.http.{ HttpServletRequest}
 
 trait RemoteAddress { self: ScentryStrategy[_]  =>
 
   protected def remoteAddress ={
-    val proxied = app.request.getHeader("X-FORWARDED-FOR")
-    val res = if (proxied.nonBlank) proxied else app.request.getRemoteAddr
+    val proxied = app.request.headers("X-FORWARDED-FOR")
+    val res = if (proxied.nonBlank) proxied else app.request.remoteAddress
     res
   }
 }
@@ -26,7 +24,7 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
  * for more details on usage check:
  * https://gist.github.com/732347
  */
-trait BasicAuthSupport[UserType <: AnyRef] { self: (ServletBase with ScentrySupport[UserType])  =>
+trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraApp with ScentrySupport[UserType])  =>
 
   def realm: String
 
@@ -34,7 +32,7 @@ trait BasicAuthSupport[UserType <: AnyRef] { self: (ServletBase with ScentrySupp
   protected def basicAuth() = {
     val baReq = new BasicAuthStrategy.BasicAuthRequest(request)
     if(!baReq.providesAuth) {
-      response.setHeader("WWW-Authenticate", "Basic realm=\"%s\"" format realm)
+      response.headers += "WWW-Authenticate" -> "Basic realm=\"%s\"".format(realm)
       halt(401, "Unauthenticated")
     }
     if(!baReq.isBasicAuth) {
@@ -48,13 +46,13 @@ trait BasicAuthSupport[UserType <: AnyRef] { self: (ServletBase with ScentrySupp
 object BasicAuthStrategy {
 
   private val AUTHORIZATION_KEYS = List("Authorization", "HTTP_AUTHORIZATION", "X-HTTP_AUTHORIZATION", "X_HTTP_AUTHORIZATION")
-  class BasicAuthRequest(r: HttpServletRequest) {
+  class BasicAuthRequest(r: HttpRequest) {
 
-    def parts = authorizationKey map { r.getHeader(_).split(" ", 2).toList } getOrElse Nil
+    def parts = authorizationKey flatMap { r.headers.get(_).map(_.split(" ", 2).toList) } getOrElse Nil
     def scheme: Option[Symbol] = parts.headOption.map(sch => Symbol(sch.toLowerCase(Locale.ENGLISH)))
     def params = parts.lastOption
 
-    private def authorizationKey = AUTHORIZATION_KEYS.find(r.getHeader(_) != null)
+    private def authorizationKey = AUTHORIZATION_KEYS find r.contains
 
     def isBasicAuth = (false /: scheme) { (_, sch) => sch == 'basic }
     def providesAuth = authorizationKey.isDefined
@@ -72,16 +70,18 @@ object BasicAuthStrategy {
     def username = credentials map { _._1 } getOrElse null
     def password = credentials map { _._2 } getOrElse null
   }
+
+  private val REMOTE_USER = "REMOTE_USER"
+
 }
-abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ServletBase, realm: String)
+abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraApp, realm: String)
   extends ScentryStrategy[UserType]
   with RemoteAddress {
 
   import BasicAuthStrategy._
 
-  private val REMOTE_USER = "REMOTE_USER".intern
 
-  implicit def request2BasicAuthRequest(r: HttpServletRequest) = new BasicAuthRequest(r)
+  implicit def request2BasicAuthRequest(r: HttpRequest) = new BasicAuthRequest(r)
 
   protected def challenge = "Basic realm=\"%s\"" format realm
 
@@ -100,16 +100,16 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ServletB
 
 
   override def afterSetUser(user: UserType) {
-    app.response.setHeader(REMOTE_USER, getUserId(user))
+    app.response.headers += REMOTE_USER -> getUserId(user)
   }
 
 
   override def unauthenticated() {
-    app.response.setHeader("WWW-Authenticate", challenge)
+    app.response.headers += "WWW-Authenticate" -> challenge
     app.halt(401, "Unauthenticated")
   }
 
   override def afterLogout(user: UserType) {
-    app.response.setHeader(REMOTE_USER, "")
+    app.response.headers += REMOTE_USER -> ""
   }
 }

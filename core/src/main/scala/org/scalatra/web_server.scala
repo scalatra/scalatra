@@ -22,6 +22,7 @@ case class ContentCompression(level: Int = 6) extends ServerCapability
 case class PublicDirectory(path: Path, cacheFiles: Boolean = true) extends ServerCapability
 case class TempDirectory(path: Path) extends ServerCapability
 case class DataDirectory(path: Path) extends ServerCapability
+case class SessionProvider(store: SessionStore[_ <: HttpSession]) extends ServerCapability
 
 case class ServerInfo(
               name: String,
@@ -65,6 +66,11 @@ case class ServerInfo(
     case _: ContentCompression => true
     case _ => false
   }) map (_.asInstanceOf[ContentCompression])
+
+  val sessions = capabilities collectFirst {
+    case s: SessionProvider => s
+  }
+
 }
 
 

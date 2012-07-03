@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
     ),
     aggregate = Seq(
       scalatraCore, scalatraAuth, scalatraScalate, scalatraLiftJson,
-      scalatraAntiXml, scalatraJerkson, scalatraAkka, scalatraSwagger,
+      scalatraJerkson, scalatraAkka, scalatraSwagger,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraJetty, scalatraJetty, scalatraServlet)
   )
@@ -71,7 +71,11 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(base64),
       description := "Scalatra authentication module"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(
+      scalatraCore % "compile;provided->provided",
+      scalatraFrameworkTests % "test->compile;test->test;provided->provided",
+      scalatraTest % "test->compile;provided->provided",
+      scalatraSpecs % "test->compile;provided->provided")
 
   lazy val scalatraAkka = Project(
     id = "scalatra-akka",
@@ -100,7 +104,11 @@ object ScalatraBuild extends Build {
       libraryDependencies += liftJson,
       description := "Lift JSON support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(
+    scalatraCore % "compile;provided->provided",
+    scalatraFrameworkTests % "test->compile;test->test;provided->provided",
+    scalatraTest % "test->compile;provided->provided",
+    scalatraSpecs % "test->compile;provided->provided")
 
   lazy val scalatraJerkson = Project(
     id = "scalatra-jerkson",
@@ -108,15 +116,6 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies += jerkson,
       description := "Jackson/Jerkson JSON support for Scalatra"
-    )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
-
-  lazy val scalatraAntiXml = Project(
-    id = "scalatra-anti-xml",
-    base = file("anti-xml"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies += antiXml,
-      description := "Anti-XML support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;provided->provided")
 
@@ -204,7 +203,8 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(liftJson, liftJsonExt),
       description := "Scalatra integration with Swagger"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(scalatraCore % "compile;provided->provided",
+      scalatraFrameworkTests % "test->compile;test->test;provided->provided")
 
   lazy val scalatraExample = Project(
     id = "scalatra-example",

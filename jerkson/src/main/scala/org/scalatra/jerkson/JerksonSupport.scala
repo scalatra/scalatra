@@ -2,7 +2,7 @@ package org.scalatra
 package jerkson
 
 import _root_.com.codahale.jerkson._
-import io.Codec._
+import scala.io.Codec._
 import AST._
 import java.io.InputStream
 

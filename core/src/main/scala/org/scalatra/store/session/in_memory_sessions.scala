@@ -36,19 +36,28 @@ object InMemorySessionStore {
  * crude and naive non-blocking LRU implementation that expires sessions after the specified timeout
  * @param appContext
  */
-class InMemorySessionStore(implicit appContext: AppContext) extends SessionStore[InMemorySession] with mutable.MapLike[String,  InMemorySession, InMemorySessionStore] {
+class InMemorySessionStore(sessionTimeout: Duration = 20.minutes) extends SessionStore[InMemorySession] with mutable.MapLike[String,  InMemorySession, InMemorySessionStore] {
 
 
   import InMemorySessionStore.Entry
   protected val meta = InMemorySession
 
-  private[this] var timeout = expireSessions
+  private[this] var timeout: Cancellable = null
 
   private[this] val self: mutable.ConcurrentMap[String, Entry[InMemorySession]] =
     new ConcurrentHashMap[String, Entry[InMemorySession]]().asScala
 
 
-  def emptyStore = new InMemorySessionStore().asInstanceOf[this.type]
+  /**
+   * A hook to initialize the class with some configuration after it has
+   * been constructed.
+   */
+  override def initialize(config: AppContext) {
+    super.initialize(config)
+    timeout = expireSessions
+  }
+
+  def emptyStore = new InMemorySessionStore(sessionTimeout).asInstanceOf[this.type]
 
   override def seq = self map { case (k, v) => (k -> v.value) }
 
@@ -58,13 +67,13 @@ class InMemorySessionStore(implicit appContext: AppContext) extends SessionStore
 
   def newSession = {
     val sess = meta.empty
-    self += sess.id -> Entry(sess, appContext.sessionTimeout)
+    self += sess.id -> Entry(sess, sessionTimeout)
     sess
   }
 
   def newSessionWithId(id: String) = {
     val sess = meta.emptyWithId(id)
-    self += sess.id -> Entry(sess, appContext.sessionTimeout)
+    self += sess.id -> Entry(sess, sessionTimeout)
     sess
   }
 
@@ -92,7 +101,7 @@ class InMemorySessionStore(implicit appContext: AppContext) extends SessionStore
   }
 
   def +=(kv: (String, InMemorySession)) = {
-    self += kv._1 -> Entry(kv._2, appContext.sessionTimeout)
+    self += kv._1 -> Entry(kv._2, sessionTimeout)
     this
   }
 

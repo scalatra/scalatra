@@ -23,6 +23,7 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
   private def specify(ttl: Int = 1) = new StoreContext(ttl)
 
   private class StoreContext(ttl: Int) extends After {
+    val store = new InMemorySessionStore(AkkaDuration(ttl, TimeUnit.SECONDS))
     implicit val appContext = {
       val ctxt = new AppContext {
         def server = null
@@ -30,12 +31,15 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
         implicit def applications = null
 
         implicit def appContext = this
+
+        val sessions: SessionStore[_ <: HttpSession] = store
+        sessions.initialize(this)
       }
       ctxt.sessionTimeout = AkkaDuration(ttl, TimeUnit.SECONDS)
       ctxt
     }
 
-    val store = new InMemorySessionStore
+
 
     def after = {
       store.stop
