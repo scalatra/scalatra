@@ -44,6 +44,13 @@ class HaltTestServlet extends ScalatraServlet {
     "this content must not be returned"
   }
 
+  get("/action-result") {
+    halt(ActionResult(status = new ResponseStatus(406, "Not Acceptable"),
+                      headers = Map("X-Action-Result" -> "present"),
+                      body = "body sent using ActionResult"))
+    "this content must not be returned"
+  }
+
   after() {
     response.setHeader("After-Header", "after")
   }
@@ -75,6 +82,13 @@ class HaltSpec extends ScalatraSpec { def is =
     "set the reason"                            ! reason("/all-args", "Go away")^
     "set the headers"                           ! hasHeader("/all-args", "X-Your-Father-Smelt-Of", "elderberries")^
     "render the body"                           ! bodyEquals("/all-args", "<h1>Go away or I shall taunt you a second time!</h1>")^
+                                                end^
+  "halt with an ActionResult should"            ^
+    "behave like a common halt"                 ^ commonHalt("/action-result")^
+    "set the status"                            ! status("/action-result", 406)^
+    "set the reason"                            ! reason("/action-result", "Not Acceptable")^
+    "set the headers"                           ! hasHeader("/action-result", "X-Action-Result", "present")^
+    "render the body"                           ! bodyEquals("/action-result", "body sent using ActionResult")^
                                                 end^
   "halt in a before filter should"              ^
     "behave like a common halt"                 ^ commonHalt("/halt-before?haltBefore=true")
