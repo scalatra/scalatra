@@ -122,7 +122,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
     val files = Map(
-      "text" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
+      "text"   -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
       "binary" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
     )
 

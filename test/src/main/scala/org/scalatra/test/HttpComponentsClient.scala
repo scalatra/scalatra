@@ -154,7 +154,7 @@ trait HttpComponentsClient extends Client {
 
         files.foreach {
           case (name, file) =>
-            multipartEntity.addPart(name, createBody(file))
+            multipartEntity.addPart(name, createBody(name, file))
         }
 
         r.setEntity(multipartEntity)
@@ -167,9 +167,14 @@ trait HttpComponentsClient extends Client {
     }
   }
 
-  private def createBody(part: Any): ContentBody = part match {
-    case file: File => new FileBody(file)
-    case _          => new StringBody(part.toString)
+  def createBody(name: String, content: Any) = content match {
+    case file: File => UploadableBody(FilePart(file))
+    case uploadable: Uploadable => UploadableBody(uploadable)
+
+    case s: Any =>
+      throw new IllegalArgumentException(
+        ("The body type for file parameter '%s' could not be inferred. The " +
+        "supported types are java.util.File and org.scalatra.test.Uploadable").format(name))
   }
 }
 
@@ -184,9 +189,11 @@ case class UploadableBody(uploadable: Uploadable) extends ContentBody {
 
   def getTransferEncoding = "binary"
 
-  def getContentLength = 0L
+  def getContentLength = uploadable.contentLength
 
-  def getFilename = ""
+  def getFilename = uploadable.fileName
 
-  def writeTo(out: OutputStream) {}
+  def writeTo(out: OutputStream) {
+    out.write(uploadable.content)
+  }
 }
