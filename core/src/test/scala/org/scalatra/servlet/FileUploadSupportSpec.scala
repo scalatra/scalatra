@@ -155,6 +155,10 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     }
   }
 
+  def multipartHeaders = {
+    Map("Content-Type" -> "multipart/form-data; boundary=XyXyXy")
+  }
+
   "POST with multipart/form-data" should {
     "route correctly to action" in {
       postExample {
@@ -233,6 +237,33 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
           (header("param2") must_== "two")
       }
     }
+
+    "use default charset (UTF-8) for decoding form params if not excplicitly set to something else" in {
+      val boundary = "XyXyXy"
+      val reqBody  = ("--{boundary}\r\n" +
+                      "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
+                      "Content-Type: text/plain\r\n" +
+                      "\r\n" +
+                      "föo\r\n\r\n" +
+                      "--{boundary}--\r\n").replace("{boundary}", boundary).getBytes("ISO-8859-1")
+
+      post("/params", headers = multipartHeaders, body = reqBody) {
+        header("utf8-string") must_== "föo"
+      }
+    }
+
+    "use the charset specified in Content-Type header of a part for decoding form params" in {
+      val reqBody = ("--XyXyXy\r\n" +
+                     "Content-Disposition: form-data; name=\"latin1-string\"\r\n" +
+                     "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                     "\r\n" +
+                     "äöööölfldflfldfdföödfödfödfåååååå\r\n" +
+                     "--XyXyXy--").getBytes("ISO-8859-1")
+
+      post("/params", headers = multipartHeaders, body = reqBody) {
+        header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
+      }
+    }
   }
 
 
@@ -269,18 +300,6 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
         body must_== "file size: 651"
       }
     }
-  }
-
-  "use default charset (UTF-8) for decoding form params if not excplicitly set to something else" in {
-    val headers = Map(
-      "Content-Type" -> "multipart/form-data; boundary=-----------------------------3924013385056820061124200860"
-    )
-
-    val reqBody = "-----------------------------3924013385056820061124200860\r\n" +
-                  "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
-                  "Content-Type: text/plain\r\n" +
-                  "\r\n" +
-                  "föo"
   }
 }
 
