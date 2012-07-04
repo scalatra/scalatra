@@ -4,7 +4,7 @@ import scala.util.DynamicVariable
 import java.net.URLEncoder.encode
 import java.io.File
 
-trait Client {
+trait Client extends ImplicitConversions {
   private val _response = new DynamicVariable[ClientResponse](null)
 
   def session[A](f: => A): A
@@ -31,7 +31,7 @@ trait Client {
     uri: String,
     queryParams: Iterable[(String, String)] = Map.empty,
     headers: Map[String, String] = Map.empty,
-    body: String = null)(f: => A): A
+    body: Array[Byte] = null)(f: => A): A
 
   protected def submitMultipart[A](
     method: String,
@@ -58,8 +58,8 @@ trait Client {
   def post[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
     post(uri, params, Map[String, String]())(f)
   def post[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
-    post(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def post[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
+    post(uri, toQueryString(params).getBytes("UTF-8"), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
+  def post[A](uri: String, body: Array[Byte] = Array(), headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("POST", uri, Seq.empty, headers, body) { f }
   def post[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, Any)])(f: => A): A =
     post(uri, params, files, Map[String, String]()) { f }
@@ -71,8 +71,8 @@ trait Client {
   def put[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
     put(uri, params, Map[String, String]())(f)
   def put[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
-    put(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def put[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A) =
+    put(uri, toQueryString(params).getBytes("UTF-8"), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
+  def put[A](uri: String, body: Array[Byte] = Array(), headers: Map[String, String] = Map.empty)(f: => A) =
     submit("PUT", uri, Seq.empty, headers, body) { f }
   def put[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, Any)])(f: => A): A =
     put(uri, params, files, Map[String, String]()) { f }
@@ -96,8 +96,8 @@ trait Client {
   def patch[A](uri: String, params: Iterable[(String,String)])(f: => A): A =
     patch(uri, params, Map[String, String]())(f)
   def patch[A](uri: String, params: Iterable[(String,String)], headers: Map[String, String])(f: => A): A =
-    patch(uri, toQueryString(params), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
-  def patch[A](uri: String, body: String = "", headers: Map[String, String] = Map.empty)(f: => A): A =
+    patch(uri, toQueryString(params).getBytes("UTF-8"), Map("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
+  def patch[A](uri: String, body: Array[Byte] = Array(), headers: Map[String, String] = Map.empty)(f: => A): A =
     submit("PATCH", uri, Seq.empty, headers, body) { f }
 
   private[test] def toQueryString(params: Traversable[(String, String)]) =

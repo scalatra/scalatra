@@ -1,8 +1,5 @@
 package org.scalatra.test
 
-import scala.util.DynamicVariable
-import java.net.HttpCookie
-
 /**
  * Provides a framework-agnostic way to test your Scalatra app.  You probably want to extend this with
  * either <code>org.scalatra.test.scalatest.ScalatraSuite</code> or
@@ -12,6 +9,5 @@ import java.net.HttpCookie
  * to match domains, paths, or max-ages; the request sends a Cookie header
  * to match whatever Set-Cookie call it received on the previous response.
  */
-trait ScalatraTests extends EmbeddedJettyContainer with HttpComponentsClient {
-}
+trait ScalatraTests extends EmbeddedJettyContainer with HttpComponentsClient { }
 

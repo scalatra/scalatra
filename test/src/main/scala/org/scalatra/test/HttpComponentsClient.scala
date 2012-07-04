@@ -55,7 +55,7 @@ trait HttpComponentsClient extends Client {
     path: String,
     queryParams: Iterable[(String, String)] = Map.empty,
     headers: Map[String, String] = Map.empty,
-    body: String = null)(f: => A): A =
+    body: Array[Byte] = null)(f: => A): A =
   {
     val client = createClient
     val queryString = toQueryString(queryParams)
@@ -117,15 +117,15 @@ trait HttpComponentsClient extends Client {
     }
   }
 
-  private def attachBody(req: HttpRequestBase, body: String) {
-    val bodyBytes = Option(body).getOrElse("").getBytes("iso-8859-1")
+  private def attachBody(req: HttpRequestBase, body: Array[Byte]) {
+    if (body == null) return
 
     req match {
       case r: HttpEntityEnclosingRequestBase =>
-        r.setEntity(new ByteArrayEntity(bodyBytes))
+        r.setEntity(new ByteArrayEntity(body))
 
       case _ =>
-        if (bodyBytes.length > 0) {
+        if (body.length > 0) {
           throw new IllegalArgumentException(
             """|HTTP %s does not support enclosing an entity.
                |Please remove the value from `body` parameter

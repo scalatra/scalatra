@@ -270,6 +270,18 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
       }
     }
   }
+
+  "use default charset (UTF-8) for decoding form params if not excplicitly set to something else" in {
+    val headers = Map(
+      "Content-Type" -> "multipart/form-data; boundary=-----------------------------3924013385056820061124200860"
+    )
+
+    val reqBody = "-----------------------------3924013385056820061124200860\r\n" +
+                  "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
+                  "Content-Type: text/plain\r\n" +
+                  "\r\n" +
+                  "föo"
+  }
 }
 
 /*
