@@ -52,19 +52,19 @@ abstract class ClientResponse {
     }
   }
 
-  def getReason = statusLine.message
+  def getReason() = statusLine.message
 
   def getHeader(name: String) = header.getOrElse(name, null)
 
   def getLongHeader(name: String) = header.getOrElse(name, "-1").toLong
 
-  def getHeaderNames: java.util.Enumeration[String] =  headers.keysIterator.asJavaEnumeration
+  def getHeaderNames(): java.util.Enumeration[String] =  headers.keysIterator.asJavaEnumeration
 
   def getHeaderValues(name: String): java.util.Enumeration[String] = headers.getOrElse(name, Seq()).iterator.asJavaEnumeration
 
-  def getContentBytes = bodyBytes
+  def getContentBytes() = bodyBytes
 
-  def getContent = body
+  def getContent() = body
 
-  def getContentType = header.getOrElse("Content-Type", null)
+  def getContentType() = header.getOrElse("Content-Type", null)
 }
