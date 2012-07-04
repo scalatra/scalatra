@@ -222,5 +222,10 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * @return the client ip address
    */
   def remoteAddress = header("X-FORWARDED-FOR").flatMap(_.blankOption) getOrElse r.getRemoteAddr
+
+  def locale = r.getLocale
+
+  def locales = r.getLocales
+
 }
 
