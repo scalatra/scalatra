@@ -2,8 +2,6 @@ package org.scalatra
 package fileupload
 
 import java.net.{URLDecoder, URLEncoder}
-import org.scalatest.FunSuite
-import org.eclipse.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith

@@ -52,7 +52,7 @@ object ScalatraBuild extends Build {
       ),
       description := "The core Scalatra framework"
     )
-  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest, scalatraTestTomcat) map { _ % "test->compile" } :_*)
+  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
 
   lazy val scalatraAuth = Project(
     id = "scalatra-auth",

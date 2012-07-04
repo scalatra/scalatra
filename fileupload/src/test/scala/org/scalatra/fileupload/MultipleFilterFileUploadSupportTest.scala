@@ -2,8 +2,6 @@ package org.scalatra
 package fileupload
 
 import test.scalatest.ScalatraFunSuite
-import org.eclipse.jetty.testing.{ServletTester, HttpTester}
-import org.apache.commons.io.IOUtils
 import java.io.File
 
 class MultipleFilterFileUploadSupportTest extends ScalatraFunSuite {
