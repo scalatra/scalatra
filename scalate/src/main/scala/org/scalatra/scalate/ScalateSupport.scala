@@ -124,7 +124,10 @@ trait ScalateSupport extends ScalatraApp {
       super.handle(req, res)
     }
     catch {
-      case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
+      case e if isScalateErrorPageEnabled =>
+        renderScalateErrorPage(req, res, e)
+        println("ending response in scalate support error page")
+        res.end()
       case e => throw e
     }
   }
@@ -138,7 +141,6 @@ trait ScalateSupport extends ScalatraApp {
     val context = createRenderContext(req, resp, resp.writer)
     context.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, context)
-    resp.end()
   }
 
   /**

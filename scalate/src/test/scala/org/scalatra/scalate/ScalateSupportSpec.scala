@@ -3,12 +3,13 @@ package scalate
 
 import test.specs2.ScalatraSpec
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
+import scala.util.DynamicVariable
 
 class NettyScalateSupportSpec extends ScalateSupportSpec with test.NettyBackend
 
 abstract class ScalateSupportSpec extends ScalatraSpec { def is =
   "ScalateSupport should"                                         ^
-//    "render uncaught errors with 500.scaml"                       ! e1^
+    "render uncaught errors with 500.scaml"                       ! e1^
     "not throw a NullPointerException for trivial requests"       ! e2^
     "render a simple template"                                    ! e3^
     "render a simple template with params"                        ! e4^
@@ -31,7 +32,7 @@ abstract class ScalateSupportSpec extends ScalatraSpec { def is =
     "implicitly bind multiParams"                                 ! e21^
     "set templateAttributes when creating a render context"       ! e22^
     "render to a string instead of response"                      ! e23^
-//    "set status to 500 when rendering 500.scaml"                  ! e24
+    "set status to 500 when rendering 500.scaml"                  ! e24
   end
 
   mount(new ScalateSupportSpec.ScalateSpecApp)
@@ -148,104 +149,100 @@ object ScalateSupportSpec {
   class ScalateSpecApp extends ScalatraApp with SessionSupport with ScalateSupport
       with ScalateUrlGeneratorSupport with FlashMapSupport {
 
-      get("/barf") {
-        throw new RuntimeException
-      }
+    private[this] val _sep = new DynamicVariable[Boolean](true)
+    protected override def isScalateErrorPageEnabled = _sep.value
+    get("/barf") {
+      throw new RuntimeException
+    }
 
-      get("/happy-happy") {
-        "puppy dogs"
-      }
+    get("/happy-happy") {
+      "puppy dogs"
+    }
 
-      get("/simple-template") {
-        layoutTemplate("/simple.jade")
-      }
+    get("/simple-template") {
+      layoutTemplate("/simple.jade")
+    }
 
-      get("/params") {
-        layoutTemplate("/params.jade", "foo" -> "Configurable")
-      }
+    get("/params") {
+      layoutTemplate("/params.jade", "foo" -> "Configurable")
+    }
 
-      get("/jade-template") {
-        jade("simple")
-      }
+    get("/jade-template") {
+      jade("simple")
+    }
 
-      get("/jade-params") {
-        jade("params", "foo" -> "Configurable")
-      }
+    get("/jade-params") {
+      jade("params", "foo" -> "Configurable")
+    }
 
-      get("/scaml-template") {
-        scaml("simple")
-      }
+    get("/scaml-template") {
+      scaml("simple")
+    }
 
-      get("/scaml-params") {
-        scaml("params", "foo" -> "Configurable")
-      }
+    get("/scaml-params") {
+      scaml("params", "foo" -> "Configurable")
+    }
 
-      get("/ssp-template") {
-        ssp("simple")
-      }
+    get("/ssp-template") {
+      ssp("simple")
+    }
 
-      get("/ssp-params") {
-        ssp("params", "foo" -> "Configurable")
-      }
+    get("/ssp-params") {
+      ssp("params", "foo" -> "Configurable")
+    }
 
-      get("/mustache-template") {
-        mustache("simple")
-      }
+    get("/mustache-template") {
+      mustache("simple")
+    }
 
-      get("/mustache-params") {
-        mustache("params", "foo" -> "Configurable")
-      }
+    get("/mustache-params") {
+      mustache("params", "foo" -> "Configurable")
+    }
 
-      get("/layout-strategy") {
-        templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_ < _) mkString ";"
-      }
+    get("/layout-strategy") {
+      templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_ < _) mkString ";"
+    }
 
-      val urlGeneration = get("/url-generation") {
-        layoutTemplate("/urlGeneration.jade")
-      }
+    val urlGeneration = get("/url-generation") {
+      layoutTemplate("/urlGeneration.jade")
+    }
 
-      val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
-        layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
-      }
+    val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
+      layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
+    }
 
-      get("/legacy-view-path") {
-        jade("legacy")
-      }
+    get("/legacy-view-path") {
+      jade("legacy")
+    }
 
-      get("/directory") {
-        jade("directory/index")
-      }
+    get("/directory") {
+      jade("directory/index")
+    }
 
-      get("/bindings/*") {
+    get("/bindings/*") {
+      _sep.withValue(false) {
         flash.now("message") = "flash works"
         session("message") = "session works"
         jade(requestPath)
       }
+    }
 
-      get("/bindings/params/:foo") {
-        jade("/bindings/params")
-      }
+    get("/bindings/params/:foo") {
+      jade("/bindings/params")
+    }
 
-      get("/bindings/multiParams/*/*") {
-        jade("/bindings/multiParams")
-      }
+    get("/bindings/multiParams/*/*") {
+      jade("/bindings/multiParams")
+    }
 
-      get("/template-attributes") {
-        templateAttributes("foo") = "from attributes"
-        scaml("params")
-      }
+    get("/template-attributes") {
+      templateAttributes("foo") = "from attributes"
+      scaml("params")
+    }
 
-      get("/render-to-string") {
-        response.headers += "X-Template-Output" -> layoutTemplate("simple").replaceAll("\\r|\\n","")
-      }
-
-    /**
-     * Flag whether the Scalate error page is enabled.  If true, uncaught
-     * exceptions will be caught and rendered by the Scalate error page.
-     *
-     * The default is true.
-     */
-    override protected def isScalateErrorPageEnabled: Boolean = false
+    get("/render-to-string") {
+      response.headers += "X-Template-Output" -> layoutTemplate("simple").replaceAll("\\r|\\n","")
+    }
   }
 }
 

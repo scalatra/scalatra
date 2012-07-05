@@ -18,7 +18,11 @@ trait HttpResponse extends HttpMessage {
 
   def outputStream: OutputStream
 
-  lazy val writer: PrintWriter = new PrintWriter(outputStream)
+  private[scalatra] var usesWriter = false
+  lazy val writer: PrintWriter = {
+    usesWriter = true
+    new PrintWriter(outputStream)
+  }
 
   def redirect(uri: String)
 

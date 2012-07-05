@@ -7,6 +7,7 @@ import util.io.{PathManipulationOps, MimeTypes}
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
 import collection.{Map, mutable}
+import java.net.URL
 
 object AppContext {
   val Production = "production"
@@ -124,11 +125,15 @@ trait AppContext extends ScalatraLogging {
   }
 
   def iterator: Iterator[(String, Any)] = attributes.iterator
+
+  def resourceFor(path: String): URL
+
+  def physicalPath(uri: String): String
 }
 
-case class DefaultAppContext(
-             server: ServerInfo,
-             applications: AppMounter.ApplicationRegistry) extends AppContext {
+abstract class AppContextBase(
+             val server: ServerInfo,
+             val applications: AppMounter.ApplicationRegistry) extends AppContext {
 
   implicit val appContext = this
 

@@ -103,8 +103,7 @@ trait WebServer extends ScalatraLogging with AppMounterLike {
   def basePath = info.base
   final val pathName = WebServer.DefaultPathName
 
-  implicit lazy val appContext =
-    DefaultAppContext(info, AppMounter.newAppRegistry)
+  implicit def appContext: AppContext
 
   def mount[TheApp <: Mountable](app: => TheApp): AppMounter = mount("/", app)
 

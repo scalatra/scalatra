@@ -4,6 +4,7 @@ package scalate
 import java.io.PrintWriter
 import org.fusesource.scalate.{AttributeMap, RenderContext, DefaultRenderContext, TemplateEngine}
 import collection.mutable
+import org.fusesource.scalate.util.URIs._
 
 object ScalatraRenderContext {
   /**
@@ -98,5 +99,19 @@ class ScalatraRenderContext(
 
   }
 
+  /**
+   * Returns the current URI with new query arguments (separated with &)
+   */
+  def currentUriPlus(newQueryArgs: String) = {
+    uriPlus(requestUri, request.queryString, newQueryArgs)
+  }
+
+
+  /**
+   * Returns the current URI with query arguments (separated with &) removed
+   */
+  def currentUriMinus(newQueryArgs: String) = {
+    uriMinus(requestUri, request.queryString, newQueryArgs)
+  }
 
 }

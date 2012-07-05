@@ -92,6 +92,7 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
         underlying.setHeader(Names.CONTENT_TYPE, "text/plain; charset="+request.characterEncoding.get)
       }
       request.cookies.responseCookies foreach { cookie => underlying.addHeader(Names.SET_COOKIE, cookie.toCookieString) }
+      if (usesWriter) writer.flush()
       val content = outputStream.buffer()
 //      if (content.readableBytes() < 1) content.writeByte(0x1A)
       underlying.setContent(content)
