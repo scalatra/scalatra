@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.specs2.Specification
 import java.util.concurrent.atomic.AtomicInteger
-import java.net.URI
+import java.net.{URL, URI}
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConversions._
 
@@ -37,6 +37,10 @@ class AppMounterSpec extends Specification { def is =
       implicit val applications: AppMounter.ApplicationRegistry = new ConcurrentHashMap[String, AppMounter]
 
       def sessions: SessionStore[_ <: HttpSession] = new NoopSessionStore
+
+      def resourceFor(path: String): URL = null
+
+      def physicalPath(uri: String): String = null
     }
     val root = new AppMounter("/", "", NullMountable)
 

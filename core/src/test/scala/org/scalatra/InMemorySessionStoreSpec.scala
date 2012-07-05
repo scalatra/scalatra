@@ -8,6 +8,7 @@ import org.scalacheck.{Prop, Gen}
 import org.scalatra.store.session.InMemorySessionStore
 import org.scalacheck.Gen
 import org.scalacheck.Prop
+import java.net.URL
 
 
 class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
@@ -34,6 +35,10 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
 
         val sessions: SessionStore[_ <: HttpSession] = store
         sessions.initialize(this)
+
+        def resourceFor(path: String): URL = null
+
+        def physicalPath(uri: String): String = null
       }
       ctxt.sessionTimeout = AkkaDuration(ttl, TimeUnit.SECONDS)
       ctxt
