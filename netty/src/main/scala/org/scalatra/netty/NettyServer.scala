@@ -43,7 +43,7 @@ case class NettyServer(info: ServerInfo) extends WebServer {
   bootstrap.setOption("soLinger", 0)
   bootstrap.setOption("reuseAddress", true)
   bootstrap.setOption("child.tcpNoDelay", true)
-  bootstrap.setOption("keepAlive", true)
+  bootstrap.setOption("child.keepAlive", true)
 
   val channelFactory = new ScalatraPipelineFactory()
 

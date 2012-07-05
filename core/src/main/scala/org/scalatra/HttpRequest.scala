@@ -82,13 +82,7 @@ trait HttpRequest extends HttpMessage with Growable[(String, Any)] with Shrinkab
 
   def isSecure: Boolean
 
-  /**
-   * The version of the protocol the client used to send the request.
-   * Typically this will be something like "HTTP/1.0"  or "HTTP/1.1" and may
-   * be used by the application to determine how to treat any HTTP request
-   * headers.
-   */
-  def serverProtocol: HttpVersion
+
 
   /**
    * A Map of the parameters of this request. Parameters are contained in

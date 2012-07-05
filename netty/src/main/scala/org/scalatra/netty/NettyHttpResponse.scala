@@ -2,7 +2,7 @@ package org.scalatra
 package netty
 
 import scala.io.Codec
-import org.jboss.netty.handler.codec.http2.HttpHeaders.Names
+import org.jboss.netty.handler.codec.http2.HttpHeaders.{Values, Names}
 import org.jboss.netty.channel.{ChannelFutureListener, ChannelHandlerContext}
 import org.jboss.netty.buffer.{ChannelBuffers, ChannelBufferOutputStream}
 import org.jboss.netty.handler.codec.http2.{HttpHeaders, DefaultHttpResponse, HttpResponseStatus, HttpVersion => JHttpVersion}
@@ -25,6 +25,7 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
   val underlying = new DefaultHttpResponse(nettyProtocol, HttpResponseStatus.OK)
   val headers: collection.mutable.Map[String, String] = new ConcurrentHashMap[String, String]().asScala
 
+  def serverProtocol = request.serverProtocol
 
   private def nettyProtocol = request.serverProtocol match {
     case Http10 => JHttpVersion.HTTP_1_0
@@ -97,12 +98,15 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
       if (usesWriter) writer.flush()
       val content = outputStream.buffer()
       if (!chunked) underlying.setHeader(Names.CONTENT_LENGTH, content.readableBytes())
+      if (HttpMessage.isKeepAlive(request) && request.serverProtocol == Http10) underlying.setHeader(Names.CONNECTION, Values.KEEP_ALIVE)
       underlying.setContent(content)
-      //      if (content.readableBytes() < 1) content.writeByte(0x1A)
       val fut = connection.getChannel.write(underlying)
-      if(!HttpHeaders.isKeepAlive(underlying)) fut.addListener(ChannelFutureListener.CLOSE)
+      if(!HttpMessage.isKeepAlive(request)) fut.addListener(ChannelFutureListener.CLOSE)
+
     }
   }
+
+
 
   def chunked = underlying.isChunked
 
