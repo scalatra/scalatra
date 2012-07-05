@@ -99,7 +99,6 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
     withRequestResponse(request, response) {
       request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
       executeRoutes()
-      println("ending the response")
       response.end()
     }
   }

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
 import io.backchat.http.{ContentType, HttpHeader}
+import io.backchat.http.parser.HttpParser
 
 object NettyHttpResponse {
   val EncodingKey = "org.scalatra.response.encoding"
@@ -45,12 +46,13 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
 //  private def contentTypeHeader = {
 //    import io.backchat.http.{HttpHeaders => BH}
 //    val cacheInvalid = request.get(ContentHeaderKey) == contentType
+//    val rule = HttpParser.rules("CONTENT_TYPE")
 //    val cached =
 //      if (cacheInvalid) None else request.get(ParsedContentHeaderKey).flatMap(Option(_)).map(_.asInstanceOf[ContentType])
 //    cached orElse {
 //
 //      contentType flatMap { ct =>
-//        HttpHeader(Names.CONTENT_TYPE, ct) match {
+//        HttpParser.parse(rule, ct) match {
 //          case BH.`Content-Type`(ctt) => {
 //            request(ParsedContentHeaderKey) = ctt
 //            Some(ctt)
@@ -94,10 +96,11 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
       request.cookies.responseCookies foreach { cookie => underlying.addHeader(Names.SET_COOKIE, cookie.toCookieString) }
       if (usesWriter) writer.flush()
       val content = outputStream.buffer()
-//      if (content.readableBytes() < 1) content.writeByte(0x1A)
+      if (!chunked) underlying.setHeader(Names.CONTENT_LENGTH, content.readableBytes())
       underlying.setContent(content)
+      //      if (content.readableBytes() < 1) content.writeByte(0x1A)
       val fut = connection.getChannel.write(underlying)
-      if(!HttpHeaders.isKeepAlive(underlying) || !chunked) fut.addListener(ChannelFutureListener.CLOSE)
+      if(!HttpHeaders.isKeepAlive(underlying)) fut.addListener(ChannelFutureListener.CLOSE)
     }
   }
 

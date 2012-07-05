@@ -126,7 +126,6 @@ trait ScalateSupport extends ScalatraApp {
     catch {
       case e if isScalateErrorPageEnabled =>
         renderScalateErrorPage(req, res, e)
-        println("ending response in scalate support error page")
         res.end()
       case e => throw e
     }
