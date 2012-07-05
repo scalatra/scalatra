@@ -8,7 +8,7 @@ class NettyScalateSupportSpec extends ScalateSupportSpec with test.NettyBackend
 
 abstract class ScalateSupportSpec extends ScalatraSpec { def is =
   "ScalateSupport should"                                         ^
-////    "render uncaught errors with 500.scaml"                       ! e1^
+//    "render uncaught errors with 500.scaml"                       ! e1^
     "not throw a NullPointerException for trivial requests"       ! e2^
     "render a simple template"                                    ! e3^
     "render a simple template with params"                        ! e4^
@@ -30,7 +30,7 @@ abstract class ScalateSupportSpec extends ScalatraSpec { def is =
     "implicitly bind params"                                      ! e20^
     "implicitly bind multiParams"                                 ! e21^
     "set templateAttributes when creating a render context"       ! e22^
-//    "render to a string instead of response"                      ! e23^
+    "render to a string instead of response"                      ! e23^
 //    "set status to 500 when rendering 500.scaml"                  ! e24
   end
 
@@ -236,9 +236,17 @@ object ScalateSupportSpec {
       }
 
       get("/render-to-string") {
-        response.headers += "X-Template-Output" -> layoutTemplate("simple")
+        response.headers += "X-Template-Output" -> layoutTemplate("simple").replaceAll("\\r|\\n","")
       }
-    }
+
+    /**
+     * Flag whether the Scalate error page is enabled.  If true, uncaught
+     * exceptions will be caught and rendered by the Scalate error page.
+     *
+     * The default is true.
+     */
+    override protected def isScalateErrorPageEnabled: Boolean = false
+  }
 }
 
 

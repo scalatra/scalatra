@@ -138,6 +138,7 @@ trait ScalateSupport extends ScalatraApp {
     val context = createRenderContext(req, resp, resp.writer)
     context.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, context)
+    resp.end()
   }
 
   /**
