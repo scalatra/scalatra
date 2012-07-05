@@ -6,7 +6,7 @@ import org.specs2.matcher.MapMatchers._
 
 class ScalateUrlGeneratorSupportTest extends Specification {
 
-  val servlet = new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
+  val servlet = new ScalatraApp with ScalateSupport with ScalateUrlGeneratorSupport {
 
     val cat: String = "meea"
 

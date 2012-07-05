@@ -6,7 +6,7 @@ import _root_.akka.util.duration._
 import util.io.{PathManipulationOps, MimeTypes}
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
-import collection.mutable
+import collection.{Map, mutable}
 
 object AppContext {
   val Production = "production"
@@ -113,6 +113,17 @@ trait AppContext extends ScalatraLogging {
     }
   }
 
+  def +=(kv: (String, Any)) = {
+    attributes += kv
+    this
+  }
+
+  def -=(key: String) = {
+    attributes -= key
+    this
+  }
+
+  def iterator: Iterator[(String, Any)] = attributes.iterator
 }
 
 case class DefaultAppContext(

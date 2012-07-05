@@ -2,6 +2,7 @@ package org.scalatra
 package i18n
 
 import java.util.Locale
+import util.HeaderWithQParser
 
 object I18nSupport {
   val LocaleKey = "org.scalatra.i18n.Locale"
@@ -15,13 +16,13 @@ trait I18nSupport {
 
   import I18nSupport._
 
-  var locale: Locale = _
+  var userLocale: Locale = _
   var messages: Messages = _
   var userLocales: Array[Locale] = _
 
   before() {
-    locale = resolveLocale
-    messages = new Messages(locale)
+    userLocale = resolveLocale
+    messages = new Messages(userLocale)
   }
 
   /*
@@ -43,13 +44,11 @@ trait I18nSupport {
    *
    */
   private def resolveHttpLocale: Option[Locale] = {
-    (params.get(LocaleKey) match {
-      case Some(localeValue) =>
-        request.cookies.set(LocaleKey, localeValue)
-        Some(localeValue)
-      case _ => request.cookies.get(LocaleKey)
-    }).map(localeFromString(_)) orElse resolveHttpLocaleFromUserAgent
+    resolveFromCookie map localeFromString orElse resolveHttpLocaleFromUserAgent
   }
+
+  private def resolveFromCookie: Option[String] =
+    params get LocaleKey map { l => request.cookies.set(LocaleKey, l); l } orElse request.cookies.get(LocaleKey)
 
   /**
    * Accept-Language header looks like "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4"
@@ -58,31 +57,31 @@ trait I18nSupport {
    * @return first preferred found locale or None
    */
   private def resolveHttpLocaleFromUserAgent: Option[Locale] = {
-
-    request.headers.get("Accept-Language") map { s =>
-        val locales = s.split(",").map(s => {
-          def splitLanguageCountry(s: String): Locale = {
-            val langCountry = s.split("-")
-            if (langCountry.length > 1) {
-              new Locale(langCountry.head, langCountry.last)
-            } else {
-              new Locale(langCountry.head)
-            }
-          }
-          // If this language has a quality index:
-          if (s.indexOf(";") > 0) {
-            val qualityLocale = s.split(";")
-            splitLanguageCountry(qualityLocale.head)
-          } else {
-            splitLanguageCountry(s)
-          }
-        })
-        // save all found locales for later user
-        userLocales = locales
-        // We assume that all accept-languages are stored in order of quality
-        // (so first language is preferred)
-        locales.head
-    }
+    Option(request.locale)
+//    request.headers.get("Accept-Language") map { s =>
+//        val locales = s.split(",").map(s => {
+//          def splitLanguageCountry(s: String): Locale = {
+//            val langCountry = s.split("-")
+//            if (langCountry.length > 1) {
+//              new Locale(langCountry.head, langCountry.last)
+//            } else {
+//              new Locale(langCountry.head)
+//            }
+//          }
+//          // If this language has a quality index:
+//          if (s.indexOf(";") > 0) {
+//            val qualityLocale = s.split(";")
+//            splitLanguageCountry(qualityLocale.head)
+//          } else {
+//            splitLanguageCountry(s)
+//          }
+//        })
+//        // save all found locales for later user
+//        userLocales = locales
+//        // We assume that all accept-languages are stored in order of quality
+//        // (so first language is preferred)
+//        locales.head
+//    }
   }
 
   /**

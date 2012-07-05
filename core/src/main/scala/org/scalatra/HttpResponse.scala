@@ -1,6 +1,6 @@
 package org.scalatra
 
-import java.io.{OutputStream}
+import java.io.{PrintWriter, OutputStream}
 import collection.mutable
 
 trait HttpResponse extends HttpMessage {
@@ -17,6 +17,8 @@ trait HttpResponse extends HttpMessage {
   def characterEncoding_=(cs: String)
 
   def outputStream: OutputStream
+
+  lazy val writer: PrintWriter = new PrintWriter(outputStream)
 
   def redirect(uri: String)
 

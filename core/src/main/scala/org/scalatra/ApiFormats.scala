@@ -5,6 +5,7 @@ import collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
+import util.HeaderWithQParser
 
 object ApiFormats {
   /**
@@ -12,16 +13,6 @@ object ApiFormats {
    */
   val FormatKey = "org.scalatra.FormatKey"
 
-}
-
-/**
- * Adds support for mapping and inferring formats to content types.
- *
- * $ - Provides a request-scoped format variable
- * $ - Maps formats to content types and vice versa
- * $ - Augments the content-type inferrer to use the format
- */
-trait ApiFormats extends ScalatraApp {
   /**
    * A map of suffixes to content types.
    */
@@ -65,6 +56,20 @@ trait ApiFormats extends ScalatraApp {
     "text/html" -> "html",
     "application/xhtml+xml" -> "html"))
 
+}
+
+/**
+ * Adds support for mapping and inferring formats to content types.
+ *
+ * $ - Provides a request-scoped format variable
+ * $ - Maps formats to content types and vice versa
+ * $ - Augments the content-type inferrer to use the format
+ */
+trait ApiFormats extends ScalatraApp {
+
+  def formats = ApiFormats.formats
+  def mimeTypes = ApiFormats.mimeTypes
+
   /**
    * The default format.
    */
@@ -93,19 +98,7 @@ trait ApiFormats extends ScalatraApp {
   }
 
   private def parseAcceptHeader = {
-    request.headers.get("Accept") map { s =>
-      val fmts = s.split(",").map(_.trim)
-      val accepted = (fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
-        val parts = f.split(";").map(_.trim)
-        val i = if (parts.size > 1) {
-          val pars = parts(1).split("=").map(_.trim).grouped(2).map(a => a(0) -> a(1)).toSeq
-          val a = Map(pars:_*)
-          (a.get("q").map(_.toDouble).getOrElse(1.0) * 10).ceil.toInt
-        } else 10
-        acc + (i -> (parts(0) :: acc.get(i).getOrElse(List.empty)))
-      })
-      (accepted.toList sortWith ((kv1, kv2) => kv1._1 > kv2._1) flatMap (_._2.reverse) toList)
-    } getOrElse Nil
+    new HeaderWithQParser(request.headers).parse("Accept")
   }
 
   protected def formatForMimeTypes(mimeTypes: String*): Option[String] = {

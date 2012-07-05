@@ -2,6 +2,7 @@ package org.scalatra
 
 import scala.util.matching.Regex
 import collection.mutable
+import java.util.Locale
 
 //import servlet.AsyncSupport
 import util.io.zeroCopy
@@ -43,6 +44,8 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
 
   def cookies: CookieJar = request.cookies
 
+  def locale: Locale = request.locale
+
   override def toString = "ScalatraApp(%s,%s)" format (appPath, name)
 
   private val submounts = mutable.ListBuffer[AppMounter => Any]()
@@ -75,7 +78,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
   /**
    * The default character encoding for requests and responses.
    */
-  protected val defaultCharacterEncoding = "UTF-8"
+  protected val defaultCharacterEncoding = scala.io.Codec.defaultCharsetCodec.name
 
   /**
    * Handles a request and renders a response.
@@ -208,8 +211,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
       case s =>
         val u = {
           val pos = s.indexOf(';')
-          if (pos >= 0) s.substring(0, pos)
-          else s
+          if (pos > -1) s.substring(0, pos) else s
         }
 
         UriDecoder.firstStep(u)

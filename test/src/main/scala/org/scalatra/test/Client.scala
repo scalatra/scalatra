@@ -30,6 +30,8 @@ trait Client {
 
   def headers = response.headers
 
+  def header(key: String) = headers(key)
+
   def status = response.status
   def statusCode = status.code
 

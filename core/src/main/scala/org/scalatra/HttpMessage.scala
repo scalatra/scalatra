@@ -1,13 +1,11 @@
 package org.scalatra
 
-import scala.collection.Map
-
 trait HttpMessage {
   /**
    * A map of headers.  Multiple header values are separated by a ','
    * character.  The keys of this map are case-insensitive.
    */
-  def headers: Map[String, String]
+  def headers: scala.collection.Map[String, String]
 
   /**
    * The content of the Content-Type header, or None if absent.

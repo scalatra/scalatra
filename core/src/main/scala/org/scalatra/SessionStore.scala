@@ -13,7 +13,7 @@ trait SessionStore[SessionType <: HttpSession] extends mutable.Map[String, Sessi
    * been constructed.
    */
   def initialize(config: AppContext) {
-    appContext = config
+    synchronized { appContext = config }
   }
 
   protected def meta: HttpSessionMeta[SessionType]

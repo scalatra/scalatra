@@ -95,7 +95,11 @@ object ScalatraBuild extends Build {
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(
+    scalatraCore % "compile;provided->provided",
+    scalatraFrameworkTests % "test->compile;test->test;provided->provided",
+    scalatraTest % "test->compile;provided->provided",
+    scalatraSpecs2 % "test->compile;provided->provided")
 
   lazy val scalatraLiftJson = Project(
     id = "scalatra-lift-json",
@@ -135,6 +139,7 @@ object ScalatraBuild extends Build {
     base = file("jetty"),
     settings = scalatraSettings ++ jettyOrbitHack ++ Seq(
       libraryDependencies ++= Seq(
+        servletApi % "compile;test",
         jettyServlet
       ),
       description := "Embedded Jetty server for Scalatra apps"

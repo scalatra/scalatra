@@ -1,16 +1,21 @@
 package org.scalatra
 
-import util.MultiMapHeadView
+import util.{HeaderWithQParser, MultiMapHeadView}
 
-import java.io.{InputStream}
 import java.net.URI
-import collection.{GenSeq, Map, mutable}
+import collection._
+import generic.{Shrinkable, Growable}
+import scala.Iterator
+import java.util.concurrent.ConcurrentHashMap
+import collection.JavaConverters._
+import java.util.Locale
+import java.io.InputStream
 
 /**
  * A representation of an HTTP request.  Heavily influenced by the Rack
  * specification.
  */
-trait HttpRequest extends HttpMessage {
+trait HttpRequest extends HttpMessage with Growable[(String, Any)] with Shrinkable[String] {
   /**
    * The HTTP request method, such as GET or POST
    */
@@ -119,9 +124,49 @@ trait HttpRequest extends HttpMessage {
   /**
    * A map in which the server or application may store its own data.
    */
-  lazy val attributes: mutable.Map[String, Any] = mutable.Map.empty
+  protected lazy val attributes: mutable.ConcurrentMap[String, Any] = new ConcurrentHashMap[String, Any]().asScala
   def contains(key: String) = attributes.contains(key)
   def get(key: String) = attributes.get(key)
+  def getOrElseUpdate(key: String, value: => Any) = get(key) match {
+    case Some(v) => v
+    case _ =>
+      val v = value
+      attributes(key) = v
+      v
+  }
   def apply(key: String) = attributes(key)
   def update(key: String, value: Any) = attributes(key) = value
+
+  lazy val locales: Seq[Locale] = {
+    val languages = new HeaderWithQParser(headers).parse("Accept-Language")
+    if (languages.isEmpty) {
+      List(Locale.getDefault)
+    } else {
+      val r = languages filter (_.indexOf('-') > -1) map { lang =>
+        val parts = lang.split('-')
+        if (parts.size > 1) new Locale(parts(0).trim, parts(1).trim)
+        else if (parts.size > 0) new Locale(parts(0).trim)
+        else null
+      }
+      if (r.isEmpty) List(Locale.getDefault)
+      else r
+    }
+  }
+
+  lazy val locale = locales.head
+
+  def +=(kv: (String, Any)) = {
+    attributes += kv
+    this
+  }
+
+  def -=(key: String) = {
+    attributes -= key
+    this
+  }
+
+  def iterator: Iterator[(String, Any)] = attributes.iterator
+  def keysIterator: Iterator[String] = attributes.keysIterator
+
+  def clear() { attributes.clear() }
 }

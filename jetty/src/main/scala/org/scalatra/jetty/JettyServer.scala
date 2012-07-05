@@ -8,8 +8,8 @@
 //import org.scalatra.servlet.ScalatraListener
 //
 ///**
-// * Runs a Servlet or a Filter on an embedded Jetty server.
-// */
+//* Runs a Servlet or a Filter on an embedded Jetty server.
+//*/
 //class JettyServer(
 //  socketAddress: InetSocketAddress = new InetSocketAddress(8080),
 //  resourceBase: String = "src/main/webapp")
@@ -22,6 +22,8 @@
 //  context.addEventListener(new ScalatraListener)
 //  context.setResourceBase(resourceBase)
 //  server.setHandler(context)
+//
+//
 //
 //  def start(): this.type = {
 //    server.start()
