@@ -1,7 +1,6 @@
 package org.scalatra
 package netty
 
-import scala.io.Codec
 import org.jboss.netty.handler.codec.http2.HttpHeaders.{Values, Names}
 import org.jboss.netty.channel.{ChannelFutureListener, ChannelHandlerContext}
 import org.jboss.netty.buffer.{ChannelBuffers, ChannelBufferOutputStream}
@@ -9,8 +8,7 @@ import org.jboss.netty.handler.codec.http2.{HttpHeaders, DefaultHttpResponse, Ht
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
-import io.backchat.http.{ContentType, HttpHeader}
-import io.backchat.http.parser.HttpParser
+import org.scalatra.Cookie
 
 object NettyHttpResponse {
   val EncodingKey = "org.scalatra.response.encoding"
@@ -53,8 +51,8 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
 //    cached orElse {
 //
 //      contentType flatMap { ct =>
-//        HttpParser.parse(rule, ct) match {
-//          case BH.`Content-Type`(ctt) => {
+//        ReportingParseRunner(rule).run(ct).result match {
+//          case Some(BH.`Content-Type`(ctt)) => {
 //            request(ParsedContentHeaderKey) = ctt
 //            Some(ctt)
 //          }
@@ -65,6 +63,7 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
 //  }
 
   def characterEncoding = {
+//    contentTypeHeader.flatMap(_.charset.map(_.value)) orElse request.get(EncodingKey).flatMap(_.toString.blankOption)
     val hdrCharset = contentType flatMap { ct =>
       val parts = ct.split(';').map(_.trim)
       val cs = if (parts.size > 1) parts(1) else ""
@@ -100,6 +99,8 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
       if (!chunked) underlying.setHeader(Names.CONTENT_LENGTH, content.readableBytes())
       if (HttpMessage.isKeepAlive(request) && request.serverProtocol == Http10) underlying.setHeader(Names.CONNECTION, Values.KEEP_ALIVE)
       underlying.setContent(content)
+//      println("RESPONSE")
+//      println(underlying)
       val fut = connection.getChannel.write(underlying)
       if(!HttpMessage.isKeepAlive(request)) fut.addListener(ChannelFutureListener.CLOSE)
 

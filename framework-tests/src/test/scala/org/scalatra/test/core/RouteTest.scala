@@ -286,48 +286,74 @@ abstract class RouteTest extends ScalatraFunSuite {
     }
   }
 
-  test("handles encoded characters in uri") {
+  test("handles encoded characters in uri '/encoded-uri/ac/dc'") {
     get("/encoded-uri/ac/dc") {
       response.statusCode should equal(405)
     }
+  }
 
+  test("handles encoded characters in uri '/encoded-uri/ac%2Fdc'") {
     get("/encoded-uri/ac%2Fdc") {
       response.statusCode should equal(200)
       body should equal("ac/dc")
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri/%23toc'") {
 
     get("/encoded-uri/%23toc") {
       response.statusCode should equal(200)
       body should equal("#toc")
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri/%3Fquery'") {
 
     get("/encoded-uri/%3Fquery") {
       response.statusCode should equal(200)
       body should equal("?query")
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23'") {
 
     get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
       response.statusCode should equal(200)
       body should equal("Fußgängerübergänge/?#")
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri/ö%C3%B6%25C3%25B6'") {
 
     get("/encoded-uri/ö%C3%B6%25C3%25B6") {
       response.statusCode should equal(200)
       body should equal("öö%C3%B6")
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri-2/中国话不用彁字。'") {
 
     get("/encoded-uri-2/中国话不用彁字。") {
       response.statusCode should equal(200)
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri-2/%E4%B8%AD%E5%9B%BD%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82'") {
 
     get("/encoded-uri-2/%E4%B8%AD%E5%9B%BD%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
       response.statusCode should equal(200)
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82'") {
 
     // mixing encoded with decoded characters
     get("/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
       response.statusCode should equal(200)
     }
+  }
+
+  test("handles encoded characters in uri '/encoded-uri-3/%25C3%25B6'") {
 
     get("/encoded-uri-3/%25C3%25B6") {
       response.statusCode should equal(200)

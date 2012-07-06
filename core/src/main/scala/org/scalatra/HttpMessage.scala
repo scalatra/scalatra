@@ -5,7 +5,7 @@ object HttpMessage {
     (msg.headers.get("Connection").map(_.toLowerCase), msg.serverProtocol) match {
       case (Some("close"), _) => false
       case (Some("keep-alive"), Http10) => true
-      case (_, Http11) => true
+      case (_, proto) if proto.keepAliveDefault => true
       case (_, _) => false
     }
   }

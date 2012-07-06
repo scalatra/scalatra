@@ -146,11 +146,9 @@ abstract class ScalateSupportSpec extends ScalatraSpec { def is =
 }
 
 object ScalateSupportSpec {
-  class ScalateSpecApp extends ScalatraApp with SessionSupport with ScalateSupport
-      with ScalateUrlGeneratorSupport with FlashMapSupport {
+  class ScalateSpecApp extends ScalatraApp with SessionSupport with FlashMapSupport with ScalateSupport
+      with ScalateUrlGeneratorSupport {
 
-    private[this] val _sep = new DynamicVariable[Boolean](true)
-    protected override def isScalateErrorPageEnabled = _sep.value
     get("/barf") {
       throw new RuntimeException
     }
@@ -220,11 +218,9 @@ object ScalateSupportSpec {
     }
 
     get("/bindings/*") {
-      _sep.withValue(false) {
         flash.now("message") = "flash works"
         session("message") = "session works"
         jade(requestPath)
-      }
     }
 
     get("/bindings/params/:foo") {

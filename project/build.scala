@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
     ),
     aggregate = Seq(
       scalatraCore, scalatraAuth, scalatraScalate, scalatraLiftJson,
-      scalatraJerkson, scalatraAkka, scalatraSwagger,
+      scalatraJerkson, scalatraAkka, scalatraSwagger, scalatraNetty, scalatraFrameworkTests,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraJetty, scalatraJetty, scalatraServlet)
   )
@@ -229,7 +229,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-framework-tests",
     base = file("framework-tests"),
     settings = scalatraSettings ++ jettyOrbitHack ++ doNotPublish ++ Seq(
-      libraryDependencies ++= Seq(httpParsers, logback),
+      libraryDependencies ++= Seq(httpParsers, logback, servletApi),
       description := "Scalatra framework tests"
     )
   ) dependsOn(

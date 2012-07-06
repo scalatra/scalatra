@@ -47,7 +47,8 @@ class AhcClient(val host: String, val port: Int) extends Client {
   import StringHttpMethod._
   private val clientConfig =
     (new AsyncHttpClientConfig.Builder()
-      setFollowRedirects false).build()
+      setFollowRedirects false
+      setAllowPoolingConnection false).build()
   private val underlying = new AsyncHttpClient(clientConfig) {
     def preparePatch(uri: String): AsyncHttpClient#BoundRequestBuilder = requestBuilder("PATCH", uri)
     def prepareTrace(uri: String): AsyncHttpClient#BoundRequestBuilder = requestBuilder("TRACE", uri)

@@ -7,5 +7,10 @@ import store.session.InMemorySessionStore
 
 trait NettyBackend { self: ScalatraTests =>
 
-  lazy val backend: WebServer = NettyServer(FreePort(), PublicDirectory("src/main/webapp"), SessionProvider(new InMemorySessionStore()))
+  lazy val backend = new NettyServer(
+        ServerInfo(
+          "NettyTests",
+          port = FreePort(),
+          capabilities = Seq(PublicDirectory("src/main/webapp"), SessionProvider(new InMemorySessionStore())))) {
+  }
 }
