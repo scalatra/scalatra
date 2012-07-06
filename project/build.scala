@@ -52,12 +52,11 @@ object ScalatraBuild extends Build {
         mimeUtil,
         backchatRl,
         httpParsers,
-        twitterCollection,
+        googleGuava,
         akkaActor,
         specs2 % "test",
         scalaCheck
       ),
-      resolvers += twitterMaven,
       libraryDependencies ++= scalaIO,
       description := "The core Scalatra framework",
       sourceGenerators in Compile <+= buildInfo,
@@ -107,7 +106,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-lift-json",
     base = file("lift-json"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies += liftJson,
+      libraryDependencies ++= Seq(liftJson, googleGuava),
       description := "Lift JSON support for Scalatra"
     )
   ) dependsOn(
@@ -207,7 +206,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(liftJson, liftJsonExt),
+      libraryDependencies ++= Seq(liftJson, liftJsonExt, googleGuava),
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;provided->provided",
@@ -269,7 +268,7 @@ object ScalatraBuild extends Build {
 
     val chardet = "com.googlecode.juniversalchardet"  % "juniversalchardet" % "1.0.3"
 
-    val twitterCollection = "com.twitter" %% "util-codec" % "4.0.1"
+    val googleGuava = "com.google.guava" % "guava" % "12.0"
 
     val mimeUtil = "eu.medsea.mimeutil"                % "mime-util"         % "2.1.3" exclude("org.slf4j", "slf4j-log4j12")
 
@@ -330,10 +329,15 @@ object ScalatraBuild extends Build {
   }
 
   object Resolvers {
+
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+
     val goldenGate = "GoldenGate" at "http://openr66.free.fr/maven2"
+
     val akkaRepository = "Akka Repository" at "http://repo.akka.io/releases/"
+
     val twitterMaven = "Twitter Maven" at "http://maven.twttr.com/"
   }
 

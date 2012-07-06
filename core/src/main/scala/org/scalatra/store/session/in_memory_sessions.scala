@@ -3,114 +3,80 @@ package store
 package session
 
 import _root_.akka.util.Duration
-import java.util.concurrent.atomic.AtomicLong
 import collection.mutable
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import collection.JavaConverters._
-import _root_.akka.actor.Cancellable
 import _root_.akka.util.duration._
+import com.google.common.collect.MapMaker
+import com.google.common.cache._
 
 
 object InMemorySession extends HttpSessionMeta[InMemorySession] {
-  def empty = new InMemorySession(new ConcurrentHashMap[String, Any].asScala)
+  def empty = new InMemorySession(newMap)
 
-  def emptyWithId(sessionId: String) = new InMemorySession(new ConcurrentHashMap[String, Any].asScala, sessionId)
+  private[this] def newMap = (new MapMaker).makeMap[String, Any]().asScala
+  def emptyWithId(sessionId: String) = new InMemorySession(newMap, sessionId)
 }
 class InMemorySession(protected val self: mutable.ConcurrentMap[String, Any], val id: String = GenerateId()) extends HttpSession {
   override protected def newSession(newSelf: mutable.ConcurrentMap[String, Any]): InMemorySession =
     new InMemorySession(newSelf, id)
 }
 
-object InMemorySessionStore {
-
-  private case class Entry[T](value: T, expiration: Duration) {
-    private val lastAccessed = new AtomicLong(System.currentTimeMillis)
-    def isExpired  = lastAccessed.get < (System.currentTimeMillis - expiration.toMillis)
-    def expire() = lastAccessed.set(0L)
-    def tickAccess() = lastAccessed.set(System.currentTimeMillis)
-  }
-
-}
-
 /**
- * crude and naive non-blocking LRU implementation that expires sessions after the specified timeout
+ * Google Guava cache based LRU implementation that expires sessions after the specified timeout
  * @param appContext
  */
 class InMemorySessionStore(sessionTimeout: Duration = 20.minutes) extends SessionStore[InMemorySession] with mutable.MapLike[String,  InMemorySession, InMemorySessionStore] {
 
-
-  import InMemorySessionStore.Entry
   protected val meta = InMemorySession
 
-  private[this] var timeout: Cancellable = null
-
-  private[this] val self: mutable.ConcurrentMap[String, Entry[InMemorySession]] =
-    new ConcurrentHashMap[String, Entry[InMemorySession]]().asScala
-
-
-  /**
-   * A hook to initialize the class with some configuration after it has
-   * been constructed.
-   */
-  override def initialize(config: AppContext) {
-    super.initialize(config)
-    timeout = expireSessions
+  private[this] val self: Cache[String, InMemorySession] = {
+    val cb = CacheBuilder.newBuilder()
+    cb.expireAfterAccess(sessionTimeout.toMillis, TimeUnit.MILLISECONDS)
+    cb.build[String, InMemorySession]()
   }
 
   def emptyStore = new InMemorySessionStore(sessionTimeout).asInstanceOf[this.type]
 
-  override def seq = self map { case (k, v) => (k -> v.value) }
+  override def seq = self.asMap().asScala
 
   def get(key: String) = {
-    self get key filterNot (_.isExpired) map (_.value)
+    Option(self getIfPresent key)
   }
 
   def newSession = {
     val sess = meta.empty
-    self += sess.id -> Entry(sess, sessionTimeout)
+    self.put(sess.id, sess)
     sess
   }
 
   def newSessionWithId(id: String) = {
     val sess = meta.emptyWithId(id)
-    self += sess.id -> Entry(sess, sessionTimeout)
+    self.put(sess.id, sess)
     sess
   }
 
 
   def invalidate(sessionId: String) = this -= sessionId
 
-  def invalidateAll() = self.clear()
+  def invalidateAll() = self.invalidateAll()
 
   def iterator = {
-    val o = self.iterator filterNot (_._2.isExpired)
-    new Iterator[(String, InMemorySession)] {
-      def hasNext = o.hasNext
-
-      def next() = {
-        val nxt = o.next()
-        nxt._2.tickAccess()
-        (nxt._1, nxt._2.value)
-      }
-    }
-  }
-
-  private[this] def expireSessions: Cancellable = appContext.actorSystem.scheduler.scheduleOnce(1 second) {
-    self.valuesIterator filter (_.isExpired) foreach { self -= _.value.id }
-    InMemorySessionStore.this.timeout = expireSessions
+    self.asMap().asScala.iterator
   }
 
   def +=(kv: (String, InMemorySession)) = {
-    self += kv._1 -> Entry(kv._2, sessionTimeout)
+    self.put(kv._1, kv._2)
     this
   }
 
   def -=(key: String) = {
-    self -= key
+    self.invalidate(key)
     this
   }
 
   def stop() {
-    if (timeout != null && !timeout.isCancelled) timeout.cancel()
+    self.invalidateAll()
+    self.cleanUp()
   }
 }

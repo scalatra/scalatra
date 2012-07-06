@@ -9,6 +9,7 @@ import org.scalatra.store.session.InMemorySessionStore
 import org.scalacheck.Gen
 import org.scalacheck.Prop
 import java.net.URL
+import com.google.common.base.Ticker
 
 
 class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
@@ -17,7 +18,7 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
     "store values" ! specify().storesValues ^
     "retrieve values if they are not expired" ! specify().retrievesUnexpired ^
     "expires entries after the specified timeout" ! specify().expiresEntries ^
-    "does not fall down under heavy load" ! specify(120).handlesLoad ^
+    "does not fall down under heavy load" ! specify(ttl = 120).handlesLoad ^
   end
 
 
