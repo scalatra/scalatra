@@ -18,14 +18,14 @@ import HttpHeaders.`Content-Type`
 
 class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appContext: AppContext) extends ScalatraUpstreamHandler {
 
-  @volatile private var request: JHttpRequest = _
-  @volatile private var method: HttpMethod = _
-  @volatile private var bodyBuffer: Option[File] = None
+  @volatile private[this] var request: JHttpRequest = _
+  @volatile private[this] var method: HttpMethod = _
+  @volatile private[this] var bodyBuffer: Option[File] = None
   
-  private val filesToDelete = new mutable.HashSet[File] with mutable.SynchronizedSet[File] 
+  private[this] val filesToDelete = new mutable.HashSet[File] with mutable.SynchronizedSet[File]
   
-  private val factory = new DefaultHttpDataFactory()
-  private var postDecoder: Option[HttpPostRequestDecoder] = None
+  private[this] val factory = new DefaultHttpDataFactory()
+  private[this] var postDecoder: Option[HttpPostRequestDecoder] = None
 
   private def clearDecoder() = {
     postDecoder foreach (_.cleanFiles())
@@ -49,7 +49,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
     method.allowsBody && ct.forall(t =>
       t.startsWith("application/x-www-form-urlencoded") || t.startsWith("multipart/form-data"))
   }
-  private var contentType: Option[ContentType] = None
+  private[this] var contentType: Option[ContentType] = None
 
   override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent) {
     e.getMessage match {

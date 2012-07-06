@@ -52,10 +52,12 @@ object ScalatraBuild extends Build {
         mimeUtil,
         backchatRl,
         httpParsers,
+        twitterCollection,
         akkaActor,
         specs2 % "test",
         scalaCheck
       ),
+      resolvers += twitterMaven,
       libraryDependencies ++= scalaIO,
       description := "The core Scalatra framework",
       sourceGenerators in Compile <+= buildInfo,
@@ -249,7 +251,7 @@ object ScalatraBuild extends Build {
     val akka = "2.0.2"
     val dispatch = "0.8.7"
     val grizzledSlf4j = "0.6.6"
-    val netty = "3.5.1.Final"
+    val netty = "3.5.2.Final"
     val asyncHttpClient = "1.7.5"
     val logback = "1.0.6"
   }
@@ -266,6 +268,8 @@ object ScalatraBuild extends Build {
     val httpParsers = "io.backchat.http" %% "http-parsers" % "0.3.2-SNAPSHOT"
 
     val chardet = "com.googlecode.juniversalchardet"  % "juniversalchardet" % "1.0.3"
+
+    val twitterCollection = "com.twitter" %% "util-codec" % "4.0.1"
 
     val mimeUtil = "eu.medsea.mimeutil"                % "mime-util"         % "2.1.3" exclude("org.slf4j", "slf4j-log4j12")
 
@@ -330,6 +334,7 @@ object ScalatraBuild extends Build {
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
     val goldenGate = "GoldenGate" at "http://openr66.free.fr/maven2"
     val akkaRepository = "Akka Repository" at "http://repo.akka.io/releases/"
+    val twitterMaven = "Twitter Maven" at "http://maven.twttr.com/"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
