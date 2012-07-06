@@ -6,6 +6,7 @@ import java.security.SecureRandom
 import mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import util.MapWithIndifferentAccess
+import com.google.common.collect.MapMaker
 
 
 trait HttpSessionMeta[SessionType <: HttpSession] {
@@ -15,7 +16,7 @@ trait HttpSessionMeta[SessionType <: HttpSession] {
 
 
 trait HttpSession extends mutable.Map[String, Any] with mutable.MapLike[String, Any, HttpSession] {
-  protected implicit def map2gmap(mmap: scala.collection.Map[String, Any]) = new ConcurrentHashMap[String, Any]() ++= mmap
+  protected implicit def map2gmap(mmap: scala.collection.Map[String, Any]) = new MapMaker().makeMap[String, Any]() ++= mmap
 //  protected implicit def mmap2gmap(mmap: mutable.Map[String, Any]) = new MapMaker().makeMap[String, Any]() ++= mmap
 
   protected def self: mutable.ConcurrentMap[String, Any]

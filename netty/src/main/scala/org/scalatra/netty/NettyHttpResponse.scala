@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
 import org.scalatra.Cookie
+import com.google.common.collect.MapMaker
 
 object NettyHttpResponse {
   val EncodingKey = "org.scalatra.response.encoding"
@@ -21,7 +22,7 @@ class NettyHttpResponse(request: NettyHttpRequest, connection: ChannelHandlerCon
 
   private val _ended = new AtomicBoolean(false)
   val underlying = new DefaultHttpResponse(nettyProtocol, HttpResponseStatus.OK)
-  val headers: collection.mutable.Map[String, String] = new ConcurrentHashMap[String, String]().asScala
+  val headers: collection.mutable.Map[String, String] = new MapMaker().makeMap[String, String]().asScala
 
   def serverProtocol = request.serverProtocol
 

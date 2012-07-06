@@ -73,7 +73,7 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
     }
 
     def handlesLoad = this {
-      val sessions = (1 to 500) map { _ => GenerateId()}
+      val sessions = (1 to 1000) map { _ => GenerateId()}
       val values = for {
         k <- Gen.alphaStr.filter(_.nonBlank).map(_ + System.nanoTime.toString)
         v <- Gen.alphaStr.filter(_.nonBlank) } yield k -> v
@@ -85,7 +85,7 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
           (Prop.forAll(values) { kv =>
             store(sessionId) += kv
             store(sessionId)(kv._1) must_== kv._2
-          }).set(minTestsOk -> 1500, workers -> 8)
+          }).set(minTestsOk -> 3000, workers -> 8)
         }
       } reduce (_ and _)
     }

@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
 import java.util.Locale
 import java.io.InputStream
+import com.google.common.collect.MapMaker
 
 /**
  * A representation of an HTTP request.  Heavily influenced by the Rack
@@ -118,7 +119,7 @@ trait HttpRequest extends HttpMessage with Growable[(String, Any)] with Shrinkab
   /**
    * A map in which the server or application may store its own data.
    */
-  protected lazy val attributes: mutable.ConcurrentMap[String, Any] = new ConcurrentHashMap[String, Any]().asScala
+  protected lazy val attributes: mutable.ConcurrentMap[String, Any] = new MapMaker().makeMap[String, Any]().asScala
   def contains(key: String) = attributes.contains(key)
   def get(key: String) = attributes.get(key)
   def getOrElseUpdate(key: String, value: => Any) = get(key) match {

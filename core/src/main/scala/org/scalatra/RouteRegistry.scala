@@ -4,14 +4,15 @@ import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
+import com.google.common.collect.MapMaker
 
 class RouteRegistry {
 
   private val _methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
-    new ConcurrentHashMap[HttpMethod, Seq[Route]]
+    new MapMaker().makeMap[HttpMethod, Seq[Route]]
 
   private val _statusRoutes: ConcurrentMap[Int, Route] =
-    new ConcurrentHashMap[Int, Route]
+    new MapMaker().makeMap[Int, Route]
 
   private var _beforeFilters: Seq[Route] = Vector.empty
   private var _afterFilters: Seq[Route] = Vector.empty

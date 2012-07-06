@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
 import collection.{Map, mutable}
 import java.net.URL
+import com.google.common.collect.MapMaker
 
 object AppContext {
   val Production = "production"
@@ -52,7 +53,7 @@ trait AppContext extends ScalatraLogging {
   implicit def applications: AppMounter.ApplicationRegistry
   def server: ServerInfo
 
-  lazy val attributes: mutable.ConcurrentMap[String, Any] = new ConcurrentHashMap[String, Any]().asScala
+  lazy val attributes: mutable.ConcurrentMap[String, Any] = new MapMaker().makeMap[String, Any].asScala
 
   lazy val mimes = new MimeTypes
 
