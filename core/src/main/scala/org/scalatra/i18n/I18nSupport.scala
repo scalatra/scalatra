@@ -2,10 +2,11 @@ package org.scalatra
 package i18n
 
 import java.util.Locale
-import scala.util.DynamicVariable
 
 object I18nSupport {
   def localeKey = "locale"
+
+  def userLocalesKey = "userLocales"
 
   def messagesKey = "messages"
 }
@@ -17,17 +18,28 @@ trait I18nSupport {
   import I18nSupport._
 
 
-  private val _locale  = new DynamicVariable[Locale](null)
-  private val _userLocales = new DynamicVariable[Array[Locale]](null)
-  private val _messages = new DynamicVariable[Messages](null)
+  def locale  = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call locale")
+  } else {
+    request.get(localeKey).map(_.asInstanceOf[Locale]).orNull
+  }
 
-  def locale: Locale = _locale.value
-  def messages: Messages = _messages.value
-  def userLocales: Array[Locale] = _userLocales.value
+  def userLocales = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call userLocales")
+  } else {
+    request.get(userLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
+  }
+
+  def messages = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call messages")
+  } else {
+    request.get(messagesKey).map(_.asInstanceOf[Messages]).orNull
+  }
+
 
   before() {
-    _locale.value = resolveLocale
-    _messages.value = new Messages(locale)
+    request.setAttribute(localeKey, resolveLocale)
+    request.setAttribute(messagesKey, new Messages(locale))
   }
 
   /*
@@ -84,7 +96,8 @@ trait I18nSupport {
           }
         })
         // save all found locales for later user
-        _userLocales.value = locales
+        request.setAttribute(userLocalesKey, locales)
+
         // We assume that all accept-languages are stored in order of quality
         // (so first language is preferred)
         locales.head
