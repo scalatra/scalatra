@@ -8,6 +8,8 @@ object I18nSupport {
   val LocaleKey = "org.scalatra.i18n.Locale"
 
   val MessagesKey = "org.scalatra.i18n.Messages"
+
+  val DefaultLocale = Locale.getDefault
 }
 
 trait I18nSupport {
@@ -16,20 +18,28 @@ trait I18nSupport {
 
   import I18nSupport._
 
-  var userLocale: Locale = _
-  var messages: Messages = _
-  var userLocales: Array[Locale] = _
+  def messages = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call messages")
+  } else {
+    request.get(MessagesKey).map(_.asInstanceOf[Locale]).orNull
+  }
+
+  abstract override def locale: Locale = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call locale")
+  } else {
+    request.get(LocaleKey).map(_.asInstanceOf[Locale]).orNull
+  }
 
   before() {
-    userLocale = resolveLocale
-    messages = new Messages(userLocale)
+    request(LocaleKey) = resolveLocale
+    request(MessagesKey) = new Messages(locale)
   }
 
   /*
   * Resolve Locale based on HTTP request parameter or Cookie
   */
   private def resolveLocale: Locale = {
-    resolveHttpLocale getOrElse defaultLocale
+    resolveHttpLocale getOrElse DefaultLocale
   }
 
   /*
@@ -56,45 +66,16 @@ trait I18nSupport {
    * 
    * @return first preferred found locale or None
    */
-  private def resolveHttpLocaleFromUserAgent: Option[Locale] = {
-    Option(request.locale)
-//    request.headers.get("Accept-Language") map { s =>
-//        val locales = s.split(",").map(s => {
-//          def splitLanguageCountry(s: String): Locale = {
-//            val langCountry = s.split("-")
-//            if (langCountry.length > 1) {
-//              new Locale(langCountry.head, langCountry.last)
-//            } else {
-//              new Locale(langCountry.head)
-//            }
-//          }
-//          // If this language has a quality index:
-//          if (s.indexOf(";") > 0) {
-//            val qualityLocale = s.split(";")
-//            splitLanguageCountry(qualityLocale.head)
-//          } else {
-//            splitLanguageCountry(s)
-//          }
-//        })
-//        // save all found locales for later user
-//        userLocales = locales
-//        // We assume that all accept-languages are stored in order of quality
-//        // (so first language is preferred)
-//        locales.head
-//    }
-  }
+  private def resolveHttpLocaleFromUserAgent: Option[Locale] = Option(request.locale)
 
   /**
    * Reads a locale from a String
    * @param in a string like en_GB or de-DE
    */
   private def localeFromString(in: String): Locale = {
-
-      val token = in.split("_|-")
-      new Locale(token.head, token.last)
+    val token = in.split("_|-")
+    new Locale(token.head, token.last)
   }
 
-  private def defaultLocale: Locale = {
-    Locale.getDefault
-  }
+
 }
