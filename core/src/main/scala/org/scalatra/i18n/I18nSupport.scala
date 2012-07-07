@@ -2,6 +2,7 @@ package org.scalatra
 package i18n
 
 import java.util.Locale
+import scala.util.DynamicVariable
 
 object I18nSupport {
   def localeKey = "locale"
@@ -15,13 +16,18 @@ trait I18nSupport {
 
   import I18nSupport._
 
-  var locale: Locale = _
-  var messages: Messages = _
-  var userLocales: Array[Locale] = _
+
+  private val _locale  = new DynamicVariable[Locale](null)
+  private val _userLocales = new DynamicVariable[Array[Locale]](null)
+  private val _messages = new DynamicVariable[Messages](null)
+
+  def locale: Locale = _locale.value
+  def messages: Messages = _messages.value
+  def userLocales: Array[Locale] = _userLocales.value
 
   before() {
-    locale = resolveLocale
-    messages = new Messages(locale)
+    _locale.value = resolveLocale
+    _messages.value = new Messages(locale)
   }
 
   /*
@@ -78,7 +84,7 @@ trait I18nSupport {
           }
         })
         // save all found locales for later user
-        userLocales = locales
+        _userLocales.value = locales
         // We assume that all accept-languages are stored in order of quality
         // (so first language is preferred)
         locales.head
