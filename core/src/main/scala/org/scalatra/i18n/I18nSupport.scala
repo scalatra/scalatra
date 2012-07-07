@@ -6,6 +6,8 @@ import java.util.Locale
 object I18nSupport {
   def localeKey = "locale"
 
+  def userLocalesKey = "userLocales"
+
   def messagesKey = "messages"
 }
 
@@ -15,13 +17,29 @@ trait I18nSupport {
 
   import I18nSupport._
 
-  var locale: Locale = _
-  var messages: Messages = _
-  var userLocales: Array[Locale] = _
+
+  def locale  = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call locale")
+  } else {
+    request.get(localeKey).map(_.asInstanceOf[Locale]).orNull
+  }
+
+  def userLocales = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call userLocales")
+  } else {
+    request.get(userLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
+  }
+
+  def messages = if (request == null) {
+    throw new ScalatraException("There needs to be a request in scope to call messages")
+  } else {
+    request.get(messagesKey).map(_.asInstanceOf[Messages]).orNull
+  }
+
 
   before() {
-    locale = resolveLocale
-    messages = new Messages(locale)
+    request.setAttribute(localeKey, resolveLocale)
+    request.setAttribute(messagesKey, new Messages(locale))
   }
 
   /*
@@ -78,7 +96,8 @@ trait I18nSupport {
           }
         })
         // save all found locales for later user
-        userLocales = locales
+        request.setAttribute(userLocalesKey, locales)
+
         // We assume that all accept-languages are stored in order of quality
         // (so first language is preferred)
         locales.head
