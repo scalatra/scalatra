@@ -56,7 +56,7 @@ case class Cookie(name: String, value: String)(implicit val cookieOptions: Cooki
 
 
 class CookieJar(private val reqCookies: Map[String, RequestCookie]) {
-  private lazy val cookies = new MapMaker().makeMap[String, HttpCookie].asScala ++ reqCookies
+  private val cookies = new MapMaker().makeMap[String, HttpCookie].asScala ++ reqCookies
 
   def get(key: String) = cookies.get(key) filter (_.cookieOptions.maxAge != 0) map (_.value)
 
@@ -84,6 +84,7 @@ class CookieJar(private val reqCookies: Map[String, RequestCookie]) {
 
   private[scalatra] def responseCookies = cookies.values collect { case c: Cookie => c }
 
+  override def toString: String = cookies.toString()
 }
 
 //object CookieSupport {

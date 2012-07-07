@@ -130,6 +130,7 @@ trait WebServer extends ScalatraLogging with AppMounterLike {
   final def stop() {
     started switchOff {
       stopCallbacks foreach (_.apply())
+      appContext.sessions.stop()
       appContext.actorSystem.shutdown()
     }
   }

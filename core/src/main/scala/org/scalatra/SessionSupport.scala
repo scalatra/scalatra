@@ -1,7 +1,5 @@
 package org.scalatra
 
-import java.util.concurrent.atomic.AtomicReference
-
 object SessionSupport {
   val SessionKey = getClass.getName
 }
@@ -12,18 +10,25 @@ object SessionSupport {
 trait SessionSupport { self: ScalatraApp =>
 
   import SessionSupport._
+
+  private def sessionFromCookieOrRequest: Option[HttpSession] =
+    request.get(SessionKey).map(_.asInstanceOf[HttpSession]) orElse {
+      request.cookies get appContext.sessionIdKey flatMap appContext.sessions.get
+    }
   /**
    * The current session.  If none exists, None is returned.
    */
-  def sessionOption: Option[HttpSession] = request.get(SessionKey).map(_.asInstanceOf[HttpSession])
+  def sessionOption: Option[HttpSession] = sessionFromCookieOrRequest
 
   implicit def session: HttpSession = {
-    sessionOption getOrElse SessionsDisableException()
+    appContext.sessions match {
+      case _: NoopSessionStore => SessionsDisableException()
+      case _ =>
+        val current = sessionFromCookieOrRequest
+        val sess = current getOrElse appContext.sessions.newSession
+        request(SessionSupport.SessionKey) = sess
+        if (current.isEmpty) request.cookies += appContext.sessionIdKey -> sess.id
+        sess
+    }
   }
-//
-//  private[scalatra] def session_=(newSession: HttpSession) = {
-//    require(session != null, "The session can't be null")
-//    request(SessionKey) = newSession
-//    newSession
-//  }
 }

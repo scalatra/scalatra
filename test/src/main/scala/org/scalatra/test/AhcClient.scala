@@ -116,6 +116,7 @@ class AhcClient(val host: String, val port: Int) extends Client {
       }
     }
     if (useSession && cookies.size > 0) {
+      println("Adding cookies: %s" format cookies.mkString("\n"))
       cookies foreach { cookie =>
         val ahcCookie = new Cookie(
           cookie.cookieOptions.domain,

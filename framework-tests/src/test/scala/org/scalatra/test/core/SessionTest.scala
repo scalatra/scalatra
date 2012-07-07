@@ -64,18 +64,19 @@ abstract class SessionTest extends ScalatraFunSuite {
       }
     }
   }
-//  TODO: Re-enable this test if it turns out it's needed, or move to servlet specific part
-//  test("sessionOption should be None when no session exists") {
-//    session {
-//      get("/session-option") {
-//        body should equal ("None")
-//      }
-//    }
-//  }
+
+  test("sessionOption should be None when no session exists") {
+    session {
+      get("/session-option") {
+        body should equal ("None")
+      }
+    }
+  }
 
   test("sessionOption should be Some when a session is active") {
+    val data = "session_value"
     session {
-      post("/session") {}
+      post("/session", "val" -> data) {}
 
       get("/session-option") {
         body should equal("Some")
