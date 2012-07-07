@@ -25,7 +25,7 @@ trait DynamicScope {
 
   private[this] val dynamicResponse = new DynamicVariable[HttpResponse](null)
 
-  protected def withRequestResponse[A](request: HttpRequest, response: HttpResponse)(f: => A) = {
+  protected[scalatra] def withRequestResponse[A](request: HttpRequest, response: HttpResponse)(f: => A) = {
     withRequest(request) {
       withResponse(response) {
         f
@@ -37,7 +37,7 @@ trait DynamicScope {
    * Executes the block with the given request bound to the `request`
    * method.
    */
-  protected def withRequest[A](request: HttpRequest)(f: => A) =
+  protected[scalatra] def withRequest[A](request: HttpRequest)(f: => A) =
     dynamicRequest.withValue(request) {
       f
     }
@@ -46,7 +46,7 @@ trait DynamicScope {
    * Executes the block with the given response bound to the `response`
    * method.
    */
-  protected def withResponse[A](response: HttpResponse)(f: => A) =
+  protected[scalatra] def withResponse[A](response: HttpResponse)(f: => A) =
     dynamicResponse.withValue(response) {
       f
     }

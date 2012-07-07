@@ -1,27 +1,29 @@
 package org.scalatra
 
+import java.util.concurrent.atomic.AtomicReference
+
+object SessionSupport {
+  val SessionKey = getClass.getName
+}
+
 /**
  * This trait provides session support for stateful applications.
  */
-trait SessionSupport {
+trait SessionSupport { self: ScalatraApp =>
 
-  private[scalatra] var _session: Option[HttpSession] = None
-
-  private[scalatra] var _created: Boolean = false
-
+  import SessionSupport._
   /**
    * The current session.  If none exists, None is returned.
    */
-  def sessionOption: Option[HttpSession] = if (_created) _session else None
+  def sessionOption: Option[HttpSession] = request.get(SessionKey).map(_.asInstanceOf[HttpSession])
 
   implicit def session: HttpSession = {
-    _created = true
-    _session getOrElse SessionsDisableException()
+    sessionOption getOrElse SessionsDisableException()
   }
-
-  private[scalatra] def session_=(session: HttpSession) = {
-    require(session != null, "The session can't be null")
-    _session = Option(session)
-    session
-  }
+//
+//  private[scalatra] def session_=(newSession: HttpSession) = {
+//    require(session != null, "The session can't be null")
+//    request(SessionKey) = newSession
+//    newSession
+//  }
 }

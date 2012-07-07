@@ -53,9 +53,9 @@ trait AppContext extends ScalatraLogging {
   implicit def applications: AppMounter.ApplicationRegistry
   def server: ServerInfo
 
-  lazy val attributes: mutable.ConcurrentMap[String, Any] = new MapMaker().makeMap[String, Any].asScala
+  val attributes: mutable.ConcurrentMap[String, Any] = new MapMaker().makeMap[String, Any].asScala
 
-  lazy val mimes = new MimeTypes
+  val mimes = new MimeTypes
 
   import AppContext._
   val mode = environment
@@ -142,5 +142,5 @@ abstract class AppContextBase(
     PathManipulationOps.ensureSlash(if (path.startsWith("/")) path else server.base / path)
 
   val sessions: SessionStore[_ <: HttpSession] = server.sessions.map(_.store) getOrElse (new NoopSessionStore)
-  sessions.initialize(this)
+  synchronized { sessions.initialize(this) }
 }
