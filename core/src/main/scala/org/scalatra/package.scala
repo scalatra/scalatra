@@ -47,5 +47,7 @@ package object scalatra
     val XForwardedFor = "X-Forwarded-For"
     val XForwardedProto = "X-Forwarded-Proto"
     val FrontEndHttps = "Front-End-Https"
+    val Referer = "Referer"
+    val AcceptLanguage = "Accept-Language"
   }
 }

@@ -97,6 +97,8 @@ trait HttpRequest extends HttpMessage with Growable[(String, Any)] with Shrinkab
 
   def cookies: CookieJar
 
+  def referrer: Option[String] = headers.get(HeaderNames.Referer).flatMap(_.blankOption)
+
   /**
    * Caches and returns the body of the response.  The method is idempotent
    * for any given request.  The result is cached in memory regardless of size,
@@ -133,7 +135,7 @@ trait HttpRequest extends HttpMessage with Growable[(String, Any)] with Shrinkab
   def update(key: String, value: Any) = attributes(key) = value
 
   lazy val locales: Seq[Locale] = {
-    val languages = new HeaderWithQParser(headers).parse("Accept-Language")
+    val languages = new HeaderWithQParser(headers).parse(HeaderNames.AcceptLanguage)
     if (languages.isEmpty) {
       List(Locale.getDefault)
     } else {
