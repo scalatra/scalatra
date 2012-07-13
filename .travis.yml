@@ -1,9 +1,0 @@
-language: scala
-scala:
-  - 2.9.1
-branches:
-  only:
-    - develop
-notifications:
-  email: false
-  irc: "irc.freenode.org#scalatra"
