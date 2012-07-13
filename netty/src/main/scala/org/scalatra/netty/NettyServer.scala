@@ -39,8 +39,6 @@ case class NettyServer(info: ServerInfo) extends WebServer {
   private val bossThreadPool = Executors.newCachedThreadPool()
   private val workerThreadPool = Executors.newCachedThreadPool()
 
-//  protected def keepAlive = true
-
   private val bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(bossThreadPool, workerThreadPool))
   bootstrap.setOption("soLinger", 0)
   bootstrap.setOption("reuseAddress", true)

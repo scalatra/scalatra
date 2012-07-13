@@ -2,7 +2,6 @@ package org.scalatra
 
 import auth.strategy.{BasicAuthStrategy, BasicAuthSupport}
 import auth.{ScentrySupport, ScentryConfig}
-import servlet.{ServletBase}
 
 import org.scalatra.BasicAuthExample.AuthenticationSupport
 
@@ -10,7 +9,7 @@ object BasicAuthExample {
 
   case class MyUser(id: String)
 
-  class OurBasicAuthStrategy(protected override val app: ServletBase, realm: String)
+  class OurBasicAuthStrategy(protected override val app: ScalatraApp, realm: String)
     extends BasicAuthStrategy[MyUser](app, realm) {
 
     protected def validate(userName: String, password: String): Option[MyUser] = {
@@ -22,7 +21,7 @@ object BasicAuthExample {
   }
 
   trait AuthenticationSupport extends ScentrySupport[MyUser] with BasicAuthSupport[MyUser] { 
-    self: ServletBase =>
+    self: ScalatraApp =>
 
     val realm = "Scalatra Basic Auth Example"
 
@@ -46,7 +45,7 @@ object BasicAuthExample {
   }
 }
 
-class BasicAuthExample extends ScalatraServlet with AuthenticationSupport {
+class BasicAuthExample extends ScalatraApp with AuthenticationSupport {
   get("/?") {
     basicAuth
     <html>
