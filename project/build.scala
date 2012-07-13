@@ -15,6 +15,7 @@ object ScalatraBuild extends Build {
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
+    javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
     resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots)
