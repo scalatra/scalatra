@@ -3,7 +3,7 @@ package org.scalatra.servlet
 import scala.collection.JavaConversions._
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
-import org.apache.commons.io.IOUtils
+import org.scalatra.util.{ using, io }
 import java.io.{ File, FileOutputStream }
 import javax.servlet.http._
 
@@ -246,12 +246,8 @@ case class FileItem(part: Part) {
   def getCharset = charset.orElse(null)
 
   def write(file: File) {
-    val outStream = new FileOutputStream(file)
-
-    try {
-      IOUtils.copy(getInputStream, outStream)
-    } finally {
-      outStream.close
+    using(new FileOutputStream(file)) { out =>
+      io.copy(getInputStream, out)
     }
   }
 

@@ -48,8 +48,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(
         servletApi % "provided;test",
         grizzledSlf4j,
-        backchatRl,
-        commonsIo
+        backchatRl
       ),
       description := "The core Scalatra framework"
     )
