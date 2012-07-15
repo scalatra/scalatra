@@ -70,7 +70,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(akkaActor, akkaTestkit),
       resolvers += "Akka Repo" at "http://repo.akka.io/repository",
       description := "Scalatra akka integration module"
-    ) 
+    )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraFileupload = Project(
@@ -162,8 +162,8 @@ object ScalatraBuild extends Build {
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies += specs,
-      description := "Specs support for the Scalatra test framework", 
-      // The one in Maven Central has a bad checksum for 2.8.2.  
+      description := "Specs support for the Scalatra test framework",
+      // The one in Maven Central has a bad checksum for 2.8.2.
       // Try ScalaTools first.
       resolvers ~= { rs => ScalaToolsReleases +: rs }
     )
@@ -232,9 +232,9 @@ object ScalatraBuild extends Build {
     // See jettyOrbitHack below.
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" exclude("org.eclipse.jetty.orbit", "javax.servlet")
 
-    val testJettyServlet = jettyDep("test-jetty-servlet")    
-    val jettyServlet = jettyDep("jetty-servlet") 
-    val jettyServer = jettyDep("jetty-server") 
+    val testJettyServlet = jettyDep("test-jetty-servlet")
+    val jettyServlet = jettyDep("jetty-servlet")
+    val jettyServer = jettyDep("jetty-server")
     val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % "8.1.3.v20120416"  % "provided" exclude("org.eclipse.jetty.orbit", "javax.servlet")
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
