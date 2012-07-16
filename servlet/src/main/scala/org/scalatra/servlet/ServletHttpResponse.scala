@@ -3,18 +3,20 @@ package org.scalatra.servlet
 import java.io.OutputStream
 import java.io.PrintWriter
 import java.nio.charset.Charset
-
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
-
 import org.scalatra._
-
 import javax.servlet.http.HttpServletResponse
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ServletHttpResponse(val r: HttpServletResponse, val cookies: CookieJar) extends HttpResponse {
 
+  private val _ended = new AtomicBoolean(false)
+  
   def status: ResponseStatus = ResponseStatus(r.getStatus)
-  def status_=(newStatus: ResponseStatus) = r.setStatus(newStatus.code)
+  def status_=(newStatus: ResponseStatus) = {
+    r.setStatus(newStatus.code, newStatus.message)
+  }
 
   def characterEncoding_=(cs: String) = r.setCharacterEncoding(cs)
 
@@ -33,13 +35,18 @@ class ServletHttpResponse(val r: HttpServletResponse, val cookies: CookieJar) ex
   def outputStream: OutputStream = r.getOutputStream
 
   def redirect(uri: String) {
+    end()
     r.sendRedirect(uri)
   }
 
   def end() {
-    cookies.responseCookies foreach { cookie => 
-      r.addHeader("Set-Cookie", cookie.toCookieString)
+    if (_ended.compareAndSet(false, true)) {
+      sendCookies
     }
+  }
+  
+  private def sendCookies {
+    cookies.responseCookies foreach { cookie => r.addHeader("Set-Cookie", cookie.toCookieString) }
   }
 
   def addCookie(cookie: Cookie) {

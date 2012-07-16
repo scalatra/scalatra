@@ -25,6 +25,15 @@ class SessionTestApp extends ScalatraApp with SessionSupport {
     //TODO: Make this back into a symbol
     session("val") = "set with symbol"
   }
+  
+  get("/redirect") {
+    session("redirected") = "redirected"
+    redirect("/")
+  }
+
+  get("/redirect-post") {
+    session.getOrElse("redirected", "None")
+  }
 }
 
 abstract class SessionTest extends ScalatraFunSuite {
@@ -90,6 +99,15 @@ abstract class SessionTest extends ScalatraFunSuite {
       post("/session-symbol-update") {}
       get("/session-symbol") {
         body should equal ("set with symbol")
+      }
+    }
+  }
+  
+  test("session keeps value with redirect") {
+    session {
+      get("/redirect") {}
+      get("/redirect-post") {
+        body should equal ("redirected")
       }
     }
   }
