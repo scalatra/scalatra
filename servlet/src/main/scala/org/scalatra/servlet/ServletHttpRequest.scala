@@ -18,8 +18,8 @@ class ServletHttpRequest(val r: HttpServletRequest) extends HttpRequest {
     case x => ExtensionMethod(x)
   }
   
-  def requestMethod = attributes(RequestMethodKey) match {
-    case method:HttpMethod => method
+  def requestMethod = attributes.get(RequestMethodKey) match {
+    case Some(method:HttpMethod) => method
     case _ => ExtensionMethod("")
   } 
 
