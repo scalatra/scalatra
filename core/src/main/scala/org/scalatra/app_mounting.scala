@@ -6,6 +6,7 @@ import collection.JavaConverters._
 import util.io.PathManipulation
 import java.util.concurrent.ConcurrentHashMap
 import scalax.file.ImplicitConverters._
+import com.google.common.collect.MapMaker
 
 trait Mountable extends PathManipulation with Initializable {
   @volatile private[scalatra] var mounter: AppMounter = _
@@ -65,7 +66,8 @@ trait AppMounterLike extends PathManipulation { self: ScalatraLogging =>
 }
 object AppMounter {
   type ApplicationRegistry = ConcurrentMap[String, AppMounter]
-  def newAppRegistry: ApplicationRegistry = new ConcurrentHashMap[String, AppMounter]().asScala
+  def newAppRegistry: ApplicationRegistry = new MapMaker().makeMap[String, AppMounter].asScala
+//  def newAppRegistry: ApplicationRegistry = new ConcurrentHashMap[String, AppMounter]().asScala
 }
 final class AppMounter(val basePath: String, val pathName: String, app: => Mountable)(implicit val appContext: AppContext) extends ScalatraLogging with AppMounterLike {
   lazy val mounted = {

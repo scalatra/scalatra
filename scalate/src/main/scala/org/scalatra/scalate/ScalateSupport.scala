@@ -3,11 +3,8 @@ package scalate
 
 import scala.collection.mutable
 import java.io.PrintWriter
-import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import org.fusesource.scalate.support.TemplateFinder
 
 object ScalateSupport {
@@ -30,7 +27,7 @@ object ScalateSupport {
  * ScalateSupport creates and configures a template engine and provides
  * helper methods and bindings to integrate with the ScalatraKernel.
  */
-trait ScalateSupport extends ScalatraKernel {
+trait ScalateSupport extends ScalatraApp {
   /**
    * The template engine used by the methods in this support class.  It
    * provides a lower-level interface to Scalate and may be used directly
@@ -40,7 +37,7 @@ trait ScalateSupport extends ScalatraKernel {
    */
   protected[scalatra] var templateEngine: TemplateEngine = _
 
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: AppContext) {
     super.initialize(config)
     templateEngine = createTemplateEngine(config)
   }
@@ -50,12 +47,12 @@ trait ScalateSupport extends ScalatraKernel {
    * override this unless you have created a ScalatraKernel extension outside
    * an HttpServlet or Filter.
    */
-  protected def createTemplateEngine(config: ConfigT): TemplateEngine =
+  protected def createTemplateEngine(config: AppContext): TemplateEngine =
     config match {
-      case servletConfig: ServletConfig =>
-        new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
-      case filterConfig: FilterConfig =>
-        new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine
+//      case servletConfig: ServletConfig =>
+//        new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
+//      case filterConfig: FilterConfig =>
+//        new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine
       case _ =>
         // Don't know how to convert your Config to something that
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
@@ -90,8 +87,7 @@ trait ScalateSupport extends ScalatraKernel {
 
     ScalateSupport.setLayoutStrategy(this)
     templateDirectories = defaultTemplatePath
-    bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, true, isImplicit = true)
-    importStatements ::= "import org.scalatra.servlet.ServletApiImplicits._"
+    bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, importMembers = true, isImplicit = true)
   }
 
   /**
@@ -103,7 +99,7 @@ trait ScalateSupport extends ScalatraKernel {
    * If you return something other than a ScalatraRenderContext, you will
    * also want to redefine that binding.
    */
-  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response, out: PrintWriter = response.getWriter): RenderContext =
+  protected def createRenderContext(req: HttpRequest = request, resp: HttpResponse = response, out: PrintWriter = response.writer): RenderContext =
     new ScalatraRenderContext(this, templateEngine, out, req, resp)
 
   /**
@@ -123,23 +119,25 @@ trait ScalateSupport extends ScalatraKernel {
    */
   protected def isScalateErrorPageEnabled = true
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  abstract override def handle(req: HttpRequest, res: HttpResponse) {
     try {
       super.handle(req, res)
     }
     catch {
-      case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
+      case e if isScalateErrorPageEnabled =>
+        renderScalateErrorPage(req, res, e)
+        res.end()
       case e => throw e
     }
   }
 
   // Hack: Have to pass it the request and response, because we're outside the
   // scope of the super handler.
-  private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
-    resp.setStatus(500)
-    resp.setContentType("text/html")
-    val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
-    val context = createRenderContext(req, resp, resp.getWriter)
+  private def renderScalateErrorPage(req: HttpRequest, resp: HttpResponse, e: Throwable) = {
+    resp.status = ResponseStatus(500)
+    resp.contentType = "text/html"
+    val errorPage = templateEngine.load("/WEB-INF/scalatra/errors/500.scaml")
+    val context = createRenderContext(req, resp, resp.writer)
     context.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, context)
   }

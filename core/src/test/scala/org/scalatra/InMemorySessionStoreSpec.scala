@@ -8,6 +8,8 @@ import org.scalacheck.{Prop, Gen}
 import org.scalatra.store.session.InMemorySessionStore
 import org.scalacheck.Gen
 import org.scalacheck.Prop
+import java.net.URL
+import com.google.common.base.Ticker
 
 
 class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
@@ -16,7 +18,7 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
     "store values" ! specify().storesValues ^
     "retrieve values if they are not expired" ! specify().retrievesUnexpired ^
     "expires entries after the specified timeout" ! specify().expiresEntries ^
-    "does not fall down under heavy load" ! specify(120).handlesLoad ^
+    "does not fall down under heavy load" ! specify(ttl = 120).handlesLoad ^
   end
 
 
@@ -34,6 +36,10 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
 
         val sessions: SessionStore[_ <: HttpSession] = store
         sessions.initialize(this)
+
+        def resourceFor(path: String): URL = null
+
+        def physicalPath(uri: String): String = null
       }
       ctxt.sessionTimeout = AkkaDuration(ttl, TimeUnit.SECONDS)
       ctxt
@@ -67,7 +73,7 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
     }
 
     def handlesLoad = this {
-      val sessions = (1 to 500) map { _ => GenerateId()}
+      val sessions = (1 to 1000) map { _ => GenerateId()}
       val values = for {
         k <- Gen.alphaStr.filter(_.nonBlank).map(_ + System.nanoTime.toString)
         v <- Gen.alphaStr.filter(_.nonBlank) } yield k -> v
@@ -79,7 +85,7 @@ class InMemorySessionStoreSpec extends Specification with ScalaCheck { def is =
           (Prop.forAll(values) { kv =>
             store(sessionId) += kv
             store(sessionId)(kv._1) must_== kv._2
-          }).set(minTestsOk -> 1500, workers -> 8)
+          }).set(minTestsOk -> 3000, workers -> 8)
         }
       } reduce (_ and _)
     }

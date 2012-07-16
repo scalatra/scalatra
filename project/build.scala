@@ -11,7 +11,7 @@ object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  lazy val majorVersion = "2.1"
+  lazy val majorVersion = "3.0"
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
     ),
     aggregate = Seq(
       scalatraCore, scalatraAuth, scalatraScalate, scalatraLiftJson,
-      scalatraJerkson, scalatraAkka, scalatraSwagger,
+      scalatraJerkson, scalatraAkka, scalatraSwagger, scalatraNetty, scalatraFrameworkTests,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraJetty, scalatraJetty, scalatraServlet)
   )
@@ -52,6 +52,7 @@ object ScalatraBuild extends Build {
         mimeUtil,
         backchatRl,
         httpParsers,
+        googleGuava,
         akkaActor,
         specs2 % "test",
         scalaCheck
@@ -95,13 +96,17 @@ object ScalatraBuild extends Build {
       resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;provided->provided")
+  ) dependsOn(
+    scalatraCore % "compile;provided->provided",
+    scalatraFrameworkTests % "test->compile;test->test;provided->provided",
+    scalatraTest % "test->compile;provided->provided",
+    scalatraSpecs2 % "test->compile;provided->provided")
 
   lazy val scalatraLiftJson = Project(
     id = "scalatra-lift-json",
     base = file("lift-json"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies += liftJson,
+      libraryDependencies ++= Seq(liftJson, googleGuava),
       description := "Lift JSON support for Scalatra"
     )
   ) dependsOn(
@@ -135,6 +140,7 @@ object ScalatraBuild extends Build {
     base = file("jetty"),
     settings = scalatraSettings ++ jettyOrbitHack ++ Seq(
       libraryDependencies ++= Seq(
+        servletApi % "compile;test",
         jettyServlet
       ),
       description := "Embedded Jetty server for Scalatra apps"
@@ -200,7 +206,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(liftJson, liftJsonExt),
+      libraryDependencies ++= Seq(liftJson, liftJsonExt, googleGuava),
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;provided->provided",
@@ -224,7 +230,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-framework-tests",
     base = file("framework-tests"),
     settings = scalatraSettings ++ jettyOrbitHack ++ doNotPublish ++ Seq(
-      libraryDependencies ++= Seq(httpParsers, logback),
+      libraryDependencies ++= Seq(httpParsers, logback, servletApi),
       description := "Scalatra framework tests"
     )
   ) dependsOn(
@@ -244,7 +250,7 @@ object ScalatraBuild extends Build {
     val akka = "2.0.2"
     val dispatch = "0.8.7"
     val grizzledSlf4j = "0.6.6"
-    val netty = "3.5.1.Final"
+    val netty = "3.5.2.Final"
     val asyncHttpClient = "1.7.5"
     val logback = "1.0.6"
   }
@@ -261,6 +267,8 @@ object ScalatraBuild extends Build {
     val httpParsers = "io.backchat.http" %% "http-parsers" % "0.3.2-SNAPSHOT"
 
     val chardet = "com.googlecode.juniversalchardet"  % "juniversalchardet" % "1.0.3"
+
+    val googleGuava = "com.google.guava" % "guava" % "12.0"
 
     val mimeUtil = "eu.medsea.mimeutil"                % "mime-util"         % "2.1.3" exclude("org.slf4j", "slf4j-log4j12")
 
@@ -321,10 +329,16 @@ object ScalatraBuild extends Build {
   }
 
   object Resolvers {
+
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+
     val goldenGate = "GoldenGate" at "http://openr66.free.fr/maven2"
+
     val akkaRepository = "Akka Repository" at "http://repo.akka.io/releases/"
+
+    val twitterMaven = "Twitter Maven" at "http://maven.twttr.com/"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {

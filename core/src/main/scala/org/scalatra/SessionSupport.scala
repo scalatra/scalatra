@@ -1,27 +1,34 @@
 package org.scalatra
 
+object SessionSupport {
+  val SessionKey = getClass.getName
+}
+
 /**
  * This trait provides session support for stateful applications.
  */
-trait SessionSupport {
+trait SessionSupport { self: ScalatraApp =>
 
-  private[scalatra] var _session: Option[HttpSession] = None
+  import SessionSupport._
 
-  private[scalatra] var _created: Boolean = false
-
+  private def sessionFromCookieOrRequest: Option[HttpSession] =
+    request.get(SessionKey).map(_.asInstanceOf[HttpSession]) orElse {
+      request.cookies get appContext.sessionIdKey flatMap appContext.sessions.get
+    }
   /**
    * The current session.  If none exists, None is returned.
    */
-  def sessionOption: Option[HttpSession] = if (_created) _session else None
+  def sessionOption: Option[HttpSession] = sessionFromCookieOrRequest
 
   implicit def session: HttpSession = {
-    _created = true
-    _session getOrElse SessionsDisableException()
-  }
-
-  private[scalatra] def session_=(session: HttpSession) = {
-    require(session != null, "The session can't be null")
-    _session = Option(session)
-    session
+    appContext.sessions match {
+      case _: NoopSessionStore => SessionsDisableException()
+      case _ =>
+        val current = sessionFromCookieOrRequest
+        val sess = current getOrElse appContext.sessions.newSession
+        request(SessionSupport.SessionKey) = sess
+        if (current.isEmpty) request.cookies += appContext.sessionIdKey -> sess.id
+        sess
+    }
   }
 }

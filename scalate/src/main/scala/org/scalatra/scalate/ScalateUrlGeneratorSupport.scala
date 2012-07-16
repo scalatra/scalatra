@@ -2,10 +2,6 @@ package org.scalatra
 package scalate
 
 import java.io.PrintWriter
-import java.lang.reflect.Field
-import java.lang.Class
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import org.fusesource.scalate.{TemplateEngine, Binding}
 
 trait ScalateUrlGeneratorSupport extends ScalateSupport {
@@ -17,19 +13,19 @@ trait ScalateUrlGeneratorSupport extends ScalateSupport {
       .map(f => (f.getName, f.invoke(this).asInstanceOf[Route]))
       .toMap
 
-  override protected def createTemplateEngine(config: ConfigT) = {
+  override protected def createTemplateEngine(config: AppContext) = {
     val engine = super.createTemplateEngine(config)
-    val generatorBinding = Binding("urlGenerator", classOf[UrlGeneratorSupport].getName, true)
+    val generatorBinding = Binding.of[UrlGeneratorSupport]("urlGenerator", importMembers = true)
     val routeBindings = this.reflectRoutes.keys map (Binding(_, classOf[Route].getName))
     engine.bindings = generatorBinding :: engine.bindings ::: routeBindings.toList
     engine
   }
 
-  override protected def createRenderContext(req: HttpServletRequest = request, res: HttpServletResponse = response, out: PrintWriter = response.getWriter) = {
+  override protected def createRenderContext(req: HttpRequest = request, res: HttpResponse = response, out: PrintWriter = response.writer) = {
     val context = super.createRenderContext(req, res, out)
     for ((name, route) <- this.reflectRoutes)
-      context.attributes.update(name, route)
-    context.attributes.update("urlGenerator", UrlGenerator)
+      context.attributes(name) = route
+    context.attributes("urlGenerator") = UrlGenerator
     context
   }
 }

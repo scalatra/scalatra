@@ -2,10 +2,12 @@ package org.scalatra
 package scalate
 
 import test.specs2.ScalatraSpec
-import org.fusesource.scalate.{TemplateSource, Binding}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
+import scala.util.DynamicVariable
 
-class ScalateSupportSpec extends ScalatraSpec { def is =
+class NettyScalateSupportSpec extends ScalateSupportSpec with test.NettyBackend
+
+abstract class ScalateSupportSpec extends ScalatraSpec { def is =
   "ScalateSupport should"                                         ^
     "render uncaught errors with 500.scaml"                       ! e1^
     "not throw a NullPointerException for trivial requests"       ! e2^
@@ -31,101 +33,9 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "set templateAttributes when creating a render context"       ! e22^
     "render to a string instead of response"                      ! e23^
     "set status to 500 when rendering 500.scaml"                  ! e24
+  end
 
-  addServlet(new ScalatraServlet with ScalateSupport
-    with ScalateUrlGeneratorSupport with FlashMapSupport with CookieSupport {
-
-    get("/barf") {
-      throw new RuntimeException
-    }
-
-    get("/happy-happy") {
-      "puppy dogs"
-    }
-
-    get("/simple-template") {
-      layoutTemplate("/simple.jade")
-    }
-
-    get("/params") {
-      layoutTemplate("/params.jade", "foo" -> "Configurable")
-    }
-
-    get("/jade-template") {
-      jade("simple")
-    }
-
-    get("/jade-params") {
-      jade("params", "foo" -> "Configurable")
-    }
-
-    get("/scaml-template") {
-      scaml("simple")
-    }
-
-    get("/scaml-params") {
-      scaml("params", "foo" -> "Configurable")
-    }
-
-    get("/ssp-template") {
-      ssp("simple")
-    }
-
-    get("/ssp-params") {
-      ssp("params", "foo" -> "Configurable")
-    }
-
-    get("/mustache-template") {
-      mustache("simple")
-    }
-
-    get("/mustache-params") {
-      mustache("params", "foo" -> "Configurable")
-    }
-
-    get("/layout-strategy") {
-      templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";"
-    }
-
-    val urlGeneration = get("/url-generation") {
-      layoutTemplate("/urlGeneration.jade")
-    }
-
-    val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
-      layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
-    }
-
-    get("/legacy-view-path") {
-      jade("legacy")
-    }
-
-    get("/directory") {
-      jade("directory/index")
-    }
-
-    get("/bindings/*") {
-      flash.now("message") = "flash works"
-      session("message") = "session works"
-      jade(requestPath)
-    }
-
-    get("/bindings/params/:foo") {
-      jade("/bindings/params")
-    }
-
-    get("/bindings/multiParams/*/*") {
-      jade("/bindings/multiParams")
-    }
-
-    get("/template-attributes") {
-      templateAttributes("foo") = "from attributes"
-      scaml("params")
-    }
-
-    get("/render-to-string") {
-      response.setHeader("X-Template-Output", layoutTemplate("simple"))
-    }
-  }, "/*")
+  mount(new ScalateSupportSpec.ScalateSpecApp)
 
   def e1 = get("/barf") {
     body must contain ("id=\"scalate-error\"")
@@ -231,6 +141,106 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
   }
 
   def e24 = get("/barf") {
-    status must_== 500
+    status.code must_== 500
   }
 }
+
+object ScalateSupportSpec {
+  class ScalateSpecApp extends ScalatraApp with SessionSupport with FlashMapSupport with ScalateSupport
+      with ScalateUrlGeneratorSupport {
+
+    get("/barf") {
+      throw new RuntimeException
+    }
+
+    get("/happy-happy") {
+      "puppy dogs"
+    }
+
+    get("/simple-template") {
+      layoutTemplate("/simple.jade")
+    }
+
+    get("/params") {
+      layoutTemplate("/params.jade", "foo" -> "Configurable")
+    }
+
+    get("/jade-template") {
+      jade("simple")
+    }
+
+    get("/jade-params") {
+      jade("params", "foo" -> "Configurable")
+    }
+
+    get("/scaml-template") {
+      scaml("simple")
+    }
+
+    get("/scaml-params") {
+      scaml("params", "foo" -> "Configurable")
+    }
+
+    get("/ssp-template") {
+      ssp("simple")
+    }
+
+    get("/ssp-params") {
+      ssp("params", "foo" -> "Configurable")
+    }
+
+    get("/mustache-template") {
+      mustache("simple")
+    }
+
+    get("/mustache-params") {
+      mustache("params", "foo" -> "Configurable")
+    }
+
+    get("/layout-strategy") {
+      templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_ < _) mkString ";"
+    }
+
+    val urlGeneration = get("/url-generation") {
+      layoutTemplate("/urlGeneration.jade")
+    }
+
+    val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
+      layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
+    }
+
+    get("/legacy-view-path") {
+      jade("legacy")
+    }
+
+    get("/directory") {
+      jade("directory/index")
+    }
+
+    get("/bindings/*") {
+        flash.now("message") = "flash works"
+        session("message") = "session works"
+        jade(requestPath)
+    }
+
+    get("/bindings/params/:foo") {
+      jade("/bindings/params")
+    }
+
+    get("/bindings/multiParams/*/*") {
+      jade("/bindings/multiParams")
+    }
+
+    get("/template-attributes") {
+      templateAttributes("foo") = "from attributes"
+      scaml("params")
+    }
+
+    get("/render-to-string") {
+      response.headers += "X-Template-Output" -> layoutTemplate("simple").replaceAll("\\r|\\n","")
+    }
+  }
+}
+
+
+

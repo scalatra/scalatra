@@ -3,7 +3,7 @@ package org.scalatra
 import scala.xml.{Text, Node}
 import scalate.ScalateSupport
 
-class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateSupport {
+class TemplateExample extends ScalatraApp with SessionSupport with FlashMapSupport with ScalateSupport {
 
   object Template {
 
@@ -31,7 +31,6 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
           <a href={url("/flash-map/form")}>flash scope</a>
           <a href={url("/login")}>login</a>
           <a href={url("/logout")}>logout</a>
-          <a href={url("/filter-example")}>filter example</a>
           <a href={url("/cookies-example")}>cookies example</a>
           <a href={url("/chat")}>chat demo</a>
           <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a>
@@ -96,7 +95,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
     (params("first"), params("last")) match {
       case (first:String, last:String) => {
         session("first") = first
-	session("last") = last
+	      session("last") = last
         Template.page("Scalatra: Session Example",
         <pre>You have just logged in as: {first + " " + last}</pre>
         <pre>Route: /login</pre>
@@ -116,7 +115,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   get("/") {
     Template.page("Scalatra: Hello World",
     <h2>Hello world!</h2>
-    <p>Referer: { (request referrer) map { Text(_) } getOrElse { <i>none</i> }}</p>
+    <p>Referer: { (request.referrer) map { Text(_) } getOrElse { <i>none</i> }}</p>
     <pre>Route: /</pre>
     )
   }

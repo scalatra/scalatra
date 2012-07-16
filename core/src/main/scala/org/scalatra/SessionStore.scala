@@ -7,13 +7,13 @@ import collection.JavaConverters._
 trait SessionStore[SessionType <: HttpSession] extends mutable.Map[String, SessionType] with mutable.MapLike[String,  SessionType, SessionStore[SessionType]] with Initializable {
 
 
-  protected var appContext: AppContext = null
+  @volatile protected var appContext: AppContext = null
   /**
    * A hook to initialize the class with some configuration after it has
    * been constructed.
    */
   def initialize(config: AppContext) {
-    appContext = config
+    if (appContext != config) appContext = config
   }
 
   protected def meta: HttpSessionMeta[SessionType]

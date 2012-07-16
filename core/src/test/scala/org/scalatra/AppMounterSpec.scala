@@ -2,9 +2,9 @@ package org.scalatra
 
 import org.specs2.Specification
 import java.util.concurrent.atomic.AtomicInteger
-import java.net.URI
-import java.util.concurrent.ConcurrentHashMap
+import java.net.{URL, URI}
 import collection.JavaConversions._
+import com.google.common.collect.MapMaker
 
 
 class AppMounterSpec extends Specification { def is =
@@ -34,9 +34,13 @@ class AppMounterSpec extends Specification { def is =
 
       implicit def appContext = this
 
-      implicit val applications: AppMounter.ApplicationRegistry = new ConcurrentHashMap[String, AppMounter]
+      implicit val applications: AppMounter.ApplicationRegistry = new MapMaker().makeMap[String, AppMounter]
 
       def sessions: SessionStore[_ <: HttpSession] = new NoopSessionStore
+
+      def resourceFor(path: String): URL = null
+
+      def physicalPath(uri: String): String = null
     }
     val root = new AppMounter("/", "", NullMountable)
 

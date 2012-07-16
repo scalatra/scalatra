@@ -3,35 +3,40 @@ package scalate
 
 import i18n.I18nSupport
 
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import org.fusesource.scalate.Binding
-import org.fusesource.scalate.RenderContext
-import javax.servlet.ServletConfig
-import org.fusesource.scalate.servlet.ServletTemplateEngine
-import javax.servlet.FilterConfig
-import org.fusesource.scalate.TemplateEngine
+import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
 import i18n.Messages
 import java.io.PrintWriter
 
 trait ScalateI18nSupport extends ScalateSupport with I18nSupport {
-  this: ScalatraServlet with CookieSupport =>
+  this: ScalatraApp =>
 
-  /*
-   * Binding done here seems to work all the time. 
-   * 
-   * If it were placed in createRenderContext, it wouldn't work for "view" templates
-   * on first access. However, on subsequent accesses, it worked fine. 
+//  /*
+//   * Binding done here seems to work all the time.
+//   *
+//   * If it were placed in createRenderContext, it wouldn't work for "view" templates
+//   * on first access. However, on subsequent accesses, it worked fine.
+//   */
+//  before() {
+//    templateEngine.bindings ::= Binding("messages", classOf[Messages].getName, true, isImplicit = true)
+//  }
+
+
+  /**
+   * Creates the templateEngine from the config.  There is little reason to
+   * override this unless you have created a ScalatraKernel extension outside
+   * an HttpServlet or Filter.
    */
-  before() {
-    templateEngine.bindings ::= Binding("messages", classOf[Messages].getName, true, isImplicit = true)
+  override protected def createTemplateEngine(config: AppContext): TemplateEngine = {
+    val eng = super.createTemplateEngine(config)
+    eng.bindings ::= Binding.of[Messages]("messages", importMembers = true, isImplicit = true)
+    eng
   }
-  
+
   /**
    * Added "messages" into the template context so it can be accessed like:
    * #{messages("hello")}
    */
-  override protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response, out: PrintWriter = response.getWriter): RenderContext = {
+  override protected def createRenderContext(req: HttpRequest = request, resp: HttpResponse = response, out: PrintWriter = response.writer): RenderContext = {
     val context = new ScalatraRenderContext(this, req, resp)
     context.attributes.update("messages", messages)
     context

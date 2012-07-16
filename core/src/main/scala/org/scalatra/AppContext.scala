@@ -6,7 +6,9 @@ import _root_.akka.util.duration._
 import util.io.{PathManipulationOps, MimeTypes}
 import java.util.concurrent.ConcurrentHashMap
 import collection.JavaConverters._
-import collection.mutable
+import collection.{Map, mutable}
+import java.net.URL
+import com.google.common.collect.MapMaker
 
 object AppContext {
   val Production = "production"
@@ -51,9 +53,9 @@ trait AppContext extends ScalatraLogging {
   implicit def applications: AppMounter.ApplicationRegistry
   def server: ServerInfo
 
-  lazy val attributes: mutable.ConcurrentMap[String, Any] = new ConcurrentHashMap[String, Any]().asScala
+  val attributes: mutable.ConcurrentMap[String, Any] = new MapMaker().makeMap[String, Any].asScala
 
-  lazy val mimes = new MimeTypes
+  val mimes = new MimeTypes
 
   import AppContext._
   val mode = environment
@@ -113,11 +115,26 @@ trait AppContext extends ScalatraLogging {
     }
   }
 
+  def +=(kv: (String, Any)) = {
+    attributes += kv
+    this
+  }
+
+  def -=(key: String) = {
+    attributes -= key
+    this
+  }
+
+  def iterator: Iterator[(String, Any)] = attributes.iterator
+
+  def resourceFor(path: String): URL
+
+  def physicalPath(uri: String): String
 }
 
-case class DefaultAppContext(
-             server: ServerInfo,
-             applications: AppMounter.ApplicationRegistry) extends AppContext {
+abstract class AppContextBase(
+             val server: ServerInfo,
+             val applications: AppMounter.ApplicationRegistry) extends AppContext {
 
   implicit val appContext = this
 
@@ -125,5 +142,5 @@ case class DefaultAppContext(
     PathManipulationOps.ensureSlash(if (path.startsWith("/")) path else server.base / path)
 
   val sessions: SessionStore[_ <: HttpSession] = server.sessions.map(_.store) getOrElse (new NoopSessionStore)
-  sessions.initialize(this)
+  synchronized { sessions.initialize(this) }
 }

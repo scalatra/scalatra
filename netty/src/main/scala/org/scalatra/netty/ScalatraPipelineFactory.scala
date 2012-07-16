@@ -9,8 +9,6 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler
 
 class ScalatraPipelineFactory(implicit val applicationContext: AppContext) extends ChannelPipelineFactory {
 
-  private lazy val applicationHandler = new ScalatraApplicationHandler
-
   def getPipeline = {
     val pipe = Channels.pipeline()
     
@@ -27,12 +25,7 @@ class ScalatraPipelineFactory(implicit val applicationContext: AppContext) exten
     }
 
     pipe.addLast("requestBuilder", new ScalatraRequestBuilder())
-    pipe.addLast("sessions", applicationHandler)
     pipe.addLast("handler", new ScalatraRequestHandler)
     pipe
-  }
-
-  def stop() = {
-    applicationHandler.stop()
   }
 }
