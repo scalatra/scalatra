@@ -3,7 +3,8 @@ package org.scalatra.servlet
 import scala.collection.JavaConversions._
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
-import java.io.File
+import org.scalatra.util.{ using, io }
+import java.io.{ File, FileOutputStream }
 import javax.servlet.http._
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
@@ -31,7 +32,7 @@ import javax.servlet.http._
   * {{{
   * import org.scalatra.servlet.SizeLimitExceededException
   * import org.scalatra.servlet.FileUploadSupport
-  * 
+  *
   * @MultipartConfig(maxFileSize=1024*1024)
   * class FileEaterServlet extends ScalatraServlet with FileUploadSupport {
   *   error {
@@ -245,7 +246,9 @@ case class FileItem(part: Part) {
   def getCharset = charset.orElse(null)
 
   def write(file: File) {
-    part.write(file.getPath)
+    using(new FileOutputStream(file)) { out =>
+      io.copy(getInputStream, out)
+    }
   }
 
   def write(fileName: String) {

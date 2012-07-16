@@ -80,6 +80,14 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
   post("/regular") {
     paramsToHeaders()
   }
+
+  post("/file-item-write") {
+    val document = fileParams("document")
+    val tempFile = File.createTempFile("scalatra-test-", document.name)
+    document.write(tempFile)
+    tempFile.deleteOnExit
+    "file size: " + tempFile.length
+  }
 }
 
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
@@ -155,7 +163,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
       (new String(
         org.scalatra.util.io.readBytes(getClass.getResourceAsStream(file)
       )).replace("${PATH}", path)).getBytes, "iso-8859-1")
-    
+
     val res = new HttpTester("iso-8859-1")
     res.parse(tester.getResponses(req))
     res
@@ -295,6 +303,17 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
       post("/regular", Map("param1" -> "one", "param2" -> "two")) {
         (header("param1") must_== "one") and
         (header("param2") must_== "two")
+      }
+    }
+  }
+
+  "FileItem.write" should {
+    "know how to write to a File instance" in {
+      val params = Map()
+      val files = Map("document" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"))
+
+      post("/file-item-write", params, files) {
+        body must_== "file size: 651"
       }
     }
   }
