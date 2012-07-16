@@ -7,6 +7,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet._
 
 import org.scalatra.servlet._
+import java.net.{URI, URL}
 
 object JettyServer extends WebServerFactory {
   val DefaultServerName = "ScalatraJettyHttpServer"
@@ -29,10 +30,20 @@ object JettyServer extends WebServerFactory {
   
 }
 
+class JettyAppContext(server: ServerInfo, applications: AppMounter.ApplicationRegistry) extends AppContextBase(server, applications) {
+
+  def resourceFor(path: String): URL = URI.create("file://" + absolutizePath(path)).toURL
+
+  def physicalPath(uri: String): String = resourceFor(uri).toURI.getSchemeSpecificPart
+  
+}
+
 /**
  * Runs the ScalatraServlet on an embedded Jetty server.
  */
 case class JettyServer(info: ServerInfo) extends WebServer {
+
+  implicit lazy val appContext: AppContext = new JettyAppContext(info, AppMounter.newAppRegistry)
 
   private val server = new Server(new InetSocketAddress(port))
 

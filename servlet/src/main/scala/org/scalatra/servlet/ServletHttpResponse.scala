@@ -20,6 +20,9 @@ class ServletHttpResponse(val r: HttpServletResponse, val cookies: CookieJar) ex
 
   def characterEncoding: Option[String] = Option(r.getCharacterEncoding)
 
+  // TODO default?
+  def serverProtocol: HttpVersion = Http11
+  
   def contentType: Option[String] = Option(r.getContentType)
   def contentType_=(ct: String) { r.setContentType(ct) }
   def charset: Charset = Charset.forName("ISO-8859-1")
@@ -28,9 +31,6 @@ class ServletHttpResponse(val r: HttpServletResponse, val cookies: CookieJar) ex
   def chunked_=(chunked: Boolean) {}
 
   def outputStream: OutputStream = r.getOutputStream
-
-  // TODO cache?
-  def writer: PrintWriter = new PrintWriter(outputStream)
 
   def redirect(uri: String) {
     r.sendRedirect(uri)
