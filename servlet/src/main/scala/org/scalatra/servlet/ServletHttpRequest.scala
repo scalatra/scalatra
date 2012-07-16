@@ -13,16 +13,17 @@ import org.scalatra.util.io.PathManipulationOps
 
 class ServletHttpRequest(val r: HttpServletRequest) extends HttpRequest {
   
-  def requestMethod = _method 
-
-  private var _method:HttpMethod = r.getMethod match {
+  attributes(RequestMethodKey) = r.getMethod match {
     case method:String => HttpMethod(method)
     case x => ExtensionMethod(x)
   }
   
-  def requestMethod_=(method: HttpMethod) {
-    _method = method
+  def requestMethod = attributes(RequestMethodKey) match {
+    case method:HttpMethod => method
+    case _ => ExtensionMethod("")
   } 
+
+  def requestMethod_=(method: HttpMethod) = attributes(RequestMethodKey) = method
 
   def scriptName = r.getContextPath
 
