@@ -15,11 +15,6 @@ class ScalatraServlet(appContext: AppContext) extends HttpServlet {
     val res = new ServletHttpResponse(response, req.cookies)
 
     appContext.application(req) match {
-      case Some(app: ScalatraApp with SessionSupport) =>
-        val current = req.cookies.get(appContext.sessionIdKey).flatMap(appContext.sessions.get).getOrElse(appContext.sessions.newSession)
-        if (current.isEmpty) req.cookies += appContext.sessionIdKey -> app.session.id
-        app.handle(req, res)
-
       case Some(app: ScalatraApp) =>
         app.handle(req, res)
 
