@@ -1,21 +1,18 @@
 package org.scalatra
 package auth
 
-import servlet.ServletBase
-
-import collection.mutable.{ HashMap, Map => MMap }
-import scala.PartialFunction
-import ScentryAuthStore.{SessionAuthStore, ScentryAuthStore}
-import util.RicherString
-import collection.immutable.List._
+import org.scalatra.util.RicherString._
+import collection.mutable.{ HashMap, Map ⇒ MMap }
+import ScentryAuthStore.{ SessionAuthStore, ScentryAuthStore }
+import grizzled.slf4j.{Logger, Logging}
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = ServletBase => ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ScalatraBase ⇒ ScentryStrategy[UserType]
 
-  private val _globalStrategies = new HashMap[Symbol, StrategyFactory[_ <: AnyRef]]()
+  private val _globalStrategies = new HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
-  def registerStrategy[UserType <: AnyRef](name: Symbol, strategyFactory: StrategyFactory[UserType]) =
+  def registerStrategy[UserType <: AnyRef](name: String, strategyFactory: StrategyFactory[UserType]) =
     _globalStrategies += (name -> strategyFactory)
 
   def globalStrategies = _globalStrategies
@@ -26,19 +23,19 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-        app: ServletBase,
-        serialize: PartialFunction[UserType, String],
-        deserialize: PartialFunction[String, UserType] ) {
+    app: ScalatraBase,
+    serialize: PartialFunction[UserType, String],
+    deserialize: PartialFunction[String, UserType],
+    private var _store: ScentryAuthStore) {
 
-  import RicherString._
-
+  private[this] lazy val logger = Logger(getClass)
   type StrategyType = ScentryStrategy[UserType]
-  type StrategyFactory = ServletBase => StrategyType
+  type StrategyFactory = ScalatraBase ⇒ StrategyType
 
   import Scentry._
-  private val _strategies = new HashMap[Symbol, StrategyFactory]()
+  private val _strategies = new HashMap[String, StrategyFactory]()
   private var _user: UserType = null.asInstanceOf[UserType]
-  private var _store: ScentryAuthStore = new SessionAuthStore(app.session)
+
 
   @deprecated("use store_= instead", "2.0.0")
   def setStore(newStore: ScentryAuthStore) { store = newStore }
@@ -57,15 +54,15 @@ class Scentry[UserType <: AnyRef](
   def params = app.params
   def redirect(uri: String) { app.redirect(uri) }
 
-  def registerStrategy(name: Symbol, strategyFactory: StrategyFactory) =
+  def registerStrategy(name: String, strategyFactory: StrategyFactory) =
     _strategies += (name -> strategyFactory)
 
-  def strategies: MMap[Symbol, ScentryStrategy[UserType]] =
-    (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](app)) }
+  def strategies: MMap[String, ScentryStrategy[UserType]] =
+    (globalStrategies ++ _strategies) map { case (nm, fact) ⇒ (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
   def userOption: Option[UserType] = Option(user)
 
-  def user : UserType = if (_user != null) _user else {
+  def user: UserType = if (_user != null) _user else {
     val key = store.get
     if (key.nonBlank) {
       runCallbacks() { _.beforeFetch(key) }
@@ -73,8 +70,7 @@ class Scentry[UserType <: AnyRef](
       if (res != null) runCallbacks() { _.afterFetch(res) }
       _user = res
       res
-    }
-    else null.asInstanceOf[UserType]
+    } else null.asInstanceOf[UserType]
   }
 
   def user_=(v: UserType) = {
@@ -93,51 +89,54 @@ class Scentry[UserType <: AnyRef](
   def toSession = serialize orElse missingSerializer
 
   private def missingSerializer: PartialFunction[UserType, String] = {
-    case _ => throw new RuntimeException("You need to provide a session serializer for Scentry")
+    case _ ⇒ throw new RuntimeException("You need to provide a session serializer for Scentry")
   }
 
   private def missingDeserializer: PartialFunction[String, UserType] = {
-    case _ => throw new RuntimeException("You need to provide a session deserializer for Scentry")
+    case _ ⇒ throw new RuntimeException("You need to provide a session deserializer for Scentry")
   }
 
-  def authenticate(names: Symbol*) = {
-    runAuthentication(names:_*) map {
-      case (stratName, usr) =>
+  def authenticate(names: String*) = {
+    runAuthentication(names: _*) map {
+      case (stratName, usr) ⇒
         runCallbacks() { _.afterAuthenticate(stratName, usr) }
         user = usr
         user
-    } orElse { runUnauthenticated }
+    } orElse { runUnauthenticated(names: _*) }
   }
 
-  private def runAuthentication(names: Symbol*) = {
-    (List[(Symbol, UserType)]() /: strategies) { case (acc, (nm, strat)) =>
-      runCallbacks(_.isValid) { _.beforeAuthenticate }
-      val r = if(acc.isEmpty && strat.isValid && (names.isEmpty || names.contains(nm))) {
-        strat.authenticate() match {
-          case Some(usr)  => (nm, usr) :: Nil
-          case _ => List.empty[(Symbol, UserType)]
-        }
-       } else List.empty[(Symbol, UserType)]
-      acc ::: r
-    } headOption
+  private def runAuthentication(names: String*) = {
+    ((List[(String, UserType)]() /: strategies) {
+      case (acc, (nm, strat)) ⇒
+        val r = if (acc.isEmpty && strat.isValid && (names.isEmpty || names.contains(nm))) {
+          logger.debug("Authenticating with: %s" format nm)
+          runCallbacks(_.isValid) { _.beforeAuthenticate }
+          strat.authenticate() match {
+            case Some(usr) ⇒ (nm, usr) :: Nil
+            case _         ⇒ List.empty[(String, UserType)]
+          }
+        } else List.empty[(String, UserType)]
+        acc ::: r
+    }).headOption
   }
 
-  private def runUnauthenticated = {
-    strategies filter { case (_, strat) => strat.isValid } map { case (_, s) => s } toList match {
-      case Nil => defaultUnauthenticated foreach { _.apply() }
-      case l => {
-        l foreach { s => runCallbacks() { _.unauthenticated() } }
+  private def runUnauthenticated(names: String*) = {
+    (strategies filter { case (name, strat) ⇒ strat.isValid && (names.isEmpty || names.contains(name)) }).values.toList match {
+      case Nil ⇒ {
         defaultUnauthenticated foreach { _.apply() }
+      }
+      case l ⇒ {
+        l foreach { s ⇒ runCallbacks(_.name == s.name) { _.unauthenticated() } }
       }
     }
     None
 
   }
 
-  private var defaultUnauthenticated: Option[() => Unit] = None
+  private var defaultUnauthenticated: Option[() ⇒ Unit] = None
 
-  def unauthenticated(callback: => Unit) {
-    defaultUnauthenticated = Some(() => callback)
+  def unauthenticated(callback: ⇒ Unit) {
+    defaultUnauthenticated = Some(() ⇒ callback)
   }
 
   def logout() {
@@ -148,10 +147,11 @@ class Scentry[UserType <: AnyRef](
     runCallbacks() { _.afterLogout(usr) }
   }
 
-  private def runCallbacks(guard: StrategyType => Boolean = s => true)(which: StrategyType => Unit) {
+  private def runCallbacks(guard: StrategyType ⇒ Boolean = s ⇒ true)(which: StrategyType ⇒ Unit) {
     strategies foreach {
-      case (_, v) if guard(v) => which(v)
-      case _ => // guard failed
+      case (_, v) if guard(v) ⇒ which(v)
+      case _                  ⇒ // guard failed
     }
   }
 }
+

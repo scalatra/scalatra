@@ -7,24 +7,22 @@ import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
 trait ScentryStrategy[UserType <: AnyRef] {
 
-  protected def app: ServletBase
-  def name: Symbol = 'NameMe
+  protected def app: ScalatraBase
+  def name: String = "NameMe"
 
   def registerWith(registrar: Scentry[UserType]) {
-    if (name == 'NameMe) throwOverrideException
+    if (name == "NameMe") throwOverrideException
     else registrar.registerStrategy(name, createStrategy _)
   }
 
-
-  def createStrategy(app: ServletBase): this.type = {
+  def createStrategy(app: ScalatraBase): this.type = {
     throwOverrideException
   }
 
   private def throwOverrideException = {
     throw new RuntimeException("This method is used when configuring strategies through web.xml.\n" +
-        "If you want to use this registration method you have to override createStrategy and name in your strategy.\n" +
-        "Your strategy also needs to have a parameterless constructor for it to be used through web.xml"
-      )
+      "If you want to use this registration method you have to override createStrategy and name in your strategy.\n" +
+      "Your strategy also needs to have a parameterless constructor for it to be used through web.xml")
   }
 
   /**
@@ -55,7 +53,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
   /**
    * Perform stuff after authentication only run when the module is valid
    */
-  def afterAuthenticate(winningStrategy: Symbol, user: UserType) {}
+  def afterAuthenticate(winningStrategy: String, user: UserType) {}
 
   /**
    * Perform stuff before setting the user in the session

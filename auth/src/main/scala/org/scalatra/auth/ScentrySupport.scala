@@ -1,10 +1,11 @@
 package org.scalatra
 package auth
 
-import javax.servlet.{FilterConfig, ServletConfig}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import scala.util.DynamicVariable
-import servlet.ServletBase
+import javax.servlet.{ FilterConfig, ServletConfig }
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import util.RicherString._
+import servlet.ServletApiImplicits._
+import auth.ScentryAuthStore.CookieAuthStore
 
 trait ScentryConfig {
   val login = "/login"
@@ -14,7 +15,7 @@ trait ScentryConfig {
 }
 
 trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable with CookieSupport {
-  self: ServletBase =>
+  self: ScalatraBase with SessionSupport ⇒
 
   type UserType = TypeForUser
   type ScentryConfiguration <: ScentryConfig
@@ -30,29 +31,29 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
     readStrategiesFromConfig(config)
   }
 
-  abstract override def handle(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse) = {
-    withRequest(servletRequest) {
-      request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession)
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) = {
+    withRequest(req) {
+      request(Scentry.ScentryRequestKey) =
+        new Scentry[UserType](
+          self,
+          toSession,
+          fromSession,
+          new ScentryAuthStore.SessionAuthStore(self.asInstanceOf[SessionSupport].session))
+
       configureScentry
       registerStrategiesFromConfig
       registerAuthStrategies
-      super.handle(servletRequest, servletResponse)
+
+      super.handle(req, res)
     }
   }
 
-  private def readStrategiesFromConfig(config: Config) = _strategiesFromConfig = {
-    val strats = (config match {
-      case servletConfig: ServletConfig => {
-        servletConfig.getInitParameter("scentry.strategies")
-      }
-      case filterConfig: FilterConfig =>
-        filterConfig.getInitParameter("scentry.strategies")
-      case _ => ""
-    })
-    if(strats != null && strats.trim.nonEmpty) (strats split ";").toList else Nil
+  private def readStrategiesFromConfig(config: Config) =
+    _strategiesFromConfig = {
+      config.context.getInitParameter("scentry.strategies").blankOption map (s ⇒ (s split ";").toList) getOrElse Nil
   }
 
-  private def registerStrategiesFromConfig = _strategiesFromConfig foreach { strategyClassName =>
+  private def registerStrategiesFromConfig = _strategiesFromConfig foreach { strategyClassName ⇒
     val strategy = Class.forName(strategyClassName).newInstance.asInstanceOf[ScentryStrategy[UserType]]
     strategy registerWith scentry
   }
@@ -74,11 +75,11 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   protected def userOption: Option[UserType] = scentry.userOption
   implicit protected def user: UserType = scentry.user
   protected def user_=(user: UserType) = scentry.user = user
-  protected def isAuthenticated : Boolean = scentry.isAuthenticated
-  protected def isAnonymous : Boolean = !isAuthenticated
+  protected def isAuthenticated: Boolean = scentry.isAuthenticated
+  protected def isAnonymous: Boolean = !isAuthenticated
   @deprecated("use isAuthenticated", "2.0.0")
   protected def authenticated_? : Boolean = isAuthenticated
-  @deprecated("use !isAuthenticated", "2.0.0")
+  @deprecated("use isAnonymous", "2.0.0")
   protected def unAuthenticated_? : Boolean = !isAuthenticated
 
   protected def authenticate() = {

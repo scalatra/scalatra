@@ -7,6 +7,7 @@ import org.mockito.Matchers._
 import runner.{ScalaTest, JUnit}
 import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest, HttpSession}
 import org.scalatra.SweetCookies
+import auth.ScentryAuthStore.SessionAuthStore
 
 object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest {
   detailedDiffs
@@ -28,7 +29,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
         k => sessionMap.clear()
       }
     }
-    val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)})
+    val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)}, new SessionAuthStore(context.session))
     var beforeFetchCalled = false
     var afterFetchCalled = false
     var beforeSetUserCalled = false
@@ -54,7 +55,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
         override def beforeLogout(user: User) = beforeLogoutCalled = true
         override def afterLogout(user: User) = afterLogoutCalled = true
         override def beforeAuthenticate = beforeAuthenticateCalled = true
-        override def afterAuthenticate(winningStrategy: Symbol, user: User) = afterAuthenticateCalled = true
+        override def afterAuthenticate(winningStrategy: String, user: User) = afterAuthenticateCalled = true
       }
 
     val sUnsuccess = new ScentryStrategy[User] {
@@ -64,40 +65,40 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
           None
         }
         override def beforeAuthenticate = beforeAuthenticateCalled = true
-        override def afterAuthenticate(winningStrategy: Symbol, user: User) = afterAuthenticateCalled = true
+        override def afterAuthenticate(winningStrategy: String, user: User) = afterAuthenticateCalled = true
       }
     "allow registration of global strategies" in {
-      Scentry.registerStrategy('Bogus, app =>  s)
-      Scentry.globalStrategies('Bogus).asInstanceOf[Scentry[User]#StrategyFactory](context) must be_==(s)
+      Scentry.registerStrategy("Bogus", _ =>  s)
+      Scentry.globalStrategies("Bogus").asInstanceOf[Scentry[User]#StrategyFactory](context) must be_==(s)
     }
 
     "allow registration of local strategies" in {
-      theScentry.registerStrategy('LocalFoo, app => s)
-      theScentry.strategies('LocalFoo) must be_==(s)
+      theScentry.registerStrategy("LocalFoo", _ => s)
+      theScentry.strategies("LocalFoo") must be_==(s)
     }
 
     "return both global and local strategies from instance" in {
-      Scentry.registerStrategy('Bogus, app =>  s)
-      theScentry.registerStrategy('LocalFoo, app => s)
+      Scentry.registerStrategy("Bogus", _ =>  s)
+      theScentry.registerStrategy("LocalFoo", app => s)
       theScentry.strategies.size must be_==(2)
     }
 
     "run all fetch user callbacks" in {
-      theScentry.registerStrategy('LocalFoo, app => s)
+      theScentry.registerStrategy("LocalFoo", _ => s)
       theScentry.user must be_==(User("6789"))
       beforeFetchCalled must be_==(true)
       afterFetchCalled must be_==(true)
     }
 
     "run all set user callbacks" in {
-      theScentry.registerStrategy('LocalFoo, app => s)
+      theScentry.registerStrategy("LocalFoo", _ => s)
       (theScentry.user = User("6789")) must be_==("6789")
       beforeSetUserCalled must be_==(true)
       afterSetUserCalled must be_==(true)
     }
 
     "run all logout callbacks" in {
-      theScentry.registerStrategy('LocalFoo, app => s)
+      theScentry.registerStrategy("LocalFoo", _ => s)
       theScentry.logout
       beforeLogoutCalled must be_==(true)
       afterLogoutCalled must be_==(true)
@@ -105,7 +106,7 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     }
 
     "run all login callbacks on successful authentication" in {
-      theScentry.registerStrategy('LocalFoo, app => s)
+      theScentry.registerStrategy("LocalFoo", _ => s)
       theScentry.authenticate()
       beforeAuthenticateCalled must be_==(true)
       afterAuthenticateCalled must be_==(true)
@@ -114,16 +115,16 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
     }
 
     "run only the before authentication on unsuccessful authentication" in {
-      theScentry.registerStrategy('LocalBar, app => sUnsuccess)
+      theScentry.registerStrategy("LocalBar", _ => sUnsuccess)
       theScentry.authenticate()
       beforeAuthenticateCalled must be_==(true)
       afterAuthenticateCalled must be_==(false)
     }
 
     "run only the strategy specified by the name" in {
-      theScentry.registerStrategy('LocalFoo, app => s)
-      theScentry.registerStrategy('LocalBar, app => sUnsuccess)
-      theScentry.authenticate('LocalBar)
+      theScentry.registerStrategy("LocalFoo", _ => s)
+      theScentry.registerStrategy("LocalBar", _ => sUnsuccess)
+      theScentry.authenticate("LocalBar")
       beforeAuthenticateCalled must be_==(true)
       afterAuthenticateCalled must be_==(false)
       failingStrategyCalled must be_==(true)

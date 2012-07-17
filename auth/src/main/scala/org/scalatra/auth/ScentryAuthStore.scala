@@ -1,56 +1,59 @@
 package org.scalatra
 package auth
 
-import servlet.ServletBase
-
 import javax.servlet.http.HttpSession
+import servlet.ServletApiImplicits._
+import util.RicherString._
 
 object ScentryAuthStore {
 
   trait ScentryAuthStore {
     def get: String
     def set(value: String)
-    def invalidate
+    def invalidate()
   }
 
-  class HttpOnlyCookieAuthStore(app: => (ServletBase with CookieSupport), secureOnly: Boolean = false)
-      extends CookieAuthStore(app.cookies, secureOnly) {
+  class CookieAuthStore(app: ⇒ ScalatraBase with CookieSupport, cookieOptions: CookieOptions = CookieOptions(path = "/")) extends ScentryAuthStore {
 
-    private val SET_COOKIE = "Set-Cookie".intern
+    def get = app.cookies.get(Scentry.scentryAuthKey) getOrElse ""
 
-    override def set(value: String) {
-
-      //TODO: Make use of servlet 3.0 cookie implementation
-      app.response.addHeader(
-        SET_COOKIE,
-        Cookie(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly, httpOnly = true)).toCookieString
-      )
+    def set(value: String) {
+      app.response.addHeader("Set-Cookie", Cookie(Scentry.scentryAuthKey, value)(cookieOptions).toCookieString)
     }
 
+    def invalidate() {
+      app.response.addHeader("Set-Cookie", toCookieString(Scentry.scentryAuthKey, options = cookieOptions.copy(maxAge = 0)))
+    }
+
+    def toCookieString(name: String, value: String = "", options: CookieOptions = cookieOptions) = {
+      val sb = new StringBuffer
+      sb append name append "="
+      sb append value
+
+      if (cookieOptions.domain != "localhost") sb.append("; Domain=").append(cookieOptions.domain)
+
+      val pth = options.path
+      if (pth.nonBlank) sb append "; Path=" append (if (!pth.startsWith("/")) {
+        "/" + pth
+      } else { pth })
+
+      if (options.maxAge > -1) sb append "; Max-Age=" append options.maxAge
+
+      if (options.secure) sb append "; Secure"
+      if (options.httpOnly) sb append "; HttpOnly"
+      sb.toString
+    }
   }
 
-  class CookieAuthStore(cookies: => SweetCookies, secureOnly: Boolean = false) extends ScentryAuthStore {
+  class SessionAuthStore(session: ⇒ HttpSession) extends ScentryAuthStore {
 
     def get: String = {
-      cookies.get(Scentry.scentryAuthKey) getOrElse ""
+      session.get(Scentry.scentryAuthKey).map(_.asInstanceOf[String]).orNull
     }
     def set(value: String) {
-      cookies.set(Scentry.scentryAuthKey, value)(CookieOptions(secure = secureOnly))
+      session(Scentry.scentryAuthKey) = value
     }
-    def invalidate {
-      cookies -= Scentry.scentryAuthKey
-    }
-  }
-
-  class SessionAuthStore(session: => HttpSession) extends ScentryAuthStore{
-
-    def get: String = {
-      session.getAttribute(Scentry.scentryAuthKey).asInstanceOf[String]
-    }
-    def set(value: String) {
-      session.setAttribute(Scentry.scentryAuthKey, value)
-    }
-    def invalidate {
+    def invalidate() {
       session.invalidate()
     }
   }
