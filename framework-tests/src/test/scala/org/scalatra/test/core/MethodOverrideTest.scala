@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class MethodOverrideTestApp extends ScalatraApp with MethodOverride {
@@ -62,5 +63,6 @@ abstract class MethodOverrideTest extends ScalatraFunSuite {
 }
 
 class NettyMethodOverrideTest extends MethodOverrideTest with NettyBackend
+class JettyMethodOverrideTest extends MethodOverrideTest with JettyBackend
 
 

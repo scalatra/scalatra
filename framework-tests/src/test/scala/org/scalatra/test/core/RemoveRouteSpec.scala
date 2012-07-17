@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraWordSpec
 
 class RemoveRouteApp extends ScalatraApp {
@@ -35,3 +36,4 @@ abstract class RemoveRouteSpec extends ScalatraWordSpec {
 }
 
 class NettyRemoveRouteSpec extends RemoveRouteSpec with NettyBackend
+class JettyRemoveRouteSpec extends RemoveRouteSpec with JettyBackend

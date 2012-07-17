@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class GetResponseStatusSupportTestApp extends ScalatraApp with SessionSupport {
@@ -66,3 +67,4 @@ abstract class GetResponseStatusSupportTest extends ScalatraFunSuite {
 }
 
 class NettyGetResponseStatusSupportTest extends GetResponseStatusSupportTest with NettyBackend
+class JettyGetResponseStatusSupportTest extends GetResponseStatusSupportTest with JettyBackend

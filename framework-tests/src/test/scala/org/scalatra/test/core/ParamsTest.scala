@@ -2,6 +2,7 @@ package org.scalatra
 
 import java.util.NoSuchElementException
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 object ParamsTestApp {
@@ -86,3 +87,4 @@ abstract class ParamsTest extends ScalatraFunSuite {
 }
 
 class NettyParamsTest extends ParamsTest with NettyBackend
+class JettyParamsTest extends ParamsTest with JettyBackend

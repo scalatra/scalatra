@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 object DefaultRouteTest {
@@ -99,3 +100,4 @@ abstract class DefaultRouteTest extends ScalatraFunSuite {
 }
 
 class NettyDefaultRouteTest extends DefaultRouteTest with NettyBackend
+class JettyDefaultRouteTest extends DefaultRouteTest with JettyBackend

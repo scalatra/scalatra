@@ -1,7 +1,7 @@
 package org.scalatra
 
-
 import test.NettyBackend
+import test.JettyBackend
 import test.specs.ScalatraSpecification
 
 class CsrfTokenServlet extends ScalatraApp with SessionSupport with CsrfTokenSupport {
@@ -73,4 +73,5 @@ abstract class CsrfTokenSpec extends ScalatraSpecification {
 
 
 class NettyCsrfTokenSpec extends CsrfTokenSpec with NettyBackend
+class JettyCsrfTokenSpec extends CsrfTokenSpec with JettyBackend
 // vim: set si ts=2 sw=2 sts=2 et:
