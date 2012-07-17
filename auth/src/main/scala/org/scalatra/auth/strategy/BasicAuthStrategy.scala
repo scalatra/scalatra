@@ -2,14 +2,12 @@ package org.scalatra
 package auth
 package strategy
 
-import servlet.ServletBase
 import util.RicherString._
-
 import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
 import net.iharder.Base64
-import java.nio.charset.Charset
 import java.util.Locale
-import javax.servlet.http.{ HttpServletRequest}
+import javax.servlet.http.HttpServletRequest
+import io.Codec
 
 trait RemoteAddress { self: ScentryStrategy[_]  =>
 
@@ -51,19 +49,19 @@ object BasicAuthStrategy {
   class BasicAuthRequest(r: HttpServletRequest) {
 
     def parts = authorizationKey map { r.getHeader(_).split(" ", 2).toList } getOrElse Nil
-    def scheme: Option[Symbol] = parts.headOption.map(sch => Symbol(sch.toLowerCase(Locale.ENGLISH)))
+    def scheme: Option[String] = parts.headOption.map(sch => sch.toLowerCase(Locale.ENGLISH))
     def params = parts.lastOption
 
     private def authorizationKey = AUTHORIZATION_KEYS.find(r.getHeader(_) != null)
 
-    def isBasicAuth = (false /: scheme) { (_, sch) => sch == 'basic }
+    def isBasicAuth = (false /: scheme) { (_, sch) => sch == "basic" }
     def providesAuth = authorizationKey.isDefined
 
     private var _credentials: Option[(String, String)] = None
     def credentials = {
       if (_credentials.isEmpty )
         _credentials = params map { p =>
-          (null.asInstanceOf[(String, String)] /: new String(Base64.decode(p), Charset.forName("UTF-8")).split(":", 2)) { (t, l) =>
+          (null.asInstanceOf[(String, String)] /: new String(Base64.decode(p), Codec.UTF8).split(":", 2)) { (t, l) =>
             if(t == null) (l, null) else (t._1, l)
           }
         }
@@ -79,7 +77,7 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
 
   import BasicAuthStrategy._
 
-  private val REMOTE_USER = "REMOTE_USER".intern
+  private val REMOTE_USER = "REMOTE_USER"
 
   implicit def request2BasicAuthRequest(r: HttpServletRequest) = new BasicAuthRequest(r)
 

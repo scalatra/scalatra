@@ -1,11 +1,8 @@
 package org.scalatra
 package auth
 
-import javax.servlet.{ FilterConfig, ServletConfig }
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import util.RicherString._
-import servlet.ServletApiImplicits._
-import auth.ScentryAuthStore.CookieAuthStore
 
 trait ScentryConfig {
   val login = "/login"
@@ -15,7 +12,7 @@ trait ScentryConfig {
 }
 
 trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable with CookieSupport {
-  self: ScalatraBase with SessionSupport ⇒
+  self: ScalatraBase ⇒
 
   type UserType = TypeForUser
   type ScentryConfiguration <: ScentryConfig
@@ -33,19 +30,21 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) = {
     withRequest(req) {
-      request(Scentry.ScentryRequestKey) =
-        new Scentry[UserType](
-          self,
-          toSession,
-          fromSession,
-          new ScentryAuthStore.SessionAuthStore(self.asInstanceOf[SessionSupport].session))
-
+      initializeScentry
       configureScentry
       registerStrategiesFromConfig
       registerAuthStrategies
-
       super.handle(req, res)
     }
+  }
+
+  private def initializeScentry = {
+    val store = self match {
+      case a: SessionSupport => new ScentryAuthStore.SessionAuthStore(a.session)
+      case a: ScalatraBase with CookieSupport => new ScentryAuthStore.CookieAuthStore(a)
+      case _ => throw new ScalatraException("Scentry needs either SessionSupport or CookieSupport mixed in.")
+    }
+    request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession, store)
   }
 
   private def readStrategiesFromConfig(config: Config) =
