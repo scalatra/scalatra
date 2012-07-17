@@ -28,6 +28,8 @@ package object scalatra
 
   val CachedBodyKey = "org.scalatra.RichRequest.cachedBody"
   
+  val RequestMethodKey = "org.scalatra.RequestMethod"
+
 //  @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraApp if you don't.", "2.1.0")
 //  type ScalatraKernel = servlet.ServletBase
 

@@ -2,6 +2,7 @@ package org.scalatra
 
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class FlashMapSupportTestServlet extends ScalatraApp with SessionSupport with FlashMapSupport {
@@ -140,3 +141,4 @@ abstract class FlashMapSupportTwoServletsTest extends ScalatraFunSuite {
 }
 
 class NettyFlashMapSupportTwoServletsTest extends FlashMapSupportTwoServletsTest with NettyBackend
+class JettyFlashMapSupportTwoServletsTest extends FlashMapSupportTwoServletsTest with JettyBackend

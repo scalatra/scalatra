@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class RailsLikeRouteTestApp extends ScalatraApp {
@@ -34,4 +35,5 @@ abstract class RailsLikeRouteTest extends ScalatraFunSuite {
 }
 
 class NettyRailsLikeRouteTest extends RailsLikeRouteTest with NettyBackend
+class JettyRailsLikeRouteTest extends RailsLikeRouteTest with JettyBackend
 

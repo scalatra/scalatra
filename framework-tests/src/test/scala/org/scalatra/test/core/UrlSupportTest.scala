@@ -2,6 +2,7 @@ package org.scalatra
 
 import org.scalatra.test.scalatest._
 import test.NettyBackend
+import test.JettyBackend
 
 abstract class UrlSupportTest extends ScalatraFunSuite {
 
@@ -59,3 +60,4 @@ abstract class UrlSupportTest extends ScalatraFunSuite {
 }
 
 class NettyUrlSupportTest extends UrlSupportTest with NettyBackend
+class JettyUrlSupportTest extends UrlSupportTest with JettyBackend

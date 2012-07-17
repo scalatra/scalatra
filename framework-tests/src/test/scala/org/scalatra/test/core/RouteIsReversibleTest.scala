@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 abstract class RouteIsReversibleTest extends ScalatraFunSuite {
@@ -64,3 +65,4 @@ abstract class RouteIsReversibleTest extends ScalatraFunSuite {
 }
 
 class NettyRouteIsReversibleTest extends RouteIsReversibleTest with NettyBackend
+class JettyRouteIsReversibleTest extends RouteIsReversibleTest with JettyBackend

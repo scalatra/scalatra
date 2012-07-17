@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class UrlGeneratorContextTestServlet extends ScalatraApp {
@@ -67,3 +68,6 @@ abstract class UrlGeneratorNonRootContextSupportTest extends ScalatraFunSuite {
 
 class NettyUrlGeneratorSupportTest extends UrlGeneratorSupportTest with NettyBackend
 class NettyUrlGeneratorNonRootContextSupportTest extends UrlGeneratorNonRootContextSupportTest with NettyBackend
+
+class JettyUrlGeneratorSupportTest extends UrlGeneratorSupportTest with JettyBackend
+class JettyUrlGeneratorNonRootContextSupportTest extends UrlGeneratorNonRootContextSupportTest with JettyBackend

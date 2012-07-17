@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 
 class SessionTestApp extends ScalatraApp with SessionSupport {
@@ -23,6 +24,15 @@ class SessionTestApp extends ScalatraApp with SessionSupport {
   post("/session-symbol-update") {
     //TODO: Make this back into a symbol
     session("val") = "set with symbol"
+  }
+  
+  get("/redirect") {
+    session("redirected") = "redirected"
+    redirect("/")
+  }
+
+  get("/redirect-post") {
+    session.getOrElse("redirected", "None")
   }
 }
 
@@ -92,6 +102,16 @@ abstract class SessionTest extends ScalatraFunSuite {
       }
     }
   }
+  
+  test("session keeps value with redirect") {
+    session {
+      get("/redirect") {}
+      get("/redirect-post") {
+        body should equal ("redirected")
+      }
+    }
+  }
 }
 
 class NettySessionTest extends SessionTest with NettyBackend
+class JettySessionTest extends SessionTest with JettyBackend

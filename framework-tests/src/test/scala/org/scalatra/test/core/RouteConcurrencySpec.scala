@@ -2,6 +2,7 @@ package org.scalatra
 
 import scala.concurrent.ops._
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraWordSpec
 
 class RouteConcurrencyServlet extends ScalatraApp {
@@ -45,3 +46,4 @@ abstract class RouteConcurrencySpec extends ScalatraWordSpec {
 }
 
 class NettyRouteConcurrencySpec extends RouteConcurrencySpec with NettyBackend
+class JettyRouteConcurrencySpec extends RouteConcurrencySpec with JettyBackend

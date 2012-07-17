@@ -4,6 +4,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.scalatest.ScalatraFunSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -380,3 +381,4 @@ abstract class RouteTest extends ScalatraFunSuite {
 }
 
 class NettyRouteTest extends RouteTest with NettyBackend
+class JettyRouteTest extends RouteTest with JettyBackend

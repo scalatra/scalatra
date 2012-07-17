@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.specs.ScalatraSpecification
 
 class ApiFormatsApp extends ScalatraApp with ApiFormats {
@@ -79,3 +80,4 @@ abstract class ApiFormatsSpec extends ScalatraSpecification {
 }
 
 class NettyApiFormatsSpec extends ApiFormatsSpec with NettyBackend
+class JettyApiFormatsSpec extends ApiFormatsSpec with JettyBackend

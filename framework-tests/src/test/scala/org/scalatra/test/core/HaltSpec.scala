@@ -1,6 +1,7 @@
 package org.scalatra
 
 import test.NettyBackend
+import test.JettyBackend
 import test.specs2.ScalatraSpec
 
 class HaltTestApp extends ScalatraApp {
@@ -120,3 +121,4 @@ abstract class HaltSpec extends ScalatraSpec { def is =
 }
 
 class NettyHaltSpec extends HaltSpec with NettyBackend
+class JettyHaltSpec extends HaltSpec with JettyBackend
