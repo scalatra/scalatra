@@ -27,7 +27,7 @@ class NettyHttpRequest(
         val inputStream: InputStream,
         private[netty] val ctx: ChannelHandlerContext)(implicit appContext: AppContext) extends HttpRequest {
 
-  val pathInfo = uri.getPath.replaceFirst("^" + scriptName, "")
+  val pathInfo = uri.getRawPath.replaceFirst("^" + scriptName, "")
 
   val scriptName = PathManipulationOps.ensureSlash(appContext.server.base)
 
@@ -50,7 +50,7 @@ class NettyHttpRequest(
   }
 
   val cookies = {
-    val nettyCookies = new CookieDecoder(true).decode(headers.getOrElse(Names.COOKIE, ""))
+    val nettyCookies = new CookieDecoder().decode(headers.getOrElse(Names.COOKIE, ""))
     val requestCookies =
       Map((nettyCookies map { nc =>
         val reqCookie: RequestCookie = nc

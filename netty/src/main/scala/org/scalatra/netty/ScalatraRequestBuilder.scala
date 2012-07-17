@@ -183,7 +183,7 @@ class ScalatraRequestBuilder(maxPostBodySize: Long = 2097152)(implicit val appCo
     }
   }
   
-  private def queryString: String = new URI(request.getUri).getQuery
+  private def queryString: String = new URI(request.getUri).getRawQuery
   
   private def headers = Map((request.getHeaders map { e => e.getKey -> e.getValue.blankOption.orNull }):_*)
   
