@@ -127,6 +127,7 @@ trait ScalatraApp extends CoreDsl with DynamicScope with Mountable {
       val prehandleException = request.get("org.scalatra.PrehandleException")
       if (prehandleException.isEmpty) {
         runFilters(routes.beforeFilters)
+
         val actionResult =
           (runRoutes(routes(request.requestMethod)).headOption orElse  matchOtherMethods()) getOrElse doNotFound()
         // Give the status code handler a chance to override the actionResult
