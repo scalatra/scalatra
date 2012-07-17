@@ -99,14 +99,22 @@ class AhcClient(val host: String, val port: Int) extends Client {
   private val allowsBody = Vector(PUT, POST, PATCH)
 
   def submit[A](method: String, uri: String, params: Iterable[(String, String)], headers: Iterable[(String, String)], files: Seq[File], body: String)(f: => A) = {
-    val u = URI.create(uri)
+    val u = URI.create(uri).normalize()
     val isMultipart = {
       allowsBody.contains(method.toUpperCase(Locale.ENGLISH)) && {
         val ct = (defaultWriteContentType(files) ++ headers)(Names.CONTENT_TYPE)
         ct.toLowerCase(Locale.ENGLISH).startsWith("multipart/form-data")
       }
     }
-    val reqUri = if (u.isAbsolute) u else new URI("http", null, host, port, u.getRawPath, u.getRawQuery, u.getRawFragment)
+    val reqUri = if (u.isAbsolute) u else {
+      // There is no constructor on java.net.URI that will not encode the path
+      // except for the one where you pass in a uri as string so we're concatenating ourselves
+      val b = "http://%s:%d".format(host, port)
+      val p = u.getRawPath.blankOption.getOrElse("/")
+      val q = u.getRawQuery.blankOption.map("?"+_).getOrElse("")
+      val f = u.getRawFragment.blankOption.map("#"+_).getOrElse("")
+      URI.create(b+p+q+f)
+    }
     val req = (requestFactory(method)
       andThen (addHeaders(headers) _)
       andThen (addParameters(method, params, isMultipart) _))(reqUri.toASCIIString)
