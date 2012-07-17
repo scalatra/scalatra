@@ -4,7 +4,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper, HttpSe
 
 object MethodOverride {
   val ParamName = "_method"
-  val HeaderName = "X-HTTP-METHOD-OVERRIDE"
+  val HeaderName = Seq("X-HTTP-METHOD-OVERRIDE", "X-HTTP-METHOD", "X-METHOD-OVERRIDE")
 }
 /**
  * Mixin for clients that only support a limited set of HTTP verbs.  If the
@@ -27,6 +27,6 @@ trait MethodOverride extends Handler {
 
   private def methodOverride(req: HttpServletRequest) = {
     import MethodOverride._
-    (req.parameters.get(ParamName) orElse req.headers.get(HeaderName))
+    (req.parameters.get(ParamName) orElse req.headers.keys.find(HeaderName.contains).flatMap(req.headers.get))
   }
 }

@@ -30,7 +30,7 @@ class MethodOverrideTest extends ScalatraFunSuite {
   }
 
   test("should override method with X-HTTP-METHOD-OVERRIDE header on post") {
-    post("/foo", headers = Map(MethodOverride.HeaderName -> "put")) {
+    post("/foo", headers = Map(MethodOverride.HeaderName(0) -> "put")) {
       body should equal ("PUT")
     }
   }
@@ -41,8 +41,8 @@ class MethodOverrideTest extends ScalatraFunSuite {
     }
   }
 
-  test("should not override method for methods other than POST with X-HTTP-METHOD-OVERRIDE header") {
-    get("/foo", headers = Map(MethodOverride.HeaderName -> "put")) {
+  test("should not override method for methods other than POST with X-HTTP-METHOD header") {
+    get("/foo", headers = Map(MethodOverride.HeaderName(1) -> "put")) {
       body should equal ("GET")
     }
   }
