@@ -1,7 +1,3 @@
-POST ${PATH} HTTP/1.0
-Content-Type: multipart/form-data; boundary=---------------------------3924013385056820061124200860
-Content-Length: 944
-
 -----------------------------3924013385056820061124200860
 Content-Disposition: form-data; name="string"
 

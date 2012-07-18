@@ -2,8 +2,7 @@ package org.scalatra
 package fileupload
 
 import test.scalatest.ScalatraFunSuite
-import org.eclipse.jetty.testing.{ServletTester, HttpTester}
-import org.apache.commons.io.IOUtils
+import java.io.File
 
 class MultipleFilterFileUploadSupportTest extends ScalatraFunSuite {
   addFilter(new ScalatraFilter with FileUploadSupport {
@@ -16,11 +15,8 @@ class MultipleFilterFileUploadSupportTest extends ScalatraFunSuite {
   }, "/*")
 
   test("keeps input parameters on multipart request") {
-    val request = IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
-      .replace("${PATH}", "/multipart")
-    val response = new HttpTester("iso-8859-1")
-    response.parse(tester.getResponses(request))
-
-    response.getHeader("file") should equal ("one")
+    post("/multipart", params = Map(), files = Map("file" -> new File("fileupload/src/test/resources/org/scalatra/fileupload/one.txt"))) {
+      header("file") should equal ("one")
+    }
   }
 }

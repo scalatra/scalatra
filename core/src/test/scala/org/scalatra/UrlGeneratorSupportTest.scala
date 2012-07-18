@@ -38,7 +38,7 @@ class UrlGeneratorSupportTest extends ScalatraFunSuite {
 }
 
 class UrlGeneratorNonRootContextSupportTest extends ScalatraFunSuite {
-  tester.setContextPath("/context")
+  override def contextPath = "/context"
 
   addServlet(new UrlGeneratorContextTestServlet, "/*")
   addServlet(new UrlGeneratorContextTestServlet, "/servlet-path/*")

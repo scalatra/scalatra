@@ -2,7 +2,6 @@ package org.scalatra
 
 import scala.actors.{Actor, TIMEOUT}
 import scala.xml.Text
-import org.eclipse.jetty.testing.HttpTester
 import java.net.URLEncoder
 import java.nio.charset.Charset
 import test.scalatest.ScalatraFunSuite
@@ -121,6 +120,7 @@ class ContentTypeTest extends ScalatraFunSuite {
     }
   }
 
+
   test("contentType is threadsafe") {
     import Actor._
 
@@ -128,15 +128,7 @@ class ContentTypeTest extends ScalatraFunSuite {
       loop {
         react {
           case i: Int =>
-            val req = new HttpTester
-            req.setVersion("HTTP/1.0")
-            req.setMethod("GET")
-            req.setURI("/concurrent/"+i)
-            // Execute in own thread in servlet with LocalConnector
-            val conn = tester.createLocalConnector()
-            val res = new HttpTester
-            val resString = tester.getResponses(req.generate(), conn)
-            res.parse(resString)
+            val res = get("/concurrent/"+i) { response }
             sender ! (i, res.mediaType)
             exit()
         }
@@ -161,18 +153,13 @@ class ContentTypeTest extends ScalatraFunSuite {
     val charset = "iso-8859-5"
     val message = "Здравствуйте!"
 
-    val req = new HttpTester("iso-8859-1")
-    req.setVersion("HTTP/1.0")
-    req.setMethod("POST")
-    req.setURI("/echo")
-    req.setHeader("Content-Type", "application/x-www-form-urlencoded; charset="+charset)
-    req.setContent("echo="+URLEncoder.encode(message, charset))
-    println(req.generate())
-
-    val res = new HttpTester("iso-8859-1")
-    res.parse(tester.getResponses(req.generate()))
-    println(res.getCharacterEncoding)
-    res.getContent should equal(message)
+    post(
+      "/echo",
+      headers = Map("Content-Type" -> ("application/x-www-form-urlencoded; charset=" + charset)),
+      body = "echo="+URLEncoder.encode(message, charset))
+    {
+      body should equal(message)
+    }
   }
 }
 
