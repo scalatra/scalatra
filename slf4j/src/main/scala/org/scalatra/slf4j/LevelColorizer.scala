@@ -30,7 +30,7 @@ object LevelColorizer {
  * {{{
  * <configuration>
  *    <conversionRule conversionWord="levelcolor"
- *                  converterClass="io.backchat.logback.LevelColorizer" />
+ *                  converterClass="org.scalatra.slf4j.LevelColorizer" />
  *
  *    <!-- don't leak stuff coming from jul.Logging -->
  *    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
