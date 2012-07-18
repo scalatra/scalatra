@@ -24,7 +24,7 @@ object GenerateId {
 }
 
 object CsrfTokenSupport {
-  val DefaultKey = "org.scalatra.CsrfTokenSupport.key".intern
+  val DefaultKey = "org.scalatra.CsrfTokenSupport.key"
 }
 
 /**

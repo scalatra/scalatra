@@ -3,6 +3,8 @@ package liftjson
 
 import net.liftweb.json._
 import scala.io.Codec.UTF8
+import net.liftweb.json.Xml.toXml
+import xml.Utility.trimProper
 
 @deprecated("Use LiftJsonSupport instead", "2.1.0")
 trait JsonSupport extends LiftJsonOutput
@@ -24,6 +26,9 @@ private[liftjson] trait LiftJsonOutput extends ApiFormats {
 
 
   override protected def renderPipeline = ({
+    case jv: JValue if format == "xml" =>
+      contentType = "application/xml"
+      toXml(jv).toString().getBytes(UTF8)
     case jv : JValue =>
       val jsonString = compact(render(jv))
 

@@ -8,7 +8,7 @@ import java.io.InputStreamReader
 
 object LiftJsonSupport {
 
-  val ParsedBodyKey = "org.scalatra.liftjson.ParsedBody".intern
+  val ParsedBodyKey = "org.scalatra.liftjson.ParsedBody"
 }
 
 @deprecated("Use LiftJsonSupportWithoutFormats instead", "2.1.0")

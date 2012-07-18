@@ -79,8 +79,8 @@ class SweetCookies(private val reqCookies: Map[String, String], private val resp
 }
 
 object CookieSupport {
-  val SweetCookiesKey = "org.scalatra.SweetCookies".intern
-  val CookieOptionsKey = "org.scalatra.CookieOptions".intern
+  val SweetCookiesKey = "org.scalatra.SweetCookies"
+  val CookieOptionsKey = "org.scalatra.CookieOptions"
 }
 trait CookieSupport extends Handler {
   self: ScalatraBase =>

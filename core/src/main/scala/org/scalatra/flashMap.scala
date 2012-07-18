@@ -107,7 +107,7 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
 object FlashMapSupport {
   val sessionKey = FlashMapSupport.getClass.getName+".flashMap"
   val lockKey = FlashMapSupport.getClass.getName+".lock"
-  val FlashMapKey = "org.scalatra.FlashMap".intern
+  val FlashMapKey = "org.scalatra.FlashMap"
 }
 
 /**

@@ -14,6 +14,13 @@ class JsonSupportTest extends ScalatraFunSuite {
     }
   }
 
+  test("XML output of a JValue") {
+    get("/json", headers = Map("Accept" -> "application/xml")) {
+      response.mediaType should equal (Some("application/xml"))
+      response.body should equal ("""<k1>v1</k1><k2>v2</k2>""")
+    }
+  }
+
   test("JSONP callback test with no callback name specified") {
     get("/json", "callback" -> "function") {
       response.mediaType should equal (Some("application/json"))
@@ -32,6 +39,7 @@ class JsonSupportTest extends ScalatraFunSuite {
 
 class JsonSupportTestServlet extends ScalatraServlet with LiftJsonSupport {
   get("/json") {
+    println("The format: %s" format format)
     import net.liftweb.json.JsonDSL._
     ("k1" -> "v1") ~
       ("k2" -> "v2")

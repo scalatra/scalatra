@@ -18,8 +18,8 @@ object ScalatraKernel
   val csrfKey = CsrfTokenSupport.DefaultKey
 
   @deprecated("Use org.scalatra.EnvironmentKey", "2.1.0")
-  val EnvironmentKey = "org.scalatra.environment".intern
+  val EnvironmentKey = "org.scalatra.environment"
 
   @deprecated("Use org.scalatra.MultiParamsKey", "2.1.0")
-  val MultiParamsKey = "org.scalatra.MultiParams".intern
+  val MultiParamsKey = "org.scalatra.MultiParams"
 }

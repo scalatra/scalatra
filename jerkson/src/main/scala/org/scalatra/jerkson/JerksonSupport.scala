@@ -8,7 +8,7 @@ import java.io.InputStream
 
 object JerksonSupport {
 
-  val ParsedBodyKey = "org.scalatra.jerkson.ParsedBody".intern
+  val ParsedBodyKey = "org.scalatra.jerkson.ParsedBody"
 }
 
 trait JerksonSupport extends ApiFormats {
@@ -29,7 +29,7 @@ trait JerksonSupport extends ApiFormats {
   }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
   protected def renderJson(jv: JValue): String = Json.generate(jv)
-  protected def parseJson(inputStream: InputStream): JValue = Json.parse(inputStream)
+  protected def parseJson(inputStream: InputStream): JValue = Json.parse[JValue](inputStream)
 //  protected def parseXml(inputStream: InputStream): JValue = JUndefined
 
   override protected def renderPipeline = ({

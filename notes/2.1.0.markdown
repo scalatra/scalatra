@@ -5,3 +5,16 @@
 
 ### scalatra-test
 * Log requests and responses to debug.
+
+### scalatra-jerkson
+Like the lift-json module but uses jerkson instead of lift-json
+
+### scalatra-slf4j
+* Level colorizer for getting the level of the log entry in the console in a different color
+* Scalatra request logger for slf4j which uses CGI param names
+
+### scalatra-auth
+* Removed the dual cookie auth stores and replaced with a single more configurable one
+
+### scalatra-core
+* MethodOverrideSupport now also takes headers into account when deciding on the overload.

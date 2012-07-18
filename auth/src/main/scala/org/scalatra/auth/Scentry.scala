@@ -18,8 +18,8 @@ object Scentry {
   def globalStrategies = _globalStrategies
   def clearGlobalStrategies() { _globalStrategies.clear() }
 
-  val scentryAuthKey = "scentry.auth.default.user".intern()
-  val ScentryRequestKey = "org.scalatra.auth.Scentry".intern
+  val scentryAuthKey = "scentry.auth.default.user"
+  val ScentryRequestKey = "org.scalatra.auth.Scentry"
 }
 
 class Scentry[UserType <: AnyRef](

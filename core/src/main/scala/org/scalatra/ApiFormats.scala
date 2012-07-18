@@ -10,7 +10,7 @@ object ApiFormats {
   /**
    * The request attribute key in which the format is stored.
    */
-  val FormatKey = "org.scalatra.FormatKey".intern
+  val FormatKey = "org.scalatra.FormatKey"
 
 }
 
