@@ -2,7 +2,6 @@ package org.scalatra
 package test
 package specs2
 
-import org.eclipse.jetty.testing.ServletTester
 import org.specs2.specification.{BaseSpecification, Step, Fragments}
 
 /**
@@ -11,7 +10,5 @@ import org.specs2.specification.{BaseSpecification, Step, Fragments}
  * ScalatraSpec or MutableScalatraSpec.
  */
 trait BaseScalatraSpec extends BaseSpecification with ScalatraTests {
-  lazy val tester = new ServletTester
-
   override def map(fs: =>Fragments) = Step(start()) ^ super.map(fs) ^ Step(stop())
 }

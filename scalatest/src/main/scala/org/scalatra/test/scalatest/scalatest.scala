@@ -2,7 +2,6 @@ package org.scalatra.test
 package scalatest
 
 import org.junit.runner.RunWith
-import org.eclipse.jetty.testing.ServletTester
 import org.scalatest._
 import org.scalatest.matchers.{MustMatchers, ShouldMatchers}
 import org.scalatest.junit.{JUnitSuite, JUnit3Suite, JUnitRunner}
@@ -14,8 +13,6 @@ import org.scalatest.testng.TestNGSuite
  * is started before the first test in the suite and stopped after the last.
  */
 trait ScalatraSuite extends Suite with ScalatraTests with BeforeAndAfterAll with MustMatchers with ShouldMatchers {
-  lazy val tester = new ServletTester
-
   override protected def beforeAll(): Unit = start()
   override protected def afterAll(): Unit = stop()
 }
