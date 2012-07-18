@@ -21,6 +21,34 @@ object LevelColorizer {
     Level.ERROR -> ErrorColor)
 
 }
+
+/**
+ * Adds ANSI colorization of the log level for use in the console.
+ *
+ * An example of a logback.xml file:
+ *
+ * {{{
+ * <configuration>
+ *    <conversionRule conversionWord="levelcolor"
+ *                  converterClass="io.backchat.logback.LevelColorizer" />
+ *
+ *    <!-- don't leak stuff coming from jul.Logging -->
+ *    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+ *
+ *    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+ *      <!-- encoders are assigned the type
+ *           ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+ *      <encoder>
+ *        <pattern>[%4levelcolor] [%d{ISO8601}] [%X{thread}] [%logger{4}]: %m%n</pattern>
+ *      </encoder>
+ *    </appender>
+ *
+ *    <root level="INFO">
+ *      <appender-ref ref="STDOUT"/>
+ *    </root>
+ * </configuration>
+ * }}}
+ */
 class LevelColorizer extends ClassicConverter {
 
   def convert(event: ILoggingEvent) = {
