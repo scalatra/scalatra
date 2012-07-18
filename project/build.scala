@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml, scalatraJerkson,
-      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
+      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2, scalatraSlf4j,
       scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
   )
 
@@ -138,7 +138,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(
         grizzledSlf4j,
         testJettyServlet,
-	servletApi % "provided",
+	      servletApi % "provided",
         mockitoAll,
         commonsLang3,
         specs2 % "test",
@@ -197,6 +197,15 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraSlf4j = Project(
+    id = "scalatra-slf4j",
+    base = file("slf4j"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(grizzledSlf4j, logback % "provided"),
+      description := "Scalatra integration with SLF4J and Logback"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
   lazy val scalatraExample = Project(
     id = "scalatra-example",
     base = file("example"),
@@ -233,7 +242,7 @@ object ScalatraBuild extends Build {
 
     val httpMime   = "org.apache.httpcomponents" % "httpmime"   % "4.2"
 
-    def grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.6"
+    val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.9"
 
     // See jettyOrbitHack below.
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" exclude("org.eclipse.jetty.orbit", "javax.servlet")
@@ -253,17 +262,19 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
-    def scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
 
-    def scalatest = "org.scalatest" %% "scalatest" % "1.6.1"
+    val scalatest = "org.scalatest" %% "scalatest" % "1.6.1"
 
-    def specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
+    val specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    def specs2 = "org.specs2" %% "specs2" % "1.11"
+    val specs2 = "org.specs2" %% "specs2" % "1.11"
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
 
-    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
+    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.6"
+
+    val logback = "ch.qos.logback" % "logback-classic" % "1.0.6"
 
     val testng = "org.testng" % "testng" % "6.3" % "optional"
   }
