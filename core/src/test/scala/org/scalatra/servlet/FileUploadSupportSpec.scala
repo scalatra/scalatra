@@ -4,11 +4,8 @@ import scala.collection.JavaConversions._
 import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraServlet
 import java.io.File
-import org.eclipse.jetty.testing.HttpTester
 import org.eclipse.jetty.servlet.ServletHolder
 import javax.servlet.{MultipartConfigElement, ServletException}
-import org.specs2.execute.Pending
-import org.scalatra.test.MultipartHttpTester
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders() {
@@ -122,7 +119,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
     val files = Map(
-      "text" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
+      "text"   -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
       "binary" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
     )
 
@@ -155,42 +152,8 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     }
   }
 
-  def multipartResponse(path: String, file: String = "multipart_request.txt") = {
-    // TODO We've had problems with the tester not running as iso-8859-1, even if the
-    // request really isn't iso-8859-1.  This is a hack, but this hack passes iff the
-    // browser behavior is correct.
-    val req = new String(
-      (new String(
-        org.scalatra.util.io.readBytes(getClass.getResourceAsStream(file)
-      )).replace("${PATH}", path)).getBytes, "iso-8859-1")
-
-    val res = new HttpTester("iso-8859-1")
-    res.parse(tester.getResponses(req))
-    res
-  }
-
-  def multipartResponseWithEncodingFixture(path: String) = {
-    val req = new MultipartHttpTester()
-    req.setURI(path)
-    req.setMethod("POST")
-    req.setVersion("HTTP/1.0")
-    req.setHeader("Content-Type", "multipart/form-data; boundary=XyXyXyXyXyXy")
-
-    val content = (
-      "--XyXyXyXyXyXy\r\n" +
-      "Content-Disposition: form-data; name=\"latin1-string\"\r\n" +
-      "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
-      "\r\n" +
-      "äöööölfldflfldfdföödfödfödfåååååå\r\n" +
-      "--XyXyXyXyXyXy--"
-    ).getBytes("ISO-8859-1")
-
-    req.setContent(content)
-
-    val res = new HttpTester("iso-8859-1")
-    res.parse(tester.getResponses(req.generateBytes()).array())
-
-    res
+  def multipartHeaders = {
+    Map("Content-Type" -> "multipart/form-data; boundary=XyXyXy")
   }
 
   "POST with multipart/form-data" should {
@@ -272,16 +235,34 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
       }
     }
 
-    "use default charset (UTF-8) for decoding form params if not explicitly set to something else" in {
-      val res = multipartResponse("/params")
-      res.header("utf8-string") must_== "föo"
+    "use default charset (UTF-8) for decoding form params if not excplicitly set to something else" in {
+      val boundary = "XyXyXy"
+      val reqBody  = ("--{boundary}\r\n" +
+                      "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
+                      "Content-Type: text/plain\r\n" +
+                      "\r\n" +
+                      "föo\r\n\r\n" +
+                      "--{boundary}--\r\n").replace("{boundary}", boundary).getBytes("ISO-8859-1")
+
+      post("/params", headers = multipartHeaders, body = reqBody) {
+        header("utf8-string") must_== "föo"
+      }
     }
 
     "use the charset specified in Content-Type header of a part for decoding form params" in {
-      val res = multipartResponseWithEncodingFixture("/params")
-      res.header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
+      val reqBody = ("--XyXyXy\r\n" +
+                     "Content-Disposition: form-data; name=\"latin1-string\"\r\n" +
+                     "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                     "\r\n" +
+                     "äöööölfldflfldfdföödfödfödfåååååå\r\n" +
+                     "--XyXyXy--").getBytes("ISO-8859-1")
+
+      post("/params", headers = multipartHeaders, body = reqBody) {
+        header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
+      }
     }
   }
+
 
   "POST with multipart/form-data and maxFileSize set" should {
     "handle IllegalStateException by wrapping it as SizeConstraintExceededException handled by error handler" in {

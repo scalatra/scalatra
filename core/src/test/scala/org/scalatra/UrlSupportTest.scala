@@ -3,7 +3,7 @@ package org.scalatra
 import org.scalatra.test.scalatest._
 
 class UrlSupportTest extends ScalatraFunSuite {
-  tester.setContextPath("/context")
+  override def contextPath = "/context"
 
   addServlet(new ScalatraServlet {
     get("/") {

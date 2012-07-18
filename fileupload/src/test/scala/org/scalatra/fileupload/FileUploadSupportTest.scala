@@ -2,8 +2,6 @@ package org.scalatra
 package fileupload
 
 import java.net.{URLDecoder, URLEncoder}
-import org.scalatest.FunSuite
-import org.eclipse.jetty.testing.{ServletTester, HttpTester}
 import org.apache.commons.io.IOUtils
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
@@ -11,7 +9,7 @@ import test.scalatest.ScalatraFunSuite
 import org.apache.commons.fileupload.FileUploadBase
 
 class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
-  post("""/multipart.*""".r) {
+post("""/multipart.*""".r) {
     multiParams.get("string") foreach { ps: Seq[String] => response.setHeader("string", ps.mkString(";")) }
     fileParams.get("file") foreach { fi => response.setHeader("file", new String(fi.get)) }
     fileParams.get("file-none") foreach { fi => response.setHeader("file-none", new String(fi.get)) }
@@ -64,14 +62,14 @@ class FileUploadSupportTest extends ScalatraFunSuite {
   addServlet(classOf[MaxSizeTestServlet], "/max-size/*")
 
   def multipartResponse(path: String = "/multipart") = {
-    // TODO We've had problems with the tester not running as iso-8859-1, even if the
-    // request really isn't iso-8859-1.  This is a hack, but this hack passes iff the
-    // browser behavior is correct.
-    val req = new String(IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt"))
-      .replace("${PATH}", path).getBytes, "iso-8859-1")
-    val res = new HttpTester("iso-8859-1")
-    res.parse(tester.getResponses(req))
-    res
+    val reqBody  = new String(
+      IOUtils.toString(getClass.getResourceAsStream("multipart_request.txt")).getBytes, "iso-8859-1").getBytes("iso-8859-1")
+
+    val boundary = "---------------------------3924013385056820061124200860"
+
+    post(path, headers = Map("Content-Type" -> "multipart/form-data; boundary=%s".format(boundary)), body = reqBody) {
+      response
+    }
   }
 
   test("keeps input parameters on multipart request") {

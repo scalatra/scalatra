@@ -16,11 +16,13 @@ trait EmbeddedJettyContainer extends JettyContainer {
    */
   def localPort: Option[Int] = server.getConnectors.headOption map { _.getLocalPort }
 
+  def contextPath = "/"
+
   lazy val server = new Server(port)
 
   lazy val servletContextHandler = {
     val handler = new ServletContextHandler(ServletContextHandler.SESSIONS)
-    handler.setContextPath("/")
+    handler.setContextPath(contextPath)
     handler
   }
 
