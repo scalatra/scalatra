@@ -12,6 +12,10 @@ object Scentry {
 
   private val _globalStrategies = new HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
+  @deprecated("Use the version with strings instead.", "2.0")
+  def registerStrategy[UserType <: AnyRef](name: Symbol, strategyFactory: StrategyFactory[UserType]) =
+    registerStrategy(name.name, strategyFactory)
+
   def registerStrategy[UserType <: AnyRef](name: String, strategyFactory: StrategyFactory[UserType]) =
     _globalStrategies += (name -> strategyFactory)
 
@@ -57,6 +61,10 @@ class Scentry[UserType <: AnyRef](
   def registerStrategy(name: String, strategyFactory: StrategyFactory) =
     _strategies += (name -> strategyFactory)
 
+  @deprecated("Use the version that uses a string key instead", "2.0")
+  def registerStrategy(name: Symbol, strategyFactory: StrategyFactory) =
+    _strategies += (name.name -> strategyFactory)
+
   def strategies: MMap[String, ScentryStrategy[UserType]] =
     (globalStrategies ++ _strategies) map { case (nm, fact) ⇒ (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
@@ -95,6 +103,9 @@ class Scentry[UserType <: AnyRef](
   private def missingDeserializer: PartialFunction[String, UserType] = {
     case _ ⇒ throw new RuntimeException("You need to provide a session deserializer for Scentry")
   }
+
+  @deprecated("Use the version that uses string keys instead", "2.0")
+  def authenticate(names: Symbol*) = authenticate(names.map(_.name):_*)
 
   def authenticate(names: String*) = {
     runAuthentication(names: _*) map {
