@@ -58,12 +58,14 @@ class Scentry[UserType <: AnyRef](
   def params = app.params
   def redirect(uri: String) { app.redirect(uri) }
 
-  def registerStrategy(name: String, strategyFactory: StrategyFactory) =
+  def registerStrategy(name: String, strategyFactory: StrategyFactory) {
     _strategies += (name -> strategyFactory)
+  }
 
-  @deprecated("Use the version that uses a string key instead", "2.0")
-  def registerStrategy(name: Symbol, strategyFactory: StrategyFactory) =
+//  @deprecated("Use the version that uses a string key instead", "2.0")
+  def registerStrategy(name: Symbol, strategyFactory: StrategyFactory) {
     _strategies += (name.name -> strategyFactory)
+  }
 
   def strategies: MMap[String, ScentryStrategy[UserType]] =
     (globalStrategies ++ _strategies) map { case (nm, fact) ⇒ (nm -> fact.asInstanceOf[StrategyFactory](app)) }
@@ -104,10 +106,10 @@ class Scentry[UserType <: AnyRef](
     case _ ⇒ throw new RuntimeException("You need to provide a session deserializer for Scentry")
   }
 
-  @deprecated("Use the version that uses string keys instead", "2.0")
-  def authenticate(names: Symbol*) = authenticate(names.map(_.name):_*)
+//  @deprecated("Use the version that uses string keys instead", "2.0")
+  def authenticate(names: Symbol*): Option[UserType] = authenticate(names.map(_.name):_*)
 
-  def authenticate(names: String*) = {
+  def authenticate(names: String*): Option[UserType] = {
     runAuthentication(names: _*) map {
       case (stratName, usr) ⇒
         runCallbacks() { _.afterAuthenticate(stratName, usr) }
