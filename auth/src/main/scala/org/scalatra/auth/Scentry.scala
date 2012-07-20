@@ -12,12 +12,14 @@ object Scentry {
 
   private val _globalStrategies = new HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
-  @deprecated("Use the version with strings instead.", "2.0")
-  def registerStrategy[UserType <: AnyRef](name: Symbol, strategyFactory: StrategyFactory[UserType]) =
-    registerStrategy(name.name, strategyFactory)
+  @deprecated("Use method `register` with strings instead.", "2.0")
+  def registerStrategy[UserType <: AnyRef](name: Symbol, strategyFactory: StrategyFactory[UserType]) {
+    _globalStrategies += (name.name -> strategyFactory)
+  }
 
-  def registerStrategy[UserType <: AnyRef](name: String, strategyFactory: StrategyFactory[UserType]) =
+  def register[UserType <: AnyRef](name: String, strategyFactory: StrategyFactory[UserType]) {
     _globalStrategies += (name -> strategyFactory)
+  }
 
   def globalStrategies = _globalStrategies
   def clearGlobalStrategies() { _globalStrategies.clear() }
@@ -58,11 +60,11 @@ class Scentry[UserType <: AnyRef](
   def params = app.params
   def redirect(uri: String) { app.redirect(uri) }
 
-  def registerStrategy(name: String, strategyFactory: StrategyFactory) {
+  def register(name: String, strategyFactory: StrategyFactory) {
     _strategies += (name -> strategyFactory)
   }
 
-//  @deprecated("Use the version that uses a string key instead", "2.0")
+  @deprecated("Use the method register that uses a string key instead", "2.0")
   def registerStrategy(name: Symbol, strategyFactory: StrategyFactory) {
     _strategies += (name.name -> strategyFactory)
   }
@@ -107,7 +109,8 @@ class Scentry[UserType <: AnyRef](
   }
 
 //  @deprecated("Use the version that uses string keys instead", "2.0")
-  def authenticate(names: Symbol*): Option[UserType] = authenticate(names.map(_.name):_*)
+  def authenticate(name: Symbol, names: Symbol*): Option[UserType] =
+    authenticate((Seq(name) ++ names.toSeq).map(_.name):_*)
 
   def authenticate(names: String*): Option[UserType] = {
     runAuthentication(names: _*) map {

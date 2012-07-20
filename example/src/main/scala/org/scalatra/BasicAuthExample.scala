@@ -37,8 +37,7 @@ object BasicAuthExample {
     }
 
     override protected def registerAuthStrategies = {
-
-      scentry.registerStrategy("Basic", app => new OurBasicAuthStrategy(app, realm))
+      scentry.register("Basic", app => new OurBasicAuthStrategy(app, realm))
     }
 
   }
