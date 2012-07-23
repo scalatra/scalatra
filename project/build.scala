@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import scala.xml._
 import java.net.URL
-import com.github.siasia.WebPlugin.webSettings
+//import com.github.siasia.WebPlugin.webSettings
 // import posterous.Publish._
 import ls.Plugin.LsKeys
 
@@ -38,7 +38,8 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml, scalatraJerkson,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2, scalatraSlf4j,
-      scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
+      scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
+//      scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
   )
 
   lazy val scalatraCore = Project(
@@ -205,20 +206,20 @@ object ScalatraBuild extends Build {
       description := "Scalatra integration with SLF4J and Logback"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-  lazy val scalatraExample = Project(
-    id = "scalatra-example",
-    base = file("example"),
-    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
-      resolvers ++= Seq(sonatypeNexusSnapshots),
-      libraryDependencies += servletApi % "container;test",
-      libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
-      description := "Scalatra example project"
-    )
-  ) dependsOn(
-    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-    scalatraAuth, scalatraFileupload, scalatraAkka, scalatraDocs, scalatraJetty
-  )
+//
+//  lazy val scalatraExample = Project(
+//    id = "scalatra-example",
+//    base = file("example"),
+//    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
+//      resolvers ++= Seq(sonatypeNexusSnapshots),
+//      libraryDependencies += servletApi % "container;test",
+//      libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
+//      description := "Scalatra example project"
+//    )
+//  ) dependsOn(
+//    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
+//    scalatraAuth, scalatraFileupload, scalatraAkka, scalatraDocs, scalatraJetty
+//  )
 
   object Dependencies {
     def antiXml = "com.codecommit" %% "anti-xml" % "0.3"

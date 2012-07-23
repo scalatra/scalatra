@@ -113,27 +113,27 @@ class Scentry[UserType <: AnyRef](
     authenticate((Seq(name) ++ names.toSeq).map(_.name):_*)
 
   def authenticate(names: String*): Option[UserType] = {
-    runAuthentication(names: _*) map {
+    val r = runAuthentication(names: _*) map {
       case (stratName, usr) ⇒
         runCallbacks() { _.afterAuthenticate(stratName, usr) }
         user = usr
         user
-    } orElse { runUnauthenticated(names: _*) }
+    }
+    if (names.isEmpty) r orElse { runUnauthenticated(names: _*) }
+    else r
   }
 
   private def runAuthentication(names: String*) = {
-    ((List[(String, UserType)]() /: strategies) {
-      case (acc, (nm, strat)) ⇒
-        val r = if (acc.isEmpty && strat.isValid && (names.isEmpty || names.contains(nm))) {
-          logger.debug("Authenticating with: %s" format nm)
-          runCallbacks(_.isValid) { _.beforeAuthenticate }
-          strat.authenticate() match {
-            case Some(usr) ⇒ (nm, usr) :: Nil
-            case _         ⇒ List.empty[(String, UserType)]
-          }
-        } else List.empty[(String, UserType)]
-        acc ::: r
-    }).headOption
+    val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
+    val stratOpt = subset.find(_.isValid)
+    stratOpt flatMap { strat =>
+      logger.debug("Authenticating with: %s" format strat.name)
+      runCallbacks(_.isValid) { _.beforeAuthenticate }
+      strat.authenticate() match {
+        case Some(usr) ⇒ Some(strat.name -> usr)
+        case _         ⇒ None
+      }
+    }
   }
 
   private def runUnauthenticated(names: String*) = {
