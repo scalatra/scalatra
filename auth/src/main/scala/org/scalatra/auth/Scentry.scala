@@ -125,15 +125,15 @@ class Scentry[UserType <: AnyRef](
 
   private def runAuthentication(names: String*) = {
     val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
-    val stratOpt = subset.find(_.isValid)
-    stratOpt flatMap { strat =>
+    val stratOpt = subset.filter(_.isValid)
+    (stratOpt map { strat =>
       logger.debug("Authenticating with: %s" format strat.name)
       runCallbacks(_.isValid) { _.beforeAuthenticate }
       strat.authenticate() match {
         case Some(usr) ⇒ Some(strat.name -> usr)
         case _         ⇒ None
       }
-    }
+    }).find(_.isDefined) getOrElse None
   }
 
   private def runUnauthenticated(names: String*) = {

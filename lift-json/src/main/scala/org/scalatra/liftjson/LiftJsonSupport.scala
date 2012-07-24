@@ -60,7 +60,7 @@ trait LiftJsonSupportWithoutFormats extends LiftJsonOutput {
  */
 trait LiftJsonSupport extends LiftJsonSupportWithoutFormats {
 
-  protected implicit def jsonFormats: Formats = DefaultFormats
+  implicit def jsonFormats: Formats = DefaultFormats
 
   
 
