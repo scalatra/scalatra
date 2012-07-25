@@ -18,3 +18,10 @@ Like the lift-json module but uses jerkson instead of lift-json
 
 ### scalatra-core
 * MethodOverrideSupport now also takes headers into account when deciding on the overload.
+* Adds support for X-XSRF-Token header as described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
+
+### scalatra-lift-json
+* Unified the JsonSupport and JsonRequestBody traits
+* Adds support for the JSON vulnerability mitigation described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
+
+
