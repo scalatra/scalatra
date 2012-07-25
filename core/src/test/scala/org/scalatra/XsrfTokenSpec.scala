@@ -68,9 +68,10 @@ object XsrfTokenSpec extends ScalatraSpecification {
         body must beMatching("GO")
       }
       get("/renderForm") {
-        val token2 = tokenFromCookie
-        token must be_==(token2)
         body must beMatching("GO")
+      }
+      post("/renderForm", headers = Map(XsrfTokenSupport.HeaderNames.head -> token)) {
+        body must be_==("SUCCESS")
       }
       post("/renderForm", headers = Map(XsrfTokenSupport.HeaderNames.head -> token)) {
         body must be_==("SUCCESS")
