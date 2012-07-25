@@ -20,6 +20,12 @@ private[liftjson] trait LiftJsonOutput extends ApiFormats {
    */
   def jsonpCallbackParameterNames:  Iterable[String] = Nil
 
+  /**
+   * Whether or not to apply the jsonVulnerabilityGuard when rendering json.
+   * @see http://haacked.com/archive/2008/11/20/anatomy-of-a-subtle-json-vulnerability.aspx
+   */
+  protected lazy val jsonVulnerabilityGuard = false
+
   override protected def contentTypeInferrer = ({
     case _ : JValue => "application/json; charset=utf-8"
   }: ContentTypeInferrer) orElse super.contentTypeInferrer
@@ -37,6 +43,7 @@ private[liftjson] trait LiftJsonOutput extends ApiFormats {
         callback <- params.get(paramName)
       } yield "%s(%s);" format (callback, jsonString)
 
-      (jsonWithCallback.headOption.getOrElse(jsonString)).getBytes(UTF8)
+      val prelude = if (jsonVulnerabilityGuard && jsonWithCallback.isEmpty) ")]}',\n" else ""
+      (jsonWithCallback.headOption.getOrElse(prelude+jsonString)).getBytes(UTF8)
   }: RenderPipeline) orElse super.renderPipeline
 }
