@@ -25,6 +25,7 @@ object GenerateId {
 
 object CsrfTokenSupport {
   val DefaultKey = "org.scalatra.CsrfTokenSupport.key"
+  val HeaderNames = Vector("X-CSRF-TOKEN")
 }
 
 /**
@@ -35,7 +36,7 @@ object CsrfTokenSupport {
  * request is prepared with `prepareCsrfToken`.
  */
 trait CsrfTokenSupport {
-  this: CoreDsl with SessionSupport =>
+  this: ScalatraBase with SessionSupport =>
 
   /**
    * The key used to store the token on the session, as well as the parameter
@@ -48,12 +49,8 @@ trait CsrfTokenSupport {
    */
   protected def csrfToken: String = session(csrfKey).asInstanceOf[String]
 
-  before() {
-    if (isForged) {
-      handleForgery()
-    }
-    prepareCsrfToken()
-  }
+  before(isForged) { handleForgery() }
+  before() { prepareCsrfToken() }
 
   /**
    * Tests whether a request with a unsafe method is a potential cross-site
@@ -66,7 +63,7 @@ trait CsrfTokenSupport {
   protected def isForged: Boolean =
     !request.requestMethod.isSafe &&
       session.get(csrfKey) != params.get(csrfKey) &&
-      session.get(csrfKey) != request.headers.get("X-CSRF-Token")
+      !CsrfTokenSupport.HeaderNames.map(request.headers.get).contains(session.get(csrfKey))
 
   /**
    * Take an action when a forgery is detected. The default action
@@ -87,4 +84,56 @@ trait CsrfTokenSupport {
   @deprecated("Use prepareCsrfToken()", "2.0.0")
   protected def prepareCSRFToken() = prepareCsrfToken()
 }
+
+trait XsrfTokenSupport { this: ScalatraBase with SessionSupport with CookieSupport =>
+  /**
+     * The key used to store the token on the session, as well as the parameter
+     * of the request.
+     */
+    protected def xsrfKey: String = XsrfTokenSupport.DefaultKey
+  
+    /**
+     * Returns the token from the session.
+     */
+    protected def xsrfToken: String = session(xsrfKey).asInstanceOf[String]
+  
+    before(isForged) { handleForgery() }
+    before() { prepareXsrfToken() }
+
+    /**
+     * Tests whether a request with a unsafe method is a potential cross-site
+     * forgery.
+     *
+     * @return true if the request is an unsafe method (POST, PUT, DELETE, TRACE,
+     * CONNECT, PATCH) and the request parameter at `xsrfKey` does not match
+     * the session key of the same name.
+     */
+    protected def isForged: Boolean =
+      !request.requestMethod.isSafe &&
+        session.get(xsrfKey) != params.get(xsrfKey) &&
+        !XsrfTokenSupport.HeaderNames.map(request.headers.get).contains(session.get(xsrfKey))
+  
+    /**
+     * Take an action when a forgery is detected. The default action
+     * halts further request processing and returns a 403 HTTP status code.
+     */
+    protected def handleForgery() {
+      halt(403, "Request tampering detected!")
+    }
+  
+    /**
+     * Prepares a XSRF token.  The default implementation uses `GenerateId`
+     * and stores it on the session.
+     */
+    protected def prepareXsrfToken() = {
+      session.getOrElseUpdate(xsrfKey, GenerateId())
+      cookies += "XSRF-TOKEN" -> xsrfToken
+    }
+}
+
+object XsrfTokenSupport {
+  val DefaultKey = "org.scalatra.XsrfTokenSupport.key"
+  val HeaderNames = Vector("X-XSRF-TOKEN")
+}
+
 
