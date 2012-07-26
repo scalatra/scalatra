@@ -1,11 +1,15 @@
 package org.scalatra
 
 import org.scalatest.matchers.MustMatchers
-import org.scalatest.{WordSpec}
+import org.scalatest._
+import java.util.Date
 
-class CookieTest extends WordSpec with MustMatchers {
+class CookieTest extends WordSpec with MustMatchers with BeforeAndAfterAll {
+
+
 
   "a Cookie" should {
+
     "render a simple name value pair" in {
       val cookie = Cookie("theName", "theValue")
       cookie.toCookieString must equal("theName=theValue")
@@ -23,7 +27,15 @@ class CookieTest extends WordSpec with MustMatchers {
 
     "have a maxAge when the value is >= 0" in {
       val cookie = Cookie("cookiename", "value1")(CookieOptions(maxAge=86700))
-      cookie.toCookieString must  equal("cookiename=value1; Max-Age=86700")
+      val dateString = Cookie.formatExpires(new Date(Cookie.currentTimeMillis + 86700000))
+      cookie.toCookieString must equal("cookiename=value1; Expires="+dateString)
+    }
+
+    "have expires when it is provided" in {
+      val d = new Date(System.currentTimeMillis + 86400)
+      val cookie = Cookie("cookiename", "value1")(CookieOptions(expires=Some(d)))
+      val dateString = Cookie.formatExpires(d)
+      cookie.toCookieString must equal("cookiename=value1; Expires="+dateString)
     }
 
     "set the comment when a comment is given" in {
@@ -50,9 +62,18 @@ class CookieTest extends WordSpec with MustMatchers {
         secure=true,
         httpOnly=true
       ))
+      val d = new Date(Cookie.currentTimeMillis + 15500*1000)
       cookie.toCookieString must
        equal("cookiename=value3; Domain=.nowhere.com; Path=/path/to/page; Comment=the cookie thingy comment; " +
-               "Max-Age=15500; Secure; HttpOnly")
+               "Expires="+Cookie.formatExpires(d)+"; Secure; HttpOnly")
     }
+  }
+
+  override protected def afterAll() {
+    Cookie.unfreezeTime()
+  }
+
+  override protected def beforeAll() {
+    Cookie.freezeTime()
   }
 }

@@ -79,6 +79,7 @@ class CookieSupportTest extends ScalatraFunSuite {
   test("POST /setexpiringcookie should set the max age of the cookie") {
     post("/foo/setexpiringcookie", "cookieval" -> "The value", "maxAge" -> oneWeek.toString) {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
+
       // Allow some slop, since it's a new call to currentTimeMillis
       cookie.getMaxAge.toInt must be (oneWeek plusOrMinus 10000)
     }

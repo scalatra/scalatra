@@ -15,10 +15,12 @@ Like the lift-json module but uses jerkson instead of lift-json
 
 ### scalatra-auth
 * Removed the dual cookie auth stores and replaced with a single more configurable one
+* Cookie store now takes cookieOptions as an implicit
 
 ### scalatra-core
 * MethodOverrideSupport now also takes headers into account when deciding on the overload.
 * Adds support for X-XSRF-Token header as described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
+* Cookie serialization now converts Max-Age to Expires to appease IE
 
 ### scalatra-lift-json
 * Unified the JsonSupport and JsonRequestBody traits
