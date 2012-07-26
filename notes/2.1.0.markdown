@@ -5,6 +5,11 @@
 
 ### scalatra-test
 * Log requests and responses to debug.
+* Replaced HttpTester with embedded Jetty and a real http client
+* Allows sending Content-Type for file uploads
+* Allows sending `Array[Byte]` as file body 
+* Allows sending request body as `Array[Byte]` 
+* Allows to get response body as `Array[Byte]` with `bodyBytes` method
 
 ### scalatra-jerkson
 Like the lift-json module but uses jerkson instead of lift-json
@@ -21,6 +26,7 @@ Like the lift-json module but uses jerkson instead of lift-json
 * MethodOverrideSupport now also takes headers into account when deciding on the overload.
 * Adds support for X-XSRF-Token header as described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
 * Cookie serialization now converts Max-Age to Expires to appease IE
+* I18nSupport is not thread-safe. [GH-200](http://github.com/scalatra/scalatra/issues/200)
 
 ### scalatra-lift-json
 * Unified the JsonSupport and JsonRequestBody traits
