@@ -6,8 +6,6 @@ import java.util.Date
 
 class CookieTest extends WordSpec with MustMatchers with BeforeAndAfterAll {
 
-
-
   "a Cookie" should {
 
     "render a simple name value pair" in {
@@ -28,13 +26,6 @@ class CookieTest extends WordSpec with MustMatchers with BeforeAndAfterAll {
     "have a maxAge when the value is >= 0" in {
       val cookie = Cookie("cookiename", "value1")(CookieOptions(maxAge=86700))
       val dateString = Cookie.formatExpires(new Date(Cookie.currentTimeMillis + 86700000))
-      cookie.toCookieString must equal("cookiename=value1; Expires="+dateString)
-    }
-
-    "have expires when it is provided" in {
-      val d = new Date(System.currentTimeMillis + 86400)
-      val cookie = Cookie("cookiename", "value1")(CookieOptions(expires=Some(d)))
-      val dateString = Cookie.formatExpires(d)
       cookie.toCookieString must equal("cookiename=value1; Expires="+dateString)
     }
 

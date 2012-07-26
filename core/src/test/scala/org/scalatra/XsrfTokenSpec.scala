@@ -1,8 +1,5 @@
 package org.scalatra
 
-import org.scalatra._
-
-import test.ClientResponse
 import test.specs.ScalatraSpecification
 import java.net.HttpCookie
 import collection.JavaConverters._
