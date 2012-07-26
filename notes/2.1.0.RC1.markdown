@@ -21,15 +21,22 @@ Like the lift-json module but uses jerkson instead of lift-json
 ### scalatra-auth
 * Removed the dual cookie auth stores and replaced with a single more configurable one
 * Cookie store now takes cookieOptions as an implicit
+* Increase visibillity of the BasicAuthRequest
+* Now uses ScalatraBase instead of ServletBase
+* Only run unauthenticated hook if authenticating for all strategies
 
 ### scalatra-core
 * MethodOverrideSupport now also takes headers into account when deciding on the overload.
 * Adds support for X-XSRF-Token header as described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
 * Cookie serialization now converts Max-Age to Expires to appease IE
 * I18nSupport is not thread-safe. [GH-200](http://github.com/scalatra/scalatra/issues/200)
+* Improved handling of encoded uris, so that encoded /?# characters are supported
+* Allow usage of the ActionResult instances with halt (thanks igstan)
 
 ### scalatra-lift-json
 * Unified the JsonSupport and JsonRequestBody traits
 * Adds support for the JSON vulnerability mitigation described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
+* ensure JValue return type for parsed body
 
-
+### scalatra-akka
+* After filters run now asynchronously on asynchronous requests. [GH-148](http://github.com/scalatra/scalatra/issues/148)
