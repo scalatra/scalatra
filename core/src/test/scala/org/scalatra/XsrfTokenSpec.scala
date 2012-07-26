@@ -5,6 +5,9 @@ import java.net.HttpCookie
 import collection.JavaConverters._
 
 class XsrfTokenServlet extends ScalatraServlet with CookieSupport with XsrfTokenSupport {
+
+  xsrfGuard()
+
   get("/renderForm") {
     "GO"
   }

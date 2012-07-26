@@ -115,21 +115,26 @@ object CookieSupport {
   val SweetCookiesKey = "org.scalatra.SweetCookies"
   val CookieOptionsKey = "org.scalatra.CookieOptions"
 }
-trait CookieSupport extends Handler {
+trait CookieSupport extends Handler with Initializable {
   self: ScalatraBase =>
 
   import CookieSupport._
-  implicit def cookieOptions: CookieOptions = request(CookieOptionsKey).asInstanceOf[CookieOptions]
+  implicit def cookieOptions: CookieOptions = servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]
 
-  def cookies = request(SweetCookiesKey).asInstanceOf[SweetCookies]
+  def cookies = request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
+
+  abstract override def initialize(config: ConfigT) {
+    super.initialize(config)
     val path = contextPath match {
       case "" => "/" // The root servlet is "", but the root cookie path is "/"
       case p => p
     }
-    req(CookieOptionsKey) = CookieOptions(path = path)
+    servletContext(CookieOptionsKey) = CookieOptions(path = path)
+  }
+
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+    req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
     super.handle(req, res)
   }
 

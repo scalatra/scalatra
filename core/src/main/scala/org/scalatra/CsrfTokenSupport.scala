@@ -99,7 +99,10 @@ trait XsrfTokenSupport { this: ScalatraBase with SessionSupport with CookieSuppo
    */
   protected def xsrfToken: String = session(xsrfKey).asInstanceOf[String]
 
-  before(isForged) { handleForgery() }
+  def xsrfGuard(only: RouteTransformer*) {
+    before((only.toSeq ++ Seq[RouteTransformer](isForged)):_*) { handleForgery() }
+  }
+
   before() { prepareXsrfToken() }
 
   /**
