@@ -10,7 +10,7 @@ object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  lazy val majorVersion = "2.1"
+  lazy val majorVersion = "2.2"
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
