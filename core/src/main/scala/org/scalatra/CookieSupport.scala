@@ -15,6 +15,7 @@ case class CookieOptions(
         secure  : Boolean = false,
         comment : String  = "",
         httpOnly: Boolean = false,
+        version : Int = 0,
         encoding: String  = "UTF-8")
 
 object Cookie {
@@ -47,22 +48,26 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
 
     if(cookieOptions.comment.nonBlank) sb append ("; Comment=") append cookieOptions.comment
 
-    cookieOptions.maxAge match {
-      case a if a < 0 => // we don't do anything for max-age when it's < 0 then it becomes a session cookie
-      case 0 => appendMaxAge(sb, 0) // Set the date to the min date for the system
-      case a => appendMaxAge(sb, currentTimeMillis + a * 1000)
-    }
+    appendMaxAge(sb, cookieOptions.maxAge, cookieOptions.version)
 
     if (cookieOptions.secure) sb append "; Secure"
     if (cookieOptions.httpOnly) sb append "; HttpOnly"
     sb.toString
   }
 
-  private[this] def appendMaxAge(sb: StringBuffer, dateInMillis: Long) = {
+  private[this] def appendMaxAge(sb: StringBuffer, maxAge: Int, version: Int) = {
+    val dateInMillis = maxAge match {
+       case a if a < 0 => None // we don't do anything for max-age when it's < 0 then it becomes a session cookie
+       case 0 => Some(0L) // Set the date to the min date for the system
+       case a => Some(currentTimeMillis + a * 1000)
+    }
+
     // This used to be Max-Age but IE is not always very happy with that
     // see: http://mrcoles.com/blog/cookies-max-age-vs-expires/
     // see Q1: http://blogs.msdn.com/b/ieinternals/archive/2009/08/20/wininet-ie-cookie-internals-faq.aspx
-    appendExpires(sb, new Date(dateInMillis))
+    val bOpt = dateInMillis map (ms => appendExpires(sb, new Date(ms)))
+    val agedOpt = if (version > 0) bOpt map (_.append("; Max-Age=").append(maxAge)) else bOpt
+    agedOpt getOrElse sb
   }
 
   private[this] def appendExpires(sb: StringBuffer, expires: Date) =
