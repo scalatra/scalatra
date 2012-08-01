@@ -49,7 +49,15 @@ trait LiftJsonSupportWithoutFormats extends LiftJsonOutput {
   private def shouldParseBody(fmt: String) =
     (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
-  def parsedBody: JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse JNothing
+  def parsedBody: JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
+    val fmt = format
+    var bd: JValue = JNothing
+    if (fmt == "json" || fmt == "xml") {
+      bd = parseRequestBody(fmt)
+      request(ParsedBodyKey) = bd
+    }
+    bd
+  }
 
 
 }
