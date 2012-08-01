@@ -23,6 +23,7 @@ trait EmbeddedJettyContainer extends JettyContainer {
   lazy val servletContextHandler = {
     val handler = new ServletContextHandler(ServletContextHandler.SESSIONS)
     handler.setContextPath(contextPath)
+    handler.setResourceBase("src/main/webapp")
     handler
   }
 
