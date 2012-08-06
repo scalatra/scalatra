@@ -4,7 +4,7 @@ import sbt._
 import Keys._
 import Project.Initialize
 
-object Unidoc {
+object Unidoc extends Plugin {
   val unidocDirectory = SettingKey[File]("unidoc-directory")
   val unidocExclude = SettingKey[Seq[String]]("unidoc-exclude")
   val unidocAllSources = TaskKey[Seq[Seq[File]]]("unidoc-all-sources")
@@ -13,7 +13,7 @@ object Unidoc {
   val unidocClasspath = TaskKey[Seq[File]]("unidoc-classpath")
   val unidoc = TaskKey[File]("unidoc", "Create unified scaladoc for all aggregates")
 
-  lazy val settings = Seq(
+  val unidocSettings = Seq(
     unidocDirectory <<= crossTarget / "unidoc",
     unidocExclude := Seq.empty,
     unidocAllSources <<= (thisProjectRef, buildStructure, unidocExclude) flatMap allSources,
@@ -42,7 +42,7 @@ object Unidoc {
   }
 
   def unidocTask: Initialize[Task[File]] = {
-    (compilers, cacheDirectory, unidocSources, unidocClasspath, unidocDirectory, scaladocOptions in Compile in doc, streams) map {
+    (compilers, cacheDirectory, unidocSources, unidocClasspath, unidocDirectory, scalacOptions in Compile in doc, streams) map {
       (compilers, cache, sources, classpath, target, options, s) => {
         val scaladoc = new Scaladoc(100, compilers.scalac)
         scaladoc.cached(cache / "unidoc", "main", sources, classpath, target, options, s.log)
