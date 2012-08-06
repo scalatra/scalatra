@@ -1,8 +1,7 @@
+scalacOptions ++= Seq("-unchecked", "-deprecation")
+
 resolvers ++= Seq(
-  Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns),
-  Resolver.url("sbt-plugin-releases", new URL(
-    "http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(
-      Resolver.ivyStylePatterns),
+  "less is" at "http://repo.lessis.me",
   "coda" at "http://repo.codahale.com"
 )
 
@@ -10,4 +9,4 @@ resolvers ++= Seq(
 
 //addSbtPlugin("net.databinder" % "posterous-sbt" % "0.3.2")
 
-addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.1")
+addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.2")

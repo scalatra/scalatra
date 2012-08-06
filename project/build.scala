@@ -15,13 +15,13 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
     version := "%s.0-SNAPSHOT" format majorVersion,
-    scalaVersion := "2.9.1",
+    scalaVersion := "2.9.2",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
     crossPaths := false,
-    resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots),
+    resolvers ++= Seq( sonatypeNexusSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
   ) ++ jettyOrbitHack ++ mavenCentralFrouFrou
@@ -29,7 +29,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraProject = Project(
     id = "scalatra-project",
     base = file("."),
-    settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
+    settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
       // (name in Posterous) := "scalatra",
@@ -155,7 +155,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalatest",
     base = file("scalatest"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(scalatest, junit, testng),
+      libraryDependencies ++= Seq(scalatest, junit, testng, guice),
       description := "ScalaTest support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
@@ -222,13 +222,13 @@ object ScalatraBuild extends Build {
 //  )
 
   object Dependencies {
-    def antiXml = "com.codecommit" %% "anti-xml" % "0.3"
+    def antiXml = "com.codecommit" % "anti-xml_2.9.1" % "0.3"
 
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0.beta1"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2-SNAPSHOT"
+    val backchatRl = "io.backchat.rl" % "rl_2.9.1" % "0.3.2-SNAPSHOT"
 
     val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.2"
     val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.2" % "test"
@@ -237,7 +237,7 @@ object ScalatraBuild extends Build {
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
 
-    val dispatch = "net.databinder" %% "dispatch-http" % "0.8.7"
+    val dispatch = "net.databinder" % "dispatch-http_2.9.1" % "0.8.7"
 
     val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.2"
 
@@ -256,28 +256,30 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    val liftJson = "net.liftweb" %% "lift-json" % "2.4"
-    val liftJsonExt = "net.liftweb" %% "lift-json-ext" % "2.4"
+    val liftJson = "net.liftweb" % "lift-json_2.9.1" % "2.4"
+    val liftJsonExt = "net.liftweb" % "lift-json-ext_2.9.1" % "2.4"
 
-    val jerkson = "io.backchat.jerkson" %% "jerkson" % "0.7.0-SNAPSHOT"
+    val jerkson = "io.backchat.jerkson" % "jerkson_2.9.1" % "0.7.0-SNAPSHOT"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
 
-    val scalatest = "org.scalatest" %% "scalatest" % "1.6.1"
+    val scalatest = "org.scalatest" %% "scalatest" % "1.8"
+
+    val testng = "org.testng" % "testng" % "6.7" % "optional"
+
+    val guice = "com.google.inject" % "guice" % "3.0" % "optional"
 
     val specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    val specs2 = "org.specs2" %% "specs2" % "1.11"
+    val specs2 = "org.specs2" %% "specs2" % "1.12"
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.6"
 
     val logback = "ch.qos.logback" % "logback-classic" % "1.0.6"
-
-    val testng = "org.testng" % "testng" % "6.3" % "optional"
   }
 
   object Resolvers {
