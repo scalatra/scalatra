@@ -21,7 +21,7 @@ object ScalatraBuild extends Build {
     manifestSetting,
     publishSetting,
     crossPaths := false,
-    resolvers ++= Seq( sonatypeNexusSnapshots),
+    resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
   ) ++ jettyOrbitHack ++ mavenCentralFrouFrou
@@ -228,7 +228,7 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "io.backchat.rl" % "rl_2.9.1" % "0.3.2-SNAPSHOT"
+    val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2"
 
     val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.2"
     val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.2" % "test"
@@ -259,7 +259,7 @@ object ScalatraBuild extends Build {
     val liftJson = "net.liftweb" % "lift-json_2.9.1" % "2.4"
     val liftJsonExt = "net.liftweb" % "lift-json-ext_2.9.1" % "2.4"
 
-    val jerkson = "io.backchat.jerkson" % "jerkson_2.9.1" % "0.7.0-SNAPSHOT"
+    val jerkson = "io.backchat.jerkson" %% "jerkson" % "0.7.0"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
@@ -284,6 +284,7 @@ object ScalatraBuild extends Build {
 
   object Resolvers {
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+    val sonatypeNexusReleases = "Sonatype Nexus Releases" at "https://oss.sonatype.org/content/repositories/releases"
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
   }
 
