@@ -256,12 +256,12 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    val liftJson = "net.liftweb" % "lift-json_2.9.1" % "2.4"
-    val liftJsonExt = "net.liftweb" % "lift-json-ext_2.9.1" % "2.4"
+    val liftJson = "net.liftweb" % "lift-json_2.9.2" % "2.5-SNAPSHOT"
+    val liftJsonExt = "net.liftweb" % "lift-json-ext_2.9.2" % "2.5-SNAPSHOT"
 
     val jerkson = "io.backchat.jerkson" %% "jerkson" % "0.7.0"
 
-    val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
+    val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
 
