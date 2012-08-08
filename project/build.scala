@@ -38,8 +38,7 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraSlf4j,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      // scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
-     scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
+     scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty)
   )
 
   lazy val scalatraCore = Project(
@@ -163,14 +162,6 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
-  lazy val scalatraDocs = Project(
-    id = "scalatra-docs",
-    base = file("docs"),
-    settings = scalatraSettings ++ Seq(
-      description := "Scalatra legacy documentation; see scalatra-swagger"
-    )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
   lazy val scalatraSwagger = Project(
     id = "scalatra-swagger",
     base = file("swagger"),
@@ -200,7 +191,7 @@ object ScalatraBuild extends Build {
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraDocs, scalatraJetty
+   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty
  )
 
   object Dependencies {
