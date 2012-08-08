@@ -46,7 +46,7 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        servletApi % "provided;test",
+        servletApi,
         grizzledSlf4j,
         backchatRl
       ),
@@ -106,7 +106,7 @@ object ScalatraBuild extends Build {
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        servletApi,
+        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar")),
         jettyServlet
       ),
       description := "Embedded Jetty server for Scalatra apps"
@@ -119,8 +119,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
+        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar")),
         testJettyServlet,
-	      servletApi % "provided",
         mockitoAll,
         commonsLang3,
         specs2 % "test",
@@ -185,7 +185,7 @@ object ScalatraBuild extends Build {
    base = file("example"),
    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
-     libraryDependencies += servletApi % "container;test",
+     libraryDependencies += servletApiTest,
      libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
      description := "Scalatra example project"
    )
@@ -218,12 +218,12 @@ object ScalatraBuild extends Build {
     val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.9"
 
     // See jettyOrbitHack below.
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" exclude("org.eclipse.jetty.orbit", "javax.servlet")
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.5.v20120716" //exclude("org.eclipse.jetty.orbit", "javax.servlet")
 
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyServlet = jettyDep("jetty-servlet")
-    val jettyServer = jettyDep("jetty-server")
-    val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % "8.1.3.v20120416"  % "provided" exclude("org.eclipse.jetty.orbit", "javax.servlet")
+    // val jettyServer = jettyDep("jetty-server")
+    // val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % "8.1.3.v20120416"  % "provided" 
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
     val junit = "junit" % "junit" % "4.10"
@@ -245,7 +245,9 @@ object ScalatraBuild extends Build {
 
     val specs2 = "org.specs2" %% "specs2" % "1.12"
 
-    val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1"
+    val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "provided;test" artifacts (Artifact("javax.servlet", "jar", "jar"))
+
+    val servletApiTest = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container;test" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.6"
 
@@ -336,8 +338,7 @@ object ScalatraBuild extends Build {
   // module that depends on this atrocity needs an explicit exclude
   // statement.
   lazy val jettyOrbitHack = Seq(
-    ivyXML := <dependencies>
-      <exclude org="org.eclipse.jetty.orbit" name="javax.servlet" />
-    </dependencies>
+    classpathTypes ~= (_ + "orbit")
   )
+
 }
