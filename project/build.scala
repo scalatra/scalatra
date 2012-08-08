@@ -204,7 +204,6 @@ object ScalatraBuild extends Build {
 //  )
 
   object Dependencies {
-    def antiXml = "com.codecommit" % "anti-xml_2.9.1" % "0.3"
 
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0.beta1"
 
@@ -240,8 +239,6 @@ object ScalatraBuild extends Build {
 
     val liftJson = "net.liftweb" % "lift-json_2.9.2" % "2.5-SNAPSHOT"
     val liftJsonExt = "net.liftweb" % "lift-json-ext_2.9.2" % "2.5-SNAPSHOT"
-
-    val jerkson = "io.backchat.jerkson" %% "jerkson" % "0.7.0"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
