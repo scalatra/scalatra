@@ -5,7 +5,7 @@ resolvers ++= Seq(
   "coda" at "http://repo.codahale.com"
 )
 
-//libraryDependencies <+= sbtVersion(v => "com.github.siasia" %% "xsbt-web-plugin" % (v+"-0.2.11.1"))
+libraryDependencies <+= sbtVersion(v => "com.github.siasia" %% "xsbt-web-plugin" % (v+"-0.2.11.1"))
 
 //addSbtPlugin("net.databinder" % "posterous-sbt" % "0.3.2")
 
