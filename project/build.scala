@@ -36,8 +36,8 @@ object ScalatraBuild extends Build {
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
-      scalatraScalate, scalatraLiftJson, scalatraAntiXml, scalatraJerkson,
-      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2, scalatraSlf4j,
+      scalatraScalate, scalatraLiftJson, scalatraSlf4j,
+      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
 //      scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
   )
@@ -99,24 +99,6 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies += liftJson,
       description := "Lift JSON support for Scalatra"
-    )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-  lazy val scalatraJerkson = Project(
-    id = "scalatra-jerkson",
-    base = file("jerkson"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies += jerkson,
-      description := "Jackson/Jerkson JSON support for Scalatra"
-    )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-  lazy val scalatraAntiXml = Project(
-    id = "scalatra-anti-xml",
-    base = file("anti-xml"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies += antiXml,
-      description := "Anti-XML support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -367,7 +349,7 @@ object ScalatraBuild extends Build {
   // statement.
   lazy val jettyOrbitHack = Seq(
     ivyXML := <dependencies>
-      <exclude org="org.eclipse.jetty.orbit" />
+      <exclude org="org.eclipse.jetty.orbit" name="javax.servlet" />
     </dependencies>
   )
 }
