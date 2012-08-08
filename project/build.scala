@@ -46,7 +46,7 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        servletApi,
+        servletApiProvided,
         grizzledSlf4j,
         backchatRl
       ),
@@ -106,7 +106,7 @@ object ScalatraBuild extends Build {
     base = file("jetty"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar")),
+        servletApi,
         jettyServlet
       ),
       description := "Embedded Jetty server for Scalatra apps"
@@ -119,7 +119,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
-        "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar")),
+        servletApi,
         testJettyServlet,
         mockitoAll,
         commonsLang3,
@@ -218,12 +218,10 @@ object ScalatraBuild extends Build {
     val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.9"
 
     // See jettyOrbitHack below.
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.5.v20120716" //exclude("org.eclipse.jetty.orbit", "javax.servlet")
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" 
 
     val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyServlet = jettyDep("jetty-servlet")
-    // val jettyServer = jettyDep("jetty-server")
-    // val jettyWebsocket = "org.eclipse.jetty" % "jetty-websocket" % "8.1.3.v20120416"  % "provided" 
     val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
 
     val junit = "junit" % "junit" % "4.10"
@@ -245,7 +243,9 @@ object ScalatraBuild extends Build {
 
     val specs2 = "org.specs2" %% "specs2" % "1.12"
 
-    val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "provided;test" artifacts (Artifact("javax.servlet", "jar", "jar"))
+    val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
+
+    val servletApiProvided = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "provided;test" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
     val servletApiTest = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container;test" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
