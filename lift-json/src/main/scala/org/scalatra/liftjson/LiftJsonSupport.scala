@@ -18,8 +18,9 @@ trait LiftJsonSupportWithoutFormats extends LiftJsonOutput with json.JsonSupport
   protected def readJsonFromStream(stream: InputStream): JsonType =
     JsonParser.parse(new InputStreamReader(stream))
 
-  protected def readXmlFromStream(stream: InputStream): JsonType =
-    toJson(scala.xml.XML.load(stream))
+  protected def readXmlFromStream(stream: InputStream): JsonType = {
+    toJson(scala.xml.XML.load(stream).child)
+  }
 
   protected val jsonZero: JsonType = JNothing
 
