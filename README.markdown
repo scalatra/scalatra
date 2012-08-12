@@ -30,14 +30,14 @@ libraryDependencies += "org.scalatra" %% "scalatra" % "2.0.4"
 
 ### Development version
 
-The develop branch is published as `2.1.0-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra).  A milestone build is available as `2.1.0.M2`.
+The develop branch is published as `2.2.0-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra).  A milestone build is available as `2.1.0-RC3`.
 
 Starting with 2.1.x, Scalatra is no longer crossbuilt.  This means no `%%` operator in the library dependency.
 
 ```scala
 resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "org.scalatra" % "scalatra" % "2.1.0-SNAPSHOT"
+libraryDependencies += "org.scalatra" % "scalatra" % "2.2.0-SNAPSHOT"
 ```
 
 ## Community
