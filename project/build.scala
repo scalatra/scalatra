@@ -92,6 +92,14 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraJson = Project(
+    id = "scalatra-json",
+    base = file("json"),
+    settings = scalatraSettings ++ Seq(
+      description := "JSON support for Scalatra, contains only common marker interfaces"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
   lazy val scalatraLiftJson = Project(
     id = "scalatra-lift-json",
     base = file("lift-json"),
@@ -99,7 +107,16 @@ object ScalatraBuild extends Build {
       libraryDependencies += liftJson,
       description := "Lift JSON support for Scalatra"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
+
+  lazy val scalatraJackson = Project(
+    id = "scalatra-jackson",
+    base = file("jackson"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= jackson,
+      description := "Jackson support for Scalatra"
+    )
+  ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
 
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
@@ -227,6 +244,12 @@ object ScalatraBuild extends Build {
 
     val liftJson = "net.liftweb" % "lift-json_2.9.2" % "2.5-SNAPSHOT"
     val liftJsonExt = "net.liftweb" % "lift-json-ext_2.9.2" % "2.5-SNAPSHOT"
+
+    val jackson = Seq(
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.0.5",
+      "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.0.2",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.0.4")
+
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
