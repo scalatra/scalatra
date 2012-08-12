@@ -33,7 +33,7 @@ class LiftJsonRequestBodySpec extends ScalatraSpecification {
     }
 
     "parse the xml body of a request" in {
-      val rbody = """<name>hello world</name>"""
+      val rbody = """<req><name>hello world</name></req>"""
       post("/json", headers = Map("Accept" -> "application/xml", "Content-Type" -> "application/xml"), body = rbody) {
         status must_== 200
         body must_== "hello world"

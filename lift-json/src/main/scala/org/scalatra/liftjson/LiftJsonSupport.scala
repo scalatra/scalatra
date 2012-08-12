@@ -25,7 +25,7 @@ trait LiftJsonSupportWithoutFormats extends LiftJsonOutput {
     if (format == "json") {
       transformRequestBody(JsonParser.parse(new InputStreamReader(request.inputStream)))
     } else if (format == "xml") {
-      transformRequestBody(toJson(scala.xml.XML.load(request.inputStream)))
+      transformRequestBody(toJson(scala.xml.XML.load(request.inputStream).child))
     } else JNothing
   } catch {
     case _ ⇒ JNothing
