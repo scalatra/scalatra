@@ -36,7 +36,7 @@ object ScalatraBuild extends Build {
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
-      scalatraScalate, scalatraLiftJson, scalatraSlf4j,
+      scalatraScalate, scalatraJson, scalatraJackson, scalatraLiftJson, scalatraSlf4j,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
      scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty)
   )
