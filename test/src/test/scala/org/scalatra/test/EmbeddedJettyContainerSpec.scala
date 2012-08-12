@@ -1,7 +1,6 @@
 package org.scalatra.test
 
 import javax.servlet.http._
-import dispatch._
 import org.specs2.mutable._
 import org.specs2.specification.{Step, Fragments}
 
