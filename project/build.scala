@@ -124,7 +124,6 @@ object ScalatraBuild extends Build {
         mockitoAll,
         commonsLang3,
         specs2 % "test",
-        dispatch,
         httpClient,
         httpMime
       ),
@@ -208,8 +207,8 @@ object ScalatraBuild extends Build {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
-
-    val dispatch = "net.databinder" % "dispatch-http_2.9.1" % "0.8.7"
+//
+//    val dispatch = "net.databinder.dispatch" % "core_2.9.2" % "0.9.0"
 
     val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.2"
 
