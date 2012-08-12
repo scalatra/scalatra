@@ -2,22 +2,15 @@ package org.scalatra
 package jackson
 
 import com.fasterxml.jackson.databind.{SerializationFeature, ObjectMapper, JsonNode}
-import java.io.{Writer, PrintWriter}
+import java.io.Writer
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.dataformat.xml.{XmlFactory, XmlMapper}
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
-import com.fasterxml.jackson.databind.node.{ContainerNode, JsonNodeFactory, ObjectNode}
-import collection.mutable
-import collection.JavaConverters._
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
-import java.util
-import com.fasterxml.jackson.annotation.JsonUnwrapped
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import xml.XML
 
 private[jackson] trait JacksonOutput extends json.JsonOutput {
 
   protected val jsonMapper = new ObjectMapper()
-  protected val xmlMapper = new XmlMapper()
+  val xmlMapper = new XmlMapper()
   configureJackson(jsonMapper)
   configureJackson(xmlMapper)
 
