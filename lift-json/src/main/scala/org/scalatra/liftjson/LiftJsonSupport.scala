@@ -3,13 +3,8 @@ package liftjson
 
 import net.liftweb.json._
 import net.liftweb.json.Xml._
-import java.io.InputStreamReader
+import java.io.{InputStream, InputStreamReader}
 
-
-object LiftJsonSupport {
-
-  val ParsedBodyKey = "org.scalatra.liftjson.ParsedBody"
-}
 
 @deprecated("Use LiftJsonSupportWithoutFormats instead", "2.1.0")
 trait LiftJsonRequestBodyWithoutFormats extends LiftJsonSupportWithoutFormats
@@ -17,48 +12,16 @@ trait LiftJsonRequestBodyWithoutFormats extends LiftJsonSupportWithoutFormats
 @deprecated("Use LiftJsonSupport instead", "2.1.0")
 trait LiftJsonRequestBody extends LiftJsonSupport
 
-trait LiftJsonSupportWithoutFormats extends LiftJsonOutput {
-  import LiftJsonSupport._
+trait LiftJsonSupportWithoutFormats extends LiftJsonOutput with json.JsonSupport {
 
 
-  protected def parseRequestBody(format: String) = try {
-    if (format == "json") {
-      transformRequestBody(JsonParser.parse(new InputStreamReader(request.inputStream)))
-    } else if (format == "xml") {
-      transformRequestBody(toJson(scala.xml.XML.load(request.inputStream)))
-    } else JNothing
-  } catch {
-    case _ ⇒ JNothing
-  }
+  protected def readJsonFromStream(stream: InputStream): JsonType =
+    JsonParser.parse(new InputStreamReader(stream))
 
-  protected def transformRequestBody(body: JValue) = body
+  protected def readXmlFromStream(stream: InputStream): JsonType =
+    toJson(scala.xml.XML.load(stream))
 
-  override protected def invoke(matchedRoute: MatchedRoute) = {
-    withRouteMultiParams(Some(matchedRoute)) {
-      val mt = request.contentType map {
-        _.split(";").head
-      } getOrElse "application/x-www-form-urlencoded"
-      val fmt = mimeTypes get mt getOrElse "html"
-      if (shouldParseBody(fmt)) {
-        request(ParsedBodyKey) = parseRequestBody(fmt)
-      }
-      super.invoke(matchedRoute)
-    }
-  }
-
-  private def shouldParseBody(fmt: String) =
-    (fmt == "json" || fmt == "xml") && parsedBody == JNothing
-
-  def parsedBody: JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
-    val fmt = format
-    var bd: JValue = JNothing
-    if (fmt == "json" || fmt == "xml") {
-      bd = parseRequestBody(fmt)
-      request(ParsedBodyKey) = bd
-    }
-    bd
-  }
-
+  protected val jsonZero: JsonType = JNothing
 
 }
 
