@@ -1,0 +1,18 @@
+### Global
+
+* Removes jerkson support
+* Removes anti-xml support
+* Adds Jackson support
+* Adds common traits for pluggable json serialization, these traits allow library writers to write against a generic
+  json interface. The application developer can then mix in the json support he wants and retain all functionality.
+
+### Core
+* Adds typed param support, previously in contrib
+
+### lift-json
+* Converted to use the new base traits
+* Adds ProductToJsonSupport trait from contrib
+
+### Jackson
+* Implemented using new base traits
+* Adds ProductToJsonSupport trati like lift-json

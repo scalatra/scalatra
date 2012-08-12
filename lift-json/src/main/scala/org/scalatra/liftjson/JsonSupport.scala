@@ -8,7 +8,7 @@ import xml.{NodeSeq, XML}
 import xml.Utility.trimProper
 import io.Codec
 import json.JsonOutput
-import java.io.PrintWriter
+import java.io.{Writer, PrintWriter}
 
 @deprecated("Use LiftJsonSupport instead", "2.1.0")
 trait JsonSupport extends LiftJsonOutput
@@ -20,8 +20,10 @@ private[liftjson] trait LiftJsonOutput extends JsonOutput {
 
   protected def jsonClass: Class[_] = classOf[JsonType]
 
-  protected def writeJsonAsXml(json: JsonType): NodeSeq = toXml(json)
+  protected def writeJsonAsXml(json: JsonType, writer: Writer) {
+    XML.write(response.writer, xmlRootNode.copy(child = toXml(json)), response.characterEncoding.get, xmlDecl = true, null)
+  }
 
-  protected def writeJson(json: JsonType, writer: PrintWriter) { Printer.compact(render(json), writer) }
+  protected def writeJson(json: JsonType, writer: Writer) { Printer.compact(render(json), writer) }
 
 }

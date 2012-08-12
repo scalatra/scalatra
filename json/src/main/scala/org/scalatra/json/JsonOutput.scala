@@ -3,7 +3,7 @@ package json
 
 import xml.{NodeSeq, XML}
 import io.Codec
-import java.io.PrintWriter
+import java.io.{Writer, StringWriter, PrintWriter}
 
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
@@ -31,12 +31,11 @@ trait JsonOutput extends ApiFormats {
 
   protected lazy val xmlRootNode = <resp></resp>
 
-
   override protected def renderPipeline = ({
     case j if jsonClass.isAssignableFrom(j.getClass) && format == "xml" =>
       val jv = j.asInstanceOf[JsonType]
       contentType = formats("xml")
-      XML.write(response.writer, xmlRootNode.copy(child = writeJsonAsXml(jv)), response.characterEncoding.get, xmlDecl = true, null)
+      writeJsonAsXml(jv, response.writer)
 
     case j if jsonClass.isAssignableFrom(j.getClass) =>
       val jv = j.asInstanceOf[JsonType]
@@ -67,7 +66,7 @@ trait JsonOutput extends ApiFormats {
       }
   }: RenderPipeline) orElse super.renderPipeline
 
-  protected def writeJsonAsXml(json: JsonType): NodeSeq
-  protected def writeJson(json: JsonType, writer: PrintWriter)
+  protected def writeJsonAsXml(json: JsonType, writer: Writer)
+  protected def writeJson(json: JsonType, writer: Writer)
 }
 
