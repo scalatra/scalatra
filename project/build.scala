@@ -35,7 +35,7 @@ object ScalatraBuild extends Build {
       // (name in Posterous) := "scalatra",
       LsKeys.skipWrite := true
     ),
-    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
+    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
       scalatraScalate, scalatraJson, scalatraJackson, scalatraLiftJson, scalatraSlf4j,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
      scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty)
@@ -122,10 +122,17 @@ object ScalatraBuild extends Build {
     id = "scalatra-data-binding",
     base = file("data-binding"),
     settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(
+        "commons-validator"       % "commons-validator"  % "1.4.0",
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4"
+      ),
       libraryDependencies += scalaz,
       description := "Data binding and validation with scalaz for Scalatra"
     )
-  ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
+  ) dependsOn(
+    scalatraJson % "compile;test->test;provided->provided",
+    scalatraLiftJson % "provided->compile;test->compile",
+    scalatraJackson % "provided->compile;test->compile")
 
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
