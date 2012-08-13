@@ -25,7 +25,7 @@ Please see [The Scalatra Book](http://www.scalatra.org/stable/book/) for more.
 The latest version of Scalatra is `2.1.0`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.1.0"
+libraryDependencies += "org.scalatra" % "scalatra" % "2.1.0"
 ```
 
 ### Development version
