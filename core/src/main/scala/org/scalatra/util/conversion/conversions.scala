@@ -75,12 +75,14 @@ object Conversions extends DefaultImplicitConversions {
   implicit def stringToSeqConversion(source: String) = new SeqConversion(source)
 }
 
-case class ValueHolder[T: Manifest](value: Option[T])
+case class ValueHolder[T: Manifest](value: Option[T]) {
+  def apply(): Option[T] = value
+}
 trait ValueHolderImplicits  {
   private[scalatra] implicit def vh[T: Manifest](t: T): ValueHolder[T] = ValueHolder(Option(t))
   private[scalatra] implicit def ovh[T: Manifest](t: Option[T]): ValueHolder[T] = ValueHolder(t)
 }
-
-trait ValueHolderImplicitConversions extends TypeConverterSupport[ValueHolder[_]] {
-
-}
+//
+//trait ValueHolderImplicitConversions extends TypeConverterSupport[ValueHolder[_]] {
+//
+//}

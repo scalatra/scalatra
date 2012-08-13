@@ -3,7 +3,6 @@ package json
 
 import org.scalatra.util.ValueReader
 import util.RicherString._
-import util.conversion.ValueHolder
 
 abstract class JsonValueReader[T](val data: T) extends ValueReader[T] {
   type I = T
@@ -13,9 +12,9 @@ abstract class JsonValueReader[T](val data: T) extends ValueReader[T] {
     val end = ""
   }
 
-  def read(key: String): ValueHolder[I] = readPath(key)
+  def read(key: String): Option[I] = readPath(key)
 
-  protected final def readPath(path: String, subj: T = data): Option[T] = {
+  protected def readPath(path: String, subj: T = data): Option[T] = {
     val partIndex = path.indexOf(separator.beginning)
     val (part, rest) = if (path.indexOf(separator.beginning) > -1) path.splitAt(partIndex) else (path, "")
     val realRest = if (rest.nonEmpty) {

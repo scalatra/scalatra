@@ -3,7 +3,6 @@ package jackson
 
 import com.fasterxml.jackson.databind.JsonNode
 import json.{JsonValueReaderProperty, JsonValueReader}
-import util.conversion.ValueHolder
 import com.fasterxml.jackson.databind.node.{NullNode, MissingNode, ObjectNode}
 
 class JacksonValueReader(data: JsonNode) extends JsonValueReader(data) {

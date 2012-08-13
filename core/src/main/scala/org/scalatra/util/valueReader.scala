@@ -3,22 +3,22 @@ package util
 
 import conversion.{ValueHolder, ValueHolderImplicits}
 
-trait ValueReader[S] extends ValueHolderImplicits {
+trait ValueReader[S]  {
 
   type I
   def data: S
-  def read(key: String): ValueHolder[I]
+  def read(key: String): Option[I]
 
 }
 
 class StringMapValueReader(val data: Map[String, String]) extends ValueReader[Map[String, String]] {
   type I = String
-  def read(key: String): ValueHolder[I] = data get key
+  def read(key: String): Option[I] = data get key
 }
 
 class MultiParamsValueReader(val data: MultiParams) extends ValueReader[MultiParams] {
   type I = Seq[String]
-  def read(key: String): ValueHolder[I] = data get key
+  def read(key: String): Option[I] = data get key
 }
 
 trait ParamsValueReaderProperties { self: ScalatraBase =>
