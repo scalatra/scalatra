@@ -29,7 +29,7 @@ Like the lift-json module but uses jerkson instead of lift-json
 
 ### scalatra-core
 * MethodOverrideSupport now also takes headers into account when deciding on the overload.
-* Adds support for X-XSRF-Token header as described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
+* Adds support for X-XSRF-Token header as described in the [angular js docs](http://docs.angularjs.org/api/ng.$http).
 * Cookie serialization now converts Max-Age to Expires to appease IE
 * I18nSupport is not thread-safe. [GH-200](http://github.com/scalatra/scalatra/issues/200)
 * Improved handling of encoded uris, so that encoded /?# characters are supported
@@ -39,7 +39,7 @@ Like the lift-json module but uses jerkson instead of lift-json
 * Support ActionResult class hierarchy to bundle status, headers, and
   body into one case class.
 * Returning an Int sets the status, just like Sinatra.
-* CsrfTokenSupport recognizes the 'X-CSRF-Token' header.
+* CsrfTokenSupport recognizes the `X-CSRF-Token` header.
 * Cross build dropped from artifact ID.  The same build runs for all 
   Scala 2.9.x.
 * Dropped support for Scala 2.8.x.
@@ -47,7 +47,7 @@ Like the lift-json module but uses jerkson instead of lift-json
 
 ### scalatra-lift-json
 * Unified the JsonSupport and JsonRequestBody traits
-* Adds support for the JSON vulnerability mitigation described in the (angular js docs)[http://docs.angularjs.org/api/ng.$http].
+* Adds support for the JSON vulnerability mitigation described in the [angular js docs](http://docs.angularjs.org/api/ng.$http).
 * ensure JValue return type for parsed body
 * Make json body available as soon as possible
 * Render valid XML for a JValue serialization.
