@@ -1,11 +1,12 @@
 package org.scalatra
 package jackson
 
-import com.fasterxml.jackson.databind.{SerializationFeature, ObjectMapper, JsonNode}
+import com.fasterxml.jackson.databind.{MapperFeature, SerializationFeature, ObjectMapper, JsonNode}
 import java.io.Writer
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import xml.XML
+import com.fasterxml.jackson.core.JsonGenerator
 
 private[jackson] trait JacksonOutput extends json.JsonOutput {
 
@@ -16,8 +17,7 @@ private[jackson] trait JacksonOutput extends json.JsonOutput {
 
   protected def configureJackson(mapper: ObjectMapper) {
     mapper.registerModule(DefaultScalaModule)
-    mapper.configure(SerializationFeature.CLOSE_CLOSEABLE, false)
-    mapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false)
+    mapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false)
   }
 
   protected type JsonType = JsonNode
@@ -30,6 +30,6 @@ private[jackson] trait JacksonOutput extends json.JsonOutput {
   }
 
   protected def writeJson(json: JsonType, writer: Writer) {
-    writer write jsonMapper.writeValueAsString(json)
+    jsonMapper.writeValue(writer, json)
   }
 }

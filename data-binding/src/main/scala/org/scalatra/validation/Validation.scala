@@ -8,6 +8,9 @@ object Validation {
   def nonEmptyString(fieldName: String, value: ⇒ String): FieldValidation[String] =
     Validators.nonEmptyString(fieldName).validate(value)
 
+  def notNull(fieldName: String, value: ⇒ AnyRef): FieldValidation[AnyRef] =
+    Validators.notNull(fieldName).validate(value)
+
   def nonEmptyCollection[TResult <: Seq[_]](fieldName: String, value: ⇒ TResult): FieldValidation[TResult] =
     Validators.nonEmptyCollection(fieldName).validate(value)
 

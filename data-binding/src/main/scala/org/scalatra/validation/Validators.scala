@@ -24,8 +24,13 @@ object Validators {
     }
   }
 
+  def validate[TValue](fieldName: String, validate: TValue => Boolean) =
+    new PredicateValidator[TValue](fieldName: String, validate, "%s is invalid")
   def nonEmptyString(fieldName: String): Validator[String] =
     new PredicateValidator[String](fieldName, s => s != null && s.trim.nonEmpty, "%s must be present.")
+
+  def notNull(fieldName: String): Validator[AnyRef] =
+    new PredicateValidator[AnyRef](fieldName, s => s != null, "%s must be present.")
 
   def nonEmptyCollection[TResult <: Seq[_]](fieldName: String): Validator[TResult] =
     new PredicateValidator[TResult](fieldName, _.nonEmpty, "%s must not be empty.")
