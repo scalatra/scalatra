@@ -76,7 +76,11 @@ object Conversions extends DefaultImplicitConversions {
 }
 
 case class ValueHolder[T: Manifest](value: Option[T])
-trait ValueHolderImplicitConversions  {
+trait ValueHolderImplicits  {
   private[scalatra] implicit def vh[T: Manifest](t: T): ValueHolder[T] = ValueHolder(Option(t))
   private[scalatra] implicit def ovh[T: Manifest](t: Option[T]): ValueHolder[T] = ValueHolder(t)
+}
+
+trait ValueHolderImplicitConversions extends TypeConverterSupport[ValueHolder[_]] {
+
 }
