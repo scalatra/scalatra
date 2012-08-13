@@ -32,12 +32,12 @@ trait JsonOutput extends ApiFormats {
   protected lazy val xmlRootNode = <resp></resp>
 
   override protected def renderPipeline = ({
-    case j if jsonClass.isAssignableFrom(j.getClass) && format == "xml" =>
+    case j if j != null && jsonClass.isAssignableFrom(j.getClass) && format == "xml" =>
       val jv = j.asInstanceOf[JsonType]
       contentType = formats("xml")
       writeJsonAsXml(jv, response.writer)
 
-    case j if jsonClass.isAssignableFrom(j.getClass) =>
+    case j if j != null && jsonClass.isAssignableFrom(j.getClass) =>
       val jv = j.asInstanceOf[JsonType]
       // JSON is always UTF-8
       response.characterEncoding = Some(Codec.UTF8.name)

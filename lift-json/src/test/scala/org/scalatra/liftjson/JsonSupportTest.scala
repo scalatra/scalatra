@@ -2,6 +2,7 @@ package org.scalatra
 package liftjson
 
 import org.scalatra.ScalatraServlet
+import net.liftweb.json.JsonAST.JValue
 
 class JsonSupportTest extends json.JsonSupportTestBase {
   addServlet(classOf[JsonSupportTestServlet], "/*")
@@ -33,6 +34,12 @@ class JsonSupportTestServlet extends ScalatraServlet with LiftJsonSupport {
     ("k1" -> "v1") ~
       ("k2" -> "v2")
   }
+
+
+  get("/nulls") {
+    null.asInstanceOf[JValue]
+  }
+
 }
 
 class JsonPTestServlet extends ScalatraServlet with LiftJsonSupport {

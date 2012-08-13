@@ -15,6 +15,21 @@ abstract class JsonSupportTestBase extends ScalatraFunSuite {
     }
   }
 
+  test("Don't panic on null") {
+    get("/nulls", headers = Map("Accept" -> "application/json")) {
+      response.mediaType should equal (Some("application/json"))
+      response.status should equal (200)
+    }
+  }
+
+
+  test("Don't panic on null XML") {
+    get("/nulls", headers = Map("Accept" -> "application/xml")) {
+      response.mediaType should equal (Some("application/xml"))
+      response.status should equal (200)
+    }
+  }
+
   test("XML output of a JValue") {
     get("/json", headers = Map("Accept" -> "application/xml")) {
       response.mediaType should equal (Some("application/xml"))

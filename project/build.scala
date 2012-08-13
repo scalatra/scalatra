@@ -118,6 +118,15 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
 
+  lazy val scalatraDatabinding = Project(
+    id = "scalatra-data-binding",
+    base = file("data-binding"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies += scalaz,
+      description := "Data binding and validation with scalaz for Scalatra"
+    )
+  ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
+
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
     base = file("jetty"),
@@ -274,6 +283,8 @@ object ScalatraBuild extends Build {
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.6"
 
     val logback = "ch.qos.logback" % "logback-classic" % "1.0.6"
+
+    val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
   }
 
   object Resolvers {

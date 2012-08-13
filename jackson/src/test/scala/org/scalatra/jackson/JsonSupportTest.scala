@@ -1,6 +1,7 @@
 package org.scalatra.jackson
 
 import org.scalatra.{json, ScalatraServlet}
+import com.fasterxml.jackson.databind.JsonNode
 
 class JsonSupportTest extends json.JsonSupportTestBase {
   override protected def expectedXml = """<?xml version='1.0' encoding='UTF-8'?>
@@ -28,6 +29,12 @@ class JsonSupportTestServlet extends ScalatraServlet with JacksonOutput {
   get("/json") {
     jsonMapper.createObjectNode.put("k1", "v1").put("k2", "v2")
   }
+
+
+  get("/nulls") {
+    null.asInstanceOf[JsonNode]
+  }
+
 }
 
 class JsonPTestServlet extends ScalatraServlet with JacksonOutput {
