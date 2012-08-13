@@ -1,7 +1,6 @@
 package org.scalatra
 
 import org.specs2.mutable.Specification
-import org.scalatra.ScalatraServlet
 
 import org.scalatra.test.specs2._
 

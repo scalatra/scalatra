@@ -9,13 +9,13 @@ import scala.util.control.Exception.allCatch
 /**
  * Support types and implicits for [[org.scalatra.common.conversions.TypeConverter]].
  */
-trait TypeConverterSupport {
+trait TypeConverterSupport[S] {
 
-  implicit def safe[T](f: String => T): TypeConverter[T] = (s) => allCatch opt f(s)
+  implicit def safe[T](f: S => T): TypeConverter[S, T] = (s) => allCatch opt f(s)
   /**
    * Implicit convert a `(String) => Option[T]` function into a `TypeConverter[T]`
    */
-  implicit def safeOption[T](f: String => Option[T]) = (s: String) => allCatch.withApply(_ => None)(f(s))
+  implicit def safeOption[T](f: S => Option[T]) = (s: S) => allCatch.withApply(_ => None)(f(s))
 }
 
 
@@ -23,35 +23,38 @@ trait TypeConverterSupport {
  * Implicit TypeConverter values for value types and some factory method for
  * dates and seqs.
  */
-trait DefaultImplicitConversions extends TypeConverterSupport {
+trait DefaultImplicitConversions extends TypeConverterSupport[String] {
 
-  implicit val stringToBoolean: TypeConverter[Boolean] = safe(_.toBoolean)
+  implicit val stringToBoolean: TypeConverter[String, Boolean] = safe(_.toBoolean)
 
-  implicit val stringToFloat: TypeConverter[Float] = safe(_.toFloat)
+  implicit val stringToFloat: TypeConverter[String, Float] = safe(_.toFloat)
 
-  implicit val stringToDouble: TypeConverter[Double] = safe(_.toDouble)
+  implicit val stringToDouble: TypeConverter[String, Double] = safe(_.toDouble)
 
-  implicit val stringToByte: TypeConverter[Byte] = safe(_.toByte)
+  implicit val stringToByte: TypeConverter[String, Byte] = safe(_.toByte)
 
-  implicit val stringToShort: TypeConverter[Short] = safe(_.toShort)
+  implicit val stringToShort: TypeConverter[String, Short] = safe(_.toShort)
 
-  implicit val stringToInt: TypeConverter[Int] = safe(_.toInt)
+  implicit val stringToInt: TypeConverter[String, Int] = safe(_.toInt)
 
-  implicit val stringToLong: TypeConverter[Long] = safe(_.toLong)
+  implicit val stringToLong: TypeConverter[String, Long] = safe(_.toLong)
 
-  implicit val stringToSelf: TypeConverter[String] = safe(s => s)
+  implicit val stringToSelf: TypeConverter[String, String] = safe(s => s)
 
-  def stringToDate(format: => String): TypeConverter[Date] = stringToDateFormat(new SimpleDateFormat(format))
 
-  def stringToDateFormat(format: => DateFormat): TypeConverter[Date] = safe(format.parse(_))
 
-  def stringToSeq[T](elementConverter: TypeConverter[T], separator: String = ","): TypeConverter[Seq[T]] = safe(s => s.split(separator).flatMap(elementConverter.apply(_)))
+  def stringToDate(format: => String): TypeConverter[String, Date] = stringToDateFormat(new SimpleDateFormat(format))
+
+  def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] = safe(format.parse(_))
+
+  def stringToSeq[T](elementConverter: TypeConverter[String, T], separator: String = ","): TypeConverter[String, Seq[T]] = safe(s => s.split(separator).flatMap(elementConverter.apply(_)))
 }
 
 object Conversions extends DefaultImplicitConversions {
 
+  private type StringTypeConverter[T] = TypeConverter[String, T]
   class ValConversion(source: String) {
-    def as[T: TypeConverter]: Option[T] = implicitly[TypeConverter[T]].apply(source)
+    def as[T: StringTypeConverter]: Option[T] = implicitly[TypeConverter[String, T]].apply(source)
   }
 
   class DateConversion(source: String) {
@@ -60,7 +63,8 @@ object Conversions extends DefaultImplicitConversions {
 
   class SeqConversion(source: String) {
 
-    def asSeq[T: TypeConverter](separator: String): Option[Seq[T]] = stringToSeq(implicitly[TypeConverter[T]], separator).apply(source)
+    def asSeq[T](separator: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] =
+      stringToSeq[T](tc, separator).apply(source)
 
   }
 
@@ -69,4 +73,10 @@ object Conversions extends DefaultImplicitConversions {
   implicit def stringToDateConversion(source: String) = new DateConversion(source)
 
   implicit def stringToSeqConversion(source: String) = new SeqConversion(source)
+}
+
+case class ValueHolder[T: Manifest](value: Option[T])
+trait ValueHolderImplicitConversions  {
+  private[scalatra] implicit def vh[T: Manifest](t: T): ValueHolder[T] = ValueHolder(Option(t))
+  private[scalatra] implicit def ovh[T: Manifest](t: Option[T]): ValueHolder[T] = ValueHolder(t)
 }

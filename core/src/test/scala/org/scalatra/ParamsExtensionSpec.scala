@@ -51,7 +51,7 @@ class ParamsExtensionSpec extends Specification {
 
     "implicitly find TypeConverter(s) for a custom type" in {
 
-      implicit val bogusConverter: TypeConverter[Bogus] = (s: String) => Some(Bogus(s))
+      implicit val bogusConverter: TypeConverter[String, Bogus] = (s: String) => Some(Bogus(s))
 
       val params: ParamsType = FakeParams(Map("a" -> "buffybuffy"))
 

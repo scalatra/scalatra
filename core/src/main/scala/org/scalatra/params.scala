@@ -16,7 +16,7 @@ trait ScalatraParamsImplicits {
 
   sealed class TypedParams(params: ParamsType) {
 
-    def getAs[T <: Any](name: String)(implicit tc: TypeConverter[T]): Option[T] = params.get(name).flatMap(tc.apply(_))
+    def getAs[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Option[T] = params.get(name).flatMap(tc.apply(_))
 
     def getAs[T <: Date](nameAndFormat: (String, String)): Option[Date] = getAs(nameAndFormat._1)(stringToDate(nameAndFormat._2))
 
@@ -24,7 +24,7 @@ trait ScalatraParamsImplicits {
 
   sealed class TypedMultiParams(multiParams: MultiParamsType) {
 
-    def getAs[T <: Any](name: String)(implicit tc: TypeConverter[T]): Option[Seq[T]] = multiParams.get(name) map {
+    def getAs[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] = multiParams.get(name) map {
       s =>
         s.flatMap(tc.apply(_))
     }

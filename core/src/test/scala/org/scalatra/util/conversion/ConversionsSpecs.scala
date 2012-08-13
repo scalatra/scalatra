@@ -9,7 +9,7 @@ class ConversionsSpecs extends Specification {
 
   "The TypeConverterSupport trait" should {
 
-    object WithImplicit extends TypeConverterSupport
+    object WithImplicit extends TypeConverterSupport[String]
 
 
     "provide an exception-safe TypeConverter that return None in case of exceptions" in {
@@ -29,7 +29,7 @@ class ConversionsSpecs extends Specification {
 
       val stringToA = (s: String) => A(s.toInt)
 
-      val converted: TypeConverter[A] = stringToA
+      val converted: TypeConverter[String, A] = stringToA
 
       converted("10") must_== Some(A(10))
     }
@@ -40,7 +40,7 @@ class ConversionsSpecs extends Specification {
 
       val stringToOptionA = (s: String) => Option(s).map((v: String) => A(v.toInt))
 
-      val converted: TypeConverter[A] = stringToOptionA
+      val converted: TypeConverter[String, A] = stringToOptionA
 
       converted("15") must_== Some(A(15))
     }
@@ -50,7 +50,7 @@ class ConversionsSpecs extends Specification {
 
     object Impl extends DefaultImplicitConversions {
 
-      def testFor[T](source: String, expected: Option[T])(implicit t: TypeConverter[T]) = {
+      def testFor[T](source: String, expected: Option[T])(implicit t: TypeConverter[String, T]) = {
         t(source) must_== expected
       }
     }
@@ -85,7 +85,7 @@ class ConversionsSpecs extends Specification {
 
       import Impl._
 
-      def testConversion[T](args: (String, Seq[T]))(implicit t: TypeConverter[T]) = {
+      def testConversion[T](args: (String, Seq[T]))(implicit t: TypeConverter[String, T]) = {
         val (source, expected) = args
         Impl.stringToSeq(t).apply(source).get must containAllOf(expected).inOrder
       }
@@ -94,7 +94,7 @@ class ConversionsSpecs extends Specification {
       testConversion("a,b,c,,e" -> List("a", "b", "c", "", "e"))
 
       case class B(v: Int)
-      implicit val bConv: TypeConverter[B] = (s: String) => Some(B(s.toInt * 2))
+      implicit val bConv: TypeConverter[String, B] = (s: String) => Some(B(s.toInt * 2))
 
       testConversion("1,2,3" -> List(B(2), B(4), B(6)))
     }
@@ -118,7 +118,7 @@ class ConversionsSpecs extends Specification {
 
       // A type and its type converter
       case class B(v: Int)
-      implicit val bConv: TypeConverter[B] = (s: String) => Some(B(s.toInt * 2))
+      implicit val bConv: TypeConverter[String, B] = (s: String) => Some(B(s.toInt * 2))
 
       "10".as[B] should beSome(B(20))
     }
@@ -141,7 +141,7 @@ class ConversionsSpecs extends Specification {
 
     "Pimp String type with asSeq[T] with an implicit TypeConverter" in {
       case class C(s: String)
-      implicit val cconv: TypeConverter[C] = (s: String) => Some(C(s))
+      implicit val cconv: TypeConverter[String, C] = (s: String) => Some(C(s))
 
       val b = "1,2,3".asSeq[C](",")
       b must beSome[Seq[C]]
