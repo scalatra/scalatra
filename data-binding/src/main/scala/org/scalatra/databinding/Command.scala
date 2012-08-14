@@ -1,7 +1,7 @@
 package org.scalatra
 package databinding
 
-import util.ValueReader
+import util.{MultiMap, ValueReader}
 
 /**
 * Trait that identifies a ''Command object'', i.e. a Scala class instance which fields are bound to external parameters
@@ -62,6 +62,18 @@ trait Command extends CommandBindingSyntax {
    * Create a binding with the given [[org.scalatra.command.field.Field]].
    */
   def bind[T: Manifest](field: String): Binding[T] = replace(CommandBinding(field))
+  def bind[T: Manifest](b: Binding[T]): Binding[T] = {
+    val converted: Binding[T] = b match {
+      case c: ValidatedBinding[_, _] => new ValidatedCommandBinding(c.binding.asInstanceOf[ValidatableBinding[_, T]])
+      case _: ValidatableBinding[_, _] =>
+        val c = b.asInstanceOf[ValidatableBinding[_, T]]
+        BoundCommandBinding(c.original, c.value, c.binding)
+      case _: CommandBinding[_] | _: BoundCommandBinding[_, _] | _: ValidatedCommandBinding[_, _] => b
+      case _: Binding[_] => new CommandBinding(b.name, b.validators, b.defaultValue)
+
+    }
+    replace(converted)
+  }
 
   /**
    * Add an action that will be evaluated before field binding occurs.
@@ -84,15 +96,23 @@ trait Command extends CommandBindingSyntax {
    * Also execute any ''before'' and ''after'' action eventually registered.
    *
    */
-   def bindTo[T](data: T, params: MultiParams, headers: Map[String, String] = Map.empty, paramsOnly: Boolean = true)(implicit mf: Manifest[T], reader: ValueReader[T], multiParams: ValueReader[MultiParams]): this.type = {
+   def bindTo[T](
+          data: T,
+          params: MultiParams = MultiMap.empty,
+          headers: Map[String, String] = Map.empty,
+          paramsOnly: Boolean = false)(
+          implicit
+            mf: Manifest[T],
+            reader: T => ValueReader[T],
+            multiParams: MultiParams => ValueReader[MultiParams]): this.type = {
     doBeforeBindingActions
     bindings foreach { binding =>
       this match {
-        case d: ForceFromParams if d.namesToForce.contains(binding.name) => multiParams.read(binding.name)
-        case _ if paramsOnly => multiParams.read(binding.name)
-        case _ => reader.read(binding.name)
+        case d: ForceFromParams if d.namesToForce.contains(binding.name) => params.read(binding.name)
+        case d: ForceFromHeaders if d.namesToForce.contains(binding.name) => headers.get(binding.name)
+        case _ if paramsOnly => params.read(binding.name)
+        case _ => data.read(binding.name)
       }
-
     }
     doAfterBindingActions
     this
@@ -110,6 +130,11 @@ trait Command extends CommandBindingSyntax {
 }
 
 trait ForceFromParams { self: Command =>
+
+  def namesToForce: Set[String]
+}
+
+trait ForceFromHeaders { self: Command =>
 
   def namesToForce: Set[String]
 }

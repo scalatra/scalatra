@@ -8,6 +8,7 @@ import scalaz._
 import Scalaz._
 import org.joda.time.DateTime
 
+class BindingException(message: String) extends ScalatraException(message)
 trait Binding[T] {
 
   implicit def valueManifest: Manifest[T]
@@ -23,21 +24,34 @@ trait Binding[T] {
   def validateWith(validators: BindingValidator[T]*): Binding[T]
 
   def canValidate: Boolean
-  def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: TypeConverter[S, T]): Binding[T] = this
+  def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T]
 
   override def hashCode() = 13 + 17 * name.hashCode()
+
+  def transform(endo: T => T): Binding[T]
 
   override def equals(obj: Any) = obj match {
     case b : Binding[_] => b.name == this.name
     case _ => false
   }
 
+
+
 }
 
 trait ValidatableBinding[S, T] extends Binding[T] {
+  def binding: Binding[T]
   def original: S
   def value: Option[T]
   def validate: ValidatedBinding[S, T]
+//  def map[R: Manifest](endo: T => R): ValidatableBinding[S, R]
+  def transform(endo: T => T): ValidatableBinding[S, T]
+  def apply[V](original: Option[V])(implicit zero: Zero[V], convert: TypeConverter[V, T]): ValidatableBinding[V, T] =
+    this.asInstanceOf[ValidatableBinding[V, T]]
+
+  def asBound: ValidatableBinding[S, T] = asBound[S]
+
+  override def asBound[V]: ValidatableBinding[V, T] = this.asInstanceOf[ValidatableBinding[V, T]]
 }
 
 object BoundBinding {
@@ -69,26 +83,44 @@ class BoundBinding[S, T](val original: S, val value: Option[T], val binding: Bin
   implicit def valueManifest: Manifest[T] = binding.valueManifest
 
   def validate: ValidatedBinding[S, T] = new ValidatedBindingDecorator(this)
+
+  def transform(endo: T => T): ValidatableBinding[S, T] = copy(value = value map endo)
+
+//  def map[R: Manifest](endo: (T) => R): ValidatableBinding[S, R] =
+//    BoundBinding(original, value map endo, Binding(name, endo(defaultValue)))
 }
 
+class BasicBinding[T](val name: String, val validators: Seq[Validator[T]] = Nil, val defaultValue: T = null.asInstanceOf[T], transformations: Seq[T => T] = Nil)(implicit val valueManifest: Manifest[T]) extends Binding[T] {
 
-class BasicBinding[T](val name: String, val validators: Seq[Validator[T]] = Nil, val defaultValue: T = null.asInstanceOf[T])(implicit val valueManifest: Manifest[T]) extends Binding[T] {
   val value: Option[T] = None
+
   def validateWith(bindingValidators: BindingValidator[T]*): Binding[T] = {
     copy(validators = validators ++ bindingValidators.map(_.apply(name)))
   }
 
-
   def withDefault(default: T): Binding[T] = copy(defaultValue = default)
 
-  def copy(name: String = name, validators: Seq[Validator[T]] = validators, defaultValue: T = defaultValue): Binding[T] =
-    new BasicBinding(name, validators, defaultValue)
+  def copy(name: String = name, validators: Seq[Validator[T]] = validators, defaultValue: T = defaultValue, transformations: Seq[T => T] = transformations): Binding[T] =
+    new BasicBinding(name, validators, defaultValue, transformations)
 
-  override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: TypeConverter[S, T]): Binding[T] =
-    BoundBinding(~original, convert(~original), this)
+  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] = {
+    val endo = transformations.reduce(_ andThen _)
+    BoundBinding(~original, convert(~original) map endo, this)
+  }
 
   def canValidate: Boolean = false
 
+  def transform(endo: T => T): Binding[T] = copy(transformations = transformations :+ endo)
+
+//  def map[R: Manifest](endo: (T) => R): Binding[R] = {
+//    val thisBinding = this
+//    val newValidators = validators.head.apply(Some("")).map(endo)
+//    new BasicBinding[R](name, validators, endo(defaultValue)) {
+//      override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: (S) => Option[R]): ValidatableBinding[S, R] = {
+//        thisBinding.apply(original) map endo
+//      }
+//    }
+//  }
 }
 
 object BoundCommandBinding {
@@ -109,6 +141,11 @@ class BoundCommandBinding[S, T](original: S, value: Option[T], binding: Binding[
 
   override def equals(obj: Any) = binding.equals(obj)
 
+
+//
+//  override def map[R: Manifest](endo: (T) => R): ValidatableBinding[S, R] = {
+//    (command replace BoundCommandBinding(original, value map endo, Binding(name, endo(defaultValue)))).asInstanceOf[ValidatableBinding[S, R]]
+//  }
 }
 
 object CommandBinding {
@@ -119,15 +156,28 @@ object CommandBinding {
 class CommandBinding[T](
         name: String,
         validators: Seq[Validator[T]] = Nil,
-        defaultValue: T = null.asInstanceOf[T])(implicit valueManifest: Manifest[T], command: Command)
-          extends BasicBinding[T](name, validators, defaultValue) {
-  override def copy(name: String, validators: Seq[_root_.org.scalatra.validation.Validator[T]], defaultValue: T): Binding[T] = {
-    command replace new CommandBinding(name, validators, defaultValue)
+        defaultValue: T = null.asInstanceOf[T],
+        transformations: Seq[T => T] = Nil)(implicit valueManifest: Manifest[T], command: Command)
+          extends BasicBinding[T](name, validators, defaultValue, transformations) {
+
+  override def copy(name: String = name, validators: Seq[Validator[T]] = validators, defaultValue: T = defaultValue, transformations: Seq[T => T] = transformations): Binding[T] = {
+    command replace new CommandBinding(name, validators, defaultValue, transformations)
   }
 
-  override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: TypeConverter[S, T]): Binding[T] =
+  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] =
     // Strip command registration from here on out, the bound command takes over for that task
-    BoundCommandBinding(~original, convert(~original), new BasicBinding(name, validators, defaultValue))
+    BoundCommandBinding(~original, convert(~original) map transformations.reduce(_ andThen _), new BasicBinding(name, validators, defaultValue, transformations))
+
+//
+//  def map[R: Manifest](endo: (T) => R): Binding[R] = {
+//    val thisBinding = this
+//    new CommandBinding[R](name, validators, endo(defaultValue)) {
+//      override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: (S) => Option[R]): ValidatableBinding[S, R] = {
+//        thisBinding.apply(original) map endo
+//      }
+//    }
+//  }
+
 }
 
 /**
@@ -135,6 +185,7 @@ class CommandBinding[T](
 */
 trait ValidatedBinding[S, T] extends ValidatableBinding[S, T] {
 
+  def binding: ValidatableBinding[S, T]
   /**
    * Result of command. Either one of @Rejected or @Accepted
    */
@@ -149,11 +200,18 @@ trait ValidatedBinding[S, T] extends ValidatableBinding[S, T] {
    * The rejected message, if any.
    */
   def rejected = validation.fail.toOption
+
+//  def map[R: Manifest](endo: T => R): ValidatedBinding[S, R]
+//
+  def transform(endo: T => T): ValidatedBinding[S, T]
+
+
 }
 
-class ValidatedBindingDecorator[S, T](binding: ValidatableBinding[S, T]) extends ValidatedBinding[S, T]  {
+class ValidatedBindingDecorator[S, T](val binding: ValidatableBinding[S, T]) extends ValidatedBinding[S, T]  {
 
-  lazy val validation = validators.find(_.apply(value).isFailure).map(_.apply(value)).getOrElse(value.getOrElse(null.asInstanceOf[T]).success)
+  lazy val validation =
+    validators.find(_.apply(value).isFailure).map(_.apply(value)).getOrElse(value.getOrElse(null.asInstanceOf[T]).success)
 
   def name = binding.name
 
@@ -166,7 +224,6 @@ class ValidatedBindingDecorator[S, T](binding: ValidatableBinding[S, T]) extends
   override def equals(obj: Any) = binding.equals(obj)
 
   def validators: Seq[Validator[T]] = binding.validators
-
 
   implicit def valueManifest: Manifest[T] = binding.valueManifest
 
@@ -184,11 +241,22 @@ class ValidatedBindingDecorator[S, T](binding: ValidatableBinding[S, T]) extends
 
   def validate: ValidatedBinding[S, T] = copy(binding)
 
+  def transform(endo: T => T): ValidatedBinding[S, T] = copy(binding transform endo)
+
+//
+//  def map[R: Manifest](endo: (T) => R): ValidatedBinding[S, R] = {
+//    new ValidatedBindingDecorator(binding.map(endo)) {
+//      override lazy val validation: FieldValidation[R] = ValidatedBindingDecorator.this.validation map endo
+//    }
+//  }
 }
 
 class ValidatedCommandBinding[S, T](binding: ValidatableBinding[S, T])(implicit command: Command) extends ValidatedBindingDecorator(binding) {
   override def copy(binding: ValidatableBinding[S, T]): ValidatedBinding[S, T] =
     (command replace new ValidatedCommandBinding(binding)).asInstanceOf[ValidatedBinding[S, T]]
+
+//  override def map[R: Manifest](endo: (T) => R): ValidatedBinding[S, R] =
+//    (command replace new ValidatedCommandBinding(binding map endo)).asInstanceOf[ValidatedBinding[S, R]]
 }
 
 object Binding {
@@ -199,6 +267,9 @@ object Binding {
 }
 
 trait BindingSyntax extends BindingImplicits {
+//  def asGeneric[S, T](name: String, f: (S) => T)(implicit mf: Manifest[T], tc: TypeConverter[S, T]): Binding[T] =
+//    new GenericBasicBinding(name)
+
   implicit def asType[T:Manifest](name: String): Binding[T] = Binding[T](name)
 
   def asBoolean(name: String): Binding[Boolean] = Binding[Boolean](name)
@@ -214,10 +285,23 @@ trait BindingSyntax extends BindingImplicits {
   def asSeq[T:Manifest](name: String): Binding[Seq[T]] = Binding[Seq[T]](name)
 }
 
+//object BindingSyntax extends BindingSyntax
+//class GenericBasicBinding[V, T: Manifest](name: String, process: V => T)(implicit mf: Manifest[T]) extends BasicBinding[T](name) {
+//  override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: (S) => Option[T]): Binding[T] =
+//    BoundBinding(~original, original map (convert andThen process), this)
+//}
+//class GenericCommandBinding[T](name: String, process: T => T)(implicit mf: Manifest[T], command: Command) extends CommandBinding[T](name) {
+//  override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: (S) => Option[T]): Binding[T] = {
+//    BoundCommandBinding(~original, original map (convert andThen process), new GenericBasicBinding[T](this.name, process))
+//  }
+//}
 trait CommandBindingSyntax extends BindingImplicits {
 
   protected implicit def thisCommand: Command
   implicit def asType[T:Manifest](name: String): Binding[T] = CommandBinding[T](name)
+
+//  def asGeneric[S, T](name: String, f: (S) => T)(implicit mf: Manifest[T], tc: TypeConverter[S, T]): Binding[T] =
+//    new GenericCommandBinding[T](name, (s: S) => tc(s))
 
   def asBoolean(name: String): Binding[Boolean] = CommandBinding[Boolean](name)
   def asByte(name: String): Binding[Byte] = CommandBinding[Byte](name)
