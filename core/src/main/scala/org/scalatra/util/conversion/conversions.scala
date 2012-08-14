@@ -25,7 +25,10 @@ trait TypeConverterSupport[S] {
  */
 trait DefaultImplicitConversions extends TypeConverterSupport[String] {
 
-  implicit val stringToBoolean: TypeConverter[String, Boolean] = safe(_.toBoolean)
+  implicit val stringToBoolean: TypeConverter[String, Boolean] = safe { s => s.toUpperCase match {
+    case "ON" | "TRUE" | "OK" | "1" | "CHECKED" => true
+    case _ => false
+  } }
 
   implicit val stringToFloat: TypeConverter[String, Float] = safe(_.toFloat)
 

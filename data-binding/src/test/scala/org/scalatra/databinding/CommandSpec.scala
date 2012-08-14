@@ -1,30 +1,30 @@
 package org.scalatra
 package databinding
 
-import org.specs2.mutable.Specification
-import json.JsonSupport
-import org.scalatra.validation.ValidationSupport
-trait BindingTemplate {
-
-  import BindingImplicits._
-
-  val upperCaseName = asGeneric("name", (_: String).toUpperCase)
-
-  val lowerCaseSurname = asGeneric("surname", (_: String).toLowerCase)
-
-  val age = asType[Int]("age") // explicit
-
-  val cap: Binding[Int] = "cap" // implicit
-
-}
-
-class WithBinding extends Command with BindingTemplate {
-
-  val a = bind(upperCaseName)
-
-  val lower = bind(lowerCaseSurname)
-}
-
+//import org.specs2.mutable.Specification
+//import json.JsonSupport
+//import org.scalatra.validation.ValidationSupport
+//trait BindingTemplate {
+//
+//  import BindingImplicits._
+//
+//  val upperCaseName = asGeneric("name", (_: String).toUpperCase)
+//
+//  val lowerCaseSurname = asGeneric("surname", (_: String).toLowerCase)
+//
+//  val age = asType[Int]("age") // explicit
+//
+//  val cap: Binding[Int] = "cap" // implicit
+//
+//}
+//
+//class WithBinding extends Command with BindingTemplate {
+//
+//  val a = bind(upperCaseName)
+//
+//  val lower = bind(lowerCaseSurname)
+//}
+//
 
 //class CommandSpec extends Specification {
 //

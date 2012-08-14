@@ -48,7 +48,9 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(
         servletApiProvided,
         grizzledSlf4j,
-        backchatRl
+        backchatRl,
+        jodaTime,
+        jodaConvert
       ),
       description := "The core Scalatra framework"
     )
@@ -126,7 +128,7 @@ object ScalatraBuild extends Build {
         "commons-validator"       % "commons-validator"  % "1.4.0",
         "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4"
       ),
-      libraryDependencies += scalaz,
+      libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       description := "Data binding and validation with scalaz for Scalatra"
     )
   ) dependsOn(
@@ -158,7 +160,9 @@ object ScalatraBuild extends Build {
         commonsLang3,
         specs2 % "test",
         httpClient,
-        httpMime
+        httpMime,
+        jodaTime % "provided",
+        jodaConvert % "provided"
       ),
       description := "The abstract Scalatra test framework"
     )
@@ -292,6 +296,10 @@ object ScalatraBuild extends Build {
     val logback = "ch.qos.logback" % "logback-classic" % "1.0.6"
 
     val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
+
+    val jodaTime = "joda-time" % "joda-time" % "2.1"
+
+    val jodaConvert = "org.joda" % "joda-convert" % "1.2"
   }
 
   object Resolvers {

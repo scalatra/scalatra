@@ -2,166 +2,151 @@ package org.scalatra
 package databinding
 
 import org.scalatra.util.conversion._
+import org.scalatra.validation._
 
 import scala.math._
 import org.specs2.mutable.Specification
 import java.util.Date
 import java.text.{SimpleDateFormat, DateFormat}
+import scalaz._
+import Scalaz._
+import Conversions._
+import org.joda.time.{DateTimeZone, DateTime}
 
 class BindingSpec extends Specification {
 
-  "BasicBinding class " should {
-
-    case class BasicBindingTester[T: Manifest](_name: String, parse:(String) => T) extends BasicBinding[T](_name)(parse.andThen((x:T) => Option(x)))
-
-    "provide a apply() method that updates 'original'" in {
-
-      val updater = new BasicBindingTester[String]("name", (s: String) => null)
-      updater.original must beNull
-
-      val newValue = System.currentTimeMillis().toString
-      updater(newValue)
-
-      updater.original must_== newValue
+  "A BasicBinding" should {
+    "have a name" in {
+      Binding[String]("blah").name must_== "blah"
     }
-
-    "delegate to TypeConverter conversions from String to specific type T" in {
-
-      val stringToDate = new BasicBindingTester[Date]("date", (s: String) => new Date(s.toLong))
-      val now = new Date
-
-      stringToDate.original = now.getTime.toString
-
-      stringToDate.converted must beSome(now)
+    "begin the building process with a value of None" in {
+      newBinding[String].value must beNone
     }
-
+    "begin the building process with empty validators" in {
+      newBinding[String].validators must beEmpty
+    }
+    "begin the building process unvalidatable" in {
+      newBinding[String].canValidate must beFalse
+    }
+    "allow adding validators" in {
+      val b = newBinding[String].validateWith(_ => { case s => s.getOrElse("").success[FieldError] })
+      b.validators must not(beEmpty)
+    }
+    "bind to a string" in {
+      val b = newBinding[String]
+      b("Hey".some).value must beSome("Hey")
+    }
   }
 
-  object ExistingBindings extends BindingImplicits
+  "A BoundBinding" should {
+    val binding = newBinding[String]
+
+    "forward the binding name" in {
+      val b = binding("blah".some)
+      b must beAnInstanceOf[BoundBinding[String, String]]
+      b.name must_== binding.name
+    }
+
+    "forward the validators" in {
+      val b = binding("blah".some)
+      b must beAnInstanceOf[BoundBinding[String, String]]
+      b.validators must_== binding.validators
+    }
+
+    "have the bound value" in {
+      val b = binding("blah".some)
+      b.value must beSome("blah")
+    }
+
+    "allow adding validators" in {
+      val b = binding("blah".some)
+      val validator: Validator[String] = {case s => s.getOrElse("").success[FieldError]}
+      b.validateWith(_ => validator).validators.size must_== (binding.validators.size + 1)
+    }
+
+    "indicate that validation is possible" in {
+      binding("blah".some).canValidate must beTrue
+    }
+  }
 
   "BindingImplicits" should {
 
-    import ExistingBindings._
-
+    import BindingImplicits._
     "provide Binding[Boolean]" in {
-
-      val field = testImplicitBindingType[Boolean]
-      setAndCheckValue(field, true)
+      testBinding[Boolean](true)
     }
 
     "provide Binding[Float]" in {
-      val field = testImplicitBindingType[Float]
-      val num = random.toFloat
-      setAndCheckValue(field, num)
+      testBinding[Float](random.toFloat)
     }
 
     "provide Binding[Double]" in {
-      val field = testImplicitBindingType[Double]
-      val num = random.toDouble
-      setAndCheckValue(field, num)
+      testBinding[Double](random)
     }
 
     "provide Binding[Int]" in {
-      val field = testImplicitBindingType[Int]
-      val num = random.toInt
-      setAndCheckValue(field, num)
+      testBinding[Int](random.toInt)
     }
 
     "provide Binding[Byte]" in {
-      val field = testImplicitBindingType[Byte]
-      val num = random.toByte
-      setAndCheckValue(field, num)
+      testBinding[Byte](random.toByte)
     }
 
     "provide Binding[Short]" in {
-      val field = testImplicitBindingType[Short]
-      val num = random.toShort
-      setAndCheckValue(field, num)
+      testBinding[Short](random.toShort)
     }
 
     "provide Binding[Long]" in {
-      val field = testImplicitBindingType[Long]
-      val num = random.toLong
-      setAndCheckValue(field, num)
+      testBinding[Long](random.toLong)
     }
 
-    "provide Binding[String] that should treat blank strings an None" in {
-      val field = newBinding[String](asString(_))
-      field("   ")
-      field.converted must beNone
+    "provide Binding[DateTime] for a ISO8601 date" in {
+      testDateTimeBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Binding[String] that should treat blank strings as Some() if required" in {
-      val field = newBinding[String](asString(_, false))
-      field("   ")
-      field.converted must beSome[String]
-      field.converted.get must_== "   "
+    "provide Binding[DateTime] for a ISO8601 date without millis" in {
+      testDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Binding[String] with an equivalent Tuple argument syntax" in {
-      val field = newBinding[String]((s: String) => asString(s -> false))
-      field("   ")
-      field.converted must beSome[String]
-      field.converted.get must_== "   "
+    "provide Binding[DateTime] for a HTTP date" in {
+      testDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-    "provide Binding[Date] with a default DateFormat" in {
-      val field = newBinding[Date](asDate(_))
-      val now = newDateWithFormattedString(dateFormatFor())
-      field(now._2)
-      field.converted must beSome[Date]
-      field.converted.get must_== now._1
+    "provide Binding[Date] for a ISO8601 date" in {
+      testDateBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Binding[Date] with a given date format" in {
-      val format = "yyyyMMddHHmmsss"
-      val field = newBinding[Date](asDate(_, format))
-      val now = newDateWithFormattedString(dateFormatFor(format))
-      field(now._2)
-      field.converted must beSome[Date]
-      field.converted.get must_== now._1
+    "provide Binding[Date] for a ISO8601 date without millis" in {
+      testDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Binding[Date] with an equivalent Tuple-based argument syntax" in {
-      val format = "yyyyMMddHHmmsss"
-      val field = newBinding[Date]((s: String) => ExistingBindings.asDateWithStringFormat(s -> format))
-      val now = newDateWithFormattedString(dateFormatFor(format))
-      field(now._2)
-      field.converted must beSome[Date]
-      field.converted.get must_== now._1
+    "provide Binding[Date] for a HTTP date" in {
+      testDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
   }
 
-  def dateFormatFor(format: String = null): DateFormat = if (format == null) DateFormat.getInstance() else new SimpleDateFormat(format)
-
-  def newDateWithFormattedString(format: DateFormat) = {
-    val date = new Date
-    (format.parse(format.format(date)) -> format.format(date))
+  def testDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], converter: TypeConverter[String, DateTime]) = {
+    val field = newBinding[DateTime]
+    field.value must beNone
+    val v = transform(new DateTime(DateTimeZone.UTC))
+    val s = v.toString(format.dateTimeFormat)
+    field(Some(s)).value must beSome(v)
   }
-
-
-  def testImplicitBindingType[T: TypeConverter] = {
-
-    import ExistingBindings._
-
-    val fieldname = randomFieldName
-
-    val field: Binding[T] = fieldname
-
-    field.name must_== fieldname
-    field must beAnInstanceOf[Binding[T]]
-
-    field
+  def testDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], converter: TypeConverter[String, Date]) = {
+    val field = newBinding[Date]
+    field.value must beNone
+    val v = transform(new DateTime(DateTimeZone.UTC))
+    val s = v.toString(format.dateTimeFormat)
+    field(Some(s)).value must beSome(v.toDate)
   }
-
-  def newBinding[T](f: (String) => Binding[T]): Binding[T] = f(randomFieldName)
-
-  def setAndCheckValue[T](field: Binding[T], value: T) = {
-    field.original must beNull
-    field(value.toString)
-    field.converted.get must_== value
+  def testBinding[T](value: => T)(implicit mf: Manifest[T], converter: TypeConverter[String, T]) = {
+    val field = newBinding[T]
+    field.value must beNone
+    val v = value
+    field(Some(v.toString)).value must beSome(v)
   }
+  def newBinding[T:Manifest]: Binding[T] = Binding[T](randomFieldName)
 
   def randomFieldName = "field_" + random
 }
