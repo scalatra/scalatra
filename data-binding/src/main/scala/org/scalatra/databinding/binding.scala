@@ -17,7 +17,7 @@ trait BindingSupport extends ParamsValueReaderProperties with JsonValueReaderPro
   }
 }
 
-trait Binding[T] {
+abstract class Binding[T] {
 
   def name: String
   def value: Option[T]
@@ -25,13 +25,13 @@ trait Binding[T] {
 
   override def toString() = "Binding(name: %s)".format(name)
   
-  def validateWith(validators: BindingValidator[_]*): Binding[T]
+  def validateWith(validators: BindingValidator[T]*): Binding[T]
 
   def canValidate: Boolean
 
 }
 
-case class BoundBinding[S: Manifest, T: Manifest](original: S, value: Option[T], binding: Binding[T]) extends Binding[T] with BindingValidators[T] {
+case class BoundBinding[S: Manifest, T: Manifest](original: S, value: Option[T], binding: Binding[T]) extends Binding[T] {
   def name: String = binding.name
 
   override def hashCode(): Int = 41 * (41 * (41 + name.##) + original.##) + value.##
@@ -40,18 +40,26 @@ case class BoundBinding[S: Manifest, T: Manifest](original: S, value: Option[T],
   def validateWith(bindingValidators: BindingValidator[T]*): Binding[T] = {
     copy(binding = binding.validateWith(bindingValidators:_*))
   }
+
+  def canValidate: Boolean = true
+
+  def validators: Seq[_root_.org.scalatra.validation.Validator[T]] = binding.validators
 }
 
 
-case class BasicBinding[T: Manifest](name: String, validators: Seq[Validator[T]] = Nil) extends Binding[T] with BindingValidators[T] {
+class BasicBinding[T: Manifest](val name: String, val validators: Seq[Validator[T]] = Nil) extends Binding[T] {
   val value: Option[T] = None
   def validateWith(bindingValidators: BindingValidator[T]*): Binding[T] = {
     copy(validators = validators ++ bindingValidators.map(_.apply(name)))
   }
 
-  def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): Binding[T] =
+  def copy(name: String = name, validators: Seq[Validator[T]] = validators) = new BasicBinding(name, validators)
+
+  def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: TypeConverter[S, T]): Binding[T] =
     BoundBinding(~original, convert(~original), this)
-} 
+
+  def canValidate: Boolean = false
+}
 
 
 object Binding {
@@ -67,58 +75,84 @@ object Binding {
 */
 trait BindingImplicits extends DefaultImplicitConversions {
 
-  def asType[T](name: String): Binding[T] = Binding[T](name)
+  def asType[T:Manifest](name: String): Binding[T] = Binding[T](name)
 
 }
 
 object BindingImplicits extends BindingImplicits
 
 import scala.util.matching.Regex
-trait BindingValidators[T] { self: Binding[T] =>
 
-  def validate[TValue](validate: TValue => Boolean) = validateWith(BindingValidators.validate(validate))
-  def notBlank: Binding[T] = validateWith(BindingValidators.nonEmptyString)
-  def required: Binding[T] = validateWith(BindingValidators.notNull)
+class ValidatableSeq[T <: Seq[_]](b: Binding[T]) {
+  def nonEmpty: Binding[T] =
+    b.validateWith(BindingValidators.nonEmptyCollection)
+}
 
-  def nonEmpty[TResult <: Seq[_]]: Binding[T] =
-    validateWith(BindingValidators.nonEmptyCollection)
 
-  def validEmail: Binding[T] = validateWith(BindingValidators.validEmail)
+class ValidatableOrdered[T <% Ordered[T]](b: Binding[T]) {
+  def greaterThan(min: T): Binding[T] =
+    b.validateWith(BindingValidators.greaterThan(min))
 
-  def validAbsoluteUrl(allowLocalHost: Boolean, schemes: String*): Binding[T] =
-    validateWith(BindingValidators.validAbsoluteUrl(allowLocalHost, schemes:_*))
+  def lessThan(max: T): Binding[T] =
+    b.validateWith(BindingValidators.lessThan(max))
 
-  def validUrl(allowLocalHost: Boolean, schemes: String*): Binding[T] =
-    validateWith(BindingValidators.validUrl(allowLocalHost, schemes:_*))
+  def greaterThanOrEqualTo(min: T): Binding[T] =
+    b.validateWith(BindingValidators.greaterThanOrEqualTo(min))
 
-  def validForFormat(regex: Regex, messageFormat: String = "%s is invalid."): Binding[T] =
-    validateWith(BindingValidators.validFormat(regex, messageFormat))
+  def lessThanOrEqualTo(max: T): Binding[T] =
+    b.validateWith(BindingValidators.lessThanOrEqualTo(max))
 
-  def validForConfirmation[V](confirmationFieldName: String, confirmationValue: => V): Binding[T] =
-    validateWith(BindingValidators.validConfirmation(confirmationFieldName, confirmationValue))
+}
 
-  def greaterThan[V <% Ordered[V]](min: V): Binding[T] =
-    validateWith(BindingValidators.greaterThan(min))
+class ValidatableAnyBinding(b: Binding[AnyRef]) {
+  def required: Binding[AnyRef] = b.validateWith(BindingValidators.notNull)
+}
 
-  def lessThan[V <% Ordered[V]](max: V): Binding[T] =
-    validateWith(BindingValidators.lessThan(max))
+class ValidatableGenericBinding[T](b: Binding[T]) {
+  def oneOf(expected: T*): Binding[T] =
+    b.validateWith(BindingValidators.oneOf(expected:_*))
 
-  def greaterThanOrEqualTo[V <% Ordered[V]](min: V): Binding[T] =
-    validateWith(BindingValidators.greaterThanOrEqualTo(min))
+  def validate(validate: T => Boolean): Binding[T] = b.validateWith(BindingValidators.validate(validate))
+}
 
-  def lessThanOrEqualTo[V <% Ordered[V]](max: V): Binding[T] =
-    validateWith(BindingValidators.lessThanOrEqualTo(max))
+class ValidatableStringBinding(b: Binding[String]) {
+  def notBlank: Binding[String] = b.validateWith(BindingValidators.nonEmptyString)
 
-  def minLength(min: Int): Binding[T] =
-    validateWith(BindingValidators.minLength(min))
+  def validEmail: Binding[String] = b.validateWith(BindingValidators.validEmail)
 
-  def oneOf[TResult](expected: TResult*): Binding[T] =
-    validateWith(BindingValidators.oneOf(expected:_*))
+  def validAbsoluteUrl(allowLocalHost: Boolean, schemes: String*): Binding[String] =
+    b.validateWith(BindingValidators.validAbsoluteUrl(allowLocalHost, schemes:_*))
 
-  def enumValue(enum: Enumeration): Binding[T] =
-    validateWith(BindingValidators.enumValue(enum))
+  def validUrl(allowLocalHost: Boolean, schemes: String*): Binding[String] =
+    b.validateWith(BindingValidators.validUrl(allowLocalHost, schemes:_*))
+
+  def validForFormat(regex: Regex, messageFormat: String = "%s is invalid."): Binding[String] =
+    b.validateWith(BindingValidators.validFormat(regex, messageFormat))
+
+  def validForConfirmation(confirmationFieldName: String, confirmationValue: String): Binding[String] =
+    b.validateWith(BindingValidators.validConfirmation(confirmationFieldName, confirmationValue))
+
+
+  def minLength(min: Int): Binding[String] =
+    b.validateWith(BindingValidators.minLength(min))
+
+
+  def enumValue(enum: Enumeration): Binding[String] =
+    b.validateWith(BindingValidators.enumValue(enum))
+}
+trait BindingValidatorImplicits {
+
+
+
+  implicit def validatableStringBinding(b: Binding[String]) = new ValidatableStringBinding(b)
+  implicit def validatableSeqBinding[T <: Seq[_]](b: Binding[T]) = new ValidatableSeq(b)
+  implicit def validatableGenericBinding[T](b: Binding[T]) = new ValidatableGenericBinding(b)
+  implicit def validatableAnyBinding(b: Binding[AnyRef]) = new ValidatableAnyBinding(b)
+  implicit def validatableOrderedBinding[T <% Ordered[T]](b: Binding[T]) = new ValidatableOrdered(b)
   
-} 
+}
+
+object BindingValidatorImplicits extends BindingValidatorImplicits
 
 object BindingValidators { 
 
@@ -126,7 +160,7 @@ object BindingValidators {
   
   
   def validate[TValue](validate: TValue => Boolean): BindingValidator[TValue] = (s: String) => {
-    case o => Validators.validate(s, validate)
+    case o => Validators.validate(s, validate).validate(o getOrElse null.asInstanceOf[TValue])
   }
   
   def nonEmptyString: BindingValidator[String] = (s: String) => {
@@ -138,7 +172,7 @@ object BindingValidators {
   }
 
   def nonEmptyCollection[TResult <: Seq[_]]: BindingValidator[TResult] = (s: String) =>{
-    case s => Validation.nonEmptyCollection(s, s getOrElse Nil.asInstanceOf[TResult])
+    case v => Validation.nonEmptyCollection(s, v getOrElse Nil.asInstanceOf[TResult])
   }
 
   def validEmail: BindingValidator[String] = (s: String) =>{
@@ -185,6 +219,5 @@ object BindingValidators {
     case value => Validators.oneOf(s, expected:_*).validate(value getOrElse Nil.asInstanceOf[TResult])
   }
 
-  def enumValue(enum: Enumeration): BindingValidator[String] = (s: String) => 
-    oneOf(s, enum.values.map(_.toString).toSeq: _*)
+  def enumValue(enum: Enumeration): BindingValidator[String] = oneOf(enum.values.map(_.toString).toSeq:_*)
 }

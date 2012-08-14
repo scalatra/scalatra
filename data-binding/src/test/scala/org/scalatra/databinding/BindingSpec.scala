@@ -12,7 +12,7 @@ class BindingSpec extends Specification {
 
   "BasicBinding class " should {
 
-    case class BasicBindingTester[T](_name: String, parse:(String) => T) extends BasicBinding[T](_name)(parse.andThen((x:T) => Option(x)))
+    case class BasicBindingTester[T: Manifest](_name: String, parse:(String) => T) extends BasicBinding[T](_name)(parse.andThen((x:T) => Option(x)))
 
     "provide a apply() method that updates 'original'" in {
 
