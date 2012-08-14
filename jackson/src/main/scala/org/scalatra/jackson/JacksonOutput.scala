@@ -1,7 +1,7 @@
 package org.scalatra
 package jackson
 
-import com.fasterxml.jackson.databind.{MapperFeature, SerializationFeature, ObjectMapper, JsonNode}
+import com.fasterxml.jackson.databind._
 import java.io.Writer
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper

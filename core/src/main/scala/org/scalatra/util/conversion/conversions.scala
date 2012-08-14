@@ -11,11 +11,11 @@ import scala.util.control.Exception.allCatch
  */
 trait TypeConverterSupport[S] {
 
-  implicit def safe[T](f: S => T): TypeConverter[S, T] = (s) => allCatch opt f(s)
+  implicit protected[conversion] def safe[T](f: S => T): TypeConverter[S, T] = (s) => allCatch opt f(s)
   /**
    * Implicit convert a `(String) => Option[T]` function into a `TypeConverter[T]`
    */
-  implicit def safeOption[T](f: S => Option[T]) = (s: S) => allCatch.withApply(_ => None)(f(s))
+  implicit protected[conversion] def safeOption[T](f: S => Option[T]) = (s: S) => allCatch.withApply(_ => None)(f(s))
 }
 
 

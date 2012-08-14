@@ -35,7 +35,7 @@ trait JacksonImplicitConversions extends JsonImplicitConversions[JsonNode] {
     }
 
   implicit val jsonToLong: TypeConverter[JsonNode, Long] = safeOption { json =>
-    Option(json) filter (_.isLong) map (_.asLong())
+    Option(json) filter (j => j.isLong || j.isInt || j.isBigInteger) map (_.asLong())
   }
 
   implicit val jsonToSelf: TypeConverter[JsonNode, String] = safeOption { json =>
