@@ -4,7 +4,7 @@ import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat, DateTimeFormatte
 import scala.util.control.Exception._
 import org.joda.time.{DateTimeZone, DateTime}
 import org.scalatra.util.RicherString._
-import java.text.{SimpleDateFormat, ParseException}
+import java.text.{SimpleDateFormat}
 import java.util.{Locale, TimeZone}
 
 trait DateParser {
@@ -54,6 +54,14 @@ object JodaDateFormats extends DateParser {
         allCatch opt {
           // I couldn't get this to work with joda time
           // going round by simpledateformat.
+          //
+          // Try this in a console:
+          // import org.joda.time._
+          // import org.joda.time.format._
+          // DateTimeZone.setDefault(DateTimeZone.UTC)
+          // val df = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss zzz")
+          // df.parseDateTime(new DateTime().toString(df))
+
           val df = new SimpleDateFormat(pattern, Locale.ENGLISH)
           df.setTimeZone(DateTimeZone.getDefault.toTimeZone)
           df.setLenient(true)
@@ -64,3 +72,4 @@ object JodaDateFormats extends DateParser {
   }
 
 }
+

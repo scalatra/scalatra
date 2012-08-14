@@ -91,7 +91,19 @@ trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorI
   implicit def stringToDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Date] =
     safeOption(s => df.parse(s).map(_.toDate))
 
-  def asType[T:Manifest](name: String): Binding[T] = Binding[T](name)
+  implicit def asType[T:Manifest](name: String): Binding[T] = Binding[T](name)
+
+  def asBoolean(name: String): Binding[Boolean] = Binding[Boolean](name)
+  def asByte(name: String): Binding[Byte] = Binding[Byte](name)
+  def asShort(name: String): Binding[Short] = Binding[Short](name)
+  def asInt(name: String): Binding[Int] = Binding[Int](name)
+  def asLong(name: String): Binding[Long] = Binding[Long](name)
+  def asFloat(name: String): Binding[Float] = Binding[Float](name)
+  def asDouble(name: String): Binding[Double] = Binding[Double](name)
+  def asString(name: String): Binding[String] = Binding[String](name)
+  def asDate(name: String): Binding[Date] = Binding[Date](name)
+  def asDateTime(name: String): Binding[DateTime] = Binding[DateTime](name)
+  def asSeq[T:Manifest](name: String): Binding[Seq[T]] = Binding[Seq[T]](name)
 
 }
 
@@ -114,7 +126,7 @@ trait BindingValidatorImplicits {
 object BindingValidators {
 
   class ValidatableSeq[T <: Seq[_]](b: Binding[T]) {
-    def nonEmpty: Binding[T] =
+    def notEmpty: Binding[T] =
       b.validateWith(BindingValidators.nonEmptyCollection)
   }
 

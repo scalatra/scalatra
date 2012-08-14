@@ -126,6 +126,32 @@ class BindingSpec extends Specification {
 
   }
 
+  "Defining validations" should {
+    import BindingImplicits._
+    "have a validation for notBlank" in {
+      val field = newBinding[String].notBlank
+      field.validators must not(beEmpty)
+      field.validators.head.apply(Some("hello")).isSuccess must beTrue
+      field.validators.head.apply(Some("")).isSuccess must beFalse
+      field.validators.head.apply(None).isSuccess must beFalse
+    }
+
+    "have a validation for greater than" in {
+      val field = newBinding[Int].greaterThan(6)
+      field.validators must not(beEmpty)
+      field.validators.head.apply(Some(7)).isSuccess must beTrue
+      field.validators.head.apply(Some(6)).isSuccess must beFalse
+      field.validators.head.apply(Some(1)).isSuccess must beFalse
+    }
+
+    "have a validation for non empty collection" in {
+      val field = newBinding[Seq[String]].notEmpty
+      field.validators must not(beEmpty)
+      field.validators.head.apply(Some(Seq("hello"))).isSuccess must beTrue
+      field.validators.head.apply(Some(Seq.empty[String])).isSuccess must beFalse
+    }
+  }
+
   def testDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], converter: TypeConverter[String, DateTime]) = {
     val field = newBinding[DateTime]
     field.value must beNone
