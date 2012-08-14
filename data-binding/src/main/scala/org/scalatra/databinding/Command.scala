@@ -38,10 +38,11 @@ import util.ValueReader
 * @version 0.1
 *
 */
-trait Command extends BindingImplicits {
+trait Command extends CommandBindingSyntax {
 
   self: Command =>
 
+  protected implicit val thisCommand: Command = this
   type Params = Map[String, String]
 
   type BindingAction = () => Any
@@ -52,13 +53,15 @@ trait Command extends BindingImplicits {
 
   private[scalatra] var bindings: List[Binding[_]] = List.empty
 
+  def replace[T](b: Binding[T]): Binding[T] = {
+    bindings = bindings.filterNot(_.name == b.name) :+ b
+    b
+  }
+
   /**
    * Create a binding with the given [[org.scalatra.command.field.Field]].
    */
-  def bind[T: Manifest](field: Binding[T]): Binding[T] = {
-    bindings = bindings :+ field
-    field
-  }
+  def bind[T: Manifest](field: String): Binding[T] = replace(CommandBinding(field))
 
   /**
    * Add an action that will be evaluated before field binding occurs.
@@ -81,7 +84,7 @@ trait Command extends BindingImplicits {
    * Also execute any ''before'' and ''after'' action eventually registered.
    *
    */
-   def bindTo[T](data: T, params: MultiParams, paramsOnly: Boolean = true)(implicit mf: Manifest[T], reader: ValueReader[T], multiParams: ValueReader[MultiParams]): this.type = {
+   def bindTo[T](data: T, params: MultiParams, headers: Map[String, String] = Map.empty, paramsOnly: Boolean = true)(implicit mf: Manifest[T], reader: ValueReader[T], multiParams: ValueReader[MultiParams]): this.type = {
     doBeforeBindingActions
     bindings foreach { binding =>
       this match {

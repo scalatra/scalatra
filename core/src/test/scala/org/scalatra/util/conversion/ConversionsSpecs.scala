@@ -9,14 +9,14 @@ class ConversionsSpecs extends Specification {
 
   "The TypeConverterSupport trait" should {
 
-    object WithImplicit extends TypeConverterSupport[String]
+    object WithImplicit extends TypeConverterSupport
 
 
     "provide an exception-safe TypeConverter that return None in case of exceptions" in {
 
       import WithImplicit._
 
-      val converter = safe[String]((s) => throw new Exception(s))
+      val converter = safe[String, String]((s) => throw new Exception(s))
 
       converter("anything") must beNone
     }

@@ -16,3 +16,7 @@ trait JacksonBindingImplicits extends JacksonImplicitConversions {
 }
 
 object JacksonBindingImplicits extends JacksonBindingImplicits
+
+trait JacksonCommand extends Command with JacksonBindingImplicits { self: Command =>
+
+}

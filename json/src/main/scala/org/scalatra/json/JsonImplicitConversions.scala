@@ -4,8 +4,9 @@ package json
 import org.scalatra.util.conversion._
 import java.util.Date
 import java.text.{DateFormat, SimpleDateFormat}
+import scala.util.control.Exception._
 
-trait JsonImplicitConversions[J] extends TypeConverterSupport[J] {
+trait JsonImplicitConversions[J] extends TypeConverterSupport {
   implicit def jsonToBoolean: TypeConverter[J, Boolean]
   
   implicit def jsonToFloat: TypeConverter[J, Float]

@@ -9,13 +9,13 @@ import scala.util.control.Exception.allCatch
 /**
  * Support types and implicits for [[org.scalatra.common.conversions.TypeConverter]].
  */
-trait TypeConverterSupport[S] {
+trait TypeConverterSupport {
 
-  implicit protected[conversion] def safe[T](f: S => T): TypeConverter[S, T] = (s) => allCatch opt f(s)
+  implicit protected[conversion] def safe[S, T](f: S => T): TypeConverter[S, T] = (s) => allCatch opt f(s)
   /**
    * Implicit convert a `(String) => Option[T]` function into a `TypeConverter[T]`
    */
-  implicit protected[conversion] def safeOption[T](f: S => Option[T]) = (s: S) => allCatch.withApply(_ => None)(f(s))
+  implicit protected[conversion] def safeOption[S, T](f: S => Option[T]) = (s: S) => allCatch.withApply(_ => None)(f(s))
 }
 
 
@@ -23,7 +23,7 @@ trait TypeConverterSupport[S] {
  * Implicit TypeConverter values for value types and some factory method for
  * dates and seqs.
  */
-trait DefaultImplicitConversions extends TypeConverterSupport[String] {
+trait DefaultImplicitConversions extends TypeConverterSupport {
 
   implicit val stringToBoolean: TypeConverter[String, Boolean] = safe { s => s.toUpperCase match {
     case "ON" | "TRUE" | "OK" | "1" | "CHECKED" => true

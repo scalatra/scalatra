@@ -16,3 +16,7 @@ trait LiftJsonBindingImplicits extends LiftJsonImplicitConversions {
       safeOption(_.extractOpt[String].flatMap(df.parse).map(_.toDate))
 
 }
+
+trait LiftJsonCommand extends Command with LiftJsonBindingImplicits { self: Command =>
+
+}
