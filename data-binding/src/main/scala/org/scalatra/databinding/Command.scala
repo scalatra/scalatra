@@ -55,11 +55,19 @@ trait Command extends CommandBindingSyntax with ValueReaderZeroes {
 
   private[this] var postBindingActions: Seq[BindingAction] = Nil
 
-  private[scalatra] var bindings: Seq[Binding[_]] = Nil
+  private[scalatra] var bindings: Map[String, Binding[_]] = Map.empty
 
   def replace[T](b: Binding[T]): Binding[T] = {
-    bindings = bindings :+ b
+    bindings += b.name -> b
     b
+  }
+
+  def apply(name: String): Binding[String] = {
+    println("looking for binding with name: " + name + " in:")
+    println(bindings)
+    val r = bindings(name)
+    println("found: " + r)
+    r.asInstanceOf[Binding[String]]
   }
 
   /**
@@ -110,14 +118,20 @@ trait Command extends CommandBindingSyntax with ValueReaderZeroes {
             reader: Map[String, String] => ValueReader[Map[String, String]],
             multiParams: MultiParams => ValueReader[MultiParams]): this.type = {
     doBeforeBindingActions
-    val boundBindings: Seq[Binding[_]] = bindings map { binding =>
+    val boundBindings: Map[String, Binding[_]] = bindings map { case (name, binding) =>
       val b = binding.asInstanceOf[Binding[String]]
-      this match {
-        case d: ForceFromParams if d.namesToForce.contains(b.name) => b(params.read(b.name).flatMap(_.asInstanceOf[Seq[String]].headOption))
-        case d: ForceFromHeaders if d.namesToForce.contains(b.name) => b(headers.get(binding.name))
-        case _ if paramsOnly => b(params.read(b.name).map(_.asInstanceOf[Seq[String]].headOption))
-        case _ => b(data.read(b.name).map(_.asInstanceOf[String]))
-      }
+      println("binding: " + name)
+      val d = data.read(name)
+      println("The data: " + d)
+      val r = b(data.read(name).map(_.asInstanceOf[String]))
+      println("The binding: " + r)
+      name -> r
+//      this match {
+//        case d: ForceFromParams if d.namesToForce.contains(b.name) => b(params.read(b.name).flatMap(_.asInstanceOf[Seq[String]].headOption))
+//        case d: ForceFromHeaders if d.namesToForce.contains(b.name) => b(headers.get(binding.name))
+//        case _ if paramsOnly => b(params.read(b.name).map(_.asInstanceOf[Seq[String]].headOption))
+//        case _ => b(data.read(b.name).map(_.asInstanceOf[String]))
+//      }
     }
     bindings = boundBindings
     doAfterBindingActions

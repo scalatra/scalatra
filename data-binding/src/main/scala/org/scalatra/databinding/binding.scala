@@ -9,6 +9,21 @@ import Scalaz._
 import org.joda.time.DateTime
 
 class BindingException(message: String) extends ScalatraException(message)
+
+//trait BindingContainer extends BindingImplicits {
+//  type T
+//  implicit def valueManifest: Manifest[T]
+//  def binding: Binding[T]
+//  def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S]): BoundBindingContainer =
+//    binding.apply(original)
+//}
+//
+//trait BoundBindingContainer extends BindingContainer {
+//  type S
+//  def sourceManifest: Manifest[S]
+//
+//}
+
 trait Binding[T] {
 
   implicit def valueManifest: Manifest[T]
@@ -37,6 +52,7 @@ trait Binding[T] {
 
 
 
+
 }
 
 trait ValidatableBinding[S, T] extends Binding[T] {
@@ -49,6 +65,7 @@ trait ValidatableBinding[S, T] extends Binding[T] {
   def apply[V](original: Option[V])(implicit zero: Zero[V], convert: TypeConverter[V, T]): ValidatableBinding[V, T] =
     this.asInstanceOf[ValidatableBinding[V, T]]
 
+  override def toString() = "Binding(name: %s, original: %s, value: %s)".format(name, original, value)
 }
 
 object BoundBinding {

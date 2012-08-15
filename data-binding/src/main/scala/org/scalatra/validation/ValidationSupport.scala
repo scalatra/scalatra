@@ -58,7 +58,7 @@ trait ValidationSupport extends Validations {
    * Perform command as afterBinding task.
    */
   afterBinding {
-    _errors = bindings.collect { case (b: ValidatedBinding[_, _]) if !b.valid => b }
+    _errors = (bindings collect { case (_, b: ValidatedBinding[_, _]) if !b.valid => b }).toSeq
     _valid = Some(_errors.isEmpty)
   }
 
