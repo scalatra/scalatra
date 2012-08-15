@@ -126,7 +126,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4"
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4",
+        "com.chuusai"            %% "shapeless"          % "1.2.2"
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       description := "Data binding and validation with scalaz for Scalatra"

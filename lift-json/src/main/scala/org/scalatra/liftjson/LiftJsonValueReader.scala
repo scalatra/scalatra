@@ -11,6 +11,13 @@ class LiftJsonValueReader(data: JValue)(implicit formats: Formats) extends JsonV
   }
 }
 
-trait LiftJsonValueReaderProperty extends JsonValueReaderProperty { self: LiftJsonSupport =>
+
+trait LiftJsonValueReaderProperty extends JsonValueReaderProperty {
+
+  type JsonType = JValue
+
+  implicit protected def jsonFormats: Formats
   protected implicit def jsonValueReader(d: JValue): JsonValueReader[JValue] = new LiftJsonValueReader(d)
 }
+
+class LiftJsonValueReaderImports(implicit protected val jsonFormats: Formats) extends LiftJsonValueReaderProperty

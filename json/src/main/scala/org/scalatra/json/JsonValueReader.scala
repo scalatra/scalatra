@@ -31,8 +31,9 @@ abstract class JsonValueReader[T](val data: T) extends ValueReader[T] {
 
   protected def get(path: String, subj: T): Option[T]
 }
-trait JsonValueReaderProperty { self: JsonSupport =>
+trait JsonValueReaderProperty {
 
+  type JsonType
   protected implicit def jsonValueReader(d: JsonType): JsonValueReader[JsonType]
 }
 

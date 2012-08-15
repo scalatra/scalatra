@@ -49,9 +49,6 @@ trait ValidatableBinding[S, T] extends Binding[T] {
   def apply[V](original: Option[V])(implicit zero: Zero[V], convert: TypeConverter[V, T]): ValidatableBinding[V, T] =
     this.asInstanceOf[ValidatableBinding[V, T]]
 
-  def asBound: ValidatableBinding[S, T] = asBound[S]
-
-  override def asBound[V]: ValidatableBinding[V, T] = this.asInstanceOf[ValidatableBinding[V, T]]
 }
 
 object BoundBinding {
@@ -104,7 +101,7 @@ class BasicBinding[T](val name: String, val validators: Seq[Validator[T]] = Nil,
     new BasicBinding(name, validators, defaultValue, transformations)
 
   override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] = {
-    val endo = transformations.reduce(_ andThen _)
+    val endo: T => T = transformations.nonEmpty ? transformations.reduce(_ andThen _) | identity
     BoundBinding(~original, convert(~original) map endo, this)
   }
 
@@ -164,9 +161,11 @@ class CommandBinding[T](
     command replace new CommandBinding(name, validators, defaultValue, transformations)
   }
 
-  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] =
+  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] = {
+    val endo: T => T = transformations.nonEmpty ? transformations.reduce(_ andThen _) | identity
     // Strip command registration from here on out, the bound command takes over for that task
-    BoundCommandBinding(~original, convert(~original) map transformations.reduce(_ andThen _), new BasicBinding(name, validators, defaultValue, transformations))
+    BoundCommandBinding(~original, convert(~original) map endo, new BasicBinding(name, validators, defaultValue, transformations))
+  }
 
 //
 //  def map[R: Manifest](endo: (T) => R): Binding[R] = {

@@ -10,7 +10,7 @@ trait ValidationSupport extends Validations {
 
   private var _valid: Option[Boolean] = None
 
-  private var _errors: List[ValidatedBinding[_, _]] = Nil
+  private var _errors: Seq[ValidatedBinding[_, _]] = Nil
 
   /**
    * Check whether this command is valid.

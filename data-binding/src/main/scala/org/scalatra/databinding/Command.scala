@@ -1,7 +1,10 @@
 package org.scalatra
 package databinding
 
-import util.{MultiMap, ValueReader}
+import util._
+import scalaz._
+import Scalaz._
+import collection.immutable
 
 /**
 * Trait that identifies a ''Command object'', i.e. a Scala class instance which fields are bound to external parameters
@@ -38,23 +41,24 @@ import util.{MultiMap, ValueReader}
 * @version 0.1
 *
 */
-trait Command extends CommandBindingSyntax {
+trait Command extends CommandBindingSyntax with ValueReaderZeroes {
 
   self: Command =>
+
 
   protected implicit val thisCommand: Command = this
   type Params = Map[String, String]
 
   type BindingAction = () => Any
 
-  private[this] var preBindingActions: List[BindingAction] = Nil
+  private[this] var preBindingActions: Seq[BindingAction] = Nil
 
-  private[this] var postBindingActions: List[BindingAction] = Nil
+  private[this] var postBindingActions: Seq[BindingAction] = Nil
 
-  private[scalatra] var bindings: List[Binding[_]] = List.empty
+  private[scalatra] var bindings: Seq[Binding[_]] = Nil
 
   def replace[T](b: Binding[T]): Binding[T] = {
-    bindings = bindings.filterNot(_.name == b.name) :+ b
+    bindings = bindings :+ b
     b
   }
 
@@ -96,24 +100,26 @@ trait Command extends CommandBindingSyntax {
    * Also execute any ''before'' and ''after'' action eventually registered.
    *
    */
-   def bindTo[T](
-          data: T,
+   def bindTo(
+          data: Map[String, String],
           params: MultiParams = MultiMap.empty,
           headers: Map[String, String] = Map.empty,
           paramsOnly: Boolean = false)(
           implicit
-            mf: Manifest[T],
-            reader: T => ValueReader[T],
+            mf: Manifest[Map[String, String]],
+            reader: Map[String, String] => ValueReader[Map[String, String]],
             multiParams: MultiParams => ValueReader[MultiParams]): this.type = {
     doBeforeBindingActions
-    bindings foreach { binding =>
+    val boundBindings: Seq[Binding[_]] = bindings map { binding =>
+      val b = binding.asInstanceOf[Binding[String]]
       this match {
-        case d: ForceFromParams if d.namesToForce.contains(binding.name) => params.read(binding.name)
-        case d: ForceFromHeaders if d.namesToForce.contains(binding.name) => headers.get(binding.name)
-        case _ if paramsOnly => params.read(binding.name)
-        case _ => data.read(binding.name)
+        case d: ForceFromParams if d.namesToForce.contains(b.name) => b(params.read(b.name).flatMap(_.asInstanceOf[Seq[String]].headOption))
+        case d: ForceFromHeaders if d.namesToForce.contains(b.name) => b(headers.get(binding.name))
+        case _ if paramsOnly => b(params.read(b.name).map(_.asInstanceOf[Seq[String]].headOption))
+        case _ => b(data.read(b.name).map(_.asInstanceOf[String]))
       }
     }
+    bindings = boundBindings
     doAfterBindingActions
     this
   }
@@ -139,3 +145,20 @@ trait ForceFromHeaders { self: Command =>
   def namesToForce: Set[String]
 }
 
+class CastingMultiParamsValueReader(rdr: ValueReader[MultiParams]) {
+  def readAndCast(key: String): Option[Seq[String]] = rdr.read(key).map(_.asInstanceOf[Seq[String]])
+}
+class CastingParamsValueReader(rdr: ValueReader[Map[String, String]]) {
+  def readAndCast(key: String): Option[String] = rdr.read(key).map(_.asInstanceOf[String])
+}
+trait ValueReaderZeroes extends ParamsValueReaderProperties {
+  implicit def zeroParamsValue: Zero[ValueReader[immutable.Map[String, String]]#I] =
+    zero(Zero.StringZero.zero.asInstanceOf[ValueReader[immutable.Map[String, String]]#I])
+
+  implicit def zeroMultiParamsValue: Zero[ValueReader[MultiParams]#I] =
+    zero(Zero.TraversableZero[Seq[String]].zero.asInstanceOf[ValueReader[MultiParams]#I])
+  implicit def richerParamsValueReader(rdr: ValueReader[immutable.Map[String, String]]): CastingParamsValueReader =
+    new CastingParamsValueReader(rdr)
+  implicit def richerMultiParamsValueReader(rdr: ValueReader[MultiParams]): CastingMultiParamsValueReader =
+    new CastingMultiParamsValueReader(rdr)
+}

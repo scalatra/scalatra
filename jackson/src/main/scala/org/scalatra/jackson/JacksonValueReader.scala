@@ -17,6 +17,8 @@ class JacksonValueReader(data: JsonNode) extends JsonValueReader(data) {
   }
 }
 
-trait JacksonValueReaderProperty extends JsonValueReaderProperty { self: JacksonSupport =>
+trait JacksonValueReaderProperty extends JsonValueReaderProperty {
+  type JsonType = JsonNode
   protected implicit def jsonValueReader(d: JsonNode): JsonValueReader[JsonNode] = new JacksonValueReader(d)
 }
+object JacksonValueReaderProperty extends JacksonValueReaderProperty
