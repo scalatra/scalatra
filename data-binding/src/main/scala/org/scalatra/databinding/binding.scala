@@ -22,75 +22,67 @@ class BindingException(message: String) extends ScalatraException(message)
 //}
 
 object BindingContainer {
-  def apply[I, A](fieldName: String, cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
-    new BindingContainer {
-      type T = A
-      type S = I
-      implicit val typeConverter: TypeConverter[S, T] = cv
+  def apply[I, A](fieldName: String, cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer[I, A] = {
+    new BindingContainer[I, A] {
+      implicit val typeConverter: TypeConverter[I, A] = cv
       val binding = Binding(fieldName, za.zero)
-      def value = binding.value
-      implicit val sourceManifest: Manifest[S] = mf
-      implicit val sourceZero: Zero[S] = z
-      implicit val valueManifest: Manifest[T] = mt
-      implicit val valueZero: Zero[T] = za
+      implicit val sourceManifest: Manifest[I] = mf
+      implicit val sourceZero: Zero[I] = z
+      implicit val valueManifest: Manifest[A] = mt
+      implicit val valueZero: Zero[A] = za
     }
   }
 
-  def apply[I, A](prev: Binding[A], cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
-    new BindingContainer {
-      type T = A
-      type S = I
+  def apply[I, A](prev: Binding[A], cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer[I, A] = {
+    new BindingContainer[I, A] {
       val binding = prev
-      def value = binding.value
-      implicit val typeConverter: TypeConverter[S, T] = cv
-      implicit val sourceManifest: Manifest[S] = mf
-      implicit val sourceZero: Zero[S] = z
-      implicit val valueManifest: Manifest[T] = mt
-      implicit val valueZero: Zero[T] = za
+      implicit val typeConverter: TypeConverter[I, A] = cv
+      implicit val sourceManifest: Manifest[I] = mf
+      implicit val sourceZero: Zero[I] = z
+      implicit val valueManifest: Manifest[A] = mt
+      implicit val valueZero: Zero[A] = za
     }
   }
+
 
 }
-trait BindingContainer  {
+trait BindingContainer[S, T]  {
 
-  type T
+  
   implicit def valueManifest: Manifest[T]
   implicit def valueZero: Zero[T]
-
-  type S
+  
   implicit def sourceManifest: Manifest[S]
   implicit def sourceZero: Zero[S]
 
   implicit def typeConverter: TypeConverter[S, T]
   def binding: Binding[T]
-  def name = binding.name
-  def value: Option[T]
-  def original = binding match {
-    case b: ValidatedBinding[_, _] => b.original
+  def name: String = binding.name
+  def value: Option[T] = binding.value
+  def original: Option[S] = binding match {
+    case b: ValidatableBinding[_, _] => Option(b.original.asInstanceOf[S])
     case _ => None
   }
 
   override def toString() = {
-    "BindingContainer[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, binding.value, original)
+    "BindingContainer[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, value, original)
   }
 
-  def apply(toBind: Option[S]): BindingContainer = {
+  def apply(toBind: Option[S]): BindingContainer[S, T] = {
 
     val b = binding(toBind)
-    println("bound: " + b)
-    println("bound: " + b.value)
-    new BindingContainer {
-      type T = BindingContainer.this.T
-      type S = BindingContainer.this.S
+    val v = b.value
+    new BindingContainer[S, T] {
       val binding: Binding[T] = b
-      val value = b.value
-//      val value = binding.value
-      println("binding: " + binding)
       implicit val typeConverter: TypeConverter[S, T] = BindingContainer.this.typeConverter
       implicit val sourceManifest: Manifest[S] = BindingContainer.this.sourceManifest
       implicit val sourceZero: Zero[S] = BindingContainer.this.sourceZero
       implicit val valueManifest: Manifest[T] = BindingContainer.this.valueManifest
       implicit val valueZero: Zero[T] = BindingContainer.this.valueZero
+//      override val original = toBind
+      override def toString() = {
+        "BindingContainer[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, v, original)
+      }
     }
   }
 

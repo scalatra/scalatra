@@ -57,18 +57,14 @@ class BindingSpec extends Specification {
 
     "bind to the data" in {
       val cont = BindingContainer("login", implicitly[TypeConverter[String, String]])
-      println(cont)
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
-      val bound = cont(Option("joske".asInstanceOf[cont.S]))
-      println("original container: " + cont)
-      println("original binding: " + cont.binding)
+      val bound = cont(Option("joske"))
       println("bound container: " + bound)
-      println("bound binding: " + bound.binding)
-      println("bound binding value: " + bound.binding.value)
       bound.name must_== "login"
-      bound.original must_== Some("joske")
-      bound.value must_== Some("joske")
+      (bound.original: Option[String]) must_== Some("joske")
+      val boundValue = bound.value
+      boundValue must_== Some("joske")
     }
   }
 //
@@ -374,7 +370,7 @@ class BindingSpec extends Specification {
 //    field(Some(Extraction.decompose(s))).value must beSome(v.toDate)
 //  }
 
-  def newBinding[T:Manifest]: Binding[T] = Binding[T](randomFieldName)
+  def newBinding[T]: Binding[T] = Binding[T](randomFieldName)
 
   def randomFieldName = "field_" + random
 }
