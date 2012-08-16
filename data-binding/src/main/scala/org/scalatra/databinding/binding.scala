@@ -28,6 +28,7 @@ object BindingContainer {
       type S = I
       implicit val typeConverter: TypeConverter[S, T] = cv
       val binding = Binding(fieldName, za.zero)
+      def value = binding.value
       implicit val sourceManifest: Manifest[S] = mf
       implicit val sourceZero: Zero[S] = z
       implicit val valueManifest: Manifest[T] = mt
@@ -40,6 +41,7 @@ object BindingContainer {
       type T = A
       type S = I
       val binding = prev
+      def value = binding.value
       implicit val typeConverter: TypeConverter[S, T] = cv
       implicit val sourceManifest: Manifest[S] = mf
       implicit val sourceZero: Zero[S] = z
@@ -62,10 +64,7 @@ trait BindingContainer  {
   implicit def typeConverter: TypeConverter[S, T]
   def binding: Binding[T]
   def name = binding.name
-  def value = binding match {
-    case b: ValidatedBinding[_, _] => b.asInstanceOf[ValidatedBinding[S, T]].value
-    case _ => binding.value
-  }
+  def value: Option[T]
   def original = binding match {
     case b: ValidatedBinding[_, _] => b.original
     case _ => None
@@ -84,7 +83,7 @@ trait BindingContainer  {
       type T = BindingContainer.this.T
       type S = BindingContainer.this.S
       val binding: Binding[T] = b
-      override val value = b.value
+      val value = b.value
 //      val value = binding.value
       println("binding: " + binding)
       implicit val typeConverter: TypeConverter[S, T] = BindingContainer.this.typeConverter
