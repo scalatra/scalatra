@@ -6,7 +6,7 @@ import json.{JsonValueReaderProperty, JsonValueReader}
 import com.fasterxml.jackson.databind.node.{NullNode, MissingNode, ObjectNode}
 
 class JacksonValueReader(data: JsonNode) extends JsonValueReader(data) {
-
+//  implicit val manifest: Manifest[I] = Predef.manifest[JsonNode]
 
   protected def get(path: String, subj: JsonNode): Option[JsonNode] = subj match {
     case o: ObjectNode => o.get(path) match {

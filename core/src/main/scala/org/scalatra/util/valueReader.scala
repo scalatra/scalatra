@@ -1,32 +1,46 @@
 package org.scalatra
 package util
 
-import conversion.{ValueHolder, ValueHolderImplicits}
+import conversion._
 import collection.immutable
 import collection.mutable
+import java.util.Date
+import java.text.{DateFormat, SimpleDateFormat}
 
-trait ValueReader[S]  {
+trait ValueReader[S, U]  {
 
-  type I
+//  type I
   def data: S
-  def read(key: String): Option[I]
+  def read(key: String): Option[U]
+
+//  implicit def implicitToOrig(i: I): String = i : String
+}
+
+
+class StringMapValueReader(val data: Map[String, String]) extends ValueReader[immutable.Map[String, String], String] {
+//  type I = String
+  def read(key: String): Option[String] = data get key
+
+
+//  implicit val manifest: Manifest[] = Predef.manifest[String]
+
+//  implicit def implicitToOrig(i: ): String = i : String
 
 }
 
-class StringMapValueReader(val data: Map[String, String]) extends ValueReader[immutable.Map[String, String]] {
-  type I = String
-  def read(key: String): Option[I] = data get key
-}
+class MultiParamsValueReader(val data: MultiParams) extends ValueReader[MultiParams, Seq[String]] {
+//  type I = Seq[String]
+  def read(key: String): Option[Seq[String]] = data get key
 
-class MultiParamsValueReader(val data: MultiParams) extends ValueReader[MultiParams] {
-  type I = Seq[String]
-  def read(key: String): Option[I] = data get key
+//  implicit val manifest: Manifest[I] = Predef.manifest[Seq[String]]
+//
+//  implicit def implicitToOrig(i: I): Seq[String] = i : Seq[String]
 }
 
 trait ParamsValueReaderProperties {
 
-  implicit def paramsValueReader(d: immutable.Map[String, String]): ValueReader[immutable.Map[String, String]] = new StringMapValueReader(d)
-  implicit def multiParamsValueReader(d: MultiParams): ValueReader[MultiParams] = new MultiParamsValueReader(d)
+  implicit def paramsValueReader(d: immutable.Map[String, String]): ValueReader[immutable.Map[String, String], String] = new StringMapValueReader(d)
+  implicit def multiParamsValueReader(d: MultiParams): ValueReader[MultiParams, Seq[String]] = new MultiParamsValueReader(d)
 }
 
 object ParamsValueReaderProperties extends ParamsValueReaderProperties

@@ -55,12 +55,12 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    *      `executeRoutes()`.
    */
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
-    val realMultiParams = request.multiParameters
+//    val realMultiParams = request.multiParameters
 
     response.characterEncoding = Some(defaultCharacterEncoding)
 
     withRequestResponse(request, response) {
-      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
+//      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
       executeRoutes()
     }
   }
@@ -296,8 +296,17 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * The default value for an unknown param is the empty sequence.  Invalid
    * outside `handle`.
    */
-  def multiParams: MultiParams = request(MultiParamsKey).asInstanceOf[MultiParams]
-    .withDefaultValue(Seq.empty)
+  def multiParams: MultiParams = {
+//    request(MultiParamsKey).asInstanceOf[MultiParams].withDefaultValue(Seq.empty)
+    val read = request.contains("MultiParamsRead")
+    val found = request.get(MultiParamsKey) map (
+      _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
+    )
+    val multi = found getOrElse request.multiParameters
+    request("MultiParamsRead") = new {}
+    request(MultiParamsKey) = multi
+    multi.withDefaultValue(Seq.empty)
+  }
 
   /*
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them

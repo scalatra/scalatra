@@ -4,15 +4,15 @@ package json
 import org.scalatra.util.ValueReader
 import util.RicherString._
 
-abstract class JsonValueReader[T](val data: T) extends ValueReader[T] {
-  type I = T
+abstract class JsonValueReader[T](val data: T) extends ValueReader[T, T] {
+//  type I = T
 
   private val separator = new {
     val beginning = "."
     val end = ""
   }
 
-  def read(key: String): Option[I] = readPath(key)
+  def read(key: String): Option[T] = readPath(key)
 
   protected def readPath(path: String, subj: T = data): Option[T] = {
     val partIndex = path.indexOf(separator.beginning)

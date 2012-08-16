@@ -5,6 +5,7 @@ import net.liftweb.json._
 import json.{JsonValueReaderProperty, JsonValueReader}
 
 class LiftJsonValueReader(data: JValue)(implicit formats: Formats) extends JsonValueReader(data) {
+//  implicit val manifest: Manifest[I] = Predef.manifest[JValue]
   def get(key: String, subj: JValue): Option[JValue] = subj \ key match {
     case JNull | JNothing => None
     case o => Some(o)
