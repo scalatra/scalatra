@@ -19,26 +19,26 @@ import net.liftweb.json._
 class BindingSpec extends Specification {
 
   implicit val formats: Formats = DefaultFormats
-//
-//  "A BasicBinding" should {
-//    "have a name" in {
-//      Binding[String]("blah").name must_== "blah"
-//    }
-//    "begin the building process with a value of None" in {
-//      newBinding[String].value must beNone
-//    }
-//    "begin the building process with empty validators" in {
-//      newBinding[String].validators must beEmpty
-//    }
-//    "allow adding validators" in {
-//      val b = newBinding[String].validateWith(_ => { case s => s.getOrElse("").success[FieldError] })
-//      b.validators must not(beEmpty)
-//    }
-//    "bind to a string" in {
-//      val b = newBinding[String]
-//      b("Hey".some).value must beSome("Hey")
-//    }
-//  }
+
+  "A BasicBinding" should {
+    "have a name" in {
+      Binding[String]("blah").name must_== "blah"
+    }
+    "begin the building process with a value of None" in {
+      newBinding[String].value must beNone
+    }
+    "begin the building process with empty validators" in {
+      newBinding[String].validators must beEmpty
+    }
+    "allow adding validators" in {
+      val b = newBinding[String].validateWith(_ => { case s => s.getOrElse("").success[FieldError] })
+      b.validators must not(beEmpty)
+    }
+    "bind to a string" in {
+      val b = newBinding[String]
+      b("Hey".some).value must beSome("Hey")
+    }
+  }
 
   "A BindingContainer" should {
     "construct containers by name" in {
@@ -59,98 +59,127 @@ class BindingSpec extends Specification {
       val cont = BindingContainer("login", implicitly[TypeConverter[String, String]])
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
-      val bound = cont(Option("joske"))
-      println("bound container: " + bound)
+      val bound = cont(Option("joske".asInstanceOf[cont.S]))
       bound.name must_== "login"
-      (bound.original: Option[String]) must_== Some("joske")
-      val boundValue = bound.value
-      boundValue must_== Some("joske")
+      bound.original must_== Some("joske")
+      bound.value must_== Some("joske")
+    }
+    
+  }
+  
+  "A BindingContainerBuilder" should {
+    
+    "start the build process by taking a Binding[T]" in {
+      import BindingSyntax._
+      val b = B(asString("login"))
+      
+      b().binding.name must_== "login"
+      
+    }
+    
+    "build a BindingContainer with Map[String, String]" in {
+      import util.ParamsValueReaderProperties._
+      val builder = B(Binding[String]("login"))
+      val bb = builder()
+      val container = bb(Map("login" -> "joske"), implicitly[TypeConverter[String, String]])
+      container.value must_== Some("joske")
+    }
+    
+    "build a BindingContainer with Map[String, String] and multiple bindings in a Seq" in {
+      import util.ParamsValueReaderProperties._
+      val builders = Seq(B(Binding[String]("login")), B(Binding[Int]("age")))
+      val params = Map("login" -> "joske", "age" -> 25)
+      builders foreach { builder => 
+        val bind = builder.asInstanceOf[{type Binder}]
+      }
+//      val container = bb(Map("login" -> "joske"), implicitly[TypeConverter[String, String]])
+//      container.value must_== Some("joske")
     }
   }
-//
-//  "A BoundBinding" should {
-//    val binding = newBinding[String]
-//
-//    "forward the binding name" in {
-//      val b = binding("blah".some)
-//      b must beAnInstanceOf[BoundBinding[String, String]]
-//      b.name must_== binding.name
-//    }
-//
-//    "forward the validators" in {
-//      val b = binding("blah".some)
-//      b must beAnInstanceOf[BoundBinding[String, String]]
-//      b.validators must_== binding.validators
-//    }
-//
-//    "have the bound value" in {
-//      val b = binding("blah".some)
-//      b.value must beSome("blah")
-//    }
-//
-//    "allow adding validators" in {
-//      val b = binding("blah".some)
-//      val validator: Validator[String] = {case s => s.getOrElse("").success[FieldError]}
-//      b.validateWith(_ => validator).validators.size must_== (binding.validators.size + 1)
-//    }
-//  }
-//
-//  "BindingImplicits" should {
-//
-//    import BindingImplicits._
-//    "provide Binding[Boolean]" in {
-//      testBinding[Boolean](true)
-//    }
-//
-//    "provide Binding[Float]" in {
-//      testBinding[Float]((random * 100).toFloat)
-//    }
-//
-//    "provide Binding[Double]" in {
-//      testBinding[Double]((random * 100))
-//    }
-//
-//    "provide Binding[Int]" in {
-//      testBinding[Int]((random * 100).toInt)
-//    }
-//
-//    "provide Binding[Byte]" in {
-//      testBinding[Byte]((random * 100).toByte)
-//    }
-//
-//    "provide Binding[Short]" in {
-//      testBinding[Short]((random * 100).toShort)
-//    }
-//
-//    "provide Binding[Long]" in {
-//      testBinding[Long]((random * 100).toLong)
-//    }
-//
-//    "provide Binding[DateTime] for a ISO8601 date" in {
-//      testDateTimeBinding(JodaDateFormats.Iso8601)
-//    }
-//
-//    "provide Binding[DateTime] for a ISO8601 date without millis" in {
-//      testDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
-//    }
-//
-//    "provide Binding[DateTime] for a HTTP date" in {
-//      testDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
-//    }
-//
-//    "provide Binding[Date] for a ISO8601 date" in {
-//      testDateBinding(JodaDateFormats.Iso8601)
-//    }
-//
-//    "provide Binding[Date] for a ISO8601 date without millis" in {
-//      testDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
-//    }
-//
-//    "provide Binding[Date] for a HTTP date" in {
-//      testDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
-//    }
-//
-//  }
+
+  "A BoundBinding" should {
+    val binding = newBinding[String]
+
+    "forward the binding name" in {
+      val b = binding("blah".some)
+      b must beAnInstanceOf[BoundBinding[String, String]]
+      b.name must_== binding.name
+    }
+
+    "forward the validators" in {
+      val b = binding("blah".some)
+      b must beAnInstanceOf[BoundBinding[String, String]]
+      b.validators must_== binding.validators
+    }
+
+    "have the bound value" in {
+      val b = binding("blah".some)
+      b.value must beSome("blah")
+    }
+
+    "allow adding validators" in {
+      val b = binding("blah".some)
+      val validator: Validator[String] = {case s => s.getOrElse("").success[FieldError]}
+      b.validateWith(_ => validator).validators.size must_== (binding.validators.size + 1)
+    }
+  }
+
+  "BindingImplicits" should {
+
+    import BindingImplicits._
+    "provide Binding[Boolean]" in {
+      testBinding[Boolean](true)
+    }
+
+    "provide Binding[Float]" in {
+      testBinding[Float]((random * 100).toFloat)
+    }
+
+    "provide Binding[Double]" in {
+      testBinding[Double]((random * 100))
+    }
+
+    "provide Binding[Int]" in {
+      testBinding[Int]((random * 100).toInt)
+    }
+
+    "provide Binding[Byte]" in {
+      testBinding[Byte]((random * 100).toByte)
+    }
+
+    "provide Binding[Short]" in {
+      testBinding[Short]((random * 100).toShort)
+    }
+
+    "provide Binding[Long]" in {
+      testBinding[Long]((random * 100).toLong)
+    }
+
+    "provide Binding[DateTime] for a ISO8601 date" in {
+      testDateTimeBinding(JodaDateFormats.Iso8601)
+    }
+
+    "provide Binding[DateTime] for a ISO8601 date without millis" in {
+      testDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
+    }
+
+    "provide Binding[DateTime] for a HTTP date" in {
+      testDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
+    }
+
+    "provide Binding[Date] for a ISO8601 date" in {
+      testDateBinding(JodaDateFormats.Iso8601)
+    }
+
+    "provide Binding[Date] for a ISO8601 date without millis" in {
+      testDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
+    }
+
+    "provide Binding[Date] for a HTTP date" in {
+      testDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
+    }
+
+  }
 
 //  "JacksonBindingImplicits" should {
 //
