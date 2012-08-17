@@ -130,6 +130,16 @@ object ScalatraBuild extends Build {
         "com.chuusai"            %% "shapeless"          % "1.2.2"
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
+      initialCommands :=
+        """
+          |import scalaz._
+          |import Scalaz._
+          |import org.scalatra._
+          |import org.scalatra.util._
+          |import conversion._
+          |import databinding._
+          |import BindingSyntax._
+        """.stripMargin,
       description := "Data binding and validation with scalaz for Scalatra"
     )
   ) dependsOn(

@@ -47,16 +47,23 @@ trait DefaultImplicitConversions extends TypeConverterSupport {
 
   implicit val stringToSelf: TypeConverter[String, String] = safe(identity)
 
-
-
+  implicit val stringToSeqBoolean: TypeConverter[String, Seq[Boolean]] = stringToSeq(stringToBoolean)
+  implicit val stringToSeqFloat: TypeConverter[String, Seq[Float]] = stringToSeq(stringToFloat)
+  implicit val stringToSeqDouble: TypeConverter[String, Seq[Double]] = stringToSeq(stringToDouble)
+  implicit val stringToSeqByte: TypeConverter[String, Seq[Byte]] = stringToSeq(stringToByte)
+  implicit val stringToSeqShort: TypeConverter[String, Seq[Short]] = stringToSeq(stringToShort)
+  implicit val stringToSeqInt: TypeConverter[String, Seq[Int]] = stringToSeq(stringToInt)
+  implicit val stringToSeqLong: TypeConverter[String, Seq[Long]] = stringToSeq(stringToLong)
+  implicit val stringToSeqString: TypeConverter[String, Seq[String]] = stringToSeq(stringToSelf)
 
   def stringToDate(format: => String): TypeConverter[String, Date] = stringToDateFormat(new SimpleDateFormat(format))
 
   def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] = safe(format.parse(_))
 
   def stringToSeq[T](elementConverter: TypeConverter[String, T], separator: String = ","): TypeConverter[String, Seq[T]] =
-    safe(s => s.split(separator).toSeq.flatMap(e => elementConverter.apply(e)))
+    safe(s => s.split(separator).toSeq.flatMap(e => elementConverter.apply(e.trim)))
 }
+
 
 /**
  * Implicit TypeConverter values for value types and some factory method for
@@ -82,6 +89,8 @@ trait ConvertedImplicitConversions extends TypeConverterSupport {
   implicit val stringToLong: TypeConverter[String, ConvertedLong] = safe(s => ConvertedLong(s.toLong))
 
   implicit val stringToSelf: TypeConverter[String, ConvertedString] = safe(ConvertedString.apply)
+
+
 
 
 

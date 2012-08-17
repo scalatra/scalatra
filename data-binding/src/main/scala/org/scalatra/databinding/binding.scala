@@ -10,63 +10,153 @@ import org.joda.time.DateTime
 import util.{MultiParamsValueReader, StringMapValueReader, ValueReader}
 import java.text.{DateFormat, SimpleDateFormat}
 
+
 class BindingException(message: String) extends ScalatraException(message)
 
-object B  {
-  
-  import BindingSyntax._
 
-  //  case class UnbuiltContainer(binding: Binding[T]) {
-//    def apply[S, I](data: S, tc: TypeConverter[I, T])(implicit r: S => ValueReader[S, I], mf: Manifest[I], z: Zero[I]): BindingContainer = {
-//      implicit val convert = tc
-//      BindingContainer(binding(data.read(binding.name)), tc)
-//    }
-//  }
-  
-//  class BinderBuilder[T:Manifest:Zero](binding: Binding[T])
-  
-  trait UnbuiltContainer {
-    def apply[S, I](data: S)(implicit r: S => ValueReader[S, I], mf: Manifest[I], z: Zero[I]): BindingContainer
+trait Command extends BindingSyntax {
+
+
+  // implicit conversions are brought into scope with the binding syntax trait
+  import Command._
+
+
+  var bindings: Map[String, NewBindingContainer] = Map.empty
+
+  /**
+   * Create a binding with the given [[org.scalatra.command.field.Field]].
+   */
+  def bind[T: Manifest:Zero](field: String): Binding[T] = {
+    bindings += field -> NewBindingContainer[T](field)
+    bindings(field).binding.asInstanceOf[Binding[T]]
   }
-  
-  
+  def bind[T: Manifest:Zero](field: Binding[T]): Binding[T] = {
+    bindings += field.name -> NewBindingContainer[T](field)
+    field
+  }
 
-  def apply[A](beginWith: Binding[A])(implicit ma: Manifest[A], za: Zero[A]) = {
-    () => new {
-      
-      val binding: Binding[A] = beginWith
-      type Binder = {
-        def apply[S, I](data: S, tc: TypeConverter[I, A])(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I]): BindingContainer  
-      }
-      def apply[S, I](data: S, tc: TypeConverter[I, A])(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I]): BindingContainer = {
-        implicit val convert = tc
-        BindingContainer(binding(data.read(binding.name)), tc)
-      }
+  def apply(name: String): NewBindingContainer = bindings(name)
+
+  protected def stringMapConverters: PartialFunction[Manifest[_], TypeConverter[String, _]] = {
+    case a if a <:< manifest[Boolean] => typeConverter[String, Boolean]
+    case a if a <:< manifest[String] => typeConverter[String, String]
+    case a if a <:< manifest[Float] => typeConverter[String, Float]
+    case a if a <:< manifest[Double] => typeConverter[String, Double]
+    case a if a <:< manifest[Byte] => typeConverter[String, Byte]
+    case a if a <:< manifest[Short] => typeConverter[String, Short]
+    case a if a <:< manifest[Int] => typeConverter[String, Int]
+    case a if a <:< manifest[Long] => typeConverter[String, Long]
+    case a if a <:< manifest[Date] => typeConverter[String, Date]
+    case a if a <:< manifest[DateTime] => typeConverter[String, DateTime]
+    case a if a <:< manifest[Seq[String]] => typeConverter[String, Seq[String]]
+    case a if a <:< manifest[Seq[Boolean]] => typeConverter[String, Seq[Boolean]]
+    case a if a <:< manifest[Seq[Float]] => typeConverter[String, Seq[Float]]
+    case a if a <:< manifest[Seq[Double]] => typeConverter[String, Seq[Double]]
+    case a if a <:< manifest[Seq[Byte]] => typeConverter[String, Seq[Byte]]
+    case a if a <:< manifest[Seq[Short]] => typeConverter[String, Seq[Short]]
+    case a if a <:< manifest[Seq[Int]] => typeConverter[String, Seq[Int]]
+    case a if a <:< manifest[Seq[Long]] => typeConverter[String, Seq[Long]]
+    case a if a <:< manifest[Seq[Date]] => typeConverter[String, Seq[Date]]
+    case a if a <:< manifest[Seq[DateTime]] => typeConverter[String, Seq[DateTime]]
+    case a => throw new BindingException("No conversion registered for " + a.erasure.getName)
+  }
+
+  protected def multiMapConverters: PartialFunction[Manifest[_], TypeConverter[Seq[String], _]] = {
+    case _ => throw new RuntimeException("Not implemented yet")
+//    case a if a <:< manifest[Boolean] => typeConverter[Seq[String], Boolean]
+//    case a if a <:< manifest[String] => typeConverter[Seq[String], String]
+//    case a if a <:< manifest[Float] => typeConverter[Seq[String], Float]
+//    case a if a <:< manifest[Double] => typeConverter[Seq[String], Double]
+//    case a if a <:< manifest[Byte] => typeConverter[Seq[String], Byte]
+//    case a if a <:< manifest[Short] => typeConverter[Seq[String], Short]
+//    case a if a <:< manifest[Int] => typeConverter[Seq[String], Int]
+//    case a if a <:< manifest[Long] => typeConverter[Seq[String], Long]
+//    case a if a <:< manifest[Date] => typeConverter[Seq[String], Date]
+//    case a if a <:< manifest[DateTime] => typeConverter[Seq[String], DateTime]
+//    case a if a <:< manifest[Seq[String]] => typeConverter[Seq[String], Seq[String]]
+//    case a if a <:< manifest[Seq[Boolean]] => typeConverter[Seq[String], Seq[Boolean]]
+//    case a if a <:< manifest[Seq[Float]] => typeConverter[Seq[String], Seq[Float]]
+//    case a if a <:< manifest[Seq[Double]] => typeConverter[Seq[String], Seq[Double]]
+//    case a if a <:< manifest[Seq[Byte]] => typeConverter[Seq[String], Seq[Byte]]
+//    case a if a <:< manifest[Seq[Short]] => typeConverter[Seq[String], Seq[Short]]
+//    case a if a <:< manifest[Seq[Int]] => typeConverter[Seq[String], Seq[Int]]
+//    case a if a <:< manifest[Seq[Long]] => typeConverter[Seq[String], Seq[Long]]
+//    case a if a <:< manifest[Seq[Date]] => typeConverter[Seq[String], Seq[Date]]
+//    case a if a <:< manifest[Seq[DateTime]] => typeConverter[Seq[String], Seq[DateTime]]
+  }
+
+  protected def valueReaderToConverter: PartialFunction[ValueReader[_, _], PartialFunction[Manifest[_], TypeConverter[_, _]]] = {
+    case _: MultiParamsValueReader => multiMapConverters
+    case _ => stringMapConverters
+  }
+
+  def bindTo[S, I](data: S)(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I]): this.type = {
+    bindings = bindings map { case (name, b) =>
+      val cvv = valueReaderToConverter(data)(b.valueManifest)
+      val cv = cvv.asInstanceOf[TypeConverter[I, b.T]]
+      val container = BindingContainer(b.binding, cv)(mi, zi, b.valueManifest, b.valueZero)
+      name -> container(data.read(b.name).map(_.asInstanceOf[container.S]))
     }
-//    new UnbuiltContainer with AAA {
-//      type T = A
-//      val binding = beginWith
-//      def apply[S, I](data: S)(implicit r: S => ValueReader[S, I], mf: Manifest[I], z: Zero[I]): TypeConverter[I, A] => BindingContainer = {
-//            
-//        (tc: TypeConverter[I, A]) => {
-//          implicit val v = tc
-//          BindingContainer(beginWith(data.read(beginWith.name)), tc)
-//        }
-//      }
-//    }
+    this
   }
+
+}
+
+object Command {
+
+  def typeConverter[I, O](implicit tc: TypeConverter[I, O]) = implicitly[TypeConverter[I, O]]
+
 }
 
 object BindingContainer {
   def apply[I, A](fieldName: String, cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
-    implicit val tc = cv
-    new DefaultBindingContainer[I, A](Binding(fieldName))
+    apply(Binding[A](fieldName), cv)
   }
 
   def apply[I, A](prev: Binding[A], cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
     new DefaultBindingContainer(prev)(mf, z, mt, za, cv)
   }
+
+}
+sealed trait ContainerForBinding {
+  type T
+  private[this] var _binding: Binding[T] = null
+  def binding: Binding[T]
+  private[ContainerForBinding] def binding_=(newBinding: Binding[T]) = _binding.synchronized {
+    _binding = newBinding
+  }
+  private[databinding] def withBinding[A](newBinding: Binding[A]): Binding[A] = _binding.synchronized {
+    _binding = newBinding.asInstanceOf[Binding[T]]
+    newBinding
+  }
+}
+object NewBindingContainer {
+  def apply[A](initial: String)(implicit ma: Manifest[A], za: Zero[A]): NewBindingContainer = apply(Binding[A](initial))
+  def apply[A](initial: Binding[A])(implicit ma: Manifest[A], za: Zero[A]): NewBindingContainer = new NewBindingContainer {
+    type T = A
+    val binding: Binding[T] = initial
+    implicit val valueManifest: Manifest[T] = ma
+    implicit val valueZero: Zero[T] = za
+
+  }
+
+
+  def typeConverter[I, O](data: Manifest[I], mf: Manifest[O])(implicit tc: TypeConverter[I, O]) = implicitly[TypeConverter[I, O]]
+
+}
+
+trait NewBindingContainer extends ContainerForBinding {
+  type T
+  def binding: Binding[T]
+  implicit def valueManifest: Manifest[T]
+  implicit def valueZero: Zero[T]
+
+  def name: String = binding.name
+  def value: Option[T] = binding.value
+
   
+  override def toString() = 
+    "BindingContainer[%s](name: %s, value: %s)".format(valueManifest.erasure.getSimpleName, name, value)
 }
 
 private class DefaultBindingContainer[I, A]
@@ -81,20 +171,14 @@ private class DefaultBindingContainer[I, A]
   type S = I
 }
 
-trait BindingContainer  {
-  type T
+trait BindingContainer  extends NewBindingContainer {
   type S
-  
-  implicit def valueManifest: Manifest[T]
-  implicit def valueZero: Zero[T]
-  
+   
   implicit def sourceManifest: Manifest[S]
   implicit def sourceZero: Zero[S]
 
   implicit def typeConverter: TypeConverter[S, T]
-  def binding: Binding[T]
-  def name: String = binding.name
-  def value: Option[T] = binding.value
+
   def original: Option[S] = binding match {
     case b: ValidatableBinding[_, _] => Option(b.original.asInstanceOf[S])
     case _ => None
@@ -170,7 +254,7 @@ class BoundBinding[S, T](val original: S, val value: Option[T], val binding: Bin
 
 }
 
-class BasicBinding[T](val name: String, val validators: Seq[Validator[T]] = Nil, val defaultValue: T = null.asInstanceOf[T], transformations: Seq[T => T] = Nil) extends Binding[T] {
+class BasicBinding[T](val name: String, val validators: Seq[Validator[T]] = Nil, transformations: Seq[T => T] = Nil) extends Binding[T] {
 
   val value: Option[T] = None
 
@@ -178,10 +262,10 @@ class BasicBinding[T](val name: String, val validators: Seq[Validator[T]] = Nil,
     copy(validators = validators ++ bindingValidators.map(_.apply(name)))
   }
 
-  def copy(name: String = name, validators: Seq[Validator[T]] = validators, defaultValue: T = defaultValue, transformations: Seq[T => T] = transformations): Binding[T] =
-    new BasicBinding(name, validators, defaultValue, transformations)
+  def copy(name: String = name, validators: Seq[Validator[T]] = validators, transformations: Seq[T => T] = transformations): Binding[T] =
+    new BasicBinding(name, validators, transformations)
 
-  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] = {
+  def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] = {
     val endo: T => T = transformations.nonEmpty ? transformations.reduce(_ andThen _) | identity
     val o = ~original
     BoundBinding(o, convert(o) map endo, this)
@@ -191,64 +275,32 @@ class BasicBinding[T](val name: String, val validators: Seq[Validator[T]] = Nil,
 
 }
 
-//object BoundCommandBinding {
-//  def apply[S, T](original: S, value: Option[T], binding: Binding[T])(implicit command: Command): BoundBinding[S, T] =
-//      new BoundCommandBinding(original, value, binding)
-//}
-//
-//class BoundCommandBinding[S, T](original: S, value: Option[T], binding: Binding[T])(implicit command: Command) extends BoundBinding(original, value, binding) {
-//
-//  override def copy(original: S = original, value: Option[T] = value, binding: Binding[T] = binding): ValidatableBinding[S, T] =
-//    (command replace BoundCommandBinding(original, value, binding)).asInstanceOf[ValidatableBinding[S, T]]
-//
-//  override def validate: ValidatedBinding[S, T] =
-//    new ValidatedCommandBinding(BoundBinding(original, value, binding))
-//
-//
-//  override def hashCode() = binding.hashCode()
-//
-//  override def equals(obj: Any) = binding.equals(obj)
-//
-//
-////
-////  override def map[R: Manifest](endo: (T) => R): ValidatableBinding[S, R] = {
-////    (command replace BoundCommandBinding(original, value map endo, Binding(name, endo(defaultValue)))).asInstanceOf[ValidatableBinding[S, R]]
-////  }
-//}
+class ContainerBinding[T](name: String, validators: Seq[Validator[T]], transformations: Seq[T => T] = Nil, container: ContainerForBinding) extends BasicBinding[T](name, validators) {
+  override def copy(name: String = name, validators: Seq[Validator[T]] = validators, transformations: Seq[T => T] = transformations): Binding[T] = {
+    container withBinding new ContainerBinding(name, validators, transformations, container)
+  }
 
-//object CommandBinding {
-//  def apply[T](name: String, defaultValue: T = null.asInstanceOf[T])(implicit mf: Manifest[T], command: Command): Binding[T] = {
-//    new CommandBinding(name, defaultValue = defaultValue)
-//  }
-//}
-//class CommandBinding[T](
-//        name: String,
-//        validators: Seq[Validator[T]] = Nil,
-//        defaultValue: T = null.asInstanceOf[T],
-//        transformations: Seq[T => T] = Nil)(implicit valueManifest: Manifest[T], command: Command)
-//          extends BasicBinding[T](name, validators, defaultValue, transformations) {
-//
-//  override def copy(name: String = name, validators: Seq[Validator[T]] = validators, defaultValue: T = defaultValue, transformations: Seq[T => T] = transformations): Binding[T] = {
-//    command replace new CommandBinding(name, validators, defaultValue, transformations)
-//  }
-//
-//  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] = {
-//    val endo: T => T = transformations.nonEmpty ? transformations.reduce(_ andThen _) | identity
-//    // Strip command registration from here on out, the bound command takes over for that task
-//    BoundCommandBinding(~original, convert(~original) map endo, new BasicBinding(name, validators, defaultValue, transformations))
-//  }
-//
-////
-////  def map[R: Manifest](endo: (T) => R): Binding[R] = {
-////    val thisBinding = this
-////    new CommandBinding[R](name, validators, endo(defaultValue)) {
-////      override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: (S) => Option[R]): ValidatableBinding[S, R] = {
-////        thisBinding.apply(original) map endo
-////      }
-////    }
-////  }
-//
-//}
+  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableBinding[S, T] = {
+    val endo: T => T = transformations.nonEmpty ? transformations.reduce(_ andThen _) | identity
+    // Strip command registration from here on out, the bound command takes over for that task
+    val bnd = new BoundContainerBinding(~original, convert(~original) map endo, new BasicBinding(name, validators, transformations), container)
+    (container withBinding bnd).asInstanceOf[ValidatableBinding[S, T]]
+  }
+
+}
+
+class BoundContainerBinding[S, T](original: S, value: Option[T], binding: Binding[T], container: ContainerForBinding) extends BoundBinding[S,T](original, value, binding) {
+  override def copy(original: S = original, value: Option[T] = value, binding: Binding[T] = binding): ValidatableBinding[S, T] =
+    (container withBinding new BoundContainerBinding(original, value, binding, container)).asInstanceOf[ValidatableBinding[S, T]]
+
+
+  override def hashCode() = binding.hashCode()
+
+  override def equals(obj: Any) = binding.equals(obj)
+
+}
+
+
 
 /**
 * A field [[org.scalatra.command.Binding]] which value has been validated.
@@ -294,15 +346,9 @@ class ValidatedBindingDecorator[S, T](val binding: ValidatableBinding[S, T]) ext
   override def equals(obj: Any) = binding.equals(obj)
 
   def validators: Seq[Validator[T]] = binding.validators
-//
-//  implicit def valueManifest: Manifest[T] = binding.valueManifest
-//
-//  def defaultValue: T = binding.defaultValue
 
   def copy(binding: ValidatableBinding[S, T] = binding): ValidatedBinding[S, T]  = new ValidatedBindingDecorator(binding)
 
-//  def withDefault(default: T): Binding[T] =
-//    copy(binding.withDefault(default).asInstanceOf[ValidatableBinding[S, T]])
 
   def validateWith(validators: databinding.BindingValidator[T]*): Binding[T] =
     copy(binding.validateWith(validators:_*).asInstanceOf[ValidatableBinding[S, T]])
@@ -313,32 +359,16 @@ class ValidatedBindingDecorator[S, T](val binding: ValidatableBinding[S, T]) ext
 
   def transform(endo: T => T): ValidatedBinding[S, T] = copy(binding transform endo)
 
-//
-//  def map[R: Manifest](endo: (T) => R): ValidatedBinding[S, R] = {
-//    new ValidatedBindingDecorator(binding.map(endo)) {
-//      override lazy val validation: FieldValidation[R] = ValidatedBindingDecorator.this.validation map endo
-//    }
-//  }
 }
 
-//class ValidatedCommandBinding[S, T](binding: ValidatableBinding[S, T])(implicit command: Command) extends ValidatedBindingDecorator(binding) {
-//  override def copy(binding: ValidatableBinding[S, T]): ValidatedBinding[S, T] =
-//    (command replace new ValidatedCommandBinding(binding)).asInstanceOf[ValidatedBinding[S, T]]
-//
-////  override def map[R: Manifest](endo: (T) => R): ValidatedBinding[S, R] =
-////    (command replace new ValidatedCommandBinding(binding map endo)).asInstanceOf[ValidatedBinding[S, R]]
-//}
 
 object Binding {
 
-  def apply[T](name: String, defaultValue: T = null.asInstanceOf[T]): Binding[T] =
-    new BasicBinding(name, defaultValue = defaultValue)
+  def apply[T](name: String): Binding[T] = new BasicBinding(name)
 
 }
 
 trait BindingSyntax extends BindingImplicits {
-//  def asGeneric[S, T](name: String, f: (S) => T)(implicit mf: Manifest[T], tc: TypeConverter[S, T]): Binding[T] =
-//    new GenericBasicBinding(name)
 
   implicit def asType[T](name: String): Binding[T] = Binding[T](name)
 
@@ -357,35 +387,7 @@ trait BindingSyntax extends BindingImplicits {
 
 object BindingSyntax extends BindingSyntax
 
-//class GenericBasicBinding[V, T: Manifest](name: String, process: V => T)(implicit mf: Manifest[T]) extends BasicBinding[T](name) {
-//  override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: (S) => Option[T]): Binding[T] =
-//    BoundBinding(~original, original map (convert andThen process), this)
-//}
-//class GenericCommandBinding[T](name: String, process: T => T)(implicit mf: Manifest[T], command: Command) extends CommandBinding[T](name) {
-//  override def apply[S](original: Option[S])(implicit mf: Manifest[S], zero: Zero[S], convert: (S) => Option[T]): Binding[T] = {
-//    BoundCommandBinding(~original, original map (convert andThen process), new GenericBasicBinding[T](this.name, process))
-//  }
-//}
-//trait CommandBindingSyntax extends BindingImplicits {
-//
-//  protected implicit def thisCommand: Command
-//  implicit def asType[T:Manifest](name: String): Binding[T] = CommandBinding[T](name)
-//
-////  def asGeneric[S, T](name: String, f: (S) => T)(implicit mf: Manifest[T], tc: TypeConverter[S, T]): Binding[T] =
-////    new GenericCommandBinding[T](name, (s: S) => tc(s))
-//
-//  def asBoolean(name: String): Binding[Boolean] = CommandBinding[Boolean](name)
-//  def asByte(name: String): Binding[Byte] = CommandBinding[Byte](name)
-//  def asShort(name: String): Binding[Short] = CommandBinding[Short](name)
-//  def asInt(name: String): Binding[Int] = CommandBinding[Int](name)
-//  def asLong(name: String): Binding[Long] = CommandBinding[Long](name)
-//  def asFloat(name: String): Binding[Float] = CommandBinding[Float](name)
-//  def asDouble(name: String): Binding[Double] = CommandBinding[Double](name)
-//  def asString(name: String): Binding[String] = CommandBinding[String](name)
-//  def asDate(name: String): Binding[Date] = CommandBinding[Date](name)
-//  def asDateTime(name: String): Binding[DateTime] = CommandBinding[DateTime](name)
-//  def asSeq[T:Manifest](name: String): Binding[Seq[T]] = CommandBinding[Seq[T]](name)
-//}
+
 
 /**
 * Commonly-used field implementations factory.
@@ -399,6 +401,13 @@ trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorI
 
   implicit def stringToDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Date] =
     safeOption(s => df.parse(s).map(_.toDate))
+
+  implicit def stringToSeqDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Seq[DateTime]] =
+    stringToSeq(stringToDateTime)
+
+  implicit def stringToSeqDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Seq[Date]] =
+    stringToSeq(stringToDate)
+
 
 }
 

@@ -71,27 +71,30 @@ class BindingSpec extends Specification {
     
     "start the build process by taking a Binding[T]" in {
       import BindingSyntax._
-      val b = B(asString("login"))
-      
-      b().binding.name must_== "login"
+      val b = NewBindingContainer(asString("login"))
+      b[String]("format")(manifest[String], Zero[String]).binding.name must_== "login"
       
     }
     
     "build a BindingContainer with Map[String, String]" in {
       import util.ParamsValueReaderProperties._
-      val builder = B(Binding[String]("login"))
-      val bb = builder()
+      val builder = NewBindingContainer(Binding[String]("login"))
+      val bb = builder("html")
       val container = bb(Map("login" -> "joske"), implicitly[TypeConverter[String, String]])
       container.value must_== Some("joske")
     }
     
     "build a BindingContainer with Map[String, String] and multiple bindings in a Seq" in {
       import util.ParamsValueReaderProperties._
-      val builders = Seq(B(Binding[String]("login")), B(Binding[Int]("age")))
+      val builders = Seq(NewBindingContainer(Binding[String]("login")), NewBindingContainer(Binding[Int]("age")))
       val params = Map("login" -> "joske", "age" -> 25)
-      builders foreach { builder => 
-        val bind = builder.asInstanceOf[{type Binder}]
-      }
+//      type Binder[T] = {
+//        def apply[S, I](data: S, tc: TypeConverter[I, T])(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I]): BindingContainer
+//      }
+//      builders foreach { builder => 
+//        val bind = builder.asInstanceOf[Binder]
+//        bind(params)
+//      }
 //      val container = bb(Map("login" -> "joske"), implicitly[TypeConverter[String, String]])
 //      container.value must_== Some("joske")
     }
