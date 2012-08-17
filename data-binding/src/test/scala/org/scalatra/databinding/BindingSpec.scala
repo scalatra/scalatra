@@ -41,22 +41,22 @@ class BindingSpec extends Specification {
   }
 
   "A BindingContainer" should {
+    import TypeConverterFactory._
     "construct containers by name" in {
-      val cont = BindingContainer("login", implicitly[TypeConverter[String, String]])
+      val cont = BindingContainer("login", implicitly[TypeConverter[String, String]], StringTypeConverterFactory)
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
     }
 
     "construct containers by binding" in {
-      implicit val conv: TypeConverter[Seq[String], String] = (s: Seq[String]) => s.headOption
       val binding = newBinding[String]
-      val cont = BindingContainer(binding, implicitly[TypeConverter[Seq[String], String]])
+      val cont = BindingContainer(binding, implicitly[TypeConverter[Seq[String], String]], StringSeqTypeConverterFactory)
       cont.name must_== binding.name
       cont.original must beAnInstanceOf[Option[Seq[String]]]
     }
 
     "bind to the data" in {
-      val cont = BindingContainer("login", implicitly[TypeConverter[String, String]])
+      val cont = BindingContainer("login", implicitly[TypeConverter[String, String]], StringTypeConverterFactory)
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
       val bound = cont(Option("joske".asInstanceOf[cont.S]))
@@ -72,32 +72,18 @@ class BindingSpec extends Specification {
     "start the build process by taking a Binding[T]" in {
       import BindingSyntax._
       val b = NewBindingContainer(asString("login"))
-      b[String]("format")(manifest[String], Zero[String]).binding.name must_== "login"
+      b.binding.name must_== "login"
       
     }
     
     "build a BindingContainer with Map[String, String]" in {
-      import util.ParamsValueReaderProperties._
+      import TypeConverterFactory._
       val builder = NewBindingContainer(Binding[String]("login"))
-      val bb = builder("html")
-      val container = bb(Map("login" -> "joske"), implicitly[TypeConverter[String, String]])
-      container.value must_== Some("joske")
+      val conv = implicitly[TypeConverter[String, String]].asInstanceOf[TypeConverter[String, builder.T]]
+      val container = BindingContainer(builder.binding, conv, StringTypeConverterFactory)(manifest[String], implicitly[Zero[String]], builder.valueManifest, builder.valueZero)
+      container(Some("joske".asInstanceOf[container.S])).value must_== Some("joske")
     }
-    
-    "build a BindingContainer with Map[String, String] and multiple bindings in a Seq" in {
-      import util.ParamsValueReaderProperties._
-      val builders = Seq(NewBindingContainer(Binding[String]("login")), NewBindingContainer(Binding[Int]("age")))
-      val params = Map("login" -> "joske", "age" -> 25)
-//      type Binder[T] = {
-//        def apply[S, I](data: S, tc: TypeConverter[I, T])(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I]): BindingContainer
-//      }
-//      builders foreach { builder => 
-//        val bind = builder.asInstanceOf[Binder]
-//        bind(params)
-//      }
-//      val container = bb(Map("login" -> "joske"), implicitly[TypeConverter[String, String]])
-//      container.value must_== Some("joske")
-    }
+
   }
 
   "A BoundBinding" should {

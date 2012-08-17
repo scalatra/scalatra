@@ -14,153 +14,73 @@ import java.text.{DateFormat, SimpleDateFormat}
 class BindingException(message: String) extends ScalatraException(message)
 
 
-trait Command extends BindingSyntax {
 
-
-  // implicit conversions are brought into scope with the binding syntax trait
-  import Command._
-
-
-  var bindings: Map[String, NewBindingContainer] = Map.empty
-
-  /**
-   * Create a binding with the given [[org.scalatra.command.field.Field]].
-   */
-  def bind[T: Manifest:Zero](field: String): Binding[T] = {
-    bindings += field -> NewBindingContainer[T](field)
-    bindings(field).binding.asInstanceOf[Binding[T]]
-  }
-  def bind[T: Manifest:Zero](field: Binding[T]): Binding[T] = {
-    bindings += field.name -> NewBindingContainer[T](field)
-    field
-  }
-
-  def apply(name: String): NewBindingContainer = bindings(name)
-
-  protected def stringMapConverters: PartialFunction[Manifest[_], TypeConverter[String, _]] = {
-    case a if a <:< manifest[Boolean] => typeConverter[String, Boolean]
-    case a if a <:< manifest[String] => typeConverter[String, String]
-    case a if a <:< manifest[Float] => typeConverter[String, Float]
-    case a if a <:< manifest[Double] => typeConverter[String, Double]
-    case a if a <:< manifest[Byte] => typeConverter[String, Byte]
-    case a if a <:< manifest[Short] => typeConverter[String, Short]
-    case a if a <:< manifest[Int] => typeConverter[String, Int]
-    case a if a <:< manifest[Long] => typeConverter[String, Long]
-    case a if a <:< manifest[Date] => typeConverter[String, Date]
-    case a if a <:< manifest[DateTime] => typeConverter[String, DateTime]
-    case a if a <:< manifest[Seq[String]] => typeConverter[String, Seq[String]]
-    case a if a <:< manifest[Seq[Boolean]] => typeConverter[String, Seq[Boolean]]
-    case a if a <:< manifest[Seq[Float]] => typeConverter[String, Seq[Float]]
-    case a if a <:< manifest[Seq[Double]] => typeConverter[String, Seq[Double]]
-    case a if a <:< manifest[Seq[Byte]] => typeConverter[String, Seq[Byte]]
-    case a if a <:< manifest[Seq[Short]] => typeConverter[String, Seq[Short]]
-    case a if a <:< manifest[Seq[Int]] => typeConverter[String, Seq[Int]]
-    case a if a <:< manifest[Seq[Long]] => typeConverter[String, Seq[Long]]
-    case a if a <:< manifest[Seq[Date]] => typeConverter[String, Seq[Date]]
-    case a if a <:< manifest[Seq[DateTime]] => typeConverter[String, Seq[DateTime]]
-    case a => throw new BindingException("No conversion registered for " + a.erasure.getName)
-  }
-
-  protected def multiMapConverters: PartialFunction[Manifest[_], TypeConverter[Seq[String], _]] = {
-    case _ => throw new RuntimeException("Not implemented yet")
-//    case a if a <:< manifest[Boolean] => typeConverter[Seq[String], Boolean]
-//    case a if a <:< manifest[String] => typeConverter[Seq[String], String]
-//    case a if a <:< manifest[Float] => typeConverter[Seq[String], Float]
-//    case a if a <:< manifest[Double] => typeConverter[Seq[String], Double]
-//    case a if a <:< manifest[Byte] => typeConverter[Seq[String], Byte]
-//    case a if a <:< manifest[Short] => typeConverter[Seq[String], Short]
-//    case a if a <:< manifest[Int] => typeConverter[Seq[String], Int]
-//    case a if a <:< manifest[Long] => typeConverter[Seq[String], Long]
-//    case a if a <:< manifest[Date] => typeConverter[Seq[String], Date]
-//    case a if a <:< manifest[DateTime] => typeConverter[Seq[String], DateTime]
-//    case a if a <:< manifest[Seq[String]] => typeConverter[Seq[String], Seq[String]]
-//    case a if a <:< manifest[Seq[Boolean]] => typeConverter[Seq[String], Seq[Boolean]]
-//    case a if a <:< manifest[Seq[Float]] => typeConverter[Seq[String], Seq[Float]]
-//    case a if a <:< manifest[Seq[Double]] => typeConverter[Seq[String], Seq[Double]]
-//    case a if a <:< manifest[Seq[Byte]] => typeConverter[Seq[String], Seq[Byte]]
-//    case a if a <:< manifest[Seq[Short]] => typeConverter[Seq[String], Seq[Short]]
-//    case a if a <:< manifest[Seq[Int]] => typeConverter[Seq[String], Seq[Int]]
-//    case a if a <:< manifest[Seq[Long]] => typeConverter[Seq[String], Seq[Long]]
-//    case a if a <:< manifest[Seq[Date]] => typeConverter[Seq[String], Seq[Date]]
-//    case a if a <:< manifest[Seq[DateTime]] => typeConverter[Seq[String], Seq[DateTime]]
-  }
-
-  protected def valueReaderToConverter: PartialFunction[ValueReader[_, _], PartialFunction[Manifest[_], TypeConverter[_, _]]] = {
-    case _: MultiParamsValueReader => multiMapConverters
-    case _ => stringMapConverters
-  }
-
-  def bindTo[S, I](data: S)(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I]): this.type = {
-    bindings = bindings map { case (name, b) =>
-      val cvv = valueReaderToConverter(data)(b.valueManifest)
-      val cv = cvv.asInstanceOf[TypeConverter[I, b.T]]
-      val container = BindingContainer(b.binding, cv)(mi, zi, b.valueManifest, b.valueZero)
-      name -> container(data.read(b.name).map(_.asInstanceOf[container.S]))
-    }
-    this
-  }
-
-}
-
-object Command {
-
-  def typeConverter[I, O](implicit tc: TypeConverter[I, O]) = implicitly[TypeConverter[I, O]]
-
-}
 
 object BindingContainer {
-  def apply[I, A](fieldName: String, cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
-    apply(Binding[A](fieldName), cv)
+  def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
+    apply(Binding[A](fieldName), cv, tcf)
   }
 
-  def apply[I, A](prev: Binding[A], cv: TypeConverter[I, A])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
-    new DefaultBindingContainer(prev)(mf, z, mt, za, cv)
+  def apply[I, A](prev: Binding[A], cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): BindingContainer = {
+    new DefaultBindingContainer(prev, tcf)(mf, z, mt, za, cv)
   }
 
 }
 sealed trait ContainerForBinding {
   type T
+
   private[this] var _binding: Binding[T] = null
   def binding: Binding[T]
-  private[ContainerForBinding] def binding_=(newBinding: Binding[T]) = _binding.synchronized {
+  private[ContainerForBinding] def binding_=(newBinding: Binding[T]) = {
     _binding = newBinding
   }
-  private[databinding] def withBinding[A](newBinding: Binding[A]): Binding[A] = _binding.synchronized {
+  private[databinding] def withBinding[A](newBinding: Binding[A]): Binding[A] = {
     _binding = newBinding.asInstanceOf[Binding[T]]
     newBinding
   }
-}
-object NewBindingContainer {
-  def apply[A](initial: String)(implicit ma: Manifest[A], za: Zero[A]): NewBindingContainer = apply(Binding[A](initial))
-  def apply[A](initial: Binding[A])(implicit ma: Manifest[A], za: Zero[A]): NewBindingContainer = new NewBindingContainer {
-    type T = A
-    val binding: Binding[T] = initial
-    implicit val valueManifest: Manifest[T] = ma
-    implicit val valueZero: Zero[T] = za
-
-  }
-
-
-  def typeConverter[I, O](data: Manifest[I], mf: Manifest[O])(implicit tc: TypeConverter[I, O]) = implicitly[TypeConverter[I, O]]
-
-}
-
-trait NewBindingContainer extends ContainerForBinding {
-  type T
-  def binding: Binding[T]
-  implicit def valueManifest: Manifest[T]
-  implicit def valueZero: Zero[T]
 
   def name: String = binding.name
   def value: Option[T] = binding.value
 
-  
+  implicit def valueManifest: Manifest[T]
+  implicit def valueZero: Zero[T]
+
+  def typeConverterFactory: TypeConverterFactory[_]
+
+//  def original: Option[_] = None
+
+}
+
+object NewBindingContainer {
+  def apply[A](initial: String)(implicit ma: Manifest[A], za: Zero[A], tcFactory: TypeConverterFactory[A]): NewBindingContainer = apply(Binding[A](initial))
+  def apply[A](initial: Binding[A])(implicit ma: Manifest[A], za: Zero[A], tcFactory: TypeConverterFactory[A]): NewBindingContainer = {
+
+    new NewBindingContainer {
+
+      type T = A
+      val binding: Binding[T] = initial
+      implicit def valueManifest: Manifest[T] = ma
+      implicit def valueZero: Zero[T] = za
+
+      implicit def typeConverterFactory: TypeConverterFactory[_] = tcFactory
+
+    }
+
+  }
+
+}
+
+
+
+trait NewBindingContainer extends ContainerForBinding {
+
+
   override def toString() = 
     "BindingContainer[%s](name: %s, value: %s)".format(valueManifest.erasure.getSimpleName, name, value)
 }
 
 private class DefaultBindingContainer[I, A]
-                (val binding: Binding[A])(
+                (val binding: Binding[A], val typeConverterFactory: TypeConverterFactory[_])(
                     implicit
                     val sourceManifest: Manifest[I],
                     val sourceZero: Zero[I],
@@ -177,19 +97,20 @@ trait BindingContainer  extends NewBindingContainer {
   implicit def sourceManifest: Manifest[S]
   implicit def sourceZero: Zero[S]
 
-  implicit def typeConverter: TypeConverter[S, T]
-
   def original: Option[S] = binding match {
-    case b: ValidatableBinding[_, _] => Option(b.original.asInstanceOf[S])
+    case v: ValidatableBinding[_, _] => Some(v.original.asInstanceOf[S])
     case _ => None
   }
+
+
+  implicit def typeConverter: TypeConverter[S, T]
 
   override def toString() = {
     "BindingContainer[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, value, original)
   }
 
   def apply(toBind: Option[S]): BindingContainer = 
-    new DefaultBindingContainer(binding(toBind))(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+    new DefaultBindingContainer(binding(toBind), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
 }
 
@@ -349,7 +270,6 @@ class ValidatedBindingDecorator[S, T](val binding: ValidatableBinding[S, T]) ext
 
   def copy(binding: ValidatableBinding[S, T] = binding): ValidatedBinding[S, T]  = new ValidatedBindingDecorator(binding)
 
-
   def validateWith(validators: databinding.BindingValidator[T]*): Binding[T] =
     copy(binding.validateWith(validators:_*).asInstanceOf[ValidatableBinding[S, T]])
 
@@ -368,7 +288,57 @@ object Binding {
 
 }
 
-trait BindingSyntax extends BindingImplicits {
+//trait CommandBindingSyntax extends BindingSyntax {
+//
+//  private[this] var _stringParams: PartialFunction[Manifest[_], TypeConverter[String, _]] = {
+//    case a => throw new BindingException("No conversion registered for " + a.erasure.getName)
+//  }
+//  private[this] var _multiParams: PartialFunction[Manifest[_], TypeConverter[Seq[String], _]] = {
+//    case a => throw new BindingException("No conversion registered for " + a.erasure.getName)
+//  }
+//
+//  def stringParamsConverters = _stringParams
+//  def multiParamsConverters = _multiParams
+//
+//  protected def valueReaderToConverter: PartialFunction[ValueReader[_, _], PartialFunction[Manifest[_], TypeConverter[_, _]]] = {
+//    case _: MultiParamsValueReader => multiParamsConverters
+//    case _ => stringParamsConverters
+//  }
+//
+//  override implicit def safe[S:Manifest, T:Manifest](f: (S) => T): TypeConverter[S, T] = {
+//    val conv: TypeConverter[S, T] = super.safe(f)
+//    addToParamsPartialFunction(conv)(manifest[S], manifest[T])
+//    conv
+//  }
+//
+//  private[this] def addToParamsPartialFunction[S, T](conv: TypeConverter[S, T])(implicit ms: Manifest[S], mt: Manifest[T]) {
+//    val mf = manifest[S]
+//    mf match {
+//      case a if a <:< manifest[String] =>
+//        val pf: PartialFunction[Manifest[_], TypeConverter[String, T]] = {
+//          case b if b <:< manifest[T] => conv.asInstanceOf[TypeConverter[String, T]]
+//        }
+//        _stringParams = pf orElse _stringParams
+//
+//      case a if a <:< manifest[Seq[String]] =>
+//        val pf: PartialFunction[Manifest[_], TypeConverter[Seq[String], T]] = {
+//          case b if b <:< manifest[T] => conv.asInstanceOf[TypeConverter[Seq[String], T]]
+//        }
+//        _multiParams = pf orElse _multiParams
+//    }
+//
+//  }
+//
+//  override implicit def safeOption[S:Manifest, T:Manifest](f: (S) => Option[T]): TypeConverter[S, T] = {
+//    val conv: TypeConverter[S, T] = super.safeOption(f)
+//    addToParamsPartialFunction(conv)(manifest[S], manifest[T])
+//    conv
+//  }
+//
+//}
+
+trait BindingSyntax extends TypeConverterFactories {
+
 
   implicit def asType[T](name: String): Binding[T] = Binding[T](name)
 
@@ -379,6 +349,7 @@ trait BindingSyntax extends BindingImplicits {
   def asLong(name: String): Binding[Long] = Binding[Long](name)
   def asFloat(name: String): Binding[Float] = Binding[Float](name)
   def asDouble(name: String): Binding[Double] = Binding[Double](name)
+  def asBigDecimal(name: String): Binding[BigDecimal] = Binding[BigDecimal](name)
   def asString(name: String): Binding[String] = Binding[String](name)
   def asDate(name: String): Binding[Date] = Binding[Date](name)
   def asDateTime(name: String): Binding[DateTime] = Binding[DateTime](name)
@@ -397,16 +368,30 @@ object BindingSyntax extends BindingSyntax
 trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorImplicits {
 
   implicit def stringToDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, DateTime] =
-    safeOption(s => df.parse(s))
+    safeOption(df.parse)
 
   implicit def stringToDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Date] =
-    safeOption(s => df.parse(s).map(_.toDate))
+    safeOption(df.parse(_).map(_.toDate))
 
   implicit def stringToSeqDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Seq[DateTime]] =
     stringToSeq(stringToDateTime)
 
   implicit def stringToSeqDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Seq[Date]] =
     stringToSeq(stringToDate)
+
+  implicit def stringSeqToHeadDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], Date] =
+    seqHead(stringToDate)
+
+  implicit def stringSeqToHeadDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], DateTime] =
+    seqHead(stringToDateTime)
+
+  implicit def stringSeqToSeqDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], Seq[Date]] =
+    seqToSeq(stringToDate)
+
+  implicit def stringSeqToSeqDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], Seq[DateTime]] =
+    seqToSeq(stringToDateTime)
+
+
 
 
 }

@@ -10,6 +10,8 @@ import net.liftweb.json.JsonAST.{JValue, JNothing}
 package object databinding {
 
   type BindingValidator[T] = (String) => Validator[T]
+  type BindingAction = () => Any
+
   implicit val jacksonZero: Zero[JsonNode] = zero(MissingNode.getInstance)
   implicit val liftJsonZero: Zero[JValue] = zero(JNothing)
 }

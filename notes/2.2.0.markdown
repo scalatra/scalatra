@@ -5,6 +5,7 @@
 * Adds Jackson support
 * Adds common traits for pluggable json serialization, these traits allow library writers to write against a generic
   json interface. The application developer can then mix in the json support he wants and retain all functionality.
+* Defers reading request parameters until the last responsible moment (aka lazify)
 
 ### Core
 * Adds typed param support, previously in contrib
@@ -16,3 +17,25 @@
 ### Jackson
 * Implemented using new base traits
 * Adds ProductToJsonSupport trati like lift-json
+
+### Databinding
+* Adds a databinding module for commands.
+  The commands can have validations attached and will read data from headers, params and the request body (like json/xml)
+  This is implemented using an infrastructure of type classes and uses scalaz validations to capture the validation information.
+
+    class RegisterForm extends Command with JacksonJsonParsing {
+
+      bind("login").notBlank.minLength(6).validForFormat("\\w+".r)
+      bind("name")
+      bind("email").notBlank.validEmail
+      bind("homepage").validUrl
+      bind("passwordConfirmation")
+
+      // hopefully I can leverage macros to create these getters in 2.10
+      def login = apply("login")
+      def name = apply("name")
+      def email = apply("email")
+      def homepage = apply("homepage")
+      val password = apply("password")
+      val passwordConfirmation = apply("passwordConfirmation")
+    }
