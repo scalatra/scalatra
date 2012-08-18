@@ -15,73 +15,74 @@ import com.fasterxml.jackson.databind.{ObjectMapper, JsonNode}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.databind.node.TextNode
 import net.liftweb.json._
+import Imports._
 
 class BindingSpec extends Specification {
 
   implicit val formats: Formats = DefaultFormats
 
-  "A BasicBinding" should {
+  "A BasicField" should {
     "have a name" in {
-      Binding[String]("blah").name must_== "blah"
+      Field[String]("blah").name must_== "blah"
     }
     "begin the building process with a value of None" in {
-      newBinding[String].value must beNone
+      newBinding[String].value must_== "".success[ValidationError]
     }
     "begin the building process with empty validators" in {
-      newBinding[String].validators must beEmpty
+      newBinding[String].validator must beEmpty
     }
     "allow adding validators" in {
-      val b = newBinding[String].validateWith(_ => { case s => s.getOrElse("").success[FieldError] })
-      b.validators must not(beEmpty)
+      val b = newBinding[String].validateWith(_ => identity)
+      b.validator must not(beEmpty)
     }
     "bind to a string" in {
       val b = newBinding[String]
-      b("Hey".some).value must beSome("Hey")
+      b("Hey".some).value must_== "Hey".success[ValidationError]
     }
   }
 
-  "A BindingContainer" should {
-    import TypeConverterFactory._
+  "A Binding" should {
+    import TypeConverterFactoryImplicits._
     "construct containers by name" in {
-      val cont = BindingContainer("login", implicitly[TypeConverter[String, String]], StringTypeConverterFactory)
+      val cont = Binding("login", implicitly[TypeConverter[String, String]], stringTypeConverterFactory)
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
     }
 
     "construct containers by binding" in {
       val binding = newBinding[String]
-      val cont = BindingContainer(binding, implicitly[TypeConverter[Seq[String], String]], StringSeqTypeConverterFactory)
+      val cont = Binding(binding, implicitly[TypeConverter[Seq[String], String]], stringSeqTypeConverterFactory)
       cont.name must_== binding.name
       cont.original must beAnInstanceOf[Option[Seq[String]]]
     }
 
     "bind to the data" in {
-      val cont = BindingContainer("login", implicitly[TypeConverter[String, String]], StringTypeConverterFactory)
+      val cont = Binding("login", implicitly[TypeConverter[String, String]], stringTypeConverterFactory)
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
       val bound = cont(Option("joske".asInstanceOf[cont.S]))
       bound.name must_== "login"
       bound.original must_== Some("joske")
-      bound.value must_== Some("joske")
+      bound.value must_== "joske".success
     }
     
   }
   
-  "A BindingContainerBuilder" should {
-    
-    "start the build process by taking a Binding[T]" in {
+  "A BindingBuilder" should {
+    import TypeConverterFactoryImplicits._
+    "start the build process by taking a Field[T]" in {
       import BindingSyntax._
-      val b = NewBindingContainer(asString("login"))
-      b.binding.name must_== "login"
+      val b = Binding(asString("login"))
+      b.field.name must_== "login"
       
     }
     
-    "build a BindingContainer with Map[String, String]" in {
-      import TypeConverterFactory._
-      val builder = NewBindingContainer(Binding[String]("login"))
+    "build a Binding with Map[String, String]" in {
+
+      val builder = Binding(Field[String]("login"))
       val conv = implicitly[TypeConverter[String, String]].asInstanceOf[TypeConverter[String, builder.T]]
-      val container = BindingContainer(builder.binding, conv, StringTypeConverterFactory)(manifest[String], implicitly[Zero[String]], builder.valueManifest, builder.valueZero)
-      container(Some("joske".asInstanceOf[container.S])).value must_== Some("joske")
+      val container = Binding(builder.field, conv, stringTypeConverterFactory)(manifest[String], implicitly[Zero[String]], builder.valueManifest, builder.valueZero)
+      container(Some("joske".asInstanceOf[container.S])).value must_== "joske".success
     }
 
   }
@@ -98,73 +99,72 @@ class BindingSpec extends Specification {
     "forward the validators" in {
       val b = binding("blah".some)
       b must beAnInstanceOf[BoundBinding[String, String]]
-      b.validators must_== binding.validators
+      b.validator must_== binding.validator
     }
 
     "have the bound value" in {
       val b = binding("blah".some)
-      b.value must beSome("blah")
+      b.value must_== "blah".success[ValidationError]
     }
 
     "allow adding validators" in {
       val b = binding("blah".some)
-      val validator: Validator[String] = {case s => s.getOrElse("").success[FieldError]}
-      b.validateWith(_ => validator).validators.size must_== (binding.validators.size + 1)
+      b.validateWith(_ => identity).validator must beSome[Validator[String]]
     }
   }
 
   "BindingImplicits" should {
 
     import BindingImplicits._
-    "provide Binding[Boolean]" in {
+    "provide Field[Boolean]" in {
       testBinding[Boolean](true)
     }
 
-    "provide Binding[Float]" in {
+    "provide Field[Float]" in {
       testBinding[Float]((random * 100).toFloat)
     }
 
-    "provide Binding[Double]" in {
+    "provide Field[Double]" in {
       testBinding[Double]((random * 100))
     }
 
-    "provide Binding[Int]" in {
+    "provide Field[Int]" in {
       testBinding[Int]((random * 100).toInt)
     }
 
-    "provide Binding[Byte]" in {
+    "provide Field[Byte]" in {
       testBinding[Byte]((random * 100).toByte)
     }
 
-    "provide Binding[Short]" in {
+    "provide Field[Short]" in {
       testBinding[Short]((random * 100).toShort)
     }
 
-    "provide Binding[Long]" in {
+    "provide Field[Long]" in {
       testBinding[Long]((random * 100).toLong)
     }
 
-    "provide Binding[DateTime] for a ISO8601 date" in {
+    "provide Field[DateTime] for a ISO8601 date" in {
       testDateTimeBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Binding[DateTime] for a ISO8601 date without millis" in {
+    "provide Field[DateTime] for a ISO8601 date without millis" in {
       testDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Binding[DateTime] for a HTTP date" in {
+    "provide Field[DateTime] for a HTTP date" in {
       testDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-    "provide Binding[Date] for a ISO8601 date" in {
+    "provide Field[Date] for a ISO8601 date" in {
       testDateBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Binding[Date] for a ISO8601 date without millis" in {
+    "provide Field[Date] for a ISO8601 date without millis" in {
       testDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Binding[Date] for a HTTP date" in {
+    "provide Field[Date] for a HTTP date" in {
       testDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
@@ -173,55 +173,55 @@ class BindingSpec extends Specification {
 //  "JacksonBindingImplicits" should {
 //
 //    import JacksonBindingImplicits._
-//    "provide Binding[Boolean]" in {
+//    "provide Field[Boolean]" in {
 //      testJacksonBinding[Boolean](true)
 //    }
 //
-//    "provide Binding[Float]" in {
+//    "provide Field[Float]" in {
 //      testJacksonBinding[Float]((random * 100).toFloat)
 //    }
 //
-//    "provide Binding[Double]" in {
+//    "provide Field[Double]" in {
 //      testJacksonBinding[Double](random * 100)
 //    }
 //
-//    "provide Binding[Int]" in {
+//    "provide Field[Int]" in {
 //      testJacksonBinding[Int]((random * 100).toInt)
 //    }
 //
-//    "provide Binding[Byte]" in {
+//    "provide Field[Byte]" in {
 //      testJacksonBinding[Byte]((random * 100).toByte)
 //    }
 //
-//    "provide Binding[Short]" in {
+//    "provide Field[Short]" in {
 //      testJacksonBinding[Short]((random * 100).toShort)
 //    }
 //
-//    "provide Binding[Long]" in {
+//    "provide Field[Long]" in {
 //      testJacksonBinding[Long]((random * 100).toLong)
 //    }
 //
-//    "provide Binding[DateTime] for a ISO8601 date" in {
+//    "provide Field[DateTime] for a ISO8601 date" in {
 //      testJacksonDateTimeBinding(JodaDateFormats.Iso8601)
 //    }
 //
-//    "provide Binding[DateTime] for a ISO8601 date without millis" in {
+//    "provide Field[DateTime] for a ISO8601 date without millis" in {
 //      testJacksonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
 //    }
 //
-//    "provide Binding[DateTime] for a HTTP date" in {
+//    "provide Field[DateTime] for a HTTP date" in {
 //      testJacksonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
 //    }
 //
-//    "provide Binding[Date] for a ISO8601 date" in {
+//    "provide Field[Date] for a ISO8601 date" in {
 //      testJacksonDateBinding(JodaDateFormats.Iso8601)
 //    }
 //
-//    "provide Binding[Date] for a ISO8601 date without millis" in {
+//    "provide Field[Date] for a ISO8601 date without millis" in {
 //      testJacksonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
 //    }
 //
-//    "provide Binding[Date] for a HTTP date" in {
+//    "provide Field[Date] for a HTTP date" in {
 //      testJacksonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
 //    }
 //
@@ -231,55 +231,55 @@ class BindingSpec extends Specification {
 //
 //    val imports = new LiftJsonBindingImports
 //    import imports._
-//    "provide Binding[Boolean]" in {
+//    "provide Field[Boolean]" in {
 //      testLiftJsonBinding[Boolean](true)
 //    }
 //
-//    "provide Binding[Float]" in {
+//    "provide Field[Float]" in {
 //      testLiftJsonBinding[Float]((random * 100).toFloat)
 //    }
 //
-//    "provide Binding[Double]" in {
+//    "provide Field[Double]" in {
 //      testLiftJsonBinding[Double](random * 100)
 //    }
 //
-//    "provide Binding[Int]" in {
+//    "provide Field[Int]" in {
 //      testLiftJsonBinding[Int]((random * 100).toInt)
 //    }
 //
-//    "provide Binding[Byte]" in {
+//    "provide Field[Byte]" in {
 //      testLiftJsonBinding[Byte]((random * 100).toByte)
 //    }
 //
-//    "provide Binding[Short]" in {
+//    "provide Field[Short]" in {
 //      testLiftJsonBinding[Short]((random * 100).toShort)
 //    }
 //
-//    "provide Binding[Long]" in {
+//    "provide Field[Long]" in {
 //      testLiftJsonBinding[Long]((random * 100).toLong)
 //    }
 //
-//    "provide Binding[DateTime] for a ISO8601 date" in {
+//    "provide Field[DateTime] for a ISO8601 date" in {
 //      testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601)
 //    }
 //
-//    "provide Binding[DateTime] for a ISO8601 date without millis" in {
+//    "provide Field[DateTime] for a ISO8601 date without millis" in {
 //      testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
 //    }
 //
-//    "provide Binding[DateTime] for a HTTP date" in {
+//    "provide Field[DateTime] for a HTTP date" in {
 //      testLiftJsonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
 //    }
 //
-//    "provide Binding[Date] for a ISO8601 date" in {
+//    "provide Field[Date] for a ISO8601 date" in {
 //      testLiftJsonDateBinding(JodaDateFormats.Iso8601)
 //    }
 //
-//    "provide Binding[Date] for a ISO8601 date without millis" in {
+//    "provide Field[Date] for a ISO8601 date without millis" in {
 //      testLiftJsonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
 //    }
 //
-//    "provide Binding[Date] for a HTTP date" in {
+//    "provide Field[Date] for a HTTP date" in {
 //      testLiftJsonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
 //    }
 //
@@ -289,52 +289,54 @@ class BindingSpec extends Specification {
     import BindingImplicits._
     "have a validation for notBlank" in {
       val field = newBinding[String].notBlank
-      field.validators must not(beEmpty)
-      field.validators.head.apply(Some("hello")).isSuccess must beTrue
-      field.validators.head.apply(Some("")).isSuccess must beFalse
-      field.validators.head.apply(None).isSuccess must beFalse
+      field.validator must not(beEmpty)
+      field.validator.get.apply("hello".success).isSuccess must beTrue
+      field.validator.get.apply("".success).isSuccess must beFalse
+      field.validator.get.apply(null.asInstanceOf[String].success).isSuccess must beFalse
     }
 
     "have a validation for greater than" in {
       val field = newBinding[Int].greaterThan(6)
-      field.validators must not(beEmpty)
-      field.validators.head.apply(Some(7)).isSuccess must beTrue
-      field.validators.head.apply(Some(6)).isSuccess must beFalse
-      field.validators.head.apply(Some(1)).isSuccess must beFalse
+      field.validator must not(beEmpty)
+      field.validator.get.apply(7.success).isSuccess must beTrue
+      field.validator.get.apply(6.success).isSuccess must beFalse
+      field.validator.get.apply(1.success).isSuccess must beFalse
     }
 
     "have a validation for non empty collection" in {
       val field = newBinding[Seq[String]].notEmpty
-      field.validators must not(beEmpty)
-      field.validators.head.apply(Some(Seq("hello"))).isSuccess must beTrue
-      field.validators.head.apply(Some(Seq.empty[String])).isSuccess must beFalse
+      field.validator must not(beEmpty)
+      field.validator.get.apply(Seq("hello").success).isSuccess must beTrue
+      field.validator.get.apply(Seq.empty[String].success).isSuccess must beFalse
     }
 
     "allow chaining validations" in {
-      val field = newBinding[String].notBlank.validForFormat("""\w+""".r).minLength(6)
-      field.validators must haveSize(3)
+      val field = newBinding[String].notBlank.minLength(6)
+      field.validator.get.apply("".success).isFailure must beTrue
+      field.validator.get.apply("abc".success).isFailure must beTrue
+      field.validator.get.apply("abcdef".success).isFailure must beFalse
     }
   }
 
   def testDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], converter: TypeConverter[String, DateTime]) = {
     val field = newBinding[DateTime]
-    field.value must beNone
+    field.value must_== (new DateTime(0)).success[ValidationError]
     val v = transform(new DateTime(DateTimeZone.UTC))
     val s = v.toString(format.dateTimeFormat)
-    field(Some(s)).value must beSome(v)
+    field(Some(s)).value must_== v.success[ValidationError]
   }
   def testDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], converter: TypeConverter[String, Date]) = {
     val field = newBinding[Date]
-    field.value must beNone
+    field.value must_== (new Date(0)).success[ValidationError]
     val v = transform(new DateTime(DateTimeZone.UTC))
     val s = v.toString(format.dateTimeFormat)
-    field(Some(s)).value must beSome(v.toDate)
+    field(Some(s)).value must_== v.toDate.success[ValidationError]
   }
-  def testBinding[T](value: => T)(implicit mf: Manifest[T], converter: TypeConverter[String, T]) = {
+  def testBinding[T](value: => T)(implicit mf: Manifest[T], z: Zero[T], converter: TypeConverter[String, T]) = {
     val field = newBinding[T]
-    field.value must beNone
+    field.value must_== z.zero.success[ValidationError]
     val v = value
-    field(Some(v.toString)).value must beSome(v)
+    field(Some(v.toString)).value must_== v.success[ValidationError]
   }
 
 //  val jsonMapper = new ObjectMapper()
@@ -388,7 +390,7 @@ class BindingSpec extends Specification {
 //    field(Some(Extraction.decompose(s))).value must beSome(v.toDate)
 //  }
 
-  def newBinding[T]: Binding[T] = Binding[T](randomFieldName)
+  def newBinding[T:Zero]: Field[T] = Field[T](randomFieldName)
 
   def randomFieldName = "field_" + random
 }

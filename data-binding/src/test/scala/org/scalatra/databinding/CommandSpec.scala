@@ -3,9 +3,12 @@ package databinding
 
 import org.specs2.mutable.Specification
 import json.JsonSupport
+import scalaz._
+import Scalaz._
+
 //import org.scalatra.validation.ValidationSupport
 
-trait BindingTemplate { self: Command =>
+trait BindingTemplate { self: Command with TypeConverterFactoryConversions =>
 
 
   val upperCaseName = bind[String]("name").transform(_.toUpperCase)
@@ -14,17 +17,19 @@ trait BindingTemplate { self: Command =>
 
   val age = asType[Int]("age") // explicit
 
-  val cap: Binding[Int] = "cap" // implicit
+  val cap: Field[Int] = "cap" // implicit
 
 }
 
-class WithBinding extends Command with BindingTemplate {
+trait WithBinding extends TypeConverterFactoryConversions with Command with BindingTemplate {
 
 
   val a = bind(upperCaseName)
 
   val lower = bind(lowerCaseSurname)
 }
+
+class WithBindingFromParams extends TypeConverterFactoryImplicits with WithBinding
 
 
 class CommandSpec extends Specification {
@@ -33,27 +38,27 @@ class CommandSpec extends Specification {
 //  implicit val formats: Formats = DefaultFormats
   "The 'Command' trait" should {
 
-//    "bind and register a 'Binding[T]' instance" in {
-//      val form = new WithBinding
-//      form.a must beAnInstanceOf[Binding[String]]
-//      form.a must_== form.upperCaseName
-//    }
-//
-//    "have unprocessed binding values set to 'None'" in {
-//      val form = new WithBinding
-//      form.a.value must_== None
-//      form.lower.value must_== None
-//    }
-
-    "doBinding 'params' Map and bind matching values to specific " in {
-      val form = new WithBinding
-      val params = Map("name" -> "John", "surname" -> "Doe")
-      form.bindTo(params)
-      form("name").value must_== Some(params("name").toUpperCase)
-      form("surname").value must_== Some(params("surname").toLowerCase)
+    "bind and register a 'Field[T]' instance" in {
+      val form = new WithBindingFromParams
+      form.a must beAnInstanceOf[Field[String]]
+      form.a must_== form.upperCaseName
     }
 
-//    "provide pluggable actions processed 'BEFORE' binding " in {
+    "have unprocessed binding values set to 'None'" in {
+      val form = new WithBindingFromParams
+      form.a.value must_== "".success
+      form.lower.value must_== "".success
+    }
+
+    "bindTo 'params' Map and bind matching values to specific keys" in {
+      val form = new WithBindingFromParams
+      val params = Map("name" -> "John", "surname" -> "Doe")
+      form.bindTo(params)
+      form("name").value must_== params("name").toUpperCase.success
+      form("surname").value must_== params("surname").toLowerCase.success
+    }
+
+    "provide pluggable actions processed 'BEFORE' binding " in {
 //      import System._
 //
 //      trait PreBindAction extends WithBinding {
@@ -68,7 +73,7 @@ class CommandSpec extends Specification {
 //
 //      }
 //
-//      val form = new WithBinding with PreBindAction
+//      val form = new WithBindingFromParams with PreBindAction
 //      val params = Map("name" -> "John", "surname" -> "Doe")
 //
 //      form.timestamp must_== 0L
@@ -77,8 +82,8 @@ class CommandSpec extends Specification {
 //
 //      bound.timestamp must be_<(currentTimeMillis())
 //      bound.a.value must beSome(params("name").toUpperCase)
-////      bound.a.asBound.original must_== params("name")
-//    }
+//      bound.a.asBound.original must_== params("name")
+    }
 //
 //    "provide pluggable actions processed 'AFTER' binding " in {
 //

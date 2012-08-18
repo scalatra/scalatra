@@ -52,8 +52,8 @@
 //
 //      //ageValidatedForm.errors.get("age").get.asInstanceOf[Rejected[Int]] aka "the validation error" must_== (Rejected(Some("Your age must be at least of 18"), Some(15)))
 //
-//      ageValidatedForm.legalAge.validation aka "the validation result" must_== Failure(FieldError("Your age must be at least of 18", 15))
-//      //ageValidatedForm.errors.filter(_.name == "age").head.validation aka "the validation result" must_== Failure(FieldError("Your age must be at least of 18", 15))
+//      ageValidatedForm.legalAge.validation aka "the validation result" must_== Failure(ValidationError("Your age must be at least of 18", 15))
+//      //ageValidatedForm.errors.filter(_.name == "age").head.validation aka "the validation result" must_== Failure(ValidationError("Your age must be at least of 18", 15))
 //    }
 //
 //

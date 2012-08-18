@@ -48,35 +48,35 @@ trait CommandSupport extends TypeConverterFactories { self: ScalatraBase =>
 * @version 0.1
 *
 */
-trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Command =>
+trait Command extends BindingSyntax with ParamsValueReaderProperties { self: TypeConverterFactoryConversions =>
 
 
   private[this] var preBindingActions: Seq[BindingAction] = Nil
 
   private[this] var postBindingActions: Seq[BindingAction] = Nil
 
-  private[scalatra] var bindings: Map[String, NewBindingContainer] = Map.empty
+  private[scalatra] var bindings: Map[String, Binding] = Map.empty
 
   /**
    * Create a binding with the given [[org.scalatra.command.field.Field]].
    */
-  def bind[T : Manifest : Zero : TypeConverterFactory](field: String): Binding[T] = {
-    bindings += field -> NewBindingContainer[T](field)
-    bindings(field).binding.asInstanceOf[Binding[T]]
+  def bind[T : Manifest : Zero : TypeConverterFactory](field: String): Field[T] = {
+    bindings += field -> Binding[T](field)
+    bindings(field).field.asInstanceOf[Field[T]]
   }
-  def bind[T : Manifest : Zero : TypeConverterFactory](field: Binding[T]): Binding[T] = {
-    bindings += field.name -> NewBindingContainer[T](field)
+  def bind[T : Manifest : Zero : TypeConverterFactory](field: Field[T]): Field[T] = {
+    bindings += field.name -> Binding[T](field)
     field
   }
 
-  def apply(name: String): NewBindingContainer = bindings(name)
+  def apply(name: String): Binding = bindings(name)
   
 //  def typeConverterFactory[S, I](tc: TypeConverterFactory[_], reader: ValueReader[S, I]): TypeConverter[I, _] =
 //    upcast[I](tc)(reader)
 
-  def typeConverterBuilder[I, T](tc: TypeConverterFactory[T]): PartialFunction[ValueReader[_, _], TypeConverter[I, T]] = {
-    case r: MultiParamsValueReader => tc.resolveMultiParams.asInstanceOf[TypeConverter[I, T]]
-    case r: StringMapValueReader => tc.resolveStringParams.asInstanceOf[TypeConverter[I, T]]
+  def typeConverterBuilder[I](tc: TypeConverterFactory[_]): PartialFunction[ValueReader[_, _], TypeConverter[I, _]] = {
+    case r: MultiParamsValueReader => tc.resolveMultiParams.asInstanceOf[TypeConverter[I, _]]
+    case r: StringMapValueReader => tc.resolveStringParams.asInstanceOf[TypeConverter[I, _]]
     case r => throw new BindingException("No converter found for value reader: " + r.getClass.getSimpleName)
   }
 
@@ -102,8 +102,9 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Com
     doBeforeBindingActions()
 
     bindings = bindings map { case (name, b) =>
-      val cv = typeConverterBuilder(b.typeConverterFactory)(data).asInstanceOf[TypeConverter[I, b.T]]
-      val container = BindingContainer(b.binding, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
+      val tcf = b.typeConverterFactory
+      val cv = typeConverterBuilder(tcf)(data).asInstanceOf[TypeConverter[I, b.T]]
+      val container = Binding(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
       val bound = container(data.read(b.name).map(_.asInstanceOf[container.S]))
 
       this match {
@@ -132,6 +133,8 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Com
 
 
 }
+
+trait ParamsOnlyCommand extends TypeConverterFactoryImplicits with Command
 
 trait ForceFromParams { self: Command =>
 

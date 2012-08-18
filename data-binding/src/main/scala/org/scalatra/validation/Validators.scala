@@ -20,7 +20,7 @@ object Validators {
       extends Validator[TValue] {
     def validate[TResult >: TValue <: TValue](value: TResult): FieldValidation[TResult] = {
       if (isValid(value)) value.success
-      else ValidationError(messageFormat.format(fieldName.humanize), fieldName.underscore).fail[TResult]
+      else ValidationError(messageFormat.format(fieldName.humanize), FieldName(fieldName)).fail[TResult]
     }
   }
 

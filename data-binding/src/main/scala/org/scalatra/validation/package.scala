@@ -3,8 +3,8 @@ package org.scalatra
 import scalaz.Validation
 
 package object validation {
-  type FieldValidation[T] = Validation[FieldError, T]
+  type FieldValidation[T] = Validation[ValidationError, T]
 
-  type Validator[T] = PartialFunction[Option[T], FieldValidation[T]]
+  type Validator[T] = FieldValidation[T] => FieldValidation[T]
 }
 

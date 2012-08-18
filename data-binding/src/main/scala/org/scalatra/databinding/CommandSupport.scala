@@ -19,9 +19,9 @@
 //  type CommandValidatedType = Command with ValidationSupport
 //
 //  /**
-//   * Implicitly convert a [[org.scalatra.command.Binding]] value to an [[scala.Option]]
+//   * Implicitly convert a [[org.scalatra.command.Field]] value to an [[scala.Option]]
 //   */
-//  implicit def bindingValue[T](b: Binding[T]): Option[T] = b.converted
+//  implicit def bindingValue[T](b: Field[T]): Option[T] = b.converted
 //
 //  /**
 //   * Create and bind a [[org.scalatra.command.Command]] of the given type with the current Scalatra params.

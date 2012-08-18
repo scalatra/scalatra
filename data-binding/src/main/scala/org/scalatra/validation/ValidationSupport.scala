@@ -25,7 +25,7 @@
 //
 //  def accept[T](value: T): FieldValidation[T] = success(value)
 //
-//  def reject[T](message: String, args: Any*): FieldValidation[T] = failure(FieldError(message, args:_*))
+//  def reject[T](message: String, args: Any*): FieldValidation[T] = failure(ValidationError(message, args:_*))
 //
 //  /**
 //   * Support class for 'validate' method provided by the implicit below.
@@ -49,7 +49,7 @@
 //  }
 //
 //  /**
-//   * Implicit enhancement for [[org.scalatra.command.Binding]]
+//   * Implicit enhancement for [[org.scalatra.command.Field]]
 //   */
 //  implicit def binding2Validated[S: Manifest, T:Manifest](binding: BoundBinding[S, T]) =
 //    new BindingValidationSupport(this, binding)
