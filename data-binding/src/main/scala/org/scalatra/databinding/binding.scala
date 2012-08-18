@@ -9,54 +9,119 @@ import Scalaz._
 import org.joda.time.DateTime
 import java.util.concurrent.atomic.AtomicReference
 import Imports._
+import scala.util.matching.Regex
 
 class BindingException(message: String) extends ScalatraException(message)
 
-//class CommandBinding(bnd: Binding) {
-//
-//  private[this] val _binding: AtomicReference[Binding] = new AtomicReference[Binding](bnd)
-//  def binding = _binding.get
-//  private[databinding] def withBinding(newBinding: Binding): Binding = {
-//    _binding.set(newBinding)
-//    newBinding
-//  }
-//}
+object FieldBinding {
+
+
+  def apply[A:Manifest:Zero:TypeConverterFactory](initial: Field[A]): FieldBinding = {
+    val cmd = new FieldBinding()
+    new PartialFieldBinding(initial, cmd)
+    cmd
+  }
+  private class PartialFieldBinding[A](val field: Field[A], fieldBinding: FieldBinding)(implicit val valueManifest: Manifest[A],
+                          val valueZero: Zero[A], val typeConverterFactory: TypeConverterFactory[A]) extends Binding {
+    fieldBinding withBinding this
+    type T = A
+    type S = Null
+    implicit def sourceManifest: Manifest[S] = null
+    implicit def sourceZero: Zero[S] = null
+    implicit def typeConverter: (S) => Option[T] = null
+    def apply(toBind: Option[S]): Binding = null
+
+    def validateWith(validators:BindingValidator[T]*): Binding =
+      fieldBinding withBinding new PartialFieldBinding(field.validateWith(validators:_*), fieldBinding)
+
+    def transform(transformer: (T) => T): Binding =
+      fieldBinding withBinding new PartialFieldBinding(field transform transformer, fieldBinding)
+  }
+
+  private class DataboundFieldBinding[I, A]
+                  (val field: Field[A], val typeConverterFactory: TypeConverterFactory[_], fieldBinding: FieldBinding)(
+                      implicit
+                      val sourceManifest: Manifest[I],
+                      val sourceZero: Zero[I],
+                      val valueManifest: Manifest[A],
+                      val valueZero: Zero[A],
+                      val typeConverter: TypeConverter[I, A]) extends Binding {
+
+    fieldBinding withBinding this
+    type T = A
+    type S = I
+
+    override def toString() = {
+      "Binding[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, value, original)
+    }
+
+    def transform(transformer: (T) => T): Binding = {
+      val bnd = new DataboundFieldBinding(field.transform(transformer), typeConverterFactory, fieldBinding)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+      fieldBinding withBinding bnd
+    }
+
+    def validateWith(validators:BindingValidator[T]*): Binding = {
+      val bnd = new DataboundFieldBinding(field.validateWith(validators:_*), typeConverterFactory, fieldBinding)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+      fieldBinding withBinding bnd
+    }
+
+    def apply(toBind: Option[S]): Binding =
+      fieldBinding withBinding new DataboundFieldBinding(field(toBind), typeConverterFactory, fieldBinding)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+
+  }
+}
+class FieldBinding{
+
+  import FieldBinding.DataboundFieldBinding
+
+  private[this] val _binding: AtomicReference[Binding] = new AtomicReference[Binding](null)
+  def binding: Binding = _binding.get
+  private[databinding] def withBinding(newBinding: Binding): Binding = {
+    _binding.set(newBinding)
+    newBinding
+  }
+
+  def bindData[I, A](prev: Field[A], cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): FieldBinding = {
+    new DataboundFieldBinding(prev, tcf, this)(mf, z, mt, za, cv)
+    this
+  }
+
+
+}
 
 object Binding {
+
+
   def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): Binding = {
     apply(Field[A](fieldName), cv, tcf)
   }
 
   def apply[I, A](prev: Field[A], cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): Binding = {
-    new DefaultBindingContainer(prev, tcf)(mf, z, mt, za, cv)
+    new DefaultBinding(prev, tcf)(mf, z, mt, za, cv)
   }
 
   def apply[A](initial: String)(implicit ma: Manifest[A], za: Zero[A], tcFactory: TypeConverterFactory[A]): Binding = apply(Field[A](initial))
   def apply[A](initial: Field[A])(implicit ma: Manifest[A], za: Zero[A], tcFactory: TypeConverterFactory[A]): Binding = {
-
-    new Binding {
-
-      type T = A
-      val field: Field[T] = initial
-      implicit def valueManifest: Manifest[T] = ma
-      implicit def valueZero: Zero[T] = za
-
-      implicit def typeConverterFactory: TypeConverterFactory[_] = tcFactory
-
-      type S = Null
-
-      implicit def sourceManifest: Manifest[S] = null
-
-      implicit def sourceZero: Zero[S] = null
-
-      implicit def typeConverter: (S) => Option[T] = null
-
-      def apply(toBind: Option[S]): Binding = null
-    }
-
+    new PartialBinding(initial)
   }
 
-  class DefaultBindingContainer[I, A]
+  private class PartialBinding[A](val field: Field[A])(implicit val valueManifest: Manifest[A],
+                        val valueZero: Zero[A], val typeConverterFactory: TypeConverterFactory[A]) extends Binding {
+    type T = A
+    type S = Null
+    implicit def sourceManifest: Manifest[S] = null
+    implicit def sourceZero: Zero[S] = null
+    implicit def typeConverter: (S) => Option[T] = null
+    def apply(toBind: Option[S]): Binding = null
+
+    def validateWith(validators:BindingValidator[T]*): Binding =
+      new PartialBinding(field.validateWith(validators:_*))
+
+    def transform(transformer: (T) => T): Binding =
+      new PartialBinding(field transform transformer)
+  }
+
+  private class DefaultBinding[I, A]
                   (val field: Field[A], val typeConverterFactory: TypeConverterFactory[_])(
                       implicit
                       val sourceManifest: Manifest[I],
@@ -71,8 +136,15 @@ object Binding {
       "Binding[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, value, original)
     }
 
+
+    def transform(transformer: (T) => T): Binding =
+      new DefaultBinding(field.transform(transformer), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+
+    def validateWith(validators:BindingValidator[T]*): Binding =
+      new DefaultBinding(field.validateWith(validators:_*), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+
     def apply(toBind: Option[S]): Binding =
-      new DefaultBindingContainer(field(toBind), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+      new DefaultBinding(field(toBind), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
   }
 
@@ -101,6 +173,9 @@ sealed trait Binding {
 
   implicit def sourceManifest: Manifest[S]
   implicit def sourceZero: Zero[S]
+
+  def validateWith(validators: BindingValidator[T]*): Binding
+  def transform(transformer: T => T): Binding
 
   def original: Option[S] = field match {
     case v: ValidatableField[_, _] => Some(v.original.asInstanceOf[S])
@@ -140,6 +215,11 @@ trait BindingSyntax {
   def asDate(name: String): Field[Date] = Field[Date](name)
   def asDateTime(name: String): Field[DateTime] = Field[DateTime](name)
   def asSeq[T](name: String): Field[Seq[T]] = Field[Seq[T]](name)
+
+  implicit def fieldBinding2Binding(cmd: FieldBinding) : Binding = {
+    val b = cmd.binding
+    b
+  }
 }
 
 object BindingSyntax extends BindingSyntax
@@ -180,3 +260,74 @@ trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorI
 
 object BindingImplicits extends BindingImplicits
 
+//object FieldBindingValidators {
+//
+//
+//  class ValidatableSeq[T <: Seq[_]](b: FieldBinding) {
+//    def notEmpty: FieldBinding = {
+//      val bnd = b.binding
+//      bnd.validateWith(BindingValidators.nonEmptyCollection)
+//      b
+////      b.binding.validateWith(BindingValidators.nonEmptyCollection)
+//    }
+//  }
+//
+//
+//  class ValidatableOrdered[T <% Ordered[T]](b: FieldBinding) {
+//    def greaterThan(min: T): FieldBinding = {
+//      val bnd = b.binding
+//      bnd.validateWith(BindingValidators.nonEmptyCollection)
+//      b
+//    }
+//      b.validateWith(BindingValidators.greaterThan(min))
+//
+//    def lessThan(max: T): FieldBinding =
+//      b.validateWith(BindingValidators.lessThan(max))
+//
+//    def greaterThanOrEqualTo(min: T): FieldBinding =
+//      b.validateWith(BindingValidators.greaterThanOrEqualTo(min))
+//
+//    def lessThanOrEqualTo(max: T): FieldBinding =
+//      b.validateWith(BindingValidators.lessThanOrEqualTo(max))
+//
+//  }
+//
+//  class ValidatableAnyBinding(b: Field[AnyRef]) {
+//    def required: Field[AnyRef] = b.validateWith(BindingValidators.notNull)
+//  }
+//
+//  class ValidatableGenericBinding[T](b: FieldBinding) {
+//    def oneOf(expected: T*): FieldBinding =
+//      b.validateWith(BindingValidators.oneOf(expected:_*))
+//
+//    def validate(validate: T => Boolean): FieldBinding = b.validateWith(BindingValidators.validate(validate))
+//  }
+//
+//  class ValidatableStringBinding(b: Field[String]) {
+//    def notBlank: Field[String] = b.validateWith(BindingValidators.nonEmptyString)
+//
+//    def validEmail: Field[String] = b.validateWith(BindingValidators.validEmail)
+//
+//    def validAbsoluteUrl(allowLocalHost: Boolean, schemes: String*): Field[String] =
+//      b.validateWith(BindingValidators.validAbsoluteUrl(allowLocalHost, schemes:_*))
+//
+//    def validUrl(allowLocalHost: Boolean, schemes: String*): Field[String] =
+//      b.validateWith(BindingValidators.validUrl(allowLocalHost, schemes:_*))
+//
+//    def validForFormat(regex: Regex, messageFormat: String = "%s is invalid."): Field[String] =
+//      b.validateWith(BindingValidators.validFormat(regex, messageFormat))
+//
+//    def validForConfirmation(confirmationFieldName: String, confirmationValue: String): Field[String] =
+//      b.validateWith(BindingValidators.validConfirmation(confirmationFieldName, confirmationValue))
+//
+//
+//    def minLength(min: Int): Field[String] =
+//      b.validateWith(BindingValidators.minLength(min))
+//
+//
+//    def enumValue(enum: Enumeration): Field[String] =
+//      b.validateWith(BindingValidators.enumValue(enum))
+//  }
+//
+//
+//}

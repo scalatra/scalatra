@@ -11,22 +11,22 @@ import Scalaz._
 trait BindingTemplate { self: Command with TypeConverterFactoryConversions =>
 
 
-  val upperCaseName = bind[String]("name").transform(_.toUpperCase)
+  val upperCaseName: FieldBinding = asString("name").transform(_.toUpperCase)
 
-  val lowerCaseSurname = asString("surname").transform(_.toLowerCase)
+  val lowerCaseSurname: FieldBinding = asString("surname").transform(_.toLowerCase)
 
-  val age = asType[Int]("age") // explicit
+  val age: FieldBinding = asType[Int]("age") // explicit
 
-  val cap: Field[Int] = "cap" // implicit
+  val cap: FieldBinding = ("cap" : Field[Int]) // implicit
 
 }
 
 trait WithBinding extends TypeConverterFactoryConversions with Command with BindingTemplate {
 
 
-  val a = bind(upperCaseName)
+  val a = upperCaseName
 
-  val lower = bind(lowerCaseSurname)
+  val lower = lowerCaseSurname
 }
 
 class WithBindingFromParams extends TypeConverterFactoryImplicits with WithBinding
@@ -35,12 +35,13 @@ class WithBindingFromParams extends TypeConverterFactoryImplicits with WithBindi
 class CommandSpec extends Specification {
 
   import org.scalatra.util.ParamsValueReaderProperties._
+  import BindingSyntax._
 //  implicit val formats: Formats = DefaultFormats
   "The 'Command' trait" should {
 
     "bind and register a 'Field[T]' instance" in {
       val form = new WithBindingFromParams
-      form.a must beAnInstanceOf[Field[String]]
+//      form.a.binding.field must beAnInstanceOf[Field[_]]
       form.a must_== form.upperCaseName
     }
 
@@ -54,8 +55,8 @@ class CommandSpec extends Specification {
       val form = new WithBindingFromParams
       val params = Map("name" -> "John", "surname" -> "Doe")
       form.bindTo(params)
-      form("name").value must_== params("name").toUpperCase.success
-      form("surname").value must_== params("surname").toLowerCase.success
+      form.a.value must_== params("name").toUpperCase.success
+      form.lower.value must_== params("surname").toLowerCase.success
     }
 
     "provide pluggable actions processed 'BEFORE' binding " in {

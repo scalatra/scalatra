@@ -55,22 +55,23 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
 
   private[this] var postBindingActions: Seq[BindingAction] = Nil
 
-  private[scalatra] var bindings: Map[String, Binding] = Map.empty
+  private[scalatra] var bindings: Seq[FieldBinding] = Nil
 
-  /**
-   * Create a binding with the given [[org.scalatra.command.field.Field]].
-   */
-  def bind[T : Manifest : Zero : TypeConverterFactory](field: String): Field[T] = {
-    bindings += field -> Binding[T](field)
-    bindings(field).field.asInstanceOf[Field[T]]
-  }
-  def bind[T : Manifest : Zero : TypeConverterFactory](field: Field[T]): Field[T] = {
-    bindings += field.name -> Binding[T](field)
-    field
+//  /**
+//   * Create a binding with the given [[org.scalatra.command.field.Field]].
+//   */
+//  def bind[T : Manifest : Zero : TypeConverterFactory](field: Field[T]): Binding = {
+//    val b = FieldBinding[T](field)
+//    bindings :+= b
+//    b.binding
+//  }
+
+  implicit def field2binding[T:Manifest:Zero:TypeConverterFactory](field: Field[T]): FieldBinding = {
+    val b = FieldBinding(field)
+    bindings :+= b
+    b
   }
 
-  def apply(name: String): Binding = bindings(name)
-  
 //  def typeConverterFactory[S, I](tc: TypeConverterFactory[_], reader: ValueReader[S, I]): TypeConverter[I, _] =
 //    upcast[I](tc)(reader)
 
@@ -101,23 +102,25 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
             paramsOnly: Boolean = false)(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I], multiParams: MultiParams => ValueReader[MultiParams, Seq[String]]): this.type = {
     doBeforeBindingActions()
 
-    bindings = bindings map { case (name, b) =>
+    bindings foreach { bb =>
+      val b = bb.binding
+      val name = b.name
       val tcf = b.typeConverterFactory
       val cv = typeConverterBuilder(tcf)(data).asInstanceOf[TypeConverter[I, b.T]]
-      val container = Binding(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
-      val bound = container(data.read(b.name).map(_.asInstanceOf[container.S]))
+      val bindData = bb.bindData(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
+      val fieldBinding = bindData.binding
+      fieldBinding(data.read(name).map(_.asInstanceOf[fieldBinding.S]))
 
       this match {
         case d: ForceFromParams if d.namesToForce.contains(name) =>
-          container(params.read(b.name).map(_.asInstanceOf[container.S]))
+          fieldBinding(params.read(name).map(_.asInstanceOf[fieldBinding.S]))
         case d: ForceFromHeaders if d.namesToForce.contains(name) =>
-          container(headers.get(name).map(_.asInstanceOf[container.S]))
+          fieldBinding(headers.get(name).map(_.asInstanceOf[fieldBinding.S]))
         case _ if paramsOnly =>
-          container(params.read(name).map(_.asInstanceOf[container.S]))
+          fieldBinding(params.read(name).map(_.asInstanceOf[fieldBinding.S]))
         case _ =>
-          container(data.read(name).map(_.asInstanceOf[container.S]))
+          fieldBinding(data.read(name).map(_.asInstanceOf[fieldBinding.S]))
       }
-      name -> bound
     }
 
     doAfterBindingActions()

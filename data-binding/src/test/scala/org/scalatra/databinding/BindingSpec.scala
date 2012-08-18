@@ -87,18 +87,18 @@ class BindingSpec extends Specification {
 
   }
 
-  "A BoundBinding" should {
+  "A BoundField" should {
     val binding = newBinding[String]
 
     "forward the binding name" in {
       val b = binding("blah".some)
-      b must beAnInstanceOf[BoundBinding[String, String]]
+      b must beAnInstanceOf[BoundField[String, String]]
       b.name must_== binding.name
     }
 
     "forward the validators" in {
       val b = binding("blah".some)
-      b must beAnInstanceOf[BoundBinding[String, String]]
+      b must beAnInstanceOf[BoundField[String, String]]
       b.validator must_== binding.validator
     }
 

@@ -2,7 +2,7 @@
 //package validation
 //
 //import scalaz.Validations
-//import databinding.{BoundBinding, Command, ValidatedBinding}
+//import databinding.{BoundField, Command, ValidatedBinding}
 //
 //trait ValidationSupport extends Validations {
 //
@@ -30,7 +30,7 @@
 //  /**
 //   * Support class for 'validate' method provided by the implicit below.
 //   */
-//  sealed class BindingValidationSupport[S: Manifest, T: Manifest](command: Command, binding: BoundBinding[S, T]) extends Validations {
+//  sealed class BindingValidationSupport[S: Manifest, T: Manifest](command: Command, binding: BoundField[S, T]) extends Validations {
 //
 //    private def acceptAsDefault: Validator[T] = {
 //      case Some(x) => accept[T](x)
@@ -51,7 +51,7 @@
 //  /**
 //   * Implicit enhancement for [[org.scalatra.command.Field]]
 //   */
-//  implicit def binding2Validated[S: Manifest, T:Manifest](binding: BoundBinding[S, T]) =
+//  implicit def binding2Validated[S: Manifest, T:Manifest](binding: BoundField[S, T]) =
 //    new BindingValidationSupport(this, binding)
 //
 //  /**

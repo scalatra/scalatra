@@ -6,8 +6,9 @@ import util.conversion._
 import scalaz._
 import Scalaz._
 
+
 object Field {
-  def apply[T:Zero](name: String): Field[T] = new BasicField[T](name)
+  def apply[T:Zero](name: String): Field[T] = new BasicField[T](name, transformations = identity)
 }
 trait Field[T] {
 
@@ -37,7 +38,7 @@ trait Field[T] {
 
 }
 
-class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] = None, transformations: Seq[T => T] = Nil) extends Field[T] {
+class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] = None, transformations: T => T = identity _) extends Field[T] {
 
   val value: FieldValidation[T] = mzero[T].success
 
@@ -48,7 +49,7 @@ class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] =
     copy(validator = validator.flatMap(v => nwValidators.map(v andThen _)) orElse nwValidators)
   }
 
-  def copy(name: String = name, validator: Option[Validator[T]] = validator, transformations: Seq[T => T] = transformations): Field[T] =
+  def copy(name: String = name, validator: Option[Validator[T]] = validator, transformations: T => T = transformations): Field[T] =
     new BasicField(name, validator, transformations)
 
   private def parseFailure[B](v: Option[B]): FieldValidation[B] =
@@ -57,12 +58,12 @@ class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] =
   def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableField[S, T] = {
     val o = ~original
     val conv = parseFailure(convert(o))
-    val endo: T => T = transformations.nonEmpty ? transformations.reduce(_ andThen _) | identity
+
     val validated = validator map (_ apply conv) getOrElse conv
-    BoundBinding(o, validated map endo, this)
+    BoundField(o, validated map transformations, this)
   }
 
-  def transform(endo: T => T): Field[T] = copy(transformations = transformations :+ endo)
+  def transform(endo: T => T): Field[T] = copy(transformations = transformations andThen endo)
 
 }
 
@@ -79,23 +80,23 @@ trait ValidatableField[S, T] extends Field[T] {
   override def toString() = "Field(name: %s, original: %s, value: %s)".format(name, original, value)
 }
 
-object BoundBinding {
+object BoundField {
   def apply[S, T](original: S, value: FieldValidation[T], binding: Field[T]): ValidatableField[S, T] =
-    new BoundBinding(original, value, binding)
+    new BoundField(original, value, binding)
 }
-class BoundBinding[S, T](val original: S, val value: FieldValidation[T], val field: Field[T]) extends ValidatableField[S, T] {
+class BoundField[S, T](val original: S, val value: FieldValidation[T], val field: Field[T]) extends ValidatableField[S, T] {
   def name: String = field.name
 
   override def hashCode(): Int = field.hashCode()
   override def equals(other: Any) = field.equals(other)
-  override def toString() = "BoundBinding(name: %s, original: %s, converted: %s)".format(name, original, value)
+  override def toString() = "BoundField(name: %s, original: %s, converted: %s)".format(name, original, value)
 
   def validateWith(bindingValidators: BindingValidator[T]*): Field[T] = {
     copy(field = field.validateWith(bindingValidators:_*))
   }
 
   def copy(original: S = original, value: FieldValidation[T] = value, field: Field[T] = field): ValidatableField[S, T] =
-    new BoundBinding(original, value, field)
+    new BoundField(original, value, field)
 
   def validator: Option[Validator[T]] = field.validator
 
