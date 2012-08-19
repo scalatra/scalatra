@@ -9,10 +9,6 @@ import collection.immutable
 import org.joda.time.DateTime
 import java.util.Date
 
-
-trait CommandSupport extends TypeConverterFactories { self: ScalatraBase =>
-
-}
 /**
 * Trait that identifies a ''Command object'', i.e. a Scala class instance which fields are bound to external parameters
 * taken from Scalatra' __params__ object.
@@ -57,23 +53,32 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
 
   private[scalatra] var bindings: Seq[FieldBinding] = Nil
 
-//  /**
-//   * Create a binding with the given [[org.scalatra.command.field.Field]].
-//   */
-//  def bind[T : Manifest : Zero : TypeConverterFactory](field: Field[T]): Binding = {
-//    val b = FieldBinding[T](field)
-//    bindings :+= b
-//    b.binding
-//  }
+  private var _errors: Seq[Binding] = Nil
+
+  /**
+   * Check whether this command is valid.
+   */
+  def isValid = errors.isEmpty
+  def isInvalid = errors.nonEmpty
+
+  /**
+   * Return a Map of all field command error keyed by field binding name (NOT the name of the variable in command
+   * object).
+   */
+  def errors: Seq[Binding] = _errors
+
+  /**
+   * Perform command as afterBinding task.
+   */
+  afterBinding {
+    _errors = bindings.filter(_.isInvalid).map(_.binding)
+  }
 
   implicit def field2binding[T:Manifest:Zero:TypeConverterFactory](field: Field[T]): FieldBinding = {
     val b = FieldBinding(field)
     bindings :+= b
     b
   }
-
-//  def typeConverterFactory[S, I](tc: TypeConverterFactory[_], reader: ValueReader[S, I]): TypeConverter[I, _] =
-//    upcast[I](tc)(reader)
 
   def typeConverterBuilder[I](tc: TypeConverterFactory[_]): PartialFunction[ValueReader[_, _], TypeConverter[I, _]] = {
     case r: MultiParamsValueReader => tc.resolveMultiParams.asInstanceOf[TypeConverter[I, _]]

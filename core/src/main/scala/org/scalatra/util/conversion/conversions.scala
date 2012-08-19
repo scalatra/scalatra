@@ -5,6 +5,7 @@ package conversion
 import java.util.Date
 import java.text.{DateFormat, SimpleDateFormat}
 import scala.util.control.Exception.allCatch
+import scala._
 
 /**
  * Support types and implicits for [[org.scalatra.common.conversions.TypeConverter]].
@@ -18,20 +19,15 @@ trait TypeConverterSupport {
   implicit def safeOption[S, T](f: S => Option[T]) = (s: S) => allCatch.withApply(_ => None)(f(s))
 
 }
-///**
-// * Support types and implicits for [[org.scalatra.common.conversions.TypeConverter]].
-// */
-//trait TypeConverterSeqSupport {
-//
-//  implicit def seqSafe[S, T](f: Seq[S] => T): TypeConverter[Seq[S], T] = (s) => allCatch opt f(s)
-//  /**
-//   * Implicit convert a `(String) => Option[T]` function into a `TypeConverter[T]`
-//   */
-//  implicit def seqSafeOption[S, T](f: Seq[S] => Option[T]) = (s: S) => allCatch.withApply(_ => None)(f(s))
-//
-//}
 
 object TypeConverterSupport extends TypeConverterSupport
+
+trait BigDecimalImplicitConversions extends TypeConverterSupport { self: DefaultImplicitConversions =>
+  implicit val stringToBigDecimal: TypeConverter[String, BigDecimal] = safe(BigDecimal(_))
+  implicit val stringToSeqBigDecimal: TypeConverter[String, Seq[BigDecimal]] = stringToSeq(stringToBigDecimal)
+  implicit val stringSeqToBigDecimal: TypeConverter[Seq[String], BigDecimal] = seqHead(stringToBigDecimal)
+  implicit val stringSeqToSeqBigDecimal: TypeConverter[Seq[String], Seq[BigDecimal]] = seqToSeq(stringToBigDecimal)
+}
 
 /**
  * Implicit TypeConverter values for value types and some factory method for
@@ -48,8 +44,6 @@ trait DefaultImplicitConversions extends TypeConverterSupport {
 
   implicit val stringToDouble: TypeConverter[String, Double] = safe(_.toDouble)
 
-  implicit val stringToBigDecimal: TypeConverter[String, BigDecimal] = safe(BigDecimal(_))
-
   implicit val stringToByte: TypeConverter[String, Byte] = safe(_.toByte)
 
   implicit val stringToShort: TypeConverter[String, Short] = safe(_.toShort)
@@ -65,8 +59,6 @@ trait DefaultImplicitConversions extends TypeConverterSupport {
   implicit val stringToSeqFloat: TypeConverter[String, Seq[Float]] = stringToSeq(stringToFloat)
 
   implicit val stringToSeqDouble: TypeConverter[String, Seq[Double]] = stringToSeq(stringToDouble)
-
-  implicit val stringToSeqBigDecimal: TypeConverter[String, Seq[BigDecimal]] = stringToSeq(stringToBigDecimal)
 
   implicit val stringToSeqByte: TypeConverter[String, Seq[Byte]] = stringToSeq(stringToByte)
 
@@ -97,7 +89,6 @@ trait DefaultImplicitConversions extends TypeConverterSupport {
 
   implicit val stringSeqToDouble: TypeConverter[Seq[String], Double] = seqHead(stringToDouble)
 
-  implicit val stringSeqToBigDecimal: TypeConverter[Seq[String], BigDecimal] = seqHead(stringToBigDecimal)
 
   implicit val stringSeqToByte: TypeConverter[Seq[String], Byte] = seqHead(stringToByte)
 
@@ -114,8 +105,6 @@ trait DefaultImplicitConversions extends TypeConverterSupport {
   implicit val stringSeqToSeqFloat: TypeConverter[Seq[String], Seq[Float]] = seqToSeq(stringToFloat)
 
   implicit val stringSeqToSeqDouble: TypeConverter[Seq[String], Seq[Double]] = seqToSeq(stringToDouble)
-
-  implicit val stringSeqToSeqBigDecimal: TypeConverter[Seq[String], Seq[BigDecimal]] = seqToSeq(stringToBigDecimal)
 
   implicit val stringSeqToSeqByte: TypeConverter[Seq[String], Seq[Byte]] = seqToSeq(stringToByte)
 
@@ -154,15 +143,3 @@ object Conversions extends DefaultImplicitConversions {
 
   implicit def stringToSeqConversion(source: String) = new SeqConversion(source)
 }
-
-case class ValueHolder[T: Manifest](value: Option[T]) {
-  def apply(): Option[T] = value
-}
-trait ValueHolderImplicits  {
-  private[scalatra] implicit def vh[T: Manifest](t: T): ValueHolder[T] = ValueHolder(Option(t))
-  private[scalatra] implicit def ovh[T: Manifest](t: Option[T]): ValueHolder[T] = ValueHolder(t)
-}
-//
-//trait ValueHolderImplicitConversions extends TypeConverterSupport[ValueHolder[_]] {
-//
-//}

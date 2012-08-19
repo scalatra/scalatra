@@ -1,6 +1,6 @@
 package org.scalatra
 
-import validation.Validator
+import validation.ValidationError
 import com.fasterxml.jackson.databind.JsonNode
 import scalaz._
 import Scalaz._
@@ -11,7 +11,12 @@ import org.joda.time.DateTime
 
 package object databinding {
 
+  type FieldValidation[T] = Validation[ValidationError, T]
+
+  type Validator[T] = FieldValidation[T] => FieldValidation[T]
+
   type BindingValidator[T] = (String) => Validator[T]
+
   type BindingAction = () => Any
 
   trait Implicits {
@@ -22,5 +27,6 @@ package object databinding {
     implicit val bigDecimalZero: Zero[BigDecimal] = zero(BigDecimal(0))
   }
   object Imports extends Implicits
+
 }
 

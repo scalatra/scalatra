@@ -1,7 +1,7 @@
 package org.scalatra
 package util
 
-import conversion.{ValueHolder, DefaultImplicitConversions}
+import conversion.DefaultImplicitConversions
 import org.specs2.mutable.Specification
 
 

@@ -25,7 +25,7 @@ trait TypeConverterFactories {
     def resolveMultiParams: TypeConverter[Seq[String], Double] = implicitly[TypeConverter[Seq[String], Double]]
     def resolveStringParams: TypeConverter[String, Double] = implicitly[TypeConverter[String, Double]]
   }
-  class BigDecimalTypeConverterFactory extends TypeConverterFactory[BigDecimal] {
+  class BigDecimalTypeConverterFactory extends TypeConverterFactory[BigDecimal] with BigDecimalImplicitConversions {
     def resolveMultiParams: TypeConverter[Seq[String], BigDecimal] = implicitly[TypeConverter[Seq[String], BigDecimal]]
     def resolveStringParams: TypeConverter[String, BigDecimal] = implicitly[TypeConverter[String, BigDecimal]]
   }
@@ -69,7 +69,7 @@ trait TypeConverterFactories {
     def resolveMultiParams: TypeConverter[Seq[String], Seq[Double]] = implicitly[TypeConverter[Seq[String], Seq[Double]]]
     def resolveStringParams: TypeConverter[String, Seq[Double]] = implicitly[TypeConverter[String, Seq[Double]]]
   }
-  class BigDecimalSeqTypeConverterFactory extends TypeConverterFactory[Seq[BigDecimal]] {
+  class BigDecimalSeqTypeConverterFactory extends TypeConverterFactory[Seq[BigDecimal]] with BigDecimalImplicitConversions {
     def resolveMultiParams: TypeConverter[Seq[String], Seq[BigDecimal]] = implicitly[TypeConverter[Seq[String], Seq[BigDecimal]]]
     def resolveStringParams: TypeConverter[String, Seq[BigDecimal]] = implicitly[TypeConverter[String, Seq[BigDecimal]]]
   }
@@ -104,11 +104,15 @@ trait TypeConverterFactories {
 
 }
 
+trait BigDecimalTypeConverterFactoryConversion {
+  implicit def bigDecimalTypeConverterFactory: TypeConverterFactory[BigDecimal]
+  implicit def bigDecimalSeqTypeConverterFactory: TypeConverterFactory[Seq[BigDecimal]]
+}
+
 trait TypeConverterFactoryConversions {
   implicit def booleanTypeConverterFactory: TypeConverterFactory[Boolean] 
   implicit def floatTypeConverterFactory: TypeConverterFactory[Float] 
   implicit def doubleTypeConverterFactory: TypeConverterFactory[Double]
-  implicit def bigDecimalTypeConverterFactory: TypeConverterFactory[BigDecimal] 
   implicit def byteTypeConverterFactory: TypeConverterFactory[Byte] 
   implicit def shortTypeConverterFactory: TypeConverterFactory[Short] 
   implicit def intTypeConverterFactory: TypeConverterFactory[Int] 
@@ -118,8 +122,7 @@ trait TypeConverterFactoryConversions {
   implicit def dateTimeTypeConverterFactory: TypeConverterFactory[DateTime] 
   implicit def booleanSeqTypeConverterFactory: TypeConverterFactory[Seq[Boolean]] 
   implicit def floatSeqTypeConverterFactory: TypeConverterFactory[Seq[Float]] 
-  implicit def doubleSeqTypeConverterFactory: TypeConverterFactory[Seq[Double]] 
-  implicit def bigDecimalSeqTypeConverterFactory: TypeConverterFactory[Seq[BigDecimal]] 
+  implicit def doubleSeqTypeConverterFactory: TypeConverterFactory[Seq[Double]]
   implicit def byteSeqTypeConverterFactory: TypeConverterFactory[Seq[Byte]] 
   implicit def shortSeqTypeConverterFactory: TypeConverterFactory[Seq[Short]] 
   implicit def intSeqTypeConverterFactory: TypeConverterFactory[Seq[Int]] 
@@ -135,7 +138,6 @@ trait TypeConverterFactoryImplicits extends TypeConverterFactoryConversions {
   implicit val booleanTypeConverterFactory: TypeConverterFactory[Boolean] = new BooleanTypeConverterFactory
   implicit val floatTypeConverterFactory: TypeConverterFactory[Float] = new FloatTypeConverterFactory
   implicit val doubleTypeConverterFactory: TypeConverterFactory[Double] = new DoubleTypeConverterFactory
-  implicit val bigDecimalTypeConverterFactory: TypeConverterFactory[BigDecimal] = new BigDecimalTypeConverterFactory
   implicit val byteTypeConverterFactory: TypeConverterFactory[Byte] = new ByteTypeConverterFactory
   implicit val shortTypeConverterFactory: TypeConverterFactory[Short] = new ShortTypeConverterFactory
   implicit val intTypeConverterFactory: TypeConverterFactory[Int] = new IntTypeConverterFactory
@@ -146,7 +148,6 @@ trait TypeConverterFactoryImplicits extends TypeConverterFactoryConversions {
   implicit val booleanSeqTypeConverterFactory: TypeConverterFactory[Seq[Boolean]] = new BooleanSeqTypeConverterFactory
   implicit val floatSeqTypeConverterFactory: TypeConverterFactory[Seq[Float]] = new FloatSeqTypeConverterFactory
   implicit val doubleSeqTypeConverterFactory: TypeConverterFactory[Seq[Double]] = new DoubleSeqTypeConverterFactory
-  implicit val bigDecimalSeqTypeConverterFactory: TypeConverterFactory[Seq[BigDecimal]] = new BigDecimalSeqTypeConverterFactory
   implicit val byteSeqTypeConverterFactory: TypeConverterFactory[Seq[Byte]] = new ByteSeqTypeConverterFactory
   implicit val shortSeqTypeConverterFactory: TypeConverterFactory[Seq[Short]] = new ShortSeqTypeConverterFactory
   implicit val intSeqTypeConverterFactory: TypeConverterFactory[Seq[Int]] = new IntSeqTypeConverterFactory
@@ -156,5 +157,11 @@ trait TypeConverterFactoryImplicits extends TypeConverterFactoryConversions {
   implicit val dateTimeSeqTypeConverterFactory: TypeConverterFactory[Seq[DateTime]] = new DateTimeSeqTypeConverterFactory
 }
 
+trait BigDecimalTypeConverterFactoryImplicits extends BigDecimalTypeConverterFactoryConversion  { self: TypeConverterFactoryConversions =>
+  import TypeConverterFactories._
+  implicit val bigDecimalTypeConverterFactory: TypeConverterFactory[BigDecimal] = new BigDecimalTypeConverterFactory
+  implicit val bigDecimalSeqTypeConverterFactory: TypeConverterFactory[Seq[BigDecimal]] = new BigDecimalSeqTypeConverterFactory
+
+}
 object TypeConverterFactoryImplicits extends TypeConverterFactoryImplicits
 object TypeConverterFactories extends TypeConverterFactories

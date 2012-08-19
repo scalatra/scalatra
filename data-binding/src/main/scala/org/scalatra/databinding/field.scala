@@ -19,6 +19,10 @@ trait Field[T] {
   def isValid = value.isSuccess
   def isInvalid = value.isFailure
 
+
+  def required: Field[T]
+  def optional: Field[T]
+
   override def toString() = "Field(name: %s)".format(name)
 
   def validateWith(validators: BindingValidator[T]*): Field[T]
@@ -38,7 +42,7 @@ trait Field[T] {
 
 }
 
-class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] = None, transformations: T => T = identity _) extends Field[T] {
+class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] = None, transformations: T => T = identity _, private[databinding] var isRequired: Boolean = false) extends Field[T] {
 
   val value: FieldValidation[T] = mzero[T].success
 
@@ -49,8 +53,8 @@ class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] =
     copy(validator = validator.flatMap(v => nwValidators.map(v andThen _)) orElse nwValidators)
   }
 
-  def copy(name: String = name, validator: Option[Validator[T]] = validator, transformations: T => T = transformations): Field[T] =
-    new BasicField(name, validator, transformations)
+  def copy(name: String = name, validator: Option[Validator[T]] = validator, transformations: T => T = transformations, isRequired: Boolean = isRequired): Field[T] =
+    new BasicField(name, validator, transformations, isRequired)
 
   private def parseFailure[B](v: Option[B]): FieldValidation[B] =
       v map (_.success) getOrElse ValidationError(name +" has invalid input", FieldName(name)).fail
@@ -59,12 +63,22 @@ class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] =
     val o = ~original
     val conv = parseFailure(convert(o))
 
-    val validated = validator map (_ apply conv) getOrElse conv
-    BoundField(o, validated map transformations, this)
+    if (!isRequired && o == zero.zero) {
+      BoundField(o, (~convert(o)).success, this)
+    } else {
+      val realValidator = if (isRequired) {
+        conv flatMap (v => if (v != zero.zero) v.success else ValidationError("%s is required.".format(name), FieldName(name)).fail)
+      } else conv
+      val validated = validator map (_ apply realValidator) getOrElse realValidator
+      BoundField(o, validated map transformations, this)
+    }
   }
 
   def transform(endo: T => T): Field[T] = copy(transformations = transformations andThen endo)
 
+  def required = copy(isRequired = true)
+
+  def optional = copy(isRequired = false)
 }
 
 
@@ -104,6 +118,11 @@ class BoundField[S, T](val original: S, val value: FieldValidation[T], val field
 
   def transform(endo: T => T): ValidatableField[S, T] = copy(value = value map endo)
 
+  def required = copy(field = field.required)
+
+  def optional = copy(field = field.optional)
+
+
 }
 
 //
@@ -131,7 +150,7 @@ trait BindingValidatorImplicits {
   implicit def validatableStringBinding(b: Field[String]) = new ValidatableStringBinding(b)
   implicit def validatableSeqBinding[T <: Seq[_]](b: Field[T]) = new ValidatableSeq(b)
   implicit def validatableGenericBinding[T](b: Field[T]) = new ValidatableGenericBinding(b)
-  implicit def validatableAnyBinding(b: Field[AnyRef]) = new ValidatableAnyBinding(b)
+//  implicit def validatableAnyBinding(b: Field[AnyRef]) = new ValidatableAnyBinding(b)
   implicit def validatableOrderedBinding[T <% Ordered[T]](b: Field[T]) = new ValidatableOrdered(b)
 
 }
@@ -159,10 +178,10 @@ object BindingValidators {
       b.validateWith(BindingValidators.lessThanOrEqualTo(max))
 
   }
-
-  class ValidatableAnyBinding(b: Field[AnyRef]) {
-    def required: Field[AnyRef] = b.validateWith(BindingValidators.notNull)
-  }
+//
+//  class ValidatableAnyBinding(b: Field[AnyRef]) {
+//    def required: Field[AnyRef] = b.validateWith(BindingValidators.notNull)
+//  }
 
   class ValidatableGenericBinding[T](b: Field[T]) {
     def oneOf(expected: T*): Field[T] =

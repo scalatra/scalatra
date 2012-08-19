@@ -2,6 +2,7 @@ package org.scalatra
 package validation
 
 import scala.util.matching.Regex
+import databinding.FieldValidation
 
 object Validation {
 

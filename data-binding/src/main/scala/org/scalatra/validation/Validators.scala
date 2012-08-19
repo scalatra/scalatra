@@ -10,6 +10,7 @@ import org.apache.commons.validator.routines.UrlValidator
 import scalaz._
 import Scalaz._
 import mojolly.inflector.InflectorImports._
+import databinding.FieldValidation
 
 object Validators {
   trait Validator[TValue] {

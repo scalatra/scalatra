@@ -164,6 +164,10 @@ sealed trait Binding {
   def name: String = field.name
   def value: FieldValidation[T] = field.value
 
+  def isValid = value.isSuccess
+  def isInvalid = value.isFailure
+
+
   implicit def valueManifest: Manifest[T]
   implicit def valueZero: Zero[T]
 
@@ -190,8 +194,6 @@ sealed trait Binding {
 
   override def toString() =
     "BindingContainer[%s](name: %s, value: %s, original: %s)".format(valueManifest.erasure.getSimpleName, name, value)
-
-//  def original: Option[_] = None
 
 }
 
@@ -222,7 +224,7 @@ trait BindingSyntax {
   }
 }
 
-object BindingSyntax extends BindingSyntax
+object BindingSyntax extends BindingSyntax with BindingValidatorImplicits
 
 
 
@@ -259,75 +261,3 @@ trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorI
 }
 
 object BindingImplicits extends BindingImplicits
-
-//object FieldBindingValidators {
-//
-//
-//  class ValidatableSeq[T <: Seq[_]](b: FieldBinding) {
-//    def notEmpty: FieldBinding = {
-//      val bnd = b.binding
-//      bnd.validateWith(BindingValidators.nonEmptyCollection)
-//      b
-////      b.binding.validateWith(BindingValidators.nonEmptyCollection)
-//    }
-//  }
-//
-//
-//  class ValidatableOrdered[T <% Ordered[T]](b: FieldBinding) {
-//    def greaterThan(min: T): FieldBinding = {
-//      val bnd = b.binding
-//      bnd.validateWith(BindingValidators.nonEmptyCollection)
-//      b
-//    }
-//      b.validateWith(BindingValidators.greaterThan(min))
-//
-//    def lessThan(max: T): FieldBinding =
-//      b.validateWith(BindingValidators.lessThan(max))
-//
-//    def greaterThanOrEqualTo(min: T): FieldBinding =
-//      b.validateWith(BindingValidators.greaterThanOrEqualTo(min))
-//
-//    def lessThanOrEqualTo(max: T): FieldBinding =
-//      b.validateWith(BindingValidators.lessThanOrEqualTo(max))
-//
-//  }
-//
-//  class ValidatableAnyBinding(b: Field[AnyRef]) {
-//    def required: Field[AnyRef] = b.validateWith(BindingValidators.notNull)
-//  }
-//
-//  class ValidatableGenericBinding[T](b: FieldBinding) {
-//    def oneOf(expected: T*): FieldBinding =
-//      b.validateWith(BindingValidators.oneOf(expected:_*))
-//
-//    def validate(validate: T => Boolean): FieldBinding = b.validateWith(BindingValidators.validate(validate))
-//  }
-//
-//  class ValidatableStringBinding(b: Field[String]) {
-//    def notBlank: Field[String] = b.validateWith(BindingValidators.nonEmptyString)
-//
-//    def validEmail: Field[String] = b.validateWith(BindingValidators.validEmail)
-//
-//    def validAbsoluteUrl(allowLocalHost: Boolean, schemes: String*): Field[String] =
-//      b.validateWith(BindingValidators.validAbsoluteUrl(allowLocalHost, schemes:_*))
-//
-//    def validUrl(allowLocalHost: Boolean, schemes: String*): Field[String] =
-//      b.validateWith(BindingValidators.validUrl(allowLocalHost, schemes:_*))
-//
-//    def validForFormat(regex: Regex, messageFormat: String = "%s is invalid."): Field[String] =
-//      b.validateWith(BindingValidators.validFormat(regex, messageFormat))
-//
-//    def validForConfirmation(confirmationFieldName: String, confirmationValue: String): Field[String] =
-//      b.validateWith(BindingValidators.validConfirmation(confirmationFieldName, confirmationValue))
-//
-//
-//    def minLength(min: Int): Field[String] =
-//      b.validateWith(BindingValidators.minLength(min))
-//
-//
-//    def enumValue(enum: Enumeration): Field[String] =
-//      b.validateWith(BindingValidators.enumValue(enum))
-//  }
-//
-//
-//}

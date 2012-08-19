@@ -4,7 +4,7 @@ import org.scalatra.util.conversion._
 import java.util.Date
 import java.text.{DateFormat, SimpleDateFormat}
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.{ArrayNode, MissingNode}
+import com.fasterxml.jackson.databind.node.{DecimalNode, ArrayNode, MissingNode}
 import collection.JavaConverters._
 import org.scalatra.json.JsonImplicitConversions
 
@@ -22,6 +22,10 @@ trait JacksonImplicitConversions extends JsonImplicitConversions[JsonNode] {
       Option(json) filter (_.isDouble) map (_.asDouble())
     }
 
+  implicit val jsonToBigDecimal: TypeConverter[JsonNode, BigDecimal] = safeOption { json =>
+    Option(json) filter (s => s.isBigDecimal) map (_.numberValue().asInstanceOf[BigDecimal])
+  }
+
   implicit val jsonToByte: TypeConverter[JsonNode, Byte] = safeOption { json =>
       Option(json) filter (j => j.isInt && j.asInt() >= Byte.MinValue && j.asInt() <= Byte.MaxValue) map (_.asInt().toByte)
     }
@@ -32,6 +36,11 @@ trait JacksonImplicitConversions extends JsonImplicitConversions[JsonNode] {
 
   implicit val jsonToInt: TypeConverter[JsonNode, Int] = safeOption { json =>
       Option(json) filter (_.isInt) map (_.asInt())
+    }
+
+
+  implicit val jsonToBigInt: TypeConverter[JsonNode, BigInt] = safeOption { json =>
+      Option(json) filter (_.isBigInteger) map (i => BigInt(i.textValue()))
     }
 
   implicit val jsonToLong: TypeConverter[JsonNode, Long] = safeOption { json =>

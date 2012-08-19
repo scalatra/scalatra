@@ -1,77 +1,73 @@
-//package org.scalatra
-//package validation
-//
-//import org.specs2.mutable.Specification
-//import scalaz.Failure
-//import net.liftweb.json.{DefaultFormats, Formats}
-//import org.scalatra.databinding.WithBinding
-//
-//class WithValidation extends WithBinding with ValidationSupport {
-//
-//  val notRequiredCap = bind(cap) validate {
-//    case Some(capval: Int) if capval <= 100 => reject("CAP value should be greater than 100", capval)
-//  }
-//
-//  val legalAge = bind(age) validate {
-//    case Some(yo: Int) if yo < 18 => reject("Your age must be at least of 18", yo)
-//    case None => reject("Age field is required")
-//  }
-//}
-//
-//
-//class ValidationSupportSpec extends Specification {
-//  implicit val formats: Formats = DefaultFormats
-//  "The 'ValidationSupport' trait" should {
-//
-//    "do normal binding within 'doBinding'" in {
-//
-//      val ageValidatedForm = new WithValidation
-//      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "15")
-//
-//      ageValidatedForm.doBinding(params)
-//
-//      ageValidatedForm.a.converted must_== Some(params("name").toUpperCase)
-//      ageValidatedForm.lower.converted must_== Some(params("surname").toLowerCase)
-//      ageValidatedForm.age.converted must_== Some(15)
-//
-//    }
-//
-//    "validate only 'validatable bindings' within doBinding" in {
-//
-//      val ageValidatedForm = new WithValidation
-//      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "15")
-//
-//      ageValidatedForm.valid must beNone
-//
-//      ageValidatedForm.doBinding(params)
-//
-//      ageValidatedForm.valid must beSome[Boolean]
-//      ageValidatedForm.valid.get must beFalse
-//
-//      ageValidatedForm.errors aka "validation error list" must have(_.name == "age")
-//
-//      //ageValidatedForm.errors.get("age").get.asInstanceOf[Rejected[Int]] aka "the validation error" must_== (Rejected(Some("Your age must be at least of 18"), Some(15)))
-//
-//      ageValidatedForm.legalAge.validation aka "the validation result" must_== Failure(ValidationError("Your age must be at least of 18", 15))
-//      //ageValidatedForm.errors.filter(_.name == "age").head.validation aka "the validation result" must_== Failure(ValidationError("Your age must be at least of 18", 15))
-//    }
-//
-//
-//    "evaluate non-exaustive validation as 'accepted'" in {
-//      val formUnderTest = new WithValidation
-//      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "20")
-//
-//      params must not haveKey ("cap")
-//
-//      formUnderTest.doBinding(params)
-//      formUnderTest.valid must beSome[Boolean]
-//      formUnderTest.valid.get must beTrue
-//
-//      formUnderTest.notRequiredCap.converted must beNone
-//      formUnderTest.notRequiredCap.valid must beTrue
-//    }
-//
-//  }
-//}
-//
-//
+package org.scalatra
+package validation
+
+import org.specs2.mutable.Specification
+import net.liftweb.json.{DefaultFormats, Formats}
+import databinding.{FieldBinding, WithBindingFromParams}
+import scalaz._
+import Scalaz._
+import org.scalatra.databinding.BindingSyntax._
+
+class WithValidation extends WithBindingFromParams {
+  val notRequiredCap: FieldBinding = asInt("cap").greaterThan(100)
+
+  val legalAge: FieldBinding = asInt("age").greaterThanOrEqualTo(18)
+}
+
+
+class ValidationSupportSpec extends Specification {
+  implicit val formats: Formats = DefaultFormats
+  import org.scalatra.util.ParamsValueReaderProperties._
+
+  "The 'ValidationSupport' trait" should {
+
+    "do normal binding within 'bindTo'" in {
+
+      val ageValidatedForm = new WithValidation
+      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "15")
+
+      ageValidatedForm.bindTo(params)
+
+      ageValidatedForm.a.value must_== params("name").toUpperCase.success
+      ageValidatedForm.lower.value must_== params("surname").toLowerCase.success
+      ageValidatedForm.age.value must_== 15.success
+
+    }
+
+    "validate only 'validatable bindings' within bindTo" in {
+
+      val ageValidatedForm = new WithValidation
+      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "15")
+
+      ageValidatedForm.isValid must beTrue
+
+      ageValidatedForm.bindTo(params)
+
+      ageValidatedForm.isValid must beFalse
+
+      ageValidatedForm.errors aka "validation error list" must have(_.name == "age")
+
+      //ageValidatedForm.errors.get("age").get.asInstanceOf[Rejected[Int]] aka "the validation error" must_== (Rejected(Some("Your age must be at least of 18"), Some(15)))
+
+      ageValidatedForm.legalAge.value aka "the validation result" must_== Failure(ValidationError("Age must be greater than or equal to 18", FieldName("age")))
+      //ageValidatedForm.errors.filter(_.name == "age").head.validation aka "the validation result" must_== Failure(ValidationError("Your age must be at least of 18", 15))
+    }
+
+
+    "evaluate non-exaustive validation as 'accepted'" in {
+      val formUnderTest = new WithValidation
+      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "20")
+
+      params must not haveKey ("cap")
+
+      formUnderTest.bindTo(params)
+      formUnderTest.isValid must beTrue
+
+      formUnderTest.notRequiredCap.value must_== 0.success
+      formUnderTest.notRequiredCap.isValid must beTrue
+    }
+
+  }
+}
+
+

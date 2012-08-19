@@ -13,6 +13,8 @@
 //
 //  implicit def jsonToDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[JsonNode, Date] =
 //    safeOption(s => if (s.isTextual()) df.parse(s.asText()).map(_.toDate) else None)
+//
+//
 //}
 //
 //object JacksonBindingImplicits extends JacksonBindingImplicits

@@ -10,6 +10,9 @@ import com.fasterxml.jackson.core.JsonGenerator
 
 private[jackson] trait JacksonOutput extends json.JsonOutput {
 
+  protected def useBigDecimalForFloats: Boolean = false
+  protected def useBigIntForInts: Boolean = false
+
   protected val jsonMapper = new ObjectMapper()
   val xmlMapper = new XmlMapper()
   configureJackson(jsonMapper)
@@ -17,6 +20,8 @@ private[jackson] trait JacksonOutput extends json.JsonOutput {
 
   protected def configureJackson(mapper: ObjectMapper) {
     mapper.registerModule(DefaultScalaModule)
+    mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, useBigDecimalForFloats)
+    mapper.configure(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS, useBigIntForInts)
     mapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false)
   }
 
