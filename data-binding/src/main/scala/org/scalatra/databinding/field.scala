@@ -31,8 +31,6 @@ trait Field[T] {
 
   override def hashCode() = 41 + 41 * name.hashCode()
 
-//  def map[B:Zero](endo: T => B): Field[B]
-
   def transform(endo: T => T): Field[T]
 
   override def equals(obj: Any) = obj match {
@@ -85,8 +83,6 @@ class BasicField[T:Zero](val name: String, val validator: Option[Validator[T]] =
 trait ValidatableField[S, T] extends Field[T] {
   def field: Field[T]
   def original: S
-//  def validate: ValidatedBinding[S, T]
-//  def map[R: Manifest](endo: T => R): ValidatableField[S, R]
   def transform(endo: T => T): ValidatableField[S, T]
   def apply[V](original: Option[V])(implicit zero: Zero[V], convert: TypeConverter[V, T]): ValidatableField[V, T] =
     this.asInstanceOf[ValidatableField[V, T]]
@@ -114,8 +110,6 @@ class BoundField[S, T](val original: S, val value: FieldValidation[T], val field
 
   def validator: Option[Validator[T]] = field.validator
 
-//  def validate: ValidatedBinding[S, T] = new ValidatedBindingDecorator(this)
-
   def transform(endo: T => T): ValidatableField[S, T] = copy(value = value map endo)
 
   def required = copy(field = field.required)
@@ -124,22 +118,6 @@ class BoundField[S, T](val original: S, val value: FieldValidation[T], val field
 
 
 }
-
-//
-//class ContainerField[T](name: String, validator: Option[Validator[T]]=None, transformations: Seq[T => T] = Nil, container: Binding) extends BasicField[T](name, validators) {
-//  override def copy(name: String = name, validator: Option[Validator[T]] = validator, transformations: Seq[T => T] = transformations): Field[T] = {
-//    container withBinding new ContainerField(name, validator, transformations, container)
-//  }
-//
-//  override def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableField[S, T] = {
-//    val endo: T => T = transformations.nonEmpty ? transformations.reduce(_ andThen _) | identity
-//    // Strip command registration from here on out, the bound command takes over for that task
-//    val bnd = new BoundContainerBinding(~original, convert(~original) map endo, new BasicField(name, validators, transformations), container)
-//    (container withBinding bnd).asInstanceOf[ValidatableField[S, T]]
-//  }
-//
-//}
-
 
 import scala.util.matching.Regex
 
@@ -150,7 +128,6 @@ trait BindingValidatorImplicits {
   implicit def validatableStringBinding(b: Field[String]) = new ValidatableStringBinding(b)
   implicit def validatableSeqBinding[T <: Seq[_]](b: Field[T]) = new ValidatableSeq(b)
   implicit def validatableGenericBinding[T](b: Field[T]) = new ValidatableGenericBinding(b)
-//  implicit def validatableAnyBinding(b: Field[AnyRef]) = new ValidatableAnyBinding(b)
   implicit def validatableOrderedBinding[T <% Ordered[T]](b: Field[T]) = new ValidatableOrdered(b)
 
 }
@@ -178,10 +155,6 @@ object BindingValidators {
       b.validateWith(BindingValidators.lessThanOrEqualTo(max))
 
   }
-//
-//  class ValidatableAnyBinding(b: Field[AnyRef]) {
-//    def required: Field[AnyRef] = b.validateWith(BindingValidators.notNull)
-//  }
 
   class ValidatableGenericBinding[T](b: Field[T]) {
     def oneOf(expected: T*): Field[T] =

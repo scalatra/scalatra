@@ -47,10 +47,7 @@ class ValidationSupportSpec extends Specification {
 
       ageValidatedForm.errors aka "validation error list" must have(_.name == "age")
 
-      //ageValidatedForm.errors.get("age").get.asInstanceOf[Rejected[Int]] aka "the validation error" must_== (Rejected(Some("Your age must be at least of 18"), Some(15)))
-
       ageValidatedForm.legalAge.value aka "the validation result" must_== Failure(ValidationError("Age must be greater than or equal to 18", FieldName("age")))
-      //ageValidatedForm.errors.filter(_.name == "age").head.validation aka "the validation result" must_== Failure(ValidationError("Your age must be at least of 18", 15))
     }
 
 
