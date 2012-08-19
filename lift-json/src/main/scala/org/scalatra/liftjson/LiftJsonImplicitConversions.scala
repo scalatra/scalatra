@@ -27,6 +27,9 @@ trait LiftJsonImplicitConversions extends JsonImplicitConversions[JValue] {
 
   implicit val jsonToSelf: TypeConverter[JValue, String] = safe(_.extract[String])
 
+  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safe(_.extract[BigInt])
+
+
   def jsonToDate(format: => String): TypeConverter[JValue, Date] = jsonToDateFormat(new SimpleDateFormat(format))
 
   def jsonToDateFormat(format: => DateFormat): TypeConverter[JValue, Date] =

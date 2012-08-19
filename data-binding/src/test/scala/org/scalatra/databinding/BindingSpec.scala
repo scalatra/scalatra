@@ -226,64 +226,64 @@ class BindingSpec extends Specification {
     }
 
   }
-//
-//  "LiftJsonBindingImplicits" should {
-//
-//    val imports = new LiftJsonBindingImports
-//    import imports._
-//    "provide Field[Boolean]" in {
-//      testLiftJsonBinding[Boolean](true)
-//    }
-//
-//    "provide Field[Float]" in {
-//      testLiftJsonBinding[Float]((random * 100).toFloat)
-//    }
-//
-//    "provide Field[Double]" in {
-//      testLiftJsonBinding[Double](random * 100)
-//    }
-//
-//    "provide Field[Int]" in {
-//      testLiftJsonBinding[Int]((random * 100).toInt)
-//    }
-//
-//    "provide Field[Byte]" in {
-//      testLiftJsonBinding[Byte]((random * 100).toByte)
-//    }
-//
-//    "provide Field[Short]" in {
-//      testLiftJsonBinding[Short]((random * 100).toShort)
-//    }
-//
-//    "provide Field[Long]" in {
-//      testLiftJsonBinding[Long]((random * 100).toLong)
-//    }
-//
-//    "provide Field[DateTime] for a ISO8601 date" in {
-//      testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601)
-//    }
-//
-//    "provide Field[DateTime] for a ISO8601 date without millis" in {
-//      testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
-//    }
-//
-//    "provide Field[DateTime] for a HTTP date" in {
-//      testLiftJsonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
-//    }
-//
-//    "provide Field[Date] for a ISO8601 date" in {
-//      testLiftJsonDateBinding(JodaDateFormats.Iso8601)
-//    }
-//
-//    "provide Field[Date] for a ISO8601 date without millis" in {
-//      testLiftJsonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
-//    }
-//
-//    "provide Field[Date] for a HTTP date" in {
-//      testLiftJsonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
-//    }
-//
-//  }
+
+  "LiftJsonBindingImplicits" should {
+
+    val imports = new LiftJsonBindingImports
+    import imports._
+    "provide Field[Boolean]" in {
+      testLiftJsonBinding[Boolean](true)
+    }
+
+    "provide Field[Float]" in {
+      testLiftJsonBinding[Float]((random * 100).toFloat)
+    }
+
+    "provide Field[Double]" in {
+      testLiftJsonBinding[Double](random * 100)
+    }
+
+    "provide Field[Int]" in {
+      testLiftJsonBinding[Int]((random * 100).toInt)
+    }
+
+    "provide Field[Byte]" in {
+      testLiftJsonBinding[Byte]((random * 100).toByte)
+    }
+
+    "provide Field[Short]" in {
+      testLiftJsonBinding[Short]((random * 100).toShort)
+    }
+
+    "provide Field[Long]" in {
+      testLiftJsonBinding[Long]((random * 100).toLong)
+    }
+
+    "provide Field[DateTime] for a ISO8601 date" in {
+      testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601)
+    }
+
+    "provide Field[DateTime] for a ISO8601 date without millis" in {
+      testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
+    }
+
+    "provide Field[DateTime] for a HTTP date" in {
+      testLiftJsonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
+    }
+
+    "provide Field[Date] for a ISO8601 date" in {
+      testLiftJsonDateBinding(JodaDateFormats.Iso8601)
+    }
+
+    "provide Field[Date] for a ISO8601 date without millis" in {
+      testLiftJsonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
+    }
+
+    "provide Field[Date] for a HTTP date" in {
+      testLiftJsonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
+    }
+
+  }
 
   "Defining validations" should {
     import BindingImplicits._
@@ -365,29 +365,29 @@ class BindingSpec extends Specification {
     field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.toDate.success
   }
 
-//  def testLiftJsonBinding[T](value: => T)(implicit mf: Manifest[T], converter: TypeConverter[JValue, T]) = {
-//    val field = newBinding[T]
-//    field.value must beNone
-//    val v = value
-//
-//    field(Some(Extraction.decompose(v))).value must beSome(v)
-//  }
-//
-//  def testLiftJsonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], converter: TypeConverter[JValue, DateTime]) = {
-//    val field = newBinding[DateTime]
-//    field.value must beNone
-//    val v = transform(new DateTime(DateTimeZone.UTC))
-//    val s = v.toString(format.dateTimeFormat)
-//    field(Some(Extraction.decompose(s))).value must beSome(v)
-//  }
-//
-//  def testLiftJsonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], converter: TypeConverter[JValue, Date]) = {
-//    val field = newBinding[Date]
-//    field.value must beNone
-//    val v = transform(new DateTime(DateTimeZone.UTC))
-//    val s = v.toString(format.dateTimeFormat)
-//    field(Some(Extraction.decompose(s))).value must beSome(v.toDate)
-//  }
+  def testLiftJsonBinding[T](value: => T)(implicit mf: Manifest[T], zt: Zero[T], converter: TypeConverter[JValue, T]) = {
+    val field = newBinding[T]
+    field.value must_== zt.zero.success
+    val v = value
+
+    field(Some(Extraction.decompose(v))).value must_== v.success
+  }
+
+  def testLiftJsonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], zt: Zero[DateTime], converter: TypeConverter[JValue, DateTime]) = {
+    val field = newBinding[DateTime]
+    field.value must_== zt.zero.success
+    val v = transform(new DateTime(DateTimeZone.UTC))
+    val s = v.toString(format.dateTimeFormat)
+    field(Some(Extraction.decompose(s))).value must_== v.success
+  }
+
+  def testLiftJsonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], zt: Zero[Date], converter: TypeConverter[JValue, Date]) = {
+    val field = newBinding[Date]
+    field.value must_== zt.zero.success
+    val v = transform(new DateTime(DateTimeZone.UTC))
+    val s = v.toString(format.dateTimeFormat)
+    field(Some(Extraction.decompose(s))).value must_== v.toDate.success
+  }
 
   def newBinding[T:Zero]: Field[T] = Field[T](randomFieldName)
 
