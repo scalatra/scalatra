@@ -4,12 +4,14 @@ package databinding
 import jackson.JacksonSupport
 import org.scalatra.test.specs2.MutableScalatraSpec
 
-class JacksonTestForm extends JacksonCommand {
+trait JsonTestFields { self: Command with TypeConverterFactoryConversions =>
 
   val name: FieldBinding = asString("name").minLength(5)
   val quantity: FieldBinding = asInt("quantity").greaterThan(3)
 
 }
+
+class JacksonTestForm extends JacksonCommand with JsonTestFields
 
 class JacksonCommandSpecServlet extends ScalatraServlet with JacksonSupport with CommandSupport with JacksonParsing {
 
@@ -26,15 +28,17 @@ class JacksonCommandSpecServlet extends ScalatraServlet with JacksonSupport with
 
 }
 
-class JacksonCommandSpec extends MutableScalatraSpec {
+
+class JacksonCommandSpec extends JsonCommandSpec("Jackson", new JacksonCommandSpecServlet)
+abstract class JsonCommandSpec(jsonTestTitle: String,  servletUnderTest: => ScalatraServlet) extends MutableScalatraSpec {
 
   val validJson = """{"name":"ihavemorethan5chars","quantity":5}"""
   val validXml = "<line><name>ihavemorethan5chars</name><quantity>5</quantity></line>"
   val invalidJson = """{"name":"4cha","quantity":2}"""
   val invalidXml = "<line><name>4cha</name><quantity>2</quantity></line>"
-  addServlet(new JacksonCommandSpecServlet, "/*")
+  addServlet(servletUnderTest, "/*")
 
-  "Jackson command support" should {
+  (jsonTestTitle + " command support") should {
 
     "read valid json" in {
       post("/valid", body = validJson, headers = Map("Content-Type" -> "application/json")) {

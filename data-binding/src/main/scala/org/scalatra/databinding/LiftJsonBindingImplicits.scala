@@ -151,7 +151,7 @@ trait LiftJsonTypeConverterFactories {
 }
 class LiftJsonTypeConverterFactoriesImpl(implicit protected val jsonFormats: Formats) extends LiftJsonTypeConverterFactories
 
-trait LiftJsonCommand extends LiftJsonTypeConverterFactories with Command { self: Command with TypeConverterFactoryConversions =>
+trait LiftJsonCommand extends LiftJsonTypeConverterFactories with LiftJsonTypeConverterFactoryImplicits with Command { self: Command with TypeConverterFactoryConversions =>
 
   protected implicit def jsonFormats: Formats
 

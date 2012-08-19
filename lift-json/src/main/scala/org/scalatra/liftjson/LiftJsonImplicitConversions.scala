@@ -11,23 +11,26 @@ trait LiftJsonImplicitConversions extends JsonImplicitConversions[JValue] {
 
   implicit protected def jsonFormats: Formats
 
-  implicit val jsonToBoolean: TypeConverter[JValue, Boolean] = safe(_.extract[Boolean])
+  implicit val jsonToBoolean: TypeConverter[JValue, Boolean] = safe(j => j.extractOpt[Boolean] getOrElse j.extract[String].toBoolean)
 
-  implicit val jsonToFloat: TypeConverter[JValue, Float] =  safe(_.extract[Float])
+  implicit val jsonToFloat: TypeConverter[JValue, Float] = safe(j => j.extractOpt[Float] getOrElse j.extract[String].toFloat)
 
-  implicit val jsonToDouble: TypeConverter[JValue, Double] = safe(_.extract[Double])
+  implicit val jsonToDouble: TypeConverter[JValue, Double] = safe(j => j.extractOpt[Double] getOrElse j.extract[String].toDouble)
 
-  implicit val jsonToByte: TypeConverter[JValue, Byte] = safe(_.extract[Byte])
+  implicit val jsonToByte: TypeConverter[JValue, Byte] = safe(j => j.extractOpt[Byte] getOrElse j.extract[String].toByte)
 
-  implicit val jsonToShort: TypeConverter[JValue, Short] = safe(_.extract[Short])
+  implicit val jsonToShort: TypeConverter[JValue, Short] = safe(j => j.extractOpt[Short] getOrElse j.extract[String].toShort)
 
-  implicit val jsonToInt: TypeConverter[JValue, Int] = safe(_.extract[Int])
+  implicit val jsonToInt: TypeConverter[JValue, Int] = safe(j => j.extractOpt[Int] getOrElse j.extract[String].toInt)
 
-  implicit val jsonToLong: TypeConverter[JValue, Long] = safe(_.extract[Long])
+  implicit val jsonToLong: TypeConverter[JValue, Long] = safe(j => j.extractOpt[Long] getOrElse j.extract[String].toLong)
 
   implicit val jsonToSelf: TypeConverter[JValue, String] = safe(_.extract[String])
 
-  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safe(_.extract[BigInt])
+  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safe(_ match {
+    case JInt(bigint) => bigint
+    case JString(v) => BigInt(v)
+  })
 
 
   def jsonToDate(format: => String): TypeConverter[JValue, Date] = jsonToDateFormat(new SimpleDateFormat(format))
