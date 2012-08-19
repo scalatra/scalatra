@@ -35,7 +35,7 @@ object ScalatraBuild extends Build {
       // (name in Posterous) := "scalatra",
       LsKeys.skipWrite := true
     ),
-    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, // scalatraDatabinding,
+    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
       scalatraScalate, scalatraJson, scalatraJackson, scalatraLiftJson, scalatraSlf4j,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
      scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty)

@@ -10,7 +10,7 @@ import collection.mutable
 /**
 * Support for [[org.scalatra.command.Command]] binding and validation.
 */
-trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProperties {
+trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProperties with BindingProxy {
 
   this: ScalatraBase =>
 
@@ -30,7 +30,7 @@ trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProper
   def command[T <: CommandType](implicit mf: Manifest[T]): T = {
     commandOption[T].getOrElse {
       val newCommand = mf.erasure.newInstance.asInstanceOf[T]
-      newCommand.bindTo(params)
+      newCommand.bindTo(params, multiParams, request.headers)
       requestProxy.update(commandRequestKey[T], newCommand)
       newCommand
     }

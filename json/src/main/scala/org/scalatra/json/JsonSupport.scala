@@ -7,6 +7,7 @@ object JsonSupport {
 
   val ParsedBodyKey = "org.scalatra.json.ParsedBody"
 }
+
 trait JsonSupport extends JsonOutput {
 
   import JsonSupport._

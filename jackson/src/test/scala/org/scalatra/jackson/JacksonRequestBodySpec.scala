@@ -18,7 +18,8 @@ class JacksonSupportServlet extends ScalatraServlet with JacksonSupport {
   }
 
   error {
-    case e: Throwable => e.printStackTrace()
+    case e: Throwable =>
+      e.printStackTrace()
   }
 }
 

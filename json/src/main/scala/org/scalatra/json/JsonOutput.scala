@@ -8,9 +8,13 @@ import java.io.{Writer, StringWriter, PrintWriter}
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
 }
-trait JsonOutput extends ApiFormats {
 
+
+trait JsonTypeAlias {
   protected type JsonType
+}
+trait JsonOutput extends ApiFormats with JsonTypeAlias {
+
   protected def jsonClass: Class[_]
 
   import JsonOutput._

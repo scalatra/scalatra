@@ -193,4 +193,23 @@ trait LiftJsonTypeConverterFactoryImplicits extends TypeConverterFactoryConversi
 
 trait LiftJsonParsing extends CommandSupport with LiftJsonValueReaderProperty { self: LiftJsonSupport with CommandSupport =>
   type CommandType = LiftJsonCommand
+  import Imports.liftJsonZero
+  /**
+   * Create and bind a [[org.scalatra.command.Command]] of the given type with the current Scalatra params.
+   *
+   * For every command type, creation and binding is performed only once and then stored into
+   * a request attribute.
+   */
+  override def command[T <: CommandType](implicit mf: Manifest[T]): T = {
+    commandOption[T].getOrElse {
+      val newCommand = mf.erasure.newInstance.asInstanceOf[T]
+      format match {
+        case "json" | "xml" => newCommand.bindTo(parsedBody, multiParams, request.headers)
+        case _ => newCommand.bindTo(params, multiParams, request.headers)
+      }
+      requestProxy.update(commandRequestKey[T], newCommand)
+      newCommand
+    }
+  }
+
 }

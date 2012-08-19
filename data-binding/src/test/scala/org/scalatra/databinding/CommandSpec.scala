@@ -5,6 +5,11 @@ import org.specs2.mutable.Specification
 import json.JsonSupport
 import scalaz._
 import Scalaz._
+import javax.servlet.http.HttpServletRequest
+import org.specs2.mock.Mockito
+import util.MultiMap
+import java.util
+import org.scalatra.util
 
 //import org.scalatra.validation.ValidationSupport
 
@@ -125,7 +130,7 @@ class CommandSample extends TypeConverterFactoryImplicits with ParamsOnlyCommand
   }
 }
 
-class CommandSupportSpec extends Specification {
+class CommandSupportSpec extends Specification with Mockito {
 
   class ScalatraPage extends ScalatraFilter with ParamsOnlyCommandSupport
 //  implicit val formats: Formats = DefaultFormats
@@ -161,11 +166,29 @@ class CommandSupportSpec extends Specification {
 
     "create, bind and store in request new commands with command[T]" in {
 
+      import org.scalatra.servlet.ServletApiImplicits._
       import collection.mutable._
 
+      val req = smartMock[HttpServletRequest]
       val mockRequest: Map[String, AnyRef] = Map.empty
 
       val page = new ScalatraPage {
+
+
+        /**
+         * The current multiparams.  Multiparams are a result of merging the
+         * standard request params (query string or post params) with the route
+         * parameters extracted from the route matchers of the current route.
+         * The default value for an unknown param is the empty sequence.  Invalid
+         * outside `handle`.
+         */
+        override def multiParams: _root_.org.scalatra.MultiParams = MultiMap()
+
+        /**
+         * The currently scoped request.  Valid only inside the `handle` method.
+         */
+        override implicit def request = req
+
         override private[databinding] def requestProxy = mockRequest
       }
 

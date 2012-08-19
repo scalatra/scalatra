@@ -197,9 +197,14 @@ sealed trait Binding {
 
 }
 
+trait BindingProxy {
+  implicit def fieldBinding2Binding(cmd: FieldBinding) : Binding = {
+      val b = cmd.binding
+      b
+    }
+}
 
-
-trait BindingSyntax {
+trait BindingSyntax extends BindingProxy with BindingValidatorImplicits {
 
 
 
@@ -218,13 +223,10 @@ trait BindingSyntax {
   def asDateTime(name: String): Field[DateTime] = Field[DateTime](name)
   def asSeq[T](name: String): Field[Seq[T]] = Field[Seq[T]](name)
 
-  implicit def fieldBinding2Binding(cmd: FieldBinding) : Binding = {
-    val b = cmd.binding
-    b
-  }
+
 }
 
-object BindingSyntax extends BindingSyntax with BindingValidatorImplicits
+object BindingSyntax extends BindingSyntax
 
 
 
