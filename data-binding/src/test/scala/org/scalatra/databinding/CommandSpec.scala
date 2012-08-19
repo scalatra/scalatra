@@ -117,7 +117,7 @@ class CommandSpec extends Specification {
 import org.scalatra.test.specs2._
 
 
-class CommandSample extends TypeConverterFactoryImplicits with Command {
+class CommandSample extends TypeConverterFactoryImplicits with ParamsOnlyCommand {
   var binded = false
 
   afterBinding {
@@ -127,7 +127,7 @@ class CommandSample extends TypeConverterFactoryImplicits with Command {
 
 class CommandSupportSpec extends Specification {
 
-  class ScalatraPage extends ScalatraFilter with CommandSupport
+  class ScalatraPage extends ScalatraFilter with ParamsOnlyCommandSupport
 //  implicit val formats: Formats = DefaultFormats
   "The CommandSupport trait" should {
 

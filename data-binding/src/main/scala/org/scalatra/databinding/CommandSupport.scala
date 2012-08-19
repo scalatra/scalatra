@@ -14,7 +14,7 @@ trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProper
 
   this: ScalatraBase =>
 
-  type CommandType = Command
+  type CommandType <: Command
 
   /**
    * Implicitly convert a [[org.scalatra.command.Field]] value to an [[scala.Option]]
@@ -54,4 +54,8 @@ trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProper
    * [[org.scalatra.command.validation.ValidationSupport]] for details.
    */
   def ifValid[T <: CommandType](implicit mf: Manifest[T]): RouteMatcher = new CommandRouteMatcher[T]
+}
+
+trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraBase =>
+  type CommandType = ParamsOnlyCommand
 }

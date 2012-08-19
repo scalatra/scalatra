@@ -22,6 +22,23 @@ trait JsonImplicitConversions[J] extends TypeConverterSupport {
   implicit def jsonToLong: TypeConverter[J, Long]
 
   implicit def jsonToSelf: TypeConverter[J, String]
+  
+  implicit val jsonToSeqBoolean: TypeConverter[J, Seq[Boolean]] = jsonToSeq(jsonToBoolean)
+
+  implicit val jsonToSeqFloat: TypeConverter[J, Seq[Float]] = jsonToSeq(jsonToFloat)
+
+  implicit val jsonToSeqDouble: TypeConverter[J, Seq[Double]] = jsonToSeq(jsonToDouble)
+
+  implicit val jsonToSeqByte: TypeConverter[J, Seq[Byte]] = jsonToSeq(jsonToByte)
+
+  implicit val jsonToSeqShort: TypeConverter[J, Seq[Short]] = jsonToSeq(jsonToShort)
+
+  implicit val jsonToSeqInt: TypeConverter[J, Seq[Int]] = jsonToSeq(jsonToInt)
+
+  implicit val jsonToSeqLong: TypeConverter[J, Seq[Long]] = jsonToSeq(jsonToLong)
+
+  implicit val jsonToSeqString: TypeConverter[J, Seq[String]] = jsonToSeq(jsonToSelf)
+  
 
   def jsonToDate(format: => String): TypeConverter[J, Date]
   def jsonToDateFormat(format: => DateFormat): TypeConverter[J, Date]

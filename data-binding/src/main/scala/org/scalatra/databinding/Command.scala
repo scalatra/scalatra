@@ -44,9 +44,13 @@ import java.util.Date
 * @version 0.1
 *
 */
+
+//trait CommandConverterType {
+//  type CommandTypeConverterFactory[T] <: TypeConverterFactory[T]
+//}
 trait Command extends BindingSyntax with ParamsValueReaderProperties { self: TypeConverterFactoryConversions =>
 
-
+  type CommandTypeConverterFactory[T] <: TypeConverterFactory[T]
   private[this] var preBindingActions: Seq[BindingAction] = Nil
 
   private[this] var postBindingActions: Seq[BindingAction] = Nil
@@ -80,8 +84,9 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
     b
   }
 
-  def typeConverterBuilder[I](tc: TypeConverterFactory[_]): PartialFunction[ValueReader[_, _], TypeConverter[I, _]] = {
+  def typeConverterBuilder[I](tc: CommandTypeConverterFactory[_]): PartialFunction[ValueReader[_, _], TypeConverter[I, _]] = {
     case r: MultiParamsValueReader => tc.resolveMultiParams.asInstanceOf[TypeConverter[I, _]]
+    case r: MultiMapHeadViewValueReader[_] => tc.resolveStringParams.asInstanceOf[TypeConverter[I, _]]
     case r: StringMapValueReader => tc.resolveStringParams.asInstanceOf[TypeConverter[I, _]]
     case r => throw new BindingException("No converter found for value reader: " + r.getClass.getSimpleName)
   }
@@ -111,7 +116,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
       val b = bb.binding
       val name = b.name
       val tcf = b.typeConverterFactory
-      val cv = typeConverterBuilder(tcf)(data).asInstanceOf[TypeConverter[I, b.T]]
+      val cv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(data).asInstanceOf[TypeConverter[I, b.T]]
       val bindData = bb.bindData(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
       val fieldBinding = bindData.binding
       fieldBinding(data.read(name).map(_.asInstanceOf[fieldBinding.S]))
@@ -142,7 +147,9 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
 
 }
 
-trait ParamsOnlyCommand extends TypeConverterFactoryImplicits with Command
+trait ParamsOnlyCommand extends TypeConverterFactoryImplicits with Command {
+  type CommandTypeConverterFactory[T] = TypeConverterFactory[T]
+}
 
 trait ForceFromParams { self: Command =>
 

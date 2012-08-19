@@ -170,62 +170,62 @@ class BindingSpec extends Specification {
 
   }
 
-//  "JacksonBindingImplicits" should {
-//
-//    import JacksonBindingImplicits._
-//    "provide Field[Boolean]" in {
-//      testJacksonBinding[Boolean](true)
-//    }
-//
-//    "provide Field[Float]" in {
-//      testJacksonBinding[Float]((random * 100).toFloat)
-//    }
-//
-//    "provide Field[Double]" in {
-//      testJacksonBinding[Double](random * 100)
-//    }
-//
-//    "provide Field[Int]" in {
-//      testJacksonBinding[Int]((random * 100).toInt)
-//    }
-//
-//    "provide Field[Byte]" in {
-//      testJacksonBinding[Byte]((random * 100).toByte)
-//    }
-//
-//    "provide Field[Short]" in {
-//      testJacksonBinding[Short]((random * 100).toShort)
-//    }
-//
-//    "provide Field[Long]" in {
-//      testJacksonBinding[Long]((random * 100).toLong)
-//    }
-//
-//    "provide Field[DateTime] for a ISO8601 date" in {
-//      testJacksonDateTimeBinding(JodaDateFormats.Iso8601)
-//    }
-//
-//    "provide Field[DateTime] for a ISO8601 date without millis" in {
-//      testJacksonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
-//    }
-//
-//    "provide Field[DateTime] for a HTTP date" in {
-//      testJacksonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
-//    }
-//
-//    "provide Field[Date] for a ISO8601 date" in {
-//      testJacksonDateBinding(JodaDateFormats.Iso8601)
-//    }
-//
-//    "provide Field[Date] for a ISO8601 date without millis" in {
-//      testJacksonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
-//    }
-//
-//    "provide Field[Date] for a HTTP date" in {
-//      testJacksonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
-//    }
-//
-//  }
+  "JacksonBindingImplicits" should {
+
+    import JacksonBindingImplicits._
+    "provide Field[Boolean]" in {
+      testJacksonBinding[Boolean](true)
+    }
+
+    "provide Field[Float]" in {
+      testJacksonBinding[Float]((random * 100).toFloat)
+    }
+
+    "provide Field[Double]" in {
+      testJacksonBinding[Double](random * 100)
+    }
+
+    "provide Field[Int]" in {
+      testJacksonBinding[Int]((random * 100).toInt)
+    }
+
+    "provide Field[Byte]" in {
+      testJacksonBinding[Byte]((random * 100).toByte)
+    }
+
+    "provide Field[Short]" in {
+      testJacksonBinding[Short]((random * 100).toShort)
+    }
+
+    "provide Field[Long]" in {
+      testJacksonBinding[Long]((random * 100).toLong)
+    }
+
+    "provide Field[DateTime] for a ISO8601 date" in {
+      testJacksonDateTimeBinding(JodaDateFormats.Iso8601)
+    }
+
+    "provide Field[DateTime] for a ISO8601 date without millis" in {
+      testJacksonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
+    }
+
+    "provide Field[DateTime] for a HTTP date" in {
+      testJacksonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
+    }
+
+    "provide Field[Date] for a ISO8601 date" in {
+      testJacksonDateBinding(JodaDateFormats.Iso8601)
+    }
+
+    "provide Field[Date] for a ISO8601 date without millis" in {
+      testJacksonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
+    }
+
+    "provide Field[Date] for a HTTP date" in {
+      testJacksonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
+    }
+
+  }
 //
 //  "LiftJsonBindingImplicits" should {
 //
@@ -339,33 +339,32 @@ class BindingSpec extends Specification {
     field(Some(v.toString)).value must_== v.success[ValidationError]
   }
 
-//  val jsonMapper = new ObjectMapper()
-//  jsonMapper.registerModule(DefaultScalaModule)
-//  def testJacksonBinding[T](value: => T)(implicit mf: Manifest[T], converter: TypeConverter[JsonNode, T]) = {
-//    val field = newBinding[T]
-//    field.value must beNone
-//    val v = value
-//
-//    field(Some(jsonMapper.readValue(jsonMapper.writeValueAsString(v), classOf[JsonNode]))).value must beSome(v)
-//  }
-//
-//  def testJacksonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], converter: TypeConverter[JsonNode, DateTime]) = {
-//    val field = newBinding[DateTime]
-//    field.value must beNone
-//    val v = transform(new DateTime(DateTimeZone.UTC))
-//    val s = v.toString(format.dateTimeFormat)
-//    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must beSome(v)
-//  }
-//
-//  def testJacksonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], converter: TypeConverter[JsonNode, Date]) = {
-//    val field = newBinding[Date]
-//    field.value must beNone
-//    val v = transform(new DateTime(DateTimeZone.UTC))
-//    val s = v.toString(format.dateTimeFormat)
-//    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must beSome(v.toDate)
-//  }
-//
-//
+  val jsonMapper = new ObjectMapper()
+  jsonMapper.registerModule(DefaultScalaModule)
+  def testJacksonBinding[T](value: => T)(implicit mf: Manifest[T], zt: Zero[T], converter: TypeConverter[JsonNode, T]) = {
+    val field = newBinding[T]
+    field.value must_== zt.zero.success
+    val v = value
+
+    field(Some(jsonMapper.readValue(jsonMapper.writeValueAsString(v), classOf[JsonNode]))).value must_== v.success
+  }
+
+  def testJacksonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], zt: Zero[DateTime], converter: TypeConverter[JsonNode, DateTime]) = {
+    val field = newBinding[DateTime]
+    field.value must_== zt.zero.success
+    val v = transform(new DateTime(DateTimeZone.UTC))
+    val s = v.toString(format.dateTimeFormat)
+    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.success
+  }
+
+  def testJacksonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], zt: Zero[Date], converter: TypeConverter[JsonNode, Date]) = {
+    val field = newBinding[Date]
+    field.value must_== zt.zero.success
+    val v = transform(new DateTime(DateTimeZone.UTC))
+    val s = v.toString(format.dateTimeFormat)
+    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.toDate.success
+  }
+
 //  def testLiftJsonBinding[T](value: => T)(implicit mf: Manifest[T], converter: TypeConverter[JValue, T]) = {
 //    val field = newBinding[T]
 //    field.value must beNone

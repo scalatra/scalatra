@@ -51,6 +51,8 @@ trait JacksonImplicitConversions extends JsonImplicitConversions[JsonNode] {
     Option(json) filter (_.isTextual) map (_.asText())
   }
 
+  implicit val jsonToSeqBigDecimal: TypeConverter[JsonNode, Seq[BigDecimal]] = jsonToSeq(jsonToBigDecimal)
+
   def jsonToDate(format: => String): TypeConverter[JsonNode, Date] = jsonToDateFormat(new SimpleDateFormat(format))
 
   def jsonToDateFormat(format: => DateFormat): TypeConverter[JsonNode, Date] = safeOption { json =>
