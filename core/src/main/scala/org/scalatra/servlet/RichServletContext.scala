@@ -95,8 +95,10 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     val reg = sc.addServlet(name, servlet)
 
     servlet match {
-      case s: FileUploadSupport =>
+      case s: HasMultiPartConfig =>
         reg.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
+
+      case _ =>
     }
 
     reg.addMapping(urlPattern)

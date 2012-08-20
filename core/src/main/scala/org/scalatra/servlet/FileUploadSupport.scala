@@ -56,12 +56,9 @@ import javax.servlet.MultipartConfigElement
   * scalatra-fileupload module still works for earlier versions
   * of Jetty.
   */
-trait FileUploadSupport extends ServletBase {
+trait FileUploadSupport extends ServletBase with HasMultiPartConfig {
 
   import FileUploadSupport._
-
-  protected[scalatra] var multipartConfig: MultiPartConfig = MultiPartConfig()
-  def configureMultipartHandling(config: MultiPartConfig) { multipartConfig = config }
 
   /* Called for any exceptions thrown by handling file uploads
    * to detect whether it signifies a too large file being
@@ -278,21 +275,5 @@ object Util {
     }
 
     case _ => defaultValue
-  }
-}
-
-case class MultiPartConfig(
-  location: Option[String] = None,
-  maxFileSize: Option[Long] = None,
-  maxRequestSize: Option[Long] = None,
-  fileSizeThreshold: Option[Int] = None
-) {
-
-  def toMultipartConfigElement = {
-    new MultipartConfigElement(
-      location.getOrElse(""),
-      maxFileSize.getOrElse(-1),
-      maxRequestSize.getOrElse(-1),
-      fileSizeThreshold.getOrElse(0))
   }
 }
