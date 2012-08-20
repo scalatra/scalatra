@@ -1,6 +1,6 @@
 package org.scalatra
 
-import servlet.{MultiPartConfig, SizeConstraintExceededException, FileUploadSupport}
+import servlet.{MultipartConfig, SizeConstraintExceededException, FileUploadSupport}
 import xml.Node
 
 class FileUploadExample extends ScalatraServlet with FileUploadSupport with FlashMapSupport {

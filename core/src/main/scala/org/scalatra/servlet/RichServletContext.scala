@@ -95,7 +95,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     val reg = sc.addServlet(name, servlet)
 
     servlet match {
-      case s: HasMultiPartConfig =>
+      case s: HasMultipartConfig =>
         reg.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
 
       case _ =>

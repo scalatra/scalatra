@@ -1,7 +1,7 @@
 package org.scalatra
 package test
 
-import servlet.HasMultiPartConfig
+import servlet.HasMultipartConfig
 import javax.servlet.{DispatcherType, Filter}
 import javax.servlet.http.HttpServlet
 import java.util.EnumSet
@@ -36,7 +36,7 @@ trait JettyContainer extends Container {
     val holder = new ServletHolder(servlet)
 
     servlet match {
-      case s: HasMultiPartConfig => {
+      case s: HasMultipartConfig => {
         holder.getRegistration.setMultipartConfig(
           s.multipartConfig.toMultipartConfigElement)
       }

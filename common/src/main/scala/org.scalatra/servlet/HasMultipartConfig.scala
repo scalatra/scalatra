@@ -2,8 +2,8 @@ package org.scalatra.servlet
 
 import javax.servlet.MultipartConfigElement
 
-trait HasMultiPartConfig {
-  protected[scalatra] var multipartConfig: MultiPartConfig = MultiPartConfig()
-  def configureMultipartHandling(config: MultiPartConfig) { multipartConfig = config }
+trait HasMultipartConfig {
+  protected[scalatra] var multipartConfig: MultipartConfig = MultipartConfig()
+  def configureMultipartHandling(config: MultipartConfig) { multipartConfig = config }
 }
 

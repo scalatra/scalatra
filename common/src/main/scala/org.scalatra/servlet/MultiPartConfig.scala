@@ -2,7 +2,7 @@ package org.scalatra.servlet
 
 import javax.servlet.MultipartConfigElement
 
-case class MultiPartConfig(
+case class MultipartConfig(
                             location: Option[String] = None,
                             maxFileSize: Option[Long] = None,
                             maxRequestSize: Option[Long] = None,

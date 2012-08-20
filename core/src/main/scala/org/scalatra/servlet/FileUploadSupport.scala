@@ -56,7 +56,7 @@ import javax.servlet.MultipartConfigElement
   * scalatra-fileupload module still works for earlier versions
   * of Jetty.
   */
-trait FileUploadSupport extends ServletBase with HasMultiPartConfig {
+trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   import FileUploadSupport._
 

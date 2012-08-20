@@ -88,7 +88,7 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
 }
 
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
-  configureMultipartHandling(MultiPartConfig(
+  configureMultipartHandling(MultipartConfig(
     maxFileSize = Some(1024),
     fileSizeThreshold = Some(1024*1024*1024)
   ))
