@@ -93,13 +93,19 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
 
   private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String) {
     val reg = sc.addServlet(name, servlet)
+
+    servlet match {
+      case s: FileUploadSupport =>
+        reg.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
+    }
+
     reg.addMapping(urlPattern)
   }
 
   private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String) {
-      val reg = sc.addServlet(name, servletClass)
-      reg.addMapping(urlPattern)
-    }
+    val reg = sc.addServlet(name, servletClass)
+    reg.addMapping(urlPattern)
+  }
 
   private def mountFilter(filter: Filter, urlPattern: String, name: String) {
     val reg = sc.addFilter(name, filter)
