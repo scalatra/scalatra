@@ -1,9 +1,13 @@
-package org.scalatra.test
+package org.scalatra
+package test
 
+import servlet.HasMultiPartConfig
 import javax.servlet.{DispatcherType, Filter}
 import javax.servlet.http.HttpServlet
 import java.util.EnumSet
 import org.eclipse.jetty.servlet._
+
+
 
 object JettyContainer {
   private val DefaultDispatcherTypes: EnumSet[DispatcherType] =
@@ -28,8 +32,21 @@ trait JettyContainer extends Container {
   @deprecated("renamed to addServlet", "2.0.0")
   def route(servlet: HttpServlet, path: String) = addServlet(servlet, path)
 
-  def addServlet(servlet: HttpServlet, path: String) =
-    servletContextHandler.addServlet(new ServletHolder(servlet), path)
+  def addServlet(servlet: HttpServlet, path: String) = {
+    val holder = new ServletHolder(servlet)
+
+    servlet match {
+      case s: HasMultiPartConfig => {
+        holder.getRegistration.setMultipartConfig(
+          s.multipartConfig.toMultipartConfigElement)
+      }
+
+      case _ =>
+    }
+
+    servletContextHandler.addServlet(holder, path)
+
+  }
 
   def addServlet(servlet: Class[_ <: HttpServlet], path: String) =
     servletContextHandler.addServlet(servlet, path)
