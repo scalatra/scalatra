@@ -11,5 +11,5 @@ trait JacksonSupport extends json.JsonSupport with JacksonOutput {
   protected def readXmlFromStream(stream: InputStream): JsonType =
     xmlMapper.readTree(stream)
 
-    protected val jsonZero: JsonType = MissingNode.getInstance()
+  protected val jsonZero: JsonType = MissingNode.getInstance()
 }

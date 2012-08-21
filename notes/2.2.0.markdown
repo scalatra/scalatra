@@ -14,10 +14,14 @@
 ### lift-json
 * Converted to use the new base traits
 * Adds ProductToJsonSupport trait from contrib
+* Replaces ProductToJsonSupport trait with a MagicLiftJson trait which will try to serialize any value to json or xml
+  when the accept headers or format parameter indicate the user wants json or xml.
 
 ### Jackson
 * Implemented using new base traits
-* Adds ProductToJsonSupport trait like lift-json
+* Adds a MagicJackson trait which will try to serialize any value to json or xml
+  when the accept headers or format parameter indicate the user wants json or xml.
+
 
 ### Scalate
 * Adds ScalateRenderSupport trait taken from contrib
