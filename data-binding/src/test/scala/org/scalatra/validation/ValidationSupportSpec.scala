@@ -3,15 +3,15 @@ package validation
 
 import org.specs2.mutable.Specification
 import net.liftweb.json.{DefaultFormats, Formats}
-import databinding.{FieldBinding, WithBindingFromParams}
+import databinding._
 import scalaz._
 import Scalaz._
 import org.scalatra.databinding.BindingSyntax._
 
 class WithValidation extends WithBindingFromParams {
-  val notRequiredCap: FieldBinding = asInt("cap").greaterThan(100)
+  val notRequiredCap: Field[Int] = asInt("cap").greaterThan(100)
 
-  val legalAge: FieldBinding = asInt("age").greaterThanOrEqualTo(18)
+  val legalAge: Field[Int] = asInt("age").greaterThanOrEqualTo(18)
 }
 
 
@@ -24,13 +24,13 @@ class ValidationSupportSpec extends Specification {
     "do normal binding within 'bindTo'" in {
 
       val ageValidatedForm = new WithValidation
-      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "15")
+      val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "18")
 
       ageValidatedForm.bindTo(params)
 
       ageValidatedForm.a.value must_== params("name").toUpperCase.success
       ageValidatedForm.lower.value must_== params("surname").toLowerCase.success
-      ageValidatedForm.age.value must_== 15.success
+      ageValidatedForm.age.value must_== 18.success
 
     }
 

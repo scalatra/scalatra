@@ -30,8 +30,8 @@ import java.util.Date
 * The binding is typed and for every registered type `T` (see [[org.scalatra.command.field.ImplicitCommonFields]] for
 * a list of all availables) an automatic conversion `(String) => T` will take place during binding phase.
 *
-* After that binding has been performed (i.e. after that [[org.scalatra.command.Command#doBinding()]] has been called)
-* on a specific instance, it is possible retrieve field values as [[scala.Option]], i.e.:
+* After that binding has been performed (i.e. after that [[org.scalatra.command.Command#bindTo()]] has been called)
+* on a specific instance, it is possible retrieve field values as [[scalaz.Validation]], i.e.:
 *
 * {{{
 * val form = new PersonForm
@@ -55,7 +55,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
 
   private[this] var postBindingActions: Seq[BindingAction] = Nil
 
-  private[scalatra] var bindings: Seq[FieldBinding] = Nil
+  private[databinding] var bindings: Map[String, Binding] = Map.empty
 
   private var _errors: Seq[Binding] = Nil
 
@@ -75,13 +75,21 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
    * Perform command as afterBinding task.
    */
   afterBinding {
-    _errors = bindings.filter(_.isInvalid).map(_.binding)
+    _errors = bindings.values.filter(_.isInvalid).toSeq
   }
 
-  implicit def field2binding[T:Manifest:Zero:TypeConverterFactory](field: Field[T]): FieldBinding = {
-    val b = FieldBinding(field)
-    bindings :+= b
-    b
+
+  implicit def binding2field[T:Manifest:Zero:TypeConverterFactory](field: FieldDescriptor[T]): Field[T] = {
+    new Field(bind(field), this)
+  }
+
+  implicit def autoBind[T:Manifest:Zero:TypeConverterFactory](fieldName: String): Field[T] =
+    bind[T](FieldDescriptor[T](fieldName))
+
+  implicit def bind[T:Manifest:Zero:TypeConverterFactory](field: FieldDescriptor[T]): FieldDescriptor[T] = {
+    val b = Binding(field)
+    bindings += b.name -> b
+    field
   }
 
   def typeConverterBuilder[I](tc: CommandTypeConverterFactory[_]): PartialFunction[ValueReader[_, _], TypeConverter[I, _]] = {
@@ -112,16 +120,12 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
             paramsOnly: Boolean = false)(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I], multiParams: MultiParams => ValueReader[MultiParams, Seq[String]]): this.type = {
     doBeforeBindingActions()
 
-    bindings foreach { bb =>
-      val b = bb.binding
-      val name = b.name
+    bindings = bindings map { case (name, b) =>
       val tcf = b.typeConverterFactory
       val cv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(data).asInstanceOf[TypeConverter[I, b.T]]
-      val bindData = bb.bindData(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
-      val fieldBinding = bindData.binding
-      fieldBinding(data.read(name).map(_.asInstanceOf[fieldBinding.S]))
+      val fieldBinding = Binding(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
 
-      this match {
+      val res = this match {
         case d: ForceFromParams if d.namesToForce.contains(name) =>
           fieldBinding(params.read(name).map(_.asInstanceOf[fieldBinding.S]))
         case d: ForceFromHeaders if d.namesToForce.contains(name) =>
@@ -131,6 +135,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
         case _ =>
           fieldBinding(data.read(name).map(_.asInstanceOf[fieldBinding.S]))
       }
+      name -> res
     }
 
     doAfterBindingActions()

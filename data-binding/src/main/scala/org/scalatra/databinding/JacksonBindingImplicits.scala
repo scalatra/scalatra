@@ -6,7 +6,10 @@ import util.conversion._
 import org.joda.time.DateTime
 import java.util.Date
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.MissingNode
 import util.ValueReader
+import scalaz._
+import Scalaz._
 
 trait JacksonBindingImplicits extends JacksonImplicitConversions {
   implicit def jsonToDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[JsonNode, DateTime] =
@@ -160,6 +163,7 @@ trait JacksonCommand extends JacksonTypeConverterFactoryImplicits with Command {
 trait JacksonTypeConverterFactoryImplicits extends TypeConverterFactoryConversions with BigDecimalTypeConverterFactoryConversion {
   import JacksonTypeConverterFactories._
 
+
   implicit val booleanTypeConverterFactory: TypeConverterFactory[Boolean] = new BooleanTypeConverterFactory
   implicit val floatTypeConverterFactory: TypeConverterFactory[Float] = new FloatTypeConverterFactory
   implicit val doubleTypeConverterFactory: TypeConverterFactory[Double] = new DoubleTypeConverterFactory
@@ -185,12 +189,19 @@ trait JacksonTypeConverterFactoryImplicits extends TypeConverterFactoryConversio
 
 }
 
+trait JacksonZeroes {
+  implicit val jacksonZero: Zero[JsonNode] = zero(MissingNode.getInstance)
+}
+
+object JacksonZeroes extends JacksonZeroes
+
 trait JacksonParsing extends CommandSupport with JacksonValueReaderProperty { self: JacksonSupport with CommandSupport =>
   type CommandType = JacksonCommand
 
-  import Imports.jacksonZero
+
+  import JacksonZeroes.jacksonZero
   /**
-   * Create and bind a [[org.scalatra.command.Command]] of the given type with the current Scalatra params.
+   * Create and bind a [[org.scalatra.databinding.Command]] of the given type with the current Scalatra params.
    *
    * For every command type, creation and binding is performed only once and then stored into
    * a request attribute.

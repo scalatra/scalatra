@@ -27,9 +27,10 @@ trait LiftJsonImplicitConversions extends JsonImplicitConversions[JValue] {
 
   implicit val jsonToSelf: TypeConverter[JValue, String] = safe(_.extract[String])
 
-  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safe(_ match {
-    case JInt(bigint) => bigint
-    case JString(v) => BigInt(v)
+  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safeOption(_ match {
+    case JInt(bigint) => Some(bigint)
+    case JString(v) => Some(BigInt(v))
+    case _ => None
   })
 
 

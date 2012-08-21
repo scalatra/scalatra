@@ -16,13 +16,13 @@ import org.scalatra.util
 trait BindingTemplate { self: Command with TypeConverterFactoryConversions =>
 
 
-  val upperCaseName: FieldBinding = asString("name").transform(_.toUpperCase)
+  val upperCaseName: Field[String] = bind[String]("name").transform(_.toUpperCase)
 
-  val lowerCaseSurname: FieldBinding = asString("surname").transform(_.toLowerCase)
+  val lowerCaseSurname: Field[String] = asString("surname").transform(_.toLowerCase)
 
-  val age: FieldBinding = asType[Int]("age") // explicit
+  val age: Field[Int] = asType[Int]("age") // explicit
 
-  val cap: FieldBinding = ("cap" : Field[Int]) // implicit
+  val cap: Field[Int] = "cap" // implicit
 
 }
 
@@ -44,9 +44,8 @@ class CommandSpec extends Specification {
 //  implicit val formats: Formats = DefaultFormats
   "The 'Command' trait" should {
 
-    "bind and register a 'Field[T]' instance" in {
+    "bind and register a 'FieldDescriptor[T]' instance" in {
       val form = new WithBindingFromParams
-//      form.a.binding.field must beAnInstanceOf[Field[_]]
       form.a must_== form.upperCaseName
     }
 

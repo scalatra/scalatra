@@ -15,15 +15,17 @@ import com.fasterxml.jackson.databind.{ObjectMapper, JsonNode}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.databind.node.TextNode
 import net.liftweb.json._
-import Imports._
+import DefaultZeroes._
+import JacksonZeroes._
+import LiftJsonZeroes._
 
 class BindingSpec extends Specification {
 
   implicit val formats: Formats = DefaultFormats
 
-  "A BasicField" should {
+  "A BasicFieldDescriptor" should {
     "have a name" in {
-      Field[String]("blah").name must_== "blah"
+      FieldDescriptor[String]("blah").name must_== "blah"
     }
     "begin the building process with a value of None" in {
       newBinding[String].value must_== "".success[ValidationError]
@@ -70,7 +72,7 @@ class BindingSpec extends Specification {
   
   "A BindingBuilder" should {
     import TypeConverterFactoryImplicits._
-    "start the build process by taking a Field[T]" in {
+    "start the build process by taking a FieldDescriptor[T]" in {
       import BindingSyntax._
       val b = Binding(asString("login"))
       b.field.name must_== "login"
@@ -79,7 +81,7 @@ class BindingSpec extends Specification {
     
     "build a Binding with Map[String, String]" in {
 
-      val builder = Binding(Field[String]("login"))
+      val builder = Binding(FieldDescriptor[String]("login"))
       val conv = implicitly[TypeConverter[String, String]].asInstanceOf[TypeConverter[String, builder.T]]
       val container = Binding(builder.field, conv, stringTypeConverterFactory)(manifest[String], implicitly[Zero[String]], builder.valueManifest, builder.valueZero)
       container(Some("joske".asInstanceOf[container.S])).value must_== "joske".success
@@ -87,18 +89,18 @@ class BindingSpec extends Specification {
 
   }
 
-  "A BoundField" should {
+  "A BoundFieldDescriptor" should {
     val binding = newBinding[String]
 
     "forward the binding name" in {
       val b = binding("blah".some)
-      b must beAnInstanceOf[BoundField[String, String]]
+      b must beAnInstanceOf[BoundFieldDescriptor[String, String]]
       b.name must_== binding.name
     }
 
     "forward the validators" in {
       val b = binding("blah".some)
-      b must beAnInstanceOf[BoundField[String, String]]
+      b must beAnInstanceOf[BoundFieldDescriptor[String, String]]
       b.validator must_== binding.validator
     }
 
@@ -116,55 +118,55 @@ class BindingSpec extends Specification {
   "BindingImplicits" should {
 
     import BindingImplicits._
-    "provide Field[Boolean]" in {
+    "provide FieldDescriptor[Boolean]" in {
       testBinding[Boolean](true)
     }
 
-    "provide Field[Float]" in {
+    "provide FieldDescriptor[Float]" in {
       testBinding[Float]((random * 100).toFloat)
     }
 
-    "provide Field[Double]" in {
+    "provide FieldDescriptor[Double]" in {
       testBinding[Double]((random * 100))
     }
 
-    "provide Field[Int]" in {
+    "provide FieldDescriptor[Int]" in {
       testBinding[Int]((random * 100).toInt)
     }
 
-    "provide Field[Byte]" in {
+    "provide FieldDescriptor[Byte]" in {
       testBinding[Byte]((random * 100).toByte)
     }
 
-    "provide Field[Short]" in {
+    "provide FieldDescriptor[Short]" in {
       testBinding[Short]((random * 100).toShort)
     }
 
-    "provide Field[Long]" in {
+    "provide FieldDescriptor[Long]" in {
       testBinding[Long]((random * 100).toLong)
     }
 
-    "provide Field[DateTime] for a ISO8601 date" in {
+    "provide FieldDescriptor[DateTime] for a ISO8601 date" in {
       testDateTimeBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Field[DateTime] for a ISO8601 date without millis" in {
+    "provide FieldDescriptor[DateTime] for a ISO8601 date without millis" in {
       testDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Field[DateTime] for a HTTP date" in {
+    "provide FieldDescriptor[DateTime] for a HTTP date" in {
       testDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-    "provide Field[Date] for a ISO8601 date" in {
+    "provide FieldDescriptor[Date] for a ISO8601 date" in {
       testDateBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Field[Date] for a ISO8601 date without millis" in {
+    "provide FieldDescriptor[Date] for a ISO8601 date without millis" in {
       testDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Field[Date] for a HTTP date" in {
+    "provide FieldDescriptor[Date] for a HTTP date" in {
       testDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
@@ -173,55 +175,55 @@ class BindingSpec extends Specification {
   "JacksonBindingImplicits" should {
 
     import JacksonBindingImplicits._
-    "provide Field[Boolean]" in {
+    "provide FieldDescriptor[Boolean]" in {
       testJacksonBinding[Boolean](true)
     }
 
-    "provide Field[Float]" in {
+    "provide FieldDescriptor[Float]" in {
       testJacksonBinding[Float]((random * 100).toFloat)
     }
 
-    "provide Field[Double]" in {
+    "provide FieldDescriptor[Double]" in {
       testJacksonBinding[Double](random * 100)
     }
 
-    "provide Field[Int]" in {
+    "provide FieldDescriptor[Int]" in {
       testJacksonBinding[Int]((random * 100).toInt)
     }
 
-    "provide Field[Byte]" in {
+    "provide FieldDescriptor[Byte]" in {
       testJacksonBinding[Byte]((random * 100).toByte)
     }
 
-    "provide Field[Short]" in {
+    "provide FieldDescriptor[Short]" in {
       testJacksonBinding[Short]((random * 100).toShort)
     }
 
-    "provide Field[Long]" in {
+    "provide FieldDescriptor[Long]" in {
       testJacksonBinding[Long]((random * 100).toLong)
     }
 
-    "provide Field[DateTime] for a ISO8601 date" in {
+    "provide FieldDescriptor[DateTime] for a ISO8601 date" in {
       testJacksonDateTimeBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Field[DateTime] for a ISO8601 date without millis" in {
+    "provide FieldDescriptor[DateTime] for a ISO8601 date without millis" in {
       testJacksonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Field[DateTime] for a HTTP date" in {
+    "provide FieldDescriptor[DateTime] for a HTTP date" in {
       testJacksonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-    "provide Field[Date] for a ISO8601 date" in {
+    "provide FieldDescriptor[Date] for a ISO8601 date" in {
       testJacksonDateBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Field[Date] for a ISO8601 date without millis" in {
+    "provide FieldDescriptor[Date] for a ISO8601 date without millis" in {
       testJacksonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Field[Date] for a HTTP date" in {
+    "provide FieldDescriptor[Date] for a HTTP date" in {
       testJacksonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
@@ -231,55 +233,55 @@ class BindingSpec extends Specification {
 
     val imports = new LiftJsonBindingImports
     import imports._
-    "provide Field[Boolean]" in {
+    "provide FieldDescriptor[Boolean]" in {
       testLiftJsonBinding[Boolean](true)
     }
 
-    "provide Field[Float]" in {
+    "provide FieldDescriptor[Float]" in {
       testLiftJsonBinding[Float]((random * 100).toFloat)
     }
 
-    "provide Field[Double]" in {
+    "provide FieldDescriptor[Double]" in {
       testLiftJsonBinding[Double](random * 100)
     }
 
-    "provide Field[Int]" in {
+    "provide FieldDescriptor[Int]" in {
       testLiftJsonBinding[Int]((random * 100).toInt)
     }
 
-    "provide Field[Byte]" in {
+    "provide FieldDescriptor[Byte]" in {
       testLiftJsonBinding[Byte]((random * 100).toByte)
     }
 
-    "provide Field[Short]" in {
+    "provide FieldDescriptor[Short]" in {
       testLiftJsonBinding[Short]((random * 100).toShort)
     }
 
-    "provide Field[Long]" in {
+    "provide FieldDescriptor[Long]" in {
       testLiftJsonBinding[Long]((random * 100).toLong)
     }
 
-    "provide Field[DateTime] for a ISO8601 date" in {
+    "provide FieldDescriptor[DateTime] for a ISO8601 date" in {
       testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Field[DateTime] for a ISO8601 date without millis" in {
+    "provide FieldDescriptor[DateTime] for a ISO8601 date without millis" in {
       testLiftJsonDateTimeBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Field[DateTime] for a HTTP date" in {
+    "provide FieldDescriptor[DateTime] for a HTTP date" in {
       testLiftJsonDateTimeBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-    "provide Field[Date] for a ISO8601 date" in {
+    "provide FieldDescriptor[Date] for a ISO8601 date" in {
       testLiftJsonDateBinding(JodaDateFormats.Iso8601)
     }
 
-    "provide Field[Date] for a ISO8601 date without millis" in {
+    "provide FieldDescriptor[Date] for a ISO8601 date without millis" in {
       testLiftJsonDateBinding(JodaDateFormats.Iso8601NoMillis, _.withMillis(0))
     }
 
-    "provide Field[Date] for a HTTP date" in {
+    "provide FieldDescriptor[Date] for a HTTP date" in {
       testLiftJsonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
@@ -389,7 +391,7 @@ class BindingSpec extends Specification {
     field(Some(Extraction.decompose(s))).value must_== v.toDate.success
   }
 
-  def newBinding[T:Zero]: Field[T] = Field[T](randomFieldName)
+  def newBinding[T:Zero]: FieldDescriptor[T] = FieldDescriptor[T](randomFieldName)
 
   def randomFieldName = "field_" + random
 }

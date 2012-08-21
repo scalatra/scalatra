@@ -5,24 +5,28 @@ import util.{ParamsValueReaderProperties, MultiMap}
 import scalaz._
 import Scalaz._
 import collection.mutable
+import java.util.Date
+import org.joda.time.DateTime
 
 
 /**
 * Support for [[org.scalatra.command.Command]] binding and validation.
 */
-trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProperties with BindingProxy {
+trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProperties {
 
   this: ScalatraBase =>
 
   type CommandType <: Command
 
-  /**
-   * Implicitly convert a [[org.scalatra.command.Field]] value to an [[scala.Option]]
-   */
-  implicit def bindingValue[T](b: Field[T]): FieldValidation[T] = b.value
+  import DefaultZeroes._
+
+//  /**
+//   * Implicitly convert a [[org.scalatra.command.Field]] value to an [[scala.Option]]
+//   */
+//  implicit def bindingValue[T](b: FieldDescriptor[T]): FieldValidation[T] = b.value
 
   /**
-   * Create and bind a [[org.scalatra.command.Command]] of the given type with the current Scalatra params.
+   * Create and bind a [[org.scalatra.databinding.Command]] of the given type with the current Scalatra params.
    *
    * For every command type, creation and binding is performed only once and then stored into
    * a request attribute.

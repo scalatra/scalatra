@@ -6,6 +6,8 @@ import org.scalatra.util.conversion._
 import org.joda.time.DateTime
 import java.util.Date
 import org.scalatra.util.ValueReader
+import scalaz._
+import Scalaz._
 
 class LiftJsonBindingImports(implicit protected val jsonFormats: Formats) extends LiftJsonBindingImplicits
 trait LiftJsonBindingImplicits extends LiftJsonImplicitConversions {
@@ -191,9 +193,15 @@ trait LiftJsonTypeConverterFactoryImplicits extends TypeConverterFactoryConversi
 
 }
 
+
+trait LiftJsonZeroes {
+  implicit val liftJsonZero: Zero[JValue] = zero(JNothing)
+}
+object LiftJsonZeroes extends LiftJsonZeroes
 trait LiftJsonParsing extends CommandSupport with LiftJsonValueReaderProperty { self: LiftJsonSupport with CommandSupport =>
   type CommandType = LiftJsonCommand
-  import Imports.liftJsonZero
+  import LiftJsonZeroes._
+
   /**
    * Create and bind a [[org.scalatra.command.Command]] of the given type with the current Scalatra params.
    *
