@@ -7,7 +7,7 @@ import org.scalatest.matchers.ShouldMatchers
 import java.util.MissingResourceException
 
 class MessagesSpec extends WordSpec with MustMatchers with ShouldMatchers {
-  val messages = new Messages
+  val messages = Messages()
   "Messages" when {
     "able to find a message" should {
       "return some option" in {
