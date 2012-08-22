@@ -4,7 +4,7 @@ import servlet.{MultipartConfig, SizeConstraintExceededException, FileUploadSupp
 import xml.Node
 
 class FileUploadExample extends ScalatraServlet with FileUploadSupport with FlashMapSupport {
-  configureMultipartHandling(MultiPartConfig(maxFileSize = Some(3*1024*1024)))
+  configureMultipartHandling(MultipartConfig(maxFileSize = Some(3*1024*1024)))
 
   object Template {
     def page(content: Seq[Node]) = {

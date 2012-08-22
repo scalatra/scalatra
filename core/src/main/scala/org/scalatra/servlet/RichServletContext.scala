@@ -72,6 +72,8 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
   def mount(handler: Handler, urlPattern: String): Unit =
     mount(handler, urlPattern, handler.getClass.getName)
 
+  @deprecated("Mounting by class is deprecated. Please use mount(Handler, String, String) instead",
+    since = "2.2.0")
   def mount[T](handlerClass: Class[T], urlPattern: String, name: String) {
     val pathMap = urlPattern match {
       case s if s.endsWith("/*") => s
@@ -88,6 +90,8 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     }
   }
 
+  @deprecated("Mounting by class is deprecated. Please use mount(Handler, String) instead",
+      since = "2.2.0")
   def mount[T](handlerClass: Class[T], urlPattern: String): Unit =
     mount(handlerClass, urlPattern, handlerClass.getName)
 
