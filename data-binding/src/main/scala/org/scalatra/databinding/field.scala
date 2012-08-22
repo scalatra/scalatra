@@ -193,7 +193,7 @@ object BindingValidators {
 
 
   def validate[TValue](validate: TValue => Boolean): BindingValidator[TValue] = (s: String) => {
-    _ flatMap (Validators.validate(s, validate).validate(_))
+    _ flatMap (Validators.validate(s, validate = validate).validate(_))
   }
 
   def nonEmptyString: BindingValidator[String] = (s: String) => {

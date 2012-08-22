@@ -25,19 +25,20 @@ object Validators {
     }
   }
 
-  def validate[TValue](fieldName: String, validate: TValue => Boolean) =
-    new PredicateValidator[TValue](fieldName: String, validate, "%s is invalid")
-  def nonEmptyString(fieldName: String): Validator[String] =
-    new PredicateValidator[String](fieldName, s => s != null && s.trim.nonEmpty, "%s must be present.")
+  def validate[TValue](fieldName: String, message: String = "%s is invalid.", validate: TValue => Boolean) =
+    new PredicateValidator[TValue](fieldName: String, validate, message: String)
 
-  def notNull(fieldName: String): Validator[AnyRef] =
-    new PredicateValidator[AnyRef](fieldName, s => s != null, "%s must be present.")
+  def nonEmptyString(fieldName: String, message: String = "%s must be present."): Validator[String] =
+    new PredicateValidator[String](fieldName, s => s != null && s.trim.nonEmpty, message)
 
-  def nonEmptyCollection[TResult <: Seq[_]](fieldName: String): Validator[TResult] =
-    new PredicateValidator[TResult](fieldName, _.nonEmpty, "%s must not be empty.")
+  def notNull(fieldName: String, message: String = "%s must be present."): Validator[AnyRef] =
+    new PredicateValidator[AnyRef](fieldName, s => s != null, message)
 
-  def validEmail(fieldName: String): Validator[String] =
-    new PredicateValidator[String](fieldName, EmailValidator.getInstance.isValid(_), "%s must be a valid email.")
+  def nonEmptyCollection[TResult <: Seq[_]](fieldName: String, message: String = "%s must not be empty."): Validator[TResult] =
+    new PredicateValidator[TResult](fieldName, _.nonEmpty, message)
+
+  def validEmail(fieldName: String, message: String = "%s must be a valid email."): Validator[String] =
+    new PredicateValidator[String](fieldName, EmailValidator.getInstance.isValid(_), message)
 
   def validAbsoluteUrl(fieldName: String, allowLocalHost: Boolean, schemes: String*) =
     buildUrlValidator(fieldName, true, allowLocalHost, schemes: _*)
