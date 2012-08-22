@@ -46,7 +46,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-common",
     base = file("common"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi)
+      libraryDependencies ++= Seq(servletApiProvided)
     )
   )
 
