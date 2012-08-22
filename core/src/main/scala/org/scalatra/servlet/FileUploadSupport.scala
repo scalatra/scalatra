@@ -6,6 +6,7 @@ import org.scalatra.ScalatraBase
 import org.scalatra.util.{ using, io }
 import java.io.{ File, FileOutputStream }
 import javax.servlet.http._
+import javax.servlet.MultipartConfigElement
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
   * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
@@ -46,7 +47,7 @@ import javax.servlet.http._
   * }
   * }}}
   *
-  * @note Once any handler with FileUploadSupport has accessed the request, the
+  }}* @note Once any handler with FileUploadSupport has accessed the request, the
   *       fileParams returned by FileUploadSupport will remain fixed for the
   *       lifetime of the request.
   *
@@ -55,7 +56,7 @@ import javax.servlet.http._
   * scalatra-fileupload module still works for earlier versions
   * of Jetty.
   */
-trait FileUploadSupport extends ServletBase {
+trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   import FileUploadSupport._
 

@@ -88,6 +88,11 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
 }
 
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
+  configureMultipartHandling(MultipartConfig(
+    maxFileSize = Some(1024),
+    fileSizeThreshold = Some(1024*1024*1024)
+  ))
+
   error {
     case e: SizeConstraintExceededException => {
       status = 413
@@ -108,13 +113,8 @@ class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploa
 }
 
 class FileUploadSupportSpec extends MutableScalatraSpec {
-  addServlet(classOf[FileUploadSupportSpecServlet], "/*")
-
-  // this is needed because embedded Jetty doesn't support
-  // reading annotations
-  val holder = new ServletHolder(new FileUploadSupportMaxSizeTestServlet)
-  holder.getRegistration.setMultipartConfig(new MultipartConfigElement("", 1024, -1, 1024*1024*1024))
-  servletContextHandler.addServlet(holder, "/max-size/*")
+  addServlet(new FileUploadSupportSpecServlet, "/*")
+  addServlet(new FileUploadSupportMaxSizeTestServlet, "/max-size/*")
 
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
