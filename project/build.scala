@@ -38,7 +38,16 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
       scalatraScalate, scalatraJson, scalatraJackson, scalatraLiftJson, scalatraSlf4j,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-     scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty)
+      scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
+      scalatraCommon)
+  )
+
+  lazy val scalatraCommon = Project(
+    id = "scalatra-common",
+    base = file("common"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(servletApi)
+    )
   )
 
   lazy val scalatraCore = Project(
@@ -54,7 +63,12 @@ object ScalatraBuild extends Build {
       ),
       description := "The core Scalatra framework"
     )
-  ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
+  ) dependsOn(
+    scalatraSpecs2 % "test->compile",
+    scalatraSpecs % "test->compile",
+    scalatraScalatest % "test->compile",
+    scalatraCommon % "compile;test->test"
+  )
 
   lazy val scalatraAuth = Project(
     id = "scalatra-auth",
@@ -177,7 +191,7 @@ object ScalatraBuild extends Build {
       ),
       description := "The abstract Scalatra test framework"
     )
-  )
+  ) dependsOn(scalatraCommon % "compile;test->test;provided->provided")
 
   lazy val scalatraScalatest = Project(
     id = "scalatra-scalatest",
