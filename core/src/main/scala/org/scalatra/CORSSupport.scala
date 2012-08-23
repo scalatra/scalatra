@@ -179,17 +179,12 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
   }
 
   private def headersAreAllowed = { // 5.2.4 and 5.2.6
-    val accessControlRequestHeaders = request.headers.get(AccessControlRequestHeadersHeader).flatMap(_.blankOption)
-    //    logger.debug("%s is %s".format(ACCESS_CONTROL_REQUEST_HEADERS_HEADER, accessControlRequestHeaders))
-    val ah = (corsConfig.allowedHeaders ++ CorsHeaders).map(_.trim.toUpperCase(ENGLISH))
-    val result = accessControlRequestHeaders forall { hdr ⇒
-      val hdrs = hdr.split(",").map(_.trim.toUpperCase(ENGLISH))
-      //      logger.debug("Headers [%s]".format(hdrs))
-      (hdrs.nonEmpty && hdrs.forall { h ⇒ ah.contains(h) }) || isSimpleHeader(hdr)
-    }
-    //    logger.debug("Headers [%s] are %s among allowed headers %s".format(
-    //      accessControlRequestHeaders getOrElse "No headers", if (result) "" else " not", ah))
-    result
+    val allowedHeaders = corsConfig.allowedHeaders.map(_.trim.toUpperCase(ENGLISH))
+    val requestedHeaders = for (
+      header <- request.headers.getMulti(AccessControlRequestHeadersHeader) if header.nonBlank
+    ) yield header.toUpperCase(ENGLISH)
+
+    requestedHeaders.forall(h => isSimpleHeader(h) || allowedHeaders.contains(h))
   }
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
