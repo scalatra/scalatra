@@ -182,11 +182,11 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
     val accessControlRequestHeaders = request.headers.get(AccessControlRequestHeadersHeader).flatMap(_.blankOption)
     //    logger.debug("%s is %s".format(ACCESS_CONTROL_REQUEST_HEADERS_HEADER, accessControlRequestHeaders))
     val ah = (corsConfig.allowedHeaders ++ CorsHeaders).map(_.trim.toUpperCase(ENGLISH))
-    val result = corsConfig.allowedHeaders.contains(AnyOrigin) && (accessControlRequestHeaders forall { hdr ⇒
+    val result = accessControlRequestHeaders forall { hdr ⇒
       val hdrs = hdr.split(",").map(_.trim.toUpperCase(ENGLISH))
       //      logger.debug("Headers [%s]".format(hdrs))
       (hdrs.nonEmpty && hdrs.forall { h ⇒ ah.contains(h) }) || isSimpleHeader(hdr)
-    })
+    }
     //    logger.debug("Headers [%s] are %s among allowed headers %s".format(
     //      accessControlRequestHeaders getOrElse "No headers", if (result) "" else " not", ah))
     result
