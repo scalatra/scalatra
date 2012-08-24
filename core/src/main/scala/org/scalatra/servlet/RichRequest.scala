@@ -90,30 +90,33 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   object headers extends DefaultMap[String, String] {
     def get(name: String): Option[String] = Option(r.getHeader(name))
 
-    def iterator: Iterator[(String, String)] = 
+    private[scalatra] def getMulti(key: String): Seq[String] =
+      get(key).map(_.split(",").toSeq.map(_.trim)).getOrElse(Seq.empty)
+
+    def iterator: Iterator[(String, String)] =
       r.getHeaderNames map { name => (name, r.getHeader(name)) }
   }
-  
+
   def header(name: String): Option[String] =
     Option(r.getHeader(name))
-  
+
   /**
    * Returns the name of the character encoding of the body, or None if no
    * character encoding is specified.
    */
   def characterEncoding: Option[String] =
     Option(r.getCharacterEncoding)
-  
+
   def characterEncoding_=(encoding: Option[String]) {
     r.setCharacterEncoding(encoding getOrElse null)
   }
-  
+
   /**
    * The content of the Content-Type header, or None if absent.
    */
   def contentType: Option[String] =
     Option(r.getContentType)
-  
+
   /**
    * Returns the length, in bytes, of the body, or None if not known.
    */
@@ -212,7 +215,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * The input stream is an InputStream which contains the raw HTTP POST
    * data.  The caller should not close this stream.
    *
-   * In contrast to Rack, this stream is not rewindable.  
+   * In contrast to Rack, this stream is not rewindable.
    */
   def inputStream: InputStream = r.getInputStream
 
