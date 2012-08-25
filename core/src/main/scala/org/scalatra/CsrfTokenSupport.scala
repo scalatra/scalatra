@@ -42,12 +42,12 @@ trait CsrfTokenSupport {
    * The key used to store the token on the session, as well as the parameter
    * of the request.
    */
-  protected def csrfKey: String = CsrfTokenSupport.DefaultKey
+  def csrfKey: String = CsrfTokenSupport.DefaultKey
 
   /**
    * Returns the token from the session.
    */
-  protected def csrfToken: String = session(csrfKey).asInstanceOf[String]
+  protected[scalatra] def csrfToken: String = session(csrfKey).asInstanceOf[String]
 
   before(isForged) { handleForgery() }
   before() { prepareCsrfToken() }
