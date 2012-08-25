@@ -36,4 +36,14 @@ class ScalatraRenderContext(
   def params: Map[String, String] = kernel.params
 
   def multiParams: MultiParams = kernel.multiParams
+
+  def csrfKey = kernel match {
+    case csrfTokenSupport: CsrfTokenSupport => csrfTokenSupport.csrfKey
+    case _ => ""
+  }
+
+  def csrfToken = kernel match {
+    case csrfTokenSupport: CsrfTokenSupport => csrfTokenSupport.csrfToken
+    case _ => ""
+  }
 }
