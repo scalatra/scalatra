@@ -78,12 +78,15 @@ object Api {
   }
 
   class AllowableValuesSerializer extends Serializer[AllowableValues] {
+    import AllowableValues._
+
     def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), AllowableValues] = {
       case (TypeInfo(_, _), json) ⇒ null
     }
     def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
       case AllowableValues.Any ⇒ JNothing
-      case x: AllowableValues  ⇒ ("valueType" -> "LIST") ~ ("value" -> List.empty[String])
+      case x: AllowableListValues  ⇒ ("valueType" -> "LIST") ~ ("values" -> x.values)
+      case x: AllowableRangeValues  ⇒ ("valueType" -> "RANGE") ~ ("min" -> x.min) ~ ("max" -> x.max)
     }
   }
 }
@@ -127,6 +130,25 @@ trait AllowableValues
 
 object AllowableValues {
   case object Any extends AllowableValues
+  case class AllowableListValues(values: List[String]) extends AllowableValues
+  case class AllowableRangeValues(min: Int, max: Int) extends AllowableValues
+
+  def apply(): AllowableValues = empty
+  def apply(v: String): AllowableValues = {
+    val pattern = "([A-Z]*)\\[(.*)\\]".r
+    v match {
+      case pattern(valueType, values) => {
+        valueType match {
+          case "LIST" => AllowableListValues(values.split(",").toList)
+          case "RANGE" => {
+            val r = values.split(",")
+            AllowableRangeValues(r(0).toInt, r(1).toInt)
+          }
+        }
+      }
+      case _ => Any
+    }
+  }
   def empty = Any
 }
 
