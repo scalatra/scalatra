@@ -2,7 +2,7 @@ package org.scalatra
 package validation
 
 import org.specs2.mutable.Specification
-import net.liftweb.json.{DefaultFormats, Formats}
+import org.json4s.{DefaultFormats, Formats}
 import databinding._
 import scalaz._
 import Scalaz._

@@ -1,14 +1,17 @@
 package org.scalatra
 package json
 
-import java.io.InputStream
+import java.io.{InputStreamReader, InputStream}
+import org.json4s._
+import Xml._
+import text.Document
 
 object JsonSupport {
 
   val ParsedBodyKey = "org.scalatra.json.ParsedBody"
 }
 
-trait JsonSupport extends JsonOutput {
+trait JsonSupport[T] extends JsonOutput[T] {
 
   import JsonSupport._
 
@@ -17,15 +20,17 @@ trait JsonSupport extends JsonOutput {
       transformRequestBody(readJsonFromStream(request.inputStream))
     } else if (format == "xml") {
       transformRequestBody(readXmlFromStream(request.inputStream))
-    } else jsonZero
+    } else JNothing
   } catch {
-    case _: Throwable ⇒ jsonZero
+    case _: Throwable ⇒ JNothing
   }
 
-  protected def readJsonFromStream(stream: InputStream): JsonType
-  protected def readXmlFromStream(stream: InputStream): JsonType
-  protected def jsonZero: JsonType
-  protected def transformRequestBody(body: JsonType) = body
+  protected def readJsonFromStream(stream: InputStream): JValue
+  protected def readXmlFromStream(stream: InputStream): JValue = {
+    val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.load(stream))
+    jv
+  }
+  protected def transformRequestBody(body: JValue) = body
 
   override protected def invoke(matchedRoute: MatchedRoute) = {
     withRouteMultiParams(Some(matchedRoute)) {
@@ -41,11 +46,11 @@ trait JsonSupport extends JsonOutput {
   }
 
   private def shouldParseBody(fmt: String) =
-    (fmt == "json" || fmt == "xml") && parsedBody == jsonZero
+    (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
-  def parsedBody: JsonType = request.get(ParsedBodyKey).map(_.asInstanceOf[JsonType]) getOrElse {
+  def parsedBody: JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
     val fmt = format
-    var bd: JsonType = jsonZero
+    var bd: JValue = JNothing
     if (fmt == "json" || fmt == "xml") {
       bd = parseRequestBody(fmt)
       request(ParsedBodyKey) = bd.asInstanceOf[AnyRef]

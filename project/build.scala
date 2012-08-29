@@ -36,7 +36,7 @@ object ScalatraBuild extends Build {
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
-      scalatraScalate, scalatraJson, scalatraJackson, scalatraLiftJson, scalatraSlf4j,
+      scalatraScalate, scalatraJson, scalatraSlf4j,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
       scalatraCommon)
@@ -112,7 +112,8 @@ object ScalatraBuild extends Build {
     id = "scalatra-json",
     base = file("json"),
     settings = scalatraSettings ++ Seq(
-      description := "JSON support for Scalatra, contains only common marker interfaces"
+      description := "JSON support for Scalatra, contains only common marker interfaces",
+      libraryDependencies ++= json4s
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -157,9 +158,7 @@ object ScalatraBuild extends Build {
       description := "Data binding and validation with scalaz for Scalatra"
     )
   ) dependsOn(
-    scalatraJson % "compile;test->test;provided->provided",
-    scalatraLiftJson % "provided->compile;test->compile",
-    scalatraJackson % "provided->compile;test->compile")
+    scalatraJson % "compile;test->test;provided->provided")
 
   lazy val scalatraJetty = Project(
     id = "scalatra-jetty",
@@ -295,6 +294,11 @@ object ScalatraBuild extends Build {
       "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.0.2",
       "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.0.4")
 
+    val json4s = Seq(
+      "org.json4s" % "json4s-core" % "3.0.0-SNAPSHOT",
+      "org.json4s" % "json4s-native" % "3.0.0-SNAPSHOT" % "provided",
+      "org.json4s" % "json4s-jackson" % "3.0.0-SNAPSHOT" % "provided"
+    )
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 

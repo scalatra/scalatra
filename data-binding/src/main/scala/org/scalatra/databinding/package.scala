@@ -3,7 +3,7 @@ package org.scalatra
 import validation.ValidationError
 import scalaz._
 import Scalaz._
-import net.liftweb.json.JsonAST.{JValue, JNothing}
+import org.json4s.JsonAST.{JValue, JNothing}
 import java.util.Date
 import org.joda.time.DateTime
 

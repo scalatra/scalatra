@@ -1,35 +1,35 @@
 package org.scalatra
 package databinding
 
-import jackson.JacksonSupport
+//import jackson.JacksonSupport
 import org.scalatra.test.specs2.MutableScalatraSpec
-
+//
 trait JsonTestFields { self: Command with TypeConverterFactoryConversions =>
 
   val name: Field[String] = asString("name").minLength(5)
   val quantity: Field[Int] = asInt("quantity").greaterThan(3)
 
 }
-
-class JacksonTestForm extends JacksonCommand with JsonTestFields
-
-class JacksonCommandSpecServlet extends ScalatraServlet with JacksonSupport with CommandSupport with JacksonParsing {
-
-  post("/valid") {
-    val cmd = command[JacksonTestForm]
-    cmd.name.value.toOption.get + ":" + cmd.quantity.value.toOption.get
-  }
-
-  post("/invalid") {
-    val cmd = command[JacksonTestForm]
-    if (cmd.isInvalid) "OK"
-    else "FAIL"
-  }
-
-}
-
-
-class JacksonCommandSpec extends JsonCommandSpec("Jackson", new JacksonCommandSpecServlet)
+//
+//class JacksonTestForm extends JacksonCommand with JsonTestFields
+//
+//class JacksonCommandSpecServlet extends ScalatraServlet with JacksonSupport with CommandSupport with JacksonParsing {
+//
+//  post("/valid") {
+//    val cmd = command[JacksonTestForm]
+//    cmd.name.value.toOption.get + ":" + cmd.quantity.value.toOption.get
+//  }
+//
+//  post("/invalid") {
+//    val cmd = command[JacksonTestForm]
+//    if (cmd.isInvalid) "OK"
+//    else "FAIL"
+//  }
+//
+//}
+//
+//
+//class JacksonCommandSpec extends JsonCommandSpec("Jackson", new JacksonCommandSpecServlet)
 abstract class JsonCommandSpec(jsonTestTitle: String,  servletUnderTest: => ScalatraServlet) extends MutableScalatraSpec {
 
   val validJson = """{"name":"ihavemorethan5chars","quantity":5}"""

@@ -3,6 +3,56 @@ package json
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatra.ScalatraServlet
+import org.json4s._
+
+class JsonSupportTest extends json.JsonSupportTestBase {
+  addServlet(new JsonSupportTestServlet, "/*")
+  addServlet(new JsonPTestServlet, "/p/*")
+  addServlet(new ScalatraServlet with NativeJsonSupport {
+    override protected lazy val jsonVulnerabilityGuard: Boolean = true
+    override val jsonpCallbackParameterNames: Iterable[String] = Some("callback")
+    get("/json") {
+      import org.json4s.JsonDSL._
+      ("k1" -> "v1") ~
+        ("k2" -> "v2")
+    }
+
+    get("/jsonp") {
+      import org.json4s.JsonDSL._
+      ("k1" -> "v1") ~
+        ("k2" -> "v2")
+    }
+
+  }, "/g/*")
+
+
+}
+
+
+class JsonSupportTestServlet extends ScalatraServlet with NativeJsonSupport {
+  get("/json") {
+    import org.json4s.JsonDSL._
+    ("k1" -> "v1") ~
+      ("k2" -> "v2")
+  }
+
+
+  get("/nulls") {
+    null.asInstanceOf[JValue]
+  }
+
+}
+
+class JsonPTestServlet extends ScalatraServlet with NativeJsonSupport  {
+  override def jsonpCallbackParameterNames = Some("callback")
+
+  get("/jsonp") {
+    import org.json4s.JsonDSL._
+    ("k1" -> "v1") ~
+    ("k2" -> "v2")
+  }
+}
+
 
 abstract class JsonSupportTestBase extends ScalatraFunSuite {
   protected def expectedXml = """<?xml version='1.0' encoding='UTF-8'?>

@@ -3,8 +3,10 @@ package json
 
 import org.scalatra.util.ValueReader
 import util.RicherString._
+import org.json4s._
+import text.Document
 
-abstract class JsonValueReader[T](val data: T) extends ValueReader[T, T] {
+class JsonValueReader(val data: JValue)(implicit formats: Formats) extends ValueReader[JValue, JValue] {
 //  type I = T
 
   private val separator = new {
@@ -12,9 +14,9 @@ abstract class JsonValueReader[T](val data: T) extends ValueReader[T, T] {
     val end = ""
   }
 
-  def read(key: String): Option[T] = readPath(key)
+  def read(key: String): Option[JValue] = readPath(key)
 
-  protected def readPath(path: String, subj: T = data): Option[T] = {
+  protected def readPath(path: String, subj: JValue = data): Option[JValue] = {
     val partIndex = path.indexOf(separator.beginning)
     val (part, rest) = if (path.indexOf(separator.beginning) > -1) path.splitAt(partIndex) else (path, "")
     val realRest = if (rest.nonEmpty) {
@@ -29,11 +31,19 @@ abstract class JsonValueReader[T](val data: T) extends ValueReader[T, T] {
     }
   }
 
-  protected def get(path: String, subj: T): Option[T]
+  protected def get(path: String, subj: JValue): Option[JValue] = {
+    val jv = subj \ path
+    jv match {
+      case JNull | JNothing => None
+      case o => Some(o)
+    }
+  }
 }
-trait JsonValueReaderProperty { self: JsonTypeAlias =>
+trait JsonValueReaderProperty[T] { self: JsonMethods[T] =>
 
-//  type JsonType
-  protected implicit def jsonValueReader(d: JsonType): JsonValueReader[JsonType]
+  implicit protected def jsonFormats: Formats
+  protected implicit def jsonValueReader(d: JValue): JsonValueReader = new JsonValueReader(d)
 }
+
+
 

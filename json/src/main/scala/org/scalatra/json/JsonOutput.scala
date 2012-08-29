@@ -4,18 +4,16 @@ package json
 import xml.{NodeSeq, XML}
 import io.Codec
 import java.io.{Writer, StringWriter, PrintWriter}
+import org.json4s._
+import org.json4s.Xml._
+import text.Document
 
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
 }
 
 
-trait JsonTypeAlias {
-  protected type JsonType
-}
-trait JsonOutput extends ApiFormats with JsonTypeAlias {
-
-  protected def jsonClass: Class[_]
+trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
   import JsonOutput._
   /**
@@ -36,13 +34,11 @@ trait JsonOutput extends ApiFormats with JsonTypeAlias {
   protected lazy val xmlRootNode = <resp></resp>
 
   override protected def renderPipeline = ({
-    case j if j != null && jsonClass.isAssignableFrom(j.getClass) && format == "xml" =>
-      val jv = j.asInstanceOf[JsonType]
+    case jv: JValue if format == "xml" =>
       contentType = formats("xml")
       writeJsonAsXml(jv, response.writer)
 
-    case j if j != null && jsonClass.isAssignableFrom(j.getClass) =>
-      val jv = j.asInstanceOf[JsonType]
+    case jv: JValue =>
       // JSON is always UTF-8
       response.characterEncoding = Some(Codec.UTF8.name)
       val writer = response.writer
@@ -70,7 +66,9 @@ trait JsonOutput extends ApiFormats with JsonTypeAlias {
       }
   }: RenderPipeline) orElse super.renderPipeline
 
-  protected def writeJsonAsXml(json: JsonType, writer: Writer)
-  protected def writeJson(json: JsonType, writer: Writer)
-}
+  protected def writeJsonAsXml(json: JValue, writer: Writer) {
+    XML.write(response.writer, xmlRootNode.copy(child = toXml(json)), response.characterEncoding.get, xmlDecl = true, null)
+  }
 
+  protected def writeJson(json: JValue, writer: Writer)
+}

@@ -1,16 +1,17 @@
 package org.scalatra
 package databinding
 
-import liftjson.LiftJsonSupport
-import net.liftweb.json.DefaultFormats
+import org.scalatra.json._
+import org.json4s._
 
 
-class LiftJsonTestForm extends LiftJsonCommand with JsonTestFields {
+class LiftJsonTestForm extends JsonCommand with JsonTestFields {
   protected implicit val jsonFormats = DefaultFormats
 }
 
-class LiftJsonCommandSpecServlet extends ScalatraServlet with LiftJsonSupport with CommandSupport with LiftJsonParsing {
+class NativeJsonCommandSpecServlet extends ScalatraServlet with NativeJsonSupport with CommandSupport with NativeJsonParsing {
 
+  implicit val jsonFormats: Formats = DefaultFormats
 
   post("/valid") {
     val cmd = command[LiftJsonTestForm]
@@ -32,4 +33,4 @@ class LiftJsonCommandSpecServlet extends ScalatraServlet with LiftJsonSupport wi
 }
 
 
-class LiftJsonCommandSpec extends JsonCommandSpec("LiftJson", new LiftJsonCommandSpecServlet)
+class NativeJsonCommandSpec extends JsonCommandSpec("NativeJson", new NativeJsonCommandSpecServlet)

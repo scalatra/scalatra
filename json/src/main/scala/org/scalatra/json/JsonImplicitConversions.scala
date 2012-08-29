@@ -5,66 +5,80 @@ import org.scalatra.util.conversion._
 import java.util.Date
 import java.text.{DateFormat, SimpleDateFormat}
 import scala.util.control.Exception._
+import org.json4s._
 
-trait JsonImplicitConversions[J] extends TypeConverterSupport {
-  implicit def jsonToBoolean: TypeConverter[J, Boolean]
+trait JsonImplicitConversions extends TypeConverterSupport {
+  implicit protected def jsonFormats: Formats
   
-  implicit def jsonToFloat: TypeConverter[J, Float]
+  implicit val jsonToBoolean: TypeConverter[JValue, Boolean] = safe(j => j.extractOpt[Boolean] getOrElse j.extract[String].toBoolean)
 
-  implicit def jsonToDouble: TypeConverter[J, Double]
+  implicit val jsonToFloat: TypeConverter[JValue, Float] = safe(j => j.extractOpt[Float] getOrElse j.extract[String].toFloat)
 
-  implicit def jsonToByte: TypeConverter[J, Byte]
+  implicit val jsonToDouble: TypeConverter[JValue, Double] = safe(j => j.extractOpt[Double] getOrElse j.extract[String].toDouble)
 
-  implicit def jsonToShort: TypeConverter[J, Short]
+  implicit val jsonToByte: TypeConverter[JValue, Byte] = safe(j => j.extractOpt[Byte] getOrElse j.extract[String].toByte)
 
-  implicit def jsonToInt: TypeConverter[J, Int]
+  implicit val jsonToShort: TypeConverter[JValue, Short] = safe(j => j.extractOpt[Short] getOrElse j.extract[String].toShort)
 
-  implicit def jsonToLong: TypeConverter[J, Long]
+  implicit val jsonToInt: TypeConverter[JValue, Int] = safe(j => j.extractOpt[Int] getOrElse j.extract[String].toInt)
 
-  implicit def jsonToSelf: TypeConverter[J, String]
+  implicit val jsonToLong: TypeConverter[JValue, Long] = safe(j => j.extractOpt[Long] getOrElse j.extract[String].toLong)
+
+  implicit val jsonToSelf: TypeConverter[JValue, String] = safe(_.extract[String])
+
+  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safeOption(_ match {
+    case JInt(bigint) => Some(bigint)
+    case JString(v) => Some(BigInt(v))
+    case _ => None
+  })
+
+
+  def jsonToDate(format: => String): TypeConverter[JValue, Date] = jsonToDateFormat(new SimpleDateFormat(format))
+
+  def jsonToDateFormat(format: => DateFormat): TypeConverter[JValue, Date] =
+    safeOption(_.extractOpt[String] map format.parse)
+
+  def jsonToSeq[T:Manifest](elementConverter: TypeConverter[JValue, T], separator: String = ","): TypeConverter[JValue, Seq[T]] =
+    safe(_.extract[List[T]])
   
-  implicit val jsonToSeqBoolean: TypeConverter[J, Seq[Boolean]] = jsonToSeq(jsonToBoolean)
-
-  implicit val jsonToSeqFloat: TypeConverter[J, Seq[Float]] = jsonToSeq(jsonToFloat)
-
-  implicit val jsonToSeqDouble: TypeConverter[J, Seq[Double]] = jsonToSeq(jsonToDouble)
-
-  implicit val jsonToSeqByte: TypeConverter[J, Seq[Byte]] = jsonToSeq(jsonToByte)
-
-  implicit val jsonToSeqShort: TypeConverter[J, Seq[Short]] = jsonToSeq(jsonToShort)
-
-  implicit val jsonToSeqInt: TypeConverter[J, Seq[Int]] = jsonToSeq(jsonToInt)
-
-  implicit val jsonToSeqLong: TypeConverter[J, Seq[Long]] = jsonToSeq(jsonToLong)
-
-  implicit val jsonToSeqString: TypeConverter[J, Seq[String]] = jsonToSeq(jsonToSelf)
   
+  implicit val jsonToSeqBoolean: TypeConverter[JValue, Seq[Boolean]] = jsonToSeq(jsonToBoolean)
 
-  def jsonToDate(format: => String): TypeConverter[J, Date]
-  def jsonToDateFormat(format: => DateFormat): TypeConverter[J, Date]
+  implicit val jsonToSeqFloat: TypeConverter[JValue, Seq[Float]] = jsonToSeq(jsonToFloat)
 
-  def jsonToSeq[T:Manifest](elementConverter: TypeConverter[J, T], separator: String = ","): TypeConverter[J, Seq[T]]
+  implicit val jsonToSeqDouble: TypeConverter[JValue, Seq[Double]] = jsonToSeq(jsonToDouble)
+
+  implicit val jsonToSeqByte: TypeConverter[JValue, Seq[Byte]] = jsonToSeq(jsonToByte)
+
+  implicit val jsonToSeqShort: TypeConverter[JValue, Seq[Short]] = jsonToSeq(jsonToShort)
+
+  implicit val jsonToSeqInt: TypeConverter[JValue, Seq[Int]] = jsonToSeq(jsonToInt)
+
+  implicit val jsonToSeqLong: TypeConverter[JValue, Seq[Long]] = jsonToSeq(jsonToLong)
+
+  implicit val jsonToSeqString: TypeConverter[JValue, Seq[String]] = jsonToSeq(jsonToSelf)
+  
 
   import JsonConversions._
-  implicit def jsonToValTypeConversion(source: J) = new JsonValConversion(source)
+  implicit def jsonToValTypeConversion(source: JValue) = new JsonValConversion(source)
 
-  implicit def jsonToDateConversion(source: J) = new JsonDateConversion(source, jsonToDate(_))
+  implicit def jsonToDateConversion(source: JValue) = new JsonDateConversion(source, jsonToDate(_))
 
-  implicit def jsonToSeqConversion(source: J) = new {
-    def asSeq[T](separator: String)(implicit mf: Manifest[T], tc: TypeConverter[J, T]): Option[Seq[T]] =
+  implicit def jsonToSeqConversion(source: JValue) = new {
+    def asSeq[T](separator: String)(implicit mf: Manifest[T], tc: TypeConverter[JValue, T]): Option[Seq[T]] =
          jsonToSeq[T](tc, separator).apply(source)
   }
 }
 
 object JsonConversions {
 
-  class JsonValConversion[J](source: J) {
-    private type JsonTypeConverter[T] = TypeConverter[J, T]
-    def as[T: JsonTypeConverter]: Option[T] = implicitly[TypeConverter[J, T]].apply(source)
+  class JsonValConversion[JValue](source: JValue) {
+    private type JsonTypeConverter[T] = TypeConverter[JValue, T]
+    def as[T: JsonTypeConverter]: Option[T] = implicitly[TypeConverter[JValue, T]].apply(source)
   }
 
 
-  class JsonDateConversion[J](source: J, jsonToDate: String => TypeConverter[J, Date]) {
+  class JsonDateConversion[JValue](source: JValue, jsonToDate: String => TypeConverter[JValue, Date]) {
     def asDate(format: String): Option[Date] = jsonToDate(format).apply(source)
   }
 

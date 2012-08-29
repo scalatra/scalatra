@@ -11,13 +11,9 @@ import scalaz._
 import Scalaz._
 import Conversions._
 import org.joda.time.{DateTimeZone, DateTime}
-import com.fasterxml.jackson.databind.{ObjectMapper, JsonNode}
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.fasterxml.jackson.databind.node.TextNode
-import net.liftweb.json._
+import org.json4s._
 import DefaultZeroes._
-import JacksonZeroes._
-import LiftJsonZeroes._
+import JsonZeroes._
 
 class BindingSpec extends Specification {
 
@@ -172,7 +168,7 @@ class BindingSpec extends Specification {
 
   }
 
-  "JacksonBindingImplicits" should {
+  /*"JacksonBindingImplicits" should {
 
     import JacksonBindingImplicits._
     "provide FieldDescriptor[Boolean]" in {
@@ -285,7 +281,7 @@ class BindingSpec extends Specification {
       testLiftJsonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-  }
+  }*/
 
   "Defining validations" should {
     import BindingImplicits._
@@ -341,31 +337,31 @@ class BindingSpec extends Specification {
     field(Some(v.toString)).value must_== v.success[ValidationError]
   }
 
-  val jsonMapper = new ObjectMapper()
-  jsonMapper.registerModule(DefaultScalaModule)
-  def testJacksonBinding[T](value: => T)(implicit mf: Manifest[T], zt: Zero[T], converter: TypeConverter[JsonNode, T]) = {
-    val field = newBinding[T]
-    field.value must_== zt.zero.success
-    val v = value
-
-    field(Some(jsonMapper.readValue(jsonMapper.writeValueAsString(v), classOf[JsonNode]))).value must_== v.success
-  }
-
-  def testJacksonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], zt: Zero[DateTime], converter: TypeConverter[JsonNode, DateTime]) = {
-    val field = newBinding[DateTime]
-    field.value must_== zt.zero.success
-    val v = transform(new DateTime(DateTimeZone.UTC))
-    val s = v.toString(format.dateTimeFormat)
-    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.success
-  }
-
-  def testJacksonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], zt: Zero[Date], converter: TypeConverter[JsonNode, Date]) = {
-    val field = newBinding[Date]
-    field.value must_== zt.zero.success
-    val v = transform(new DateTime(DateTimeZone.UTC))
-    val s = v.toString(format.dateTimeFormat)
-    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.toDate.success
-  }
+//  val jsonMapper = new ObjectMapper()
+//  jsonMapper.registerModule(DefaultScalaModule)
+//  def testJacksonBinding[T](value: => T)(implicit mf: Manifest[T], zt: Zero[T], converter: TypeConverter[JsonNode, T]) = {
+//    val field = newBinding[T]
+//    field.value must_== zt.zero.success
+//    val v = value
+//
+//    field(Some(jsonMapper.readValue(jsonMapper.writeValueAsString(v), classOf[JsonNode]))).value must_== v.success
+//  }
+//
+//  def testJacksonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], zt: Zero[DateTime], converter: TypeConverter[JsonNode, DateTime]) = {
+//    val field = newBinding[DateTime]
+//    field.value must_== zt.zero.success
+//    val v = transform(new DateTime(DateTimeZone.UTC))
+//    val s = v.toString(format.dateTimeFormat)
+//    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.success
+//  }
+//
+//  def testJacksonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], zt: Zero[Date], converter: TypeConverter[JsonNode, Date]) = {
+//    val field = newBinding[Date]
+//    field.value must_== zt.zero.success
+//    val v = transform(new DateTime(DateTimeZone.UTC))
+//    val s = v.toString(format.dateTimeFormat)
+//    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.toDate.success
+//  }
 
   def testLiftJsonBinding[T](value: => T)(implicit mf: Manifest[T], zt: Zero[T], converter: TypeConverter[JValue, T]) = {
     val field = newBinding[T]
