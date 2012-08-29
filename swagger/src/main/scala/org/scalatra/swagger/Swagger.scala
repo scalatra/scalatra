@@ -2,7 +2,7 @@ package org.scalatra
 package swagger
 
 import java.util.{ Date => JDate }
-import net.liftweb.json._
+import org.json4s._
 import ext.{ JodaTimeSerializers, EnumNameSerializer }
 import org.joda.time._
 import format.ISODateTimeFormat

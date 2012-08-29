@@ -4,7 +4,7 @@ package swagger
 import test.specs2.ScalatraSpec
 import org.specs2._
 import matcher.JsonMatchers
-import net.liftweb.json._
+import org.json4s._
 import JsonDSL._
 
 class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =

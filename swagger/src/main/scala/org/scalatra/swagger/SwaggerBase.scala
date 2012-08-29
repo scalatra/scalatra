@@ -1,17 +1,14 @@
 package org.scalatra
 package swagger
 
-import net.liftweb.json._
+import org.json4s._
 import JsonDSL._
+import json.NativeJsonSupport
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBase extends ScalatraBase {
-
-  before() {
-    contentType = "application/json"
-  }
+trait SwaggerBase extends ScalatraBase with NativeJsonSupport {
 
   get("/:doc.json") {
     swagger.doc(params("doc")) match {
@@ -26,15 +23,13 @@ trait SwaggerBase extends ScalatraBase {
 
   options("/resources.json") {}
 
-  protected def renderDoc(doc: Api) = {
-    val j = Api.toJObject(doc) ~ ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
-    Printer.compact(JsonAST.render(j))
+  protected def renderDoc(doc: Api): JValue = {
+    Api.toJObject(doc) ~ ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
   }
 
-  protected def renderIndex(docs: List[Api]) = {
-    val j = ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion) ~
+  protected def renderIndex(docs: List[Api]): JValue = {
+    ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion) ~
       ("apis" -> (swagger.docs.toList map (doc => (("path" -> (doc.resourcePath + ".{format}")) ~ ("description" -> doc.description)))))
-    Printer.compact(JsonAST.render(j))
   }
 
   /**
