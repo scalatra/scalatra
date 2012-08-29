@@ -223,11 +223,11 @@ class BindingSpec extends Specification {
       testJacksonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-  }
+  }*/
 
-  "LiftJsonBindingImplicits" should {
+  "JsonBindingImplicits" should {
 
-    val imports = new LiftJsonBindingImports
+    val imports = new JsonBindingImports
     import imports._
     "provide FieldDescriptor[Boolean]" in {
       testLiftJsonBinding[Boolean](true)
@@ -281,7 +281,7 @@ class BindingSpec extends Specification {
       testLiftJsonDateBinding(JodaDateFormats.HttpDate, _.withMillis(0))
     }
 
-  }*/
+  }
 
   "Defining validations" should {
     import BindingImplicits._

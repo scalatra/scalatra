@@ -5,7 +5,7 @@ import org.scalatra.json._
 import org.json4s._
 
 
-class LiftJsonTestForm extends JsonCommand with JsonTestFields {
+class NativeJsonTestForm extends JsonCommand with JsonTestFields {
   protected implicit val jsonFormats = DefaultFormats
 }
 
@@ -14,12 +14,12 @@ class NativeJsonCommandSpecServlet extends ScalatraServlet with NativeJsonSuppor
   implicit val jsonFormats: Formats = DefaultFormats
 
   post("/valid") {
-    val cmd = command[LiftJsonTestForm]
+    val cmd = command[NativeJsonTestForm]
     cmd.name.value.toOption.get + ":" + cmd.quantity.value.toOption.get
   }
 
   post("/invalid") {
-    val cmd = command[LiftJsonTestForm]
+    val cmd = command[NativeJsonTestForm]
     if (cmd.isInvalid) "OK"
     else "FAIL"
   }
