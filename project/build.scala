@@ -226,7 +226,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(json4sExt),
+      libraryDependencies ++= Seq(json4sNative, json4sExt),
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
@@ -301,6 +301,7 @@ object ScalatraBuild extends Build {
     )
 
     val json4sExt = "org.json4s" % "json4s-native-ext" % "3.0.0-SNAPSHOT"
+    val json4sNative = "org.json4s" % "json4s-native" % "3.0.0-SNAPSHOT"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 

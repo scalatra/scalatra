@@ -24,7 +24,7 @@ trait SwaggerBase extends ScalatraBase with NativeJsonSupport {
   options("/resources.json") {}
 
   protected def renderDoc(doc: Api): JValue = {
-    Api.toJObject(doc) ~ ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
+    Api.toJValue(doc) merge ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
   }
 
   protected def renderIndex(docs: List[Api]): JValue = {

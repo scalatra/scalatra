@@ -55,9 +55,9 @@ object Api {
     new AllowableValuesSerializer,
     new DataTypeSerializer) ++ JodaTimeSerializers.all
 
-  def toJObject(doc: Any) = (Extraction.decompose(doc)(formats) transform {
+  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats) transform  {
     case JField(_, JNull) | JField(_, JNothing) ⇒ JNothing
-  }).asInstanceOf[JObject]
+  })
 
   class ModelFieldSerializer extends Serializer[HttpMethod] {
     def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), HttpMethod] = {

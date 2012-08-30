@@ -7,7 +7,7 @@ import matcher.JsonMatchers
 import org.json4s._
 import JsonDSL._
 
-class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
+class SwaggerSpec extends ScalatraSpec with JsonMatchers with native.JsonMethods { def is =
   "Swagger integration should"                                  ^
     "list resources"                       ! listResoures       ^
     "list operations"                      ! listOperations     ^
