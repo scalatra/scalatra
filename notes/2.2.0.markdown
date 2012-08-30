@@ -6,22 +6,22 @@
 * Adds common traits for pluggable json serialization, these traits allow library writers to write against a generic
   json interface. The application developer can then mix in the json support he wants and retain all functionality.
 * Defers reading request parameters until the last responsible moment (aka lazify)
-* Contrib project has been removed, all the modules are moved into the main scalatra project
+* Contrib project has been removed, all the modules have been moved into the main scalatra project
 
 ### Core
 * Adds typed param support, previously in contrib
 
 ### lift-json
-* Converted to use the new base traits
-* Adds ProductToJsonSupport trait from contrib
-* Replaces ProductToJsonSupport trait with a MagicLiftJson trait which will try to serialize any value to json or xml
-  when the accept headers or format parameter indicate the user wants json or xml.
+* removed for json4s support
 
 ### Jackson
-* Implemented using new base traits
-* Adds a MagicJackson trait which will try to serialize any value to json or xml
-  when the accept headers or format parameter indicate the user wants json or xml.
+* removed for json4s support
 
+### JSON
+* previous lift-json support is replaced with json4s support.
+* Jackson integration is also provided through json4s
+* Replaces ProductToJsonSupport trait with a `JValueResult` trait which will try to serialize any value to json or xml
+  when the accept headers or format parameter indicate the user wants json or xml.
 
 ### Scalate
 * Adds ScalateRenderSupport trait taken from contrib

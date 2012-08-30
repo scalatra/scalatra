@@ -17,15 +17,15 @@ case object GatewayTimeout extends ErrorCode
 object ValidationError {
   def apply(msg: String, arguments: Any*): ValidationError = {
     val field = arguments collectFirst {
-      case Some(f: FieldName) => f
+      case f: FieldName => f
     }
     val code = arguments collectFirst {
-      case Some(f: ErrorCode) =>  f
+      case f: ErrorCode =>  f
     }
     val args = if (field.isDefined) arguments filterNot {
       case _: FieldName | _: ErrorCode => true
       case _ => false
     } else arguments
-    new ValidationError(msg, field, code, args)
+    new ValidationError(msg, field, code, args:_*)
   }
 }

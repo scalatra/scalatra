@@ -205,7 +205,7 @@ trait NativeJsonParsing extends CommandSupport with NativeJsonValueReaderPropert
   import JsonZeroes._
 
   /**
-   * Create and bind a [[org.scalatra.command.Command]] of the given type with the current Scalatra params.
+   * Create and bind a [[org.scalatra.databinding.Command]] of the given type with the current Scalatra params.
    *
    * For every command type, creation and binding is performed only once and then stored into
    * a request attribute.
