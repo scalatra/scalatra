@@ -46,3 +46,15 @@
           val password: FieldBinding = asString("password").required.notBlank.validConfirmation("passwordConfirmation", passwordConfirmation.value)
 
         }
+
+### Swagger
+* Added serialization for AllowableValues in `Swagger.scala`.  These are passed as strings in the AllowableValues object:
+```scala
+// as List
+allowableValues = AllowableValues("LIST[1,2,3]")
+
+// as range
+allowableValues = AllowableValues("RANGE[0,1000]")
+```
+
+* Updated to support the [swagger-1.1 spec](https://github.com/wordnik/swagger-core/wiki/API-Declaration)
