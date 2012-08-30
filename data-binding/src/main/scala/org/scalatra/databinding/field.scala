@@ -5,6 +5,7 @@ import validation._
 import util.conversion._
 import scalaz._
 import Scalaz._
+import mojolly.inflector.InflectorImports._
 
 
 object FieldDescriptor {
@@ -65,7 +66,7 @@ class BasicFieldDescriptor[T:Zero](val name: String, val validator: Option[Valid
       BoundFieldDescriptor(o, (~convert(o)).success, this)
     } else {
       val realValidator = if (isRequired) {
-        conv flatMap (v => if (v != zero.zero) v.success else ValidationError("%s is required.".format(name), FieldName(name)).fail)
+        conv flatMap (v => if (v != zero.zero) v.success else ValidationError("%s is required.".format(name.humanize), FieldName(name)).fail)
       } else conv
       val validated = validator map (_ apply realValidator) getOrElse realValidator
       BoundFieldDescriptor(o, validated map transformations, this)
