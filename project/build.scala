@@ -3,7 +3,6 @@ import Keys._
 import scala.xml._
 import java.net.URL
 import com.github.siasia.WebPlugin.webSettings
-// import posterous.Publish._
 import ls.Plugin.LsKeys
 
 object ScalatraBuild extends Build {
@@ -32,7 +31,6 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      // (name in Posterous) := "scalatra",
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
@@ -117,32 +115,13 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
-  lazy val scalatraLiftJson = Project(
-    id = "scalatra-lift-json",
-    base = file("lift-json"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies += liftJson,
-      description := "Lift JSON support for Scalatra"
-    )
-  ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
-
-  lazy val scalatraJackson = Project(
-    id = "scalatra-jackson",
-    base = file("jackson"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= jackson,
-      description := "Jackson support for Scalatra"
-    )
-  ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
-
   lazy val scalatraDatabinding = Project(
     id = "scalatra-data-binding",
     base = file("data-binding"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4",
-        "com.chuusai"            %% "shapeless"          % "1.2.2"
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4"
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=
@@ -256,7 +235,7 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0.beta1"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0.beta5"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
@@ -268,8 +247,6 @@ object ScalatraBuild extends Build {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
-//
-//    val dispatch = "net.databinder.dispatch" % "core_2.9.2" % "0.9.0"
 
     val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.2"
 
@@ -286,22 +263,14 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    val liftJson = "net.liftweb" % "lift-json_2.9.2" % "2.5-SNAPSHOT"
-    val liftJsonExt = "net.liftweb" % "lift-json-ext_2.9.2" % "2.5-SNAPSHOT"
-
-    val jackson = Seq(
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.0.5",
-      "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.0.2",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.0.4")
+    val json4sExt = "org.json4s" %% "json4s-ext" % "3.0.0-SNAPSHOT"
+    val json4sNative = "org.json4s" %% "json4s-native" % "3.0.0-SNAPSHOT"
 
     val json4s = Seq(
-      "org.json4s" % "json4s-core" % "3.0.0-SNAPSHOT",
-      "org.json4s" % "json4s-native" % "3.0.0-SNAPSHOT" % "provided",
-      "org.json4s" % "json4s-jackson" % "3.0.0-SNAPSHOT" % "provided"
+      "org.json4s" %% "json4s-core" % "3.0.0-SNAPSHOT",
+      json4sNative % "provided",
+      "org.json4s" %% "json4s-jackson" % "3.0.0-SNAPSHOT" % "provided"
     )
-
-    val json4sExt = "org.json4s" % "json4s-native-ext" % "3.0.0-SNAPSHOT"
-    val json4sNative = "org.json4s" % "json4s-native" % "3.0.0-SNAPSHOT"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
