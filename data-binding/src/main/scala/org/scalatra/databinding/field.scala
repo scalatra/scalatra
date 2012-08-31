@@ -28,7 +28,7 @@ trait FieldDescriptor[T] {
 
   def validateWith(validators: BindingValidator[T]*): FieldDescriptor[T]
 
-  def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableFieldDescriptor[S, T]
+  def apply[S](original: Either[String, Option[S]])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableFieldDescriptor[S, T]
 
   override def hashCode() = 41 + 41 * name.hashCode()
 
@@ -55,13 +55,9 @@ class BasicFieldDescriptor[T:Zero](val name: String, val validator: Option[Valid
   def copy(name: String = name, validator: Option[Validator[T]] = validator, transformations: T => T = transformations, isRequired: Boolean = isRequired): FieldDescriptor[T] =
     new BasicFieldDescriptor(name, validator, transformations, isRequired)
 
-  private def parseFailure[B](v: Option[B]): FieldValidation[B] =
-      v map (_.success) getOrElse ValidationError(name +" has invalid input", FieldName(name)).fail
-
-  def apply[S](original: Option[S])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableFieldDescriptor[S, T] = {
-    val o = ~original
-    val conv = parseFailure(convert(o))
-
+  def apply[S](original: Either[String, Option[S]])(implicit zero: Zero[S], convert: TypeConverter[S, T]): ValidatableFieldDescriptor[S, T] = {
+    val conv = original.fold(e => ValidationError(e).fail, o => (~convert(~o)).success)
+    val o = original.fold(_ => zero.zero, og => ~og)
     if (!isRequired && o == zero.zero) {
       BoundFieldDescriptor(o, (~convert(o)).success, this)
     } else {
@@ -85,7 +81,7 @@ trait ValidatableFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def field: FieldDescriptor[T]
   def original: S
   def transform(endo: T => T): ValidatableFieldDescriptor[S, T]
-  def apply[V](original: Option[V])(implicit zero: Zero[V], convert: TypeConverter[V, T]): ValidatableFieldDescriptor[V, T] =
+  def apply[V](original: Either[String, Option[V]])(implicit zero: Zero[V], convert: TypeConverter[V, T]): ValidatableFieldDescriptor[V, T] =
     this.asInstanceOf[ValidatableFieldDescriptor[V, T]]
 
   override def toString() = "FieldDescriptor(name: %s, original: %s, value: %s)".format(name, original, value)
@@ -260,6 +256,8 @@ class Field[A:Manifest:Zero](descr: FieldDescriptor[A], command: Command) {
 
   val name = descr.name
   def value: FieldValidation[A] = binding.field.value.asInstanceOf[FieldValidation[A]]
+  def converted: Option[A] = binding.field.value.toOption.asInstanceOf[Option[A]]
+  def error: Option[ValidationError] = binding.field.value.fail.toOption
   def original = binding.original
 
   def binding: Binding = command.bindings(name)

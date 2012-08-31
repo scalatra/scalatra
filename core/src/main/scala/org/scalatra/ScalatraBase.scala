@@ -312,7 +312,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
    */
-  protected val _params = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
+  protected val _params: MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
     protected def multiMap = multiParams
   }
 

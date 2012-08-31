@@ -39,7 +39,7 @@ object Binding {
     implicit def sourceManifest: Manifest[S] = null
     implicit def sourceZero: Zero[S] = null
     implicit def typeConverter: (S) => Option[T] = null
-    def apply(toBind: Option[S]): Binding = null
+    def apply(toBind: Either[String, Option[S]]): Binding = null
 
     def validateWith(validators:BindingValidator[T]*): Binding =
       new PartialBinding(field.validateWith(validators:_*))
@@ -60,7 +60,7 @@ object Binding {
     type S = I
 
     override def toString() = {
-      "Binding[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, value, original)
+      "Binding[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, validation, original)
     }
 
 
@@ -70,7 +70,7 @@ object Binding {
     def validateWith(validators:BindingValidator[T]*): Binding =
       new DefaultBinding(field.validateWith(validators:_*), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
-    def apply(toBind: Option[S]): Binding =
+    def apply(toBind: Either[String, Option[S]]): Binding =
       new DefaultBinding(field(toBind), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
   }
@@ -89,10 +89,12 @@ sealed trait Binding {
   def field: FieldDescriptor[T]
 
   def name: String = field.name
-  def value: FieldValidation[T] = field.value
+  def validation: FieldValidation[T] = field.value
+  def value: Option[T] = field.value.toOption
+  def error: Option[ValidationError] = field.value.fail.toOption
 
-  def isValid = value.isSuccess
-  def isInvalid = value.isFailure
+  def isValid = validation.isSuccess
+  def isInvalid = validation.isFailure
 
 
   implicit def valueManifest: Manifest[T]
@@ -117,10 +119,10 @@ sealed trait Binding {
   implicit def typeConverter: TypeConverter[S, T]
 
 
-  def apply(toBind: Option[S]): Binding
+  def apply(toBind: Either[String, Option[S]]): Binding
 
   override def toString() =
-    "BindingContainer[%s](name: %s, value: %s, original: %s)".format(valueManifest.erasure.getSimpleName, name, value, original)
+    "BindingContainer[%s](name: %s, value: %s, original: %s)".format(valueManifest.erasure.getSimpleName, name, validation, original)
 
 }
 

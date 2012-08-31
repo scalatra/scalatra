@@ -4,7 +4,7 @@ package json
 import org.scalatra.util.ValueReader
 import util.RicherString._
 import org.json4s._
-import text.Document
+import scala.util.control.Exception.allCatch
 
 class JsonValueReader(val data: JValue)(implicit formats: Formats) extends ValueReader[JValue, JValue] {
 //  type I = T
@@ -14,7 +14,8 @@ class JsonValueReader(val data: JValue)(implicit formats: Formats) extends Value
     val end = ""
   }
 
-  def read(key: String): Option[JValue] = readPath(key)
+  def read(key: String): Either[String, Option[JValue]] =
+    allCatch.withApply(t => Left(t.getMessage)) { Right(readPath(key)) }
 
   protected def readPath(path: String, subj: JValue = data): Option[JValue] = {
     val partIndex = path.indexOf(separator.beginning)
@@ -34,7 +35,7 @@ class JsonValueReader(val data: JValue)(implicit formats: Formats) extends Value
   protected def get(path: String, subj: JValue): Option[JValue] = {
     val jv = subj \ path
     jv match {
-      case JNull | JNothing => None
+      case JNothing => None
       case o => Some(o)
     }
   }

@@ -241,8 +241,8 @@ object ScalatraBuild extends Build {
 
     val backchatRl = "io.backchat.rl" %% "rl" % "0.3.2"
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.2"
-    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.2" % "test"
+    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.3"
+    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.3" % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
@@ -372,6 +372,21 @@ object ScalatraBuild extends Build {
           <id>jlarmstrong</id>
           <name>Jared Armstrong</name>
           <url>http://www.jaredarmstrong.name/</url>
+        </developer>
+        <developer>
+          <id>mnylen</id>
+          <name>Mikko Nylen</name>
+          <url>https://github.com/mnylen/</url>
+        </developer>
+        <developer>
+          <id>dozed</id>
+          <name>Stefan Ollinger</name>
+          <url>http://github.com/dozed/</url>
+        </developer>
+        <developer>
+          <id>sdb</id>
+          <name>Stefan De Boey</name>
+          <url>http://github.com/sdb/</url>
         </developer>
       </developers>
     )}

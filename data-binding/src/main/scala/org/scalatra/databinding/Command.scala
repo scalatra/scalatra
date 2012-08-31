@@ -127,13 +127,13 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
 
       val res = this match {
         case d: ForceFromParams if d.namesToForce.contains(name) =>
-          fieldBinding(params.read(name).map(_.asInstanceOf[fieldBinding.S]))
+          fieldBinding(params.read(name).right.map(_ map (_.asInstanceOf[fieldBinding.S])))
         case d: ForceFromHeaders if d.namesToForce.contains(name) =>
-          fieldBinding(headers.get(name).map(_.asInstanceOf[fieldBinding.S]))
+          fieldBinding(Right(headers.get(name).map(_.asInstanceOf[fieldBinding.S])))
         case _ if paramsOnly =>
-          fieldBinding(params.read(name).map(_.asInstanceOf[fieldBinding.S]))
+          fieldBinding(params.read(name).right.map(_ map (_.asInstanceOf[fieldBinding.S])))
         case _ =>
-          fieldBinding(data.read(name).map(_.asInstanceOf[fieldBinding.S]))
+          fieldBinding(data.read(name).right.map(_ map (_.asInstanceOf[fieldBinding.S])))
       }
       name -> res
     }
