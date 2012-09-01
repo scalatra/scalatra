@@ -75,6 +75,10 @@ trait ApiFormats extends ScalatraBase {
    */
   def defaultAcceptedFormats: List[Symbol] = List.empty
 
+  def responseFormat: String = {
+    response.contentType flatMap ( ctt => ctt.split(";").headOption map mimeTypes.apply) getOrElse format
+  }
+
   /**
    * The list of media types accepted by the current request.  Parsed from the
    * `Accept` header.

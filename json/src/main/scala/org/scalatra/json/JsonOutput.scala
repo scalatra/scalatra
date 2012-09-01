@@ -34,7 +34,7 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
   protected lazy val xmlRootNode = <resp></resp>
 
   override protected def renderPipeline = ({
-    case jv: JValue if format == "xml" =>
+    case jv: JValue if responseFormat == "xml" =>
       contentType = formats("xml")
       writeJsonAsXml(jv, response.writer)
 

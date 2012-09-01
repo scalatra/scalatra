@@ -22,8 +22,8 @@ case class RichResponse(res: HttpServletResponse) {
   object headers extends Map[String, String] {
     def get(key: String): Option[String] = 
       res.getHeaders(key) match {
-	case xs if xs.isEmpty => None
-	case xs => Some(xs mkString ",")
+        case xs if xs.isEmpty => None
+        case xs => Some(xs mkString ",")
       }
 
     def iterator: Iterator[(String, String)] = 
