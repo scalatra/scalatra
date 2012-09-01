@@ -3,12 +3,12 @@ package swagger
 
 import org.json4s._
 import JsonDSL._
-import json.NativeJsonSupport
+import json.JsonSupport
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBase extends ScalatraBase with NativeJsonSupport {
+trait SwaggerBase { self: ScalatraBase with JsonSupport[_] =>
 
   get("/:doc.json") {
     swagger.doc(params("doc")) match {

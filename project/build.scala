@@ -205,7 +205,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(json4sNative, json4sExt),
+      libraryDependencies ++= Seq(json4sExt),
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")

@@ -77,6 +77,6 @@ class SwaggerTestServlet extends ScalatraServlet with SwaggerSupport {
   )) {}
 }
 
-class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with SwaggerBase {
+class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase {
   protected def buildFullUrl(path: String) = "http://localhost/%s" format path
 }
