@@ -157,8 +157,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         grizzledSlf4j,
+        jettyWebapp,
         servletApi,
-        testJettyServlet,
         mockitoAll,
         commonsLang3,
         specs2 % "test",
@@ -225,7 +225,7 @@ object ScalatraBuild extends Build {
    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApiTest,
-     libraryDependencies ++= Seq(atmosphere, jettyWebapp, slf4jSimple),
+     libraryDependencies ++= Seq(atmosphere, jettyWebapp % "container;test", slf4jSimple),
      description := "Scalatra example project"
    )
  ) dependsOn(
@@ -257,9 +257,8 @@ object ScalatraBuild extends Build {
     // See jettyOrbitHack below.
     private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" 
 
-    val testJettyServlet = jettyDep("test-jetty-servlet")
     val jettyServlet = jettyDep("jetty-servlet")
-    val jettyWebapp = jettyDep("jetty-webapp") % "test;container"
+    val jettyWebapp = jettyDep("jetty-webapp")
 
     val junit = "junit" % "junit" % "4.10"
 
