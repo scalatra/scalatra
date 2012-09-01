@@ -127,11 +127,17 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
 
       val res = this match {
         case d: ForceFromParams if d.namesToForce.contains(name) =>
-          fieldBinding(params.read(name).right.map(_ map (_.asInstanceOf[fieldBinding.S])))
+          val pv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(params).asInstanceOf[TypeConverter[Seq[String], b.T]]
+          val paramsBinding = Binding(b.field, pv, b.typeConverterFactory)(manifest[Seq[String]], implicitly[Zero[Seq[String]]], b.valueManifest, b.valueZero)
+          paramsBinding(params.read(name).right.map(_ map (_.asInstanceOf[paramsBinding.S])))
         case d: ForceFromHeaders if d.namesToForce.contains(name) =>
-          fieldBinding(Right(headers.get(name).map(_.asInstanceOf[fieldBinding.S])))
+          val tc: TypeConverter[String, _] = tcf.resolveStringParams
+          val headersBinding = Binding(b.field, tc.asInstanceOf[TypeConverter[String, b.T]], tcf)(manifest[String], implicitly[Zero[String]], b.valueManifest, b.valueZero)
+          headersBinding(Right(headers.get(name).map(_.asInstanceOf[headersBinding.S])))
         case _ if paramsOnly =>
-          fieldBinding(params.read(name).right.map(_ map (_.asInstanceOf[fieldBinding.S])))
+          val pv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(params).asInstanceOf[TypeConverter[Seq[String], b.T]]
+          val paramsBinding = Binding(b.field, pv, b.typeConverterFactory)(manifest[Seq[String]], implicitly[Zero[Seq[String]]], b.valueManifest, b.valueZero)
+          paramsBinding(params.read(name).right.map(_ map (_.asInstanceOf[paramsBinding.S])))
         case _ =>
           fieldBinding(data.read(name).right.map(_ map (_.asInstanceOf[fieldBinding.S])))
       }
