@@ -33,13 +33,13 @@
 
         class RegisterForm extends JacksonCommand { // you have to pick the json library of choice
 
-          val login: FieldBindig = asString("login").required.notBlank.minLength(6).validForFormat("\\w+".r)
+          val login: Field[String] = asString("login").required.notBlank.minLength(6).validForFormat("\\w+".r)
 
-          val name: FieldBinding = asString("name")
+          val name: Field[String] = asString("name")
 
-          val email: FieldBinding = asString("email").required.notBlank.validEmail
+          val email: Field[String] = asString("email").required.notBlank.validEmail
 
-          val homepage: FieldBinding = asString("homepage").validUrl
+          val homepage: Field[String] = asString("homepage").validUrl
 
           val passwordConfirmation: FieldBinding = asString("passwordConfirmation").required.notBlank
 
