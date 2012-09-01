@@ -3,6 +3,7 @@ package org.scalatra
 import ActionResult._
 
 import test.specs2.MutableScalatraSpec
+import java.io.ByteArrayOutputStream
 
 class ActionResultServlet extends ScalatraServlet {
   error {
@@ -53,6 +54,11 @@ class ActionResultServlet extends ScalatraServlet {
   get("/custom-reason") {
     BadRequest(body = "abc", reason = "Bad Bad Bad")
   }
+
+  get("/input-stream") {
+    contentType = "image/png"
+    getClass.getResourceAsStream("/org/scalatra/servlet/smiley.png")
+  }
 }
 
 class ActionResultsSpec extends MutableScalatraSpec {
@@ -86,6 +92,20 @@ class ActionResultsSpec extends MutableScalatraSpec {
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
         response.getContentType mustEqual "application/octet-stream;charset=UTF-8"
+      }
+    }
+
+    "render the inputStream" in {
+      val expected = {
+        val o = new ByteArrayOutputStream()
+        val i = getClass.getResourceAsStream("/org/scalatra/servlet/smiley.png")
+        org.eclipse.jetty.util.IO.copy(i, o)
+        o.toByteArray
+      }
+
+      get("/input-stream") {
+        response.mediaType must beSome("image/png")
+        bodyBytes must_== expected
       }
     }
   }

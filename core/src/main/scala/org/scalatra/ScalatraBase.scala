@@ -277,6 +277,8 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
       response.outputStream.write(bytes)
+    case is: java.io.InputStream => 
+      using(is) { util.io.copy(_, response.outputStream) }
     case file: File =>
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
     case _: Unit | Unit =>
