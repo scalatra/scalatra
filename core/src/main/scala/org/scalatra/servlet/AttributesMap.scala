@@ -10,7 +10,7 @@ import util.MutableMapWithIndifferentAccess
  * Adapts attributes from servlet objects (e.g., ServletRequest, HttpSession,
  * ServletContext) to a mutable map.
  */
-trait AttributesMap extends Map[String, AnyRef] with MutableMapWithIndifferentAccess[AnyRef] {
+trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAccess[Any] {
   protected def attributes: Attributes
 
   /**
@@ -19,9 +19,9 @@ trait AttributesMap extends Map[String, AnyRef] with MutableMapWithIndifferentAc
    * @return an option value containing the attribute associated with the key
    * in the underlying servlet object, or None if none exists.
    */
-  def get(key:String): Option[AnyRef] = attributes.getAttribute(key) match {
+  def get(key:String): Option[Any] = attributes.getAttribute(key) match {
     case null => None
-    case v: AnyRef => Some(v)
+    case v => Some(v)
   }
 
   /**
@@ -42,8 +42,8 @@ trait AttributesMap extends Map[String, AnyRef] with MutableMapWithIndifferentAc
    *
    * @return the map itself
    */
-  def +=(kv: (String, AnyRef)) = {
-    attributes.setAttribute(kv._1, kv._2)
+  def +=(kv: (String, Any)) = {
+    attributes.setAttribute(kv._1, kv._2.asInstanceOf[AnyRef])
     this
   }
 

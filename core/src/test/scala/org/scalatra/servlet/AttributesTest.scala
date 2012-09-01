@@ -8,7 +8,7 @@ trait AttributesTest {
   this: ScalatraFunSuite =>
 
   trait AttributesServlet extends ScalatraServlet {
-    def attributesMap: Map[String, AnyRef]
+    def attributesMap: Map[String, Any]
 
     get("/attributes-test") {
       attributesMap("one") = "1"
