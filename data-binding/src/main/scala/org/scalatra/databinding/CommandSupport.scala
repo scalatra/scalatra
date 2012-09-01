@@ -42,7 +42,7 @@ trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProper
 
   def commandOption[T <: CommandType : Manifest] : Option[T] = requestProxy.get(commandRequestKey[T]).map(_.asInstanceOf[T])
 
-  private[databinding] def requestProxy: mutable.Map[String, AnyRef] = request
+  private[databinding] def requestProxy: mutable.Map[String, Any] = request
 
   private[databinding] def commandRequestKey[T <: CommandType : Manifest] = "_command_" + manifest[T].erasure.getName
 

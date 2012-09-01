@@ -147,7 +147,7 @@ class CommandSupportSpec extends Specification with Mockito {
 
       import collection.mutable._
 
-      val mockRequest: Map[String, AnyRef] = Map.empty
+      val mockRequest: Map[String, Any] = Map.empty
 
       val page = new ScalatraPage {
         override private[databinding] def requestProxy = mockRequest
@@ -169,7 +169,7 @@ class CommandSupportSpec extends Specification with Mockito {
       import collection.mutable._
 
       val req = smartMock[HttpServletRequest]
-      val mockRequest: Map[String, AnyRef] = Map.empty
+      val mockRequest: Map[String, Any] = Map.empty
 
       val page = new ScalatraPage {
 
@@ -194,7 +194,7 @@ class CommandSupportSpec extends Specification with Mockito {
       val command = page.command[CommandSample]
 
       val key = page.commandRequestKey[CommandSample]
-      mockRequest(key) must beTheSameAs(command)
+      mockRequest(key).asInstanceOf[AnyRef] must beTheSameAs(command)
 
       command.binded must beTrue
     }
