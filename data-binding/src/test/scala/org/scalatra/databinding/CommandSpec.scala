@@ -51,16 +51,16 @@ class CommandSpec extends Specification {
 
     "have unprocessed binding values set to 'None'" in {
       val form = new WithBindingFromParams
-      form.a.value must_== "".success
-      form.lower.value must_== "".success
+      form.a.validation must_== "".success
+      form.lower.validation must_== "".success
     }
 
     "bindTo 'params' Map and bind matching values to specific keys" in {
       val form = new WithBindingFromParams
       val params = Map("name" -> "John", "surname" -> "Doe")
       form.bindTo(params)
-      form.a.value must_== params("name").toUpperCase.success
-      form.lower.value must_== params("surname").toLowerCase.success
+      form.a.validation must_== params("name").toUpperCase.success
+      form.lower.validation must_== params("surname").toLowerCase.success
     }
 
     "provide pluggable actions processed 'BEFORE' binding " in {
@@ -86,7 +86,7 @@ class CommandSpec extends Specification {
       val bound = form.bindTo(params)
 
       bound.timestamp must be_<(currentTimeMillis())
-      bound.a.value must_== params("name").toUpperCase.success
+      bound.a.validation must_== params("name").toUpperCase.success
       bound.a.original must_== params.get("name")
     }
 
@@ -101,7 +101,7 @@ class CommandSpec extends Specification {
         }
 
         afterBinding {
-          _fullname = a.value.toOption.get + " " + lower.value.toOption.get
+          _fullname = a.validation.toOption.get + " " + lower.validation.toOption.get
         }
       }
 

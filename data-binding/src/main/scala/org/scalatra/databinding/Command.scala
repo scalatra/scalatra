@@ -120,7 +120,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
             paramsOnly: Boolean = false)(implicit r: S => ValueReader[S, I], mi: Manifest[I], zi: Zero[I], multiParams: MultiParams => ValueReader[MultiParams, Seq[String]]): this.type = {
     doBeforeBindingActions()
 
-    bindings = bindings map { case (name, b) =>
+    val bound = bindings map { case (name, b) =>
       val tcf = b.typeConverterFactory
       val cv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(data).asInstanceOf[TypeConverter[I, b.T]]
       val fieldBinding = Binding(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
@@ -144,6 +144,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
       name -> res
     }
 
+    bindings = bound map { case (name, v) => name -> v.validate }
     doAfterBindingActions()
     this
   }

@@ -16,8 +16,6 @@ class BindingException(message: String) extends ScalatraException(message)
 
 object Binding {
 
-
-
   def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): Binding = {
     new DefaultBinding(FieldDescriptor[A](fieldName), tcf)(mf, z, mt, za, cv)
   }
@@ -46,6 +44,8 @@ object Binding {
 
     def transform(transformer: (T) => T): Binding =
       new PartialBinding(field transform transformer)
+
+    def validate: Binding = throw new BindingException("Databinding needs to happen before validation")
   }
 
   private class DefaultBinding[I, A]
@@ -63,7 +63,6 @@ object Binding {
       "Binding[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, validation, original)
     }
 
-
     def transform(transformer: (T) => T): Binding =
       new DefaultBinding(field.transform(transformer), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
@@ -73,6 +72,10 @@ object Binding {
     def apply(toBind: Either[String, Option[S]]): Binding =
       new DefaultBinding(field(toBind), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
+    def validate: Binding = {
+      val nwFld = field.asInstanceOf[DataboundFieldDescriptor[S, T]].validate
+      new DefaultBinding(nwFld, typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
+    }
   }
 
 }
@@ -111,13 +114,14 @@ sealed trait Binding {
   def transform(transformer: T => T): Binding
 
   def original: Option[S] = field match {
-    case v: ValidatableFieldDescriptor[_, _] => Some(v.original.asInstanceOf[S])
+    case v: DataboundFieldDescriptor[_, _] => Some(v.original.asInstanceOf[S])
     case _ => None
   }
 
 
   implicit def typeConverter: TypeConverter[S, T]
 
+  def validate: Binding
 
   def apply(toBind: Either[String, Option[S]]): Binding
 

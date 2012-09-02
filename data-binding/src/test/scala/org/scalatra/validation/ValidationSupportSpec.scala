@@ -11,7 +11,7 @@ import org.scalatra.databinding.BindingSyntax._
 class WithValidation extends WithBindingFromParams {
   val notRequiredCap: Field[Int] = asInt("cap").greaterThan(100)
 
-  val legalAge: Field[Int] = asInt("age").greaterThanOrEqualTo(18)
+  val legalAge: Field[Int] = asInt("age").required.greaterThanOrEqualTo(18)
 }
 
 
@@ -28,9 +28,9 @@ class ValidationSupportSpec extends Specification {
 
       ageValidatedForm.bindTo(params)
 
-      ageValidatedForm.a.value must_== params("name").toUpperCase.success
-      ageValidatedForm.lower.value must_== params("surname").toLowerCase.success
-      ageValidatedForm.age.value must_== 18.success
+      ageValidatedForm.a.validation must_== params("name").toUpperCase.success
+      ageValidatedForm.lower.validation must_== params("surname").toLowerCase.success
+      ageValidatedForm.age.validation must_== 18.success
 
     }
 
@@ -47,11 +47,11 @@ class ValidationSupportSpec extends Specification {
 
       ageValidatedForm.errors aka "validation error list" must have(_.name == "age")
 
-      ageValidatedForm.legalAge.value aka "the validation result" must_== Failure(ValidationError("Age must be greater than or equal to 18", FieldName("age")))
+      ageValidatedForm.legalAge.validation aka "the validation result" must_== Failure(ValidationError("Age must be greater than or equal to 18", FieldName("age")))
     }
 
 
-    "evaluate non-exaustive validation as 'accepted'" in {
+    "evaluate non-exhaustive validation as 'accepted'" in {
       val formUnderTest = new WithValidation
       val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "20")
 
@@ -60,7 +60,7 @@ class ValidationSupportSpec extends Specification {
       formUnderTest.bindTo(params)
       formUnderTest.isValid must beTrue
 
-      formUnderTest.notRequiredCap.value must_== 0.success
+      formUnderTest.notRequiredCap.validation must_== 0.success
       formUnderTest.notRequiredCap.isValid must beTrue
     }
 
