@@ -47,7 +47,7 @@ class ValidationSupportSpec extends Specification {
 
       ageValidatedForm.errors aka "validation error list" must have(_.name == "age")
 
-      ageValidatedForm.legalAge.validation aka "the validation result" must_== Failure(ValidationError("Age must be greater than or equal to 18", FieldName("age")))
+      ageValidatedForm.legalAge.validation aka "the validation result" must_== Failure(ValidationError("Age must be greater than or equal to 18", FieldName("age"), ValidationFail))
     }
 
 
