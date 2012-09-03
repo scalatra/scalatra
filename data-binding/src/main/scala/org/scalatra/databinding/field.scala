@@ -219,8 +219,8 @@ object BindingValidators {
     def validForFormat(regex: Regex, messageFormat: String = "%s is invalid."): FieldDescriptor[String] =
       b.validateWith(BindingValidators.validFormat(regex, messageFormat))
 
-    def validForConfirmation(confirmationFieldName: String, confirmationValue: String): FieldDescriptor[String] =
-      b.validateWith(BindingValidators.validConfirmation(confirmationFieldName, confirmationValue))
+    def validForConfirmation(against: Field[String]): FieldDescriptor[String] =
+      b.validateWith(BindingValidators.validConfirmation(against))
 
 
     def minLength(min: Int): FieldDescriptor[String] =
@@ -266,8 +266,8 @@ object BindingValidators {
     _ flatMap (Validators.validFormat(s, regex, messageFormat).validate(_))
   }
 
-  def validConfirmation(confirmationFieldName: String, confirmationValue: String): BindingValidator[String] = (s: String) =>{
-    _ flatMap (Validators.validConfirmation(s, confirmationFieldName, confirmationValue).validate(_))
+  def validConfirmation(against: Field[String]): BindingValidator[String] = (s: String) =>{
+    _ flatMap { Validators.validConfirmation(s, against.name, ~against.value).validate(_) }
   }
 
   def greaterThan[T <% Ordered[T]](min: T): BindingValidator[T] = (s: String) =>{

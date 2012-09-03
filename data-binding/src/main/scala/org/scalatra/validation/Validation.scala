@@ -27,7 +27,7 @@ object Validation {
   def validFormat(fieldName: String, value: ⇒ String, regex: Regex, messageFormat: String = "%s is invalid."): FieldValidation[String] =
     Validators.validFormat(fieldName, regex, messageFormat).validate(value)
 
-  def validConfirmation(fieldName: String, value: ⇒ String, confirmationFieldName: String, confirmationValue: String): FieldValidation[String] =
+  def validConfirmation(fieldName: String, value: ⇒ String, confirmationFieldName: String, confirmationValue: => String): FieldValidation[String] =
     Validators.validConfirmation(fieldName, confirmationFieldName, confirmationValue).validate(value)
 
   def greaterThan[T <% Ordered[T]](fieldName: String, value: ⇒ T, min: T): FieldValidation[T] =

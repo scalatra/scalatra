@@ -49,7 +49,7 @@ object Validators {
   def validFormat(fieldName: String, regex: Regex, messageFormat: String = "%s is invalid."): Validator[String] =
     new PredicateValidator[String](fieldName, regex.findFirstIn(_).isDefined, messageFormat)
 
-  def validConfirmation(fieldName: String, confirmationFieldName: String, confirmationValue: String): Validator[String] =
+  def validConfirmation(fieldName: String, confirmationFieldName: String, confirmationValue: => String): Validator[String] =
     new PredicateValidator[String](
       fieldName,
       _ == confirmationValue,
