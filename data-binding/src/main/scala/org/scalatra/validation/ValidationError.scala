@@ -2,7 +2,7 @@ package org.scalatra
 package validation
 
 
-case class ValidationError(message: String, field: Option[FieldName], code: Option[ErrorCode], args: Any*)
+case class ValidationError(message: String, field: Option[FieldName], code: Option[ErrorCode], args: Seq[Any])
 case class FieldName(name: String)
 
 trait ErrorCode
@@ -26,6 +26,6 @@ object ValidationError {
       case _: FieldName | _: ErrorCode => true
       case _ => false
     } else arguments
-    new ValidationError(msg, field, code, args:_*)
+    new ValidationError(msg, field, code, args)
   }
 }
