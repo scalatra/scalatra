@@ -34,7 +34,7 @@ object ScalatraBuild extends Build {
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
-      scalatraScalate, scalatraJson, scalatraSlf4j,
+      scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
       scalatraCommon)
@@ -95,6 +95,15 @@ object ScalatraBuild extends Build {
       description := "Commons-Fileupload integration with Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraAtmosphere = Project(
+    id = "scalatra-atmosphere",
+    base = file("atmosphere"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(atmosphere),
+      description := "Atmosphere integration for scalatra"
+    )
+  ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
 
   lazy val scalatraScalate = Project(
     id = "scalatra-scalate",
@@ -225,17 +234,17 @@ object ScalatraBuild extends Build {
    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApiTest,
-     libraryDependencies ++= Seq(atmosphere, jettyWebapp % "container;test", slf4jSimple),
+     libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      description := "Scalatra example project"
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraDatabinding
+   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraDatabinding, scalatraAtmosphere
  )
 
   object Dependencies {
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0.beta5"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
@@ -254,8 +263,7 @@ object ScalatraBuild extends Build {
 
     val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.9"
 
-    // See jettyOrbitHack below.
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416" 
+    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416"
 
     val jettyServlet = jettyDep("jetty-servlet")
     val jettyWebapp = jettyDep("jetty-webapp")

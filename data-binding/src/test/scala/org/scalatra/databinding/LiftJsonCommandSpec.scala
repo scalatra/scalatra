@@ -15,7 +15,7 @@ class NativeJsonCommandSpecServlet extends ScalatraServlet with NativeJsonSuppor
 
   post("/valid") {
     val cmd = command[NativeJsonTestForm]
-    cmd.name.validation.toOption.get + ":" + cmd.quantity.validation.toOption.get
+    cmd.name.value.get + ":" + cmd.quantity.value.get
   }
 
   post("/invalid") {
