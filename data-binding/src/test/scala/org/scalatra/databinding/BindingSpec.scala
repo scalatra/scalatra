@@ -40,22 +40,22 @@ class BindingSpec extends Specification {
   }
 
   "A Binding" should {
-    import TypeConverterFactoryImplicits._
+    import TypeConverterFactories._
     "construct containers by name" in {
-      val cont = Binding("login", implicitly[TypeConverter[String, String]], stringTypeConverterFactory)
+      val cont = Binding("login", implicitly[TypeConverter[String, String]], implicitly[TypeConverterFactory[String]])
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
     }
 
     "construct containers by binding" in {
       val binding = newBinding[String]
-      val cont = Binding(binding, implicitly[TypeConverter[Seq[String], String]], stringSeqTypeConverterFactory)
+      val cont = Binding(binding, implicitly[TypeConverter[Seq[String], String]], implicitly[TypeConverterFactory[Seq[String]]])
       cont.name must_== binding.name
       cont.original must beAnInstanceOf[Option[Seq[String]]]
     }
 
     "bind to the data" in {
-      val cont = Binding("login", implicitly[TypeConverter[String, String]], stringTypeConverterFactory)
+      val cont = Binding("login", implicitly[TypeConverter[String, String]], implicitly[TypeConverterFactory[String]])
       cont.name must_== "login"
       cont.original must beAnInstanceOf[Option[String]]
       val bound = cont(Right(Option("joske".asInstanceOf[cont.S])))
@@ -67,7 +67,8 @@ class BindingSpec extends Specification {
   }
   
   "A BindingBuilder" should {
-    import TypeConverterFactoryImplicits._
+    import TypeConverterFactories._
+
     "start the build process by taking a FieldDescriptor[T]" in {
       import BindingSyntax._
       val b = Binding(asString("login"))
@@ -79,7 +80,7 @@ class BindingSpec extends Specification {
 
       val builder = Binding(FieldDescriptor[String]("login"))
       val conv = implicitly[TypeConverter[String, String]].asInstanceOf[TypeConverter[String, builder.T]]
-      val container = Binding(builder.field, conv, stringTypeConverterFactory)(manifest[String], implicitly[Zero[String]], builder.valueManifest, builder.valueZero)
+      val container = Binding(builder.field, conv, implicitly[TypeConverterFactory[String]])(manifest[String], implicitly[Zero[String]], builder.valueManifest, builder.valueZero)
       container(Right(Some("joske".asInstanceOf[container.S]))).validation must_== "joske".success
     }
 
@@ -226,8 +227,7 @@ class BindingSpec extends Specification {
   }*/
 
   "JsonBindingImplicits" should {
-
-    val imports = new JsonBindingImports
+    val imports = new JsonTypeConverterFactoriesImports
     import imports._
     "provide FieldDescriptor[Boolean]" in {
       testLiftJsonBinding[Boolean](true)

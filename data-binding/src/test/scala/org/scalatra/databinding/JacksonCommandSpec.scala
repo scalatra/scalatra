@@ -3,13 +3,7 @@ package databinding
 
 //import jackson.JacksonSupport
 import org.scalatra.test.specs2.MutableScalatraSpec
-//
-trait JsonTestFields { self: Command with TypeConverterFactoryConversions =>
 
-  val name: Field[String] = asString("name").minLength(5)
-  val quantity: Field[Int] = asInt("quantity").greaterThan(3)
-
-}
 //
 //class JacksonTestForm extends JacksonCommand with JsonTestFields
 //

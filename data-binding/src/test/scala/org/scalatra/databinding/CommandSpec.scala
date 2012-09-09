@@ -13,7 +13,7 @@ import org.scalatra.util
 
 //import org.scalatra.validation.ValidationSupport
 
-trait BindingTemplate { self: Command with TypeConverterFactoryConversions =>
+trait BindingTemplate { self: Command with TypeConverterFactories =>
 
 
   val upperCaseName: Field[String] = bind[String]("name").transform(_.toUpperCase)
@@ -26,7 +26,7 @@ trait BindingTemplate { self: Command with TypeConverterFactoryConversions =>
 
 }
 
-trait WithBinding extends TypeConverterFactoryConversions with Command with BindingTemplate {
+trait WithBinding extends Command with TypeConverterFactories with BindingTemplate {
 
 
   val a = upperCaseName
@@ -34,7 +34,7 @@ trait WithBinding extends TypeConverterFactoryConversions with Command with Bind
   val lower = lowerCaseSurname
 }
 
-class WithBindingFromParams extends TypeConverterFactoryImplicits with WithBinding
+class WithBindingFromParams extends WithBinding
 
 
 class CommandSpec extends Specification {
@@ -121,11 +121,11 @@ class CommandSpec extends Specification {
 import org.scalatra.test.specs2._
 
 
-class CommandSample extends TypeConverterFactoryImplicits with ParamsOnlyCommand {
-  var binded = false
+class CommandSample extends ParamsOnlyCommand {
+  var bound = false
 
   afterBinding {
-    binded = true
+    bound = true
   }
 }
 
@@ -196,7 +196,7 @@ class CommandSupportSpec extends Specification with Mockito {
       val key = page.commandRequestKey[CommandSample]
       mockRequest(key).asInstanceOf[AnyRef] must beTheSameAs(command)
 
-      command.binded must beTrue
+      command.bound must beTrue
     }
   }
 

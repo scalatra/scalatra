@@ -10,11 +10,9 @@ import org.joda.time.DateTime
 
 
 /**
-* Support for [[org.scalatra.command.Command]] binding and validation.
+* Support for [[org.scalatra.databinding.Command]] binding and validation.
 */
-trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProperties {
-
-  this: ScalatraBase =>
+trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
 
   type CommandType <: Command
 
@@ -55,7 +53,7 @@ trait CommandSupport extends TypeConverterFactories with ParamsValueReaderProper
 
   /**
    * Create a [[org.scalatra.RouteMatcher]] that evaluates '''true''' only if a command is valid. See
-   * [[org.scalatra.command.validation.ValidationSupport]] for details.
+   * [[org.scalatra.databinding.validation.ValidationSupport]] for details.
    */
   def ifValid[T <: CommandType](implicit mf: Manifest[T]): RouteMatcher = new CommandRouteMatcher[T]
 }

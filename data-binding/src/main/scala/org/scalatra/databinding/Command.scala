@@ -45,10 +45,7 @@ import java.util.Date
 *
 */
 
-//trait CommandConverterType {
-//  type CommandTypeConverterFactory[T] <: TypeConverterFactory[T]
-//}
-trait Command extends BindingSyntax with ParamsValueReaderProperties { self: TypeConverterFactoryConversions =>
+trait Command extends BindingSyntax with ParamsValueReaderProperties {
 
   type CommandTypeConverterFactory[T] <: TypeConverterFactory[T]
   private[this] var preBindingActions: Seq[BindingAction] = Nil
@@ -159,7 +156,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties { self: Typ
 
 }
 
-trait ParamsOnlyCommand extends TypeConverterFactoryImplicits with Command {
+trait ParamsOnlyCommand extends TypeConverterFactories with Command {
   type CommandTypeConverterFactory[T] = TypeConverterFactory[T]
 }
 

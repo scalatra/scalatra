@@ -5,11 +5,13 @@ import org.scalatra.json._
 import org.json4s._
 
 
-class NativeJsonTestForm extends JsonCommand with JsonTestFields {
+class NativeJsonTestForm extends JsonCommand {
   protected implicit val jsonFormats = DefaultFormats
+  val name: Field[String] = asString("name").minLength(5)
+  val quantity: Field[Int] = asInt("quantity").greaterThan(3)
 }
 
-class NativeJsonCommandSpecServlet extends ScalatraServlet with NativeJsonSupport with CommandSupport with NativeJsonParsing {
+class NativeJsonCommandSpecServlet extends ScalatraServlet with NativeJsonSupport with NativeJsonParsing {
 
   implicit val jsonFormats: Formats = DefaultFormats
 
