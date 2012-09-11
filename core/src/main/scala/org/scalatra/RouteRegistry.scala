@@ -1,17 +1,17 @@
 package org.scalatra
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 
 class RouteRegistry {
 
   private val _methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
-    new ConcurrentHashMap[HttpMethod, Seq[Route]]
+    new ConcurrentHashMap[HttpMethod, Seq[Route]].asScala
 
   private val _statusRoutes: ConcurrentMap[Int, Route] =
-    new ConcurrentHashMap[Int, Route]
+    new ConcurrentHashMap[Int, Route].asScala
 
   private var _beforeFilters: Seq[Route] = Vector.empty
   private var _afterFilters: Seq[Route] = Vector.empty

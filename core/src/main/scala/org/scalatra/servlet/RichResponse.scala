@@ -5,7 +5,7 @@ import util.RicherString._
 
 import java.io.{OutputStream, PrintWriter}
 import javax.servlet.http.{HttpServletResponse, HttpServletResponseWrapper, Cookie => ServletCookie}
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.Map
 
 case class RichResponse(res: HttpServletResponse) {
@@ -23,12 +23,12 @@ case class RichResponse(res: HttpServletResponse) {
     def get(key: String): Option[String] = 
       res.getHeaders(key) match {
         case xs if xs.isEmpty => None
-        case xs => Some(xs mkString ",")
+        case xs => Some(xs.asScala mkString ",")
       }
 
     def iterator: Iterator[(String, String)] = 
-      for (name <- res.getHeaderNames.iterator) 
-      yield (name, res.getHeaders(name) mkString ", ")
+      for (name <- res.getHeaderNames.asScala.iterator)
+      yield (name, res.getHeaders(name).asScala mkString ", ")
 
     def +=(kv: (String, String)): this.type = {
       res.setHeader(kv._1, kv._2)

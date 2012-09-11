@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import scala.collection.mutable.Map
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import java.util.Enumeration
 import util.MutableMapWithIndifferentAccess
 
@@ -30,7 +30,7 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    * @return the new iterator
    */
   def iterator: Iterator[(String, Any)] =
-    attributes.getAttributeNames.asInstanceOf[Enumeration[String]] map { key =>
+    attributes.getAttributeNames.asInstanceOf[Enumeration[String]].asScala map { key =>
       (key, attributes.getAttribute(key))
     }
 

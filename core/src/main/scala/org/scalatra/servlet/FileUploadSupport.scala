@@ -1,6 +1,6 @@
 package org.scalatra.servlet
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
 import org.scalatra.util.{ using, io }
@@ -131,7 +131,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   private def getParts(req: HttpServletRequest) = {
     try {
-      req.getParts
+      req.getParts.asScala
     } catch {
       case e: Exception if isSizeConstraintException(e) => throw new SizeConstraintExceededException("Too large request or file", e)
     }
@@ -144,7 +144,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   private def mergeFormParamsWithQueryString(req: HttpServletRequest, bodyParams: BodyParams): Map[String, List[String]] = {
     var mergedParams = bodyParams.formParams
-    req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
+    req.getParameterMap.asScala foreach {
       case (name, values) =>
         val formValues = mergedParams.getOrElse(name, List.empty)
         mergedParams += name -> (values.toList ++ formValues)
@@ -159,15 +159,15 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
         _.head
       } getOrElse null
 
-      override def getParameterNames = formMap.keysIterator
+      override def getParameterNames = formMap.keysIterator.asJavaEnumeration
 
       override def getParameterValues(name: String) = formMap.get(name) map {
         _.toArray
       } getOrElse null
 
-      override def getParameterMap = new JHashMap[String, Array[String]] ++ (formMap transform {
+      override def getParameterMap = (new JHashMap[String, Array[String]].asScala ++ (formMap transform {
         (k, v) => v.toArray
-      })
+      })).asJava
     }
     wrapped
   }

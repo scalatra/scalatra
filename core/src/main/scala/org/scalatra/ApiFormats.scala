@@ -1,10 +1,11 @@
 package org.scalatra
 
-import collection.JavaConversions._
+import collection.JavaConverters._
 import collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
+import collection.mutable
 
 object ApiFormats {
   /**
@@ -25,7 +26,7 @@ trait ApiFormats extends ScalatraBase {
   /**
    * A map of suffixes to content types.
    */
-  val formats: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
+  val formats: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "json" -> "application/json",
     "xml" -> "application/xml",
     "atom" -> "application/atom+xml",
@@ -40,12 +41,12 @@ trait ApiFormats extends ScalatraBase {
     "txt" -> "text/plain",
     "html" -> "text/html",
     "html5" -> "text/html",
-    "xhtml" -> "application/xhtml+xml"))
+    "xhtml" -> "application/xhtml+xml").asJava).asScala
 
   /**
    * A map of content types to suffixes.  Not strictly a reverse of `formats`.
    */
-  val mimeTypes: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
+  val mimeTypes: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "application/json" -> "json",
     "application/xml" -> "xml",
     "application/atom+xml" -> "atom",
@@ -63,7 +64,7 @@ trait ApiFormats extends ScalatraBase {
     "application/x-ecmascript" -> "json",
     "text/stylesheet" -> "css",
     "text/html" -> "html",
-    "application/xhtml+xml" -> "html"))
+    "application/xhtml+xml" -> "html").asJava).asScala
 
   /**
    * The default format.

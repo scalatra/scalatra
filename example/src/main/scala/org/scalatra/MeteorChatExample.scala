@@ -47,7 +47,7 @@ class MeteorChatExample extends ScalatraServlet {
 
   val filters = LinkedList(new XSSHtmlFilter, new JsonpFilter)
 
-  get("/?*") {
+  get("/*") {
     val m: Meteor = Meteor.build(request, filters, null)
     m.addListener(new EventsLogger())
     session += "meteor" -> m
@@ -56,7 +56,7 @@ class MeteorChatExample extends ScalatraServlet {
     m broadcast (request.getServerName + "__has suspended a connection from " + request.getRemoteAddr)
   }
 
-  post("/?*") {
+  post("/*") {
     val m = session("meteor").asInstanceOf[Meteor]
     response.setCharacterEncoding("UTF-8")
     val action = params('action)

@@ -3,7 +3,7 @@ package servlet
 
 import scala.collection.{Map => CMap}
 import scala.collection.immutable.DefaultMap
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.io.Source
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
@@ -75,7 +75,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * the query string or posted form data.
    */
   def multiParameters: MultiParams = {
-    r.getParameterMap.asInstanceOf[java.util.Map[String,Array[String]]].toMap
+    r.getParameterMap.asScala.toMap
       .transform { (k, v) => v: Seq[String] }
   }
 
@@ -94,7 +94,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
       get(key).map(_.split(",").toSeq.map(_.trim)).getOrElse(Seq.empty)
 
     def iterator: Iterator[(String, String)] =
-      r.getHeaderNames map { name => (name, r.getHeader(name)) }
+      r.getHeaderNames.asScala map { name => (name, r.getHeader(name)) }
   }
 
   def header(name: String): Option[String] =

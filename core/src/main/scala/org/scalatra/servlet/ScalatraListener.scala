@@ -19,6 +19,8 @@ class ScalatraListener extends ServletContextListener {
     val cycleClassName = 
       Option(servletContext.getInitParameter(LifeCycleKey)) getOrElse DefaultLifeCycle
     val cycleClass = Class.forName(cycleClassName)
+    if (!classOf[LifeCycle].isAssignableFrom(cycleClass))
+      throw new ClassCastException("This is no lifecycle class.")
     cycle = cycleClass.newInstance.asInstanceOf[LifeCycle]
     logger.info("Initializing life cycle class: %s".format(cycleClassName))
     cycle.init(servletContext)

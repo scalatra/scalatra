@@ -5,7 +5,7 @@ import java.net.{MalformedURLException, URL}
 import java.util.EnumSet
 import javax.servlet.{DispatcherType, Filter, ServletContext}
 import javax.servlet.http.{HttpServlet, HttpServletRequest}
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /**
@@ -133,7 +133,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     def get(key: String): Option[String] = Option(sc.getInitParameter(key))
 
     def iterator: Iterator[(String, String)] = 
-      for (name <- sc.getInitParameterNames.toIterator) 
+      for (name <- sc.getInitParameterNames.asScala)
       yield (name, sc.getInitParameter(name))
 
     def +=(kv: (String, String)): this.type = {
