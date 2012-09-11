@@ -308,6 +308,8 @@ object ScalatraBuild extends Build {
     val jodaTime = "joda-time" % "joda-time" % "2.1"
 
     val jodaConvert = "org.joda" % "joda-convert" % "1.2"
+
+    val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2"
   }
 
   object Resolvers {

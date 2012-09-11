@@ -7,7 +7,7 @@ import javax.servlet.ServletContext
  * constructor.  Useful for unifying the initialization process of an
  * HttpServlet and a Filter.
  */
-trait Initializable { 
+trait Initializable {
   type ConfigT
 
   trait Config {
