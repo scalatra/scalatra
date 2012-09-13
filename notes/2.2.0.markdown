@@ -11,6 +11,8 @@
 ### Core
 * Adds typed param support, previously in contrib
 * ApiFormats now also has a method responseFormat which looks at the content type of the response and falls back to the format of the request.
+* The default bootstrap file is renamed from `Scalatra` to `Bootstrap`
+* FileUpload can now be configured through init parameters
 
 ### lift-json
 * removed for json4s support
@@ -60,3 +62,4 @@ allowableValues = AllowableValues("RANGE[0,1000]")
 
 * Updated to support the [swagger-1.1 spec](https://github.com/wordnik/swagger-core/wiki/API-Declaration)
 * Allows for using either jackson or native json to generate the service description json
+* Auto-registers servlets and filters that extend the SwaggerSupport trait in the swagger manager.
