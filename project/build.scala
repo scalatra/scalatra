@@ -34,7 +34,7 @@ object ScalatraBuild extends Build {
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
-      scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
+      scalatraScalate, scalatraJson, scalatraSlf4j, //scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
       scalatraCommon)
@@ -234,12 +234,13 @@ object ScalatraBuild extends Build {
    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApiTest,
+     libraryDependencies += atmosphere,
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      description := "Scalatra example project"
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraDatabinding, scalatraAtmosphere
+   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraDatabinding//, scalatraAtmosphere
  )
 
   object Dependencies {

@@ -14,8 +14,8 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers with native.JsonMethods
   end
 
   val swagger = new Swagger("1.0", "1")
-  val testServlet = new SwaggerTestServlet
-  swagger register("test", "/test", "Test", testServlet)
+  val testServlet = new SwaggerTestServlet(swagger)
+//  swagger register("test", "/test", "Test", testServlet)
   addServlet(testServlet, "/test/*")
   addServlet(new SwaggerResourcesServlet(swagger), "/*")
 
@@ -70,11 +70,16 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers with native.JsonMethods
   }
 }
 
-class SwaggerTestServlet extends ScalatraServlet with SwaggerSupport {
+class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet with SwaggerSupport {
+
   get("/", summary("Test"), nickname("test")) {}
   get("/:id", summary("Find by ID"), nickname("findById"), responseClass("Book"), endpoint("{id}"), parameters(
     Parameter("id", "ID", DataType.String, paramType = ParamType.Path)
   )) {}
+
+  protected val applicationDescription: String = "Test"
+
+  override protected val applicationName: Option[String] = Some("test")
 }
 
 class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase {

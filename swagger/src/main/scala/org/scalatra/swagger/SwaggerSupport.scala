@@ -15,6 +15,7 @@ trait SwaggerSupport extends Initializable {
 
   protected implicit def swagger: Swagger
 
+  protected def applicationName: Option[String]= None
   protected def applicationDescription: String
 
   private[this] def throwAFit =
@@ -22,7 +23,10 @@ trait SwaggerSupport extends Initializable {
 
   private[this] def registerInSwagger(name: String, servPath: String) = {
     val ctxtPath = Option(servletContext.getContextPath).flatMap(_.blankOption) getOrElse "/"
-    val normalizedPath = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
+    val normalizedPath = {
+      val p = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
+      if (p.startsWith("/")) p.substring(1) else p
+    }
     val fullPath = if (ctxtPath.endsWith("/")) ctxtPath + normalizedPath else ctxtPath + "/" + normalizedPath
     swagger.register(name, fullPath, applicationDescription, this)
   }
@@ -36,21 +40,23 @@ trait SwaggerSupport extends Initializable {
    */
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-
     this match {
       case _: Filter =>
         val registrations = servletContext.getFilterRegistrations.asScala.values
-        val registration = registrations.find(_.getClass == getClass) getOrElse throwAFit
+        val registration = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
         registration.getServletNameMappings.asScala foreach { name =>
           Option(servletContext.getServletRegistration(name)) foreach { reg =>
-            reg.getMappings.asScala foreach (registerInSwagger(reg.getName, _))
+            reg.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse reg.getName, _))
           }
         }
+
       case _: Servlet =>
         val registrations =
           servletContext.getServletRegistrations.values().asScala.toList
-        val registration = registrations.find(_.getClass == getClass) getOrElse throwAFit
-        registration.getMappings.asScala foreach (registerInSwagger(registration.getName, _))
+        val registration = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
+        registration.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse registration.getName, _))
+
+      case _ => throw new RuntimeException("The swagger support only works for servlets or filters at this time.")
     }
 
   }
@@ -70,9 +76,9 @@ trait SwaggerSupport extends Initializable {
   protected def nickname(value: String) = swaggerMeta(Nickname, value)
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
   protected def parameters(value: Parameter*) = swaggerMeta(Parameters, value.toList)
-  protected def parameters(value: List[Parameter]) = swaggerMeta(Parameters, value)
+//  protected def parameters(value: List[Parameter]) = swaggerMeta(Parameters, value)
   protected def errors(value: Error*) = swaggerMeta(Errors, value.toList)
-  protected def errors(value: List[Error]) = swaggerMeta(Errors, value)
+//  protected def errors(value: List[Error]) = swaggerMeta(Errors, value)
 
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
     route.copy(metadata = route.metadata + (s -> v))
@@ -108,7 +114,7 @@ trait SwaggerSupport extends Initializable {
     val params = route.metadata.get(Symbols.Parameters)
     val errors = route.metadata.get(Symbols.Errors)
     val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[String]) getOrElse DataType.Void.name
-    val summary = route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String]) orNull
+    val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
     val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
     List(Operation(httpMethod = method,
       responseClass = responseClass,
