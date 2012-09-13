@@ -20,6 +20,13 @@ trait SwaggerSupport extends Initializable {
   private[this] def throwAFit =
     throw new IllegalStateException("I can't work out which servlet registration this is.")
 
+  private[this] def registerInSwagger(name: String, servPath: String) = {
+    val ctxtPath = Option(servletContext.getContextPath).flatMap(_.blankOption) getOrElse "/"
+    val normalizedPath = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
+    val fullPath = if (ctxtPath.endsWith("/")) ctxtPath + normalizedPath else ctxtPath + "/" + normalizedPath
+    swagger.register(name, fullPath, applicationDescription, this)
+  }
+
   /**
    * Initializes the kernel.  Used to provide context that is unavailable
    * when the instance is constructed, for example the servlet lifecycle.
@@ -29,22 +36,21 @@ trait SwaggerSupport extends Initializable {
    */
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    val ctxtPath = Option(servletContext.getContextPath).flatMap(_.blankOption) getOrElse "/"
+
     this match {
-      case filter: Filter =>
+      case _: Filter =>
         val registrations = servletContext.getFilterRegistrations.asScala.values
         val registration = registrations.find(_.getClass == getClass) getOrElse throwAFit
-
+        registration.getServletNameMappings.asScala foreach { name =>
+          Option(servletContext.getServletRegistration(name)) foreach { reg =>
+            reg.getMappings.asScala foreach (registerInSwagger(reg.getName, _))
+          }
+        }
       case _: Servlet =>
         val registrations =
           servletContext.getServletRegistrations.values().asScala.toList
         val registration = registrations.find(_.getClass == getClass) getOrElse throwAFit
-
-        registration.getMappings.asScala foreach { servPath =>
-          val normalizedPath = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
-          val fullPath = if (ctxtPath.endsWith("/")) ctxtPath + normalizedPath else ctxtPath + "/" + normalizedPath
-          swagger.register(getClass.getSimpleName, fullPath, applicationDescription, this)
-        }
+        registration.getMappings.asScala foreach (registerInSwagger(registration.getName, _))
     }
 
   }
