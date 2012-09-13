@@ -2,12 +2,52 @@ package org.scalatra
 package swagger
 
 import Symbols._
+import collection.JavaConverters._
+import util.RicherString._
+import javax.servlet.{Servlet, Filter, Registration}
 
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
-trait SwaggerSupport {
+trait SwaggerSupport extends Initializable {
   self: ScalatraBase =>
+
+
+  protected implicit def swagger: Swagger
+
+  protected def applicationDescription: String
+
+  private[this] def throwAFit =
+    throw new IllegalStateException("I can't work out which servlet registration this is.")
+
+  /**
+   * Initializes the kernel.  Used to provide context that is unavailable
+   * when the instance is constructed, for example the servlet lifecycle.
+   * Should set the `config` variable to the parameter.
+   *
+   * @param config the configuration.
+   */
+  abstract override def initialize(config: ConfigT) {
+    super.initialize(config)
+    val ctxtPath = Option(servletContext.getContextPath).flatMap(_.blankOption) getOrElse "/"
+    this match {
+      case filter: Filter =>
+        val registrations = servletContext.getFilterRegistrations.asScala.values
+        val registration = registrations.find(_.getClass == getClass) getOrElse throwAFit
+
+      case _: Servlet =>
+        val registrations =
+          servletContext.getServletRegistrations.values().asScala.toList
+        val registration = registrations.find(_.getClass == getClass) getOrElse throwAFit
+
+        registration.getMappings.asScala foreach { servPath =>
+          val normalizedPath = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
+          val fullPath = if (ctxtPath.endsWith("/")) ctxtPath + normalizedPath else ctxtPath + "/" + normalizedPath
+          swagger.register(getClass.getSimpleName, fullPath, applicationDescription, this)
+        }
+    }
+
+  }
 
   private var _models: Map[String, Model] = Map.empty
   protected def models_=(m: Map[String, Model]) = _models = m
