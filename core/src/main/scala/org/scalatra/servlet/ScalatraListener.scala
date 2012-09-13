@@ -4,6 +4,7 @@ package servlet
 import javax.servlet.ServletContext
 import javax.servlet.{ServletContextEvent, ServletContextListener}
 import grizzled.slf4j.Logger
+import util.RicherString._
 
 class ScalatraListener extends ServletContextListener {
   import ScalatraListener._
@@ -17,7 +18,7 @@ class ScalatraListener extends ServletContextListener {
   def contextInitialized(sce: ServletContextEvent) {
     servletContext = sce.getServletContext
     val cycleClassName = 
-      Option(servletContext.getAttribute(LifeCycleKey).toString) getOrElse DefaultLifeCycle
+      Option(servletContext.getAttribute(LifeCycleKey)).flatMap(_.toString.blankOption) getOrElse DefaultLifeCycle
     val cycleClass = Class.forName(cycleClassName)
     if (!classOf[LifeCycle].isAssignableFrom(cycleClass)) {
       logger.error("This is no lifecycle class.")
