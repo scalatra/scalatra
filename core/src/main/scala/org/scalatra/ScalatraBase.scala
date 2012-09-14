@@ -440,7 +440,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
    */
-  private var config: Config = _
+  private[this] var config: Config = _
 
   /**
    * Initializes the kernel.  Used to provide context that is unavailable

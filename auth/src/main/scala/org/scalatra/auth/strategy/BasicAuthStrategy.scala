@@ -57,7 +57,7 @@ object BasicAuthStrategy {
     def isBasicAuth = (false /: scheme) { (_, sch) => sch == "basic" }
     def providesAuth = authorizationKey.isDefined
 
-    private var _credentials: Option[(String, String)] = None
+    private[this] var _credentials: Option[(String, String)] = None
     def credentials = {
       if (_credentials.isEmpty )
         _credentials = params map { p =>
@@ -77,7 +77,7 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
 
   import BasicAuthStrategy._
 
-  private val REMOTE_USER = "REMOTE_USER"
+  private[this] val REMOTE_USER = "REMOTE_USER"
 
   implicit def request2BasicAuthRequest(r: HttpServletRequest) = new BasicAuthRequest(r)
 

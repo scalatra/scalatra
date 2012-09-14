@@ -15,8 +15,8 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
  * @see FlashMapSupport
  */
 class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
-  private val m = MMap[String, Any]()
-  private val flagged = MSet[String]()
+  private[this] val m = MMap[String, Any]()
+  private[this] val flagged = MSet[String]()
 
   /**
    * Removes an entry from the flash map.  It is no longer available for this
@@ -41,7 +41,7 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
    * values that were added during the last request.
    */
   def iterator = new Iterator[(String, Any)] {
-    private val it = m.iterator
+    private[this] val it = m.iterator
 
     def hasNext = it.hasNext
 

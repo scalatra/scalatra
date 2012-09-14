@@ -54,7 +54,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
 
   private[databinding] var bindings: Map[String, Binding] = Map.empty
 
-  private var _errors: Seq[Binding] = Nil
+  private[this] var _errors: Seq[Binding] = Nil
 
   /**
    * Check whether this command is valid.

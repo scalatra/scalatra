@@ -9,7 +9,7 @@ object Messages {
   def apply(locale: Locale = Locale.getDefault): Messages = new Messages(locale)
 }
 class Messages(locale: Locale) {
-  private val bundle = ResourceBundle.getBundle("i18n/messages", locale)
+  private[this] val bundle = ResourceBundle.getBundle("i18n/messages", locale)
 
   /**
    * Null-safe implementation is preferred by using Option. The caller can 

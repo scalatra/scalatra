@@ -21,7 +21,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   protected def toSession: PartialFunction[UserType, String]
   protected def scentryConfig: ScentryConfiguration
 
-  private var _strategiesFromConfig = List[String]()
+  private[this] var _strategiesFromConfig = List[String]()
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)

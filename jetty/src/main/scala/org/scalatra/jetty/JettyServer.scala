@@ -14,7 +14,7 @@ class JettyServer(
   socketAddress: InetSocketAddress = new InetSocketAddress(8080),
   resourceBase: String = "src/main/webapp")
 {
-  private val server = new Server(socketAddress)
+  private[this] val server = new Server(socketAddress)
   server.setHandler(context)
 
   val context = new ServletContextHandler(ServletContextHandler.SESSIONS)

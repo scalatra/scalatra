@@ -75,8 +75,8 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
 }
 
 
-class SweetCookies(private val reqCookies: Map[String, String], private val response: HttpServletResponse) extends ServletApiImplicits {
-  private lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
+class SweetCookies(private[this] val reqCookies: Map[String, String], private[this] val response: HttpServletResponse) extends ServletApiImplicits {
+  private[this] lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
   def get(key: String) = cookies.get(key)
 

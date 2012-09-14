@@ -9,19 +9,21 @@ import util.RicherString._
 class ScalatraListener extends ServletContextListener {
   import ScalatraListener._
 
-  private val logger: Logger = Logger[this.type]
+  private[this] val logger: Logger = Logger[this.type]
   
-  private var cycle: LifeCycle = _
+  private[this] var cycle: LifeCycle = _
 
-  private var servletContext: ServletContext = _
+  private[this] var servletContext: ServletContext = _
 
   def contextInitialized(sce: ServletContextEvent) {
     servletContext = sce.getServletContext
     val cycleClassName = 
       Option(servletContext.getAttribute(LifeCycleKey)).flatMap(_.asInstanceOf[String].blankOption) getOrElse DefaultLifeCycle
+
     val lifeCycleClass: Class[_] = Class.forName(cycleClassName)
     def oldLifeCycleClass: Class[_] = Class.forName(OldDefaultLifeCycle)
     val cycleClass: Class[_] = if (lifeCycleClass != null) lifeCycleClass else oldLifeCycleClass
+
     if (cycleClass != null && !classOf[LifeCycle].isAssignableFrom(cycleClass)) {
       logger.error("This is no lifecycle class.")
       throw new ClassCastException("This is no lifecycle class.")

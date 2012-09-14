@@ -32,15 +32,15 @@ class Scentry[UserType <: AnyRef](
     app: ScalatraBase,
     serialize: PartialFunction[UserType, String],
     deserialize: PartialFunction[String, UserType],
-    private var _store: ScentryAuthStore) {
+    private[this] var _store: ScentryAuthStore) {
 
   private[this] lazy val logger = Logger(getClass)
   type StrategyType = ScentryStrategy[UserType]
   type StrategyFactory = ScalatraBase ⇒ StrategyType
 
   import Scentry._
-  private val _strategies = new HashMap[String, StrategyFactory]()
-  private var _user: UserType = null.asInstanceOf[UserType]
+  private[this] val _strategies = new HashMap[String, StrategyFactory]()
+  private[this] var _user: UserType = null.asInstanceOf[UserType]
 
 
   @deprecated("use store_= instead", "2.0.0")
@@ -148,7 +148,7 @@ class Scentry[UserType <: AnyRef](
 
   }
 
-  private var defaultUnauthenticated: Option[() ⇒ Unit] = None
+  private[this] var defaultUnauthenticated: Option[() ⇒ Unit] = None
 
   def unauthenticated(callback: ⇒ Unit) {
     defaultUnauthenticated = Some(() ⇒ callback)

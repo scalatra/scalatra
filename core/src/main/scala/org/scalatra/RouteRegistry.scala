@@ -7,14 +7,14 @@ import java.util.concurrent.ConcurrentHashMap
 
 class RouteRegistry {
 
-  private val _methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
+  private[this] val _methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
     new ConcurrentHashMap[HttpMethod, Seq[Route]].asScala
 
-  private val _statusRoutes: ConcurrentMap[Int, Route] =
+  private[this] val _statusRoutes: ConcurrentMap[Int, Route] =
     new ConcurrentHashMap[Int, Route].asScala
 
-  private var _beforeFilters: Seq[Route] = Vector.empty
-  private var _afterFilters: Seq[Route] = Vector.empty
+  private[this] var _beforeFilters: Seq[Route] = Vector.empty
+  private[this] var _afterFilters: Seq[Route] = Vector.empty
 
   /**
    * Returns the sequence of routes registered for the specified method.

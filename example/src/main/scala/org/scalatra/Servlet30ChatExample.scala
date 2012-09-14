@@ -16,9 +16,9 @@ object Servlet30ChatExample {
 
 
   object BroadCaster {
-    private var _notifier: Future[_] = null
+    private[this] var _notifier: Future[_] = null
 
-    private def r(thunk: => Unit) = new Runnable {
+    private[this] def r(thunk: => Unit) = new Runnable {
       def run() {
         thunk
       }

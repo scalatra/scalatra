@@ -22,7 +22,7 @@ import javax.servlet._
  * @see ScalatraServlet
  */
 trait ScalatraFilter extends Filter with ServletBase {
-  private val _filterChain = new DynamicVariable[FilterChain](null)
+  private[this] val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 
   def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
