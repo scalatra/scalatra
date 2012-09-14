@@ -2,7 +2,7 @@ import org.scalatra._
 
 import javax.servlet.ServletContext
 
-class Scalatra extends LifeCycle {
+class ScalatraBootstrap extends LifeCycle {
   override def init(context: ServletContext) {
     context.mount(new BasicAuthExample, "/auth")
     context.mount(new CookiesExample, "/cookies-example")
