@@ -38,6 +38,6 @@ class ScalatraListener extends ServletContextListener {
 }
 
 object ScalatraListener {
-  val DefaultLifeCycle = "Bootstrap"
+  val DefaultLifeCycle = "Scalatra"
   val LifeCycleKey = "org.scalatra.LifeCycle"
 }
