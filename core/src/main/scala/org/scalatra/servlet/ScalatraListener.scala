@@ -42,6 +42,10 @@ class ScalatraListener extends ServletContextListener {
 }
 
 object ScalatraListener {
+  
+  // DO NOT RENAME THIS CLASS NAME AS IT BREAKS THE ENTIRE WORLD
+  // TOGETHER WITH THE WORLD IT WILL BREAK ALL EXISTING SCALATRA APPS
+  // RENAMING THIS CLASS WILL RESULT IN GETTING SHOT, IF YOU SURVIVE YOU WILL BE SHOT AGAIN
   val DefaultLifeCycle = "ScalatraBootstrap"
   val OldDefaultLifeCycle = "Scalatra"
   val LifeCycleKey = "org.scalatra.LifeCycle"
