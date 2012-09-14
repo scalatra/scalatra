@@ -235,6 +235,7 @@ object ScalatraBuild extends Build {
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApiTest,
      libraryDependencies += atmosphere,
+     libraryDependencies += jettyDep("jetty-websocket"),
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      description := "Scalatra example project"
    )
@@ -264,7 +265,7 @@ object ScalatraBuild extends Build {
 
     val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.9"
 
-    private def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416"
+    def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416"
 
     val jettyServlet = jettyDep("jetty-servlet")
     val jettyWebapp = jettyDep("jetty-webapp")
