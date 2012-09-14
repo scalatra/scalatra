@@ -36,7 +36,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   /**
    * The routes registered in this kernel.
    */
-  protected lazy val routes: RouteRegistry = new RouteRegistry
+  lazy val routes: RouteRegistry = new RouteRegistry
 
   /**
    * The default character encoding for requests and responses.
