@@ -78,30 +78,12 @@ trait CoreDsl extends Handler with Control {
    */
   def before(transformers: RouteTransformer*)(block: => Any): Unit
 
-  @deprecated("Use before() { ... }", "2.0.0")
-  final def beforeAll(block: => Any) {
-    before()(block)
-  }
-
-  @deprecated("Use before(RouteTransformer*) { ... }", "2.0.0")
-  final def beforeSome(transformers: RouteTransformer*)(block: => Any) {
-    before(transformers: _*)(block)
-  }
-
   /**
    * Adds a filter to run after the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
   def after(transformers: RouteTransformer*)(block: => Any): Unit
-
-  @deprecated("Use after() { ... }", "2.0.0")
-  final def afterAll(block: => Any) { after()(block) }
-
-  @deprecated("Use after(RouteTransformer*) { ... }", "2.0.0")
-  final def afterSome(transformers: RouteTransformer*)(block: => Any) {
-    before(transformers: _*)(block)
-  }
 
   /**
    * Defines a block to run if no matching routes are found, or if all

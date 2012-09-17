@@ -20,3 +20,4 @@ target/
 .project
 .classpath
 .cache
+.ensime_lucene

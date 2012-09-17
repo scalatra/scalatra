@@ -24,18 +24,18 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
           <h1>{ title }</h1>
           { content }
           <hr/>
-          <a href={url("/date/2009/12/26")}>date example</a>
-          <a href={url("/form")}>form example</a>
-          <a href={url("/upload")}>upload</a>
-          <a href={url("/")}>hello world</a>
-          <a href={url("/flash-map/form")}>flash scope</a>
-          <a href={url("/login")}>login</a>
-          <a href={url("/logout")}>logout</a>
-          <a href={url("/filter-example")}>filter example</a>
-          <a href={url("/cookies-example")}>cookies example</a>
-          <a href={url("/chat")}>chat demo</a>
-          <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a>
-          <a href={url("/chat_30.html")}>Servlet 3.0 async chat demo</a>
+          <a href={url("/date/2009/12/26")}>date example</a><br/>
+          <a href={url("/form")}>form example</a><br/>
+          <a href={url("/upload")}>upload</a><br/>
+          <a href={url("/")}>hello world</a><br/>
+          <a href={url("/flash-map/form")}>flash scope</a><br/>
+          <a href={url("/login")}>login</a><br/>
+          <a href={url("/logout")}>logout</a><br/>
+          <a href={url("/filter-example")}>filter example</a><br/>
+          <a href={url("/cookies-example")}>cookies example</a><br/>
+          <a href={url("/chat")}>chat demo</a><br/>
+          <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a><br/>
+          <a href={url("/chat_30.html")}>Servlet 3.0 async chat demo</a><br/>
         </body>
       </html>
     }

@@ -25,6 +25,12 @@ object ScalatraBase {
    * FileUploadSupport)
    */
   val PrehandleExceptionKey = "org.scalatra.PrehandleException"
+
+  import collection.JavaConverters._
+  def getServletRegistration(app: ScalatraBase) = {
+    val registrations = app.servletContext.getServletRegistrations.values().asScala.toList
+    registrations.find(_.getClassName == app.getClass.getName)
+  }
 }
 
 /**

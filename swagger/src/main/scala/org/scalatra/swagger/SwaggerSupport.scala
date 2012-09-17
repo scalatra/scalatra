@@ -51,9 +51,7 @@ trait SwaggerSupport extends Initializable {
         }
 
       case _: Servlet =>
-        val registrations =
-          servletContext.getServletRegistrations.values().asScala.toList
-        val registration = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
+        val registration = ScalatraBase.getServletRegistration(this) getOrElse throwAFit
         registration.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse registration.getName, _))
 
       case _ => throw new RuntimeException("The swagger support only works for servlets or filters at this time.")

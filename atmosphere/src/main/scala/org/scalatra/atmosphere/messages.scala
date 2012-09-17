@@ -49,3 +49,19 @@ case class TextMessage(content: String) extends ProtocolMessage[String]
  * @param content An Array of Bytes representing the content of the message
  */
 case class BinaryMessage(content: Array[Byte]) extends ProtocolMessage[Array[Byte]]
+
+/**
+ * A callback event signaling that an error has occurred. if the error was an exception thrown
+ * then the cause object will be filled in.
+ *
+ * @param cause A [[scala.Option]] of [[java.lang.Throwable]]
+ */
+case class Error(cause: Option[Throwable]) extends InboundMessage
+
+/**
+ * A callback event signaling that the connection has ended, if the cause was an exception thrown
+ * then the cause object will be filled in.
+ *
+ * @param cause A [[scala.Option]] of [[java.lang.Throwable]]
+ */
+case class Disconnected(cause: Option[Throwable]) extends InboundMessage

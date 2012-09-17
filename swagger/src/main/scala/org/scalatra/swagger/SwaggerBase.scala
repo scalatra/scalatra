@@ -8,7 +8,7 @@ import json.JsonSupport
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBase { self: ScalatraBase with JsonSupport[_] =>
+trait SwaggerBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
 
   get("/:doc.:format") {
     swagger.doc(params("doc")) match {

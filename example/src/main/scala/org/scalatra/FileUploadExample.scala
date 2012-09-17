@@ -16,9 +16,22 @@ class FileUploadExample extends ScalatraServlet with FileUploadSupport with Flas
           <form action={url("/upload")} method="post" enctype="multipart/form-data">
            <p>File to upload: <input type="file" name="file" /></p>
            <p><input type="submit" value="Upload" /></p>
-         </form>
+          </form>
 
           {content}
+          <hr/>
+          <a href={url("/date/2009/12/26")}>date example</a><br/>
+          <a href={url("/form")}>form example</a><br/>
+          <a href={url("/upload")}>upload</a><br/>
+          <a href={url("/")}>hello world</a><br/>
+          <a href={url("/flash-map/form")}>flash scope</a><br/>
+          <a href={url("/login")}>login</a><br/>
+          <a href={url("/logout")}>logout</a><br/>
+          <a href={url("/filter-example")}>filter example</a><br/>
+          <a href={url("/cookies-example")}>cookies example</a><br/>
+          <a href={url("/chat")}>chat demo</a><br/>
+          <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a><br/>
+          <a href={url("/chat_30.html")}>Servlet 3.0 async chat demo</a><br/>
         </body>
       </html>
     }
