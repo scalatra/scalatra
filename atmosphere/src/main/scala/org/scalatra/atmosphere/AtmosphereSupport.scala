@@ -18,9 +18,12 @@ import collection.JavaConverters._
 import org.json4s.Formats
 import org.atmosphere.cache.HeaderBroadcasterCache
 import org.scalatra.util.RicherString._
+import _root_.akka.actor.ActorSystem
+import grizzled.slf4j.Logger
 
 trait AtmosphereSupport extends Initializable with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
 
+  private[this] val logger = Logger[this.type]
 
   implicit protected def jsonFormats: Formats
   private[this] def isFilter = self match {
@@ -29,6 +32,14 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
   }
 
   val atmosphereFramework = new ScalatraAtmosphereFramework(isFilter, false)
+  private[this] val listenerClass = classOf[ScalatraAtmosphereListener]
+
+  implicit protected def scalatraActorSystem: ActorSystem =
+    servletContext.get(ScalatraAtmosphereListener.ActorSystemKey).map(_.asInstanceOf[ActorSystem]) getOrElse {
+      val msg = "Scalatra Actor system not present. Did you configure the %s in the web.xml?".format(listenerClass.getName)
+      logger.warn(msg)
+      throw new IllegalStateException(msg)
+    }
 
   private[this] implicit def filterConfig2servletConfig(fc: FilterConfig): ServletConfig = {
     new ServletConfig {

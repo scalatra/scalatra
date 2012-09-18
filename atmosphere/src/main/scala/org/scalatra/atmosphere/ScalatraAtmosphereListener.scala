@@ -17,7 +17,7 @@ class ScalatraAtmosphereListener extends ScalatraListener {
     configureCycleClass()
   }
 
-  protected def configureAkkaSystem(sce: ServletContextEvent) {
+  private[this] def configureAkkaSystem(sce: ServletContextEvent) {
     val ctxt = sce.getServletContext
     val system = ActorSystem("scalatra", ConfigFactory.load().getConfig("scalatra"))
     ctxt.setAttribute(ActorSystemKey, system)
