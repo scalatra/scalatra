@@ -15,8 +15,9 @@ import org.jboss.servlet.http.HttpEvent
 import org.atmosphere.container.JBossWebCometSupport
 import org.atmosphere.cpr._
 import collection.JavaConverters._
-import org.atmosphere.util.ExcludeSessionBroadcaster
 import org.json4s.Formats
+import org.atmosphere.cache.HeaderBroadcasterCache
+import org.scalatra.util.RicherString._
 
 trait AtmosphereSupport extends Initializable with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
 
@@ -44,7 +45,12 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
       case c: ServletConfig => c
     }
     atmosphereFramework.init(cfg)
-    val never = BroadcasterLifeCyclePolicy.NEVER
+    configureBroadcasterCache()
+    configureBroadcasterFactory()
+    setupAtmosphereHandlerMappings(cfg)
+  }
+
+  private[this] def setupAtmosphereHandlerMappings(cfg: ServletConfig) {
     // TODO: also support filters?
     val servletRegistration = ScalatraBase.getServletRegistration(this)
     servletRegistration foreach { reg =>
@@ -52,6 +58,16 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
         atmosphereFramework.addAtmosphereHandler(mapping, new ScalatraAtmosphereHandler(this)).initAtmosphereHandler(cfg)
       }
     }
+  }
+
+  private[this] def configureBroadcasterFactory() {
+    val factory = DefaultBroadcasterFactory.buildAndReplaceDefaultfactory(classOf[ScalatraBroadcaster], atmosphereFramework.getAtmosphereConfig)
+    atmosphereFramework.setBroadcasterFactory(factory)
+  }
+
+  private[this] def configureBroadcasterCache() {
+    if (atmosphereFramework.getBroadcasterCacheClassName.isBlank)
+      atmosphereFramework.setBroadcasterCacheClassName(classOf[HeaderBroadcasterCache].getName)
   }
 
   private[atmosphere] val Atmosphere: RouteTransformer = route => route.copy(metadata = route.metadata + ('Atmosphere -> 'Atmosphere))

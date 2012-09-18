@@ -7,18 +7,20 @@ import collection.JavaConverters._
 
 trait AtmosphereClient {
 
-  private[atmosphere] var resource: AtmosphereResource = _
+  @volatile private[atmosphere] var resource: AtmosphereResource = _
+  final protected def SkipSelf: ClientFilter = _.uuid() != uuid
+  final protected def OnlySelf: ClientFilter = _.uuid() == uuid
 
-  def uuid: UUID
+  final def uuid: String = resource.uuid()
 
   def receive: AtmoReceive
 
-  def send(msg: OutboundMessage): Unit = {
-    resource.getBroadcaster.broadcast(msg)
+  final def send(msg: OutboundMessage) = {
+    resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster].broadcast(msg, OnlySelf)
   }
 
-  def broadcast(msg: OutboundMessage, filterClause: Broadcaster => Boolean): Unit = {
-    resource.getAtmosphereConfig.getBroadcasterFactory.lookupAll().asScala filter filterClause foreach (_.broadcast(msg ))
+  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = {
+    resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster].broadcast(msg, SkipSelf)
   }
 
 }

@@ -5,4 +5,4 @@ package swagger
 
 import json.NativeJsonSupport
 
-trait NativeSwaggerBase extends ScalatraBase with NativeJsonSupport with SwaggerBase
+trait NativeSwaggerBase extends ScalatraBase with NativeJsonSupport with CorsSupport with SwaggerBase

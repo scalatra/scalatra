@@ -3,4 +3,4 @@ package swagger
 
 import json.JacksonJsonSupport
 
-trait JacksonSwaggerBase extends ScalatraBase with JacksonJsonSupport with SwaggerBase
+trait JacksonSwaggerBase extends ScalatraBase with JacksonJsonSupport with CorsSupport with SwaggerBase
