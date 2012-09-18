@@ -2,7 +2,7 @@ package org.scalatra
 package atmosphere
 
 import java.util.UUID
-import org.atmosphere.cpr.{Broadcaster, AtmosphereResource}
+import org.atmosphere.cpr.{BroadcasterFactory, MetaBroadcaster, Broadcaster, AtmosphereResource}
 import collection.JavaConverters._
 
 trait AtmosphereClient {
@@ -15,12 +15,10 @@ trait AtmosphereClient {
 
   def receive: AtmoReceive
 
-  final def send(msg: OutboundMessage) = {
-    resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster].broadcast(msg, OnlySelf)
-  }
+  final def send(msg: OutboundMessage) = broadcast(msg, OnlySelf)
 
   final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = {
-    resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster].broadcast(msg, SkipSelf)
+    BroadcasterFactory.getDefault.get.asInstanceOf[ScalatraBroadcaster].broadcast(msg, filter)
   }
 
 }
