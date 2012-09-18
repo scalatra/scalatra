@@ -6,6 +6,7 @@ import org.atmosphere.cpr._
 import org.scalatra.servlet.ServletApiImplicits._
 import org.json4s.Formats
 import java.nio.CharBuffer
+import org.scalatra.util.RicherString._
 
 object ScalatraAtmosphereHandler {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
@@ -22,21 +23,37 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
     val isAtmosphereRequest = route.isDefined
 
     if (isAtmosphereRequest) {
-      req.setAttribute(FrameworkConfig.ATMOSPHERE_RESOURCE, resource)
-      req.setAttribute(FrameworkConfig.ATMOSPHERE_HANDLER, this)
-
+      addAtmosphereRequestAttributes(resource)
       val client: AtmosphereClient  = clientFromSessionOrFactory(route.get)
+
       if (method == Post) {
         handleIncomingMessage(req, client)
       } else {
         client.resource = resource
         resumeIfNeeded(resource)
+        configureBroadcaster(resource)
         client.receive.lift(Connected)
         resource.suspend()
       }
     } else {
       app.handle(req.wrappedRequest(), resource.getResponse)
     }
+  }
+
+  private[this] def addAtmosphereRequestAttributes(resource: AtmosphereResource) = {
+    resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_RESOURCE, resource)
+    resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_HANDLER, this)
+  }
+
+  private[this] def requestUri(resource: AtmosphereResource) = {
+    val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
+    if (u.endsWith("/")) u + "*" else u + "/*"
+  }
+
+  private[this] def configureBroadcaster(resource: AtmosphereResource) {
+    val bc = BroadcasterFactory.getDefault.get(requestUri(resource))
+    resource.setBroadcaster(bc)
+    resource.getRequest.setAttribute(AtmosphereResourceImpl.SKIP_BROADCASTER_CREATION, true)
   }
 
   private[this] def handleIncomingMessage(req: AtmosphereRequest, client: AtmosphereClient) {

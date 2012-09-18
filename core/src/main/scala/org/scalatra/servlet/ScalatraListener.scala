@@ -16,8 +16,19 @@ class ScalatraListener extends ServletContextListener {
   private[this] var servletContext: ServletContext = _
 
   def contextInitialized(sce: ServletContextEvent) {
-    servletContext = sce.getServletContext
-    val cycleClassName = 
+    configureServletContext(sce)
+    configureCycleClass()
+  }
+
+  def contextDestroyed(sce: ServletContextEvent) {
+    if (cycle != null) {
+      logger.info("Destroying life cycle class: %s".format(cycle.getClass.getName))
+      cycle.destroy(servletContext)
+    }
+  }
+
+  protected def probeForCycleClass() = {
+    val cycleClassName =
       Option(servletContext.getAttribute(LifeCycleKey)).flatMap(_.asInstanceOf[String].blankOption) getOrElse DefaultLifeCycle
 
     val lifeCycleClass: Class[_] = Class.forName(cycleClassName)
@@ -30,16 +41,18 @@ class ScalatraListener extends ServletContextListener {
     }
     if (cycleClass.getName == OldDefaultLifeCycle)
       logger.warn("The Scalatra name for a boot class will be removed eventually. Please use ScalatraBootstrap instead as class name.")
-    cycle = cycleClass.newInstance.asInstanceOf[LifeCycle]
-    logger.info("Initializing life cycle class: %s".format(cycleClassName))
-    cycle.init(servletContext)
+    (cycleClassName, cycleClass.newInstance.asInstanceOf[LifeCycle])
   }
 
-  def contextDestroyed(sce: ServletContextEvent) {
-    if (cycle != null) {
-      logger.info("Destroying life cycle class: %s".format(cycle.getClass.getName))
-      cycle.destroy(servletContext)
-    }
+  protected def configureServletContext(sce: ServletContextEvent) {
+    servletContext = sce.getServletContext
+  }
+
+  protected def configureCycleClass() {
+    val (cycleClassName, cycleClass) = probeForCycleClass()
+    cycle = cycleClass
+    logger.info("Initializing life cycle class: %s".format(cycleClassName))
+    cycle.init(servletContext)
   }
 }
 

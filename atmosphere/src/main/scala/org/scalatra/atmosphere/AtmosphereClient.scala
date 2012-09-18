@@ -3,6 +3,8 @@ package atmosphere
 
 import org.atmosphere.cpr._
 import org.json4s.Formats
+import org.scalatra.util.RicherString._
+
 
 trait AtmosphereClient {
 
@@ -10,14 +12,19 @@ trait AtmosphereClient {
   final protected def SkipSelf: ClientFilter = _.uuid() != uuid
   final protected def OnlySelf: ClientFilter = _.uuid() == uuid
 
+  protected def requestUri = {
+    val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
+    if (u.endsWith("/")) u + "*" else u + "/*"
+  }
+
   final def uuid: String = resource.uuid()
 
   def receive: AtmoReceive
 
-  final def send(msg: OutboundMessage)(implicit formats: Formats) = broadcast(msg, OnlySelf)
+  final def send(msg: OutboundMessage) = broadcast(msg, OnlySelf)
 
-  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf)(implicit formats: Formats) = {
-    val broadcaster = BroadcasterFactory.getDefault.lookup(classOf[ScalatraBroadcaster], "/*").asInstanceOf[ScalatraBroadcaster]
+  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = {
+    val broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
     broadcaster.broadcast(msg, filter)
   }
 

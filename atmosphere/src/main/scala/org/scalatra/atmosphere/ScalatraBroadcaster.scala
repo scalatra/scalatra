@@ -1,31 +1,24 @@
 package org.scalatra
 package atmosphere
 
+import _root_.akka.actor._
+import _root_.akka.dispatch._
+import _root_.akka.util.Deadline
+import _root_.akka.util.duration._
 import collection.JavaConverters._
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
 import org.json4s.Formats
-import _root_.akka.dispatch._
-import _root_.akka.actor._
-import _root_.akka.util.Deadline
-import _root_.akka.util.duration._
 import scala.util.control.Exception.allCatch
-import collection.mutable
-import java.util.concurrent.{Executors, ConcurrentHashMap}
-import java.util.UUID
-import org.atmosphere.di.InjectorProvider
 
 
-object ScalatraBroadcaster {
-  private implicit val execContext = ExecutionContexts.fromExecutorService(Executors.newCachedThreadPool())
-}
-class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit system: ActorSystem) extends DefaultBroadcaster(id, config) {
+class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit formats: Formats, system: ActorSystem) extends DefaultBroadcaster(id, config) {
 
-  import ScalatraBroadcaster._
+  private[this] implicit val execContext =  system.dispatcher
 
   private[this] val logger: Logger = Logger[ScalatraBroadcaster]
 
-  def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)(implicit formats: Formats): Future[T] = {
+  def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter): Future[T] = {
     val wireFormat: WireFormat = new SimpleJsonWireFormat
     val selectedResources = resources.asScala filter clientFilter
     logger.debug("Sending %s to %s".format(msg, selectedResources.map(_.uuid())))
