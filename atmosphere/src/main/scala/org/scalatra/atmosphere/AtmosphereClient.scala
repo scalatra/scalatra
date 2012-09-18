@@ -1,9 +1,8 @@
 package org.scalatra
 package atmosphere
 
-import java.util.UUID
-import org.atmosphere.cpr.{BroadcasterFactory, MetaBroadcaster, Broadcaster, AtmosphereResource}
-import collection.JavaConverters._
+import org.atmosphere.cpr._
+import org.json4s.Formats
 
 trait AtmosphereClient {
 
@@ -15,10 +14,11 @@ trait AtmosphereClient {
 
   def receive: AtmoReceive
 
-  final def send(msg: OutboundMessage) = broadcast(msg, OnlySelf)
+  final def send(msg: OutboundMessage)(implicit formats: Formats) = broadcast(msg, OnlySelf)
 
-  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = {
-    BroadcasterFactory.getDefault.get.asInstanceOf[ScalatraBroadcaster].broadcast(msg, filter)
+  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf)(implicit formats: Formats) = {
+    val broadcaster = BroadcasterFactory.getDefault.lookup(classOf[ScalatraBroadcaster], "/*").asInstanceOf[ScalatraBroadcaster]
+    broadcaster.broadcast(msg, filter)
   }
 
 }

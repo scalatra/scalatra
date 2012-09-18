@@ -31,6 +31,7 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
       } else {
         client.resource = resource
         resumeIfNeeded(resource)
+        client.receive.lift(Connected)
         resource.suspend()
       }
     } else {

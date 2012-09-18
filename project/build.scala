@@ -100,7 +100,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-atmosphere",
     base = file("atmosphere"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(atmosphere),
+      libraryDependencies ++= Seq(atmosphere, akkaActor, akkaTestkit),
       description := "Atmosphere integration for scalatra"
     )
   ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
@@ -245,7 +245,7 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.1.0-SNAPSHOT"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
