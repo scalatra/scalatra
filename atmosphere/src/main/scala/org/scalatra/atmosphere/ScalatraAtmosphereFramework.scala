@@ -34,7 +34,7 @@ class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers:
     }
   }
 
-  def doCometSupport(req: AtmosphereRequest, res: AtmosphereResponse, route: MatchedRoute): AtmoAction = {
-    super.doCometSupport(req, res)
-  }
+  def enableSessionSupport() = sessionSupport(true)
+  def disableSessionSupport() = sessionSupport(false)
+
 }

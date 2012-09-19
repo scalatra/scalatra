@@ -4,13 +4,14 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
+import collection.mutable
 
 class RouteRegistry {
 
-  private[this] val _methodRoutes: ConcurrentMap[HttpMethod, Seq[Route]] =
+  private[this] val _methodRoutes: mutable.ConcurrentMap[HttpMethod, Seq[Route]] =
     new ConcurrentHashMap[HttpMethod, Seq[Route]].asScala
 
-  private[this] val _statusRoutes: ConcurrentMap[Int, Route] =
+  private[this] val _statusRoutes: mutable.ConcurrentMap[Int, Route] =
     new ConcurrentHashMap[Int, Route].asScala
 
   private[this] var _beforeFilters: Seq[Route] = Vector.empty
@@ -40,7 +41,7 @@ class RouteRegistry {
    *
    * HEAD must be identical to GET without a body, so GET implies HEAD.
    */
-  def matchingMethods: Set[HttpMethod] = matchingMethodsExcept { _ => false }
+  def matchingMethods(requestPath: String): Set[HttpMethod] = matchingMethodsExcept(requestPath) { _ => false }
 
   /**
    * Returns a set of methods with a matching route minus a specified
@@ -50,20 +51,19 @@ class RouteRegistry {
    * - GET implies HEAD
    * - filtering one filters the other
    */
-  def matchingMethodsExcept(method: HttpMethod): Set[HttpMethod] = {
+  def matchingMethodsExcept(method: HttpMethod, requestPath: String): Set[HttpMethod] = {
     val p: HttpMethod => Boolean = method match {
       case Get | Head => { m => m == Get || m == Head }
       case _ => { _ == method }
     }
-    matchingMethodsExcept(p)
+    matchingMethodsExcept(requestPath)(p)
   }
 
-  private def matchingMethodsExcept(p: HttpMethod => Boolean) = {
-    var methods = (_methodRoutes filter {
-      case (method, routes) =>
-        !p(method) && (routes exists {
-          _().isDefined
-        })
+  private def matchingMethodsExcept(requestPath: String)(p: HttpMethod => Boolean) = {
+    var methods = (_methodRoutes filter { kv =>
+      val method = kv._1
+      val routes = kv._2
+      !p(method) && (routes exists (_.apply(requestPath).isDefined))
     }).keys.toSet
     if (methods.contains(Get))
       methods += Head

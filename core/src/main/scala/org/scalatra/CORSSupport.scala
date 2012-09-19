@@ -129,7 +129,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
       "WebSocket".equalsIgnoreCase(request.headers.get("Upgrade").getOrElse(""))) &&
       !requestPath.contains("eb_ping") // don't do anything for the ping endpoint
 
-  private def isValidRoute: Boolean = routes.matchingMethods.nonEmpty
+  private def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty
   private def isPreflightRequest = {
     val isCors = isCORSRequest
     val validRoute = isValidRoute

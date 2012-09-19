@@ -15,7 +15,10 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
   atmosphere("/the-chat") {
     new AtmosphereClient {
       def receive: AtmoReceive = {
-        case Connected => broadcast(("author" -> "Someone") ~ ("body" -> "joined the room"), Everyone)
+        case Connected => {
+          println("Client %s is connected" format uuid)
+          broadcast(("author" -> "Someone") ~ ("body" -> "joined the room"), Everyone)
+        }
         case Disconnected(_) => broadcast(("author" -> "Someone") ~ ("body" -> "has left the room"), Everyone)
         case _: TextMessage => send(("author" -> "system") ~ ("body" -> "Only json is allowed"))
         case JsonMessage(json) => broadcast(json) // by default a broadcast is to everyone but self

@@ -19,9 +19,14 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    * @return an option value containing the attribute associated with the key
    * in the underlying servlet object, or None if none exists.
    */
-  def get(key:String): Option[Any] = attributes.getAttribute(key) match {
-    case null => None
-    case v => Some(v)
+  def get(key:String): Option[Any] = {
+    if (attributes == null) None
+    else {
+      attributes.getAttribute(key) match {
+        case null => None
+        case v => Some(v)
+      }
+    }
   }
 
   /**
@@ -30,7 +35,7 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    * @return the new iterator
    */
   def iterator: Iterator[(String, Any)] =
-    attributes.getAttributeNames.asInstanceOf[Enumeration[String]].asScala map { key =>
+    attributes.getAttributeNames().asScala map { key =>
       (key, attributes.getAttribute(key))
     }
 

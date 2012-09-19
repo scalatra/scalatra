@@ -71,6 +71,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       case c: ServletConfig => c
     }
     allCatch.withApply(ex => logger.error(ex.getMessage, ex)) {
+      atmosphereFramework.enableSessionSupport()
       configureBroadcasterCache()
       configureBroadcasterFactory()
       atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
@@ -104,8 +105,11 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   abstract override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     withRequestResponse(request, response) {
       val atmoRoute = atmosphereRoute(request)
+      // resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_HANDLER, this)
       if (atmoRoute.isDefined) {
-        atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
+        request.getSession(true) // force session creation
+        if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER).isEmpty)
+          atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
       } else {
         super.handle(request, response)
       }
@@ -116,7 +120,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] def atmosphereRoute(req: HttpServletRequest) = (for {
     route <- atmosphereRoutes.toStream
-    matched <- route()
+    matched <- route(requestPath)
   } yield matched).headOption
 
   private[this] def configureBroadcasterFactory() {

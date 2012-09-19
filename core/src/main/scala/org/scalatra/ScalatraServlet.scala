@@ -4,6 +4,35 @@ import servlet.ServletBase
 import javax.servlet._
 import javax.servlet.http._
 
+object ScalatraServlet {
+  import servlet.ServletApiImplicits._
+  def requestPath(request: HttpServletRequest) = {
+    def getRequestPath = request.getRequestURI match {
+      case requestURI: String =>
+        var uri = requestURI
+        if (request.getContextPath != null && request.getContextPath.trim.nonEmpty) uri = uri.substring(request.getContextPath.length)
+        if (request.getServletPath != null && request.getServletPath.trim.nonEmpty) uri = uri.substring(request.getServletPath.length)
+        if (uri.isEmpty) {
+          uri = "/"
+        } else {
+          val pos = uri.indexOf(';')
+          if (pos >= 0) uri = uri.substring(0, pos)
+        }
+        UriDecoder.firstStep(uri)
+      case null => "/"
+    }
+
+    request.get("org.scalatra.ScalatraServlet.requestPath") match {
+      case Some(uri) => uri.toString
+      case _         => {
+        val requestPath = getRequestPath
+        request.setAttribute("org.scalatra.ScalatraServlet.requestPath", requestPath)
+        requestPath.toString
+      }
+    }
+  }
+}
+
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended
  * base class for most Scalatra applications.  Use a servlet if:

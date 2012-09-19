@@ -46,7 +46,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
 
   private class CommandRouteMatcher[T <: CommandType ](implicit mf: Manifest[T]) extends RouteMatcher {
 
-    override def apply() = if (command[T].isValid) Some(MultiMap()) else None
+    override def apply(requestPath: String) = if (command[T].isValid) Some(MultiMap()) else None
 
     override def toString = "[valid command guard]"
   }

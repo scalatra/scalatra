@@ -131,7 +131,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def runFilters(filters: Traversable[Route]) {
     for {
       route <- filters
-      matchedRoute <- route()
+      matchedRoute <- route(requestPath)
     } invoke(matchedRoute)
   }
 
@@ -142,7 +142,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   protected def runRoutes(routes: Traversable[Route]) =
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
-      matchedRoute <- route()
+      matchedRoute <- route(requestPath)
       actionResult <- invoke(matchedRoute)
     } yield actionResult
 
@@ -203,15 +203,16 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
   def methodNotAllowed(f: Set[HttpMethod] => Any) { doMethodNotAllowed = f }
 
   private def matchOtherMethods(): Option[Any] = {
-    val allow = routes.matchingMethodsExcept(request.requestMethod)
+    val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
 
   private def handleStatusCode(status: Int): Option[Any] =
-    for (handler <- routes(status);
-	 matchedHandler <- handler();
-         handlerResult <- invoke(matchedHandler)
-    ) yield handlerResult
+    for {
+      handler <- routes(status)
+      matchedHandler <- handler(requestPath)
+      handlerResult <- invoke(matchedHandler)
+    } yield handlerResult
 
   /**
    * The error handler function, called if an exception is thrown during
@@ -338,14 +339,14 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * @return a route matcher based on `path`
    */
   protected implicit def string2RouteMatcher(path: String): RouteMatcher =
-    new SinatraRouteMatcher(path, requestPath)
+    new SinatraRouteMatcher(path)
 
   /**
    * Path pattern is decoupled from requests.  This adapts the PathPattern to
    * a RouteMatcher by supplying the request path.
    */
   protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
-    new PathPatternRouteMatcher(pattern, requestPath)
+    new PathPatternRouteMatcher(pattern)
 
   /**
    * Converts a regular expression to a route matcher.
@@ -355,7 +356,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * @see [[org.scalatra.RegexRouteMatcher]]
    */
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
-    new RegexRouteMatcher(regex, requestPath)
+    new RegexRouteMatcher(regex)
 
   /**
    * Converts a boolean expression to a route matcher.
