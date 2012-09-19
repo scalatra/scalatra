@@ -37,7 +37,7 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
         handleIncomingMessage(req, client)
       } else {
         if (isNew) {
-          println("This is a new client".format(isNew))
+          println("This is a new client: %s".format(isNew))
           client.resource = resource
           println("Linked client to atmosphere resource")
           resumeIfNeeded(resource)
@@ -54,6 +54,7 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
       }
     } else {
       println("regular scalatra request")
+//      app.withRequestResponse()
       app.handle(req.wrappedRequest(), resource.getResponse)
     }
   }
@@ -115,14 +116,14 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
     case _: Throwable => None
   }
 
-  lazy val atmosphereRoutes = app.routes.methodRoutes(Get).filter(_.metadata.contains('Atmosphere))
+  private[this] lazy val atmosphereRoutes = app.routes.methodRoutes(Get).filter(_.metadata.contains('Atmosphere))
 
-  def atmosphereRoute(req: AtmosphereRequest) = (for {
+  private[this] def atmosphereRoute(req: AtmosphereRequest) = (for {
     route <- atmosphereRoutes.toStream
     matched <- route()
   } yield matched).headOption
 
-  def resumeIfNeeded(resource: AtmosphereResource) {
+  private[this] def resumeIfNeeded(resource: AtmosphereResource) {
     import AtmosphereResource.TRANSPORT._
     resource.transport match {
       case JSONP | AJAX | LONG_POLLING =>

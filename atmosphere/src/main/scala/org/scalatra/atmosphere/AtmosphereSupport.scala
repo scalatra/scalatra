@@ -23,8 +23,9 @@ import grizzled.slf4j.Logger
 import com.typesafe.config.ConfigFactory
 import scala.util.control.Exception.allCatch
 import org.atmosphere.client.TrackMessageSizeInterceptor
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-trait AtmosphereSupport extends Initializable with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 
@@ -87,6 +88,36 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
       }
     }
   }
+
+
+  /**
+   * Handles a request and renders a response.
+   *
+   * $ 1. If the request lacks a character encoding, `defaultCharacterEncoding`
+   * is set to the request.
+   *
+   * $ 2. Sets the response's character encoding to `defaultCharacterEncoding`.
+   *
+   * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
+   * `executeRoutes()`.
+   */
+  abstract override def handle(request: HttpServletRequest, response: HttpServletResponse) {
+    withRequestResponse(request, response) {
+      val atmoRoute = atmosphereRoute(request)
+      if (atmoRoute.isDefined) {
+        atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
+      } else {
+        super.handle(request, response)
+      }
+    }
+  }
+
+  private[this] def atmosphereRoutes = routes.methodRoutes(Get).filter(_.metadata.contains('Atmosphere))
+
+  private[this] def atmosphereRoute(req: HttpServletRequest) = (for {
+    route <- atmosphereRoutes.toStream
+    matched <- route()
+  } yield matched).headOption
 
   private[this] def configureBroadcasterFactory() {
     val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig)

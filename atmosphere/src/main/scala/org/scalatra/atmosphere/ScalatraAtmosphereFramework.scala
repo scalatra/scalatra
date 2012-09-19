@@ -1,7 +1,7 @@
 package org.scalatra
 package atmosphere
 
-import org.atmosphere.cpr.AtmosphereFramework
+import org.atmosphere.cpr.{Action => AtmoAction, AtmosphereResponse, AtmosphereRequest, AtmosphereFramework}
 import org.atmosphere.container.{JBossWebCometSupport, TomcatCometSupport, Tomcat7CometSupport}
 
 class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers: Boolean = false) extends AtmosphereFramework(isFilter, autoDetectHandlers) {
@@ -32,5 +32,9 @@ class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers:
         asyncSupport = new JBossWebCometSupport(config)
       }
     }
+  }
+
+  def doCometSupport(req: AtmosphereRequest, res: AtmosphereResponse, route: MatchedRoute): AtmoAction = {
+    super.doCometSupport(req, res)
   }
 }
