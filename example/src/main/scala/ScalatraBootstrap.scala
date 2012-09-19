@@ -10,12 +10,13 @@ class ScalatraBootstrap extends LifeCycle {
     context.mount(new FileUploadExample, "/upload")
     context.mount(new FilterExample, "/")
     context.mount(new Servlet30ChatExample, "/chat30")
+    context.mount(new AtmosphereChat, "/atmosphere")
     context.mount(new TemplateExample, "/")
 
-    val reg = context.addServlet("MeteorServlet", classOf[MeteorServlet])
-    reg.setAsyncSupported(true)
-    reg.setLoadOnStartup(0)
-    reg.setInitParameter("org.atmosphere.servlet", "org.scalatra.MeteorChatExample")
-    reg.addMapping("/meteor/*")
+//    val reg = context.addServlet("MeteorServlet", classOf[MeteorServlet])
+//    reg.setAsyncSupported(true)
+//    reg.setLoadOnStartup(0)
+//    reg.setInitParameter("org.atmosphere.servlet", "org.scalatra.MeteorChatExample")
+//    reg.addMapping("/meteor/*")
   }
 }

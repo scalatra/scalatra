@@ -15,15 +15,26 @@ import org.jboss.servlet.http.HttpEvent
 import org.atmosphere.container.JBossWebCometSupport
 import org.atmosphere.cpr._
 import collection.JavaConverters._
-import org.json4s.Formats
+import org.json4s._
 import org.atmosphere.cache.HeaderBroadcasterCache
 import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import grizzled.slf4j.Logger
+import com.typesafe.config.ConfigFactory
+import scala.util.control.Exception.allCatch
+import org.atmosphere.client.TrackMessageSizeInterceptor
 
 trait AtmosphereSupport extends Initializable with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
+
+  implicit def json2JsonMessage(json: JValue): OutboundMessage = JsonMessage(json)
+  implicit def string2Outbound(text: String): OutboundMessage = text.blankOption map { txt =>
+    if (txt.startsWith("{") || txt.startsWith("["))
+      parseOpt(txt) map JsonMessage.apply getOrElse TextMessage(txt)
+    else
+      TextMessage(txt)
+  } getOrElse TextMessage("")
 
   implicit protected def jsonFormats: Formats
   private[this] def isFilter = self match {
@@ -38,7 +49,9 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
     servletContext.get(ScalatraAtmosphereListener.ActorSystemKey).map(_.asInstanceOf[ActorSystem]) getOrElse {
       val msg = "Scalatra Actor system not present. Did you configure the %s in the web.xml?".format(listenerClass.getName)
       logger.warn(msg)
-      throw new IllegalStateException(msg)
+      val cfg = ConfigFactory.load
+      val defRef = ConfigFactory.defaultReference
+      ActorSystem("scalatra", cfg.getConfig("scalatra").withFallback(defRef))
     }
 
   private[this] implicit def filterConfig2servletConfig(fc: FilterConfig): ServletConfig = {
@@ -51,14 +64,18 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
   }
 
   abstract override def initialize(config: ConfigT) {
+    super.initialize(config)
     val cfg: ServletConfig = config match {
       case c: FilterConfig => c
       case c: ServletConfig => c
     }
-    atmosphereFramework.init(cfg)
-    configureBroadcasterCache()
-    configureBroadcasterFactory()
-    setupAtmosphereHandlerMappings(cfg)
+    allCatch.withApply(ex => logger.error(ex.getMessage, ex)) {
+      configureBroadcasterCache()
+      configureBroadcasterFactory()
+//      atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
+      atmosphereFramework.init(cfg)
+      setupAtmosphereHandlerMappings(cfg)
+    }
   }
 
   private[this] def setupAtmosphereHandlerMappings(cfg: ServletConfig) {
@@ -74,6 +91,7 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
   private[this] def configureBroadcasterFactory() {
     val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig)
     atmosphereFramework.setBroadcasterFactory(factory)
+    atmosphereFramework.setDefaultBroadcasterClassName(classOf[ScalatraBroadcaster].getName)
   }
 
   private[this] def configureBroadcasterCache() {

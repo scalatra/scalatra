@@ -7,35 +7,53 @@ import org.scalatra.servlet.ServletApiImplicits._
 import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
+import grizzled.slf4j.Logger
 
 object ScalatraAtmosphereHandler {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
 }
 class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit formats: Formats) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
+//  private[this] val logger: Logger = Logger(getClass)
 
   private val wireFormat: WireFormat = new SimpleJsonWireFormat
 
   def onRequest(resource: AtmosphereResource) {
+    println("Handling on request %s".format(resource.getRequest.getRequestURI))
     val req = resource.getRequest
     val method = HttpMethod(req.getMethod)
+    println("The request method: %s" format method)
     val route = atmosphereRoute(req)
+    println("The route: %s" format req)
     val isAtmosphereRequest = route.isDefined
 
     if (isAtmosphereRequest) {
       addAtmosphereRequestAttributes(resource)
+      val isNew = req.getSession.contains(AtmosphereClientKey)
       val client: AtmosphereClient  = clientFromSessionOrFactory(route.get)
 
       if (method == Post) {
+        println("This is an incoming message")
         handleIncomingMessage(req, client)
       } else {
-        client.resource = resource
-        resumeIfNeeded(resource)
-        configureBroadcaster(resource)
-        client.receive.lift(Connected)
+        if (isNew) {
+          println("This is a new client".format(isNew))
+          client.resource = resource
+          println("Linked client to atmosphere resource")
+          resumeIfNeeded(resource)
+          println("Configured resume")
+          configureBroadcaster(resource)
+          println("Created the broadcaster")
+          client.receive.lift(Connected)
+          println("Notified of connected")
+        }
+        resource.getResponse.write("OK\n")
+
         resource.suspend()
+        println("resource suspended")
       }
     } else {
+      println("regular scalatra request")
       app.handle(req.wrappedRequest(), resource.getResponse)
     }
   }
@@ -101,7 +119,9 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
   def resumeIfNeeded(resource: AtmosphereResource) {
     import AtmosphereResource.TRANSPORT._
     resource.transport match {
-      case JSONP | AJAX | LONG_POLLING => resource.resumeOnBroadcast(true)
+      case JSONP | AJAX | LONG_POLLING =>
+        println("Request will resume on broadcast.")
+        resource.resumeOnBroadcast(true)
       case _ =>
     }
   }

@@ -119,7 +119,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-json",
     base = file("json"),
     settings = scalatraSettings ++ Seq(
-      description := "JSON support for Scalatra, contains only common marker interfaces",
+      description := "JSON support for Scalatra",
       libraryDependencies ++= json4s
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -236,6 +236,7 @@ object ScalatraBuild extends Build {
      libraryDependencies += servletApiTest,
      libraryDependencies += jettyDep("jetty-websocket"),
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
+     libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.0.0-SNAPSHOT",
      description := "Scalatra example project"
    )
  ) dependsOn(

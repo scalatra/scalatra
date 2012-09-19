@@ -2,15 +2,17 @@ package org.scalatra
 package atmosphere
 
 import org.atmosphere.cpr._
-import org.json4s.Formats
+import org.json4s._
 import org.scalatra.util.RicherString._
 
 
 trait AtmosphereClient {
 
   @volatile private[atmosphere] var resource: AtmosphereResource = _
+
   final protected def SkipSelf: ClientFilter = _.uuid() != uuid
   final protected def OnlySelf: ClientFilter = _.uuid() == uuid
+  final protected val Everyone: ClientFilter = _ => true
 
   protected def requestUri = {
     val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
@@ -27,5 +29,7 @@ trait AtmosphereClient {
     val broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
     broadcaster.broadcast(msg, filter)
   }
+
+
 
 }
