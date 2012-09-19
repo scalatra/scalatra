@@ -12,7 +12,7 @@ import org.json4s.Formats
 import scala.util.control.Exception.allCatch
 
 
-class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit formats: Formats, system: ActorSystem) extends DefaultBroadcaster(id, config) {
+final class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit formats: Formats, system: ActorSystem) extends DefaultBroadcaster(id, config) {
 
   private[this] implicit val execContext =  system.dispatcher
 

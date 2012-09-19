@@ -72,7 +72,7 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
     allCatch.withApply(ex => logger.error(ex.getMessage, ex)) {
       configureBroadcasterCache()
       configureBroadcasterFactory()
-//      atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
+      atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
       atmosphereFramework.init(cfg)
       setupAtmosphereHandlerMappings(cfg)
     }
@@ -91,7 +91,7 @@ trait AtmosphereSupport extends Initializable with CometProcessor with HttpEvent
   private[this] def configureBroadcasterFactory() {
     val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig)
     atmosphereFramework.setBroadcasterFactory(factory)
-    atmosphereFramework.setDefaultBroadcasterClassName(classOf[ScalatraBroadcaster].getName)
+//    atmosphereFramework.setDefaultBroadcasterClassName(classOf[ScalatraBroadcaster].getName)
   }
 
   private[this] def configureBroadcasterCache() {

@@ -21,7 +21,7 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
   def onRequest(resource: AtmosphereResource) {
     println("Handling on request %s".format(resource.getRequest.getRequestURI))
     val req = resource.getRequest
-    val method = HttpMethod(req.getMethod)
+    val method = req.requestMethod
     println("The request method: %s" format method)
     val route = atmosphereRoute(req)
     println("The route: %s" format req)
@@ -56,6 +56,12 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
       println("regular scalatra request")
       app.handle(req.wrappedRequest(), resource.getResponse)
     }
+  }
+
+
+  override def onStateChange(event: AtmosphereResourceEvent) {
+    println("State changed for [%s]" format event.getResource.getRequest.getRequestURI)
+    super.onStateChange(event)
   }
 
   private[this] def addAtmosphereRequestAttributes(resource: AtmosphereResource) = {

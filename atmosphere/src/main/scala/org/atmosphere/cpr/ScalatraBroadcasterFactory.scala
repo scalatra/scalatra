@@ -21,6 +21,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Format
   private[this] val store: mutable.ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
 
   private def createBroadcaster(c: Class[_<:Broadcaster], id: Any): Broadcaster = {
+    logger.info("Creating broadcaster with id [%s] and class [%s]".format(id, c))
     try {
       val b: Broadcaster = if (classOf[ScalatraBroadcaster].isAssignableFrom(c)) {
         new ScalatraBroadcaster(id.toString, cfg)
@@ -74,6 +75,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Format
   def lookup(c: Class[_ <: Broadcaster], id: Any): Broadcaster = lookup(c, id, false)
 
   def lookup(c: Class[_ <: Broadcaster], id: Any, createIfNull: Boolean): Broadcaster = {
+    logger.info("looking up broadcaster with class [%s], id: [%s], createIfNull [%s]" format (c, id, createIfNull))
     val bOpt = store get id
     if (bOpt.isDefined && c.isAssignableFrom(bOpt.get.getClass)) {
       val msg = "Invalid lookup class " + c.getName + ". Cached class is: " + bOpt.get.getClass.getName
