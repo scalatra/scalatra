@@ -11,8 +11,10 @@
 ### Core
 * Adds typed param support, previously in contrib
 * ApiFormats now also has a method responseFormat which looks at the content type of the response and falls back to the format of the request.
-* The default bootstrap file is renamed from `Scalatra` to `Bootstrap`
+* The default bootstrap file is renamed from `Scalatra` to `ScalatraBootstrap`
 * FileUpload can now be configured through init parameters
+* RouteMatchers don't use any by-name params anymore
+* RouteMatcher now takes a requestPath as a param to the apply method
 
 ### lift-json
 * removed for json4s support
