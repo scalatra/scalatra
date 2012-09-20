@@ -58,10 +58,14 @@ case class BinaryMessage(content: Array[Byte]) extends ProtocolMessage[Array[Byt
  */
 case class Error(cause: Option[Throwable]) extends InboundMessage
 
+
+sealed trait Disconnector
+case object ServerDisconnected extends Disconnector
+case object ClientDisconnected extends Disconnector
 /**
  * A callback event signaling that the connection has ended, if the cause was an exception thrown
  * then the cause object will be filled in.
  *
  * @param cause A [[scala.Option]] of [[java.lang.Throwable]]
  */
-case class Disconnected(cause: Option[Throwable]) extends InboundMessage
+case class Disconnected(who: Disconnector, cause: Option[Throwable]) extends InboundMessage

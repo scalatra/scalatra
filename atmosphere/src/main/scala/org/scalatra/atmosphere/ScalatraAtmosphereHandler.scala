@@ -7,65 +7,68 @@ import org.scalatra.servlet.ServletApiImplicits._
 import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
+import javax.servlet.http.HttpSession
 
 object ScalatraAtmosphereHandler {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
+  val AtmosphereRouteKey = "org.scalatra.atmosphere.AtmosphereRoute"
+
+  private class ScalatraResourceEventListener extends AtmosphereResourceEventListener {
+    def client(resource: AtmosphereResource) =
+      Option(resource.session()).flatMap(_.get(AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
+
+    def onBroadcast(event: AtmosphereResourceEvent) {}
+
+    def onDisconnect(event: AtmosphereResourceEvent) {
+      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
+      client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+    }
+
+    def onResume(event: AtmosphereResourceEvent) {}
+
+    def onSuspend(event: AtmosphereResourceEvent) {}
+
+    def onThrowable(event: AtmosphereResourceEvent) {
+      client(event.getResource) foreach (_.receive.lift(Error(Option(event.throwable()))))
+    }
+  }
 }
-class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit formats: Formats) extends AbstractReflectorAtmosphereHandler {
+class ScalatraAtmosphereHandler(implicit formats: Formats) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
 
   private val wireFormat: WireFormat = new SimpleJsonWireFormat
 
   def onRequest(resource: AtmosphereResource) {
     val req = resource.getRequest
-    app.withRequestResponse(req, resource.getResponse) {
-      val method = req.requestMethod
-      val route = atmosphereRoute(req)
-      val session = resource.session()
-      val isAtmosphereRequest = route.isDefined
+    val method = req.requestMethod
+    val route = Option(req.getAttribute(AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
+    val session = resource.session()
+    addAtmosphereRequestAttributes(resource)
+    val isNew = !session.contains(AtmosphereClientKey)
 
-      if (isAtmosphereRequest) {
-        addAtmosphereRequestAttributes(resource)
-        val isNew = !session.contains(AtmosphereClientKey)
-
-        if (method == Post) {
-          val client: AtmosphereClient  = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
-          handleIncomingMessage(req, client)
-        } else {
-          if (isNew) {
-
-            val client = clientForRoute(route.get)
-            session(AtmosphereClientKey) = client
-            client.resource = resource
-            resource.addEventListener(new AtmosphereResourceEventListener {
-              def onThrowable(event: AtmosphereResourceEvent) {
-                client.receive.lift(Error(Option(event.throwable())))
-              }
-
-              def onBroadcast(event: AtmosphereResourceEvent) {}
-
-              def onSuspend(event: AtmosphereResourceEvent) {}
-
-              def onDisconnect(event: AtmosphereResourceEvent) {
-                client.receive.lift(Disconnected(Option(event.throwable)))
-              }
-
-              def onResume(event: AtmosphereResourceEvent) {}
-            })
-            resumeIfNeeded(resource)
-            configureBroadcaster(resource)
-            client.receive.lift(Connected)
-          }
-
-          resource.getResponse.write("OK\n")
-          resource.suspend()
-        }
-      } else {
-        app.handle(req.wrappedRequest(), resource.getResponse)
+    if (method == Post) {
+      val client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+      handleIncomingMessage(req, client)
+    } else {
+      if (isNew) {
+        val client = createClient(route.get, session, resource)
+        addEventListener(resource)
+        resumeIfNeeded(resource)
+        configureBroadcaster(resource)
+        client.receive.lift(Connected)
       }
+
+      resource.getResponse.write("OK\n")
+      resource.suspend()
     }
   }
 
+  private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
+    val client = clientForRoute(route)
+    session(AtmosphereClientKey) = client
+    client.resource = resource
+    client
+  }
 
   private[this] def clientForRoute(route: MatchedRoute): AtmosphereClient = {
     liftAction(route.action) getOrElse {
@@ -105,6 +108,10 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
     body.toString()
   }
 
+  private[this] def  addEventListener(resource: AtmosphereResource) {
+    resource.addEventListener(new ScalatraResourceEventListener)
+  }
+
   private[this] def liftAction(action: org.scalatra.Action) = try {
     action() match {
       case cl: AtmosphereClient => Some(cl)
@@ -115,13 +122,6 @@ class ScalatraAtmosphereHandler(app: ScalatraBase with SessionSupport)(implicit 
       t.printStackTrace()
       None
   }
-
-  private[this] lazy val atmosphereRoutes = app.routes.methodRoutes(Get).filter(_.metadata.contains('Atmosphere))
-
-  private[this] def atmosphereRoute(req: AtmosphereRequest) = (for {
-    route <- atmosphereRoutes.toStream
-    matched <- route(ScalatraServlet.requestPath(req))
-  } yield matched).headOption
 
   private[this] def resumeIfNeeded(resource: AtmosphereResource) {
     import AtmosphereResource.TRANSPORT._

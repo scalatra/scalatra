@@ -128,11 +128,11 @@ $(function() {
       subSocket.push(jQuery.stringifyJSON(json));
       $(this).val('');
 
-      input.attr('disabled', 'disabled');
+      // input.attr('disabled', 'disabled');
       if (myName === false) {
         myName = msg;
-      }
-      // addMessage(author, msg, 'blue', new Date)
+      } else  
+        addMessage(author, msg, 'blue', new Date)
     }
   });
 

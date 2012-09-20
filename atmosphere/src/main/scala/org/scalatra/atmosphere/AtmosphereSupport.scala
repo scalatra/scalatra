@@ -29,7 +29,10 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] val logger = Logger[this.type]
 
+  implicit protected def jsonFormats: Formats
+
   implicit def json2JsonMessage(json: JValue): OutboundMessage = JsonMessage(json)
+
   implicit def string2Outbound(text: String): OutboundMessage = text.blankOption map { txt =>
     if (txt.startsWith("{") || txt.startsWith("["))
       parseOpt(txt) map JsonMessage.apply getOrElse TextMessage(txt)
@@ -37,7 +40,6 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       TextMessage(txt)
   } getOrElse TextMessage("")
 
-  implicit protected def jsonFormats: Formats
   private[this] def isFilter = self match {
     case _: ScalatraFilter => true
     case _ => false
@@ -85,7 +87,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     val servletRegistration = ScalatraBase.getServletRegistration(this)
     servletRegistration foreach { reg =>
       reg.getMappings.asScala foreach { mapping =>
-        atmosphereFramework.addAtmosphereHandler(mapping, new ScalatraAtmosphereHandler(this)).initAtmosphereHandler(cfg)
+        atmosphereFramework.addAtmosphereHandler(mapping, new ScalatraAtmosphereHandler).initAtmosphereHandler(cfg)
       }
     }
   }
@@ -105,8 +107,8 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   abstract override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     withRequestResponse(request, response) {
       val atmoRoute = atmosphereRoute(request)
-      // resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_HANDLER, this)
       if (atmoRoute.isDefined) {
+        request.setAttribute(ScalatraAtmosphereHandler.AtmosphereRouteKey, atmoRoute.get)
         request.getSession(true) // force session creation
         if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER).isEmpty)
           atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
