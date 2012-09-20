@@ -120,16 +120,19 @@ $(function() {
         author = msg;
       }
 
-      subSocket.push(jQuery.stringifyJSON({
+      var json = {
         author: author,
         message: msg
-      }));
+      }
+
+      subSocket.push(jQuery.stringifyJSON(json));
       $(this).val('');
 
       input.attr('disabled', 'disabled');
       if (myName === false) {
         myName = msg;
       }
+      // addMessage(author, msg, 'blue', new Date)
     }
   });
 
