@@ -92,7 +92,6 @@ $(function() {
       subSocket.pushLocal(myName);
     } else {
       input.removeAttr('disabled');
-
       var me = json.author == author;
       var date = typeof(json.time) == 'string' ? parseInt(json.time) : json.time;
       addMessage(json.author, json.message, me ? 'blue' : 'black', new Date(date));
@@ -123,16 +122,22 @@ $(function() {
       var json = {
         author: author,
         message: msg
-      }
+      };
 
       subSocket.push(jQuery.stringifyJSON(json));
       $(this).val('');
 
-      // input.attr('disabled', 'disabled');
+
       if (myName === false) {
         myName = msg;
-      } else  
-        addMessage(author, msg, 'blue', new Date)
+        logged = true;
+        status.text(myName + ': ').css('color', 'blue');
+//        input.removeAttr('disabled').focus();
+        subSocket.pushLocal(myName);
+      } else {
+//        input.attr('disabled', 'disabled');
+        addMessage(author, msg, 'blue', new Date);
+      }
     }
   });
 
