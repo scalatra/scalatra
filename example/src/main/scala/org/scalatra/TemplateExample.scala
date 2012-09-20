@@ -7,36 +7,73 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
 
   object Template {
 
-    def style() =
-      """
-      pre { border: 1px solid black; padding: 10px; }
-      body { font-family: Helvetica, sans-serif; }
-      h1 { color: #8b2323 }
-      """
-
     def page(title:String, content:Seq[Node]) = {
-      <html>
+      <html lang="en">
         <head>
           <title>{ title }</title>
-          <style>{ Template.style }</style>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="description" content="" />
+          <meta name="author" content="" />
+
+          <!-- Le styles -->
+          <link href="/assets/css/bootstrap.css" rel="stylesheet" />
+          <link href="/assets/css/bootstrap-responsive.css" rel="stylesheet" />
+          <link href="/assets/css/syntax.css" rel="stylesheet" />
+          <link href="/assets/css/scalatra.css" rel="stylesheet" />
+
+          <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+          <!--[if lt IE 9]>
+            <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+          <![endif]-->
         </head>
+
         <body>
-          <h1>{ title }</h1>
-          { content }
-          <hr/>
-          <a href={url("/date/2009/12/26")}>date example</a><br/>
-          <a href={url("/form")}>form example</a><br/>
-          <a href={url("/upload")}>upload</a><br/>
-          <a href={url("/")}>hello world</a><br/>
-          <a href={url("/flash-map/form")}>flash scope</a><br/>
-          <a href={url("/login")}>login</a><br/>
-          <a href={url("/logout")}>logout</a><br/>
-          <a href={url("/filter-example")}>filter example</a><br/>
-          <a href={url("/cookies-example")}>cookies example</a><br/>
-          <a href={url("/chat")}>chat demo</a><br/>
-          <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a><br/>
-          <a href={url("/chat_30.html")}>Servlet 3.0 async chat demo</a><br/>
-        </body>
+          <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+              <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                </a>
+                <a class="brand" href="/">Scalatra Examples</a>
+                <div class="nav-collapse collapse">
+                 
+                </div><!--/.nav-collapse -->
+              </div>
+            </div>
+          </div>
+
+          <div class="container">
+            <div class="content">
+            <div class="page-header">
+              <h1>{ title }</h1>
+            </div>
+                {content}
+            <hr/>
+            <a href={url("/date/2009/12/26")}>date example</a><br/>
+            <a href={url("/form")}>form example</a><br/>
+            <a href={url("/upload")}>upload</a><br/>
+            <a href={url("/")}>hello world</a><br/>
+            <a href={url("/flash-map/form")}>flash scope</a><br/>
+            <a href={url("/login")}>login</a><br/>
+            <a href={url("/logout")}>logout</a><br/>
+            <a href={url("/filter-example")}>filter example</a><br/>
+            <a href={url("/cookies-example")}>cookies example</a><br/>
+            <a href={url("/chat")}>chat demo</a><br/>
+            <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a><br/>
+            <a href={url("/chat_30.html")}>Servlet 3.0 async chat demo</a><br/>
+            </div> <!-- /content -->
+            </div> <!-- /container -->
+             
+            <!-- Le javascript
+            ================================================== -->
+            <!-- Placed at the end of the document so the pages load faster -->
+            <script src="/assets/js/jquery.min.js"></script>
+            <script src="/assets/js/bootstrap.min.js"></script>
+          </body>
+
       </html>
     }
   }
@@ -96,7 +133,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
     (params("first"), params("last")) match {
       case (first:String, last:String) => {
         session("first") = first
-	session("last") = last
+  session("last") = last
         Template.page("Scalatra: Session Example",
         <pre>You have just logged in as: {first + " " + last}</pre>
         <pre>Route: /login</pre>
