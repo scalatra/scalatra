@@ -46,21 +46,21 @@ object BasicAuthExample {
 class BasicAuthExample extends ScalatraServlet with AuthenticationSupport {
   get("/?") {
     basicAuth
-    <html>
-      <body>
-        <h1>Hello from Scalatra</h1>
-        <p><a href="/auth/linked" >click</a></p>
-      </body>
-    </html>
+    val nodes = Seq(
+      <h1>Hello from Scalatra</h1>,
+      <p><a href="/auth/linked" >click</a></p>
+    )
+
+    Template.page("Basic Auth Example", nodes, url(_))
   }
 
   get("/linked") {
     basicAuth
-    <html>
-      <body>
-        <h1>Hello again from Scalatra</h1>
-        <p><a href="/" >back</a></p>
-      </body>
-    </html>
+    val nodes = Seq(
+      <h1>Hello from Scalatra</h1>,
+      <p><a href="/" >back</a></p>
+    )
+
+    Template.page("Basic Auth Example", nodes, url(_))
   }
 }

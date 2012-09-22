@@ -3,11 +3,9 @@ package org.scalatra
 import scala.xml.{Text, Node}
 import scalate.ScalateSupport
 
-class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateSupport {
+object Template {
 
-  object Template {
-
-    def page(title:String, content:Seq[Node]) = {
+    def page(title:String, content:Seq[Node], url: String => String) = {
       <html lang="en">
         <head>
           <title>{ title }</title>
@@ -61,9 +59,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
             <a href={url("/logout")}>logout</a><br/>
             <a href={url("/filter-example")}>filter example</a><br/>
             <a href={url("/cookies-example")}>cookies example</a><br/>
-            <a href={url("/chat")}>chat demo</a><br/>
-            <a href={url("/atmo_chat.html")}>Atmosphere chat demo</a><br/>
-            <a href={url("/chat_30.html")}>Servlet 3.0 async chat demo</a><br/>
+            <a href={url("/chat.html")}>chat demo</a><br/>
             </div> <!-- /content -->
             </div> <!-- /container -->
              
@@ -78,12 +74,16 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
     }
   }
 
+class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateSupport {
+
+  private def displayPage(title:String, content:Seq[Node]) = Template.page(title, content, url(_))
+
   before() {
     contentType = "text/html"
   }
 
   get("/date/:year/:month/:day") {
-    Template.page("Scalatra: Date Example",
+    displayPage("Scalatra: Date Example",
     <ul>
       <li>Year: {params("year")}</li>
       <li>Month: {params("month")}</li>
@@ -94,7 +94,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   get("/form") {
-    Template.page("Scalatra: Form Post Example",
+    displayPage("Scalatra: Form Post Example",
     <form action={url("/post")} method='POST'>
       Post something: <input name="submission" type='text'/>
       <input type='submit'/>
@@ -104,7 +104,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   post("/post") {
-    Template.page("Scalatra: Form Post Result",
+    displayPage("Scalatra: Form Post Result",
     <p>You posted: {params("submission")}</p>
     <pre>Route: /post</pre>
     )
@@ -113,12 +113,12 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   get("/login") {
     (session.get("first"), session.get("last")) match {
       case (Some(first:String), Some(last:String)) =>
-        Template.page("Scalatra: Session Example",
+        displayPage("Scalatra: Session Example",
         <pre>You have logged in as: {first + "-" + last}</pre>
         <pre>Route: /login</pre>
         )
       case x:AnyRef =>
-        Template.page("Scalatra: Session Example" + x.toString,
+        displayPage("Scalatra: Session Example" + x.toString,
         <form action={url("/login")} method='POST'>
         First Name: <input name="first" type='text'/>
         Last Name: <input name="last" type='text'/>
@@ -134,7 +134,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
       case (first:String, last:String) => {
         session("first") = first
   session("last") = last
-        Template.page("Scalatra: Session Example",
+        displayPage("Scalatra: Session Example",
         <pre>You have just logged in as: {first + " " + last}</pre>
         <pre>Route: /login</pre>
         )
@@ -144,14 +144,14 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
 
   get("/logout") {
     session.invalidate
-    Template.page("Scalatra: Session Example",
+    displayPage("Scalatra: Session Example",
     <pre>You have logged out</pre>
     <pre>Route: /logout</pre>
     )
   }
 
   get("/") {
-    Template.page("Scalatra: Hello World",
+    displayPage("Scalatra: Hello World",
     <h2>Hello world!</h2>
     <p>Referer: { (request referrer) map { Text(_) } getOrElse { <i>none</i> }}</p>
     <pre>Route: /</pre>
@@ -164,7 +164,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   get("/flash-map/form") {
-    Template.page("Scalatra: Flash Map Example",
+    displayPage("Scalatra: Flash Map Example",
     <span>Supports the post-then-redirect pattern</span><br />
     <form method="post">
       <label>Message: <input type="text" name="message" /></label><br />
@@ -179,7 +179,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   get("/flash-map/result") {
-    Template.page("Scalatra: Flash  Example",
+    displayPage("Scalatra: Flash  Example",
     <span>Message = {flash.getOrElse("message", "")}</span>
     )
   }
