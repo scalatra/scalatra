@@ -1,10 +1,10 @@
 package org.scalatra
 package auth
 
-import org.scalatra.util.RicherString._
+import ScentryAuthStore.ScentryAuthStore
 import collection.mutable.{ HashMap, Map ⇒ MMap }
-import ScentryAuthStore.{ SessionAuthStore, ScentryAuthStore }
-import grizzled.slf4j.{Logger, Logging}
+import grizzled.slf4j.Logger
+import org.scalatra.util.RicherString._
 
 object Scentry {
 
@@ -39,12 +39,10 @@ class Scentry[UserType <: AnyRef](
   type StrategyFactory = ScalatraBase ⇒ StrategyType
 
   import Scentry._
+
   private[this] val _strategies = new HashMap[String, StrategyFactory]()
   private[this] var _user: UserType = null.asInstanceOf[UserType]
 
-
-  @deprecated("use store_= instead", "2.0.0")
-  def setStore(newStore: ScentryAuthStore) { store = newStore }
   def store = _store
   def store_=(newStore: ScentryAuthStore) {
     _store = newStore
@@ -53,8 +51,6 @@ class Scentry[UserType <: AnyRef](
   def isAuthenticated = {
     userOption.isDefined
   }
-  @deprecated("use isAuthenticated", "2.0.0")
-  def authenticated_? = isAuthenticated
 
   //def session = app.session
   def params = app.params
@@ -62,11 +58,6 @@ class Scentry[UserType <: AnyRef](
 
   def register(name: String, strategyFactory: StrategyFactory) {
     _strategies += (name -> strategyFactory)
-  }
-
-  @deprecated("Use the method register that uses a string key instead", "2.0")
-  def registerStrategy(name: Symbol, strategyFactory: StrategyFactory) {
-    _strategies += (name.name -> strategyFactory)
   }
 
   def strategies: MMap[String, ScentryStrategy[UserType]] =
@@ -155,10 +146,10 @@ class Scentry[UserType <: AnyRef](
   }
 
   def logout() {
-    val usr = user.asInstanceOf[UserType]
+    val usr = user
     runCallbacks() { _.beforeLogout(usr) }
     if (_user != null) _user = null.asInstanceOf[UserType]
-    store.invalidate
+    store.invalidate()
     runCallbacks() { _.afterLogout(usr) }
   }
 

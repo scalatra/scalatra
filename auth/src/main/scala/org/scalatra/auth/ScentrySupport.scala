@@ -76,10 +76,6 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   protected def user_=(user: UserType) = scentry.user = user
   protected def isAuthenticated: Boolean = scentry.isAuthenticated
   protected def isAnonymous: Boolean = !isAuthenticated
-  @deprecated("use isAuthenticated", "2.0.0")
-  protected def authenticated_? : Boolean = isAuthenticated
-  @deprecated("use isAnonymous", "2.0.0")
-  protected def unAuthenticated_? : Boolean = !isAuthenticated
 
   protected def authenticate() = {
     scentry.authenticate()
@@ -87,6 +83,4 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   protected def logOut() = scentry.logout()
 
-  @deprecated("use logOut()", "2.0.0")
-  protected def logOut_! = logOut()
 }

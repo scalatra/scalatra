@@ -32,18 +32,12 @@ trait ScentryStrategy[UserType <: AnyRef] {
    */
   def isValid = true
 
-  @deprecated("use isValid", "2.0.0")
-  def valid_? = isValid
-
   /**
    * Perform the authentication for this strategy
    *
    * @return a UserType option where None indicates auth failure
    */
   def authenticate(): Option[UserType]
-
-  @deprecated("use authenticate()", "2.0.0")
-  def authenticate_! = authenticate()
 
   /**
    * Perform stuff before authenticating, only run when the module is valid

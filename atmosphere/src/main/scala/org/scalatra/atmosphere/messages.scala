@@ -32,7 +32,7 @@ case object Connected extends InboundMessage
 /**
  * A message representing a json object sent to/received from a remote party.
  *
- * @param content A [[net.liftweb.json.JValue]] object
+ * @param content A [[org.json4s.JValue]] object
  */
 case class JsonMessage(content: JValue) extends ProtocolMessage[JValue]
 

@@ -52,15 +52,28 @@
 
         }
 
+### Atmosphere
+* Adds an atmosphere integration
+  This module adds support for websockets, long-polling, server-side events, ....
+  
+        class MyAtmoServlet {
+          def receive = {
+            case Connected =>
+            case Disconnected(disconnector, Some(error)) =>
+            case Error(Some(error)) =>
+            case TextMessage(text) => send("ECHO: " + text)
+            case JsonMessage(json) => broadcast(json)
+          }
+        }
+
 ### Swagger
 * Added serialization for AllowableValues in `Swagger.scala`.  These are passed as strings in the AllowableValues object:
-```scala
-// as List
-allowableValues = AllowableValues("LIST[1,2,3]")
 
-// as range
-allowableValues = AllowableValues("RANGE[0,1000]")
-```
+        // as List
+        allowableValues = AllowableValues("LIST[1,2,3]")
+        
+        // as range
+        allowableValues = AllowableValues("RANGE[0,1000]")
 
 * Updated to support the [swagger-1.1 spec](https://github.com/wordnik/swagger-core/wiki/API-Declaration)
 * Allows for using either jackson or native json to generate the service description json

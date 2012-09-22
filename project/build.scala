@@ -75,7 +75,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(base64),
       description := "Scalatra authentication module"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraDatabinding)
 
   lazy val scalatraAkka = Project(
     id = "scalatra-akka",
@@ -246,7 +246,7 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.0"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.1"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
