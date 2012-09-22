@@ -5,7 +5,7 @@ import scalate.ScalateSupport
 
 object Template {
 
-    def page(title:String, content:Seq[Node], url: String => String) = {
+    def page(title:String, content:Seq[Node], url: String => String = identity _, head: Seq[Node] = Nil, scripts: Seq[String] = Nil) = {
       <html lang="en">
         <head>
           <title>{ title }</title>
@@ -24,6 +24,7 @@ object Template {
           <!--[if lt IE 9]>
             <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
           <![endif]-->
+          {head}
         </head>
 
         <body>
@@ -45,22 +46,23 @@ object Template {
 
           <div class="container">
             <div class="content">
-            <div class="page-header">
-              <h1>{ title }</h1>
-            </div>
+              <div class="page-header">
+                <h1>{ title }</h1>
+              </div>
                 {content}
-            <hr/>
-            <a href={url("/date/2009/12/26")}>date example</a><br/>
-            <a href={url("/form")}>form example</a><br/>
-            <a href={url("/upload")}>upload</a><br/>
-            <a href={url("/")}>hello world</a><br/>
-            <a href={url("/flash-map/form")}>flash scope</a><br/>
-            <a href={url("/login")}>login</a><br/>
-            <a href={url("/logout")}>logout</a><br/>
-            <a href={url("/filter-example")}>filter example</a><br/>
-            <a href={url("/cookies-example")}>cookies example</a><br/>
-            <a href={url("/chat.html")}>chat demo</a><br/>
-            </div> <!-- /content -->
+                <hr/>
+                <a href={url("/date/2009/12/26")}>date example</a><br/>
+                <a href={url("/form")}>form example</a><br/>
+                <a href={url("/upload")}>upload</a><br/>
+                <a href={url("/")}>hello world</a><br/>
+                <a href={url("/flash-map/form")}>flash scope</a><br/>
+                <a href={url("/login")}>login</a><br/>
+                <a href={url("/logout")}>logout</a><br/>
+                <a href={url("/basic-auth")}>basic auth</a><br/>
+                <a href={url("/filter-example")}>filter example</a><br/>
+                <a href={url("/cookies-example")}>cookies example</a><br/>
+                <a href={url("/chat.html")}>chat demo</a><br/>
+              </div> <!-- /content -->
             </div> <!-- /container -->
              
             <!-- Le javascript
@@ -68,6 +70,11 @@ object Template {
             <!-- Placed at the end of the document so the pages load faster -->
             <script src="/assets/js/jquery.min.js"></script>
             <script src="/assets/js/bootstrap.min.js"></script>
+            { scripts map { pth =>
+              <script type="text/javascript" src={pth}></script>
+            } }
+
+            <script type="text/javascript" src="jquery/application.js"></script>
           </body>
 
       </html>
@@ -179,12 +186,14 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   get("/flash-map/result") {
-    displayPage("Scalatra: Flash  Example",
-    <span>Message = {flash.getOrElse("message", "")}</span>
+    displayPage(
+      title = "Scalatra: Flash  Example",
+      content = <span>Message = {flash.getOrElse("message", "")}</span>
     )
   }
 
   post("/echo") {
-    java.net.URLEncoder.encode(params("echo"), "UTF-8")
+    import org.scalatra.util.RicherString._
+    params("echo").urlDecode
   }
 }

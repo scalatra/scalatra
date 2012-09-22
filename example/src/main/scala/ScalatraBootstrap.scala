@@ -9,6 +9,7 @@ class ScalatraBootstrap extends LifeCycle {
 
     context.mount(new BasicAuthExample, "/auth")
     context.mount(new CookiesExample, "/cookies-example")
+    context.mount(new BasicAuthExample, "/basic-auth")
     context.mount(new FileUploadExample, "/upload")
     context.mount(new FilterExample, "/")
     context.mount(new AtmosphereChat, "/atmosphere")
