@@ -3,6 +3,7 @@ package org.scalatra
 import _root_.akka.dispatch.Future
 import _root_.akka.dispatch.Promise
 import _root_.akka.util.Deadline
+import _root_.akka.util.duration._
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.cpr.AtmosphereResource
 import scala.util.control.Exception._
