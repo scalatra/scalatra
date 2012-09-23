@@ -12,8 +12,8 @@ trait AtmosphereClient {
   @volatile private[atmosphere] var resource: AtmosphereResource = _
   private[this] val internalLogger = Logger[AtmosphereClient]
 
-  final protected def SkipSelf: ClientFilter = _.uuid() != uuid
-  final protected def OnlySelf: ClientFilter = _.uuid() == uuid
+  final protected def SkipSelf: ClientFilter = _.uuid != uuid
+  final protected def OnlySelf: ClientFilter = _.uuid == uuid
   final protected val Everyone: ClientFilter = _ => true
 
   protected def requestUri = {
@@ -37,6 +37,5 @@ trait AtmosphereClient {
     broadcaster.broadcast(msg, filter)
   }
 
-
-
+  final def disconnect() { resource.resume() }
 }
