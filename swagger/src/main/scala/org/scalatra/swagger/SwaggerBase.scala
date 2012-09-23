@@ -10,18 +10,18 @@ import json.JsonSupport
  */
 trait SwaggerBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
 
-  get("/:doc.:format") {
+  get("/:doc.?:format?") {
     swagger.doc(params("doc")) match {
       case Some(doc) ⇒ renderDoc(doc)
       case _         ⇒ halt(404)
     }
   }
 
-  get("/resources.:format") {
+  get("/resources.?:format?") {
     renderIndex(swagger.docs.toList)
   }
 
-  options("/resources.:format") {}
+  options("/resources.?:format?") {}
 
   protected def renderDoc(doc: Api): JValue = {
     Api.toJValue(doc) merge ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
@@ -35,7 +35,7 @@ trait SwaggerBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   /**
    * Returns the Swagger instance responsible for generating the resource and operation listings.
    */
-  protected def swagger: Swagger
+  protected implicit def swagger: Swagger
 
   /**
    * Builds a full URL based on the given path.

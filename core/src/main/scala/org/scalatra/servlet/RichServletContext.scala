@@ -131,9 +131,19 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
   object initParameters extends mutable.Map[String, String] {
     def get(key: String): Option[String] = Option(sc.getInitParameter(key))
 
-    def iterator: Iterator[(String, String)] = 
-      for (name <- sc.getInitParameterNames.asScala)
-      yield (name, sc.getInitParameter(name))
+    def iterator: Iterator[(String, String)] = {
+      val theInitParams = sc.getInitParameterNames
+
+      new Iterator[(String, String)] {
+
+        def hasNext: Boolean = theInitParams.hasMoreElements
+
+        def next(): (String, String) = {
+          val nm = theInitParams.nextElement()
+          (nm, sc.getInitParameter(nm))
+        }
+      }
+    }
 
     def +=(kv: (String, String)): this.type = {
       sc.setInitParameter(kv._1, kv._2)
