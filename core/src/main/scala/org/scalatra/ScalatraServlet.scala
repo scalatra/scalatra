@@ -114,7 +114,7 @@ abstract class ScalatraServlet
    */
   protected def serveStaticResource(): Option[Any] =
     servletContext.resource(request) map { _ =>
-       servletContext.getNamedDispatcher("default").forward(request, response)
+      servletContext.getNamedDispatcher("default").forward(request, response)
     }
 
   /**

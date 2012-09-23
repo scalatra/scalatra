@@ -20,7 +20,6 @@ trait JettyContainer extends Container {
 
   def servletContextHandler: ServletContextHandler
 
-//  @deprecated("use addServlet(HttpServlet, String) or addFilter(Filter, String)", "2.0.0")
   def mount(klass: Class[_], path: String) = klass match {
     case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
       addServlet(servlet.asInstanceOf[Class[_ <: HttpServlet]], path)
@@ -30,7 +29,6 @@ trait JettyContainer extends Container {
       throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
   }
 
-//  @deprecated("renamed to addServlet", "2.0.0")
   def mount(servlet: HttpServlet, path: String) = addServlet(servlet, path)
 
   def mount(app: Filter, path: String, dispatches: EnumSet[DispatcherType] = DefaultDispatcherTypes) =
@@ -52,8 +50,6 @@ trait JettyContainer extends Container {
 
   }
 
-//  @deprecated("Adding servlet by class is deprecated. Please use addServlet(HttpServlet, String) instead",
-//      since = "2.2.0")
   def addServlet(servlet: Class[_ <: HttpServlet], path: String) =
     servletContextHandler.addServlet(servlet, path)
 
@@ -72,4 +68,9 @@ trait JettyContainer extends Container {
   // Add a default servlet.  If there is no underlying servlet, then
   // filters just return 404.
   addServlet(new DefaultServlet, "/")
+
+
+  protected def ensureSessionIsSerializable() {
+    servletContextHandler.getSessionHandler.addEventListener(SessionSerializingListener)
+  }
 }

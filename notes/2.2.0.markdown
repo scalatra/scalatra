@@ -78,3 +78,6 @@
 * Updated to support the [swagger-1.1 spec](https://github.com/wordnik/swagger-core/wiki/API-Declaration)
 * Allows for using either jackson or native json to generate the service description json
 * Auto-registers servlets and filters that extend the SwaggerSupport trait in the swagger manager.
+
+### Testing
+* Added a method `ensureSessionIsSerializable` which will try to serialize every session value.
