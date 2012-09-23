@@ -2,8 +2,8 @@ package org.scalatra
 
 import scala.util.matching.Regex
 import scala.util.parsing.combinator._
-import java.net.URLEncoder.encode
 import util.MultiMap
+import util.RicherString._
 
 /**
  * A route matcher is evaluated in the context it was created and returns a
@@ -63,7 +63,7 @@ final class SinatraRouteMatcher(pattern: String)
     // checks all splats are used, appends additional params as a query string
     def get: String = {
       if (!splats.isEmpty) throw new Exception("Too many splats for builder \"%s\"" format pattern)
-      val pairs = params map { case(key, value) => encode(key, "utf-8") + "=" +encode(value, "utf-8") }
+      val pairs = params map { case(key, value) => key.urlEncode + "=" + value.urlEncode }
       val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
       path + queryString
     }
@@ -126,7 +126,7 @@ final class RailsRouteMatcher(pattern: String)
 
     // appends additional params as a query string
     def get: String = {
-      val pairs = params map { case(key, value) => encode(key, "utf-8") + "=" +encode(value, "utf-8") }
+      val pairs = params map { case(key, value) => key.urlEncode + "=" + value.urlEncode }
       val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
       path + queryString
     }

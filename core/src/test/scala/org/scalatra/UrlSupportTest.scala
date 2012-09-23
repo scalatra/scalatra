@@ -8,11 +8,11 @@ class UrlSupportTest extends ScalatraFunSuite {
   addServlet(new ScalatraServlet {
     get("/") {
       if (params.contains("session")) session // trigger a jsessionid
-      this.url(params("url"), params - "url")
+      this.url(params("url"), params - "url", absolutize = false)
     }
 
     get("/option") {
-      this.url(params("url"), Seq("id" -> params.get("id")))
+      this.url(params("url"), Seq("id" -> params.get("id")), absolutize = false)
     }
   }, "/*")
 

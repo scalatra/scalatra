@@ -1,16 +1,15 @@
 package org.scalatra
 
 import scala.util.matching.Regex
-import servlet.AsyncSupport
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
-import java.net.URLEncoder.encode
 import scala.annotation.tailrec
 import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
+import util.RicherString._
 import rl.UrlCodingUtils
-import java.nio.charset.Charset
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import scala.util.control.Exception._
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
@@ -25,6 +24,9 @@ object ScalatraBase {
    * FileUploadSupport)
    */
   val PrehandleExceptionKey = "org.scalatra.PrehandleException"
+  val HostNameKey = "org.scalatra.HostName"
+  val PortKey = "org.scalatra.Port"
+  val ForceHttpsKey = "org.scalatra.ForceHttps"
 
   import collection.JavaConverters._
   def getServletRegistration(app: ScalatraBase) = {
@@ -37,8 +39,8 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
-{
+trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
+  import ScalatraBase.{HostNameKey, PortKey, ForceHttpsKey}
   /**
    * The routes registered in this kernel.
    */
@@ -421,10 +423,6 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    */
   protected def routeBasePath: String
 
-  @deprecated("Use addRoute(HttpMethod, Seq[RouteMatcher], =>Any)", "2.0.0")
-  protected[scalatra] def addRoute(verb: String, transformers: Seq[RouteTransformer], action: => Any): Route =
-    addRoute(HttpMethod(verb), transformers, action)
-
   /**
    * Removes _all_ the actions of a given route for a given HTTP method.
    * If addRoute is overridden then this should probably be overriden too.
@@ -502,19 +500,103 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable
    * @return the path plus the query string, if any.  The path is run through
    * `response.encodeURL` to add any necessary session tracking parameters.
    */
-  def url(path: String, params: Iterable[(String, Any)] = Iterable.empty): String = {
+  def url(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true, absolutize: Boolean = true): String = {
+
     val newPath = path match {
-      case x if x.startsWith("/") => contextPath + path
+      case x if x.startsWith("/") && includeContextPath && includeServletPath =>
+        ensureSlash(routeBasePath) + ensureContextPathsStripped(ensureSlash(path))
+      case x if x.startsWith("/") && includeContextPath =>
+        ensureSlash(contextPath) + ensureContexPathStripped(ensureSlash(path))
+      case x if x.startsWith("/") && includeServletPath => request.getServletPath.blankOption map {
+        ensureSlash(_) + ensureServletPathStripped(ensureSlash(path))
+      } getOrElse "/"
+      case _ if absolutize => ensureContextPathsStripped(ensureSlash(path))
       case _ => path
     }
 
     val pairs = params map {
-      case (key, None) => encode(key, "utf-8")+"="
-      case (key, Some(value)) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8")
-      case(key, value) => encode(key, "utf-8") + "=" +encode(value.toString, "utf-8")
+      case (key, None) => key.urlEncode +"="
+      case (key, Some(value)) => key.urlEncode + "=" + value.toString.urlEncode
+      case(key, value) => key.urlEncode + "=" +value.toString.urlEncode
     }
     val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
+//    val finalPath = if (newPath.startsWith("/")) newPath.substring(1) else newPath
     addSessionId(newPath+queryString)
+  }
+
+  private[this] val ensureContextPathsStripped = (ensureContexPathStripped _) andThen (ensureServletPathStripped _)
+
+  private[this] def ensureServletPathStripped(path: String) = {
+    val sp = ensureSlash(request.getServletPath.blankOption getOrElse "")
+    val np = if (path.startsWith(sp + "/")) path.substring(sp.length) else path
+    ensureSlash(np)
+  }
+
+  private[this] def ensureContexPathStripped(path: String) = {
+    val cp = ensureSlash(contextPath)
+    val np = if (path.startsWith(cp + "/")) path.substring(cp.length) else path
+    ensureSlash(np)
+  }
+
+  private[this] def ensureSlash(candidate: String) = {
+    val p = if (candidate.startsWith("/")) candidate else "/"+candidate
+    if (p.endsWith("/")) p.dropRight(1) else p
+  }
+
+
+  protected def isHttps = { // also respect load balancer version of the protocol
+    val h = request.getHeader("X-Forwarded-Proto").blankOption
+    request.isSecure || (h.isDefined && h.forall(_ equalsIgnoreCase "HTTPS"))
+  }
+
+  protected def needsHttps =
+    allCatch.withApply(_ => false) {
+      servletContext.getInitParameter(ForceHttpsKey).blankOption.map(_.toBoolean) getOrElse false
+    }
+
+
+  /**
+   * Sends a redirect response and immediately halts the current action.
+   */
+  override def redirect(uri: String) {
+    val u = fullUrl(uri)
+    super.redirect(u)
+  }
+
+  /**
+   * Builds a full URL from the given relative path. Takes into account the port configuration, https, ...
+   *
+   * @param path a relative path
+   *
+   * @return the full URL
+   */
+  def fullUrl(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true) = {
+    if (path.startsWith("http")) path
+    else {
+      val p = url(path, params, includeContextPath, includeServletPath)
+      buildBaseUrl + ensureSlash(p)
+    }
+  }
+
+  private[this] def buildBaseUrl = {
+    "%s://%s".format(
+      if (needsHttps || isHttps) "https" else "http",
+      serverAuthority
+    )
+  }
+
+  private[this] def serverAuthority = {
+    val p = serverPort
+    val h = serverHost
+    if (p == 80 || p == 443 ) h else h+":"+p.toString
+  }
+
+  def serverHost = {
+    servletContext.getInitParameter(HostNameKey).blankOption getOrElse request.getServerName
+  }
+
+  def serverPort = {
+    servletContext.getInitParameter(PortKey).blankOption.map(_.toInt) getOrElse request.getServerPort
   }
 
   protected def contextPath: String = servletContext.contextPath

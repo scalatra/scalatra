@@ -2,9 +2,9 @@ package org.scalatra
 
 import scala.actors.{Actor, TIMEOUT}
 import scala.xml.Text
-import java.net.URLEncoder
-import java.nio.charset.Charset
 import test.scalatest.ScalatraFunSuite
+import org.scalatra.util.RicherString._
+import java.nio.charset.Charset
 
 class ContentTypeTestServlet extends ScalatraServlet {
   get("/json") {
@@ -153,11 +153,11 @@ class ContentTypeTest extends ScalatraFunSuite {
     val charset = "iso-8859-5"
     val message = "Здравствуйте!"
 
+
     post(
       "/echo",
       headers = Map("Content-Type" -> ("application/x-www-form-urlencoded; charset=" + charset)),
-      body = "echo="+URLEncoder.encode(message, charset))
-    {
+      body = ("echo="+ message.urlEncode(Charset.forName(charset)))) {
       body should equal(message)
     }
   }
