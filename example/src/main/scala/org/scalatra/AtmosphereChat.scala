@@ -16,8 +16,7 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
       title = "Scalatra Atmosphere Chat",
       content = bodyHtml,
       url = url(_),
-      head = style,
-      scripts = "jquery/jquery.atmosphere.js" :: "jquery/application.js" :: Nil
+      scripts = "/jquery/jquery.atmosphere.js" :: "/jquery/application.js" :: Nil
     )
   }
 
@@ -49,66 +48,15 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
     case t: Throwable => t.printStackTrace()
   }
 
-  val extraCss =
-    """
-      |
-      |p {
-      |  line-height: 18px;
-      |}
-      |
-      |div.atmo {
-      |  width: 500px;
-      |  margin-left: auto;
-      |  margin-right: auto;
-      |}
-      |
-      |#detect {
-      |  padding: 5px;
-      |  background: #ffc0cb;
-      |  border-radius: 5px;
-      |  border: 1px solid #CCC;
-      |  margin-top: 10px;
-      |}
-      |
-      |#content {
-      |  padding: 5px;
-      |  background: #ddd;
-      |  border-radius: 5px;
-      |  border: 1px solid #CCC;
-      |  margin-top: 10px;
-      |}
-      |
-      |#header {
-      |  padding: 5px;
-      |  background: #f5deb3;
-      |  border-radius: 5px;
-      |  border: 1px solid #CCC;
-      |  margin-top: 10px;
-      |}
-      |
-      |#input {
-      |  border-radius: 2px;
-      |  border: 1px solid #ccc;
-      |  margin-top: 10px;
-      |  padding: 5px;      |
-      |}
-      |
-      |#status {
-      |  display: block;
-      |  float: left;
-      |  margin-top: 15px;
-      |}
-      |
-    """.stripMargin
-  val style = <style>{extraCss}</style>
 
-  val bodyHtml = Seq(
-    <div class="atmo" id="header"><h3>Atmosphere Chat. Default transport is WebSocket, fallback is long-polling</h3></div>,
-    <div class="atmo" id="detect"><h3>Detecting what the browser and server are supporting</h3></div>,
-    <div class="atmo" id="content"></div>,
-    <div class="atmo">,
-      <span id="status">Connecting...</span>,
-      <input type="text" id="input" disabled="disabled"/>,
+  val bodyHtml =
+    <div class="row">
+        <div id="header" class="span6 offset3"><h5>Atmosphere Chat. Default transport is WebSocket, fallback is long-polling</h5></div>
+        <div id="detect" class="span6 offset3"><h5>Detecting what the browser and server are supporting</h5></div>
+        <div id="content" class="span6 offset3"></div>
+        <div class="span6 offset3">
+            <span id="status">Connecting...</span>
+            <input type="text" id="input" disabled="disabled"/>
+        </div>
     </div>
-  )
 }

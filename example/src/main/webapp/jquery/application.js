@@ -12,15 +12,6 @@ $(function() {
   var socket = $.atmosphere;
   var subSocket;
   var transport = 'websocket';
-  var request = {
-    url: "/atmosphere/the-chat",
-    contentType: "application/json",
-    logLevel: 'debug',
-    shared: true,
-    transport: transport,
-    trackMessageLength : true,
-    fallbackTransport: 'long-polling'
-  };
 
   <!-- The following code is just here for demonstration purpose and not required -->
   <!-- Used to demonstrate the request.onTransportFailure callback. Not mandatory -->
@@ -34,23 +25,19 @@ $(function() {
   transports[4] = "streaming";
   transports[5] = "ajax";
 
-  console.debug("starting transport detection");
-  $.each(transports, function (index, transport) {
-      console.debug("checking for transport: "+transport)
+  $.each(transports, function (index, tr) {
      var req = new $.atmosphere.AtmosphereRequest();
 
      req.url = "/atmosphere/the-chat";
      req.contentType = "application/json";
-     req.transport = transport;
-     req.headers = { "negotiating" : "true" };
+     req.transport = tr;
+     req.headers = { "X-SCALATRA-SAMPLE" : "true" };
 
      req.onOpen = function(response) {
-       detect.append('<p><span style="color:blue">' + transport + ' supported: '  + '</span>' + (response.transport == transport));
+       detect.append('<p><span style="color:blue">' + tr + ' supported: '  + '</span>' + (response.transport == tr));
      };
 
-     req.onReconnect = function(request) {
-       request.close();
-     };
+     req.onReconnect = function(r) { r.close() };
 
      socket.subscribe(req)
   });
@@ -60,6 +47,17 @@ $(function() {
 
 
   // We are now ready to cut the request
+
+  var request = {
+    url: "/atmosphere/the-chat",
+    contentType: "application/json",
+    logLevel: 'debug',
+    shared: true,
+    transport: transport,
+    trackMessageLength : true,
+    fallbackTransport: 'long-polling'
+  };
+
   request.onOpen = function(response) {
     content.html($('<p>', {
       text: 'Atmosphere connected using ' + response.transport
@@ -93,31 +91,33 @@ $(function() {
   };
 
   <!-- For demonstration of how you can customize the fallbackTransport using the onTransportFailure function -->
-  request.onTransportFailure = function(errorMsg, request) {
+  request.onTransportFailure = function(errorMsg, r) {
     jQuery.atmosphere.info(errorMsg);
     if (window.EventSource) {
-      request.fallbackTransport = "sse";
+      r.fallbackTransport = "sse";
       transport = "see";
     }
     header.html($('<h3>', {
-      text: 'Atmosphere Chat. Default transport is WebSocket, fallback is ' + request.fallbackTransport
+      text: 'Atmosphere Chat. Default transport is WebSocket, fallback is ' + r.fallbackTransport
     }));
   };
 
-  request.onReconnect = function(request, response) {
+  request.onReconnect = function(rq, rs) {
     socket.info("Reconnecting")
   };
 
-  request.onMessage = function(response) {
+  request.onMessage = function(rs) {
 
     // We need to be logged first.
     if (!myName) return;
 
-    var message = response.responseBody;
+    var message = rs.responseBody;
     try {
       var json = jQuery.parseJSON(message);
+      console.log("got a message")
+      console.log(json)
     } catch (e) {
-      console.log('This doesn\'t look like a valid JSON: ', message.data);
+      console.log('This doesn\'t look like a valid JSON object: ', message.data);
       return;
     }
 
@@ -134,11 +134,11 @@ $(function() {
     }
   };
 
-  request.onClose = function(response) {
+  request.onClose = function(rs) {
     logged = false;
   };
 
-  request.onError = function(response) {
+  request.onError = function(rs) {
     content.html($('<p>', {
       text: 'Sorry, but there\'s some problem with your ' + 'socket or the server is down'
     }));
@@ -168,7 +168,7 @@ $(function() {
         myName = msg;
         logged = true;
         status.text(myName + ': ').css('color', 'blue');
-//        input.removeAttr('disabled').focus();
+        input.removeAttr('disabled').focus();
         subSocket.pushLocal(myName);
       } else {
 //        input.attr('disabled', 'disabled');

@@ -3,6 +3,8 @@ package org.scalatra
 import servlet.ServletBase
 import javax.servlet._
 import javax.servlet.http._
+import org.scalatra.util.RicherString._
+import java.io.File
 
 object ScalatraServlet {
   import servlet.ServletApiImplicits._
@@ -112,7 +114,7 @@ abstract class ScalatraServlet
    */
   protected def serveStaticResource(): Option[Any] =
     servletContext.resource(request) map { _ =>
-      servletContext.getNamedDispatcher("default").forward(request, response)
+       servletContext.getNamedDispatcher("default").forward(request, response)
     }
 
   /**

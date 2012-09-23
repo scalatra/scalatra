@@ -49,3 +49,43 @@ footer[role="contentinfo"] a:hover {
 @media(max-width:767px) {
   .content {margin:0;}
 }
+
+
+#detect {
+  padding: 5px;
+  background: #ffc0cb;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  margin-top: 10px;
+}
+
+#content {
+  padding: 5px;
+  background: #ddd;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  margin-top: 10px;
+}
+
+#header {
+  padding: 5px;
+  background: #f5deb3;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  margin-top: 10px;
+}
+
+#input {
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  padding: 5px;
+  /*width: 400px;*/
+}
+
+#status {
+  /*width: 88px;*/
+  display: block;
+  float: left;
+  margin-top: 15px;
+}

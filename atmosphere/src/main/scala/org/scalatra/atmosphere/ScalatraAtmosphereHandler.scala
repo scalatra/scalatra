@@ -50,7 +50,7 @@ class ScalatraAtmosphereHandler(implicit formats: Formats) extends AbstractRefle
       val client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
       handleIncomingMessage(req, client)
     } else {
-      if (isNew) {
+      if (isNew && !req.headersMap().containsKey("X-SCALATRA-SAMPLE")) {
         val client = createClient(route.get, session, resource)
         addEventListener(resource)
         resumeIfNeeded(resource)
