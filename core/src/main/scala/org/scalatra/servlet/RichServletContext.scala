@@ -7,6 +7,8 @@ import javax.servlet.{DispatcherType, Filter, ServletContext}
 import javax.servlet.http.{HttpServlet, HttpServletRequest}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import java.{ util => jutil }
+import org.scalatra.util
 
 /**
  * Extension methods to the standard ServletContext.
@@ -92,36 +94,37 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     mount(handlerClass, urlPattern, handlerClass.getName)
 
   private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String) {
-    val reg = sc.addServlet(name, servlet)
-
-    servlet match {
-      case s: HasMultipartConfig =>
-        reg.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
-
-      case _ =>
+    val reg = Option(sc.getServletRegistration(name)) getOrElse {
+      val r = sc.addServlet(name, servlet)
+      servlet match {
+        case s: HasMultipartConfig =>
+          r.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
+        case _ =>
+      }
+      r
     }
 
     reg.addMapping(urlPattern)
   }
 
   private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String) {
-    val reg = sc.addServlet(name, servletClass)
+    val reg = Option(sc.getServletRegistration(name)) getOrElse sc.addServlet(name, servletClass)
     reg.addMapping(urlPattern)
   }
 
   private def mountFilter(filter: Filter, urlPattern: String, name: String) {
-    val reg = sc.addFilter(name, filter)
+    val reg = Option(sc.getFilterRegistration(name)) getOrElse sc.addFilter(name, filter)
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
-    val dispatchers = EnumSet.allOf(classOf[DispatcherType])
+    val dispatchers = jutil.EnumSet.allOf(classOf[DispatcherType])
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
 
   private def mountFilter(filterClass: Class[Filter], urlPattern: String, name: String) {
-    val reg = sc.addFilter(name, filterClass)
+    val reg = Option(sc.getFilterRegistration(name)) getOrElse sc.addFilter(name, filterClass)
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
-    val dispatchers = EnumSet.allOf(classOf[DispatcherType])
+    val dispatchers = jutil.EnumSet.allOf(classOf[DispatcherType])
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
 
