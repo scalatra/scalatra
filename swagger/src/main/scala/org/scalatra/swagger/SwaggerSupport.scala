@@ -22,13 +22,12 @@ trait SwaggerSupport extends Initializable {
     throw new IllegalStateException("I can't work out which servlet registration this is.")
 
   private[this] def registerInSwagger(name: String, servPath: String) = {
-    val ctxtPath = Option(servletContext.getContextPath).flatMap(_.blankOption) getOrElse "/"
-    val normalizedPath = {
+    val thePath = {
       val p = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
-      if (p.startsWith("/")) p.substring(1) else p
+      if (p.startsWith("/")) p else "/"+p
     }
-    val fullPath = if (ctxtPath.endsWith("/")) ctxtPath + normalizedPath else ctxtPath + "/" + normalizedPath
-    swagger.register(name, fullPath, applicationDescription, this)
+
+    swagger.register(name, thePath, applicationDescription, this)
   }
 
   /**
