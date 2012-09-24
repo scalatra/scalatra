@@ -24,12 +24,21 @@ trait SwaggerBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   options("/resources.:format") {}
 
   protected def renderDoc(doc: Api): JValue = {
-    doc.toJValue merge ("basePath" -> fullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
+    doc.toJValue merge
+      ("basePath" -> fullUrl("/", includeServletPath = false)) ~
+      ("swaggerVersion" -> swagger.swaggerVersion) ~
+      ("apiVersion" -> swagger.apiVersion)
   }
 
   protected def renderIndex(docs: List[Api]): JValue = {
-    ("basePath" -> fullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion) ~
-      ("apis" -> (swagger.docs.toList map (doc => (("path" -> (doc.resourcePath + ".{format}")) ~ ("description" -> doc.description)))))
+    ("basePath" -> fullUrl("/", includeServletPath = false)) ~
+      ("swaggerVersion" -> swagger.swaggerVersion) ~
+      ("apiVersion" -> swagger.apiVersion) ~
+      ("apis" ->
+        (swagger.docs.toList map {
+          doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + ".{format}")) ~
+                 ("description" -> doc.description))
+        }))
   }
 
   /**

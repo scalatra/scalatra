@@ -23,12 +23,13 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) {
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, path: String, description: String, s: SwaggerSupport) = {
-    _docs = _docs + (name -> Api(path, description, s.endpoints(path), s.models))
+  def register(name: String, path: String, description: String, s: SwaggerSupport, listingPath: Option[String] = None) = {
+    _docs = _docs + (name -> Api(path, listingPath, description, s.endpoints(path), s.models))
   }
 }
 
 case class Api(resourcePath: String,
+               listingPath: Option[String],
                description: String,
                apis: List[Endpoint],
                models: Map[String, Model]) {
@@ -56,7 +57,7 @@ object Api {
     new AllowableValuesSerializer,
     new DataTypeSerializer) ++ JodaTimeSerializers.all
 
-  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats) transform  {
+  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats) transform {
     case JField(_, JNull) | JField(_, JNothing) ⇒ JNothing
   })
 

@@ -25,10 +25,27 @@ trait SwaggerSupport extends Initializable {
   private[this] def registerInSwagger(name: String, servPath: String) = {
     val thePath = {
       val p = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
-      if (p.startsWith("/")) p else "/"+p
+      url(if (p.startsWith("/")) p else "/"+p, includeContextPath = false)
+    }
+    val listingPath = {
+      inferListingPath() map { lp =>
+        val p = if (lp.endsWith("/*")) lp.dropRight(2) else lp
+        val sp = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
+        val ssp = if (sp.startsWith("/")) sp else "/"+sp
+        url(if (p.startsWith("/")) p else "/"+p, includeContextPath = false) + ssp
+      }
     }
 
-    swagger.register(name, thePath, applicationDescription, this)
+    swagger.register(name, thePath, applicationDescription, this, listingPath)
+  }
+
+  private[this] def inferListingPath() = {
+    val registrations = servletContext.getServletRegistrations.values().asScala.toList
+    (registrations find { reg =>
+      val klass = Class.forName(reg.getClassName)
+      classOf[SwaggerBase].isAssignableFrom(klass)
+    } flatMap (_.getMappings.asScala.headOption))
+
   }
 
   /**
