@@ -24,11 +24,11 @@ trait SwaggerBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   options("/resources.:format") {}
 
   protected def renderDoc(doc: Api): JValue = {
-    Api.toJValue(doc) merge ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
+    doc.toJValue merge ("basePath" -> fullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
   }
 
   protected def renderIndex(docs: List[Api]): JValue = {
-    ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion) ~
+    ("basePath" -> fullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion) ~
       ("apis" -> (swagger.docs.toList map (doc => (("path" -> (doc.resourcePath + ".{format}")) ~ ("description" -> doc.description)))))
   }
 
@@ -37,8 +37,4 @@ trait SwaggerBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
    */
   protected implicit def swagger: Swagger
 
-  /**
-   * Builds a full URL based on the given path.
-   */
-  protected def buildFullUrl(path: String): String
 }

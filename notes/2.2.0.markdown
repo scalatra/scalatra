@@ -16,6 +16,13 @@
 * RouteMatchers don't use any by-name params anymore
 * RouteMatcher now takes a requestPath as a param to the apply method
 * You are able to mount the same servlet more than once in the ScalatraBootstrap class
+* Added a new `relativeUrl` method which will compose a path for redirection and keep relative paths relative
+* Refactored the `url` method to allow for a more granular building of the path with regards to the context path and servlet path
+* Added a `fullUrl` method which will use the absolute path created by the `url` method to build a url with protocol, host, port and path + querystring
+* Added a `isHttps` method which also looks in the headers for a X-Forwarded-Proto header
+* Added a `needsHttps` method which looks in the init params for a key `org.scalatra.ForceHttps` for a boolean value (true/false), this is used by the `fullUrl` method to work out the protocol
+* Added a `org.scalatra.HostName` init parameter in which you can override the host name of this scalatra application, if unset the value from `request.getServerName` will be used
+* Added a `org.scalatra.Port` init parameter in which you can override the port of this scalatra application, if unset the value from `request.getServerPort` will be used
 
 ### lift-json
 * removed for json4s support
@@ -71,14 +78,17 @@
 * Added serialization for AllowableValues in `Swagger.scala`.  These are passed as strings in the AllowableValues object:
 
         // as List
-        allowableValues = AllowableValues("LIST[1,2,3]")
+        allowableValues = AllowableValues(1, 2, 3)
         
         // as range
-        allowableValues = AllowableValues("RANGE[0,1000]")
+        allowableValues = AllowableValues(0 to 1000)
 
 * Updated to support the [swagger-1.1 spec](https://github.com/wordnik/swagger-core/wiki/API-Declaration)
 * Allows for using either jackson or native json to generate the service description json
 * Auto-registers servlets and filters that extend the SwaggerSupport trait in the swagger manager.
+* Includes the swagger-core and swagger-annotations jars as transitive dependencies (batteries included)
+* the models property in the `SwaggerSupport` can now be Set as `Map(classOf[Pet])`
+* responseClass can now be set with a type annotation `responseClass[Pet]`
 
 ### Testing
 * Added a method `ensureSessionIsSerializable` method which will try to serialize every session value.

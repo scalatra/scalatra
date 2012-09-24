@@ -33,6 +33,7 @@ case class Api(resourcePath: String,
                apis: List[Endpoint],
                models: Map[String, Model]) {
   def model(name: String) = models.get(name)
+  def toJValue = Api.toJValue(this)
 }
 
 object Api {
@@ -84,9 +85,9 @@ object Api {
       case (TypeInfo(_, _), json) ⇒ null
     }
     def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-      case AllowableValues.Any ⇒ JNothing
-      case x: AllowableListValues  ⇒ ("valueType" -> "LIST") ~ ("values" -> x.values)
-      case x: AllowableRangeValues  ⇒ ("valueType" -> "RANGE") ~ ("min" -> x.min) ~ ("max" -> x.max)
+      case AnyValue ⇒ JNothing
+      case AllowableValuesList(values)  ⇒ ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values)(format))
+      case AllowableRangeValues(range)  ⇒ ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)
     }
   }
 }
@@ -124,32 +125,23 @@ object DataType {
   }
 
   def apply(name: String) = new DataType(name)
+  def apply[T](implicit mf: Manifest[T]) = new DataType(mf.erasure.getSimpleName)
 }
 
 trait AllowableValues
 
 object AllowableValues {
-  case object Any extends AllowableValues
-  case class AllowableListValues(values: List[String]) extends AllowableValues
-  case class AllowableRangeValues(min: Int, max: Int) extends AllowableValues
+  case object AnyValue extends AllowableValues
+  case class AllowableValuesList[T <% JValue](values: List[T]) extends AllowableValues
+  case class AllowableRangeValues(values: Range) extends AllowableValues
 
   def apply(): AllowableValues = empty
-  def apply(v: String): AllowableValues = {
-    val pattern = "([A-Z]*)\\[(.*)\\]".r
-    v match {
-      case pattern(valueType, values) => {
-        valueType match {
-          case "LIST" => AllowableListValues(values.split(",").toList)
-          case "RANGE" => {
-            val r = values.split(",")
-            AllowableRangeValues(r(0).toInt, r(1).toInt)
-          }
-        }
-      }
-      case _ => Any
-    }
+  def apply[T <% JValue](values: T*): AllowableValues = apply(values.toList)
+  def apply[T <% JValue](values: List[T]): AllowableValues = {
+    AllowableValuesList(values)
   }
-  def empty = Any
+  def apply(values: Range): AllowableValues = AllowableRangeValues(values)
+  def empty = AnyValue
 }
 
 case class Parameter(name: String,
@@ -158,7 +150,7 @@ case class Parameter(name: String,
                      notes: Option[String] = None,
                      paramType: ParamType.ParamType = ParamType.Query,
                      defaultValue: Option[String] = None,
-                     allowableValues: AllowableValues = AllowableValues.Any,
+                     allowableValues: AllowableValues = AllowableValues.AnyValue,
                      required: Boolean = true,
                      allowMultiple: Boolean = false)
 
@@ -178,7 +170,7 @@ case class Model(id: String,
                  properties: Map[String, ModelField]) {
 
   def setRequired(property: String, required: Boolean) =
-    copy(properties = properties.updated(property, properties(property).copy(required = required)))
+    copy(properties = (properties + (property -> properties(property).copy(required = required))))
 }
 
 object Model {

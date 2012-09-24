@@ -14,6 +14,10 @@ class UrlSupportTest extends ScalatraFunSuite {
     get("/option") {
       this.url(params("url"), Seq("id" -> params.get("id")), absolutize = false)
     }
+
+    get("/strip-context") {
+      this.url(params("url"), includeContextPath = false)
+    }
   }, "/*")
 
   def url(url: String, params: Map[String, String] = Map.empty) = 

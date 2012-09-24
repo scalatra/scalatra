@@ -214,7 +214,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(json4sExt),
+      libraryDependencies ++= Seq(json4sExt, swagger("core"), swagger("annotations")),
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
@@ -312,6 +312,8 @@ object ScalatraBuild extends Build {
     val jodaConvert = "org.joda" % "joda-convert" % "1.2"
 
     val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2"
+
+    def swagger(name: String) = "com.wordnik" % "swagger-%s_2.9.1".format(name) % "1.1.0"
   }
 
   object Resolvers {

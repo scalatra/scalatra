@@ -486,6 +486,10 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
    */
   def isDevelopmentMode = environment.toLowerCase.startsWith("dev")
 
+  def relativeUrl(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true): String = {
+    url(path, params, includeContextPath, includeServletPath, absolutize = false)
+  }
+
   /**
    * Returns a context-relative, session-aware URL for a path and specified
    * parameters.
@@ -520,7 +524,6 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
       case(key, value) => key.urlEncode + "=" +value.toString.urlEncode
     }
     val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
-//    val finalPath = if (newPath.startsWith("/")) newPath.substring(1) else newPath
     addSessionId(newPath+queryString)
   }
 
