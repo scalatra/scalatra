@@ -4,8 +4,9 @@ package swagger
 import Symbols._
 import collection.JavaConverters._
 import util.RicherString._
-import javax.servlet.{Servlet, Filter, Registration}
+import javax.servlet.{ Servlet, Filter, Registration }
 import com.wordnik.swagger.core.ApiPropertiesReader
+import grizzled.slf4j.Logger
 
 /**
  * Provides the necessary support for adding documentation to your routes.
@@ -13,10 +14,9 @@ import com.wordnik.swagger.core.ApiPropertiesReader
 trait SwaggerSupport extends Initializable {
   self: ScalatraBase =>
 
-
   protected implicit def swagger: Swagger
 
-  protected def applicationName: Option[String]= None
+  protected def applicationName: Option[String] = None
   protected def applicationDescription: String
 
   private[this] def throwAFit =
@@ -25,16 +25,20 @@ trait SwaggerSupport extends Initializable {
   private[this] def registerInSwagger(name: String, servPath: String) = {
     val thePath = {
       val p = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
-      url(if (p.startsWith("/")) p else "/"+p, includeContextPath = false)
+      if (p.startsWith("/")) p else "/" + p
     }
     val listingPath = {
-      inferListingPath() map { lp =>
+      val inferred = inferListingPath()
+      inferred map { lp =>
         val p = if (lp.endsWith("/*")) lp.dropRight(2) else lp
         val sp = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
-        val ssp = if (sp.startsWith("/")) sp else "/"+sp
-        url(if (p.startsWith("/")) p else "/"+p, includeContextPath = false) + ssp
+        val ssp = if (sp.startsWith("/")) sp else "/" + sp
+        val lpp = if (p.startsWith("/")) p else "/" + p 
+        if (lpp == "/") ssp else lpp + ssp
       }
     }
+
+    println("The listing path: %s" format listingPath)
 
     swagger.register(name, thePath, applicationDescription, this, listingPath)
   }
@@ -57,21 +61,25 @@ trait SwaggerSupport extends Initializable {
    */
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    this match {
-      case _: Filter =>
-        val registrations = servletContext.getFilterRegistrations.asScala.values
-        val registration = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
-        registration.getServletNameMappings.asScala foreach { name =>
-          Option(servletContext.getServletRegistration(name)) foreach { reg =>
-            reg.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse reg.getName, _))
+    try {
+      this match {
+        case _: Filter =>
+          val registrations = servletContext.getFilterRegistrations.asScala.values
+          val registration = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
+          registration.getServletNameMappings.asScala foreach { name =>
+            Option(servletContext.getServletRegistration(name)) foreach { reg =>
+              reg.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse reg.getName, _))
+            }
           }
-        }
 
-      case _: Servlet =>
-        val registration = ScalatraBase.getServletRegistration(this) getOrElse throwAFit
-        registration.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse registration.getName, _))
+        case _: Servlet =>
+          val registration = ScalatraBase.getServletRegistration(this) getOrElse throwAFit
+          registration.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse registration.getName, _))
 
-      case _ => throw new RuntimeException("The swagger support only works for servlets or filters at this time.")
+        case _ => throw new RuntimeException("The swagger support only works for servlets or filters at this time.")
+      }
+    } catch {
+      case e: Throwable => e.printStackTrace()
     }
 
   }
@@ -107,8 +115,6 @@ trait SwaggerSupport extends Initializable {
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
     route.copy(metadata = route.metadata + (s -> v))
   }
-  
-
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.

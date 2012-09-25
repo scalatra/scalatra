@@ -6,11 +6,13 @@ import org.json4s._
 import ext.{ JodaTimeSerializers, EnumNameSerializer }
 import org.joda.time._
 import format.ISODateTimeFormat
+import grizzled.slf4j.Logger
 
 /**
  * An instance of this class is used to hold the API documentation.
  */
 class Swagger(val swaggerVersion: String, val apiVersion: String) {
+  private[this] val logger = Logger[this.type]
   private var _docs = Map.empty[String, Api]
 
   def docs = _docs.values
@@ -24,6 +26,8 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) {
    * Registers the documentation for an API with the given path.
    */
   def register(name: String, path: String, description: String, s: SwaggerSupport, listingPath: Option[String] = None) = {
+    logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
+    println("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
     _docs = _docs + (name -> Api(path, listingPath, description, s.endpoints(path), s.models))
   }
 }
