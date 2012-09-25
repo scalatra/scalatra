@@ -5,6 +5,7 @@ import javax.servlet.ServletContext
 import javax.servlet.{ServletContextEvent, ServletContextListener}
 import grizzled.slf4j.Logger
 import util.RicherString._
+import scala.util.control.Exception._
 
 class ScalatraListener extends ServletContextListener {
   import ScalatraListener._
@@ -28,11 +29,11 @@ class ScalatraListener extends ServletContextListener {
   }
 
   protected def probeForCycleClass() = {
-    val cycleClassName =
+    val cycleClassName = 
       Option(servletContext.getAttribute(LifeCycleKey)).flatMap(_.asInstanceOf[String].blankOption) getOrElse DefaultLifeCycle
 
-    val lifeCycleClass: Class[_] = Class.forName(cycleClassName)
-    def oldLifeCycleClass: Class[_] = Class.forName(OldDefaultLifeCycle)
+    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName) } catch { case _ => null }
+    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle) } catch { case _ => null }
     val cycleClass: Class[_] = if (lifeCycleClass != null) lifeCycleClass else oldLifeCycleClass
 
     if (cycleClass != null && !classOf[LifeCycle].isAssignableFrom(cycleClass)) {
@@ -41,7 +42,7 @@ class ScalatraListener extends ServletContextListener {
     }
     if (cycleClass.getName == OldDefaultLifeCycle)
       logger.warn("The Scalatra name for a boot class will be removed eventually. Please use ScalatraBootstrap instead as class name.")
-    (cycleClassName, cycleClass.newInstance.asInstanceOf[LifeCycle])
+    (cycleClass.getSimpleName, cycleClass.newInstance.asInstanceOf[LifeCycle])
   }
 
   protected def configureServletContext(sce: ServletContextEvent) {
