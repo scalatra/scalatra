@@ -92,3 +92,6 @@
 
 ### Testing
 * Added a method `ensureSessionIsSerializable` method which will try to serialize every session value.
+
+### Auth
+* Scentry is now lazily initialized so the order of the traits doesn't matter anymore

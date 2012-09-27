@@ -30,10 +30,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) = {
     withRequest(req) {
-      initializeScentry
-      configureScentry
-      registerStrategiesFromConfig
-      registerAuthStrategies
+
       super.handle(req, res)
     }
   }
@@ -47,7 +44,7 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
     request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession, store)
   }
 
-  private def readStrategiesFromConfig(config: Config) =
+  private def readStrategiesFromConfig(config: ConfigT) =
     _strategiesFromConfig = {
       config.context.getInitParameter("scentry.strategies").blankOption map (s ⇒ (s split ";").toList) getOrElse Nil
   }
@@ -55,6 +52,13 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
   private def registerStrategiesFromConfig = _strategiesFromConfig foreach { strategyClassName ⇒
     val strategy = Class.forName(strategyClassName).newInstance.asInstanceOf[ScentryStrategy[UserType]]
     strategy registerWith scentry
+  }
+
+  private[this] def createScentry() = {
+    initializeScentry
+    configureScentry
+    registerStrategiesFromConfig
+    registerAuthStrategies
   }
 
   protected def configureScentry = {
@@ -69,7 +73,11 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
 
   }
 
-  protected def scentry: Scentry[UserType] = request(Scentry.ScentryRequestKey).asInstanceOf[Scentry[UserType]]
+  protected def scentry: Scentry[UserType] = {
+    if (!request.contains(Scentry.ScentryRequestKey))
+      createScentry()
+    request(Scentry.ScentryRequestKey).asInstanceOf[Scentry[UserType]]
+  }
   protected def scentryOption: Option[Scentry[UserType]] = Option(request(Scentry.ScentryRequestKey)).map(_.asInstanceOf[Scentry[UserType]])
   protected def userOption: Option[UserType] = scentry.userOption
   implicit protected def user: UserType = scentry.user
