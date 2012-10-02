@@ -35,13 +35,15 @@ trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable w
     }
   }
 
+
+
   private def initializeScentry = {
     val store = self match {
       case a: SessionSupport => new ScentryAuthStore.SessionAuthStore(a.session)
       case a: ScalatraBase with CookieSupport => new ScentryAuthStore.CookieAuthStore(a)
       case _ => throw new ScalatraException("Scentry needs either SessionSupport or CookieSupport mixed in.")
     }
-    request(Scentry.ScentryRequestKey) = new Scentry[UserType](self, toSession, fromSession, store)
+    request.setAttribute(Scentry.ScentryRequestKey, new Scentry[UserType](self, toSession, fromSession, store))
   }
 
   private def readStrategiesFromConfig(config: ConfigT) =

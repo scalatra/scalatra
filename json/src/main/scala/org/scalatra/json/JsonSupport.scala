@@ -32,6 +32,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
   }
   protected def transformRequestBody(body: JValue) = body
 
+
   override protected def invoke(matchedRoute: MatchedRoute) = {
     withRouteMultiParams(Some(matchedRoute)) {
       val mt = request.contentType map {

@@ -562,7 +562,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
    * Sends a redirect response and immediately halts the current action.
    */
   override def redirect(uri: String) {
-    val u = fullUrl(uri)
+    val u = fullUrl(uri, includeServletPath = false)
     super.redirect(u)
   }
 

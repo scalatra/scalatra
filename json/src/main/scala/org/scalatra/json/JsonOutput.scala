@@ -33,10 +33,12 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
   protected lazy val xmlRootNode = <resp></resp>
 
+  protected def transformResponseBody(body: JValue) = body
+
   override protected def renderPipeline = ({
     case jv: JValue if responseFormat == "xml" =>
       contentType = formats("xml")
-      writeJsonAsXml(jv, response.writer)
+      writeJsonAsXml(transformResponseBody(jv), response.writer)
 
     case jv: JValue =>
       // JSON is always UTF-8
@@ -56,12 +58,12 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
           status = 200
           writer write some
           writer write '('
-          writeJson(jv, writer)
+          writeJson(transformResponseBody(jv), writer)
           writer write ");"
         case _ =>
           contentType = formats("json")
           if(jsonVulnerabilityGuard) writer.write(VulnerabilityPrelude)
-          writeJson(jv, writer)
+          writeJson(transformResponseBody(jv), writer)
           ()
       }
   }: RenderPipeline) orElse super.renderPipeline
