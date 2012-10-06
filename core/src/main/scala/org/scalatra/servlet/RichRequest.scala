@@ -179,7 +179,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   }
 
   private def cachedBody: Option[String] =
-    get(cachedBodyKey).asInstanceOf[Option[String]]
+    get(cachedBodyKey).flatMap(_.asInstanceOf[String].blankOption)
 
   /**
    * Returns true if the request is an AJAX request
