@@ -4,7 +4,7 @@ import scala.xml._
 import java.net.URL
 import com.github.siasia.WebPlugin.webSettings
 // import posterous.Publish._
-import ls.Plugin.LsKeys
+// import ls.Plugin.LsKeys
 import sbtbuildinfo.Plugin._
 
 object ScalatraBuild extends Build {
@@ -13,18 +13,19 @@ object ScalatraBuild extends Build {
 
   lazy val majorVersion = "3.0"
 
-  lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
+  // lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
+  lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "%s.0-SNAPSHOT" format majorVersion,
-    scalaVersion := "2.9.1",
+    scalaVersion := "2.9.2",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
     crossPaths := false,
-    resolvers ++= Seq(sonatypeNexusSnapshots, akkaRepository),
-    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
-    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
+    resolvers ++= Seq(sonatypeNexusSnapshots, akkaRepository)//,
+    // (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
+    // (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
@@ -32,8 +33,8 @@ object ScalatraBuild extends Build {
     base = file("."),
     settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
-      Unidoc.unidocExclude := Seq("scalatra-example"),
-      LsKeys.skipWrite := true
+      Unidoc.unidocExclude := Seq("scalatra-example")//,
+      // LsKeys.skipWrite := true
     ),
     aggregate = Seq(
       scalatraCore, scalatraAuth, scalatraScalate, scalatraLiftJson,
