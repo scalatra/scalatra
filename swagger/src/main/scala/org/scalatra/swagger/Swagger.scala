@@ -27,7 +27,6 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) {
    */
   def register(name: String, path: String, description: String, s: SwaggerSupport, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    println("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
     _docs = _docs + (name -> Api(path, listingPath, description, s.endpoints(path), s.models))
   }
 }

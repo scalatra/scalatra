@@ -30,7 +30,7 @@ trait SwaggerSupport extends Initializable { self: ScalatraBase =>
       val inferred = inferListingPath()
       inferred map { lp =>
         val p = if (lp.endsWith("/*")) lp.dropRight(2) else lp
-        val sp = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
+        val sp = applicationName getOrElse  (if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath)
         val ssp = if (sp.startsWith("/")) sp else "/" + sp
         val lpp = if (p.startsWith("/")) p else "/" + p 
         if (lpp == "/") ssp else lpp + ssp
