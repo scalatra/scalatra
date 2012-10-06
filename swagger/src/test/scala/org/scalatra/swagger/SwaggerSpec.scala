@@ -10,7 +10,7 @@ import org.json4s.native.JsonParser
 import org.scalatra.json.{JValueResult, NativeJsonSupport}
 import scala.io.Source
 
-class SwaggerSpec extends ScalatraSpec with JsonMatchers with native.JsonMethods { def is =
+class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
   "Swagger integration should"                                  ^
     "list resources"                       ! listResources       ^
     "list operations"                      ! listOperations     ^
@@ -40,7 +40,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers with native.JsonMethods
 
 
   def listResources = get("/resources.json") {
-    parseOpt(body) must beSome(listResourceJValue)
+    JsonParser.parseOpt(body) must beSome(listResourceJValue)
   }
 
   def listOperations = {
