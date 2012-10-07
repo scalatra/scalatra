@@ -9,6 +9,7 @@ import java.io.{InputStreamReader, InputStream, Writer}
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput {
   protected def readJsonFromStream(stream: InputStream): JValue = native.JsonParser.parse(new InputStreamReader(stream))
 
+  protected def readJsonFromBody(bd: String): JValue = native.JsonParser.parse(bd)
 }
 
 trait NativeJsonValueReaderProperty extends JsonValueReaderProperty[Document] { self: native.JsonMethods => }

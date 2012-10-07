@@ -2,6 +2,7 @@ package org.scalatra
 
 import java.util.NoSuchElementException
 import test.scalatest.ScalatraFunSuite
+import io.Codec
 
 object ParamsTestServlet {
   val NoSuchElement = "No Such Element"
@@ -34,6 +35,10 @@ class ParamsTestServlet extends ScalatraServlet {
 
   get("/twoSymbols/:sym1/:sym2") {
     params('sym1)+" and "+ params('sym2)
+  }
+
+  post("/read-body") {
+    "body: " + request.body
   }
 }
 
@@ -80,6 +85,12 @@ class ParamsTest extends ScalatraFunSuite {
   test("can use symbols multiple times ")  {
     get("/twoSymbols/hello/world") {
       body should equal ("hello and world")
+    }
+  }
+
+  test("can read the body of a post") {
+    post("/read-body", "hi".getBytes(Codec.UTF8)) {
+      body should equal ("body: hi")
     }
   }
 }

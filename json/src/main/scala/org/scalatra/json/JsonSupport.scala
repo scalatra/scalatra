@@ -15,17 +15,26 @@ trait JsonSupport[T] extends JsonOutput[T] {
 
   import JsonSupport._
 
+  private[this] val _defaultCacheRequestBody = true
+  protected def cacheRequestBodyAsString: Boolean = _defaultCacheRequestBody
   protected def parseRequestBody(format: String) = try {
     if (format == "json") {
-      transformRequestBody(readJsonFromStream(request.inputStream))
+      val bd  = if (cacheRequestBodyAsString) readJsonFromBody(request.body) else readJsonFromStream(request.inputStream)
+      transformRequestBody(bd)
     } else if (format == "xml") {
-      transformRequestBody(readXmlFromStream(request.inputStream))
+      val bd  = if (cacheRequestBodyAsString) readXmlFromBody(request.body) else readXmlFromStream(request.inputStream)
+      transformRequestBody(bd)
     } else JNothing
   } catch {
     case _: Throwable ⇒ JNothing
   }
 
+  protected def readJsonFromBody(bd: String): JValue
   protected def readJsonFromStream(stream: InputStream): JValue
+  protected def readXmlFromBody(bd: String): JValue = {
+    val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.loadString(bd))
+    jv
+  }
   protected def readXmlFromStream(stream: InputStream): JValue = {
     val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.load(stream))
     jv

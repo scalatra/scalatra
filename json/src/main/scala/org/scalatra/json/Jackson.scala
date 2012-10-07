@@ -7,6 +7,7 @@ import org.json4s._
 trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput {
   protected def readJsonFromStream(stream: InputStream): JValue = mapper.readValue(stream, classOf[JValue])
 
+  protected def readJsonFromBody(bd: String): JValue = mapper.readValue(bd, classOf[JValue])
 }
 
 trait JacksonJsonValueReaderProperty extends JsonValueReaderProperty[JValue] { self: jackson.JsonMethods => }
