@@ -2,6 +2,8 @@ package org.scalatra
 package atmosphere
 
 import org.json4s.{JsonAST, jackson, Formats}
+import org.json4s.jackson.JsonMethods
+import org.json4s.JsonAST.JValue
 
 /**
  * The interface trait for a wire format.
@@ -54,7 +56,7 @@ trait WireFormat {
  *
  * @param formats the [[org.json4s.Formats]] for lift-json
  */
-class SimpleJsonWireFormat(implicit formats: Formats) extends WireFormat with jackson.JsonMethods {
+abstract class SimpleJsonWireFormat(implicit formats: Formats) extends WireFormat  { self: org.json4s.JsonMethods[_] =>
 
   val name = "simpleJson"
   val supportsAck = false
@@ -71,7 +73,9 @@ class SimpleJsonWireFormat(implicit formats: Formats) extends WireFormat with ja
 
   def render(message: OutboundMessage) = message match {
     case TextMessage(text) => text
-    case JsonMessage(json) => compact(render(json))
+    case JsonMessage(json) => renderJson(json)
     case _ => ""
   }
+
+  protected def renderJson(json: JValue): String
 }

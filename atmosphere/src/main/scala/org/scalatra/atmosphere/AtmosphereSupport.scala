@@ -30,6 +30,8 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   private[this] val logger = Logger[this.type]
 
   implicit protected def jsonFormats: Formats
+  private[this] val _defaultWireformat = new JacksonSimpleWireformat
+  implicit protected def wireFormat: WireFormat = _defaultWireformat
 
   implicit def json2JsonMessage(json: JValue): OutboundMessage = JsonMessage(json)
 

@@ -33,10 +33,8 @@ object ScalatraAtmosphereHandler {
     }
   }
 }
-class ScalatraAtmosphereHandler(implicit formats: Formats) extends AbstractReflectorAtmosphereHandler {
+class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
-
-  private val wireFormat: WireFormat = new SimpleJsonWireFormat
 
   def onRequest(resource: AtmosphereResource) {
     val req = resource.getRequest

@@ -7,13 +7,13 @@ import collection.mutable
 import java.util.concurrent.ConcurrentHashMap
 import org.atmosphere.di.InjectorProvider
 import java.util.UUID
-import org.scalatra.atmosphere.ScalatraBroadcaster
+import org.scalatra.atmosphere.{WireFormat, ScalatraBroadcaster}
 import collection.JavaConverters._
 
 object ScalatraBroadcasterFactory {
 
 }
-class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Formats, system: ActorSystem) extends BroadcasterFactory {
+class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Formats, wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   BroadcasterFactory.config = cfg
   if (BroadcasterFactory.factory == null) BroadcasterFactory.factory = this
 
