@@ -263,7 +263,7 @@ object ScalatraBuild extends Build {
 
     val httpMime   = "org.apache.httpcomponents" % "httpmime"   % "4.2"
 
-    val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.9"
+    val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.10"
 
     def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416"
 
@@ -301,7 +301,7 @@ object ScalatraBuild extends Build {
 
     val servletApiTest = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container;test" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
-    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.6"
+    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.1"
 
     val logback = "ch.qos.logback" % "logback-classic" % "1.0.6"
 

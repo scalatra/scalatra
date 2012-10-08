@@ -3,13 +3,10 @@ package atmosphere
 
 import _root_.akka.actor._
 import _root_.akka.dispatch._
-import _root_.akka.util.Deadline
-import _root_.akka.util.duration._
 import collection.JavaConverters._
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
 import org.json4s.Formats
-import scala.util.control.Exception.allCatch
 
 
 final class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit formats: Formats, wireFormat: WireFormat, system: ActorSystem) extends DefaultBroadcaster(id, config) {
