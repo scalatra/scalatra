@@ -88,7 +88,7 @@ trait HttpComponentsClient extends Client {
     withResponse(HttpComponentsClientResponse(client.execute(req))) { f }
   }
 
-  private def createClient = {
+  protected def createClient = {
     val client = new DefaultHttpClient()
     client.getParams.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false)
     client.getParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
