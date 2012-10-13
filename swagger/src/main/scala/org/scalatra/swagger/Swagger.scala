@@ -1,7 +1,7 @@
 package org.scalatra
 package swagger
 
-import java.util.{ Date => JDate }
+import java.util.{Date => JDate, Locale}
 import org.json4s._
 import ext.{ JodaTimeSerializers, EnumNameSerializer }
 import org.joda.time._
@@ -41,11 +41,11 @@ case class Api(resourcePath: String,
 }
 
 object Api {
-  import JsonDSL._
+  import SwaggerSerializers._
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
-  implicit val formats = new DefaultFormats {
+  private[this] implicit val formats = new DefaultFormats {
     override val dateFormat = new DateFormat {
       def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
       def parse(s: String) = try {
@@ -56,15 +56,19 @@ object Api {
     }
   } ++ Seq(
     new EnumNameSerializer(ParamType),
-    new ModelFieldSerializer,
+    new HttpMethodSerializer,
+    new ParameterSerializer,
     new AllowableValuesSerializer,
-    new DataTypeSerializer) ++ JodaTimeSerializers.all
+    new ModelFieldSerializer) ++ JodaTimeSerializers.all
 
-  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats) transform {
-    case JField(_, JNull) | JField(_, JNothing) ⇒ JNothing
-  })
+  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats).noNulls)
 
-  class ModelFieldSerializer extends Serializer[HttpMethod] {
+
+}
+
+private object SwaggerSerializers {
+  import JsonDSL._
+  class HttpMethodSerializer extends Serializer[HttpMethod] {
     def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), HttpMethod] = {
       case (TypeInfo(_, _), json) ⇒ null
     }
@@ -73,14 +77,59 @@ object Api {
     }
   }
 
-  class DataTypeSerializer extends Serializer[DataType.DataType] {
-    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), DataType.DataType] = {
-      case (TypeInfo(_, _), json) ⇒ null
-    }
-    def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-      case x: DataType.DataType ⇒ JString(x.name)
+  private[this] val simpleTypeList: List[String] = List("string", "number", "int", "boolean", "object", "Array", "null", "any")
+  private[this] def listType(key: String, name: String, isUnique: Boolean): JValue = {
+    val default = (key -> "Array") ~ ("uniqueItems" -> isUnique)
+    val arrayType = name.substring(name.indexOf("[") + 1, name.indexOf("]"))
+    if (simpleTypeList.contains(arrayType))
+      default ~ ("items" -> (("type" -> arrayType): JValue))
+    else
+      default ~ ("items" -> (("$ref" -> arrayType): JValue))
+  }
+
+  private[this] def serializeDataType(key: String, dataType: DataType.DataType) = {
+    dataType.name match {
+      case n if n.toUpperCase(Locale.ENGLISH).startsWith("LIST[") => listType(key, n, isUnique = false)
+      case n if n.toUpperCase(Locale.ENGLISH).startsWith("SET[") => listType(key, n, isUnique = true)
+      case n => (key -> n): JValue
     }
   }
+
+
+  class ParameterSerializer extends Serializer[Parameter] {
+
+    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, _root_.org.json4s.JValue), Parameter] = {
+      case _ => null
+    }
+
+    def serialize(implicit format: Formats): PartialFunction[Any, _root_.org.json4s.JValue] = {
+      case x: Parameter =>
+        ("name" -> x.name) ~
+        ("description" -> x.description) ~
+        ("notes" -> x.notes) ~
+        ("defaultValue" -> x.defaultValue) ~
+        ("allowableValues" -> Extraction.decompose(x.allowableValues)) ~
+        ("required" -> x.required) ~
+        ("allowMultiple" -> x.allowMultiple) merge serializeDataType("dataType", x.dataType)
+    }
+  }
+
+  class ModelFieldSerializer extends Serializer[ModelField] {
+    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), ModelField] = {
+      case (TypeInfo(_, _), json) => null
+    }
+
+    def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
+      case x: ModelField => {
+          val c = ("description" -> x.description) ~
+          ("defaultValue" -> x.defaultValue) ~
+          ("enum" -> x.enum) ~
+          ("required" -> x.required)
+        c merge serializeDataType("type", x.`type`)
+      }
+    }
+  }
+
 
   class AllowableValuesSerializer extends Serializer[AllowableValues] {
     import AllowableValues._
@@ -90,7 +139,7 @@ object Api {
     }
     def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
       case AnyValue ⇒ JNothing
-      case AllowableValuesList(values)  ⇒ ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values)(format))
+      case AllowableValuesList(values)  ⇒ ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values))
       case AllowableRangeValues(range)  ⇒ ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)
     }
   }
