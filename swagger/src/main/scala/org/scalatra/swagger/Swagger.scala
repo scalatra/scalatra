@@ -110,6 +110,7 @@ private object SwaggerSerializers {
         ("defaultValue" -> x.defaultValue) ~
         ("allowableValues" -> Extraction.decompose(x.allowableValues)) ~
         ("required" -> x.required) ~
+        ("paramType" -> x.paramType.toString) ~
         ("allowMultiple" -> x.allowMultiple) merge serializeDataType("dataType", x.dataType)
     }
   }
