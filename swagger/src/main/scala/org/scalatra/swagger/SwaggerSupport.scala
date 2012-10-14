@@ -11,7 +11,7 @@ import grizzled.slf4j.Logger
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
-trait SwaggerSupport extends Initializable { self: ScalatraBase =>
+trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase =>
 
   protected implicit def swagger: Swagger
 
