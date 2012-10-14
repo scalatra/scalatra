@@ -242,7 +242,7 @@ case class Operation(httpMethod: HttpMethod,
 
 case class Endpoint(path: String,
                     description: String,
-                    secured: Boolean = true,
+                    secured: Boolean = false,
                     operations: List[Operation] = Nil)
 
 case class Error(code: Int,
