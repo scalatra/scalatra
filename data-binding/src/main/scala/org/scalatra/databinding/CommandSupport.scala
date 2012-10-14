@@ -38,6 +38,22 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
     }
   }
 
+  /**
+   * Create and bind a [[org.scalatra.databinding.Command]] of the given type with the current Scalatra params.
+   *
+   * For every command type, creation and binding is performed only once and then stored into
+   * a request attribute.
+   */
+  def commandOrElse[T <: CommandType](factory: ⇒ T)(implicit mf: Manifest[T]): T = {
+    commandOption[T] getOrElse {
+      val newCommand = factory
+      newCommand.bindTo(params, multiParams, request.headers)
+      requestProxy.update(commandRequestKey[T], newCommand)
+      newCommand
+    }
+  }
+
+
   def commandOption[T <: CommandType : Manifest] : Option[T] = requestProxy.get(commandRequestKey[T]).map(_.asInstanceOf[T])
 
   private[databinding] def requestProxy: mutable.Map[String, Any] = request

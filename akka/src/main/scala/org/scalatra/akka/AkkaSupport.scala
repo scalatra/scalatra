@@ -2,6 +2,7 @@ package org.scalatra
 package akka
 
 import _root_.akka.util.duration._
+import _root_.akka.util.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.servlet.{ AsyncContext, AsyncEvent, AsyncListener }
 import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
@@ -19,7 +20,8 @@ trait AkkaSupport extends AsyncSupport {
 
   // Still thinking of the best way to specify this before making it public. 
   // In the meantime, this gives us enough control for our test.
-  private[scalatra] def asyncTimeout = 30 seconds
+  // IPC: it may not be perfect but I need to be able to configure this timeout in an application
+  protected def asyncTimeout: Duration = 30 seconds
 
 
   override protected def isAsyncExecutable(result: Any) = result match {

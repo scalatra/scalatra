@@ -175,8 +175,7 @@ trait ScalateSupport extends ScalatraKernel {
    * - `/WEB-INF/views` (recommended)
    * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
    */
-  protected def defaultLayoutPath: List[String] =
-    List("/WEB-INF/views", "/WEB-INF/scalate/templates")
+  protected def defaultLayoutPath: Option[String] = None
 
   /**
    * Convenience method for `layoutTemplateAs("jade")`.
@@ -213,7 +212,7 @@ trait ScalateSupport extends ScalatraKernel {
    */
   protected def layoutTemplateAs(ext: Set[String])(path: String, attributes: (String, Any)*): String = {
     val uri = findTemplate(path, ext).getOrElse(path)
-    templateEngine.layout(uri, Map(attributes:_*))
+    templateEngine.layout(uri, defaultLayoutPath map (p => Map("layout" -> p) ++ Map(attributes:_*)) getOrElse Map(attributes:_*))
   }
 
   /**
