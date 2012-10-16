@@ -123,11 +123,11 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
       val fieldBinding = Binding(b.field, cv, b.typeConverterFactory)(mi, zi, b.valueManifest, b.valueZero)
 
       val res = this match {
-        case d: ForceFromParams if d.namesToForce.contains(name) =>
+        case d: ForceFromParams if d.forceFromParams.contains(name) =>
           val pv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(params).asInstanceOf[TypeConverter[Seq[String], b.T]]
           val paramsBinding = Binding(b.field, pv, b.typeConverterFactory)(manifest[Seq[String]], implicitly[Zero[Seq[String]]], b.valueManifest, b.valueZero)
           paramsBinding(params.read(name).right.map(_ map (_.asInstanceOf[paramsBinding.S])))
-        case d: ForceFromHeaders if d.namesToForce.contains(name) =>
+        case d: ForceFromHeaders if d.forceFromHeaders.contains(name) =>
           val tc: TypeConverter[String, _] = tcf.resolveStringParams
           val headersBinding = Binding(b.field, tc.asInstanceOf[TypeConverter[String, b.T]], tcf)(manifest[String], implicitly[Zero[String]], b.valueManifest, b.valueZero)
           headersBinding(Right(headers.get(name).map(_.asInstanceOf[headersBinding.S])))
@@ -162,11 +162,11 @@ trait ParamsOnlyCommand extends TypeConverterFactories with Command {
 
 trait ForceFromParams { self: Command =>
 
-  def namesToForce: Set[String]
+  def forceFromParams: Set[String]
 }
 
 trait ForceFromHeaders { self: Command =>
 
-  def namesToForce: Set[String]
+  def forceFromHeaders: Set[String]
 }
 
