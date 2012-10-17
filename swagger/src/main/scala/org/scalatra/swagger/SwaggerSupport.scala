@@ -17,6 +17,7 @@ trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase
 
   protected def applicationName: Option[String] = None
   protected def applicationDescription: String
+  protected def swaggerDefaultErrors: List[Error] = Nil
 
   private[this] def throwAFit =
     throw new IllegalStateException("I can't work out which servlet registration this is.")
@@ -152,7 +153,7 @@ trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase
       notes = notes,
       nickname = nick,
       parameters = theParams,
-      errorResponses = errors))
+      errorResponses = errors ::: swaggerDefaultErrors))
   }
 
   implicit def dataType2string(dt: DataType.DataType) = dt.name
