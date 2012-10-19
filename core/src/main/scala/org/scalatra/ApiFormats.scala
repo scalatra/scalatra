@@ -64,6 +64,7 @@ trait ApiFormats extends ScalatraBase {
     "application/x-ecmascript" -> "json",
     "text/stylesheet" -> "css",
     "text/html" -> "html",
+    "text/plain" -> "txt",
     "application/xhtml+xml" -> "html").asJava).asScala
 
   /**
