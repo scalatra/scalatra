@@ -5,7 +5,7 @@ Scalatra is an open source project and it would be nice to attract many develope
 If you have a problem but do not have the time or will to dive into the source code, please report it anyway
 on [the github issue tracker](https://github.com/scalatra/scalatra/issues), this will allow other developers to keep an eye on it.
 
-If you can create a test case then your issue is more likely to be resolved quicker, and your test can be added to our
+If you can create a test case then your issue is likely to be resolved more quickly, and your test can be added to our
 suite so it is not recreated later.
 
 When reporting an issue please try to give us all the info you have: scalatra version, operating system, scala version, sbt version,
@@ -22,11 +22,11 @@ There is no change too little to be merged in.
 
 ### Working with Github
 
-  1. If you are not a github user, check [their page help page](http://help.github.com/) on how to get started, register and go  to step 2
+  1. If you are not a github user, check out [their help page](http://help.github.com/) on how to get started, register and go  to step 2
   2. fork us as decribed [here](http://help.github.com/forking/) 
   3. hack hack hack
   4. push to your own forked repository
-  5. send a "pull request"
+  5. send a [pull request](https://help.github.com/articles/using-pull-requests)
 
 ### Become a committer
 Do some good contributions and we'll give you a shiny commit bit!
@@ -35,10 +35,10 @@ Do some good contributions and we'll give you a shiny commit bit!
 Good documentation is core to a succesfull and healthy ecosystem, the more we can have, the merrier. 
 
 ### Scaladoc
-Scaladoc lives inside the scala spource code, if you want to contribute scaladoc patches, do the same thing described above:
+Scaladoc lives inside the scala source code, if you want to contribute scaladoc patches, do the same thing described above:
 fork [the github project](https://github.com/scalatra/scalatra/) and write the documentation, then do a pull request. 
 
-The scaladoc syntax is a mix of javadoc and wiki-like and is described at http://lampsvn.epfl.ch/trac/scala/wiki/Scaladoc/AuthorDocs
+The [scaladoc syntax](http://lampsvn.epfl.ch/trac/scala/wiki/Scaladoc/AuthorDocs) is a mix of javadoc and wiki.
 Rules for good code documentation are the same as in any other language/framework: why is better than what, compare
 
     /**
