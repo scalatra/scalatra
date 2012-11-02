@@ -7,9 +7,6 @@ package object scalatra
 
   type RouteTransformer = (Route => Route)
 
-  @deprecated("Use CsrfTokenSupport", "2.0.0")
-  type CSRFTokenSupport = CsrfTokenSupport
-  
   type MultiParams = MultiMap
 
   type Action = () => Any

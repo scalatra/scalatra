@@ -8,11 +8,20 @@ import javax.servlet.{ Servlet, Filter, Registration }
 import com.wordnik.swagger.core.ApiPropertiesReader
 import grizzled.slf4j.Logger
 
-/**
- * Provides the necessary support for adding documentation to your routes.
- */
-trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase =>
+trait SwaggerSupportBase {
+  /**
+   * Builds the documentation for all the endpoints discovered in an API.
+   */
+  def endpoints(basePath: String): List[SwaggerEndpoint[_]]
 
+  /**
+   * Returns a list of operations based on the given route. The default implementation returns a list with only 1
+   * operation.
+   */
+  protected def operations(route: Route, method: HttpMethod): List[SwaggerOperation]
+}
+
+trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
   protected implicit def swagger: Swagger
 
   protected def applicationName: Option[String] = None
@@ -97,10 +106,10 @@ trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase
   protected def models_=(m: Map[String, Model]) = _models = m
   def models = _models
 
-  private var _description: PartialFunction[String, String] = Map.empty
+  private[swagger] var _description: PartialFunction[String, String] = Map.empty
   protected def description(f: PartialFunction[String, String]) = _description = _description orElse f
 
-  private var _secured: PartialFunction[String, Boolean] = Map.empty
+  private[swagger] var _secured: PartialFunction[String, Boolean] = Map.empty
   protected def secured(f: PartialFunction[String, Boolean]) = _secured = _secured orElse f
 
   protected def summary(value: String) = swaggerMeta(Summary, value)
@@ -111,15 +120,26 @@ trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
   protected def parameters(value: Parameter*) = swaggerMeta(Parameters, value.toList)
   protected def errors(value: Error*) = swaggerMeta(Errors, value.toList)
+  
 
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
     route.copy(metadata = route.metadata + (s -> v))
   }
+  
+  implicit def dataType2string(dt: DataType.DataType) = dt.name
+}
+
+/**
+ * Provides the necessary support for adding documentation to your routes.
+ */
+trait SwaggerSupport extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase =>
+
+  
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
-  def endpoints(basePath: String) = {
+  def endpoints(basePath: String): List[Endpoint] = {
     case class Entry(key: String, value: List[Operation])
     val ops = (for {
       (method, routes) ← routes.methodRoutes
@@ -127,12 +147,13 @@ trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase
     } yield {
       val endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
       Entry(endpoint, operations(route, method))
-    }) filter (l ⇒ l.value.nonEmpty && l.value(0).nickname.isDefined) groupBy (_.key)
+    }) filter (l ⇒ l.value.nonEmpty && l.value.head.nickname.isDefined) groupBy (_.key)
+    
     (List.empty[Endpoint] /: ops) { (r, op) ⇒
       val name = op._1
       val sec = _secured.lift apply name getOrElse true
       val desc = _description.lift apply name getOrElse ""
-      new Endpoint("%s/%s" format (basePath, name), desc, sec, op._2.toList flatMap (_.value)) :: r
+      new Endpoint("%s/%s" format (basePath, name), desc, sec, (op._2.toList flatMap (_.value)) ) :: r
     } sortWith { (a, b) ⇒ a.path < b.path }
   }
 
@@ -156,6 +177,5 @@ trait SwaggerSupport extends Initializable with CorsSupport { self: ScalatraBase
       errorResponses = errors ::: swaggerDefaultErrors))
   }
 
-  implicit def dataType2string(dt: DataType.DataType) = dt.name
 
 }

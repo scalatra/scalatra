@@ -8,35 +8,57 @@ import org.joda.time._
 import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
 
-/**
- * An instance of this class is used to hold the API documentation.
- */
-class Swagger(val swaggerVersion: String, val apiVersion: String) {
-  private[this] val logger = Logger[this.type]
-  private var _docs = Map.empty[String, Api]
+trait SwaggerEngine[T <: SwaggerApi[_]] {
+  def swaggerVersion: String 
+  def apiVersion: String
+  
+  
+  private[swagger] var _docs = Map.empty[String, T]
 
   def docs = _docs.values
 
   /**
    * Returns the documentation for the given path.
    */
-  def doc(path: String): Option[Api] = _docs.get(path)
+  def doc(path: String): Option[T] = _docs.get(path)
 
+    /**
+   * Registers the documentation for an API with the given path.
+   */
+  def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None)
+
+}
+
+/**
+ * An instance of this class is used to hold the API documentation.
+ */
+class Swagger(val swaggerVersion: String, val apiVersion: String) extends SwaggerEngine[Api] {
+  private[this] val logger = Logger[this.type]
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, path: String, description: String, s: SwaggerSupport, listingPath: Option[String] = None) = {
+  def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    _docs = _docs + (name -> Api(path, listingPath, description, s.endpoints(path), s.models))
+    _docs = _docs + (name -> Api(path, listingPath, description, s.endpoints(path) collect { case m: Endpoint => m }, s.models))
   }
+  
+}
+
+trait SwaggerApi[T <: SwaggerEndpoint[_]] {
+  def resourcePath: String
+  def listingPath: Option[String]
+  def description: String
+  def apis: List[T]
+  def models: Map[String, Model]
+  
+  def model(name: String) = models.get(name)
 }
 
 case class Api(resourcePath: String,
                listingPath: Option[String],
                description: String,
                apis: List[Endpoint],
-               models: Map[String, Model]) {
-  def model(name: String) = models.get(name)
+               models: Map[String, Model]) extends SwaggerApi[Endpoint] {
   def toJValue = Api.toJValue(this)
 }
 
@@ -66,7 +88,7 @@ object Api {
 
 }
 
-private object SwaggerSerializers {
+private[swagger] object SwaggerSerializers {
   import JsonDSL._
   class HttpMethodSerializer extends Serializer[HttpMethod] {
     def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), HttpMethod] = {
@@ -230,7 +252,16 @@ case class Model(id: String,
 object Model {
   implicit def model2tuple(m: Model) = (m.id, m)
 }
-
+trait SwaggerOperation {
+  def httpMethod: HttpMethod
+  def responseClass: String
+  def summary: String
+  def notes: Option[String]
+  def deprecated: Boolean
+  def nickname: Option[String]
+  def parameters: List[Parameter]
+  def errorResponses: List[Error]
+}
 case class Operation(httpMethod: HttpMethod,
                      responseClass: String,
                      summary: String,
@@ -238,12 +269,17 @@ case class Operation(httpMethod: HttpMethod,
                      deprecated: Boolean = false,
                      nickname: Option[String] = None,
                      parameters: List[Parameter] = Nil,
-                     errorResponses: List[Error] = Nil)
-
+                     errorResponses: List[Error] = Nil) extends SwaggerOperation
+trait SwaggerEndpoint[T <: SwaggerOperation] {
+  def path: String
+  def description: String
+  def secured: Boolean
+  def operations: List[T]
+}
 case class Endpoint(path: String,
                     description: String,
                     secured: Boolean = false,
-                    operations: List[Operation] = Nil)
+                    operations: List[Operation] = Nil) extends SwaggerEndpoint[Operation]
 
 case class Error(code: Int,
                  reason: String)

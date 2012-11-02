@@ -23,7 +23,7 @@ object ScalatraBuild extends Build {
     resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
-  ) ++ jettyOrbitHack ++ mavenCentralFrouFrou
+  ) ++ mavenCentralFrouFrou //++ jettyOrbitHack
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
-      scalatraCommon)
+      scalatraCommon, scalatraSwaggerExt)
   )
 
   lazy val scalatraCommon = Project(
@@ -218,6 +218,14 @@ object ScalatraBuild extends Build {
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
+
+  lazy val scalatraSwaggerExt = Project(
+    id = "scalatra-swagger-ext",
+    base = file("swagger-ext"),
+    settings = scalatraSettings ++ Seq(
+      description := "Deeper Swagger integration for scalatra"
+    )
+  ) dependsOn(scalatraSwagger % "compile;test->test;provided->provided", scalatraDatabinding % "compile;test->test;provided->provided", scalatraAuth % "compile;test->test")
 
   lazy val scalatraSlf4j = Project(
     id = "scalatra-slf4j",
@@ -414,8 +422,8 @@ object ScalatraBuild extends Build {
   // but does not put the exclusions in the pom.  For that, every
   // module that depends on this atrocity needs an explicit exclude
   // statement.
-  lazy val jettyOrbitHack = Seq(
-    classpathTypes ~= (_ + "orbit")
-  )
+  // lazy val jettyOrbitHack = Seq(
+  //   classpathTypes ~= (_ + "orbit")
+  // )
 
 }
