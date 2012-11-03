@@ -1,4 +1,5 @@
-package org.scalatra.databinding
+package org.scalatra
+package databinding
 
 import org.json4s._
 import org.scalatra.json.{NativeJsonSupport, NativeJsonValueReaderProperty, JsonValueReader, JsonImplicitConversions}
@@ -56,7 +57,7 @@ trait JsonCommand extends Command with JsonTypeConverterFactories {
 }
 
 trait JsonZeroes {
-  implicit val liftJsonZero: Zero[JValue] = zero(JNothing)
+  implicit val liftJsonZero: DefaultValue[JValue] = default(JNothing)
 }
 object JsonZeroes extends JsonZeroes
 trait NativeJsonParsing extends CommandSupport with NativeJsonValueReaderProperty { self: NativeJsonSupport with CommandSupport =>

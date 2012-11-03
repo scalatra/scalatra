@@ -8,7 +8,7 @@ import scalaz._
 import Scalaz._
 import org.joda.time.DateTime
 import java.util.concurrent.atomic.AtomicReference
-import DefaultZeroes._
+import org.scalatra.databinding.DefaultValues._
 import scala.util.matching.Regex
 
 class BindingException(message: String) extends ScalatraException(message)
@@ -16,26 +16,26 @@ class BindingException(message: String) extends ScalatraException(message)
 
 object Binding {
 
-  def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): Binding = {
+  def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: DefaultValue[I], mt: Manifest[A], za: DefaultValue[A]): Binding = {
     new DefaultBinding(FieldDescriptor[A](fieldName), tcf)(mf, z, mt, za, cv)
   }
 
 
-  def apply[I, A](prev: FieldDescriptor[A], cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: Zero[I], mt: Manifest[A], za: Zero[A]): Binding = {
+  def apply[I, A](prev: FieldDescriptor[A], cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], z: DefaultValue[I], mt: Manifest[A], za: DefaultValue[A]): Binding = {
     new DefaultBinding(prev, tcf)(mf, z, mt, za, cv)
   }
 
-  def apply[A](initial: String)(implicit ma: Manifest[A], za: Zero[A], tcFactory: TypeConverterFactory[A]): Binding = apply(FieldDescriptor[A](initial))
-  def apply[A](initial: FieldDescriptor[A])(implicit ma: Manifest[A], za: Zero[A], tcFactory: TypeConverterFactory[A]): Binding = {
+  def apply[A](initial: String)(implicit ma: Manifest[A], za: DefaultValue[A], tcFactory: TypeConverterFactory[A]): Binding = apply(FieldDescriptor[A](initial))
+  def apply[A](initial: FieldDescriptor[A])(implicit ma: Manifest[A], za: DefaultValue[A], tcFactory: TypeConverterFactory[A]): Binding = {
     new PartialBinding(initial)
   }
 
   private class PartialBinding[A](val field: FieldDescriptor[A])(implicit val valueManifest: Manifest[A],
-                        val valueZero: Zero[A], val typeConverterFactory: TypeConverterFactory[A]) extends Binding {
+                        val valueZero: DefaultValue[A], val typeConverterFactory: TypeConverterFactory[A]) extends Binding {
     type T = A
     type S = Null
     implicit def sourceManifest: Manifest[S] = null
-    implicit def sourceZero: Zero[S] = null
+    implicit def sourceZero: DefaultValue[S] = null
     implicit def typeConverter: (S) => Option[T] = null
     def apply(toBind: Either[String, Option[S]]): Binding = null
 
@@ -52,9 +52,9 @@ object Binding {
                   (val field: FieldDescriptor[A], val typeConverterFactory: TypeConverterFactory[_])(
                       implicit
                       val sourceManifest: Manifest[I],
-                      val sourceZero: Zero[I],
+                      val sourceZero: DefaultValue[I],
                       val valueManifest: Manifest[A],
-                      val valueZero: Zero[A],
+                      val valueZero: DefaultValue[A],
                       val typeConverter: TypeConverter[I, A]) extends Binding {
     type T = A
     type S = I
@@ -101,14 +101,14 @@ sealed trait Binding {
 
 
   implicit def valueManifest: Manifest[T]
-  implicit def valueZero: Zero[T]
+  implicit def valueZero: DefaultValue[T]
 
   def typeConverterFactory: TypeConverterFactory[_]
 
   type S
 
   implicit def sourceManifest: Manifest[S]
-  implicit def sourceZero: Zero[S]
+  implicit def sourceZero: DefaultValue[S]
 
   def validateWith(validators: BindingValidator[T]*): Binding
   def transform(transformer: T => T): Binding
@@ -134,7 +134,7 @@ trait BindingSyntax extends BindingValidatorImplicits {
 
 
 
-  implicit def asType[T:Zero](name: String): FieldDescriptor[T] = FieldDescriptor[T](name)
+  implicit def asType[T:DefaultValue:Manifest](name: String): FieldDescriptor[T] = FieldDescriptor[T](name)
 
   def asBoolean(name: String): FieldDescriptor[Boolean] = FieldDescriptor[Boolean](name)
   def asByte(name: String): FieldDescriptor[Byte] = FieldDescriptor[Byte](name)
@@ -147,7 +147,7 @@ trait BindingSyntax extends BindingValidatorImplicits {
   def asString(name: String): FieldDescriptor[String] = FieldDescriptor[String](name)
   def asDate(name: String): FieldDescriptor[Date] = FieldDescriptor[Date](name)
   def asDateTime(name: String): FieldDescriptor[DateTime] = FieldDescriptor[DateTime](name)
-  def asSeq[T](name: String): FieldDescriptor[Seq[T]] = FieldDescriptor[Seq[T]](name)
+  def asSeq[T:Manifest](name: String): FieldDescriptor[Seq[T]] = FieldDescriptor[Seq[T]](name)
 
 
 }

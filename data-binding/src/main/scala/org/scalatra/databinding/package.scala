@@ -17,13 +17,13 @@ package object databinding {
 
   type BindingAction = () => Any
 
-  trait DefaultZeroes {
-    implicit val minDateZero: Zero[Date] = zero(new Date(0))
-    implicit val minDateTimeZero: Zero[DateTime] = zero(new DateTime(0))
-    implicit val bigDecimalZero: Zero[BigDecimal] = zero(BigDecimal(0))
+  trait DefaultValues {
+    implicit val minDateDefault: org.scalatra.DefaultValue[Date] = default(new Date(0))
+    implicit val minDateTimeDefault: org.scalatra.DefaultValue[DateTime] = default(new DateTime(0))
+    implicit val bigDecimalDefault: org.scalatra.DefaultValue[BigDecimal] = default(BigDecimal(0))
   }
 
-  object DefaultZeroes extends DefaultZeroes
+  object DefaultValues extends org.scalatra.databinding.DefaultValues
 
 }
 

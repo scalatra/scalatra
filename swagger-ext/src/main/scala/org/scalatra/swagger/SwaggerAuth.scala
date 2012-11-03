@@ -117,7 +117,7 @@ case class AuthOperation[UserType <: AnyRef](httpMethod: HttpMethod,
 												                     nickname: Option[String] = None,
 												                     parameters: List[Parameter] = Nil,
 												                     errorResponses: List[Error] = Nil,
-												                     allows: Option[UserType] => Boolean) extends SwaggerOperation
+												                     allows: Option[UserType] => Boolean = (_: Option[UserType]) => true) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
   protected def allows(value: Option[UserType] => Boolean) = swaggerMeta(Symbols.Allows, value)

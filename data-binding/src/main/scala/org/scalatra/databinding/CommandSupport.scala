@@ -16,7 +16,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
 
   type CommandType <: Command
 
-  import DefaultZeroes._
+  import org.scalatra.databinding.DefaultValues._
 
 //  /**
 //   * Implicitly convert a [[org.scalatra.command.Field]] value to an [[scala.Option]]
