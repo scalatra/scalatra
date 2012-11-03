@@ -90,6 +90,10 @@
 * the models property in the `SwaggerSupport` can now be Set as `Map(classOf[Pet])`
 * responseClass can now be set with a type annotation `responseClass[Pet]`
 
+### Swagger-Ext
+
+* Adds support for authorization to Swagger.  Shows only actions a user is allowed to see.
+
 ### Testing
 * Added a method `ensureSessionIsSerializable` method which will try to serialize every session value.
 
