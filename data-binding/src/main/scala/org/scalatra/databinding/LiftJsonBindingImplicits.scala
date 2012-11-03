@@ -56,13 +56,13 @@ trait JsonCommand extends Command with JsonTypeConverterFactories {
 
 }
 
-trait JsonZeroes {
-  implicit val liftJsonZero: DefaultValue[JValue] = default(JNothing)
-}
-object JsonZeroes extends JsonZeroes
+//trait JsonZeroes {
+//  implicit val liftJsonZero: DefaultValue[JValue] = default(JNothing)
+//}
+//object JsonZeroes extends JsonZeroes
 trait NativeJsonParsing extends CommandSupport with NativeJsonValueReaderProperty { self: NativeJsonSupport with CommandSupport =>
   type CommandType = JsonCommand
-  import JsonZeroes._
+//  import JsonZeroes._
 
   /**
    * Create and bind a [[org.scalatra.databinding.Command]] of the given type with the current Scalatra params.

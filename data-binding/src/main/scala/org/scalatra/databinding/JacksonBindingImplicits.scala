@@ -5,7 +5,7 @@ import json.{JacksonJsonValueReaderProperty, JacksonJsonSupport}
 
 trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderProperty { self: JacksonJsonSupport with CommandSupport =>
   type CommandType = JsonCommand
-  import JsonZeroes._
+//  import JsonZeroes._
 
   /**
    * Create and bind a [[org.scalatra.command.Command]] of the given type with the current Scalatra params.

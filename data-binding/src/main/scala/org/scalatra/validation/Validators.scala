@@ -34,7 +34,7 @@ object Validators {
   def notNull(fieldName: String, message: String = "%s must be present."): Validator[AnyRef] =
     new PredicateValidator[AnyRef](fieldName, s => s != null, message)
 
-  def nonEmptyCollection[TResult <: Seq[_]](fieldName: String, message: String = "%s must not be empty."): Validator[TResult] =
+  def nonEmptyCollection[TResult <: Traversable[_]](fieldName: String, message: String = "%s must not be empty."): Validator[TResult] =
     new PredicateValidator[TResult](fieldName, _.nonEmpty, message)
 
   def validEmail(fieldName: String, message: String = "%s must be a valid email."): Validator[String] =

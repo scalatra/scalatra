@@ -12,7 +12,7 @@ object Validation {
   def notNull(fieldName: String, value: ⇒ AnyRef): FieldValidation[AnyRef] =
     Validators.notNull(fieldName).validate(value)
 
-  def nonEmptyCollection[TResult <: Seq[_]](fieldName: String, value: ⇒ TResult): FieldValidation[TResult] =
+  def nonEmptyCollection[TResult <: Traversable[_]](fieldName: String, value: ⇒ TResult): FieldValidation[TResult] =
     Validators.nonEmptyCollection(fieldName).validate(value)
 
   def validEmail(fieldName: String, value: ⇒ String): FieldValidation[String] =
