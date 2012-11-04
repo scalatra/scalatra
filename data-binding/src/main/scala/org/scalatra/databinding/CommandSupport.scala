@@ -7,7 +7,8 @@ import Scalaz._
 import collection.mutable
 import java.util.Date
 import org.joda.time.DateTime
-
+import collection.JavaConverters._
+import java.util.concurrent.ConcurrentHashMap
 
 /**
 * Support for [[org.scalatra.databinding.Command]] binding and validation.
@@ -15,6 +16,12 @@ import org.joda.time.DateTime
 trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
 
   type CommandType <: Command
+  
+  private[this] val commandFactories: mutable.ConcurrentMap[Class[_], () => Command] = new ConcurrentHashMap[Class[_], () => Command].asScala
+  
+  def registerCommand[T <: Command](cmd: => T)(implicit mf: Manifest[T]) {
+    commandFactories += (mf.erasure -> (() => cmd))
+  }
 
 //  import org.scalatra.databinding.DefaultValues._
 
@@ -30,7 +37,8 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
    * a request attribute.
    */
   def command[T <: CommandType](implicit mf: Manifest[T]): T = {
-    commandOption[T] getOrElse bindCommand(mf.erasure.newInstance.asInstanceOf[T])
+    def createCommand = commandFactories.get(mf.erasure).map(_()).getOrElse(mf.erasure.newInstance()).asInstanceOf[T]
+    commandOption[T] getOrElse bindCommand(createCommand)
   }
 
   /**

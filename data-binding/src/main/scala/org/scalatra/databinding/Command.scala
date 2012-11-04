@@ -56,6 +56,10 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
 
   private[this] var _errors: Seq[Binding] = Nil
 
+  var commandName = getClass.getSimpleName
+
+  var commandDescription = ""
+
   /**
    * Check whether this command is valid.
    */

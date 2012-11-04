@@ -275,12 +275,12 @@ trait AllowableValues
 
 object AllowableValues {
   case object AnyValue extends AllowableValues
-  case class AllowableValuesList[T <% JValue](values: List[T]) extends AllowableValues
+  case class AllowableValuesList[T](values: List[T]) extends AllowableValues
   case class AllowableRangeValues(values: Range) extends AllowableValues
 
   def apply(): AllowableValues = empty
-  def apply[T <% JValue](values: T*): AllowableValues = apply(values.toList)
-  def apply[T <% JValue](values: List[T]): AllowableValues = {
+  def apply[T](values: T*): AllowableValues = apply(values.toList)
+  def apply[T](values: List[T]): AllowableValues = {
     AllowableValuesList(values)
   }
   def apply(values: Range): AllowableValues = AllowableRangeValues(values)

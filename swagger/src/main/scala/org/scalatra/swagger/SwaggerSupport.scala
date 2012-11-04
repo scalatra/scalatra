@@ -102,8 +102,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
     Model(name, name, fields.toMap)
   }
 
-  private var _models: Map[String, Model] = Map.empty
-  protected def models_=(m: Map[String, Model]) = _models = m
+  private[swagger] var _models: Map[String, Model] = Map.empty
+  protected def models_=(m: Map[String, Model]) = _models ++= m
   def models = _models
 
   private[swagger] var _description: PartialFunction[String, String] = Map.empty
@@ -115,7 +115,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def summary(value: String) = swaggerMeta(Summary, value)
   protected def notes(value: String) = swaggerMeta(Notes, value)
   protected def responseClass(value: String) = swaggerMeta(ResponseClass, value)
-  protected def responseClass[T](implicit mf: Manifest[T]) = swaggerMeta(ResponseClass, mf.erasure.getSimpleName)
+  protected def responseClass[T](implicit mf: Manifest[T]) = swaggerMeta(ResponseClass, DataType[T].name)
   protected def nickname(value: String) = swaggerMeta(Nickname, value)
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
   protected def parameters(value: Parameter*) = swaggerMeta(Parameters, value.toList)
