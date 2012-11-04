@@ -36,6 +36,20 @@ trait WithBinding extends Command with TypeConverterFactories with BindingTempla
 
 class WithBindingFromParams extends WithBinding
 
+class MixAndMatchCommand extends ParamsOnlyCommand {
+  import ValueSource._
+  val name: Field[String] = asString("name").notBlank
+  val age: Field[Int] = "age"
+  val token: Field[String] = (
+      asString("API-TOKEN").notBlank
+        sourcedFrom Header 
+        description "The API token for this request"
+        notes "Invalid data kills kittens"
+        allowableValues "123")
+  val skip: Field[Int] = asInt("skip").sourcedFrom(Query).description("The offset for this collection index")
+  val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
+}
+
 
 class CommandSpec extends Specification {
 
@@ -61,6 +75,19 @@ class CommandSpec extends Specification {
       form.bindTo(params)
       form.a.validation must_== params("name").toUpperCase.success
       form.lower.validation must_== params("surname").toLowerCase.success
+    }
+    
+    "bindTo with values from all kinds of different sources and bind matching values to specific keys" in {
+      val form = new MixAndMatchCommand
+      val params = Map("name" -> "John", "age" -> "45", "limit" -> "30", "skip" -> "20")
+      val multi = MultiMap(params map { case (k, v) => k -> Seq(v.toString) })
+      val hdrs = Map("API-TOKEN" -> "123")
+      form.bindTo(params, multi, hdrs)
+      form.name.value must beSome("John")
+      form.age.value must beSome(45)
+      form.limit.value must beSome(30)
+      form.skip.value must beSome(20)
+      form.token.value must beSome("123")
     }
 
     "provide pluggable actions processed 'BEFORE' binding " in {
