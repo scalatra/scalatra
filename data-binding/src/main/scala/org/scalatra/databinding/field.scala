@@ -269,8 +269,11 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   private[databinding] def transformations: (T) => T = field.transformations
   
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] = copy(field = field.withDefaultValue(default))
+  
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
+  
   def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] = copy(field = field.allowableValues(vals:_*))
+  
   def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
 }
 
