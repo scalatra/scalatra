@@ -169,12 +169,12 @@ trait ValidatedFieldDescriptor[S, T] extends DataboundFieldDescriptor[S, T] {
 }
 
 object BoundFieldDescriptor {
-  def apply[S, T](original: S, value: FieldValidation[T], binding: FieldDescriptor[T]): DataboundFieldDescriptor[S, T] =
+  def apply[S:DefaultValue, T](original: S, value: FieldValidation[T], binding: FieldDescriptor[T]): DataboundFieldDescriptor[S, T] =
     new BoundFieldDescriptor(original, value, binding, binding.validator)
 }
 
 
-class BoundFieldDescriptor[S, T](
+class BoundFieldDescriptor[S:DefaultValue, T](
     val original: S, 
     val value: FieldValidation[T], 
     val field: FieldDescriptor[T], 
@@ -210,7 +210,7 @@ class BoundFieldDescriptor[S, T](
 
   def validate: ValidatedFieldDescriptor[S, T] = {
     val defaultValidator: Validator[T] = validator getOrElse identity
-    if (!isRequired && original == null.asInstanceOf[S]) {
+    if (!isRequired && original == mdefault[S]) {
       new ValidatedBoundFieldDescriptor(value map transformations, this)
     } else {
       val doValidation: Validator[T] = if (isRequired) {

@@ -21,3 +21,6 @@ target/
 .classpath
 .cache
 .ensime_lucene
+
+# sublime artifacts
+*.sublime-*

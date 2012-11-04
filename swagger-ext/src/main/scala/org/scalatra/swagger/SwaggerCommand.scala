@@ -6,18 +6,16 @@ import org.scalatra.util.RicherString._
 import scalaz._
 import Scalaz._
 
-trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
-
-  protected def parameters[T <: CommandType : Manifest] = swaggerMeta(Symbols.Parameters, parametersFromCommand[T])
+object SwaggerCommandSupport {
+  
   private[this] val paramtypeMapping = 
                         Map(
                             ValueSource.Body -> ParamType.Body, 
                             ValueSource.Header -> ParamType.Header, 
                             ValueSource.Query -> ParamType.Query, 
                             ValueSource.Path -> ParamType.Path)
-  
-  private[this] def parametersFromCommand[T <: CommandType](implicit mf: Manifest[T]): List[Parameter] = {
-    val obj = command[T]
+                            
+  def parametersFromCommand[T <: Command](obj: T)(implicit mf: Manifest[T]): (List[Parameter], Option[Model]) = {
     val pars = mf.erasure.getFields().foldLeft(List.empty[Parameter]) { (lst, fld) =>
       if (fld.getType().isAssignableFrom(classOf[Field[_]])) {
 	      val f = fld.get(obj).asInstanceOf[Field[_]]
@@ -36,7 +34,6 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
     val (fields, parameters) = pars.partition(_.paramType == ParamType.Body)
     if (fields.nonEmpty) {
       val model = modelFromCommand(obj, fields)
-      _models += model
       val bodyParam = 
           Parameter(
               "body", 
@@ -46,14 +43,27 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
               ParamType.Body, 
               None, 
               required = false) 
-      bodyParam :: parameters 
-    } else parameters
+      (bodyParam :: parameters, Some(model)) 
+    } else (parameters, None)
   }
 
-  private[this] def modelFromCommand[T <: CommandType](cmd: T, fields: List[Parameter]) = {
+  private[this] def modelFromCommand[T <: Command](cmd: T, fields: List[Parameter]) = {
     val modelFields = fields.map(f => f.name -> ModelField(f.name, f.description, f.dataType, f.defaultValue, required = f.required))
     Model(cmd.commandName, cmd.commandDescription, Map(modelFields:_*))
   }
+}
+trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
+
+  protected def parameters[T <: CommandType : Manifest] = swaggerMeta(Symbols.Parameters, parametersFromCommand[T])
   
+  
+  private[this] def parametersFromCommand[T <: CommandType](implicit mf: Manifest[T]): List[Parameter] = {
+    SwaggerCommandSupport.parametersFromCommand(command[T]) match {
+      case (parameters, None) => parameters
+      case (parameters, Some(model)) => 
+        _models += model
+        parameters
+    }
+  }
    
 }

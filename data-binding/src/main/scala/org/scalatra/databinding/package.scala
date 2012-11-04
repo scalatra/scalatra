@@ -5,7 +5,7 @@ import scalaz._
 import Scalaz._
 import org.json4s.JsonAST.{JValue, JNothing}
 import java.util.Date
-import org.joda.time.DateTime
+import org.joda.time.{ DateTime, DateTimeZone }
 
 package object databinding extends DefaultValues {
 
@@ -21,7 +21,7 @@ package object databinding extends DefaultValues {
 
  
   implicit val minDateDefault: org.scalatra.DefaultValue[Date] = default(new Date(0))
-  implicit val minDateTimeDefault: org.scalatra.DefaultValue[DateTime] = default(new DateTime(0))
+  implicit val minDateTimeDefault: org.scalatra.DefaultValue[DateTime] = default(new DateTime(0).withZone(DateTimeZone.UTC))
   implicit val jsonDefault: org.scalatra.DefaultValue[JValue] = default(JNothing)
   
 

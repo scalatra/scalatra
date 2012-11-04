@@ -318,7 +318,7 @@ class BindingSpec extends Specification {
 
   def testDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], df: DefaultValue[DateTime], converter: TypeConverter[String, DateTime]) = {
     val field = newBinding[DateTime]
-    field.value must_== (new DateTime(0)).success[ValidationError]
+    field.value must_== (new DateTime(0).withZone(DateTimeZone.UTC)).success[ValidationError]
     val v = transform(new DateTime(DateTimeZone.UTC))
     val s = v.toString(format.dateTimeFormat)
     field(Right(Some(s))).value must_== v.success[ValidationError]
