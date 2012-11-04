@@ -21,8 +21,8 @@ object ValueSource extends Enumeration {
 }
 
 object FieldDescriptor {
-  def apply[T:Manifest](name: String): FieldDescriptor[T] = 
-    new BasicFieldDescriptor[T](name, transformations = identity, defVal = DefVal(null.asInstanceOf[T]))
+  def apply[T](name: String)(implicit mf: Manifest[T], defV: DefaultValue[T]): FieldDescriptor[T] = 
+    new BasicFieldDescriptor[T](name, transformations = identity, defVal = DefVal(defV.default))
 }
 trait FieldDescriptor[T] {
 
@@ -34,6 +34,8 @@ trait FieldDescriptor[T] {
   def description: String 
   def description(desc: String): FieldDescriptor[T]
   def valueManifest: Manifest[T]
+  def valueSource: ValueSource.Value
+  def sourcedFrom(valueSource: ValueSource.Value): FieldDescriptor[T]
   
   private[databinding] def defVal: DefVal[T]
   def defaultValue: T = defVal.value
@@ -50,7 +52,7 @@ trait FieldDescriptor[T] {
 
   def validateWith(validators: BindingValidator[T]*): FieldDescriptor[T]
 
-  def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T]
+  def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], df: DefaultValue[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T]
 
   override def hashCode() = 41 + 41 * name.hashCode()
 
@@ -72,7 +74,8 @@ class BasicFieldDescriptor[T](
     private[databinding] var isRequired: Boolean = false,
     val description: String = "",
     val notes: String = "",
-    private[databinding] val defVal: DefVal[T])(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
+    private[databinding] val defVal: DefVal[T],
+    val valueSource: ValueSource.Value = ValueSource.Body)(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
 
   val value: FieldValidation[T] = defaultValue.success
 
@@ -90,13 +93,14 @@ class BasicFieldDescriptor[T](
       isRequired: Boolean = isRequired, 
       description: String = description, 
       notes: String = notes,
-      defVal: DefVal[T] = defVal): FieldDescriptor[T] = {
+      defVal: DefVal[T] = defVal,
+      valueSource: ValueSource.Value = valueSource): FieldDescriptor[T] = {
     val b = this
-    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal)(valueManifest) 
+    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource)(valueManifest) 
   }
 
-  def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
-    val defValS = null.asInstanceOf[S]
+  def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], df: DefaultValue[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
+    val defValS = df.default
     val conv = original.fold(e => ValidationError(e).fail, o => (convert(o | defValS) | defaultValue).success)
     val o = original.fold(_ => defValS, og => og | defValS)
     BoundFieldDescriptor(o, conv, this)
@@ -113,6 +117,8 @@ class BasicFieldDescriptor[T](
   def notes(note: String) = copy(notes = note)
   
   def withDefaultValue(default: => T): FieldDescriptor[T] = copy(defVal = DefVal(default)) 
+  
+  def sourcedFrom(valueSource: ValueSource.Value): FieldDescriptor[T] = copy(valueSource = valueSource)
 }
 
 
@@ -120,7 +126,7 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def field: FieldDescriptor[T]
   def original: S
   def transform(endo: T => T): DataboundFieldDescriptor[S, T]
-  def apply[V](original: Either[String, Option[V]])(implicit mv: Manifest[V], convert: TypeConverter[V, T]): DataboundFieldDescriptor[V, T] =
+  def apply[V](original: Either[String, Option[V]])(implicit mv: Manifest[V], df: DefaultValue[V], convert: TypeConverter[V, T]): DataboundFieldDescriptor[V, T] =
     this.asInstanceOf[DataboundFieldDescriptor[V, T]]
 
   override def toString() = "FieldDescriptor(name: %s, original: %s, value: %s)".format(name, original, value)
@@ -136,6 +142,8 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def valueManifest = field.valueManifest
   private[databinding] def defVal: DefVal[T] = field.defVal
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] 
+  def valueSource: ValueSource.Value = field.valueSource
+  def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T]
   
 }
 
@@ -200,6 +208,8 @@ class BoundFieldDescriptor[S, T](
   private[databinding] def transformations: (T) => T = field.transformations
   
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] = copy(field = field.withDefaultValue(default))
+  
+  def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
 }
 
 class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val field: DataboundFieldDescriptor[S, T]) extends ValidatedFieldDescriptor[S, T] {
@@ -238,6 +248,7 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   private[databinding] def transformations: (T) => T = field.transformations
   
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] = copy(field = field.withDefaultValue(default))
+  def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
 }
 
 import scala.util.matching.Regex
@@ -389,5 +400,10 @@ class Field[A:Manifest](descr: FieldDescriptor[A], command: Command) {
 
   def isValid = validation.isSuccess
   def isInvalid = validation.isFailure
-
+  
+	def notes: String = descr.notes
+  def description: String = descr.description
+  
+  def isRequired: Boolean = descr.isRequired
+  def valueSource: ValueSource.Value = descr.valueSource
 }

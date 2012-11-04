@@ -1,0 +1,19 @@
+package org.scalatra
+package databinding
+
+import json.{JacksonJsonValueReaderProperty, JacksonJsonSupport}
+
+trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderProperty { self: JacksonJsonSupport with CommandSupport =>
+  type CommandType = JsonCommand
+
+  override protected def bindCommand[T <: CommandType](newCommand: T)(implicit mf: Manifest[T]): T = {
+    format match {
+      case "json" | "xml" => newCommand.bindTo(parsedBody, multiParams, request.headers)
+      case _ => newCommand.bindTo(params, multiParams, request.headers)
+    }
+    requestProxy.update(commandRequestKey[T], newCommand)
+    newCommand
+  }
+  
+
+}

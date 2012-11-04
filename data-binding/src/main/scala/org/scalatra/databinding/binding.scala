@@ -15,25 +15,25 @@ class BindingException(message: String) extends ScalatraException(message)
 
 object Binding {
 
-  def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], mt: Manifest[A]): Binding = {
-    new DefaultBinding(FieldDescriptor[A](fieldName), tcf)(mf, mt, cv)
+  def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], df: DefaultValue[I], mt: Manifest[A], dt: DefaultValue[A]): Binding = {
+    new DefaultBinding(FieldDescriptor[A](fieldName), tcf)(mf, df, mt, dt, cv)
   }
 
 
-  def apply[I, A](prev: FieldDescriptor[A], cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], mt: Manifest[A]): Binding = {
-    new DefaultBinding(prev, tcf)(mf, mt, cv)
+  def apply[I, A](prev: FieldDescriptor[A], cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], df: DefaultValue[I], mt: Manifest[A], dt: DefaultValue[A]): Binding = {
+    new DefaultBinding(prev, tcf)(mf, df, mt, dt, cv)
   }
 
-  def apply[A](initial: String)(implicit ma: Manifest[A], tcFactory: TypeConverterFactory[A]): Binding = apply(FieldDescriptor[A](initial))
-  def apply[A](initial: FieldDescriptor[A])(implicit ma: Manifest[A], tcFactory: TypeConverterFactory[A]): Binding = {
+  def apply[A](initial: String)(implicit ma: Manifest[A], df: DefaultValue[A], tcFactory: TypeConverterFactory[A]): Binding = apply(FieldDescriptor[A](initial))
+  def apply[A](initial: FieldDescriptor[A])(implicit ma: Manifest[A], df: DefaultValue[A], tcFactory: TypeConverterFactory[A]): Binding = {
     new PartialBinding(initial)
   }
 
-  private class PartialBinding[A](val field: FieldDescriptor[A])(implicit val valueManifest: Manifest[A], val typeConverterFactory: TypeConverterFactory[A]) extends Binding {
+  private class PartialBinding[A](val field: FieldDescriptor[A])(implicit val valueManifest: Manifest[A], val valueZero: DefaultValue[A], val typeConverterFactory: TypeConverterFactory[A]) extends Binding {
     type T = A
-    type S = Null
+    type S = Nothing
     implicit def sourceManifest: Manifest[S] = null
-//    implicit def sourceZero: DefaultValue[S] = null
+    implicit def sourceZero: DefaultValue[S] = null
     implicit def typeConverter: (S) => Option[T] = null
     def apply(toBind: Either[String, Option[S]]): Binding = null
 
@@ -50,9 +50,9 @@ object Binding {
                   (val field: FieldDescriptor[A], val typeConverterFactory: TypeConverterFactory[_])(
                       implicit
                       val sourceManifest: Manifest[I],
-//                      val sourceZero: DefaultValue[I],
+                      val sourceZero: DefaultValue[I],
                       val valueManifest: Manifest[A],
-//                      val valueZero: DefaultValue[A],
+                      val valueZero: DefaultValue[A],
                       val typeConverter: TypeConverter[I, A]) extends Binding {
     type T = A
     type S = I
@@ -62,17 +62,17 @@ object Binding {
     }
 
     def transform(transformer: (T) => T): Binding =
-      new DefaultBinding(field.transform(transformer), typeConverterFactory)(sourceManifest, valueManifest, typeConverter)
+      new DefaultBinding(field.transform(transformer), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
     def validateWith(validators:BindingValidator[T]*): Binding =
-      new DefaultBinding(field.validateWith(validators:_*), typeConverterFactory)(sourceManifest, valueManifest, typeConverter)
+      new DefaultBinding(field.validateWith(validators:_*), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
     def apply(toBind: Either[String, Option[S]]): Binding =
-      new DefaultBinding(field(toBind), typeConverterFactory)(sourceManifest, valueManifest, typeConverter)
+      new DefaultBinding(field(toBind), typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
 
     def validate: Binding = {
       val nwFld = field.asInstanceOf[DataboundFieldDescriptor[S, T]].validate
-      new DefaultBinding(nwFld, typeConverterFactory)(sourceManifest, valueManifest, typeConverter)
+      new DefaultBinding(nwFld, typeConverterFactory)(sourceManifest, sourceZero, valueManifest, valueZero, typeConverter)
     }
   }
 
@@ -99,14 +99,14 @@ sealed trait Binding {
 
 
   implicit def valueManifest: Manifest[T]
-//  implicit def valueZero: DefaultValue[T]
+  implicit def valueZero: DefaultValue[T]
 
   def typeConverterFactory: TypeConverterFactory[_]
 
   type S
 
   implicit def sourceManifest: Manifest[S]
-//  implicit def sourceZero: DefaultValue[S]
+  implicit def sourceZero: DefaultValue[S]
 
   def validateWith(validators: BindingValidator[T]*): Binding
   def transform(transformer: T => T): Binding
@@ -132,7 +132,7 @@ trait BindingSyntax extends BindingValidatorImplicits {
 
 
 
-  implicit def asType[T:Manifest](name: String): FieldDescriptor[T] = FieldDescriptor[T](name)
+  implicit def asType[T:DefaultValue:Manifest](name: String): FieldDescriptor[T] = FieldDescriptor[T](name)
 
   def asBoolean(name: String): FieldDescriptor[Boolean] = FieldDescriptor[Boolean](name)
   def asByte(name: String): FieldDescriptor[Byte] = FieldDescriptor[Byte](name)

@@ -30,12 +30,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
    * a request attribute.
    */
   def command[T <: CommandType](implicit mf: Manifest[T]): T = {
-    commandOption[T].getOrElse {
-      val newCommand = mf.erasure.newInstance.asInstanceOf[T]
-      newCommand.bindTo(params, multiParams, request.headers)
-      requestProxy.update(commandRequestKey[T], newCommand)
-      newCommand
-    }
+    commandOption[T] getOrElse bindCommand(mf.erasure.newInstance.asInstanceOf[T])
   }
 
   /**
@@ -45,14 +40,14 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
    * a request attribute.
    */
   def commandOrElse[T <: CommandType](factory: ⇒ T)(implicit mf: Manifest[T]): T = {
-    commandOption[T] getOrElse {
-      val newCommand = factory
-      newCommand.bindTo(params, multiParams, request.headers)
-      requestProxy.update(commandRequestKey[T], newCommand)
-      newCommand
-    }
+    commandOption[T] getOrElse bindCommand(factory)
   }
 
+  protected def bindCommand[T <: CommandType](newCommand: T)(implicit mf: Manifest[T]): T = {
+    newCommand.bindTo(params, multiParams, request.headers)
+    requestProxy.update(commandRequestKey[T], newCommand)
+    newCommand
+  }
 
   def commandOption[T <: CommandType : Manifest] : Option[T] = requestProxy.get(commandRequestKey[T]).map(_.asInstanceOf[T])
 
