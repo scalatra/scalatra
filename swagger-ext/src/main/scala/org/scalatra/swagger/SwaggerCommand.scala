@@ -16,21 +16,27 @@ object SwaggerCommandSupport {
                             ValueSource.Path -> ParamType.Path)
                             
   def parametersFromCommand[T <: Command](obj: T)(implicit mf: Manifest[T]): (List[Parameter], Option[Model]) = {
-    val pars = mf.erasure.getFields().foldLeft(List.empty[Parameter]) { (lst, fld) =>
-      if (fld.getType().isAssignableFrom(classOf[Field[_]])) {
-	      val f = fld.get(obj).asInstanceOf[Field[_]]
-	      Parameter(
-	          f.displayName | f.name, 
-	          f.description, 
-	          DataType(f.binding.valueManifest), 
-	          f.notes.blankOption, 
-	          paramtypeMapping(f.valueSource), 
-	          if (f.isRequired) None else f.defaultValue.toString.blankOption, 
-            AllowableValues(f.allowableValues),
-	          required = f.isRequired) :: lst
-      } else lst
+    addModelFromCommand(obj, createParameterList(obj))
+  }
 
+  private[this] def createParameterList[T <: Command](obj: T)(implicit mf: Manifest[T]): List[Parameter] = {
+    mf.erasure.getMethods().foldLeft(List.empty[Parameter]) { (lst, fld) =>
+      if (fld.getReturnType().isAssignableFrom(classOf[Field[_]]) && fld.getParameterTypes().isEmpty) {
+        val f = fld.invoke(obj).asInstanceOf[Field[_]]
+        Parameter(
+            f.displayName | f.name, 
+            f.description, 
+            DataType(f.binding.valueManifest), 
+            f.notes.blankOption, 
+            paramtypeMapping(f.valueSource), 
+            if (f.isRequired) None else f.defaultValue.toString.blankOption, 
+            if (f.allowableValues.nonEmpty) AllowableValues(f.allowableValues) else AllowableValues.AnyValue,
+            required = f.isRequired) :: lst
+      } else lst
     }
+  }
+
+  private[this] def addModelFromCommand[T <: Command](obj: T, pars: List[Parameter])(implicit mf: Manifest[T]) = {
     val (fields, parameters) = pars.partition(_.paramType == ParamType.Body)
     if (fields.nonEmpty) {
       val model = modelFromCommand(obj, fields)
@@ -41,8 +47,7 @@ object SwaggerCommandSupport {
               DataType(model.id), 
               None, 
               ParamType.Body, 
-              None, 
-              required = false) 
+              None) 
       (bodyParam :: parameters, Some(model)) 
     } else (parameters, None)
   }
