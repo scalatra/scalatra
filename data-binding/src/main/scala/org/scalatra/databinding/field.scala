@@ -6,6 +6,7 @@ import util.conversion._
 import scalaz._
 import Scalaz._
 import mojolly.inflector.InflectorImports._
+import org.scalatra.util.RicherString._
 
 object DefVal {
   def apply[T:Manifest](prov: => T) = new DefVal(prov)
@@ -38,6 +39,8 @@ trait FieldDescriptor[T] {
   def sourcedFrom(valueSource: ValueSource.Value): FieldDescriptor[T]
   def allowableValues: List[T]
   def allowableValues(vals: T*): FieldDescriptor[T]
+  def displayName: Option[String]
+  def displayName(name: String): FieldDescriptor[T]
   
   private[databinding] def defVal: DefVal[T]
   def defaultValue: T = defVal.value
@@ -78,7 +81,8 @@ class BasicFieldDescriptor[T](
     val notes: String = "",
     private[databinding] val defVal: DefVal[T],
     val valueSource: ValueSource.Value = ValueSource.Body,
-    val allowableValues: List[T] = Nil)(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
+    val allowableValues: List[T] = Nil,
+    val displayName: Option[String] = None)(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
 
   val value: FieldValidation[T] = defaultValue.success
 
@@ -98,9 +102,10 @@ class BasicFieldDescriptor[T](
       notes: String = notes,
       defVal: DefVal[T] = defVal,
       valueSource: ValueSource.Value = valueSource,
-      allowableValues: List[T] = allowableValues): FieldDescriptor[T] = {
+      allowableValues: List[T] = allowableValues,
+      displayName: Option[String] = displayName): FieldDescriptor[T] = {
     val b = this
-    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues)(valueManifest) 
+    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName)(valueManifest) 
   }
 
   def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], df: DefaultValue[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
@@ -125,6 +130,8 @@ class BasicFieldDescriptor[T](
   def sourcedFrom(valueSource: ValueSource.Value): FieldDescriptor[T] = copy(valueSource = valueSource)
 
   def allowableValues(vals: T*): FieldDescriptor[T] = copy(allowableValues = vals.toList).validateWith(BindingValidators.oneOf(vals:_*))
+
+  def displayName(name: String): FieldDescriptor[T] = copy(displayName = name.blankOption)
 }
 
 
@@ -152,6 +159,8 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T]
   def allowableValues = field.allowableValues
   def allowableValues(vals: T*): DataboundFieldDescriptor[S, T]
+  def displayName: Option[String] = field.displayName
+  def displayName(name: String): DataboundFieldDescriptor[S, T]
   
 }
 
@@ -220,6 +229,8 @@ class BoundFieldDescriptor[S, T](
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
 
   def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] = copy(field = field.allowableValues(vals:_*))
+
+  def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
 }
 
 class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val field: DataboundFieldDescriptor[S, T]) extends ValidatedFieldDescriptor[S, T] {
@@ -260,6 +271,7 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] = copy(field = field.withDefaultValue(default))
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
   def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] = copy(field = field.allowableValues(vals:_*))
+  def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
 }
 
 import scala.util.matching.Regex
@@ -415,4 +427,5 @@ class Field[A:Manifest](descr: FieldDescriptor[A], command: Command) {
   def isRequired: Boolean = descr.isRequired
   def valueSource: ValueSource.Value = descr.valueSource
   def allowableValues = descr.allowableValues
+  def displayName: Option[String] = descr.displayName
 }

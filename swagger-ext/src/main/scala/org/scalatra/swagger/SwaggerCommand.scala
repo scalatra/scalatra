@@ -3,16 +3,18 @@ package swagger
 
 import org.scalatra.databinding._
 import org.scalatra.util.RicherString._
+import scalaz._
+import Scalaz._
 
 trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
 
   protected def parameters[T <: CommandType : Manifest] = swaggerMeta(Symbols.Parameters, parametersFromCommand[T])
   private[this] val paramtypeMapping = 
-    Map(
-        ValueSource.Body -> ParamType.Body, 
-        ValueSource.Header -> ParamType.Header, 
-        ValueSource.Query -> ParamType.Query, 
-        ValueSource.Path -> ParamType.Path)
+                        Map(
+                            ValueSource.Body -> ParamType.Body, 
+                            ValueSource.Header -> ParamType.Header, 
+                            ValueSource.Query -> ParamType.Query, 
+                            ValueSource.Path -> ParamType.Path)
   
   private[this] def parametersFromCommand[T <: CommandType](implicit mf: Manifest[T]): List[Parameter] = {
     val obj = command[T]
@@ -20,7 +22,7 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
       if (fld.getType().isAssignableFrom(classOf[Field[_]])) {
 	      val f = fld.get(obj).asInstanceOf[Field[_]]
 	      Parameter(
-	          f.name, 
+	          f.displayName | f.name, 
 	          f.description, 
 	          DataType(f.binding.valueManifest), 
 	          f.notes.blankOption, 
@@ -32,8 +34,20 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
 
     }
     val (fields, parameters) = pars.partition(_.paramType == ParamType.Body)
-    _models += modelFromCommand(obj, fields)
-    parameters
+    if (fields.nonEmpty) {
+      val model = modelFromCommand(obj, fields)
+      _models += model
+      val bodyParam = 
+          Parameter(
+              "body", 
+              model.description, 
+              DataType(model.id), 
+              None, 
+              ParamType.Body, 
+              None, 
+              required = false) 
+      bodyParam :: parameters 
+    } else parameters
   }
 
   private[this] def modelFromCommand[T <: CommandType](cmd: T, fields: List[Parameter]) = {
