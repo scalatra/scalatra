@@ -141,7 +141,6 @@ trait FlashMapSupport extends Handler {
           f.flag()
         }
       }
-      session(sessionKey) = f
       super.handle(req, res)
       /*
        * http://github.com/scalatra/scalatra/issues/41
@@ -153,12 +152,32 @@ trait FlashMapSupport extends Handler {
       if (isOutermost) {
         f.sweep()
       }
+      flashMapSetSession(f)
+    }
+  }
+  
+  /**
+   * Override to implement custom session retriever, or sanity checks if session is still active
+   * @param f
+   */
+  def flashMapSetSession(f: FlashMap) {
+    try {
+      // Save flashMap to Session after (a session could stop existing during a request, so catch exception)
+      session(sessionKey) = f
+    } catch {
+      case e: Throwable =>
     }
   }
 
-  private def getFlash(req: HttpServletRequest): FlashMap =
-    session.get(sessionKey).map { _.asInstanceOf[FlashMap] }
-      .getOrElse(new FlashMap)
+  private[this] def getFlash(req: HttpServletRequest): FlashMap =
+    req.get(sessionKey).map(_.asInstanceOf[FlashMap]).getOrElse {
+      val map = session.get(sessionKey).map {
+        _.asInstanceOf[FlashMap]
+      }.getOrElse(new FlashMap)
+
+      req.setAttribute(sessionKey, map)
+      map
+    }
 
   /**
    * Returns the [[org.scalatra.FlashMap]] instance for the current request.
