@@ -7,6 +7,8 @@ import ext.{ JodaTimeSerializers, EnumNameSerializer }
 import org.joda.time._
 import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
+import java.math.BigInteger
+import java.util.Date
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String 
@@ -201,7 +203,72 @@ object DataType {
   }
 
   def apply(name: String) = new DataType(name)
-  def apply[T](implicit mf: Manifest[T]) = new DataType(mf.erasure.getSimpleName)
+  def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](mf)
+
+  private[this] def fromManifest[T](implicit mf: Manifest[T]): DataType = {
+    if (mf <:< manifest[Unit]) this.Void
+    else if (mf <:< manifest[String] || mf <:< manifest[java.lang.String]) this.String
+    else if (isInt[T]) this.Int
+    else if (isDecimal[T]) DataType("double")
+    else if (isDate[T]) this.Date
+    else if (mf <:< manifest[Boolean] || mf <:< manifest[java.lang.Boolean]) this.Boolean
+    else if (mf <:< manifest[java.lang.Enum[_]]) this.Enum
+    else if (isMap[T]) {
+      if (mf.typeArguments.size == 2) {
+        val (k :: v :: Nil) = mf.typeArguments
+        GenMap(fromManifest(k), fromManifest(v))
+      } else GenMap()
+    }
+    else if (isCollection[T]) {
+      if (mf.typeArguments.size > 0)
+        GenList(fromManifest(mf.typeArguments.head))
+      else
+        GenList()
+    }
+    else new DataType(mf.erasure.getSimpleName())
+  }
+  
+  private[this] def isInt[T](implicit mf: Manifest[T]) = 
+    mf <:< manifest[Int] || 
+    mf <:< manifest[java.lang.Integer] || 
+    mf <:< manifest[Long] || 
+    mf <:< manifest[java.lang.Long] || 
+    mf <:< manifest[BigInt] || 
+    mf <:< manifest[java.math.BigInteger]
+  
+  private[this] def isDecimal[T](implicit mf: Manifest[T]) = 
+    mf <:< manifest[Double] ||
+    mf <:< manifest[java.lang.Double] ||
+    mf <:< manifest[Float] ||
+    mf <:< manifest[java.lang.Float] ||
+    mf <:< manifest[BigDecimal] ||
+    mf <:< manifest[java.math.BigDecimal]
+  
+  private[this] def isDate[T](implicit mf: Manifest[T]) = mf <:< manifest[Date] || mf <:< manifest[DateTime]
+  
+  private[this] def isMap[T](implicit mf: Manifest[T]) = 
+    mf <:< manifest[collection.Map[_, _]] || 
+    mf <:< manifest[collection.immutable.Map[_, _]] || 
+    mf <:< manifest[collection.mutable.Map[_, _]] ||
+    mf <:< manifest[java.util.Map[_, _]]
+  
+  private[this] def isCollection[T](implicit mf: Manifest[T]) = 
+    mf <:< manifest[collection.Traversable[_]] ||
+    mf <:< manifest[collection.immutable.Traversable[_]] ||
+    mf <:< manifest[collection.mutable.Traversable[_]] ||
+    mf <:< manifest[collection.Seq[_]] ||
+    mf <:< manifest[collection.immutable.Seq[_]] ||
+    mf <:< manifest[collection.mutable.Seq[_]] ||
+    mf <:< manifest[collection.immutable.List[_]] ||
+    mf <:< manifest[collection.Set[_]] ||
+    mf <:< manifest[collection.immutable.Set[_]] ||
+    mf <:< manifest[collection.mutable.Set[_]] ||
+    mf <:< manifest[collection.mutable.Buffer[_]] ||
+    mf <:< manifest[collection.mutable.ListBuffer[_]] ||
+    mf <:< manifest[java.util.Collection[_]] ||
+    mf <:< manifest[java.util.Set[_]] ||
+    mf <:< manifest[java.util.List[_]]
+    
 }
 
 trait AllowableValues
