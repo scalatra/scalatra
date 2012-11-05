@@ -10,19 +10,20 @@
 
 ### Core
 * Adds typed param support, previously in contrib
-* ApiFormats now also has a method responseFormat which looks at the content type of the response and falls back to the format of the request.
+* `ApiFormats` now also has a method responseFormat which looks at the content type of the response and falls back to the format of the request.
 * The default bootstrap file is renamed from `Scalatra` to `ScalatraBootstrap`
-* FileUpload can now be configured through init parameters
+* `FileUpload` can now be configured through init parameters
 * RouteMatchers don't use any by-name params anymore
-* RouteMatcher now takes a requestPath as a param to the apply method
+* `RouteMatcher` now takes a `requestPath` as a param to the `apply` method
 * You are able to mount the same servlet more than once in the ScalatraBootstrap class
 * Added a new `relativeUrl` method which will compose a path for redirection and keep relative paths relative
 * Refactored the `url` method to allow for a more granular building of the path with regards to the context path and servlet path
 * Added a `fullUrl` method which will use the absolute path created by the `url` method to build a url with protocol, host, port and path + querystring
-* Added a `isHttps` method which also looks in the headers for a X-Forwarded-Proto header
+* Added a `isHttps` method which also looks in the headers for a `X-Forwarded-Proto` header
 * Added a `needsHttps` method which looks in the init params for a key `org.scalatra.ForceHttps` for a boolean value (true/false), this is used by the `fullUrl` method to work out the protocol
 * Added a `org.scalatra.HostName` init parameter in which you can override the host name of this scalatra application, if unset the value from `request.getServerName` will be used
 * Added a `org.scalatra.Port` init parameter in which you can override the port of this scalatra application, if unset the value from `request.getServerPort` will be used
+* ApiFormats now also has a reverse mapping for the txt extension
 
 ### lift-json
 * removed for json4s support
@@ -88,11 +89,37 @@
 * Auto-registers servlets and filters that extend the SwaggerSupport trait in the swagger manager.
 * Includes the swagger-core and swagger-annotations jars as transitive dependencies (batteries included)
 * the models property in the `SwaggerSupport` can now be Set as `Map(classOf[Pet])`
-* responseClass can now be set with a type annotation `responseClass[Pet]`
+* responseClass can now be set with a type parameter `responseClass[Pet]`
+* data types in `Parameter` and `ModelField` definitions can now be defined as `DataType[List[String]]`
 
 ### Swagger-Ext
 
-* Adds support for authorization to Swagger.  Shows only actions a user is allowed to see.
+* Adds support for authorization through scentry to Swagger.  Shows only actions a user is allowed to see.
+  [Example](https://github.com/scalatra/scalatra/blob/develop/swagger-ext/src/test/scala/org/scalatra/swagger/SwaggerAuthSpec.scala)
+* Adds support for using commands with Swagger. This creates a model definition for the body parameters and parameter
+  definitions for the query, path and header params as well as a parameter for the body model
+
+        get("/id", endpoint("id"), nickname("getById"), parameters[MyCommand])
+
+        class MyCommand extends JsonCommand {
+          protected implicit val jsonFormats: Formats = DefaultFormats
+          
+          val name: Field[String] = asString("name").notBlank
+
+          val age: Field[Int] = "age"
+
+          val token: Field[String] = (
+              asString("API-TOKEN").notBlank
+                sourcedFrom ValueSource.Header 
+                description "The API token for this request"
+                notes "Invalid data kills cute innocent kittens"
+                allowableValues "123")
+
+          val skip: Field[Int] = asInt("skip").sourcedFrom(ValueSource.Query).description("The offset for this collection index")
+          
+          val limit: Field[Int] = asType[Int]("limit").sourcedFrom(ValueSource.Query).withDefaultValue(20).description("the max number of items to return")
+        }
+
 
 ### Testing
 * Added a method `ensureSessionIsSerializable` method which will try to serialize every session value.
