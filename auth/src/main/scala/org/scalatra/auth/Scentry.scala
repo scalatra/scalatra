@@ -56,6 +56,10 @@ class Scentry[UserType <: AnyRef](
   def params = app.params
   def redirect(uri: String) { app.redirect(uri) }
 
+  def register(strategy: => ScentryStrategy[UserType]) {
+    register(strategy.name, ((_: ScalatraBase) => strategy))
+  }
+  
   def register(name: String, strategyFactory: StrategyFactory) {
     _strategies += (name -> strategyFactory)
   }

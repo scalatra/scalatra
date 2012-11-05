@@ -22,7 +22,7 @@ trait SwaggerSupportBase {
 }
 
 trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
-  protected implicit def swagger: Swagger
+  protected implicit def swagger: SwaggerEngine[_]
 
   protected def applicationName: Option[String] = None
   protected def applicationDescription: String
@@ -47,7 +47,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
       }
     }
 
-    println("The listing path: %s" format listingPath)
+//    println("The listing path: %s" format listingPath)
 
     swagger.register(name, thePath, applicationDescription, this, listingPath)
   }
@@ -56,7 +56,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
     val registrations = servletContext.getServletRegistrations.values().asScala.toList
     (registrations find { reg =>
       val klass = Class.forName(reg.getClassName)
-      classOf[SwaggerBase].isAssignableFrom(klass)
+      classOf[SwaggerBaseBase].isAssignableFrom(klass)
     } flatMap (_.getMappings.asScala.headOption))
 
   }
@@ -83,6 +83,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
         case _: Servlet =>
           val registration = ScalatraBase.getServletRegistration(this) getOrElse throwAFit
+//          println("Registering for mappings: " + registration.getMappings().asScala.mkString("[", ", ", "]"))
           registration.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse registration.getName, _))
 
         case _ => throw new RuntimeException("The swagger support only works for servlets or filters at this time.")
@@ -109,8 +110,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   private[swagger] var _description: PartialFunction[String, String] = Map.empty
   protected def description(f: PartialFunction[String, String]) = _description = _description orElse f
 
-  private[swagger] var _secured: PartialFunction[String, Boolean] = Map.empty
-  protected def secured(f: PartialFunction[String, Boolean]) = _secured = _secured orElse f
+//  private[swagger] var _secured: PartialFunction[String, Boolean] = Map.empty
+//  protected def secured(f: PartialFunction[String, Boolean]) = _secured = _secured orElse f
 
   protected def summary(value: String) = swaggerMeta(Summary, value)
   protected def notes(value: String) = swaggerMeta(Notes, value)
@@ -151,7 +152,7 @@ trait SwaggerSupport extends SwaggerSupportBase with SwaggerSupportSyntax { self
     
     (List.empty[Endpoint] /: ops) { (r, op) ⇒
       val name = op._1
-      val sec = _secured.lift apply name getOrElse true
+      val sec = false //_secured.lift apply name getOrElse true
       val desc = _description.lift apply name getOrElse ""
       new Endpoint("%s/%s" format (basePath, name), desc, sec, (op._2.toList flatMap (_.value)) ) :: r
     } sortWith { (a, b) ⇒ a.path < b.path }

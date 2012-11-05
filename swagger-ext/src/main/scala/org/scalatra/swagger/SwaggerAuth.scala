@@ -18,16 +18,30 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String) extend
    */
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    _docs = _docs + (name -> AuthApi(path, listingPath, description, s.endpoints(path) collect { case m: AuthEndpoint[AnyRef] => m }, s.models))
+    _docs = _docs + (name -> AuthApi(path, listingPath, description, s.endpoints(path).map(_.asInstanceOf[AuthEndpoint[AnyRef]]), s.models))
   }
 }
 
 trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
   protected type ApiType = AuthApi[TypeForUser]
+  protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
   protected def docToJson(doc: ApiType): JValue = doc.toJValue(userOption)
   
   before() {
     scentry.authenticate()    
+  }
+  
+  get("/:doc.:format") {
+    swagger.doc(params("doc")) match {
+      case Some(doc) if doc.apis.exists(_.operations.exists(_.allows(userOption))) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+      case _         ⇒ halt(NotFound())
+    }
+  }
+  
+  get("/resources.:format") {
+    val docs = swagger.docs.filter(_.apis.exists(_.operations.exists(_.allows(userOption)))).toList
+    if (docs.isEmpty) halt(NotFound())
+    renderIndex(docs.asInstanceOf[List[ApiType]])
   }
   
   override protected def renderDoc(doc: AuthApi[TypeForUser]): JValue = {
@@ -42,7 +56,7 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Sca
       ("swaggerVersion" -> swagger.swaggerVersion) ~
       ("apiVersion" -> swagger.apiVersion) ~
       ("apis" ->
-        (swagger.docs.toList map {
+        (docs.toList map {
           doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + ".{format}")) ~
                  ("description" -> doc.description))
         }))
@@ -121,6 +135,8 @@ case class AuthOperation[UserType <: AnyRef](httpMethod: HttpMethod,
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
   protected def allows(value: Option[UserType] => Boolean) = swaggerMeta(Symbols.Allows, value)
+  
+  private def allowAll = (u: Option[UserType]) => true
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
@@ -133,10 +149,11 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
     } yield {
       val endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
       Entry(endpoint, operations(route, method))
-    }) filter (l ⇒ l.value.nonEmpty && l.value.head.nickname.isDefined) groupBy (_.key)
-    ops.toList map { op => 
+    }) 
+    val filtered = ops filter (l ⇒ l.value.nonEmpty && l.value.head.nickname.isDefined) groupBy (_.key)
+    filtered.toList map { op => 
       val name = op._1
-      val sec = _secured.lift apply name getOrElse true
+      val sec = op._2.exists(_.value.exists(!_.allows.apply(None))) //_secured.lift apply name getOrElse true
       val desc = _description.lift apply name getOrElse ""
       new AuthEndpoint[UserType]("%s/%s" format (basePath, name), desc, sec, op._2.toList flatMap (_.value))
     } sortWith { (a, b) ⇒ a.path < b.path }
@@ -152,7 +169,7 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
     val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
     val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
     val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
-    val allows = route.metadata.get(Symbols.Allows) map (_.asInstanceOf[Option[UserType] => Boolean]) getOrElse ((_: Option[UserType]) => true)
+    val allows = route.metadata.get(Symbols.Allows) map (_.asInstanceOf[Option[UserType] => Boolean]) getOrElse allowAll
     List(AuthOperation[UserType](httpMethod = method,
       responseClass = responseClass,
       summary = summary,

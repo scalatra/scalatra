@@ -27,7 +27,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
     /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None)
+  def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String])
 
 }
 
@@ -43,7 +43,6 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) extends Swagge
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
     _docs = _docs + (name -> Api(path, listingPath, description, s.endpoints(path) collect { case m: Endpoint => m }, s.models))
   }
-  
 }
 
 trait SwaggerApi[T <: SwaggerEndpoint[_]] {

@@ -17,17 +17,17 @@ trait SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport 
   /**
    * Returns the Swagger instance responsible for generating the resource and operation listings.
    */
-  protected implicit def swagger: SwaggerEngine[ApiType]
+  protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
   
   get("/:doc.:format") {
     swagger.doc(params("doc")) match {
-      case Some(doc) ⇒ renderDoc(doc)
+      case Some(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
       case _         ⇒ halt(404)
     }
   }
 
   get("/resources.:format") {
-    renderIndex(swagger.docs.toList)
+    renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
   }
 
   options("/resources.:format") {}
@@ -55,4 +55,5 @@ trait SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport 
 trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   type ApiType = Api
   protected def docToJson(doc: Api): JValue = doc.toJValue
+  protected implicit def swagger: SwaggerEngine[ApiType]
 }
