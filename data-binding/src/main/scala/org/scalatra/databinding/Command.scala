@@ -27,10 +27,10 @@ import java.util.Date
 * }}}
 *
 * In the example above, class field ''name'' will be bound, at runtime, with a parameter named ''f_name'' and so on.
-* The binding is typed and for every registered type `T` (see [[org.scalatra.command.field.ImplicitCommonFields]] for
+* The binding is typed and for every registered type `T` (see [[org.scalatra.util.conversion.DefaultImplicitConversions]] for
 * a list of all availables) an automatic conversion `(String) => T` will take place during binding phase.
 *
-* After that binding has been performed (i.e. after that [[org.scalatra.command.Command#bindTo()]] has been called)
+* After that binding has been performed (i.e. after that [[org.scalatra.databinding.Command#bindTo()]] has been called)
 * on a specific instance, it is possible retrieve field values as [[scalaz.Validation]], i.e.:
 *
 * {{{
@@ -152,9 +152,6 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   private def doAfterBindingActions() = postBindingActions.foreach(_.apply())
 
   override def toString: String = "%s(bindings: [%s])".format(getClass.getName, bindings.mkString(", "))
-
-
-
 }
 
 trait ParamsOnlyCommand extends TypeConverterFactories with Command {
