@@ -137,8 +137,11 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
           paramsBinding(params.read(name).right.map(_ map (_.asInstanceOf[paramsBinding.S])))
       }
       
-      name -> result.validate
+      name -> result
     }
+
+    // Defer validation until after all the fields have been bound.
+    bindings = bindings map { case (k,v) => k -> v.validate }
 
     doAfterBindingActions()
     this

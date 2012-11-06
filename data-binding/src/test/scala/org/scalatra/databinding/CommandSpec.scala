@@ -50,6 +50,12 @@ class MixAndMatchCommand extends ParamsOnlyCommand {
   val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
 }
 
+class CommandWithConfirmationValidation extends ParamsOnlyCommand {
+  val name: Field[String] = asString("name").notBlank
+  val passwordConfirmation: Field[String] = asString("passwordConfirmation").notBlank
+  val password: Field[String] = asString("password").notBlank.validForConfirmation(passwordConfirmation)
+}
+
 
 class CommandSpec extends Specification {
 
@@ -88,6 +94,12 @@ class CommandSpec extends Specification {
       form.limit.value must beSome(30)
       form.skip.value must beSome(20)
       form.token.value must beSome("123")
+    }
+
+    "bindTo 'params' with a confirmation" in {
+      val form = new CommandWithConfirmationValidation
+      form.bindTo(Map("name" -> "blah", "password" -> "blah123", "passwordConfirmation" -> "blah123"))
+      form.isValid must beTrue
     }
 
     "provide pluggable actions processed 'BEFORE' binding " in {
