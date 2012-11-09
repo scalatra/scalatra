@@ -5,6 +5,7 @@ import org.specs2.mutable._
 import org.scalatra.databinding._
 import org.json4s.DefaultFormats
 import org.json4s.Formats
+import test.specs2.MutableScalatraSpec
 
 object SwaggerCommandSupportSpec  {
   class SimpleCommand extends ParamsOnlyCommand {
@@ -27,10 +28,23 @@ object SwaggerCommandSupportSpec  {
     val skip: Field[Int] = asInt("skip").sourcedFrom(Query).description("The offset for this collection index")
     val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
   }
+
+  class CommandSupportServlet(protected implicit val swagger: Swagger) extends ScalatraServlet with ParamsOnlyCommandSupport with SwaggerSupport with SwaggerCommandSupport {
+
+    get("/all", parameters[SimpleCommand], endpoint("all"), nickname("all")) { "OK" }
+    get("/new", parameters(new SimpleCommand), endpoint("new"), nickname("new")) { "OK" }
+
+    protected def applicationDescription: String = "The command support servlet"
+
+    override protected def applicationName: Option[String] = Some("support")
+
+  }
 }
-class SwaggerCommandSupportSpec extends Specification {
+class SwaggerCommandSupportSpec extends MutableScalatraSpec {
 
   import SwaggerCommandSupportSpec._
+  implicit val swagger = new Swagger("1.1", "1")
+  addServlet(new CommandSupportServlet, "/")
 
   "SwaggerCommandSupport" should {
     "generate a model and parameters for a simple command" in {

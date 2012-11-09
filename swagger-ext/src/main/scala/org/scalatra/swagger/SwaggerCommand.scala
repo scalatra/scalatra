@@ -59,16 +59,23 @@ object SwaggerCommandSupport {
 }
 trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
 
-  protected def parameters[T <: CommandType : Manifest] = swaggerMeta(Symbols.Parameters, parametersFromCommand[T])
+  protected def parameters[T <: CommandType : Manifest] =
+    swaggerMeta(Symbols.Parameters, parametersFromCommand[T])
+
+  protected def parameters[T <: CommandType : Manifest](cmd: => T) =
+    swaggerMeta(Symbols.Parameters, parametersFromCommand(cmd))
   
   
   private[this] def parametersFromCommand[T <: CommandType](implicit mf: Manifest[T]): List[Parameter] = {
-    SwaggerCommandSupport.parametersFromCommand(command[T]) match {
-      case (parameters, None) => parameters
-      case (parameters, Some(model)) => 
-        _models += model
-        parameters
-    }
+    parametersFromCommand(mf.erasure.newInstance().asInstanceOf[T])
   }
-   
+
+  private[this] def parametersFromCommand[T <: CommandType](cmd: => T)(implicit mf: Manifest[T]): List[Parameter] = {
+      SwaggerCommandSupport.parametersFromCommand(cmd) match {
+        case (parameters, None) => parameters
+        case (parameters, Some(model)) =>
+          _models += model
+          parameters
+      }
+    }
 }
