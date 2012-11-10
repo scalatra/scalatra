@@ -1,0 +1,7 @@
+### JSON
+* fix reading json from post without the right header
+
+### SLF4J
+* Rename LogbackSupport to `ScalatraSlf4jRequestLogging`
+
+
