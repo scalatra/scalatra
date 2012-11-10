@@ -15,14 +15,24 @@ trait JsonSupport[T] extends JsonOutput[T] {
 
   import JsonSupport._
 
+
   private[this] val _defaultCacheRequestBody = true
   protected def cacheRequestBodyAsString: Boolean = _defaultCacheRequestBody
   protected def parseRequestBody(format: String) = try {
+    val ct = request.contentType getOrElse ""
     if (format == "json") {
-      val bd  = if (cacheRequestBodyAsString) readJsonFromBody(request.body) else readJsonFromStream(request.inputStream)
+      val bd  = {
+        if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readJsonFromBody getOrElse JNothing
+        else if (cacheRequestBodyAsString) readJsonFromBody(request.body)
+        else readJsonFromStream(request.inputStream)
+      }
       transformRequestBody(bd)
     } else if (format == "xml") {
-      val bd  = if (cacheRequestBodyAsString) readXmlFromBody(request.body) else readXmlFromStream(request.inputStream)
+      val bd = {
+        if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readXmlFromBody getOrElse JNothing
+        else if (cacheRequestBodyAsString) readXmlFromBody(request.body)
+        else readXmlFromStream(request.inputStream)
+      }
       transformRequestBody(bd)
     } else JNothing
   } catch {
