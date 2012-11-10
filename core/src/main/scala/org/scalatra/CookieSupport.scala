@@ -6,7 +6,6 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => Se
 import servlet.ServletApiImplicits
 import util.DateUtil
 import util.RicherString._
-import java.text.SimpleDateFormat
 
 case class CookieOptions(
         domain  : String  = "",

@@ -4,7 +4,7 @@ package slf4j
 import org.scalatra.util.MultiMap
 import org.slf4j.MDC
 import java.util.{ Map ⇒ JMap }
-import grizzled.slf4j.Logging
+import grizzled.slf4j.{Logger, Logging}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import collection.JavaConverters._
 import org.scalatra.util.RicherString._
@@ -20,8 +20,9 @@ object ScalatraSlf4jRequestLogging {
 
 }
 
-trait ScalatraSlf4jRequestLogging extends Handler with Logging { self: ScalatraBase ⇒
+trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
 
+  private[this] val logger = Logger("[REQUEST]")
   import ScalatraSlf4jRequestLogging._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
@@ -35,6 +36,10 @@ trait ScalatraSlf4jRequestLogging extends Handler with Logging { self: ScalatraB
     }
   }
 
+  protected def logRequest() {
+    logger.info(MDC.getCopyOfContextMap.asScala.asInstanceOf[Map[String, String]])
+  }
+
   override protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: ⇒ S): S = {
     val originalParams = multiParams
     request(MultiParamsKey) = originalParams ++ matchedRoute.map(_.multiParams).getOrElse(Map.empty)
@@ -42,7 +47,7 @@ trait ScalatraSlf4jRequestLogging extends Handler with Logging { self: ScalatraB
     try { thunk } finally { request(MultiParamsKey) = originalParams }
   }
 
-  protected def fillMdc() { // Do this twice so that we get all the route params if they are available and applicable
+  private[this] def fillMdc() { // Do this twice so that we get all the route params if they are available and applicable
     MDC.clear()
     MDC.put(RequestPath, requestPath)
     MDC.put(RequestApp, getClass.getSimpleName)
@@ -56,9 +61,9 @@ trait ScalatraSlf4jRequestLogging extends Handler with Logging { self: ScalatraB
     MDC.put(CgiParams, cgiParams map { case (k, v) ⇒ "%s=%s".format(%-(k), %-(v)) } mkString "&")
   }
 
-  def cgiParams = request get CgiParamsKey map (_.asInstanceOf[Map[String, String]]) getOrElse Map.empty
+  private[this] def cgiParams = request get CgiParamsKey map (_.asInstanceOf[Map[String, String]]) getOrElse Map.empty
 
-  private def readCgiParams(req: HttpServletRequest) = Map(
+  private[this] def readCgiParams(req: HttpServletRequest) = Map(
     "AUTH_TYPE" -> req.getAuthType,
     "CONTENT_LENGTH" -> req.getContentLength.toString,
     "CONTENT_TYPE" -> req.getContentType,
@@ -77,5 +82,28 @@ trait ScalatraSlf4jRequestLogging extends Handler with Logging { self: ScalatraB
     "SERVER_SOFTWARE" -> servletContext.getServerInfo)
 
   private def %-(s: String) = s.blankOption map (_.urlEncode) getOrElse ""
+
+  /**
+   * Prepends a new route for the given HTTP method.
+   *
+   * Can be overriden so that subtraits can use their own logic.
+   * Possible examples:
+   * $ - restricting protocols
+   * $ - namespace routes based on class name
+   * $ - raising errors on overlapping entries.
+   *
+   * This is the method invoked by get(), post() etc.
+   *
+   * @see org.scalatra.ScalatraKernel#removeRoute
+   */
+  override protected def addRoute(method: HttpMethod, transformers: Seq[_root_.org.scalatra.RouteTransformer], action: => Any): Route = {
+    val newAction = () => {
+      try { logRequest() } catch { case _: Throwable => }
+      action
+    }
+    val route = Route(transformers, newAction, () => routeBasePath)
+    routes.prependRoute(method, route)
+    route
+  }
 }
 

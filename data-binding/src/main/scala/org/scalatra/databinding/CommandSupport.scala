@@ -25,13 +25,6 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
     commandFactories += (mf.erasure -> (() => cmd))
   }
 
-//  import org.scalatra.databinding.DefaultValues._
-
-//  /**
-//   * Implicitly convert a [[org.scalatra.command.Field]] value to an [[scala.Option]]
-//   */
-//  implicit def bindingValue[T](b: FieldDescriptor[T]): FieldValidation[T] = b.value
-
   /**
    * Create and bind a [[org.scalatra.databinding.Command]] of the given type with the current Scalatra params.
    *
@@ -54,7 +47,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
   }
 
   protected def bindCommand[T <: CommandType](newCommand: T)(implicit mf: Manifest[T]): T = {
-    logger debug  "binding command: %s from %s".format(mf.erasure.getSimpleName, format)
+    logger debug  "binding command: %s from %s".format(mf.erasure.getSimpleName, "html")
     newCommand.bindTo(params, multiParams, request.headers)
     requestProxy.update(commandRequestKey[T], newCommand)
     newCommand
@@ -69,8 +62,6 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
   private class CommandRouteMatcher[T <: CommandType ](implicit mf: Manifest[T]) extends RouteMatcher {
 
     override def apply(requestPath: String) = if (command[T].isValid) Some(MultiMap()) else None
-
-    override def toString = "[valid command guard]"
   }
 
   /**
