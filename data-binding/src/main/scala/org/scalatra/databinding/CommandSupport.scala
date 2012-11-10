@@ -9,6 +9,7 @@ import java.util.Date
 import org.joda.time.DateTime
 import collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
+import grizzled.slf4j.Logger
 
 /**
 * Support for [[org.scalatra.databinding.Command]] binding and validation.
