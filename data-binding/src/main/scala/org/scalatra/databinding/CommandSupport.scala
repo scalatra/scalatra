@@ -2,7 +2,7 @@ package org.scalatra
 package databinding
 
 import util.{ParamsValueReaderProperties, MultiMap}
-import scalaz._
+import _root_.scalaz._
 import Scalaz._
 import collection.mutable
 import java.util.Date
@@ -18,6 +18,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
   type CommandType <: Command
   
   private[this] val commandFactories: mutable.ConcurrentMap[Class[_], () => Command] = new ConcurrentHashMap[Class[_], () => Command].asScala
+  private[this] val logger: Logger = Logger[this.type]
   
   def registerCommand[T <: Command](cmd: => T)(implicit mf: Manifest[T]) {
     commandFactories += (mf.erasure -> (() => cmd))
@@ -52,6 +53,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
   }
 
   protected def bindCommand[T <: CommandType](newCommand: T)(implicit mf: Manifest[T]): T = {
+    logger debug  "binding command: %s from %s".format(mf.erasure.getSimpleName, format)
     newCommand.bindTo(params, multiParams, request.headers)
     requestProxy.update(commandRequestKey[T], newCommand)
     newCommand
@@ -75,6 +77,8 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
    * [[org.scalatra.databinding.validation.ValidationSupport]] for details.
    */
   def ifValid[T <: CommandType](implicit mf: Manifest[T]): RouteMatcher = new CommandRouteMatcher[T]
+
+
 }
 
 trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraBase =>

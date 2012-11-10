@@ -9,7 +9,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import collection.JavaConverters._
 import org.scalatra.util.RicherString._
 
-object ScalatraLogbackSupport {
+object ScalatraSlf4jRequestLogging {
 
   val CgiParamsKey = "org.scalatra.slf4j.ScalatraSlf4jSupport"
   val RequestPath = "REQUEST_PATH"
@@ -20,9 +20,9 @@ object ScalatraLogbackSupport {
 
 }
 
-trait ScalatraLogbackSupport extends Handler with Logging { self: ScalatraBase ⇒
+trait ScalatraSlf4jRequestLogging extends Handler with Logging { self: ScalatraBase ⇒
 
-  import ScalatraLogbackSupport._
+  import ScalatraSlf4jRequestLogging._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     val realMultiParams = req.getParameterMap.asInstanceOf[JMap[String, Array[String]]].asScala.toMap transform { (k, v) ⇒ v: Seq[String] }
