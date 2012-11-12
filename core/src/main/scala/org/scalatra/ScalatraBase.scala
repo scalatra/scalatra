@@ -543,7 +543,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
 
   private[this] def ensureSlash(candidate: String) = {
     val p = if (candidate.startsWith("/")) candidate else "/"+candidate
-    if (p.endsWith("/")) p.dropRight(1) else p
+    if (p.size > 1 && p.endsWith("/")) p.dropRight(1) else p
   }
 
 

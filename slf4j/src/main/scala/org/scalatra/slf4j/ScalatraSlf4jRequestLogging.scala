@@ -37,7 +37,8 @@ trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
   }
 
   protected def logRequest() {
-    logger.info(MDC.getCopyOfContextMap.asScala.asInstanceOf[Map[String, String]])
+    println("printing request")
+    logger.info(MDC.getCopyOfContextMap.asScala.map(kv => kv._1.toString + ": " + kv._2.toString).mkString("{", ", ", " }"))
   }
 
   override protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: ⇒ S): S = {
