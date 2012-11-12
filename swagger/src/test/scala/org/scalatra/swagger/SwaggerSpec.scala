@@ -28,7 +28,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
    */
   override def port: Int = 58468
 
-  val listResourceJValue = readJson("resources.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
+  val listResourceJValue = readJson("resources.json") merge (("basePath" -> ("http://localhost:" + port + "/")):JValue)
 
   val listOperationsJValue = readJson("pet.json")
 
