@@ -524,7 +524,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
       case(key, value) => key.urlEncode + "=" +value.toString.urlEncode
     }
     val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
-    addSessionId(newPath+queryString)
+    addSessionId(newPath.replace("//", "/") +queryString)
   }
 
   private[this] val ensureContextPathsStripped = (ensureContexPathStripped _) andThen (ensureServletPathStripped _)
