@@ -23,15 +23,17 @@ object SwaggerCommandSupport {
     mf.erasure.getMethods().foldLeft(List.empty[Parameter]) { (lst, fld) =>
       if (fld.getReturnType().isAssignableFrom(classOf[Field[_]]) && fld.getParameterTypes().isEmpty) {
         val f = fld.invoke(obj).asInstanceOf[Field[_]]
-        Parameter(
-            f.displayName | f.name, 
-            f.description, 
-            DataType(f.binding.valueManifest), 
-            f.notes.blankOption, 
-            paramtypeMapping(f.valueSource), 
-            if (f.isRequired) None else f.defaultValue.toString.blankOption, 
-            if (f.allowableValues.nonEmpty) AllowableValues(f.allowableValues) else AllowableValues.AnyValue,
-            required = f.isRequired) :: lst
+        if (f.valueSource == ValueSource.Header) lst else {
+          Parameter(
+              f.displayName | f.name,
+              f.description,
+              DataType(f.binding.valueManifest),
+              f.notes.blankOption,
+              paramtypeMapping(f.valueSource),
+              if (f.isRequired) None else f.defaultValue.toString.blankOption,
+              if (f.allowableValues.nonEmpty) AllowableValues(f.allowableValues) else AllowableValues.AnyValue,
+              required = f.isRequired) :: lst
+        }
       } else lst
     }
   }

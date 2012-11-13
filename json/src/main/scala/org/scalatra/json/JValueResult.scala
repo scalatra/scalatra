@@ -11,6 +11,7 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
 
   private def renderToJson: RenderPipeline = {
     case a: JValue => super.renderPipeline(a)
+    case a: ActionResult => super.renderPipeline(a)
     case _: Unit | Unit => super.renderPipeline(())
     case p if responseFormat == "json" || responseFormat == "xml" => Extraction.decompose(p)
   }

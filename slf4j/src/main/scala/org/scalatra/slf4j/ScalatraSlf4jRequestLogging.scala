@@ -22,7 +22,7 @@ object ScalatraSlf4jRequestLogging {
 
 trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
 
-  private[this] val logger = Logger("[REQUEST]")
+  private[this] val logger = Logger("REQUEST")
   import ScalatraSlf4jRequestLogging._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
@@ -37,7 +37,6 @@ trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
   }
 
   protected def logRequest() {
-    println("printing request")
     logger.info(MDC.getCopyOfContextMap.asScala.map(kv => kv._1.toString + ": " + kv._2.toString).mkString("{", ", ", " }"))
   }
 
