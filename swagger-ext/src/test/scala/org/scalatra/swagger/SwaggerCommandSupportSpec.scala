@@ -64,11 +64,12 @@ class SwaggerCommandSupportSpec extends MutableScalatraSpec {
         Parameter("API-TOKEN", "The API token for this request", DataType.String, notes = Some("Invalid data kills kittens"), paramType = ParamType.Header, allowableValues = AllowableValues("123"))
       )
       val (parameters, model) = SwaggerCommandSupport.parametersFromCommand(new FullCommand)
-      parameters.size must_== parameterList.size
+      parameters.size must_== 3 // parameterList.size // disabled for swagger codegen for now
       parameters must contain(parameterList(0))
       parameters must contain(parameterList(1))
       parameters must contain(parameterList(2))
-      parameters must contain(parameterList(3))
+      // Disabled headers for now, until swagger codegen mangles header names
+//      parameters must contain(parameterList(3))
       model must beSome[Model]
       model.get.id must_== "FullCommand"
       model.get.description must beEmpty
