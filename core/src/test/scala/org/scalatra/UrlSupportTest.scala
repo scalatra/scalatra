@@ -16,7 +16,7 @@ class UrlSupportTest extends ScalatraFunSuite {
     }
 
     get("/strip-context") {
-      this.url(params("url"), includeContextPath = false)
+      this.url(params("url"))//, includeContextPath = false)
     }
   }, "/*")
 
@@ -41,6 +41,14 @@ class UrlSupportTest extends ScalatraFunSuite {
 
   test("empty params should not generate a query string") {
     url("foo", Map.empty) should equal ("foo")
+  }
+
+  test("a '/' should come out as /context/") {
+    get("/context/strip-context?url=/") { body should equal("/context/") }
+  }
+
+  test("a '' should come out as /") {
+    get("/context/strip-context?url=") { body should equal("/") }
   }
 
   test("params should be rendered as a query string") {
