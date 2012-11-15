@@ -245,29 +245,14 @@ object DataType {
   
   private[this] def isDate[T](implicit mf: Manifest[T]) = mf <:< manifest[Date] || mf <:< manifest[DateTime]
   
-  private[this] def isMap[T](implicit mf: Manifest[T]) = 
-    mf <:< manifest[collection.Map[_, _]] || 
-    mf <:< manifest[collection.immutable.Map[_, _]] || 
-    mf <:< manifest[collection.mutable.Map[_, _]] ||
-    mf <:< manifest[java.util.Map[_, _]]
-  
-  private[this] def isCollection[T](implicit mf: Manifest[T]) = 
-    mf <:< manifest[collection.Traversable[_]] ||
-    mf <:< manifest[collection.immutable.Traversable[_]] ||
-    mf <:< manifest[collection.mutable.Traversable[_]] ||
-    mf <:< manifest[collection.Seq[_]] ||
-    mf <:< manifest[collection.immutable.Seq[_]] ||
-    mf <:< manifest[collection.mutable.Seq[_]] ||
-    mf <:< manifest[collection.immutable.List[_]] ||
-    mf <:< manifest[collection.Set[_]] ||
-    mf <:< manifest[collection.immutable.Set[_]] ||
-    mf <:< manifest[collection.mutable.Set[_]] ||
-    mf <:< manifest[collection.mutable.Buffer[_]] ||
-    mf <:< manifest[collection.mutable.ListBuffer[_]] ||
-    mf <:< manifest[java.util.Collection[_]] ||
-    mf <:< manifest[java.util.Set[_]] ||
-    mf <:< manifest[java.util.List[_]]
-    
+  private[this] def isMap[T](implicit mf: Manifest[T]) =
+    classOf[collection.Map[_, _]].isAssignableFrom(mf.erasure) ||
+    classOf[java.util.Map[_, _]].isAssignableFrom(mf.erasure)
+
+  private[this] def isCollection[T](implicit mf: Manifest[T]) =
+    classOf[collection.Traversable[_]].isAssignableFrom(mf.erasure) ||
+    classOf[java.util.Collection[_]].isAssignableFrom(mf.erasure)
+
 }
 
 trait AllowableValues
