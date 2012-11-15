@@ -164,7 +164,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with Sca
       liftAction(matchedRoute.action)
     }
 
-  private def liftAction(action: Action): Option[Any] = 
+  private def liftAction(action: Action): Option[Any] =
     try {
       Some(action())
     }
@@ -241,7 +241,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with Sca
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
-    
+
     renderResponseBody(actionResult)
   }
 
@@ -287,7 +287,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with Sca
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
       response.outputStream.write(bytes)
-    case is: java.io.InputStream => 
+    case is: java.io.InputStream =>
       using(is) { util.io.copy(_, response.outputStream) }
     case file: File =>
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
@@ -465,7 +465,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with Sca
    * @return an option containing the value of the parameter if defined, or
    * `None` if the parameter is not set.
    */
-  def initParameter(name: String): Option[String] = 
+  def initParameter(name: String): Option[String] =
     config.initParameters.get(name)
 
   /**
@@ -607,3 +607,9 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with Sca
 
   protected def addSessionId(uri: String): String
 }
+
+/**
+ * The base implementation of the Scalatra DSL.  Intended to be portable
+ * to all supported backends.
+ */
+trait ScalatraBase extends ScalatraSyntax with DynamicScope
