@@ -18,11 +18,11 @@ case class CookieOptions(
         encoding: String  = "UTF-8")
 
 object Cookie {
-  private[this] var _currentTimeMillis: Option[Long] = None
+  @volatile private[this] var _currentTimeMillis: Option[Long] = None
   def currentTimeMillis = _currentTimeMillis getOrElse System.currentTimeMillis
-  def currentTimeMillis_=(ct: Long) = synchronized { _currentTimeMillis = Some(ct) }
-  def freezeTime() = synchronized { _currentTimeMillis = Some(System.currentTimeMillis()) }
-  def unfreezeTime() = synchronized { _currentTimeMillis = None }
+  def currentTimeMillis_=(ct: Long) = _currentTimeMillis = Some(ct)
+  def freezeTime() = _currentTimeMillis = Some(System.currentTimeMillis())
+  def unfreezeTime() = _currentTimeMillis = None
   def formatExpires(date: Date) = DateUtil.formatDate(date, "EEE, dd MMM yyyy HH:mm:ss zzz")
 }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
