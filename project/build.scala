@@ -254,7 +254,7 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.1"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.4"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
