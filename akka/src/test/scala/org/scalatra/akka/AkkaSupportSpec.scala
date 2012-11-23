@@ -8,7 +8,7 @@ import _root_.akka.actor.SupervisorStrategy._
 import _root_.akka.util.duration._
 
 import _root_.akka.util.Timeout
-import test.specs.ScalatraSpecification
+import test.specs2.MutableScalatraSpec
 
 class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
   val system = ActorSystem()
@@ -48,7 +48,7 @@ class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
   }
 }
 
-class AkkaSupportSpec extends ScalatraSpecification {
+class AkkaSupportSpec extends MutableScalatraSpec {
   addServlet(new AkkaSupportServlet, "/*")
 
   "The AkkaSupport" should {
@@ -67,7 +67,7 @@ class AkkaSupportSpec extends ScalatraSpecification {
 
     "handle an async exception" in {
       get("/fail") {
-	body must include("caught")
+        body must contain("caught")
       }
     }
 

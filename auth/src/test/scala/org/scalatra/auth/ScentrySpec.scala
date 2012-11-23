@@ -1,16 +1,16 @@
 package org.scalatra
 package auth
 
-import org.specs._
-import mock.Mockito
+import org.specs2.mutable._
 import org.mockito.Matchers._
-import runner.{ScalaTest, JUnit}
 import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest, HttpSession}
-import org.scalatra.SweetCookies
 import auth.ScentryAuthStore.SessionAuthStore
+import org.specs2.mock.Mockito
 
-object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest {
-  detailedDiffs
+object ScentrySpec extends Specification with Mockito {
+  sequential
+  isolated
+
   case class User(id: String)
 
   "The scentry" should {
@@ -20,13 +20,13 @@ object ScentrySpec extends Specification with Mockito with JUnit with ScalaTest 
       private[this] val sessionMap = scala.collection.mutable.HashMap[String, Any](Scentry.scentryAuthKey -> "6789")
       override val session = smartMock[HttpSession]
       session.getAttribute(anyString) answers { k => sessionMap.getOrElse(k.asInstanceOf[String], null).asInstanceOf[AnyRef] }
-      session.setAttribute(anyString(), anyObject()) answers { kv =>
-        val kvArray = kv.asInstanceOf[Array[AnyRef]]
-        sessionMap(kvArray(0).asInstanceOf[String]) = kvArray(1)
+      session.setAttribute(anyString, anyObject) answers { (kv, wtfIsThis) =>
+        val Array(k: String, v: Any) = kv
+        sessionMap(k) = v
       }
-      session.invalidate() answers {
+      session.invalidate() answers { k =>
         invalidateCalled = true
-        k => sessionMap.clear()
+        sessionMap.clear()
       }
     }
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)}, new SessionAuthStore(context.session))

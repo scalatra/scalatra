@@ -1,6 +1,6 @@
 package org.scalatra.akka
 
-import org.scalatra.test.specs.ScalatraSpecification
+import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraServlet
 import akka.actor.ActorSystem
 import akka.dispatch.Future
@@ -57,7 +57,7 @@ class AkkaSupportAfterFilterServlet extends ScalatraServlet with AkkaSupport {
   }
 }
 
-class AkkaSupportAfterFilterSpec extends ScalatraSpecification {
+class AkkaSupportAfterFilterSpec extends MutableScalatraSpec {
   sequential
 
   val servlet = new AkkaSupportAfterFilterServlet()

@@ -1,7 +1,7 @@
 package org.scalatra
 package json
 
-import test.specs.ScalatraSpecification
+import test.specs2.MutableScalatraSpec
 import org.json4s._
 
 class NativeJsonSupportServlet extends ScalatraServlet with NativeJsonSupport {
@@ -20,7 +20,7 @@ class NativeJsonSupportServlet extends ScalatraServlet with NativeJsonSupport {
 
 }
 
-class NativeJsonRequestBodySpec extends ScalatraSpecification {
+class NativeJsonRequestBodySpec extends MutableScalatraSpec {
 
   addServlet(new NativeJsonSupportServlet, "/*")
 
@@ -66,7 +66,7 @@ class JacksonSupportServlet extends ScalatraServlet with JacksonJsonSupport {
   }
 }
 
-class JacksonRequestBodySpec extends ScalatraSpecification {
+class JacksonRequestBodySpec extends MutableScalatraSpec {
 
   addServlet(new JacksonSupportServlet, "/*")
 
