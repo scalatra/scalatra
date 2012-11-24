@@ -1,7 +1,5 @@
 package org.scalatra
 
-import scala.actors.Actor
-import scala.actors.TIMEOUT
 import scala.xml.Text
 import test.scalatest.ScalatraFunSuite
 import java.io.File

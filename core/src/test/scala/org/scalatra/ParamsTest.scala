@@ -89,7 +89,7 @@ class ParamsTest extends ScalatraFunSuite {
   }
 
   test("can read the body of a post") {
-    post("/read-body", "hi".getBytes(Codec.UTF8)) {
+    post("/read-body", "hi".getBytes(Codec.UTF8.charSet)) {
       body should equal ("body: hi")
     }
   }

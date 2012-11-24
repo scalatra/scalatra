@@ -9,6 +9,7 @@ import org.atmosphere.di.InjectorProvider
 import java.util.UUID
 import org.scalatra.atmosphere.{WireFormat, ScalatraBroadcaster}
 import collection.JavaConverters._
+import scala.collection.concurrent.{Map => ConcurrentMap}
 
 object ScalatraBroadcasterFactory {
 
@@ -18,7 +19,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Format
   if (BroadcasterFactory.factory == null) BroadcasterFactory.factory = this
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
-  private[this] val store: mutable.ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
+  private[this] val store: ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
 
   private def createBroadcaster(c: Class[_<:Broadcaster], id: Any): Broadcaster = {
     try {

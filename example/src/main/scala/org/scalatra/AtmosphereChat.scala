@@ -1,5 +1,6 @@
 package org.scalatra
 
+import _root_.akka.dispatch.ExecutionContexts
 import atmosphere._
 import json.{JValueResult, JacksonJsonSupport}
 import org.json4s._
@@ -7,9 +8,12 @@ import JsonDSL._
 import java.util.Date
 import java.text.SimpleDateFormat
 import xml._
+import concurrent.ExecutionContext
 
 class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValueResult with SessionSupport with AtmosphereSupport {
   implicit protected val jsonFormats: Formats = DefaultFormats
+
+  import ExecutionContext.Implicits.global
 
   get("/") {
     Template.page(

@@ -5,6 +5,7 @@ import org.atmosphere.cpr._
 import org.json4s._
 import org.scalatra.util.RicherString._
 import grizzled.slf4j.Logger
+import concurrent.ExecutionContext
 
 
 trait AtmosphereClient {
@@ -25,9 +26,9 @@ trait AtmosphereClient {
 
   def receive: AtmoReceive
 
-  final def send(msg: OutboundMessage) = broadcast(msg, OnlySelf)
+  final def send(msg: OutboundMessage)(implicit executionContext: ExecutionContext) = broadcast(msg, OnlySelf)
 
-  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = {
+  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf)(implicit executionContext: ExecutionContext) = {
     if (resource == null) {
       internalLogger.warn("The resource is null, can't publish")
     }

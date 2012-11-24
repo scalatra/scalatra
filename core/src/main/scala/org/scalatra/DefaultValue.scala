@@ -72,7 +72,7 @@ trait DefaultValueImplicits {
 
   // Not implicit to ensure implicitly[DefaultValue[NodeSeq]].default === NodeSeqDefaultValue.default
   def ElemDefaultValue: DefaultValue[Elem] = new DefaultValue[Elem] {
-    val default = new Elem(null, null, scala.xml.Null, xml.TopScope, Nil: _*)
+    val default = new Elem(null, null, scala.xml.Null, xml.TopScope, false)
   }
 
   implicit def OptionDefaultValue[A]: DefaultValue[Option[A]] = default(None)
