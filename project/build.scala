@@ -35,7 +35,7 @@ object ScalatraBuild extends Build {
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
-      scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
+      scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
       scalatraCommon, scalatraSwaggerExt)
   )
@@ -63,7 +63,6 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
-    scalatraSpecs % "test->compile",
     scalatraScalatest % "test->compile",
     scalatraCommon % "compile;test->test"
   )
@@ -186,18 +185,6 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(scalatest, junit, testng, guice),
       description := "ScalaTest support for the Scalatra test framework"
-    )
-  ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
-
-  lazy val scalatraSpecs = Project(
-    id = "scalatra-specs",
-    base = file("specs"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies += specs,
-      description := "Specs support for the Scalatra test framework",
-      // The one in Maven Central has a bad checksum for 2.8.2.
-      // Try ScalaTools first.
-      resolvers ~= { rs => ScalaToolsReleases +: rs }
     )
   ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
