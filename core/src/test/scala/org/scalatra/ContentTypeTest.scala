@@ -11,6 +11,7 @@ import java.nio.charset.Charset
 import scala.concurrent.duration._
 import org.eclipse.jetty.servlet.ServletHolder
 import concurrent.Await
+import org.scalatest.BeforeAndAfterAll
 
 class ContentTypeTestServlet(system: ActorSystem) extends ScalatraServlet {
   get("/json") {
@@ -78,13 +79,13 @@ class ContentTypeTestServlet(system: ActorSystem) extends ScalatraServlet {
   post("/echo") {
     params("echo")
   }
-
-  override def destroy() { system.shutdown() }
 }
 
-class ContentTypeTest extends ScalatraFunSuite {
+class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
   val system = ActorSystem()
   implicit val timeout: Timeout = 5 seconds
+
+  override def afterAll = system.shutdown()
 
   val servletHolder = new ServletHolder(new ContentTypeTestServlet(system))
   servletHolder.setInitOrder(1) // force load on startup
@@ -134,9 +135,9 @@ class ContentTypeTest extends ScalatraFunSuite {
       }
     }
 
-    val futures = for (i <- 1 to 2) yield { system.actorOf(Props[RequestActor]) ? i }
+    val futures = for (i <- 1 to 2) yield { system.actorOf(Props(new RequestActor)) ? i }
     for (future <- futures) {
-      val (i: Int, mediaType: String) = Await.result(future.mapTo[(Int, String)], 5 seconds)
+      val (i: Int, mediaType: Option[String]) = Await.result(future.mapTo[(Int, Option[String])], 5 seconds)
       mediaType should be (Some(i.toString))
     }
   }
