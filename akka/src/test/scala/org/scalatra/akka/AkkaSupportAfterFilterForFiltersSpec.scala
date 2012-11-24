@@ -1,6 +1,6 @@
 package org.scalatra.akka
 
-import org.scalatra.test.specs.ScalatraSpecification
+import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraFilter
 import akka.actor.ActorSystem
 import akka.dispatch.Future
@@ -57,7 +57,7 @@ class AkkaSupportAfterFilterFilter extends ScalatraFilter with AkkaSupport {
   }
 }
 
-class AkkaSupportAfterFilterForFiltersSpec extends ScalatraSpecification {
+class AkkaSupportAfterFilterForFiltersSpec extends MutableScalatraSpec {
   sequential
 
   val filter = new AkkaSupportAfterFilterFilter()
