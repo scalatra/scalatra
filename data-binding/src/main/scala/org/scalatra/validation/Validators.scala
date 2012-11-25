@@ -119,7 +119,7 @@ object Validators {
       fieldName, expected.contains, "%s must be one of " + expected.mkString("[", ", ", "]"))
 
   /**
-   * One of the values in an enum must be equal to the value of fieldName.
+   * Checks if the value of the data is a value of the specified enum.
    */ 
   def enumValue(fieldName: String, enum: Enumeration): Validator[String] =
     oneOf(fieldName, enum.values.map(_.toString).toSeq: _*)
