@@ -5,7 +5,7 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.json.NativeJsonSupport
 import org.scalatra.auth.ScentrySupport
 import org.json4s._
-import org.json4s.native.JsonMethods._
+import org.json4s.native.JsonMethods.{parseJson => parse, _}
 import org.scalatra.auth.ScentryStrategy
 import org.scalatra.servlet.ServletApiImplicits._
 import util.RicherString._
@@ -37,10 +37,10 @@ object SwaggerAuthSpec {
     type ScentryConfiguration = ScentryConfig
     protected val scentryConfig: ScentryConfiguration = (new ScentryConfig {}).asInstanceOf[ScentryConfiguration]
     
-    protected val fromSession: PartialFunction[String, UserType] = {
+    protected val fromSession: PartialFunction[String, User] = {
       case s: String => Users.find(_.login == s).get
     }
-    protected val toSession: PartialFunction[UserType, String] = {
+    protected val toSession: PartialFunction[User, String] = {
       case u: User => u.login
     }
     override def configureScentry = {

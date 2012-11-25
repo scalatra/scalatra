@@ -64,12 +64,12 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Sca
   
 }
 
-case class AuthApi[UserType <: AnyRef](resourcePath: String,
+case class AuthApi[TypeForUser <: AnyRef](resourcePath: String,
                listingPath: Option[String],
                description: String,
-               apis: List[AuthEndpoint[UserType]],
-               models: Map[String, Model]) extends SwaggerApi[AuthEndpoint[UserType]] {
-  def toJValue[T >: UserType <: UserType](userOption: Option[T]) = AuthApi.toJValue(this, userOption)
+               apis: List[AuthEndpoint[TypeForUser]],
+               models: Map[String, Model]) extends SwaggerApi[AuthEndpoint[TypeForUser]] {
+  def toJValue[T >: TypeForUser <: TypeForUser](userOption: Option[T]) = AuthApi.toJValue(this, userOption)
 }
 
 object AuthApi {
@@ -118,12 +118,12 @@ object AuthApi {
   }
 }
 
-case class AuthEndpoint[UserType <: AnyRef](path: String,
+case class AuthEndpoint[TypeForUser <: AnyRef](path: String,
 												                    description: String,
 												                    secured: Boolean = false,
-												                    operations: List[AuthOperation[UserType]] = Nil) extends SwaggerEndpoint[AuthOperation[UserType]]
+												                    operations: List[AuthOperation[TypeForUser]] = Nil) extends SwaggerEndpoint[AuthOperation[TypeForUser]]
 
-case class AuthOperation[UserType <: AnyRef](httpMethod: HttpMethod,
+case class AuthOperation[TypeForUser <: AnyRef](httpMethod: HttpMethod,
 												                     responseClass: String,
 												                     summary: String,
 												                     notes: Option[String] = None,
@@ -131,18 +131,18 @@ case class AuthOperation[UserType <: AnyRef](httpMethod: HttpMethod,
 												                     nickname: Option[String] = None,
 												                     parameters: List[Parameter] = Nil,
 												                     errorResponses: List[Error] = Nil,
-												                     allows: Option[UserType] => Boolean = (_: Option[UserType]) => true) extends SwaggerOperation
+												                     allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
-  protected def allows(value: Option[UserType] => Boolean) = swaggerMeta(Symbols.Allows, value)
+  protected def allows(value: Option[TypeForUser] => Boolean) = swaggerMeta(Symbols.Allows, value)
   
-  private def allowAll = (u: Option[UserType]) => true
+  private def allowAll = (u: Option[TypeForUser]) => true
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
-  def endpoints(basePath: String): List[AuthEndpoint[UserType]] = {
-    case class Entry(key: String, value: List[AuthOperation[UserType]])
+  def endpoints(basePath: String): List[AuthEndpoint[TypeForUser]] = {
+    case class Entry(key: String, value: List[AuthOperation[TypeForUser]])
     val ops = (for {
       (method, routes) ← routes.methodRoutes
       route ← routes
@@ -155,22 +155,22 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
       val name = op._1
       val sec = op._2.exists(_.value.exists(!_.allows.apply(None))) //_secured.lift apply name getOrElse true
       val desc = _description.lift apply name getOrElse ""
-      new AuthEndpoint[UserType]("%s/%s" format (basePath, name), desc, sec, op._2.toList flatMap (_.value))
+      new AuthEndpoint[TypeForUser]("%s/%s" format (basePath, name), desc, sec, op._2.toList flatMap (_.value))
     } sortWith { (a, b) ⇒ a.path < b.path }
   }
   /**
    * Returns a list of operations based on the given route. The default implementation returns a list with only 1
    * operation.
    */
-  protected def operations(route: Route, method: HttpMethod): List[AuthOperation[UserType]] = {
+  protected def operations(route: Route, method: HttpMethod): List[AuthOperation[TypeForUser]] = {
     val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
     val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[Error]]) getOrElse Nil
     val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[String]) getOrElse DataType.Void.name
     val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
     val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
     val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
-    val allows = route.metadata.get(Symbols.Allows) map (_.asInstanceOf[Option[UserType] => Boolean]) getOrElse allowAll
-    List(AuthOperation[UserType](httpMethod = method,
+    val allows = route.metadata.get(Symbols.Allows) map (_.asInstanceOf[Option[TypeForUser] => Boolean]) getOrElse allowAll
+    List(AuthOperation[TypeForUser](httpMethod = method,
       responseClass = responseClass,
       summary = summary,
       notes = notes,
