@@ -37,10 +37,10 @@ object SwaggerAuthSpec {
     type ScentryConfiguration = ScentryConfig
     protected val scentryConfig: ScentryConfiguration = (new ScentryConfig {}).asInstanceOf[ScentryConfiguration]
     
-    protected val fromSession: PartialFunction[String, UserType] = {
+    protected val fromSession: PartialFunction[String, User] = {
       case s: String => Users.find(_.login == s).get
     }
-    protected val toSession: PartialFunction[UserType, String] = {
+    protected val toSession: PartialFunction[User, String] = {
       case u: User => u.login
     }
     override def configureScentry = {

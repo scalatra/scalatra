@@ -11,10 +11,9 @@ trait ScentryConfig {
   val failureUrl = "/unauthenticated"
 }
 
-trait ScentrySupport[TypeForUser <: AnyRef] extends Handler with Initializable with CookieSupport {
+trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with CookieSupport {
   self: ScalatraBase ⇒
 
-  type UserType = TypeForUser
   type ScentryConfiguration <: ScentryConfig
 
   protected def fromSession: PartialFunction[String, UserType]
