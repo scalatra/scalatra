@@ -9,6 +9,8 @@ import scala.concurrent.duration._
 
 import _root_.akka.util.Timeout
 import test.specs2.MutableScalatraSpec
+import scala.util.control.ControlThrowable
+import runtime.NonLocalReturnControl
 
 class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
   val system = ActorSystem()
@@ -49,6 +51,8 @@ class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
 }
 
 class AkkaSupportSpec extends MutableScalatraSpec {
+  sequential
+
   addServlet(new AkkaSupportServlet, "/*")
 
   "The AkkaSupport" should {
