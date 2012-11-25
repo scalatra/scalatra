@@ -36,8 +36,8 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
-      scalatraExample, scalatraAkka /*, scalatraSwagger */, scalatraJetty,
-      scalatraCommon /*, scalatraSwaggerExt */)
+      scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
+      scalatraCommon, scalatraSwaggerExt)
   )
 
   lazy val scalatraCommon = Project(
@@ -198,7 +198,6 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
-  /*
   lazy val scalatraSwagger = Project(
     id = "scalatra-swagger",
     base = file("swagger"),
@@ -215,7 +214,6 @@ object ScalatraBuild extends Build {
       description := "Deeper Swagger integration for scalatra"
     )
   ) dependsOn(scalatraSwagger % "compile;test->test;provided->provided", scalatraDatabinding % "compile;test->test;provided->provided", scalatraAuth % "compile;test->test")
-  */
 
   lazy val scalatraSlf4j = Project(
     id = "scalatra-slf4j",
@@ -314,7 +312,7 @@ object ScalatraBuild extends Build {
 
     val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2"
 
-    def swagger(name: String) = "com.wordnik" % "swagger-%s".format(name) % "1.1.0" cross CrossVersion.full
+    def swagger(name: String) = "com.wordnik" % "swagger-%s".format(name) % "1.2.0-SNAPSHOT" cross CrossVersion.full
   }
 
   object Resolvers {
