@@ -19,7 +19,7 @@ object ScalatraBuild extends Build {
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
-    crossPaths := false,
+    crossPaths := true,
     resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases, fuseSourceSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
