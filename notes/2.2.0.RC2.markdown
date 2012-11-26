@@ -3,5 +3,16 @@
 
 ### SLF4J
 * Rename LogbackSupport to `ScalatraSlf4jRequestLogging`
+* Updates slf4j-api to 1.7.2
+
+### Databinding
+* Renames databinding to commands. this resolves the confustion created by the name databinding.
+
+### Akka
+* Updates akka to 2.0.4
+
+### Atmosphere
+* Updates atmosphere to 1.0.4
+
 
 

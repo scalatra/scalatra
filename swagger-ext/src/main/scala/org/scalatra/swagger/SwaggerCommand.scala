@@ -1,7 +1,7 @@
 package org.scalatra
 package swagger
 
-import org.scalatra.databinding._
+import org.scalatra.commands._
 import org.scalatra.util.RicherString._
 import scalaz._
 import Scalaz._
