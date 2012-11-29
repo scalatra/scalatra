@@ -14,7 +14,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
     version := "%s.0-SNAPSHOT" format majorVersion,
-    scalaVersion := "2.10.0-RC2",
+    scalaVersion := "2.10.0-RC3",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
@@ -246,9 +246,9 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "io.backchat.rl" % "rl" % "0.3.2" cross CrossVersion.full
+    val backchatRl = "io.backchat.rl" % "rl" % "0.3.3" cross CrossVersion.full
 
-    def akkaDep(name: String) = "com.typesafe.akka" % name % "2.1.0-RC2" cross CrossVersion.full
+    def akkaDep(name: String) = "com.typesafe.akka" % name % "2.1.0-RC3" cross CrossVersion.full
     val akkaActor = akkaDep("akka-actor")
     val akkaTestkit = akkaDep("akka-testkit") % "test"
 
@@ -282,9 +282,11 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0-SNAPSHOT" cross CrossVersion.full
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0-SNAPSHOT" cross CrossVersion.binaryMapped {
+      case "2.10.0-RC3" => "2.10.0-RC2"
+    }
 
-    val scalatest = "org.scalatest" % "scalatest" % "1.8" cross CrossVersion.full
+    val scalatest = "org.scalatest" % "scalatest" % "1.8-B1" cross CrossVersion.full
 
     val testng = "org.testng" % "testng" % "6.7" % "optional"
 
@@ -292,7 +294,7 @@ object ScalatraBuild extends Build {
 
     val specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    val specs2 = "org.specs2" % "specs2" % "1.12.2" cross CrossVersion.full
+    val specs2 = "org.specs2" % "specs2" % "1.12.3" cross CrossVersion.full
 
     val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
@@ -312,7 +314,9 @@ object ScalatraBuild extends Build {
 
     val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2"
 
-    def swagger(name: String) = "com.wordnik" % "swagger-%s".format(name) % "1.2.0-SNAPSHOT" cross CrossVersion.full
+    def swagger(name: String) = "com.wordnik" % "swagger-%s".format(name) % "1.2.0-SNAPSHOT" cross CrossVersion.binaryMapped {
+      case "2.10.0-RC3" => "2.10.0-RC2"
+    }
   }
 
   object Resolvers {
