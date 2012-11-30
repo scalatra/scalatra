@@ -2,7 +2,7 @@ package org.scalatra
 package swagger
 
 import org.specs2.mutable._
-import org.scalatra.databinding._
+import org.scalatra.commands._
 import org.json4s.DefaultFormats
 import org.json4s.Formats
 import test.specs2.MutableScalatraSpec

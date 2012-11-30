@@ -33,7 +33,7 @@ object ScalatraBuild extends Build {
       Unidoc.unidocExclude := Seq("scalatra-example"),
       LsKeys.skipWrite := true
     ),
-    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraDatabinding,
+    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
@@ -75,7 +75,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(base64),
       description := "Scalatra authentication module"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraDatabinding)
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCommands)
 
   lazy val scalatraAkka = Project(
     id = "scalatra-akka",
@@ -124,9 +124,9 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
-  lazy val scalatraDatabinding = Project(
-    id = "scalatra-data-binding",
-    base = file("data-binding"),
+  lazy val scalatraCommands = Project(
+    id = "scalatra-commands",
+    base = file("commands"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
@@ -140,7 +140,7 @@ object ScalatraBuild extends Build {
           |import org.scalatra._
           |import org.scalatra.util._
           |import conversion._
-          |import databinding._
+          |import commands._
           |import BindingSyntax._
         """.stripMargin,
       description := "Data binding and validation with scalaz for Scalatra"
@@ -213,7 +213,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       description := "Deeper Swagger integration for scalatra"
     )
-  ) dependsOn(scalatraSwagger % "compile;test->test;provided->provided", scalatraDatabinding % "compile;test->test;provided->provided", scalatraAuth % "compile;test->test")
+  ) dependsOn(scalatraSwagger % "compile;test->test;provided->provided", scalatraCommands % "compile;test->test;provided->provided", scalatraAuth % "compile;test->test")
 
   lazy val scalatraSlf4j = Project(
     id = "scalatra-slf4j",
@@ -237,7 +237,7 @@ object ScalatraBuild extends Build {
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraDatabinding, scalatraAtmosphere
+   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraCommands, scalatraAtmosphere
  )
 
   object Dependencies {
@@ -300,9 +300,9 @@ object ScalatraBuild extends Build {
 
     val servletApiTest = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container;test" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
-    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.1"
+    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.2"
 
-    val logback = "ch.qos.logback" % "logback-classic" % "1.0.6"
+    val logback = "ch.qos.logback" % "logback-classic" % "1.0.7"
 
     val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4" cross CrossVersion.full
 
@@ -407,15 +407,6 @@ object ScalatraBuild extends Build {
 
   lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
 
-  // http://jira.codehaus.org/browse/JETTY-1493
-  // https://issues.apache.org/jira/browse/IVY-899
-  //
-  // This prevents Ivy from attempting to resolve these dependencies,
-  // but does not put the exclusions in the pom.  For that, every
-  // module that depends on this atrocity needs an explicit exclude
-  // statement.
-  // lazy val jettyOrbitHack = Seq(
-  //   classpathTypes ~= (_ + "orbit")
-  // )
+
 
 }
