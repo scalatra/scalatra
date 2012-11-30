@@ -11,6 +11,7 @@ $(function() {
   var logged = false;
   var socket = $.atmosphere;
   var subSocket;
+//  var transport = 'long-polling';
   var transport = 'websocket';
 
   <!-- The following code is just here for demonstration purpose and not required -->
@@ -29,7 +30,7 @@ $(function() {
      var req = new $.atmosphere.AtmosphereRequest();
 
      req.url = "/atmosphere/the-chat";
-     req.contentType = "application/json";
+     req.contentType = "application/json;charset=utf-8";
      req.transport = tr;
      req.headers = { "X-SCALATRA-SAMPLE" : "true" };
 
@@ -55,6 +56,7 @@ $(function() {
     shared: true,
     transport: transport,
     trackMessageLength : true,
+//    fallbackTransport: 'websocket'
     fallbackTransport: 'long-polling'
   };
 
@@ -178,6 +180,7 @@ $(function() {
   });
 
   function addMessage(author, message, color, datetime) {
-    content.append('<p><span style="color:' + color + '">' + author + '</span> @ ' + +(datetime.getHours() < 10 ? '0' + datetime.getHours() : datetime.getHours()) + ':' + (datetime.getMinutes() < 10 ? '0' + datetime.getMinutes() : datetime.getMinutes()) + ': ' + message + '</p>');
+    content.append(
+        '<p><span style="color:' + color + '">' + author + '</span> @ ' + +(datetime.getHours() < 10 ? '0' + datetime.getHours() : datetime.getHours()) + ':' + (datetime.getMinutes() < 10 ? '0' + datetime.getMinutes() : datetime.getMinutes()) + ': ' + message + '</p>');
   }
 });
