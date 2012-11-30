@@ -282,9 +282,7 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0-SNAPSHOT" cross CrossVersion.binaryMapped {
-      case "2.10.0-RC3" => "2.10.0-RC2"
-    }
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0-SNAPSHOT" cross CrossVersion.full
 
     val scalatest = "org.scalatest" % "scalatest" % "1.8-B1" cross CrossVersion.full
 
@@ -314,9 +312,7 @@ object ScalatraBuild extends Build {
 
     val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2"
 
-    def swagger(name: String) = "com.wordnik" % "swagger-%s".format(name) % "1.2.0-SNAPSHOT" cross CrossVersion.binaryMapped {
-      case "2.10.0-RC3" => "2.10.0-RC2"
-    }
+    def swagger(name: String) = "com.wordnik" % "swagger-%s".format(name) % "1.2.0" cross CrossVersion.full
   }
 
   object Resolvers {
