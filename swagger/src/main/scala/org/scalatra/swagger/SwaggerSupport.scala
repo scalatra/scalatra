@@ -117,7 +117,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def notes(value: String) = swaggerMeta(Notes, value)
   protected def responseClass(value: String) = swaggerMeta(ResponseClass, value)
   protected def responseClass[T](implicit mf: Manifest[T]) = {
-    models_=(Map(mf.erasure))
+//    models_=(Map(mf.erasure))
     swaggerMeta(ResponseClass, DataType[T].name)
   }
   protected def nickname(value: String) = swaggerMeta(Nickname, value)
