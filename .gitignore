@@ -24,3 +24,5 @@ target/
 
 # sublime artifacts
 *.sublime-*
+atlassian-ide-plugin.xml
+.lib

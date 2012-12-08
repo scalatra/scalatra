@@ -2,7 +2,7 @@ package org.scalatra
 package auth
 
 import ScentryAuthStore.ScentryAuthStore
-import collection.mutable.{ HashMap, Map ⇒ MMap }
+import collection.mutable
 import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
 
@@ -10,7 +10,7 @@ object Scentry {
 
   type StrategyFactory[UserType <: AnyRef] = ScalatraBase ⇒ ScentryStrategy[UserType]
 
-  private val _globalStrategies = new HashMap[String, StrategyFactory[_ <: AnyRef]]()
+  private val _globalStrategies = new mutable.HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
   @deprecated("Use method `register` with strings instead.", "2.0")
   def registerStrategy[UserType <: AnyRef](name: Symbol, strategyFactory: StrategyFactory[UserType]) {
@@ -40,7 +40,7 @@ class Scentry[UserType <: AnyRef](
 
   import Scentry._
 
-  private[this] val _strategies = new HashMap[String, StrategyFactory]()
+  private[this] val _strategies = new mutable.HashMap[String, StrategyFactory]()
   private[this] var _user: UserType = null.asInstanceOf[UserType]
 
   def store = _store
@@ -64,7 +64,7 @@ class Scentry[UserType <: AnyRef](
     _strategies += (name -> strategyFactory)
   }
 
-  def strategies: MMap[String, ScentryStrategy[UserType]] =
+  def strategies: mutable.Map[String, ScentryStrategy[UserType]] =
     (globalStrategies ++ _strategies) map { case (nm, fact) ⇒ (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
   def userOption: Option[UserType] = Option(user)
@@ -114,7 +114,7 @@ class Scentry[UserType <: AnyRef](
         user = usr
         user
     }
-    if (names.isEmpty) r orElse { runUnauthenticated(names: _*) }
+    if (names.isEmpty) r orElse { defaultUnauthenticated foreach (_.apply()); None }
     else r
   }
 
@@ -125,7 +125,9 @@ class Scentry[UserType <: AnyRef](
       runCallbacks(_.isValid) { _.beforeAuthenticate }
       strat.authenticate() match {
         case Some(usr) ⇒ Some(strat.name -> usr)
-        case _         ⇒ None
+        case _         ⇒
+          strat.unauthenticated()
+          None
       }
     }).find(_.isDefined) getOrElse None
   }

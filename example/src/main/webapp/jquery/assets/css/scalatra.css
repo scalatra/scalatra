@@ -1,0 +1,91 @@
+body {
+	background-color: #f8f8f8;
+	background-image: url(/assets/img/skeletal_weave.png);
+	background-repeat: repeat;
+	background-position: top left;
+	background-attachment: scroll;
+}
+
+footer[role="contentinfo"] {
+    color: #999;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+    background-color: #222;
+    padding: 36px;
+}
+footer[role="contentinfo"] a {
+    color: #ddd;
+}
+footer[role="contentinfo"] a:hover {
+    color: #fff;
+}
+
+.affix {
+    position: fixed;
+    top: 40px;
+}
+
+.brand {
+  background: url(/assets/img/logo-s.png) no-repeat 0px 5px;
+  width: 120px;
+  text-indent: -999em; }
+
+.content {
+  background: #fff;
+  padding:36px;
+  /* +1 px border*/
+  margin: 0 -37px;
+  border-left:1px solid #ccc;
+  border-right: 1px solid #ccc;
+}
+
+/* Correct margins for other device sizes */
+
+@media (max-width: 979px) {
+  .navbar-fixed-top {margin-bottom:0;}
+  footer[role="contentinfo"] {margin:0;}
+  
+}
+
+@media(max-width:767px) {
+  .content {margin:0;}
+}
+
+
+#detect {
+  padding: 5px;
+  background: #ffc0cb;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  margin-top: 10px;
+}
+
+#content {
+  padding: 5px;
+  background: #ddd;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  margin-top: 10px;
+}
+
+#header {
+  padding: 5px;
+  background: #f5deb3;
+  border-radius: 5px;
+  border: 1px solid #CCC;
+  margin-top: 10px;
+}
+
+#input {
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  padding: 5px;
+  /*width: 400px;*/
+}
+
+#status {
+  /*width: 88px;*/
+  display: block;
+  float: left;
+  margin-top: 15px;
+}

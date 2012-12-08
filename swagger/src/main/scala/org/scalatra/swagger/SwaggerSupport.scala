@@ -136,7 +136,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
-trait SwaggerSupport extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase =>
+trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax {
 
   
 

@@ -63,8 +63,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
   }
 
   /**
-   * Create a [[org.scalatra.RouteMatcher]] that evaluates '''true''' only if a command is valid. See
-   * [[org.scalatra.commands.validation.ValidationSupport]] for details.
+   * Create a [[org.scalatra.RouteMatcher]] that evaluates '''true''' only if a command is valid.
    */
   def ifValid[T <: CommandType](implicit mf: Manifest[T]): RouteMatcher = new CommandRouteMatcher[T]
 
