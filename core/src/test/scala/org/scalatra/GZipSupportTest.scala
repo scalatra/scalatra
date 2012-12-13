@@ -12,7 +12,7 @@ import org.scalatest.matchers._
 class GZipSupportTestServlet extends ScalatraServlet with GZipSupport {
   
   get("/") {
-  	Helper.body
+    Helper.body
   }
 
   post("/") {
