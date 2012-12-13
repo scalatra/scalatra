@@ -8,6 +8,7 @@ import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
 import javax.servlet.http.HttpSession
+import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 
 object ScalatraAtmosphereHandler {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
@@ -17,7 +18,13 @@ object ScalatraAtmosphereHandler {
     def client(resource: AtmosphereResource) =
       Option(resource.session()).flatMap(_.get(AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
 
-    def onBroadcast(event: AtmosphereResourceEvent) {}
+    def onBroadcast(event: AtmosphereResourceEvent) {
+      val resource = event.getResource
+        resource.transport match {
+          case JSONP | AJAX | LONG_POLLING =>
+          case _ => resource.getResponse().flushBuffer()
+        }
+    }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
       val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
@@ -41,23 +48,20 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
     val method = req.requestMethod
     val route = Option(req.getAttribute(AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
     val session = resource.session()
-    addAtmosphereRequestAttributes(resource)
     val isNew = !session.contains(AtmosphereClientKey)
 
     if (method == Post) {
       val client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
       handleIncomingMessage(req, client)
     } else {
-      if (isNew && !req.headersMap().containsKey("X-SCALATRA-SAMPLE")) {
-        val client = createClient(route.get, session, resource)
-        addEventListener(resource)
-        resumeIfNeeded(resource)
-        configureBroadcaster(resource)
-        client.receive.lift(Connected)
-      }
+      val client = createClient(route.get, session, resource)
+      addEventListener(resource)
+      resumeIfNeeded(resource)
+      configureBroadcaster(resource)
+      //client.receive.lift(Connected)
 
-      resource.getResponse.write("OK\n")
-      resource.suspend()
+      resource.suspend
+
     }
   }
 
@@ -74,11 +78,6 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
     }
   }
 
-  private[this] def addAtmosphereRequestAttributes(resource: AtmosphereResource) = {
-    resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_RESOURCE, resource)
-    resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_HANDLER, this)
-  }
-
   private[this] def requestUri(resource: AtmosphereResource) = {
     val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
     if (u.endsWith("/")) u + "*" else u + "/*"
@@ -87,7 +86,6 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
   private[this] def configureBroadcaster(resource: AtmosphereResource) {
     val bc = BroadcasterFactory.getDefault.get(requestUri(resource))
     resource.setBroadcaster(bc)
-    resource.getRequest.setAttribute(AtmosphereResourceImpl.SKIP_BROADCASTER_CREATION, true)
   }
 
   private[this] def handleIncomingMessage(req: AtmosphereRequest, client: AtmosphereClient) {

@@ -14,41 +14,6 @@ $(function() {
 //  var transport = 'long-polling';
   var transport = 'websocket';
 
-  <!-- The following code is just here for demonstration purpose and not required -->
-  <!-- Used to demonstrate the request.onTransportFailure callback. Not mandatory -->
-  var sseSupported = false;
-
-  var transports = [];
-  transports[0] = "websocket";
-  transports[1] = "sse";
-  transports[2] = "jsonp";
-  transports[3] = "long-polling";
-  transports[4] = "streaming";
-  transports[5] = "ajax";
-
-  $.each(transports, function (index, tr) {
-     var req = new $.atmosphere.AtmosphereRequest();
-
-     req.url = "/atmosphere/the-chat";
-     req.contentType = "application/json;charset=utf-8";
-     req.transport = tr;
-     req.headers = { "X-SCALATRA-SAMPLE" : "true" };
-
-     req.onOpen = function(response) {
-       detect.append('<p><span style="color:blue">' + tr + ' supported: '  + '</span>' + (response.transport == tr));
-     };
-
-     req.onReconnect = function(r) { r.close() };
-
-     socket.subscribe(req)
-  });
-
-
-  <!-- Below is code that can be re-used -->
-
-
-  // We are now ready to cut the request
-
   var request = {
     url: "/atmosphere/the-chat",
     contentType: "application/json",
@@ -56,7 +21,6 @@ $(function() {
     shared: true,
     transport: transport,
     trackMessageLength : true,
-//    fallbackTransport: 'websocket'
     fallbackTransport: 'long-polling'
   };
 
@@ -73,36 +37,36 @@ $(function() {
     }
   };
 
-  <!-- You can share messages between window/tabs.   -->
-  request.onLocalMessage = function(message) {
-    if (transport != 'local') {
-      header.append($('<h4>', {
-        text: 'A new tab/window has been opened'
-      }).css('color', 'green'));
-      if (myName) {
-        subSocket.pushLocal(myName);
-      }
-    } else {
-      if (!myName) {
-        myName = message;
-        logged = true;
-        status.text(message + ': ').css('color', 'blue');
-        input.removeAttr('disabled').focus();
-      }
-    }
-  };
-
-  <!-- For demonstration of how you can customize the fallbackTransport using the onTransportFailure function -->
-  request.onTransportFailure = function(errorMsg, r) {
-    jQuery.atmosphere.info(errorMsg);
-    if (window.EventSource) {
-      r.fallbackTransport = "sse";
-      transport = "see";
-    }
-    header.html($('<h3>', {
-      text: 'Atmosphere Chat. Default transport is WebSocket, fallback is ' + r.fallbackTransport
-    }));
-  };
+//  <!-- You can share messages between window/tabs.   -->
+//  request.onLocalMessage = function(message) {
+//    if (transport != 'local') {
+//      header.append($('<h4>', {
+//        text: 'A new tab/window has been opened'
+//      }).css('color', 'green'));
+//      if (myName) {
+//        subSocket.pushLocal(myName);
+//      }
+//    } else {
+//      if (!myName) {
+//        myName = message;
+//        logged = true;
+//        status.text(message + ': ').css('color', 'blue');
+//        input.removeAttr('disabled').focus();
+//      }
+//    }
+//  };
+//
+//  <!-- For demonstration of how you can customize the fallbackTransport using the onTransportFailure function -->
+//  request.onTransportFailure = function(errorMsg, r) {
+//    jQuery.atmosphere.info(errorMsg);
+//    if (window.EventSource) {
+//      r.fallbackTransport = "sse";
+//      transport = "see";
+//    }
+//    header.html($('<h3>', {
+//      text: 'Atmosphere Chat. Default transport is WebSocket, fallback is ' + r.fallbackTransport
+//    }));
+//  };
 
   request.onReconnect = function(rq, rs) {
     socket.info("Reconnecting")
