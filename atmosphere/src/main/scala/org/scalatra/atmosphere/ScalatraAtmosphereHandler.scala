@@ -8,6 +8,8 @@ import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
 import javax.servlet.http.HttpSession
+import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
+import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
 
 object ScalatraAtmosphereHandler {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
@@ -17,11 +19,24 @@ object ScalatraAtmosphereHandler {
     def client(resource: AtmosphereResource) =
       Option(resource.session()).flatMap(_.get(AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
 
-    def onBroadcast(event: AtmosphereResourceEvent) {}
+    def onBroadcast(event: AtmosphereResourceEvent) {
+      val resource = event.getResource
+        resource.transport match {
+          case JSONP | AJAX | LONG_POLLING =>
+          case _ => resource.getResponse().flushBuffer()
+        }
+    }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
-      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
-      client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+      event.getResource.session.removeAttribute(AtmosphereClientKey)
+      if (event.isCancelled) {
+        val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
+        client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+        if (!event.getResource.isResumed) {
+           event.getResource.session.invalidate
+         }
+
+      }
     }
 
     def onResume(event: AtmosphereResourceEvent) {}
@@ -40,24 +55,27 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
     val req = resource.getRequest
     val method = req.requestMethod
     val route = Option(req.getAttribute(AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
-    val session = resource.session()
-    addAtmosphereRequestAttributes(resource)
+    var session = resource.session()
     val isNew = !session.contains(AtmosphereClientKey)
 
     if (method == Post) {
-      val client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
-      handleIncomingMessage(req, client)
-    } else {
-      if (isNew && !req.headersMap().containsKey("X-SCALATRA-SAMPLE")) {
-        val client = createClient(route.get, session, resource)
-        addEventListener(resource)
-        resumeIfNeeded(resource)
-        configureBroadcaster(resource)
-        client.receive.lift(Connected)
+      var client : AtmosphereClient = null
+      if (isNew) {
+        session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
       }
 
-      resource.getResponse.write("OK\n")
-      resource.suspend()
+      client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+      handleIncomingMessage(req, client)
+    } else {
+      if (isNew) {
+        createClient(route.get, session, resource).receive.lift(Connected)
+      }
+
+      addEventListener(resource)
+      resumeIfNeeded(resource)
+      configureBroadcaster(resource)
+      resource.suspend
+
     }
   }
 
@@ -74,11 +92,6 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
     }
   }
 
-  private[this] def addAtmosphereRequestAttributes(resource: AtmosphereResource) = {
-    resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_RESOURCE, resource)
-    resource.getRequest.setAttribute(FrameworkConfig.ATMOSPHERE_HANDLER, this)
-  }
-
   private[this] def requestUri(resource: AtmosphereResource) = {
     val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
     if (u.endsWith("/")) u + "*" else u + "/*"
@@ -87,7 +100,6 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
   private[this] def configureBroadcaster(resource: AtmosphereResource) {
     val bc = BroadcasterFactory.getDefault.get(requestUri(resource))
     resource.setBroadcaster(bc)
-    resource.getRequest.setAttribute(AtmosphereResourceImpl.SKIP_BROADCASTER_CREATION, true)
   }
 
   private[this] def handleIncomingMessage(req: AtmosphereRequest, client: AtmosphereClient) {

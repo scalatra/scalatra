@@ -16,3 +16,6 @@ libraryDependencies <+= sbtVersion(v => v match {
 //addSbtPlugin("net.databinder" % "posterous-sbt" % "0.3.2")
 
 addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.2")
+
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.2.0")
+
