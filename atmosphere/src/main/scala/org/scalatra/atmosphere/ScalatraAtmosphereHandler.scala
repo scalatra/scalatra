@@ -27,8 +27,12 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
-      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
-      client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+      if (event.isCancelled) {
+        event.getResource.session.invalidate
+
+        val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
+        client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+      }
     }
 
     def onResume(event: AtmosphereResourceEvent) {}
@@ -54,12 +58,13 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
       val client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
       handleIncomingMessage(req, client)
     } else {
-      val client = createClient(route.get, session, resource)
+      if (isNew) {
+        createClient(route.get, session, resource).receive.lift(Connected)
+      }
+
       addEventListener(resource)
       resumeIfNeeded(resource)
       configureBroadcaster(resource)
-      //client.receive.lift(Connected)
-
       resource.suspend
 
     }

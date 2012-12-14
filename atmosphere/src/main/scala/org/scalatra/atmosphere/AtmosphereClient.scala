@@ -69,6 +69,7 @@ trait AtmosphereClient {
     if (resource != null && resource.getBroadcaster == null)
       internalLogger.warn("The broadcaster is null, can't publish")
     val broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
+    println(broadcaster)
     broadcaster.broadcast(msg, filter)
   }
 
