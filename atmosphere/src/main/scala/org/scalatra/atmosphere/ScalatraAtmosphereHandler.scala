@@ -28,6 +28,7 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
+      event.getResource.session.removeAttribute(AtmosphereClientKey)
       if (event.isCancelled) {
         val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
         //client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))

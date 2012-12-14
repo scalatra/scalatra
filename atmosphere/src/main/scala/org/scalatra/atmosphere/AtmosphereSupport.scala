@@ -77,7 +77,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
     allCatch.withApply(ex => logger.error(ex.getMessage, ex)) {
       atmosphereFramework.enableSessionSupport()
-      configureBroadcasterCache()
+      //configureBroadcasterCache()
       configureBroadcasterFactory()
       atmosphereFramework.interceptor(new SessionCreationInterceptor)
       atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)

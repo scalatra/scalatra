@@ -73,5 +73,4 @@ trait AtmosphereClient {
     broadcaster.broadcast(msg, filter)
   }
 
-  final def disconnect() { resource.resume() }
 }
