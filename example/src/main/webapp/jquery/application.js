@@ -18,7 +18,6 @@ $(function() {
     url: "/atmosphere/the-chat",
     contentType: "application/json",
     logLevel: 'debug',
-    shared: true,
     transport: transport,
     trackMessageLength : true,
     fallbackTransport: 'long-polling'
@@ -36,37 +35,6 @@ $(function() {
       subSocket.pushLocal("Name?");
     }
   };
-
-//  <!-- You can share messages between window/tabs.   -->
-//  request.onLocalMessage = function(message) {
-//    if (transport != 'local') {
-//      header.append($('<h4>', {
-//        text: 'A new tab/window has been opened'
-//      }).css('color', 'green'));
-//      if (myName) {
-//        subSocket.pushLocal(myName);
-//      }
-//    } else {
-//      if (!myName) {
-//        myName = message;
-//        logged = true;
-//        status.text(message + ': ').css('color', 'blue');
-//        input.removeAttr('disabled').focus();
-//      }
-//    }
-//  };
-//
-//  <!-- For demonstration of how you can customize the fallbackTransport using the onTransportFailure function -->
-//  request.onTransportFailure = function(errorMsg, r) {
-//    jQuery.atmosphere.info(errorMsg);
-//    if (window.EventSource) {
-//      r.fallbackTransport = "sse";
-//      transport = "see";
-//    }
-//    header.html($('<h3>', {
-//      text: 'Atmosphere Chat. Default transport is WebSocket, fallback is ' + r.fallbackTransport
-//    }));
-//  };
 
   request.onReconnect = function(rq, rs) {
     socket.info("Reconnecting")
