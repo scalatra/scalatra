@@ -12,7 +12,7 @@ $(function() {
   var socket = $.atmosphere;
   var subSocket;
 //  var transport = 'long-polling';
-  var transport = 'websocket';
+  var transport = 'long-polling';
 
   var request = {
     url: "/atmosphere/the-chat",

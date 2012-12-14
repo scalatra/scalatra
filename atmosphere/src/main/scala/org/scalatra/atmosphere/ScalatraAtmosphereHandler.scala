@@ -9,6 +9,7 @@ import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
 import javax.servlet.http.HttpSession
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
+import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
 
 object ScalatraAtmosphereHandler {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
@@ -28,10 +29,12 @@ object ScalatraAtmosphereHandler {
 
     def onDisconnect(event: AtmosphereResourceEvent) {
       if (event.isCancelled) {
-        event.getResource.session.invalidate
-
         val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
-        client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+        //client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+        if (!event.getResource.isResumed) {
+           event.getResource.session.invalidate
+         }
+
       }
     }
 
@@ -51,11 +54,16 @@ class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireForma
     val req = resource.getRequest
     val method = req.requestMethod
     val route = Option(req.getAttribute(AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
-    val session = resource.session()
+    var session = resource.session()
     val isNew = !session.contains(AtmosphereClientKey)
 
     if (method == Post) {
-      val client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+      var client : AtmosphereClient = null
+      if (isNew) {
+        session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
+      }
+
+      client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
       handleIncomingMessage(req, client)
     } else {
       if (isNew) {
