@@ -48,7 +48,7 @@ object ScalatraAtmosphereHandler {
     }
   }
 }
-class ScalatraAtmosphereHandler(implicit formats: Formats, wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
+class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
 
   def onRequest(resource: AtmosphereResource) {

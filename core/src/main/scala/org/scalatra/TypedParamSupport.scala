@@ -2,4 +2,4 @@ package org.scalatra
 
 import util.conversion.DefaultImplicitConversions
 
-trait TypedParamSupport extends ScalatraBase with ScalatraParamsImplicits with DefaultImplicitConversions
+trait TypedParamSupport extends ScalatraBase

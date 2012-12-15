@@ -1,6 +1,7 @@
 package org.scalatra
 
 import scala.util.matching.Regex
+import util.conversion.DefaultImplicitConversions
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import scala.annotation.tailrec
@@ -39,7 +40,7 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with TypedParamSupport {
+trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with ScalatraParamsImplicits with DefaultImplicitConversions {
   import ScalatraBase.{HostNameKey, PortKey, ForceHttpsKey}
   /**
    * The routes registered in this kernel.

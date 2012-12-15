@@ -9,6 +9,9 @@ class JsonSupportTest extends json.JsonSupportTestBase {
   addServlet(new JsonSupportTestServlet, "/*")
   addServlet(new JsonPTestServlet, "/p/*")
   addServlet(new ScalatraServlet with NativeJsonSupport {
+
+    implicit protected def jsonFormats: Formats = DefaultFormats
+
     override protected lazy val jsonVulnerabilityGuard: Boolean = true
     override val jsonpCallbackParameterNames: Iterable[String] = Some("callback")
     get("/json") {
@@ -30,6 +33,7 @@ class JsonSupportTest extends json.JsonSupportTestBase {
 
 
 class JsonSupportTestServlet extends ScalatraServlet with NativeJsonSupport {
+
   get("/json") {
     import org.json4s.JsonDSL._
     ("k1" -> "v1") ~
@@ -38,12 +42,16 @@ class JsonSupportTestServlet extends ScalatraServlet with NativeJsonSupport {
 
 
   get("/nulls") {
-    null.asInstanceOf[JValue]
+    JNull
   }
 
+  implicit protected def jsonFormats: Formats = DefaultFormats
 }
 
 class JsonPTestServlet extends ScalatraServlet with NativeJsonSupport  {
+
+  implicit protected def jsonFormats: Formats = DefaultFormats
+
   override def jsonpCallbackParameterNames = Some("callback")
 
   get("/jsonp") {

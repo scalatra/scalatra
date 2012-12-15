@@ -9,7 +9,7 @@ import org.atmosphere.cpr._
 import org.json4s.Formats
 
 
-final class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit formats: Formats, wireFormat: WireFormat, system: ActorSystem) extends DefaultBroadcaster(id, config) {
+final class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends DefaultBroadcaster(id, config) {
 
   private[this] val logger: Logger = Logger[ScalatraBroadcaster]
 

@@ -13,7 +13,7 @@ import collection.JavaConverters._
 object ScalatraBroadcasterFactory {
 
 }
-class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Formats, wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
+class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   BroadcasterFactory.config = cfg
   if (BroadcasterFactory.factory == null) BroadcasterFactory.factory = this
 

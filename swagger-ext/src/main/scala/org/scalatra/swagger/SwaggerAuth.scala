@@ -32,9 +32,10 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Sca
   }
   
   get("/:doc.:format") {
+    def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
     swagger.doc(params("doc")) match {
-      case Some(doc) if doc.apis.exists(_.operations.exists(_.allows(userOption))) ⇒ renderDoc(doc.asInstanceOf[ApiType])
-      case _         ⇒ halt(NotFound())
+      case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+      case _         ⇒ NotFound()
     }
   }
   
