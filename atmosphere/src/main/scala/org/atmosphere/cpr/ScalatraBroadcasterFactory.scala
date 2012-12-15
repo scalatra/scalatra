@@ -92,7 +92,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
       }
 
     }
-    store(id)
+    store.get(id).orNull
   }
 
   def lookup(id: Any): Broadcaster = lookup(id, false)
