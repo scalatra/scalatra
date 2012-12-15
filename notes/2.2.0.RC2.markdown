@@ -26,6 +26,6 @@
 * Make swagger optionally support authentication
 * Optionally integrate commands into swagger support to generate model and parameter definitions.
 
-
-
+### Specs
+* Deprecate scalatra-specs in anticipation of Scala 2.10 support.
 
