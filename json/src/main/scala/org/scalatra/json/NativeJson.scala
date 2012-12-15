@@ -6,7 +6,7 @@ import org.json4s._
 import java.io.{InputStreamReader, InputStream, Writer}
 
 
-trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput {
+trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
   protected def readJsonFromStream(stream: InputStream): JValue = native.JsonParser.parse(new InputStreamReader(stream))
 
   protected def readJsonFromBody(bd: String): JValue = native.JsonParser.parse(bd)

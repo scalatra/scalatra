@@ -19,6 +19,7 @@ trait AtmosphereClient {
 
   @volatile private[atmosphere] var resource: AtmosphereResource = _
   private[this] val internalLogger = Logger[AtmosphereClient]
+  private[this] def broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
 
   /**
    * Deliver the message to everyone except the current user.
@@ -58,19 +59,31 @@ trait AtmosphereClient {
   final def send(msg: OutboundMessage) = broadcast(msg, OnlySelf)
 
   /**
+   * A convenience method which sends a message only to the current client,
+   * using a broadcast filter.
+   */
+  final def !(msg: OutboundMessage) = send(msg)
+
+  /**
    * Broadcast a message to all clients, skipping the current client by default
    * (i.e. normal chat server behaviour). Optionally filter the clients to
    * deliver the message to by applying a filter.
    */
   final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = {
-    if (resource == null) {
+    if (resource == null)
       internalLogger.warn("The resource is null, can't publish")
-    }
-    if (resource != null && resource.getBroadcaster == null)
+
+    if (resource.getBroadcaster == null)
       internalLogger.warn("The broadcaster is null, can't publish")
-    val broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
-    println(broadcaster)
+
     broadcaster.broadcast(msg, filter)
   }
+
+  /**
+   * Broadcast a message to all clients, skipping the current client by default
+   * (i.e. normal chat server behaviour). Optionally filter the clients to
+   * deliver the message to by applying a filter.
+   */
+  final def ><(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = broadcast(msg, filter)
 
 }

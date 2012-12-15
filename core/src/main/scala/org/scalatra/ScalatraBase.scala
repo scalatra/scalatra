@@ -39,7 +39,7 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
+trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with TypedParamSupport {
   import ScalatraBase.{HostNameKey, PortKey, ForceHttpsKey}
   /**
    * The routes registered in this kernel.
