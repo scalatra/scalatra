@@ -10,6 +10,7 @@ import org.scalatra.util.RicherString._
 import javax.servlet.http.HttpSession
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
+import grizzled.slf4j.Logger
 
 object ScalatraAtmosphereHandler {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
@@ -48,8 +49,12 @@ object ScalatraAtmosphereHandler {
     }
   }
 }
+
+class ScalatraAtmosphereException(message: String) extends ScalatraException(message)
 class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
+
+  private[this] val internalLogger = Logger[this.type]
 
   def onRequest(resource: AtmosphereResource) {
     val req = resource.getRequest
@@ -67,14 +72,20 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
       client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
       handleIncomingMessage(req, client)
     } else {
-      if (isNew) {
-        createClient(route.get, session, resource).receive.lift(Connected)
-      }
+      if (route.isDefined) {
+        if (isNew) {
+          createClient(route.get, session, resource).receive.lift(Connected)
+        }
 
-      addEventListener(resource)
-      resumeIfNeeded(resource)
-      configureBroadcaster(resource)
-      resource.suspend
+        addEventListener(resource)
+        resumeIfNeeded(resource)
+        configureBroadcaster(resource)
+        resource.suspend
+      } else {
+        val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
+        internalLogger.warn(ex.getMessage)
+        throw ex
+      }
 
     }
   }
