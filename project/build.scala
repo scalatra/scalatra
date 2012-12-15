@@ -9,11 +9,11 @@ object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  lazy val majorVersion = "2.2"
+  lazy val majorVersion = "2.3"
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    version := "%s.0-RC2" format majorVersion,
+    version := "%s.0-SNAPSHOT" format majorVersion,
     scalaVersion := "2.9.2",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
