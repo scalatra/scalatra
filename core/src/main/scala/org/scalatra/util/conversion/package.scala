@@ -3,6 +3,6 @@ package util
 
 package object conversion {
 
-  type TypeConverter[S, T] = (S) => Option[T]
+  trait TypeConverter[S, T] extends ((S) => Option[T])
 }
 
