@@ -269,7 +269,10 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    def json4sDep(name: String) = "org.json4s" % name % "3.1.0-SNAPSHOT" cross CrossVersion.full
+    def json4sDep(name: String) = "org.json4s" % name % "3.1.0-SNAPSHOT" cross CrossVersion.fullMapped {
+      case "2.10.0-RC5" => "2.10.0-RC3" // temporary until we publish
+      case v => v
+    }
 
     val json4sExt = json4sDep("json4s-ext")
     val json4sNative = json4sDep("json4s-native")
@@ -282,7 +285,10 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0-SNAPSHOT" cross CrossVersion.full
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0-SNAPSHOT" cross CrossVersion.fullMapped {
+      case "2.10.0-RC5" => "2.10.0-RC3" // temporary until we publish
+      case v => v
+    }
 
     val scalatest = "org.scalatest" % "scalatest" % "1.8-B1" cross CrossVersion.full
 
