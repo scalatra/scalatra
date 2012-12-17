@@ -18,12 +18,6 @@ trait JsonBindingImplicits extends BindingImplicits with JsonImplicitConversions
   implicit def jsonToDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[JValue, Date] =
     safeOption(_.extractOpt[String].flatMap(df.parse).map(_.toDate))
 
-  implicit def jsonToSeqDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[JValue, Seq[Date]] =
-    jsonToSeq(jsonToDate)
-
-  implicit def jsonToSeqDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[JValue, Seq[DateTime]] =
-    jsonToSeq(jsonToDateTime)
-
 }
 
 trait JsonTypeConverterFactory[T] extends TypeConverterFactory[T] with JsonBindingImplicits {

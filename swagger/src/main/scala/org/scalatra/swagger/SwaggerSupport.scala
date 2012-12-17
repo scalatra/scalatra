@@ -21,7 +21,7 @@ trait SwaggerSupportBase {
   protected def operations(route: Route, method: HttpMethod): List[SwaggerOperation]
 }
 
-trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
+trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraSyntax with SwaggerSupportBase =>
   protected implicit def swagger: SwaggerEngine[_]
 
   protected def applicationName: Option[String] = None
@@ -136,7 +136,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
-trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax {
+trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with SwaggerSupportSyntax {
 
   
 

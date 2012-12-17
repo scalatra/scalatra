@@ -31,7 +31,7 @@ object ScalatraBase {
   val ForceHttpsKey = "org.scalatra.ForceHttps"
 
   import collection.JavaConverters._
-  def getServletRegistration(app: ScalatraBase) = {
+  def getServletRegistration(app: ScalatraSyntax) = {
     val registrations = app.servletContext.getServletRegistrations.values().asScala.toList
     registrations.find(_.getClassName == app.getClass.getName)
   }

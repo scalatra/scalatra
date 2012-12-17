@@ -38,26 +38,9 @@ trait JsonImplicitConversions extends TypeConverterSupport {
   def jsonToDateFormat(format: => DateFormat): TypeConverter[JValue, Date] =
     safeOption(_.extractOpt[String] map format.parse)
 
-  def jsonToSeq[T:Manifest](elementConverter: TypeConverter[JValue, T], separator: String = ","): TypeConverter[JValue, Seq[T]] =
+  implicit def jsonToSeq[T](implicit elementConverter: TypeConverter[JValue, T], mf: Manifest[T]): TypeConverter[JValue, Seq[T]] =
     safe(_.extract[List[T]])
-  
-  
-  implicit val jsonToSeqBoolean: TypeConverter[JValue, Seq[Boolean]] = jsonToSeq(jsonToBoolean)
 
-  implicit val jsonToSeqFloat: TypeConverter[JValue, Seq[Float]] = jsonToSeq(jsonToFloat)
-
-  implicit val jsonToSeqDouble: TypeConverter[JValue, Seq[Double]] = jsonToSeq(jsonToDouble)
-
-  implicit val jsonToSeqByte: TypeConverter[JValue, Seq[Byte]] = jsonToSeq(jsonToByte)
-
-  implicit val jsonToSeqShort: TypeConverter[JValue, Seq[Short]] = jsonToSeq(jsonToShort)
-
-  implicit val jsonToSeqInt: TypeConverter[JValue, Seq[Int]] = jsonToSeq(jsonToInt)
-
-  implicit val jsonToSeqLong: TypeConverter[JValue, Seq[Long]] = jsonToSeq(jsonToLong)
-
-  implicit val jsonToSeqString: TypeConverter[JValue, Seq[String]] = jsonToSeq(jsonToSelf)
-  
 
   import JsonConversions._
   implicit def jsonToValTypeConversion(source: JValue) = new JsonValConversion(source)
@@ -65,8 +48,8 @@ trait JsonImplicitConversions extends TypeConverterSupport {
   implicit def jsonToDateConversion(source: JValue) = new JsonDateConversion(source, jsonToDate(_))
 
   implicit def jsonToSeqConversion(source: JValue) = new {
-    def asSeq[T](separator: String)(implicit mf: Manifest[T], tc: TypeConverter[JValue, T]): Option[Seq[T]] =
-         jsonToSeq[T](tc, separator).apply(source)
+    def asSeq[T](implicit mf: Manifest[T], tc: TypeConverter[JValue, T]): Option[Seq[T]] =
+         jsonToSeq[T].apply(source)
   }
 }
 

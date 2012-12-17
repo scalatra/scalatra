@@ -14,7 +14,7 @@ import grizzled.slf4j.Logger
 /**
 * Support for [[org.scalatra.commands.Command]] binding and validation.
 */
-trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
+trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraSyntax =>
 
   type CommandType <: Command
   
@@ -70,6 +70,6 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
 
 }
 
-trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraBase =>
+trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraSyntax =>
   type CommandType = ParamsOnlyCommand
 }

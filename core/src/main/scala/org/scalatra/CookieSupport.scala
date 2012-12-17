@@ -115,7 +115,7 @@ object CookieSupport {
   val CookieOptionsKey = "org.scalatra.CookieOptions"
 }
 trait CookieSupport extends Handler with Initializable {
-  self: ScalatraBase =>
+  self: ScalatraSyntax =>
 
   import CookieSupport._
   implicit def cookieOptions: CookieOptions = servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]

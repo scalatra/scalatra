@@ -5,12 +5,16 @@ import java.io.InputStream
 import java.util.zip.GZIPInputStream
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatest.matchers._
+import javax.servlet.ServletConfig
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 /**
  * Test servlet using GZipSupport.
  */
-class GZipSupportTestServlet extends ScalatraServlet with GZipSupport {
-  
+class GZipSupportTestServlet extends ScalatraServlet with GZipSupportAppBase
+class GZipSupportTestApp(config: ServletConfig, req: HttpServletRequest, res: HttpServletResponse) extends ScalatraApp(config, req, res) with GZipSupportAppBase
+trait GZipSupportAppBase extends ScalatraSyntax with GZipSupport {
+
   get("/") {
     Helper.body
   }
@@ -23,8 +27,14 @@ class GZipSupportTestServlet extends ScalatraServlet with GZipSupport {
 /**
  * Test suite.
  */
-class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
-  addServlet(classOf[GZipSupportTestServlet], "/*")
+class GZipSupportServletTest extends GZipSupportTest {
+  mount(classOf[GZipSupportTestServlet], "/*")
+}
+class GZipSupportAppTest extends GZipSupportTest {
+  mount(new GZipSupportTestApp(_, _, _), "/*")
+}
+abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
+
 
   test("should return response gzipped") {
     session {
