@@ -1,9 +1,9 @@
 package org.scalatra
 package test
 
-import servlet.HasMultipartConfig
-import javax.servlet.{DispatcherType, Filter}
-import javax.servlet.http.HttpServlet
+import servlet.{ScalatraHost, HasMultipartConfig}
+import javax.servlet.{ServletConfig, DispatcherType, Filter}
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.util.EnumSet
 import org.eclipse.jetty.servlet._
 import scala.deprecated
@@ -27,6 +27,10 @@ trait JettyContainer extends Container {
       addFilter(filter.asInstanceOf[Class[_ <: Filter]], path)
     case _ =>
       throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
+  }
+
+  def mount[T <: Handler](factory: (ServletConfig, HttpServletRequest, HttpServletResponse) => T, path: String) {
+    addServlet(new ScalatraHost(factory), path)
   }
 
   def mount(servlet: HttpServlet, path: String) = addServlet(servlet, path)
