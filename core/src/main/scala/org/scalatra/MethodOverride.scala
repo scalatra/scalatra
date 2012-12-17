@@ -1,6 +1,7 @@
 package org.scalatra
 
 import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse}
+import servlet.ServletApiImplicits
 
 object MethodOverride {
   val ParamName = "_method"
@@ -11,7 +12,7 @@ object MethodOverride {
  * request is a POST and the `_method` request parameter is set, the value of
  * the `_method` parameter is treated as the request's method.
  */
-trait MethodOverride extends Handler {
+trait MethodOverride extends Handler with ServletApiImplicits {
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     val req2 = req.requestMethod match {
       case Post =>

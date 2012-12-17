@@ -2,11 +2,12 @@ package org.scalatra
 
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import servlet.ServletApiImplicits
 
 /**
  * The core Scalatra DSL.
  */
-trait CoreDsl extends Handler with Control {
+trait CoreDsl extends Handler with Control with ServletApiImplicits {
   @deprecated("Use servletContext instead", "2.1.0")
   def applicationContext: ServletContext = servletContext
 

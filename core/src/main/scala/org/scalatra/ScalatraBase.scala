@@ -1,6 +1,7 @@
 package org.scalatra
 
 import scala.util.matching.Regex
+import servlet.ServletApiImplicits
 import util.conversion.DefaultImplicitConversions
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
@@ -40,7 +41,7 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with ScalatraParamsImplicits with DefaultImplicitConversions {
+trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions {
   import ScalatraBase.{HostNameKey, PortKey, ForceHttpsKey}
   /**
    * The routes registered in this kernel.
@@ -446,16 +447,9 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with Sca
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
    */
-  private[this] var config: Config = _
+  protected def config: ConfigT
 
-  /**
-   * Initializes the kernel.  Used to provide context that is unavailable
-   * when the instance is constructed, for example the servlet lifecycle.
-   * Should set the `config` variable to the parameter.
-   *
-   * @param config the configuration.
-   */
-  def initialize(config: ConfigT) { this.config = config }
+  def initialize(config: ConfigT)
 
   /**
    * Gets an init paramter from the config.
@@ -612,4 +606,21 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable with Sca
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends ScalatraSyntax with DynamicScope
+trait ScalatraBase extends ScalatraSyntax with DynamicScope {
+
+
+  /**
+   * The configuration, typically a ServletConfig or FilterConfig.
+   */
+  protected var config: ConfigT = _
+
+  /**
+   * Initializes the kernel.  Used to provide context that is unavailable
+   * when the instance is constructed, for example the servlet lifecycle.
+   * Should set the `config` variable to the parameter.
+   *
+   * @param config the configuration.
+   */
+  def initialize(config: ConfigT) { this.config = config }
+
+}

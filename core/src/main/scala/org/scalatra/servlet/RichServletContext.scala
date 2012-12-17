@@ -3,8 +3,8 @@ package servlet
 
 import java.net.{MalformedURLException, URL}
 import java.util.EnumSet
-import javax.servlet.{DispatcherType, Filter, ServletContext}
-import javax.servlet.http.{HttpServlet, HttpServletRequest}
+import javax.servlet.{ServletConfig, DispatcherType, Filter, ServletContext}
+import javax.servlet.http.{HttpServletResponse, HttpServlet, HttpServletRequest}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import java.{ util => jutil }
@@ -13,8 +13,7 @@ import org.scalatra.util
 /**
  * Extension methods to the standard ServletContext.
  */
-case class RichServletContext(sc: ServletContext) extends AttributesMap 
-{
+case class RichServletContext(sc: ServletContext) extends AttributesMap {
   protected def attributes = sc
 
   /**
@@ -45,6 +44,31 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     resource(path)
   }
 
+
+  /**
+   * Mounts a handler to the servlet context.
+   *
+   * @param factory the factory to mount
+   *
+   * @param urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
+   * not already, as path-mapping is the most natural fit for Scalatra.
+   * If you don't want path mapping, use the native Servlet API.
+   *
+   * @param name the name of the handler
+   */
+  def mount[T <: Handler](factory: (ServletConfig, HttpServletRequest, HttpServletResponse) => T, urlPattern: String, name: String) {
+    mountServlet(new ScalatraHost(factory), pathMapping(urlPattern), name)
+  }
+
+  def mount[T <: Handler : Manifest](factory: (ServletConfig, HttpServletRequest, HttpServletResponse) => T, urlPattern: String): Unit =
+    mount(factory, urlPattern, manifest[T].erasure.getName)
+
+  private[this] def pathMapping(urlPattern: String) = urlPattern match {
+    case s if s.endsWith("/*") => s
+    case s if s.endsWith("/") => s + "*"
+    case s => s + "/*"
+  }
+
   /**
    * Mounts a handler to the servlet context.  Must be an HttpServlet or a
    * Filter.
@@ -58,11 +82,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
    * @param name the name of the handler
    */
   def mount(handler: Handler, urlPattern: String, name: String) {
-    val pathMap = urlPattern match {
-      case s if s.endsWith("/*") => s
-      case s if s.endsWith("/") => s + "*"
-      case s => s + "/*"
-    }
+    val pathMap = pathMapping(urlPattern)
 
     handler match {
       case servlet: HttpServlet => mountServlet(servlet, pathMap, name)
