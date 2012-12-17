@@ -117,7 +117,7 @@ trait CoreDsl extends Handler with Control with ServletApiImplicits {
    * and a block as the action body.  The return value of the block is
    * rendered through the pipeline and sent to the client as the response body.
    *
-   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
+   * See [[org.scalatra.ScalatraSyntax#renderResponseBody]] for the detailed
    * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *

@@ -13,7 +13,7 @@ object I18nSupport {
 
 trait I18nSupport {
 
-  this: ScalatraBase with CookieSupport =>
+  this: ScalatraSyntax with CookieSupport =>
 
   import I18nSupport._
 

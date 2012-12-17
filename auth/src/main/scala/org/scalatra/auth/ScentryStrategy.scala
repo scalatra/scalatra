@@ -7,7 +7,7 @@ import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
 
 trait ScentryStrategy[UserType <: AnyRef] {
 
-  protected def app: ScalatraBase
+  protected def app: ScalatraSyntax
   def name: String = "NameMe"
 
   def registerWith(registrar: Scentry[UserType]) {
@@ -15,7 +15,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
     else registrar.register(name, createStrategy _)
   }
 
-  def createStrategy(app: ScalatraBase): this.type = {
+  def createStrategy(app: ScalatraSyntax): this.type = {
     throwOverrideException
   }
 

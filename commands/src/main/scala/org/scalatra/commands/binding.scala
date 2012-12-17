@@ -34,7 +34,7 @@ object Binding {
     type S = Nothing
     implicit def sourceManifest: Manifest[S] = null
     implicit def sourceZero: DefaultValue[S] = null
-    implicit def typeConverter: (S) => Option[T] = null
+    implicit def typeConverter: TypeConverter[S, T] = null
     def apply(toBind: Either[String, Option[S]]): Binding = null
 
     def validateWith(validators:BindingValidator[T]*): Binding =
@@ -173,17 +173,6 @@ trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorI
   implicit def stringToSeqDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, Seq[Date]] =
     stringToSeq(stringToDate)
 
-  implicit def stringSeqToHeadDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], Date] =
-    seqHead(stringToDate)
-
-  implicit def stringSeqToHeadDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], DateTime] =
-    seqHead(stringToDateTime)
-
-  implicit def stringSeqToSeqDate(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], Seq[Date]] =
-    seqToSeq(stringToDate)
-
-  implicit def stringSeqToSeqDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[Seq[String], Seq[DateTime]] =
-    seqToSeq(stringToDateTime)
 }
 
 object BindingImplicits extends BindingImplicits
