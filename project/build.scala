@@ -239,6 +239,23 @@ object ScalatraBuild extends Build {
    scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraCommands, scalatraAtmosphere
  )
 
+ lazy val scalatraStacks = Project(
+   id = "scalatra-stacks",
+   base = file("stacks"),
+   settings = scalatraSettings ++ Seq(
+     description := "Scalatra Stacks, provides base traits with sensible defaults"
+   )
+ ) dependsOn(
+   scalatraCore % "compile;test->test;provided->provided",
+   scalatraScalate % "provided->compile",
+   scalatraAuth % "provided->compile",
+   scalatraFileupload % "provided->compile",
+   scalatraAkka % "provided->compile",
+   scalatraJetty % "provided->compile",
+   scalatraCommands % "provided->compile",
+   scalatraAtmosphere % "provided->compile"
+ )
+
   object Dependencies {
 
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.6-SNAPSHOT"

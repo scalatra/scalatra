@@ -1,6 +1,9 @@
 package org.scalatra
 package validation
 
+import org.json4s._
+import JsonDSL._
+
 
 case class ValidationError(message: String, field: Option[FieldName], code: Option[ErrorCode], args: Seq[Any])
 case class FieldName(name: String)
@@ -29,3 +32,16 @@ object ValidationError {
     new ValidationError(msg, field, code, args)
   }
 }
+
+class ValidationErrorSerializer extends CustomSerializer[ValidationError](
+  (formats: Formats) ⇒ ({
+    case jo @ JObject(JField("message", _) :: _) ⇒
+      implicit val fmts = formats
+      ValidationError((jo \ "message").extractOrElse(""), (jo \ "fieldName").extractOpt[String], (jo \ "code").extractOpt[String], Nil)
+  }, {
+    case ValidationError(message, fieldName, code, _) ⇒
+      implicit val fmts = formats
+      val jv: JValue = ("message" -> message)
+      val wf: JValue = fieldName map (fn ⇒ ("field" -> fn.name): JValue) getOrElse JNothing
+      jv merge wf
+  }))
