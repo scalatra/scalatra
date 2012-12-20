@@ -15,6 +15,9 @@ target/
 .ensime
 .target
 
+# paulp script #
+/.lib/
+
 # eclipse artifacts
 .settings
 .project
