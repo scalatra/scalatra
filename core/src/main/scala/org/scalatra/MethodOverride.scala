@@ -34,7 +34,7 @@ trait MethodOverride extends Handler {
     val methodOpt = req.parameters get ParamName
     methodOpt orElse {
       val headers = req.headers
-      val headerKeyOpt = headers.keys.find { HeaderName contains _ }
+      val headerKeyOpt = headers.keys.find { HeaderName contains _.toUpperCase() }
       headerKeyOpt.flatMap { req.headers get _ }
     }
   }
