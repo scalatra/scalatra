@@ -5,6 +5,7 @@ import ScentryAuthStore.ScentryAuthStore
 import collection.mutable
 import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
+import util.{MapWithIndifferentAccess, MultiMapHeadView}
 
 object Scentry {
 
@@ -53,7 +54,7 @@ class Scentry[UserType <: AnyRef](
   }
 
   //def session = app.session
-  def params = app.params
+  def params: Params = app.params
   def redirect(uri: String) { app.redirect(uri) }
 
   def register(strategy: => ScentryStrategy[UserType]) {
