@@ -10,9 +10,7 @@ class ParamsExtensionSpec extends Specification {
 
   import ScalatraParamsImplicits._
 
-  case class FakeParams(params: Map[String, String]) extends MultiMapHeadView[String, String]
-
-  with MapWithIndifferentAccess[String] {
+  case class FakeParams(params: Map[String, String]) extends MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
     protected def multiMap = MultiMap(params.map(e => (e._1, List(e._2).toSeq)))
   }
 
@@ -20,7 +18,7 @@ class ParamsExtensionSpec extends Specification {
 
     "add a getAs[T] method to Scalatra Params that returns Option[T]" in {
 
-      val params: ParamsType = FakeParams(Map("a" -> "1", "b" -> "", "c" -> null))
+      val params: Params = FakeParams(Map("a" -> "1", "b" -> "", "c" -> null))
 
       params.getAs[Int]("a") must beSome(1)
 
@@ -34,7 +32,7 @@ class ParamsExtensionSpec extends Specification {
 
       val (format, dateAsText) = ("dd/MM/yyyy", "9/11/2001")
 
-      val params: ParamsType = FakeParams(Map("TwinTowers" -> dateAsText))
+      val params: Params = FakeParams(Map("TwinTowers" -> dateAsText))
 
       val expectedDate = new SimpleDateFormat(format).parse(dateAsText)
 
@@ -43,7 +41,7 @@ class ParamsExtensionSpec extends Specification {
     }
 
     "return None if a conversion is invalid" in {
-      val params: ParamsType = FakeParams(Map("a" -> "hello world"))
+      val params: Params = FakeParams(Map("a" -> "hello world"))
       params.getAs[Int]("a") must beNone
     }
 
@@ -53,7 +51,7 @@ class ParamsExtensionSpec extends Specification {
 
       implicit val bogusConverter: TypeConverter[String, Bogus] = (s: String) => Some(Bogus(s))
 
-      val params: ParamsType = FakeParams(Map("a" -> "buffybuffy"))
+      val params: Params = FakeParams(Map("a" -> "buffybuffy"))
 
       params.getAs[Bogus]("a") must beSome
 
@@ -63,7 +61,7 @@ class ParamsExtensionSpec extends Specification {
 
     "explicitely receive a custom TypeConverter" in {
 
-      val params: ParamsType = FakeParams(Map("a" -> "buffybuffy"))
+      val params: Params = FakeParams(Map("a" -> "buffybuffy"))
 
       params.getAs[Bogus]("a")((s: String) => Some(Bogus(s.toUpperCase))) must beSome(Bogus("BUFFYBUFFY"))
 

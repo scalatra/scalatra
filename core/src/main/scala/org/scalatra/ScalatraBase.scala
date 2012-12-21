@@ -327,7 +327,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
    */
-  protected val _params: ParamsType = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
+  protected val _params: Params = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
     protected def multiMap = multiParams
   }
 
@@ -335,7 +335,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * A view of `multiParams`.  Returns the head element for any known param,
    * and is undefined for any unknown param.  Invalid outside `handle`.
    */
-  def params: ParamsType = _params
+  def params: Params = _params
 
   /**
    * Pluggable way to convert a path expression to a route matcher.
