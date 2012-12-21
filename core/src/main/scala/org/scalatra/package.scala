@@ -1,5 +1,7 @@
 package org
 
+import scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView}
+
 package object scalatra 
   extends Control // make halt and pass visible to helpers outside the DSL
 //  with DefaultValues // make defaults visible
@@ -9,6 +11,8 @@ package object scalatra
   type RouteTransformer = (Route => Route)
 
   type MultiParams = MultiMap
+
+  type Params = MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
 
   type Action = () => Any
 
