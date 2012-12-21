@@ -1,6 +1,5 @@
 package org.scalatra
 
-import javax.servlet.http.HttpServletResponse
 import test.scalatest.ScalatraFunSuite
 
 class BeforeTestServlet extends ScalatraServlet {

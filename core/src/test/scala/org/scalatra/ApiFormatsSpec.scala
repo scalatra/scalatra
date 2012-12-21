@@ -1,8 +1,12 @@
 package org.scalatra
 
 import test.specs2.MutableScalatraSpec
+import javax.servlet.ServletConfig
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
+class ApiFormatsServlet extends ScalatraServlet with ApiFormatsAppBase
+class ApiFormatsApp(config: ServletConfig, req: HttpServletRequest, res: HttpServletResponse) extends ScalatraApp(config, req, res) with ApiFormatsAppBase
+trait ApiFormatsAppBase extends ApiFormats {
   override protected implicit def string2RouteMatcher(path: String): RouteMatcher = RailsPathPatternParser(path)
 
   get("/hello(.:format)") {
@@ -16,9 +20,15 @@ class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
 
 }
 
-class ApiFormatsSpec extends MutableScalatraSpec {
+class ApiFormatsServletSpec extends ApiFormatsSpecBase {
+  mount(new ApiFormatsServlet, "/*")
+}
+class ApiFormatsAppSpec extends ApiFormatsSpecBase {
+  mount(new ApiFormatsApp(_, _, _), "/*")
+}
+abstract class ApiFormatsSpecBase extends MutableScalatraSpec {
 
-  addServlet(new ApiFormatsServlet, "/*")
+
 
   "The ApiFormats" should {
     "get the format from the params" in {
