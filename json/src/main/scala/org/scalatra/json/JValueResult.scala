@@ -7,6 +7,7 @@ import io._
 import org.scalatra.ActionResult
 import java.io.{FileInputStream, File}
 import org.scalatra.ActionResult
+import xml.{Node, NodeSeq}
 
 trait JValueResult extends ScalatraSyntax { self: JsonSupport[_] =>
 
@@ -23,6 +24,14 @@ trait JValueResult extends ScalatraSyntax { self: JsonSupport[_] =>
     case a: ActionResult => super.renderPipeline(a)
     case _: Unit | Unit => super.renderPipeline(())
     case s: String => super.renderPipeline(s)
+    case x: scala.xml.Node if responseFormat == "xml" ⇒
+      contentType = formats("xml")
+      response.writer.write(scala.xml.Utility.trim(x).toString())
+    case x: NodeSeq if responseFormat == "xml" ⇒
+      contentType = formats("xml")
+      response.writer.write(x.toString)
+    case x: NodeSeq ⇒
+      response.writer.write(x.toString)
     case p: Product if responseFormat == "json" || responseFormat == "xml" => Extraction.decompose(p)
     case p: Traversable[_] if responseFormat == "json" || responseFormat == "xml" => Extraction.decompose(p)
     case a => super.renderPipeline(a)
