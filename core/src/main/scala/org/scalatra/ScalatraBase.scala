@@ -101,10 +101,11 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       val prehandleException = request.get("org.scalatra.PrehandleException")
       if (prehandleException.isEmpty) {
         runFilters(routes.beforeFilters)
-        val actionResult = runRoutes(routes(request.requestMethod)).headOption orElse
-          matchOtherMethods() getOrElse doNotFound()
+        val actionResult = runRoutes(routes(request.requestMethod)).headOption
         // Give the status code handler a chance to override the actionResult
-        result = handleStatusCode(status) getOrElse actionResult
+        result = handleStatusCode(status) getOrElse {
+          actionResult orElse matchOtherMethods() getOrElse doNotFound()
+        }
       } else {
         throw prehandleException.get.asInstanceOf[Exception]
       }
@@ -286,6 +287,8 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * response has been rendered.
    */
   protected def renderPipeline: RenderPipeline = {
+    case 404 =>
+      doNotFound()
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
@@ -296,6 +299,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
     case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response
+    case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound()
     case actionResult: ActionResult =>
       response.status = actionResult.status
       actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }
@@ -379,6 +383,8 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
 
   protected def renderHaltException(e: HaltException) {
     e match {
+      case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
+        doNotFound()
       case HaltException(Some(status), Some(reason), _, _) =>
         response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) =>

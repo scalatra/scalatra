@@ -36,7 +36,7 @@ class ScalatraTestServlet extends ScalatraServlet {
   }
 
   get("/return-int") {
-    404
+    403
   }
 
   get("/redirect") {
@@ -213,7 +213,7 @@ class ScalatraTest extends ScalatraFunSuite {
 
   test("int return value sets status and no body") {
     get("/return-int") {
-      status should equal (404)
+      status should equal (403)
       body should equal ("")
     }
   }

@@ -15,7 +15,7 @@ trait JValueResult extends ScalatraSyntax { self: JsonSupport[_] =>
 
   override protected def renderPipeline: RenderPipeline = renderToJson orElse super.renderPipeline
 
-  private def renderToJson: RenderPipeline = {
+  private[this] def renderToJson: RenderPipeline = {
     case a: JValue => super.renderPipeline(a)
     case status: Int => super.renderPipeline(status)
     case bytes: Array[Byte] => super.renderPipeline(bytes)
@@ -24,6 +24,8 @@ trait JValueResult extends ScalatraSyntax { self: JsonSupport[_] =>
     case a: ActionResult => super.renderPipeline(a)
     case _: Unit | Unit => super.renderPipeline(())
     case s: String => super.renderPipeline(s)
+    case null if responseFormat == "json" || responseFormat == "xml" => JNull
+    case null => super.renderPipeline(null)
     case x: scala.xml.Node if responseFormat == "xml" ⇒
       contentType = formats("xml")
       response.writer.write(scala.xml.Utility.trim(x).toString())
@@ -34,7 +36,6 @@ trait JValueResult extends ScalatraSyntax { self: JsonSupport[_] =>
       response.writer.write(x.toString)
     case p: Product if responseFormat == "json" || responseFormat == "xml" => Extraction.decompose(p)
     case p: Traversable[_] if responseFormat == "json" || responseFormat == "xml" => Extraction.decompose(p)
-    case a => super.renderPipeline(a)
   }
 
 }

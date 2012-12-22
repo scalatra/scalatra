@@ -21,7 +21,7 @@ import javax.servlet._
  *
  * @see ScalatraServlet
  */
-@deprecated("This aproach uses thread locals which cause headaches in a multi-threading scenario, use org.scalatra.ScalatraApp instead.", "2.2")
+//@deprecated("This aproach uses thread locals which cause headaches in a multi-threading scenario, use org.scalatra.ScalatraApp instead.", "2.2")
 trait ScalatraFilter extends Filter with ServletBase {
   private[this] val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value

@@ -26,6 +26,8 @@
 * ApiFormats now also has a reverse mapping for the txt extension
 * Adds `GZipSupport`, contributed by @Marza
 * Folds `TypedParamSupport` into core making the `params.getAs[Int]` methods available everywhere
+* When an action returns `halt(404)`, `halt(NotFound())`, `404` or `NotFound()` then the not found handler is run
+  If this has a body then the not found handler is skipped
 
 ### lift-json
 * removed for json4s support
