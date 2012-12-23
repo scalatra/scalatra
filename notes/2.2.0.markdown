@@ -54,17 +54,17 @@
 
         class RegisterForm extends JacksonCommand { // you have to pick the json library of choice
 
-          val login: Field[String] = asString("login").required.notBlank.minLength(6).validForFormat("\\w+".r)
+          val login: Field[String] = bind[String]("login").required.notBlank.minLength(6).validForFormat("\\w+".r)
 
-          val name: Field[String] = asString("name")
+          val name: Field[String] = bind[String]("name")
 
-          val email: Field[String] = asString("email").required.notBlank.validEmail
+          val email: Field[String] = bind[String]("email").required.notBlank.validEmail
 
-          val homepage: Field[String] = asString("homepage").validUrl
+          val homepage: Field[String] = bind[String]("homepage").validUrl
 
-          val passwordConfirmation: FieldBinding = asString("passwordConfirmation").required.notBlank
+          val passwordConfirmation: FieldBinding = bind[String]("passwordConfirmation").required.notBlank
 
-          val password: FieldBinding = asString("password").required.notBlank.validConfirmation("passwordConfirmation", passwordConfirmation.value)
+          val password: FieldBinding = bind[String]("password").required.notBlank.validConfirmation("passwordConfirmation", passwordConfirmation.value)
 
         }
 * Renames databinding to commands. this resolves the confusion created by the name databinding.
@@ -122,20 +122,20 @@
         class MyCommand extends JsonCommand {
           protected implicit val jsonFormats: Formats = DefaultFormats
           
-          val name: Field[String] = asString("name").notBlank
+          val name: Field[String] = bind[String]("name").notBlank
 
           val age: Field[Int] = "age"
 
           val token: Field[String] = (
-              asString("API-TOKEN").notBlank
+              bind[String]("API-TOKEN").notBlank
                 sourcedFrom ValueSource.Header 
                 description "The API token for this request"
                 notes "Invalid data kills cute innocent kittens"
                 allowableValues "123")
 
-          val skip: Field[Int] = asInt("skip").sourcedFrom(ValueSource.Query).description("The offset for this collection index")
+          val skip: Field[Int] = bind[Int]("skip").sourcedFrom(ValueSource.Query).description("The offset for this collection index")
           
-          val limit: Field[Int] = asType[Int]("limit").sourcedFrom(ValueSource.Query).withDefaultValue(20).description("the max number of items to return")
+          val limit: Field[Int] = bind[Int]("limit").sourcedFrom(ValueSource.Query).withDefaultValue(20).description("the max number of items to return")
         }
 
 

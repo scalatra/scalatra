@@ -258,7 +258,7 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.6"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.7"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
@@ -282,7 +282,7 @@ object ScalatraBuild extends Build {
     val jettyServlet = jettyDep("jetty-servlet")
     val jettyWebapp = jettyDep("jetty-webapp")
 
-    val junit = "junit" % "junit" % "4.10"
+    val junit = "junit" % "junit" % "4.11"
 
     val json4sExt = "org.json4s" %% "json4s-ext" % "3.0.0"
     val json4sNative = "org.json4s" %% "json4s-native" % "3.0.0"
@@ -295,7 +295,7 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.5.3"
+    val scalate = "org.fusesource.scalate" % "scalate-core_2.9" % "1.6.0"
 
     val scalatest = "org.scalatest" %% "scalatest" % "1.8"
 
@@ -305,7 +305,7 @@ object ScalatraBuild extends Build {
 
     val specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    val specs2 = "org.specs2" %% "specs2" % "1.12.2"
+    val specs2 = "org.specs2" %% "specs2" % "1.12.3"
 
     val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
@@ -315,7 +315,7 @@ object ScalatraBuild extends Build {
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.2"
 
-    val logback = "ch.qos.logback" % "logback-classic" % "1.0.7"
+    val logback = "ch.qos.logback" % "logback-classic" % "1.0.9"
 
     val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
 
@@ -325,7 +325,7 @@ object ScalatraBuild extends Build {
 
     val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2"
 
-    def swagger(name: String) = "com.wordnik" % "swagger-%s_2.9.1".format(name) % "1.1.0"
+    def swagger(name: String) = "com.wordnik" % "swagger-%s_2.9.1".format(name) % "1.2.0"
   }
 
   object Resolvers {
