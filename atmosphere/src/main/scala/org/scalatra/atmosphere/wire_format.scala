@@ -54,9 +54,8 @@ trait WireFormat {
  * It looks at the first character in the message and if it thinks it's JSON it will try to parse it as JSON
  * otherwise it creates a text message
  *
- * @param formats the [[org.json4s.Formats]] for lift-json
  */
-abstract class SimpleJsonWireFormat(implicit formats: Formats) extends WireFormat  { self: org.json4s.JsonMethods[_] =>
+abstract class SimpleJsonWireFormat extends WireFormat  { self: org.json4s.JsonMethods[_] =>
 
   val name = "simpleJson"
   val supportsAck = false

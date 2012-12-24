@@ -21,7 +21,7 @@ trait SwaggerSupportBase {
   protected def operations(route: Route, method: HttpMethod): List[SwaggerOperation]
 }
 
-trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
+trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraSyntax with SwaggerSupportBase =>
   protected implicit def swagger: SwaggerEngine[_]
 
   protected def applicationName: Option[String] = None
@@ -116,7 +116,10 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def summary(value: String) = swaggerMeta(Summary, value)
   protected def notes(value: String) = swaggerMeta(Notes, value)
   protected def responseClass(value: String) = swaggerMeta(ResponseClass, value)
-  protected def responseClass[T](implicit mf: Manifest[T]) = swaggerMeta(ResponseClass, DataType[T].name)
+  protected def responseClass[T](implicit mf: Manifest[T]) = {
+//    models_=(Map(mf.erasure))
+    swaggerMeta(ResponseClass, DataType[T].name)
+  }
   protected def nickname(value: String) = swaggerMeta(Nickname, value)
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
   protected def parameters(value: Parameter*) = swaggerMeta(Parameters, value.toList)
@@ -126,14 +129,14 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
     route.copy(metadata = route.metadata + (s -> v))
   }
-  
   implicit def dataType2string(dt: DataType.DataType) = dt.name
+
 }
 
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
-trait SwaggerSupport extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase =>
+trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with SwaggerSupportSyntax {
 
   
 

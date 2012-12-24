@@ -30,6 +30,31 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
   }
 
   /**
+   * Optionally return and type cast the attribute associated with the key
+   *
+   * @param key The key to find
+   * @tparam T The type of the value
+   * @return an option value containing the attributed associated with the key in the underlying servlet object,
+   *         or None if none exists
+   */
+  def getAs[T](key: String): Option[T] = {
+    get(key) flatMap {
+      case t: T => Some(t)
+      case _ => None
+    }
+  }
+
+  /**
+   * Return the attribute associated with the key or throw an exception when nothing found
+   *
+   * @param key The key to find
+   * @tparam T The type of the value
+   * @return an value for the attributed associated with the key in the underlying servlet object,
+   *         or throw an exception if the key doesn't exist
+   */
+  def as[T](key: String): T = getAs[T](key) getOrElse (throw new ScalatraException("Key "+key+" not found"))
+
+  /**
    * Creates a new iterator over all attributes in the underlying servlet object.
    *
    * @return the new iterator

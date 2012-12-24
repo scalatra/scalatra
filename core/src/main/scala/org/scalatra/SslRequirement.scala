@@ -2,11 +2,12 @@ package org.scalatra
 
 import java.net.URI
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import servlet.ServletApiImplicits
 
 /**
  * Redirects unsecured requests to the corresponding secure URL.
  */
-trait SslRequirement extends Handler { 
+trait SslRequirement extends Handler with ServletApiImplicits {
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     if (!req.isSecure) {
       val oldUri = req.uri

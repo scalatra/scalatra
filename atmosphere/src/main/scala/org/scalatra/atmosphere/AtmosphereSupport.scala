@@ -23,13 +23,13 @@ import grizzled.slf4j.Logger
 import com.typesafe.config.ConfigFactory
 import scala.util.control.Exception.allCatch
 import org.atmosphere.client.TrackMessageSizeInterceptor
+import org.atmosphere.interceptor.SessionCreationInterceptor
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 
-  implicit protected def jsonFormats: Formats
   private[this] val _defaultWireformat = new JacksonSimpleWireformat
   implicit protected def wireFormat: WireFormat = _defaultWireformat
 
@@ -78,6 +78,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       atmosphereFramework.enableSessionSupport()
       configureBroadcasterCache()
       configureBroadcasterFactory()
+      atmosphereFramework.interceptor(new SessionCreationInterceptor)
       atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
       atmosphereFramework.init(cfg)
       setupAtmosphereHandlerMappings(cfg)

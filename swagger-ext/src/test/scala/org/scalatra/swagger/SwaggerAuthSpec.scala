@@ -19,7 +19,7 @@ object SwaggerAuthSpec {
   
   class SpecSwagger extends SwaggerWithAuth("1.1", "1")
   
-  class HeaderOrQueryToken(protected val app: ScalatraBase) extends ScentryStrategy[User] {
+  class HeaderOrQueryToken(protected val app: ScalatraSyntax) extends ScentryStrategy[User] {
     override def name = "header_or_query_token"
     private def token = (app.request.header("API-TOKEN") orElse app.params.get("api_token")).flatMap(_.blankOption)
     override def isValid = token.isDefined
@@ -35,7 +35,7 @@ object SwaggerAuthSpec {
   
   trait AuthenticatedBase extends ScalatraServlet with NativeJsonSupport with CookieSupport with ScentrySupport[User] {
     type ScentryConfiguration = ScentryConfig
-    protected val scentryConfig: ScentryConfiguration = (new ScentryConfig {}).asInstanceOf[ScentryConfiguration]
+    protected val scentryConfig: ScentryConfiguration = new ScentryConfig {}
     
     protected val fromSession: PartialFunction[String, User] = {
       case s: String => Users.find(_.login == s).get
@@ -52,6 +52,7 @@ object SwaggerAuthSpec {
     
     error {
       case t: Throwable => t.printStackTrace()
+      case t => t.printStackTrace()
     }
   }
   
@@ -60,10 +61,16 @@ object SwaggerAuthSpec {
   				with NativeJsonSupport 
   				with CorsSupport
   				with SwaggerAuthBase[User] {
-    
+    implicit protected def jsonFormats: Formats = DefaultFormats
+    error {
+      case t: Throwable => t.printStackTrace()
+    }
   }
   
   class PetsApi(implicit protected val swagger: SwaggerWithAuth) extends AuthenticatedBase with NativeJsonSupport with SwaggerAuthSupport[User] {
+
+    implicit protected def jsonFormats: Formats = DefaultFormats
+
     protected val applicationDescription = "The pets api"
     override protected val applicationName = Some("pets")
     
@@ -100,12 +107,16 @@ object SwaggerAuthSpec {
   class AdminApi(implicit protected val swagger: SwaggerWithAuth) extends AuthenticatedBase with NativeJsonSupport with SwaggerAuthSupport[User] {
     protected val applicationDescription = "The admin api"
     override protected val applicationName = Some("admin")
-    
+
+
+    implicit protected def jsonFormats: Formats = DefaultFormats
+
     private[this] def isAllowed(u: Option[User]) = {
-      u.map(_.login) == Some("tom") 
+      u.map(_.login) == Some("tom")
     }
     
     get("/", allows(isAllowed), endpoint(""), nickname("adminlist")) {
+      println("executing / ")
       "OK"
     }
     
@@ -122,7 +133,7 @@ class SwaggerAuthSpec extends MutableScalatraSpec {
 
   import SwaggerAuthSpec._
   implicit val swagger: SwaggerWithAuth = new SpecSwagger
-  
+
   
   addServlet(new PetsApi, "/pets/*")
   
@@ -149,57 +160,57 @@ class SwaggerAuthSpec extends MutableScalatraSpec {
     	  apis(jsonBody).size must_== 1
     	}
     }
-    
+
     "don't render inaccessible resource for non-admin user" in {
       get("/resources.json", "api_token" -> "the_token") {
         status must_== 200
     	  apis(jsonBody).size must_== 1
     	}
     }
-    
+
     "render all resources for admin user" in {
       get("/resources.json", "api_token" -> "token1") {
         status must_== 200
     	  apis(jsonBody).size must_== 2
     	}
     }
-    
+
     "only render publicly accessible endpoints for pets api" in {
     	get("/pets.json") {
     	  status must_== 200
     	  endpoints(jsonBody).size must_== 1
     	}
     }
-    
+
     "only render accessible endpoints in pets api for 'john'" in {
       get("/pets.json", "api_token" -> "the_token") {
         status must_== 200
     	  endpoints(jsonBody).size must_== 2
     	}
     }
-    
+
     "only render accessible endpoints in pets api for 'kate'" in {
     	get("/pets.json", "api_token" -> "token2") {
     	  status must_== 200
 				endpoints(jsonBody).size must_== 3
     	}
     }
-    
+
     "only render accessible endpoints in pets api for 'tom'" in {
     	get("/pets.json", "api_token" -> "token1") {
     	  status must_== 200
 				endpoints(jsonBody).size must_== 4
     	}
     }
-   
+
     "render admin endpoints for admin user" in {
     	get("/admin.json", "api_token" -> "token1") {
     	  status must_== 200
     	  endpoints(jsonBody).size must_== 3
     	}
     }
-    
-    "return 404 for non-admin user when requestion admin.json" in {
+
+    "return 404 for non-admin user when requesting admin.json" in {
       get("/admin.json", "api_token" -> "token2") {
     	  status must_== 404 
     	}

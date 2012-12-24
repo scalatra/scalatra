@@ -20,13 +20,13 @@ object ScalatraSlf4jRequestLogging {
 
 }
 
-trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
+trait ScalatraSlf4jRequestLogging extends ScalatraSyntax with Handler {
 
   private[this] val logger = Logger("REQUEST")
   import ScalatraSlf4jRequestLogging._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    val realMultiParams = req.getParameterMap.asInstanceOf[JMap[String, Array[String]]].asScala.toMap transform { (k, v) ⇒ v: Seq[String] }
+    val realMultiParams = req.getParameterMap.asScala.toMap transform { (k, v) ⇒ v: Seq[String] }
     withRequest(req) {
       request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
       request(CgiParamsKey) = readCgiParams(req)

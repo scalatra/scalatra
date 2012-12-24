@@ -9,7 +9,7 @@ import org.json4s.Formats
 import concurrent.{ExecutionContext, Future}
 
 
-final class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit formats: Formats, wireFormat: WireFormat, system: ActorSystem) extends DefaultBroadcaster(id, config) {
+final class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends DefaultBroadcaster(id, config) {
 
   private[this] val logger: Logger = Logger[ScalatraBroadcaster]
 

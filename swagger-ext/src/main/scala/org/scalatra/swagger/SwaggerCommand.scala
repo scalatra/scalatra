@@ -60,7 +60,7 @@ object SwaggerCommandSupport {
     Model(cmd.commandName, cmd.commandDescription, Map(modelFields:_*))
   }
 }
-trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
+trait SwaggerCommandSupport { this: ScalatraSyntax with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
 
   protected def parameters[T <: CommandType : Manifest] =
     swaggerMeta(Symbols.Parameters, parametersFromCommand[T])

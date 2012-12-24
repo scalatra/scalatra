@@ -36,7 +36,7 @@ object CsrfTokenSupport {
  * request is prepared with `prepareCsrfToken`.
  */
 trait CsrfTokenSupport {
-  this: ScalatraBase with SessionSupport =>
+  this: ScalatraSyntax with SessionSupport =>
 
   /**
    * The key used to store the token on the session, as well as the parameter
@@ -85,7 +85,7 @@ trait CsrfTokenSupport {
   protected def prepareCSRFToken() = prepareCsrfToken()
 }
 
-trait XsrfTokenSupport { this: ScalatraBase with SessionSupport with CookieSupport =>
+trait XsrfTokenSupport { this: ScalatraSyntax with SessionSupport with CookieSupport =>
 
   import XsrfTokenSupport._
   /**

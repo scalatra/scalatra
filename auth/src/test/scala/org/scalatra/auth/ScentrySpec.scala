@@ -40,7 +40,16 @@ object ScentrySpec extends Specification with Mockito {
     var afterAuthenticateCalled = false
     var successStrategyCalled = false
     var failingStrategyCalled = false
+    var unauthenticatedCalled = false
+    var unauthenticatedSuccessCalled = false
+    var defaultUnauthenticatedCalled = false
+
     Scentry.clearGlobalStrategies
+    theScentry unauthenticated {
+      defaultUnauthenticatedCalled = true
+    }
+
+
 
     val s = new ScentryStrategy[User] {
         protected val app = context
@@ -56,7 +65,8 @@ object ScentrySpec extends Specification with Mockito {
         override def afterLogout(user: User) = afterLogoutCalled = true
         override def beforeAuthenticate = beforeAuthenticateCalled = true
         override def afterAuthenticate(winningStrategy: String, user: User) = afterAuthenticateCalled = true
-      }
+        override def unauthenticated() { unauthenticatedSuccessCalled = true }
+    }
 
     val sUnsuccess = new ScentryStrategy[User] {
         protected val app = context
@@ -66,9 +76,10 @@ object ScentrySpec extends Specification with Mockito {
         }
         override def beforeAuthenticate = beforeAuthenticateCalled = true
         override def afterAuthenticate(winningStrategy: String, user: User) = afterAuthenticateCalled = true
+        override def unauthenticated() { unauthenticatedCalled = true }
       }
     "allow registration of global strategies" in {
-      Scentry.register("Bogus", (_: ScalatraBase) =>  s)
+      Scentry.register("Bogus", (_: ScalatraSyntax) =>  s)
       Scentry.globalStrategies("Bogus").asInstanceOf[Scentry[User]#StrategyFactory](context) must be_==(s)
     }
 
@@ -86,49 +97,70 @@ object ScentrySpec extends Specification with Mockito {
     "run all fetch user callbacks" in {
       theScentry.register("LocalFoo", _ => s)
       theScentry.user must be_==(User("6789"))
-      beforeFetchCalled must be_==(true)
-      afterFetchCalled must be_==(true)
+      beforeFetchCalled must beTrue
+      afterFetchCalled must beTrue
     }
 
     "run all set user callbacks" in {
       theScentry.register("LocalFoo", _ => s)
       (theScentry.user = User("6789")) must be_==("6789")
-      beforeSetUserCalled must be_==(true)
-      afterSetUserCalled must be_==(true)
+      beforeSetUserCalled must beTrue
+      afterSetUserCalled must beTrue
     }
 
     "run all logout callbacks" in {
       theScentry.register("LocalFoo", _ => s)
       theScentry.logout
-      beforeLogoutCalled must be_==(true)
-      afterLogoutCalled must be_==(true)
-      invalidateCalled must be_==(true)
+      beforeLogoutCalled must beTrue
+      afterLogoutCalled must beTrue
+      invalidateCalled must beTrue
     }
 
     "run all login callbacks on successful authentication" in {
       theScentry.register("LocalFoo", _ => s)
       theScentry.authenticate()
-      beforeAuthenticateCalled must be_==(true)
-      afterAuthenticateCalled must be_==(true)
-      beforeSetUserCalled must be_==(true)
-      afterSetUserCalled must be_==(true)
+      beforeAuthenticateCalled must beTrue
+      afterAuthenticateCalled must beTrue
+      beforeSetUserCalled must beTrue
+      afterSetUserCalled must beTrue
     }
 
     "run only the before authentication on unsuccessful authentication" in {
       theScentry.register("LocalBar", _ => sUnsuccess)
       theScentry.authenticate()
-      beforeAuthenticateCalled must be_==(true)
-      afterAuthenticateCalled must be_==(false)
+      beforeAuthenticateCalled must beTrue
+      afterAuthenticateCalled must beFalse
     }
 
     "run only the strategy specified by the name" in {
       theScentry.register("LocalFoo", _ => s)
       theScentry.register("LocalBar", _ => sUnsuccess)
       theScentry.authenticate("LocalBar")
-      beforeAuthenticateCalled must be_==(true)
-      afterAuthenticateCalled must be_==(false)
-      failingStrategyCalled must be_==(true)
-      successStrategyCalled must be_==(false)
+      beforeAuthenticateCalled must beTrue
+      afterAuthenticateCalled must beFalse
+      failingStrategyCalled must beTrue
+      successStrategyCalled must beFalse
+    }
+
+    "run the unauthenticated hook when authenticating by name" in {
+      theScentry.register("LocalFoo", _ => s)
+      theScentry.register("LocalBar", _ => sUnsuccess)
+      theScentry.authenticate("LocalBar")
+      beforeAuthenticateCalled must beTrue
+      afterAuthenticateCalled must beFalse
+      failingStrategyCalled must beTrue
+      unauthenticatedCalled must beTrue
+      unauthenticatedSuccessCalled must beFalse
+      defaultUnauthenticatedCalled must beFalse
+    }
+
+    "run the default unauthenticated hook when authenticating without a name" in {
+//      theScentry.register("LocalFoo", _ => s)
+      theScentry.register("LocalBar", _ => sUnsuccess)
+      theScentry.authenticate()
+      unauthenticatedCalled must beTrue
+      unauthenticatedSuccessCalled must beFalse
+      defaultUnauthenticatedCalled must beTrue
     }
   }
 }

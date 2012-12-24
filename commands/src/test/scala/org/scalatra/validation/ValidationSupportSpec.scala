@@ -58,7 +58,6 @@ class ValidationSupportSpec extends Specification {
       params must not haveKey ("cap")
 
       formUnderTest.bindTo(params)
-      println(formUnderTest.errors)
       formUnderTest.isValid must beTrue
 
       formUnderTest.notRequiredCap.validation must_== 0.success

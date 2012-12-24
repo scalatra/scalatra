@@ -47,6 +47,7 @@ object ScalatraServlet {
  *
  * @see ScalatraFilter
  */
+//@deprecated("This aproach uses thread locals which cause headaches in a multi-threading scenario, use org.scalatra.ScalatraApp instead.", "2.2")
 abstract class ScalatraServlet
   extends HttpServlet
   with ServletBase

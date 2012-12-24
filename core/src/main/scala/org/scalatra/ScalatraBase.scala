@@ -1,6 +1,8 @@
 package org.scalatra
 
 import scala.util.matching.Regex
+import servlet.ServletApiImplicits
+import util.conversion.DefaultImplicitConversions
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import scala.annotation.tailrec
@@ -29,7 +31,7 @@ object ScalatraBase {
   val ForceHttpsKey = "org.scalatra.ForceHttps"
 
   import collection.JavaConverters._
-  def getServletRegistration(app: ScalatraBase) = {
+  def getServletRegistration(app: ScalatraSyntax) = {
     val registrations = app.servletContext.getServletRegistrations.values().asScala.toList
     registrations.find(_.getClassName == app.getClass.getName)
   }
@@ -39,8 +41,10 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
+trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions {
   import ScalatraBase.{HostNameKey, PortKey, ForceHttpsKey}
+
+
   /**
    * The routes registered in this kernel.
    */
@@ -97,10 +101,11 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
       val prehandleException = request.get("org.scalatra.PrehandleException")
       if (prehandleException.isEmpty) {
         runFilters(routes.beforeFilters)
-        val actionResult = runRoutes(routes(request.requestMethod)).headOption orElse
-          matchOtherMethods() getOrElse doNotFound()
+        val actionResult = runRoutes(routes(request.requestMethod)).headOption
         // Give the status code handler a chance to override the actionResult
-        result = handleStatusCode(status) getOrElse actionResult
+        result = handleStatusCode(status) getOrElse {
+          actionResult orElse matchOtherMethods() getOrElse doNotFound()
+        }
       } else {
         throw prehandleException.get.asInstanceOf[Exception]
       }
@@ -163,7 +168,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
       liftAction(matchedRoute.action)
     }
 
-  private def liftAction(action: Action): Option[Any] = 
+  private def liftAction(action: Action): Option[Any] =
     try {
       Some(action())
     }
@@ -240,7 +245,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
       contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
-    
+
     renderResponseBody(actionResult)
   }
 
@@ -282,16 +287,19 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
    * response has been rendered.
    */
   protected def renderPipeline: RenderPipeline = {
+    case 404 =>
+      doNotFound()
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
       response.outputStream.write(bytes)
-    case is: java.io.InputStream => 
+    case is: java.io.InputStream =>
       using(is) { util.io.copy(_, response.outputStream) }
     case file: File =>
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
     case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response
+    case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound()
     case actionResult: ActionResult =>
       response.status = actionResult.status
       actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }
@@ -323,7 +331,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
    * Assumes that there is never a null or empty value in multiParams.  The servlet container won't put them
    * in request.getParameters, and we shouldn't either.
    */
-  protected val _params: MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
+  protected val _params: Params = new MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
     protected def multiMap = multiParams
   }
 
@@ -331,7 +339,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
    * A view of `multiParams`.  Returns the head element for any known param,
    * and is undefined for any unknown param.  Invalid outside `handle`.
    */
-  def params = _params
+  def params: Params = _params
 
   /**
    * Pluggable way to convert a path expression to a route matcher.
@@ -375,6 +383,8 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
 
   protected def renderHaltException(e: HaltException) {
     e match {
+      case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
+        doNotFound()
       case HaltException(Some(status), Some(reason), _, _) =>
         response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) =>
@@ -445,16 +455,9 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
    */
-  private[this] var config: Config = _
+  protected def config: ConfigT
 
-  /**
-   * Initializes the kernel.  Used to provide context that is unavailable
-   * when the instance is constructed, for example the servlet lifecycle.
-   * Should set the `config` variable to the parameter.
-   *
-   * @param config the configuration.
-   */
-  def initialize(config: ConfigT) { this.config = config }
+  def initialize(config: ConfigT)
 
   /**
    * Gets an init paramter from the config.
@@ -464,7 +467,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
    * @return an option containing the value of the parameter if defined, or
    * `None` if the parameter is not set.
    */
-  def initParameter(name: String): Option[String] = 
+  def initParameter(name: String): Option[String] =
     config.initParameters.get(name)
 
   /**
@@ -524,7 +527,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
       case(key, value) => key.urlEncode + "=" +value.toString.urlEncode
     }
     val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
-    addSessionId(newPath +queryString)
+    addSessionId(newPath + queryString)
   }
 
   private[this] val ensureContextPathsStripped = (ensureContexPathStripped _) andThen (ensureServletPathStripped _)
@@ -543,7 +546,7 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
 
   private[this] def ensureSlash(candidate: String) = {
     val p = if (candidate.startsWith("/")) candidate else "/"+candidate
-    if (p.size > 1 && p.endsWith("/")) p.dropRight(1) else p
+    if (p.endsWith("/")) p.dropRight(1) else p
   }
 
 
@@ -605,4 +608,27 @@ trait ScalatraBase extends CoreDsl with DynamicScope with Initializable {
   protected def contextPath: String = servletContext.contextPath
 
   protected def addSessionId(uri: String): String
+}
+
+/**
+ * The base implementation of the Scalatra DSL.  Intended to be portable
+ * to all supported backends.
+ */
+trait ScalatraBase extends ScalatraSyntax with DynamicScope {
+
+
+  /**
+   * The configuration, typically a ServletConfig or FilterConfig.
+   */
+  protected var config: ConfigT = _
+
+  /**
+   * Initializes the kernel.  Used to provide context that is unavailable
+   * when the instance is constructed, for example the servlet lifecycle.
+   * Should set the `config` variable to the parameter.
+   *
+   * @param config the configuration.
+   */
+  def initialize(config: ConfigT) { this.config = config }
+
 }

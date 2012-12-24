@@ -240,13 +240,30 @@ object ScalatraBuild extends Build {
    scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraCommands, scalatraAtmosphere
  )
 
+ lazy val scalatraStacks = Project(
+   id = "scalatra-stacks",
+   base = file("stacks"),
+   settings = scalatraSettings ++ Seq(
+     description := "Scalatra Stacks, provides base traits with sensible defaults"
+   )
+ ) dependsOn(
+   scalatraCore % "compile;test->test;provided->provided",
+   scalatraScalate % "provided->compile",
+   scalatraAuth % "provided->compile",
+   scalatraFileupload % "provided->compile",
+   scalatraAkka % "provided->compile",
+   scalatraJetty % "provided->compile",
+   scalatraCommands % "provided->compile",
+   scalatraAtmosphere % "provided->compile"
+ )
+
   object Dependencies {
 
-    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.4"
+    val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "1.0.7"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "io.backchat.rl" % "rl" % "0.3.3" cross CrossVersion.full
+    val backchatRl = "org.scalatra.rl" %% "rl" % "0.4.0" cross CrossVersion.full
 
     def akkaDep(name: String) = "com.typesafe.akka" % name % "2.1.0-RC6" cross CrossVersion.full
     val akkaActor = akkaDep("akka-actor")
@@ -267,7 +284,7 @@ object ScalatraBuild extends Build {
     val jettyServlet = jettyDep("jetty-servlet")
     val jettyWebapp = jettyDep("jetty-webapp")
 
-    val junit = "junit" % "junit" % "4.10"
+    val junit = "junit" % "junit" % "4.11"
 
     def json4sDep(name: String) = "org.json4s" % name % "3.1.0-SNAPSHOT" cross CrossVersion.fullMapped {
       case "2.10.0-RC5" => "2.10.0-RC3" // temporary until we publish
@@ -285,10 +302,7 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0-SNAPSHOT" cross CrossVersion.fullMapped {
-      case "2.10.0-RC5" => "2.10.0-RC3" // temporary until we publish
-      case v => v
-    }
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0" cross CrossVersion.binary
 
     val scalatest = "org.scalatest" % "scalatest" % "1.8-B1" cross CrossVersion.full
 
@@ -298,7 +312,7 @@ object ScalatraBuild extends Build {
 
     val specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    val specs2 = "org.specs2" % "specs2" % "1.12.3" cross CrossVersion.full
+    val specs2 = "org.specs2" % "specs2" % "1.13" cross CrossVersion.binary
 
     val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
@@ -308,7 +322,7 @@ object ScalatraBuild extends Build {
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.7.2"
 
-    val logback = "ch.qos.logback" % "logback-classic" % "1.0.7"
+    val logback = "ch.qos.logback" % "logback-classic" % "1.0.9"
 
     val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4" cross CrossVersion.full
 
@@ -406,6 +420,26 @@ object ScalatraBuild extends Build {
           <id>sdb</id>
           <name>Stefan De Boey</name>
           <url>http://github.com/sdb/</url>
+        </developer>
+        <developer>
+          <id>ymasory</id>
+          <name>Yuvi Masory</name>
+          <url>http://github.com/ymasory/</url>
+        </developer>
+        <developer>
+          <id>jfarcand</id>
+          <name>Jean-François Arcand</name>
+          <url>http://github.com/jfarcand/</url>
+        </developer>
+        <developer>
+          <id>ceedubs</id>
+          <name>Cody Alen</name>
+          <url>http://github.com/ceedubs/</url>
+        </developer>
+        <developer>
+          <id>BowlingX</id>
+          <name>David Heidrich</name>
+          <url>http://github.com/BowlingX/</url>
         </developer>
       </developers>
     )}

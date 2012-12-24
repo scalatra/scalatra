@@ -15,6 +15,9 @@ target/
 .ensime
 .target
 
+# paulp script #
+/.lib/
+
 # eclipse artifacts
 .settings
 .project
@@ -24,3 +27,5 @@ target/
 
 # sublime artifacts
 *.sublime-*
+atlassian-ide-plugin.xml
+.lib

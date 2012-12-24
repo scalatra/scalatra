@@ -1,5 +1,4 @@
 package org.scalatra
 
-import util.conversion.DefaultImplicitConversions
-
-trait TypedParamSupport extends ScalatraBase with ScalatraParamsImplicits with DefaultImplicitConversions
+@deprecated("This got folded into core, so you can remove the TypeParamSupport trait safely.", "2.2")
+trait TypedParamSupport extends ScalatraSyntax

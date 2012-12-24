@@ -4,8 +4,14 @@ import ActionResult._
 
 import test.specs2.MutableScalatraSpec
 import java.io.ByteArrayOutputStream
+import javax.servlet.ServletConfig
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-class ActionResultServlet extends ScalatraServlet {
+class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
+class ActionResultApp(config: ServletConfig, req: HttpServletRequest, res: HttpServletResponse) extends ScalatraApp(config, req, res) with ActionResultTestBase
+
+
+trait ActionResultTestBase  { self: ScalatraSyntax =>
   error {
     case e => BadRequest("something went wrong")
   }
@@ -61,8 +67,14 @@ class ActionResultServlet extends ScalatraServlet {
   }
 }
 
-class ActionResultsSpec extends MutableScalatraSpec {
-  addServlet(classOf[ActionResultServlet], "/*")
+class ActionResultServletSpec extends ActionResultsSpec {
+  mount(classOf[ActionResultServlet], "/*")
+}
+class ActionResultAppSpec extends ActionResultsSpec {
+  mount(new ActionResultApp(_, _, _), "/*")
+}
+abstract class ActionResultsSpec extends MutableScalatraSpec {
+
 
   "returning ActionResult from action with status and body" should {
     "set the status code" in {

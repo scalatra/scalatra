@@ -1,5 +1,7 @@
 package org
 
+import scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView}
+
 package object scalatra 
   extends Control // make halt and pass visible to helpers outside the DSL
 //  with DefaultValues // make defaults visible
@@ -9,6 +11,8 @@ package object scalatra
   type RouteTransformer = (Route => Route)
 
   type MultiParams = MultiMap
+
+  type Params = MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
 
   type Action = () => Any
 
@@ -22,7 +26,7 @@ package object scalatra
 
   val MultiParamsKey = "org.scalatra.MultiParams"
   
-  @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraBase if you don't.", "2.1.0")
+  @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraSyntax if you don't.", "2.1.0")
   type ScalatraKernel = servlet.ServletBase
   
 //  class OptionDefaults[T](value: Option[T]) {

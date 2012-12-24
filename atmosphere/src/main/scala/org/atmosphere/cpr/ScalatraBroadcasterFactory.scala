@@ -14,7 +14,7 @@ import scala.collection.concurrent.{Map => ConcurrentMap}
 object ScalatraBroadcasterFactory {
 
 }
-class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Formats, wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
+class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   BroadcasterFactory.config = cfg
   if (BroadcasterFactory.factory == null) BroadcasterFactory.factory = this
 
@@ -93,7 +93,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit formats: Format
       }
 
     }
-    store(id)
+    store.get(id).orNull
   }
 
   def lookup(id: Any): Broadcaster = lookup(id, false)

@@ -15,7 +15,7 @@ import scala.collection.mutable
 /**
 * Support for [[org.scalatra.commands.Command]] binding and validation.
 */
-trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
+trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraSyntax =>
 
   type CommandType <: Command
   
@@ -64,14 +64,13 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
   }
 
   /**
-   * Create a [[org.scalatra.RouteMatcher]] that evaluates '''true''' only if a command is valid. See
-   * [[org.scalatra.commands.validation.ValidationSupport]] for details.
+   * Create a [[org.scalatra.RouteMatcher]] that evaluates '''true''' only if a command is valid.
    */
   def ifValid[T <: CommandType](implicit mf: Manifest[T]): RouteMatcher = new CommandRouteMatcher[T]
 
 
 }
 
-trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraBase =>
+trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraSyntax =>
   type CommandType = ParamsOnlyCommand
 }

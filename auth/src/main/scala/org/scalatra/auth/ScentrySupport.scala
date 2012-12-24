@@ -12,7 +12,7 @@ trait ScentryConfig {
 }
 
 trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with CookieSupport {
-  self: ScalatraBase ⇒
+  self: ScalatraSyntax ⇒
 
   type ScentryConfiguration <: ScentryConfig
 
@@ -39,7 +39,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with
   private def initializeScentry = {
     val store = self match {
       case a: SessionSupport => new ScentryAuthStore.SessionAuthStore(a.session)
-      case a: ScalatraBase with CookieSupport => new ScentryAuthStore.CookieAuthStore(a)
+      case a: ScalatraSyntax with CookieSupport => new ScentryAuthStore.CookieAuthStore(a)
       case _ => throw new ScalatraException("Scentry needs either SessionSupport or CookieSupport mixed in.")
     }
     request.setAttribute(Scentry.ScentryRequestKey, new Scentry[UserType](self, toSession, fromSession, store))

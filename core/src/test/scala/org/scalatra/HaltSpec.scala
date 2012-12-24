@@ -28,7 +28,7 @@ class HaltTestServlet extends ScalatraServlet {
   }
 
   get("/status-and-body") {
-    halt(403, <h1>Go away</h1>)
+    halt(404, <h1>Not Here</h1>)
     "this content must not be returned"
   }
 
@@ -74,7 +74,7 @@ class HaltSpec extends ScalatraSpec { def is =
   "halt with a status and body should"          ^
     "behave like a common halt"                 ^ commonHalt("/status-and-body")^
     "set the status"                            ! status("/status-and-body", 404)^
-    "render the body"                           ! bodyEquals("/status-and-body", "<h1>Go away</h1>")^
+    "render the body"                           ! bodyEquals("/status-and-body", "<h1>Not Here</h1>")^
                                                 end^
   "halt with all arguments should"              ^
     "behave like a common halt"                 ^ commonHalt("/all-args")^

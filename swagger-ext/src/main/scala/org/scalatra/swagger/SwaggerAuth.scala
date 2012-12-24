@@ -22,7 +22,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String) extend
   }
 }
 
-trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
+trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: ScalatraSyntax with JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
   protected def docToJson(doc: ApiType): JValue = doc.toJValue(userOption)
@@ -32,9 +32,10 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Sca
   }
   
   get("/:doc.:format") {
+    def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
     swagger.doc(params("doc")) match {
-      case Some(doc) if doc.apis.exists(_.operations.exists(_.allows(userOption))) ⇒ renderDoc(doc.asInstanceOf[ApiType])
-      case _         ⇒ halt(NotFound())
+      case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+      case _         ⇒ NotFound()
     }
   }
   
@@ -133,7 +134,7 @@ case class AuthOperation[TypeForUser <: AnyRef](httpMethod: HttpMethod,
 												                     errorResponses: List[Error] = Nil,
 												                     allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
-trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
+trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraSyntax with ScentrySupport[TypeForUser] =>
   protected def allows(value: Option[TypeForUser] => Boolean) = swaggerMeta(Symbols.Allows, value)
   
   private def allowAll = (u: Option[TypeForUser]) => true
