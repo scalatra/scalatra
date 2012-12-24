@@ -5,7 +5,7 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.json.NativeJsonSupport
 import org.scalatra.auth.ScentrySupport
 import org.json4s._
-import org.json4s.native.JsonMethods.{parseJson => parse, _}
+import org.json4s.native.JsonMethods._
 import org.scalatra.auth.ScentryStrategy
 import org.scalatra.servlet.ServletApiImplicits._
 import util.RicherString._

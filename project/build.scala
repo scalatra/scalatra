@@ -14,7 +14,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
     version := "%s.0-SNAPSHOT" format majorVersion,
-    scalaVersion := "2.10.0-RC5",
+    scalaVersion := "2.10.0",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
@@ -130,7 +130,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5" cross CrossVersion.full
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5" cross CrossVersion.binary
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=
@@ -263,9 +263,9 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "org.scalatra.rl" %% "rl" % "0.4.0" cross CrossVersion.full
+    val backchatRl = "org.scalatra.rl" % "rl" % "0.4.0" cross CrossVersion.binary
 
-    def akkaDep(name: String) = "com.typesafe.akka" % name % "2.1.0-RC6" cross CrossVersion.full
+    def akkaDep(name: String) = "com.typesafe.akka" % name % "2.1.0" cross CrossVersion.binary
     val akkaActor = akkaDep("akka-actor")
     val akkaTestkit = akkaDep("akka-testkit") % "test"
 
@@ -286,10 +286,7 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.11"
 
-    def json4sDep(name: String) = "org.json4s" % name % "3.1.0-SNAPSHOT" cross CrossVersion.fullMapped {
-      case "2.10.0-RC5" => "2.10.0-RC3" // temporary until we publish
-      case v => v
-    }
+    def json4sDep(name: String) = "org.json4s" % name % "3.1.0-SNAPSHOT" cross CrossVersion.binary
 
     val json4sExt = json4sDep("json4s-ext")
     val json4sNative = json4sDep("json4s-native")
@@ -304,7 +301,7 @@ object ScalatraBuild extends Build {
 
     val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0" cross CrossVersion.binary
 
-    val scalatest = "org.scalatest" % "scalatest" % "1.8-B1" cross CrossVersion.full
+    val scalatest = "org.scalatest" % "scalatest" % "1.9.1" cross CrossVersion.binary
 
     val testng = "org.testng" % "testng" % "6.7" % "optional"
 
@@ -324,7 +321,9 @@ object ScalatraBuild extends Build {
 
     val logback = "ch.qos.logback" % "logback-classic" % "1.0.9"
 
-    val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4" cross CrossVersion.full
+    val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4" cross CrossVersion.binaryMapped {
+      case "2.10.0" => "2.10.0-RC5"
+    }
 
     val jodaTime = "joda-time" % "joda-time" % "2.1"
 
