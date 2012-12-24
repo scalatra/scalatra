@@ -9,15 +9,15 @@ import org.atmosphere.cpr.AtmosphereResource
 import scala.util.control.Exception._
 
 package object atmosphere {
-  type AtmoReceive = PartialFunction[InboundMessage, Unit]
 
+  type AtmoReceive = PartialFunction[InboundMessage, Unit]
   type ClientFilter = AtmosphereClient => Boolean
 
   import org.scalatra.servlet.ServletApiImplicits._
 
   implicit def atmoResourceWithClient(res: AtmosphereResource) = new {
-    def clientOption = res.session().get(ScalatraAtmosphereHandler.AtmosphereClientKey).asInstanceOf[Option[AtmosphereClient]]
-    def client = res.session().apply(ScalatraAtmosphereHandler.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+    def clientOption = res.session.get(ScalatraAtmosphereHandler.AtmosphereClientKey).asInstanceOf[Option[AtmosphereClient]]
+    def client = res.session.apply(ScalatraAtmosphereHandler.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
   }
 
   private[atmosphere] implicit def jucFuture2akkaFuture[T](javaFuture: java.util.concurrent.Future[T])(implicit system: ActorSystem): Future[T] = {
