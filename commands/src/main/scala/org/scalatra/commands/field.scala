@@ -416,7 +416,7 @@ class Field[A:Manifest](descr: FieldDescriptor[A], command: Command) {
   def validation: FieldValidation[A] = binding.field.value.asInstanceOf[FieldValidation[A]]
   def value: Option[A] = binding.field.value.toOption.asInstanceOf[Option[A]]
   def defaultValue: A = descr.defaultValue
-  def error: Option[ValidationError] = binding.field.value.fail.toOption
+  def error: Option[ValidationError] = binding.field.value.fold(_.some, _=>None)
   def original = binding.original
 
   def binding: Binding = command.bindings(name)
