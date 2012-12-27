@@ -3,8 +3,6 @@ package commands
 
 import util._
 import conversion._
-import scalaz._
-import Scalaz._
 import collection.immutable
 import org.joda.time.DateTime
 import java.util.Date

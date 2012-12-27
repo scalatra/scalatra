@@ -2,8 +2,6 @@ package org.scalatra
 package commands
 
 import util.{ParamsValueReaderProperties, MultiMap}
-import _root_.scalaz._
-import Scalaz._
 import collection.mutable
 import java.util.Date
 import org.joda.time.DateTime
