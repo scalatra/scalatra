@@ -15,15 +15,19 @@ trait CommandHandler {
       val res = (allCatch withApply (serverError(cmd.getClass.getName, _))) {
         handle.lift(cmd).map(_.map(_.asInstanceOf[S])) | ValidationError("Don't know how to handle: " + cmd.getClass.getName, UnknownError).failNel
       }
-      val ftext = "with %d failures\n%s".format(~res.fail.toOption.map(_.list.size), ~res.fail.toOption.map(_.list))
-      commandLogger.debug("Command [%s] executed %s." format (cmd.getClass.getName, res.isSuccess ? "successfully." | ftext))
+
+      val resultLog = res.fold(
+        { failures => "with %d failures\n%s".format(failures.tail.size + 1, failures.list) },
+        { _ => "successfully" }
+      )
+      commandLogger.debug("Command [%s] executed %s." format (cmd.getClass.getName, resultLog))
       res
     } else {
       val f = cmd.errors.map(_.validation) collect {
         case Failure(e) ⇒ e
       }
       commandLogger.debug("Command [%s] executed with %d failures.\n%s" format (cmd.getClass.getName, f.size, f.toList))
-      nel(f.head, f.tail: _*).fail
+      NonEmptyList(f.head, f.tail: _*).fail
     }
   }
 
