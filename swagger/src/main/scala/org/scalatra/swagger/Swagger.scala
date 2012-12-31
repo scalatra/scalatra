@@ -9,6 +9,8 @@ import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
 import java.math.BigInteger
 import java.util.Date
+import java.util
+import org.scalatra.util
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String 
@@ -41,12 +43,8 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) extends Swagge
    */
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    val endpoints: List[Endpoint] = s.endpoints(path).foldLeft(List.empty[Endpoint]) { (acc, a) =>
-      a match {
-        case m: Endpoint => m :: acc
-        case _ => acc
-      }
-    }
+    // Should be able to collect s.endpoints, but compiler complains.  Why?
+    val endpoints: List[Endpoint] = s.endpoints(path).filter(_.isInstanceOf[Endpoint]).map(_.asInstanceOf[Endpoint])
     _docs = _docs + (name -> Api(path, listingPath, description, endpoints, s.models))
   }
 }

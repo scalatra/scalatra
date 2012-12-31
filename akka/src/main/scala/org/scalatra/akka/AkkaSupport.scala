@@ -1,14 +1,14 @@
 package org.scalatra
 package akka
 
-import _root_.akka.util.duration._
-import _root_.akka.util.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.servlet.{ AsyncContext, AsyncEvent, AsyncListener }
 import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import _root_.akka.dispatch.{ Await, Future }
 import _root_.akka.actor.{ Actor, ActorSystem }
 import servlet.AsyncSupport
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.duration.Duration
 
 trait AkkaSupport extends AsyncSupport {
   implicit protected def system: ActorSystem
@@ -53,24 +53,16 @@ trait AkkaSupport extends AsyncSupport {
           def onStartAsync(event: AsyncEvent) {}
         })
 
-        f onSuccess {
-          case a ⇒ {
-            withinAsyncContext(context) {
-              if (gotResponseAlready.compareAndSet(false, true)) {
-                runFilters(routes.afterFilters)
-                super.renderResponse(a)
-
-                context.complete()
-              }
-            }
-          }
-        } onFailure {
+        f onComplete {
           case t ⇒ {
             withinAsyncContext(context) {
               if (gotResponseAlready.compareAndSet(false, true)) {
-                t match {
+                t.map { result =>
+                  runFilters(routes.afterFilters)
+                  super.renderResponse(result)
+                }.recover {
                   case e: HaltException ⇒ renderHaltException(e)
-                  case e                ⇒ renderResponse(errorHandler(e))
+                  case e => renderResponse(errorHandler(e))
                 }
                 context.complete()
               }

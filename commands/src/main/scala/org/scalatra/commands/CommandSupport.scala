@@ -3,11 +3,15 @@ package commands
 
 import util.{ParamsValueReaderProperties, MultiMap}
 import collection.mutable
+import _root_.scalaz._
+import Scalaz._
 import java.util.Date
 import org.joda.time.DateTime
 import collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
 import grizzled.slf4j.Logger
+import scala.collection.concurrent.{ Map => ConcurrentMap }
+import scala.collection.mutable
 
 /**
 * Support for [[org.scalatra.commands.Command]] binding and validation.
@@ -16,7 +20,7 @@ trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraSyntax 
 
   type CommandType <: Command
   
-  private[this] val commandFactories: mutable.ConcurrentMap[Class[_], () => Command] = new ConcurrentHashMap[Class[_], () => Command].asScala
+  private[this] val commandFactories: ConcurrentMap[Class[_], () => Command] = new ConcurrentHashMap[Class[_], () => Command].asScala
 
   def registerCommand[T <: Command](cmd: => T)(implicit mf: Manifest[T]) {
     commandFactories += (mf.erasure -> (() => cmd))

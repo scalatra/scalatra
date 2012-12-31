@@ -2,13 +2,15 @@ package org.scalatra
 package akka
 
 import _root_.akka.actor._
-import _root_.akka.dispatch.Await
+import scala.concurrent.Await
 import _root_.akka.pattern.ask
 import _root_.akka.actor.SupervisorStrategy._
-import _root_.akka.util.duration._
+import scala.concurrent.duration._
 
 import _root_.akka.util.Timeout
 import test.specs2.MutableScalatraSpec
+import scala.util.control.ControlThrowable
+import runtime.NonLocalReturnControl
 
 class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
   val system = ActorSystem()
@@ -49,6 +51,8 @@ class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
 }
 
 class AkkaSupportSpec extends MutableScalatraSpec {
+  sequential
+
   addServlet(new AkkaSupportServlet, "/*")
 
   "The AkkaSupport" should {

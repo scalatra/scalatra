@@ -61,7 +61,7 @@ object BasicAuthStrategy {
     def credentials = {
       if (_credentials.isEmpty )
         _credentials = params map { p =>
-          (null.asInstanceOf[(String, String)] /: new String(Base64.decode(p), Codec.UTF8).split(":", 2)) { (t, l) =>
+          (null.asInstanceOf[(String, String)] /: new String(Base64.decode(p), Codec.UTF8.charSet).split(":", 2)) { (t, l) =>
             if(t == null) (l, null) else (t._1, l)
           }
         }

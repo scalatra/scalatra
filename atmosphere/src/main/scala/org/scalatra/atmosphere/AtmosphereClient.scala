@@ -5,6 +5,7 @@ import org.atmosphere.cpr._
 import org.json4s._
 import org.scalatra.util.RicherString._
 import grizzled.slf4j.Logger
+import concurrent.ExecutionContext
 
 /**
  * Provides a handle for a single Atmosphere connection. 
@@ -56,20 +57,20 @@ trait AtmosphereClient {
    * A convenience method which sends a message only to the current client,
    * using a broadcast filter.
    */
-  final def send(msg: OutboundMessage) = broadcast(msg, OnlySelf)
+  final def send(msg: OutboundMessage)(implicit executionContext: ExecutionContext) = broadcast(msg, OnlySelf)(executionContext)
 
   /**
    * A convenience method which sends a message only to the current client,
    * using a broadcast filter.
    */
-  final def !(msg: OutboundMessage) = send(msg)
+  final def !(msg: OutboundMessage)(implicit executionContext: ExecutionContext) = send(msg)(executionContext)
 
   /**
    * Broadcast a message to all clients, skipping the current client by default
    * (i.e. normal chat server behaviour). Optionally filter the clients to
    * deliver the message to by applying a filter.
    */
-  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = {
+  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf)(implicit executionContext: ExecutionContext) = {
     if (resource == null)
       internalLogger.warn("The resource is null, can't publish")
 
@@ -84,6 +85,6 @@ trait AtmosphereClient {
    * (i.e. normal chat server behaviour). Optionally filter the clients to
    * deliver the message to by applying a filter.
    */
-  final def ><(msg: OutboundMessage, filter: ClientFilter = SkipSelf) = broadcast(msg, filter)
+  final def ><(msg: OutboundMessage, filter: ClientFilter = SkipSelf)(implicit executionContext: ExecutionContext) = broadcast(msg, filter)(executionContext)
 
 }

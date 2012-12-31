@@ -3,7 +3,7 @@ package org.scalatra.akka
 import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraFilter
 import akka.actor.ActorSystem
-import akka.dispatch.Future
+import scala.concurrent.Future
 
 
 class AkkaSupportAfterFilterFilter extends ScalatraFilter with AkkaSupport {

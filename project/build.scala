@@ -14,13 +14,13 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
     version := "%s.0-SNAPSHOT" format majorVersion,
-    scalaVersion := "2.9.2",
+    scalaVersion := "2.10.0",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
-    crossPaths := false,
-    resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases),
+    crossPaths := true,
+    resolvers ++= Seq( sonatypeNexusSnapshots, sonatypeNexusReleases, fuseSourceSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
   ) ++ mavenCentralFrouFrou //++ jettyOrbitHack
@@ -57,7 +57,8 @@ object ScalatraBuild extends Build {
         grizzledSlf4j,
         backchatRl,
         jodaTime,
-        jodaConvert
+        jodaConvert,
+        akkaDep("akka-actor") % "test"
       ),
       description := "The core Scalatra framework"
     )
@@ -129,7 +130,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4"
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5" cross CrossVersion.binary
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=
@@ -262,10 +263,11 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "org.scalatra.rl" %% "rl" % "0.4.0"
+    val backchatRl = "org.scalatra.rl" % "rl" % "0.4.0" cross CrossVersion.binary
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.4"
-    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.4" % "test"
+    def akkaDep(name: String) = "com.typesafe.akka" % name % "2.1.0" cross CrossVersion.binary
+    val akkaActor = akkaDep("akka-actor")
+    val akkaTestkit = akkaDep("akka-testkit") % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
@@ -275,7 +277,7 @@ object ScalatraBuild extends Build {
 
     val httpMime   = "org.apache.httpcomponents" % "httpmime"   % "4.2"
 
-    val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "0.6.10"
+    val grizzledSlf4j = "org.clapper" %% "grizzled-slf4j" % "1.0.1"
 
     def jettyDep(name: String) = "org.eclipse.jetty" % name % "8.1.3.v20120416"
 
@@ -284,7 +286,7 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.11"
 
-    def json4sDep(name: String) = "org.json4s" %% name % "3.1.0"
+    def json4sDep(name: String) = "org.json4s" % name % "3.1.0" cross CrossVersion.binary
     val json4sExt = json4sDep("json4s-ext")
     val json4sNative = json4sDep("json4s-native")
 
@@ -296,9 +298,9 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core_2.9" % "1.6.1"
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.1" cross CrossVersion.binary
 
-    val scalatest = "org.scalatest" %% "scalatest" % "1.8"
+    val scalatest = "org.scalatest" % "scalatest" % "1.9.1" cross CrossVersion.binary
 
     val testng = "org.testng" % "testng" % "6.7" % "optional"
 
@@ -306,7 +308,7 @@ object ScalatraBuild extends Build {
 
     val specs = "org.scala-tools.testing" %% "specs" % "1.6.9"
 
-    val specs2 = "org.specs2" %% "specs2" % "1.12.3"
+    val specs2 = "org.specs2" % "specs2" % "1.13" cross CrossVersion.binary
 
     val servletApi = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
 
@@ -318,7 +320,9 @@ object ScalatraBuild extends Build {
 
     val logback = "ch.qos.logback" % "logback-classic" % "1.0.9"
 
-    val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4"
+    val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4" cross CrossVersion.binaryMapped {
+      case "2.10.0" => "2.10.0-RC5"
+    }
 
     val jodaTime = "joda-time" % "joda-time" % "2.1"
 
@@ -326,13 +330,14 @@ object ScalatraBuild extends Build {
 
     val scalaj_collection = "org.scalaj" %% "scalaj-collection" % "1.2"
 
-    def swagger(name: String) = "com.wordnik" % "swagger-%s_2.9.1".format(name) % "1.2.0"
+    def swagger(name: String) = "com.wordnik" % "swagger-%s".format(name) % "1.2.0" cross CrossVersion.full
   }
 
   object Resolvers {
     val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
     val sonatypeNexusReleases = "Sonatype Nexus Releases" at "https://oss.sonatype.org/content/repositories/releases"
     val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+    val fuseSourceSnapshots = "FuseSource Snapshots" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {

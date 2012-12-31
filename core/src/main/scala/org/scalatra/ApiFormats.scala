@@ -1,11 +1,10 @@
 package org.scalatra
 
 import collection.JavaConverters._
-import collection.mutable.ConcurrentMap
+import collection.concurrent.{Map => ConcurrentMap}
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
-import collection.mutable
 
 object ApiFormats {
   /**
@@ -26,7 +25,7 @@ trait ApiFormats extends ScalatraSyntax {
   /**
    * A map of suffixes to content types.
    */
-  val formats: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
+  val formats: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "json" -> "application/json",
     "xml" -> "application/xml",
     "atom" -> "application/atom+xml",
@@ -46,7 +45,7 @@ trait ApiFormats extends ScalatraSyntax {
   /**
    * A map of content types to suffixes.  Not strictly a reverse of `formats`.
    */
-  val mimeTypes: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
+  val mimeTypes: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "application/json" -> "json",
     "application/xml" -> "xml",
     "application/atom+xml" -> "atom",

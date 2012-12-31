@@ -1,9 +1,8 @@
 package org.scalatra
 
-import _root_.akka.dispatch.Future
-import _root_.akka.dispatch.Promise
-import _root_.akka.util.Deadline
-import _root_.akka.util.duration._
+import scala.concurrent.Future
+import scala.concurrent.Promise
+import scala.concurrent.duration._
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.cpr.AtmosphereResource
 import scala.util.control.Exception._
@@ -24,7 +23,7 @@ package object atmosphere {
     implicit val execContext = system.dispatcher
     val promise = Promise[T]()
     pollJavaFutureUntilDoneOrCancelled(javaFuture, promise)
-    promise
+    promise.future
   }
 
   // See here: http://stackoverflow.com/questions/11529145/how-do-i-wrap-a-java-util-concurrent-future-in-an-akka-future
@@ -33,7 +32,7 @@ package object atmosphere {
     if (maybeTimeout.exists(_.isOverdue())) javaFuture.cancel(true)
 
     if (javaFuture.isDone || javaFuture.isCancelled) {
-      promise.complete(allCatch either { javaFuture.get })
+      promise.complete(allCatch withTry { javaFuture.get }).future
     } else {
       system.scheduler.scheduleOnce(10 milliseconds) {
         pollJavaFutureUntilDoneOrCancelled(javaFuture, promise, maybeTimeout)
