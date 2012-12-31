@@ -231,7 +231,7 @@ object ScalatraBuild extends Build {
      libraryDependencies += servletApiTest,
      libraryDependencies += jettyDep("jetty-websocket"),
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
-     libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.0.0",
+     libraryDependencies += json4sDep("json4s-jackson"),
      description := "Scalatra example project"
    )
  ) dependsOn(
@@ -284,13 +284,14 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.11"
 
-    val json4sExt = "org.json4s" %% "json4s-ext" % "3.0.0"
-    val json4sNative = "org.json4s" %% "json4s-native" % "3.0.0"
+    def json4sDep(name: String) = "org.json4s" %% name % "3.1.0"
+    val json4sExt = json4sDep("json4s-ext")
+    val json4sNative = json4sDep("json4s-native")
 
     val json4s = Seq(
-      "org.json4s" %% "json4s-core" % "3.0.0",
+      json4sDep("json4s-core"),
       json4sNative % "provided",
-      "org.json4s" %% "json4s-jackson" % "3.0.0" % "provided"
+      json4sDep("json4s-jackson") % "provided"
     )
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
