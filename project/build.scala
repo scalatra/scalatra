@@ -286,8 +286,7 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.11"
 
-    def json4sDep(name: String) = "org.json4s" % name % "3.1.0-SNAPSHOT" cross CrossVersion.binary
-
+    def json4sDep(name: String) = "org.json4s" % name % "3.1.0" cross CrossVersion.binary
     val json4sExt = json4sDep("json4s-ext")
     val json4sNative = json4sDep("json4s-native")
 
@@ -299,7 +298,7 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.0" cross CrossVersion.binary
+    val scalate = "org.fusesource.scalate" % "scalate-core" % "1.6.1" cross CrossVersion.binary
 
     val scalatest = "org.scalatest" % "scalatest" % "1.9.1" cross CrossVersion.binary
 
