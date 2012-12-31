@@ -296,7 +296,7 @@ object ScalatraBuild extends Build {
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.9.0"
 
-    val scalate = "org.fusesource.scalate" % "scalate-core_2.9" % "1.6.0"
+    val scalate = "org.fusesource.scalate" % "scalate-core_2.9" % "1.6.1"
 
     val scalatest = "org.scalatest" %% "scalatest" % "1.8"
 
