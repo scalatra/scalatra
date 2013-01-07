@@ -1,0 +1,3 @@
+### scalatra
+* Add `shutdown` hook.  Unifies the destruction of servlets and filters.
+
