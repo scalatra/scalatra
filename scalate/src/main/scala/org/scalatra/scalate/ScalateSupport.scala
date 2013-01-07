@@ -45,6 +45,11 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
+  abstract override def shutdown() {
+    if (templateEngine != null) templateEngine.compiler.shutdown()
+    super.shutdown()
+  }
+
   /**
    * Creates the templateEngine from the config.  There is little reason to
    * override this unless you have created a ScalatraKernel extension outside
