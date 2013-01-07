@@ -144,4 +144,9 @@ abstract class ScalatraServlet
   override def initialize(config: ServletConfig) {
     super.initialize(config)
   }
+
+  override def destroy() {
+    shutdown()
+    super.destroy()
+  }
 }

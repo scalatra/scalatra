@@ -1,0 +1,5 @@
+### scalatra
+* Add `shutdown` hook.  Unifies the destruction of servlets and filters.
+
+### scalatra-scalate
+* Shut down the compiler thread when the servlet or filter is destroyed.

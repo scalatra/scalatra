@@ -80,5 +80,7 @@ trait ScalatraFilter extends Filter with ServletBase {
     initialize(filterConfig)
   }
 
-  def destroy {}
+  def destroy {
+    shutdown()
+  }
 }
