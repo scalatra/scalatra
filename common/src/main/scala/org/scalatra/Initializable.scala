@@ -24,4 +24,10 @@ trait Initializable {
    * we get into https://lampsvn.epfl.ch/trac/scala/ticket/2497.
    */
   def initialize(config: ConfigT)
+
+  /**
+   * A hook to shutdown the class.  Bridges the gap between servlet's
+   * destroy and filter's destroy.
+   */
+  protected def shutdown(): Unit = {}
 }

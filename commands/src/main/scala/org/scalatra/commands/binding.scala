@@ -92,7 +92,7 @@ sealed trait Binding {
   def name: String = field.name
   def validation: FieldValidation[T] = field.value
   def value: Option[T] = field.value.toOption
-  def error: Option[ValidationError] = field.value.fail.toOption
+  def error: Option[ValidationError] = field.value.fold(_.some, _=>None)
 
   def isValid = validation.isSuccess
   def isInvalid = validation.isFailure
