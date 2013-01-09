@@ -50,7 +50,7 @@ trait UrlGeneratorSupport {
   ): String =
     route.reversibleMatcher match {
       case Some(matcher: ReversibleRouteMatcher) => route.contextPath() + matcher.reverse(params, splats.toList)
-      case None =>
+      case _ =>
         throw new Exception("Route \"%s\" is not reversible" format (route))
     }
 }

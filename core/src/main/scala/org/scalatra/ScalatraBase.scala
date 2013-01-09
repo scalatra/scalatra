@@ -112,7 +112,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
     }
     catch {
       case e: HaltException => renderHaltException(e)
-      case e => {
+      case e: Throwable => {
         try {
           result = errorHandler(e)
         } catch {

@@ -51,7 +51,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
   }
 }
 
-class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet with TypedParamSupport with NativeJsonSupport with JValueResult with SwaggerSupport {
+class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet with NativeJsonSupport with JValueResult with SwaggerSupport {
 
   protected val applicationDescription = "The pets api"
   override protected val applicationName = Some("pet")
