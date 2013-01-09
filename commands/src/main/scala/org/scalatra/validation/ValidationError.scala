@@ -15,7 +15,7 @@ case class ValidationError(message: String, field: Option[FieldName], code: Opti
 
 /**
  * Encapsulates a field name for use in a validation error
- * 
+ *
  * @param name The name of the field
  */
 case class FieldName(name: String)
