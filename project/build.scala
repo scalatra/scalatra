@@ -320,9 +320,7 @@ object ScalatraBuild extends Build {
 
     val logback = "ch.qos.logback" % "logback-classic" % "1.0.9"
 
-    val scalaz = "org.scalaz" %% "scalaz-core" % "6.0.4" cross CrossVersion.binaryMapped {
-      case "2.10.0" => "2.10.0-RC5"
-    }
+    val scalaz = "org.scalaz" %% "scalaz-core" % "7.0.0-M7" 
 
     val jodaTime = "joda-time" % "joda-time" % "2.1"
 
