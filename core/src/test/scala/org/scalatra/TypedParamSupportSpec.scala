@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 
 import org.scalatra.test.specs2._
 
-class MyScalatraServlet extends ScalatraServlet with TypedParamSupport {
+class MyScalatraServlet extends ScalatraServlet {
 
   get("/render/:aNumber") {
     val intValue:Option[Int] = params.getAs[Int]("aNumber")
