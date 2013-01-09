@@ -32,8 +32,8 @@ class ScalatraListener extends ServletContextListener {
     val cycleClassName = 
       Option(servletContext.getAttribute(LifeCycleKey)).flatMap(_.asInstanceOf[String].blankOption) getOrElse DefaultLifeCycle
 
-    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName) } catch { case _ => null }
-    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle) } catch { case _ => null }
+    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName) } catch { case _: Throwable => null }
+    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle) } catch { case _: Throwable => null }
     val cycleClass: Class[_] = if (lifeCycleClass != null) lifeCycleClass else oldLifeCycleClass
 
     if (cycleClass != null && !classOf[LifeCycle].isAssignableFrom(cycleClass)) {
