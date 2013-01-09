@@ -25,10 +25,10 @@ object ValidationError {
     val code = arguments collectFirst {
       case f: ErrorCode =>  f
     }
-    val args = if (field.isDefined) arguments filterNot {
+    val args = arguments filterNot {
       case _: FieldName | _: ErrorCode => true
       case _ => false
-    } else arguments
+    }
     new ValidationError(msg, field, code, args)
   }
 }
