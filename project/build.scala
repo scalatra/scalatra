@@ -262,10 +262,10 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "org.scalatra.rl" %% "rl" % "0.4.0"
+    val backchatRl = "org.scalatra.rl" %% "rl" % "0.4.1"
 
-    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.4"
-    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.4" % "test"
+    val akkaActor = "com.typesafe.akka" % "akka-actor" % "2.0.5"
+    val akkaTestkit = "com.typesafe.akka" % "akka-testkit" % "2.0.5" % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
