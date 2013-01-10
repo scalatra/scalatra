@@ -3,15 +3,12 @@ package commands
 
 import util.{ParamsValueReaderProperties, MultiMap}
 import collection.mutable
-import _root_.scalaz._
-import Scalaz._
 import java.util.Date
 import org.joda.time.DateTime
 import collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
 import grizzled.slf4j.Logger
 import scala.collection.concurrent.{ Map => ConcurrentMap }
-import scala.collection.mutable
 
 /**
 * Support for [[org.scalatra.commands.Command]] binding and validation.

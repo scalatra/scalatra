@@ -9,7 +9,7 @@ object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  lazy val majorVersion = "2.3"
+  lazy val majorVersion = "2.2"
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
@@ -263,7 +263,7 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val backchatRl = "org.scalatra.rl" % "rl" % "0.4.0" cross CrossVersion.binary
+    val backchatRl = "org.scalatra.rl" %% "rl" % "0.4.1"
 
     def akkaDep(name: String) = "com.typesafe.akka" % name % "2.1.0" cross CrossVersion.binary
     val akkaActor = akkaDep("akka-actor")
