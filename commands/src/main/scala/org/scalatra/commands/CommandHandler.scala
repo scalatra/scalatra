@@ -15,6 +15,7 @@ trait CommandHandler {
       val res = (allCatch withApply (serverError(cmd.getClass.getName, _))) {
         handle.lift(cmd).map(_.map(_.asInstanceOf[S])) | ValidationError("Don't know how to handle: " + cmd.getClass.getName, UnknownError).failNel
       }
+
       val resultLog = res.fold(
         { failures => "with %d failures\n%s".format(failures.tail.size + 1, failures.list) },
         { _ => "successfully" }

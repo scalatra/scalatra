@@ -71,8 +71,7 @@ trait JettyContainer extends Container {
 
   // Add a default servlet.  If there is no underlying servlet, then
   // filters just return 404.
-  addServlet(new DefaultServlet, "/")
-
+  servletContextHandler.addServlet(new ServletHolder("default", classOf[DefaultServlet]), "/")
 
   protected def ensureSessionIsSerializable() {
     servletContextHandler.getSessionHandler.addEventListener(SessionSerializingListener)

@@ -7,8 +7,6 @@ import org.scalatra.util.conversion._
 import org.joda.time.DateTime
 import java.util.Date
 import org.scalatra.util.ValueReader
-import scalaz._
-import Scalaz._
 
 trait JsonBindingImplicits extends BindingImplicits with JsonImplicitConversions {
 

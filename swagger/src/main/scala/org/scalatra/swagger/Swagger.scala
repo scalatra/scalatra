@@ -88,7 +88,7 @@ object Api {
     new AllowableValuesSerializer,
     new ModelFieldSerializer) ++ JodaTimeSerializers.all
 
-  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats).noNulls)
+  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats))
 
 
 }
@@ -176,9 +176,23 @@ private[swagger] object SwaggerSerializers {
 object ParamType extends Enumeration {
   type ParamType = Value
 
+  /** A parameter carried in a POST body. **/
   val Body = Value("body")
+
+  /** A parameter carried on the query string. 
+    *  
+    * E.g. http://example.com/foo?param=2 
+    */
   val Query = Value("query")
+
+  /** A path parameter mapped to a Scalatra route.
+    *
+    * E.g. http://example.com/foo/2 where there's a route like
+    * get("/foo/:id").
+    */
   val Path = Value("path")
+
+  /** A parameter carried in an HTTP header. **/
   val Header = Value("header")
 }
 
