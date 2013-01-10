@@ -90,7 +90,7 @@ object Api {
     new AllowableValuesSerializer,
     new ModelFieldSerializer) ++ JodaTimeSerializers.all
 
-  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats).noNulls)
+  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats))
 
 
 }
