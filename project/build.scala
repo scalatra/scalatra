@@ -13,7 +13,7 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    version := "%s.0-SNAPSHOT" format majorVersion,
+    version := "%s.0-RC3" format majorVersion,
     scalaVersion := "2.10.0",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
