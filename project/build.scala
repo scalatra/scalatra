@@ -164,10 +164,7 @@ object ScalatraBuild extends Build {
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies += specs,
-      description := "Specs support for the Scalatra test framework",
-      // The one in Maven Central has a bad checksum for 2.8.2.
-      // Try ScalaTools first.
-      resolvers ~= { rs => ScalaToolsReleases +: rs }
+      description := "Specs support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
 
