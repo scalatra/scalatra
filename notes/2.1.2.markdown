@@ -1,0 +1,2 @@
+### scalatra-test
+* Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
