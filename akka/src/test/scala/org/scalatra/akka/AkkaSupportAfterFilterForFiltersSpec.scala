@@ -11,7 +11,7 @@ class AkkaSupportAfterFilterFilter extends ScalatraFilter with AkkaSupport {
   var actionTime: Long = _
   var afterTime: Long = _
   var afterCount: Long = _
-  private implicit lazy val _executor = akkaDispatcherName map system.dispatchers.lookup getOrElse system.dispatcher
+  protected implicit lazy val executor = system.dispatcher
 
   asyncGet("/async") {
     Thread.sleep(2000)
