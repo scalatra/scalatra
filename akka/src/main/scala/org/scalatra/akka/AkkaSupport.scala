@@ -4,19 +4,18 @@ package akka
 import _root_.akka.util.duration._
 import _root_.akka.util.Duration
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.{ AsyncContext, AsyncEvent, AsyncListener }
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import _root_.akka.dispatch.{ Await, Future }
-import _root_.akka.actor.{ Actor, ActorSystem }
+import javax.servlet.{AsyncContext, AsyncEvent, AsyncListener}
+import _root_.akka.dispatch.{ExecutionContext, Await, Future}
+import _root_.akka.actor.{Actor, ActorSystem}
 import servlet.AsyncSupport
 
 trait AkkaSupport extends AsyncSupport {
-  implicit protected def system: ActorSystem
+  protected type ExecutionContext = _root_.akka.dispatch.ExecutionContext
 
-  protected def akkaDispatcherName: Option[String] = None
+  protected implicit def defaultExecutor(implicit system: ActorSystem): ExecutionContext =
+    ExecutionContext.defaultExecutionContext(system)
 
-  private implicit lazy val _executor = akkaDispatcherName map system.dispatchers.lookup getOrElse system.dispatcher
-  override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
+  override def asynchronously(f: ⇒ Any)(implicit executor: ExecutionContext): Action = () ⇒ Future(f)
 
   // Still thinking of the best way to specify this before making it public. 
   // In the meantime, this gives us enough control for our test.
@@ -37,7 +36,7 @@ trait AkkaSupport extends AsyncSupport {
         val context = request.startAsync()
         context.setTimeout(asyncTimeout.toMillis)
         context addListener (new AsyncListener {
-          def onComplete(event: AsyncEvent) { }
+          def onComplete(event: AsyncEvent) {}
 
           def onTimeout(event: AsyncEvent) {
             onAsyncEvent(event) {
@@ -70,7 +69,7 @@ trait AkkaSupport extends AsyncSupport {
               if (gotResponseAlready.compareAndSet(false, true)) {
                 t match {
                   case e: HaltException ⇒ renderHaltException(e)
-                  case e                ⇒ renderResponse(errorHandler(e))
+                  case e ⇒ renderResponse(errorHandler(e))
                 }
                 context.complete()
               }
