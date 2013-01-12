@@ -7,11 +7,10 @@ import akka.dispatch.Future
 
 
 class AkkaSupportAfterFilterServlet extends ScalatraServlet with AkkaSupport {
-  val system = ActorSystem()
+  implicit val system = ActorSystem()
   var actionTime: Long = _
   var afterTime: Long = _
   var afterCount: Long = _
-  private implicit lazy val _executor = akkaDispatcherName map system.dispatchers.lookup getOrElse system.dispatcher
 
   asyncGet("/async") {
     Thread.sleep(2000)
