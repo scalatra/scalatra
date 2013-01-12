@@ -11,6 +11,8 @@ import json.JsonSupport
 trait SwaggerBaseBase { self: ScalatraSyntax with JsonSupport[_] with CorsSupport =>
 
   protected type ApiType <: SwaggerApi[_]
+
+  protected implicit val jsonFormats: Formats = Api.formats
   
   protected def docToJson(doc: ApiType): JValue
 

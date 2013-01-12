@@ -137,9 +137,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     }
 }
 
-class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase {
-  implicit protected def jsonFormats: Formats = DefaultFormats
-}
+class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase 
 
 case class Pet(id: Long, category: Category, name: String, urls: List[String], tags: List[Tag], status: String)
 case class Tag(id: Long, name: String)
