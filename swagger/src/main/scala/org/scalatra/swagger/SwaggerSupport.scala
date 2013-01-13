@@ -12,7 +12,7 @@ trait SwaggerSupportBase {
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
-  def endpoints(basePath: String): List[SwaggerEndpoint[_]]
+  def endpoints(basePath: String): List[SwaggerEndpoint[_ <: SwaggerOperation]]
 
   /**
    * Returns a list of operations based on the given route. The default implementation returns a list with only 1
