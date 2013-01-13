@@ -14,6 +14,7 @@ import runtime.NonLocalReturnControl
 
 class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
   val system = ActorSystem()
+  protected implicit val executor = system.dispatcher
   override def asyncTimeout = 2 seconds
   
   asyncGet("/working") {
