@@ -10,12 +10,9 @@ import _root_.akka.actor.{Actor, ActorSystem}
 import servlet.AsyncSupport
 
 trait AkkaSupport extends AsyncSupport {
-  protected type ExecutionContext = _root_.akka.dispatch.ExecutionContext
+  implicit protected def executor: ExecutionContext
 
-  protected implicit def defaultExecutor(implicit system: ActorSystem): ExecutionContext =
-    ExecutionContext.defaultExecutionContext(system)
-
-  override def asynchronously(f: ⇒ Any)(implicit executor: ExecutionContext): Action = () ⇒ Future(f)
+  override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
 
   // Still thinking of the best way to specify this before making it public. 
   // In the meantime, this gives us enough control for our test.

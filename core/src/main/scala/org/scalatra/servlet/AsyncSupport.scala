@@ -5,12 +5,11 @@ import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 trait AsyncSupport extends ServletBase {
-  protected type ExecutionContext
 
   /**
    * Takes a block and converts it to an action that can be run asynchronously.
    */
-  protected def asynchronously(f: => Any)(implicit executor: ExecutionContext): Action
+  protected def asynchronously(f: => Any): Action
 
   protected def onAsyncEvent(event: AsyncEvent)(thunk: => Any) {
     withRequest(event.getSuppliedRequest.asInstanceOf[HttpServletRequest]) {
@@ -65,36 +64,36 @@ trait AsyncSupport extends ServletBase {
    * }}}
    *
    */
-  def asyncGet(transformers: RouteTransformer*)(block: => Any)(implicit executor: ExecutionContext): Route =
-    get(transformers: _*)(asynchronously(block)(executor)())
+  def asyncGet(transformers: RouteTransformer*)(block: => Any): Route = 
+    get(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncPost(transformers: RouteTransformer*)(block: => Any)(implicit executor: ExecutionContext): Route =
-    post(transformers: _*)(asynchronously(block)(executor)())
+  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route = 
+    post(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncPut(transformers: RouteTransformer*)(block: => Any)(implicit executor: ExecutionContext): Route =
-    put(transformers: _*)(asynchronously(block)(executor)())
+  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route = 
+    put(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncDelete(transformers: RouteTransformer*)(block: => Any)(implicit executor: ExecutionContext): Route =
-    delete(transformers: _*)(asynchronously(block)(executor)())
+  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route = 
+    delete(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncOptions(transformers: RouteTransformer*)(block: => Any)(implicit executor: ExecutionContext): Route =
-    options(transformers: _*)(asynchronously(block)(executor)())
+  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route = 
+    options(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncPatch(transformers: RouteTransformer*)(block: => Any)(implicit executor: ExecutionContext): Route =
-    patch(transformers: _*)(asynchronously(block)(executor)())
+  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route = 
+    patch(transformers: _*)(asynchronously(block)())
 }
