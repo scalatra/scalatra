@@ -47,7 +47,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-auth",
     base = file("auth"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(base64, liftTestkit),
+      libraryDependencies <++= scalaVersion(sv => Seq(base64, liftTestkit(sv))),
       description := "Scalatra authentication module"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -83,7 +83,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-lift-json",
     base = file("lift-json"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies += liftJson,
+      libraryDependencies <+= scalaVersion(liftJson),
       description := "Lift JSON support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -179,9 +179,15 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    private def liftDep(name: String) = "net.liftweb" %% name % "2.5-M4"
-    val liftJson = liftDep("lift-json")
-    val liftTestkit = liftDep("lift-testkit") % "test"
+    private def liftDep(name: String, scalaVersion: String) = {
+      val version = scalaVersion match {
+        case sv if sv.startsWith("2.10.") => "2.5-M4"
+        case sv => "2.4"
+      }
+      "net.liftweb" %% name % version
+    }
+    def liftJson(scalaVersion: String) = liftDep("lift-json", scalaVersion)
+    def liftTestkit(scalaVersion: String) = liftDep("lift-testkit", scalaVersion) % "test"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
