@@ -2,8 +2,6 @@ import sbt._
 import Keys._
 import scala.xml._
 import java.net.URL
-//import com.github.siasia.WebPlugin.webSettings
-// import posterous.Publish._
 import ls.Plugin.LsKeys
 
 object ScalatraBuild extends Build {
@@ -32,14 +30,12 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      // (name in Posterous) := "scalatra",
       LsKeys.skipWrite := true
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraLiftJson, scalatraAntiXml, scalatraJerkson,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2, scalatraSlf4j,
       scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
-//      scalatraExample, scalatraAkka, scalatraDocs, scalatraSwagger, scalatraJetty)
   )
 
   lazy val scalatraCore = Project(
