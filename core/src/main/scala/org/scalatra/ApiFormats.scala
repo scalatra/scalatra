@@ -64,6 +64,7 @@ trait ApiFormats extends ScalatraKernel {
     "multipart/form-data" -> "html",
     "text/html" -> "html",
     "text/javascript" -> "json",
+    "text/plain" -> "txt",
     "text/stylesheet" -> "css",
     "video/x-flv" -> "flv"
   ))
