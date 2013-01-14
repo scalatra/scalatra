@@ -179,7 +179,7 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    private def liftDep(name: String) = "net.liftweb" %% name % "2.5-SNAPSHOT"
+    private def liftDep(name: String) = "net.liftweb" %% name % "2.5-M4"
     val liftJson = liftDep("lift-json")
     val liftTestkit = liftDep("lift-testkit") % "test"
 
