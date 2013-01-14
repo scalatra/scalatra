@@ -9,8 +9,6 @@ import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
 import java.math.BigInteger
 import java.util.Date
-import java.util
-import org.scalatra.util
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String 
@@ -43,8 +41,7 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) extends Swagge
    */
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    // Should be able to collect s.endpoints, but compiler complains.  Why?
-    val endpoints: List[Endpoint] = s.endpoints(path).filter(_.isInstanceOf[Endpoint]).map(_.asInstanceOf[Endpoint])
+    val endpoints: List[Endpoint] = s.endpoints(path) collect { case m: Endpoint => m }
     _docs = _docs + (name -> Api(path, listingPath, description, endpoints, s.models))
   }
 }
@@ -72,7 +69,7 @@ object Api {
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
-  private[this] implicit val formats = new DefaultFormats {
+  private[swagger] implicit val formats = new DefaultFormats {
     override val dateFormat = new DateFormat {
       def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
       def parse(s: String) = try {

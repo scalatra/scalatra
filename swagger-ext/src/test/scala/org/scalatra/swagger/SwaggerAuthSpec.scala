@@ -61,7 +61,6 @@ object SwaggerAuthSpec {
   				with NativeJsonSupport 
   				with CorsSupport
   				with SwaggerAuthBase[User] {
-    implicit protected def jsonFormats: Formats = DefaultFormats
     error {
       case t: Throwable => t.printStackTrace()
     }

@@ -2,20 +2,16 @@ package org.scalatra
 package akka
 
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.{ AsyncContext, AsyncEvent, AsyncListener }
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import _root_.akka.actor.{ Actor, ActorSystem }
+import javax.servlet.{AsyncContext, AsyncEvent, AsyncListener}
+import _root_.akka.actor.{Actor, ActorSystem}
 import servlet.AsyncSupport
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.concurrent.duration.Duration
 
 trait AkkaSupport extends AsyncSupport {
-  implicit protected def system: ActorSystem
+  implicit protected def executor: ExecutionContext
 
-  protected def akkaDispatcherName: Option[String] = None
-
-  private implicit lazy val _executor = akkaDispatcherName map system.dispatchers.lookup getOrElse system.dispatcher
   override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
 
   // Still thinking of the best way to specify this before making it public. 
@@ -37,7 +33,7 @@ trait AkkaSupport extends AsyncSupport {
         val context = request.startAsync()
         context.setTimeout(asyncTimeout.toMillis)
         context addListener (new AsyncListener {
-          def onComplete(event: AsyncEvent) { }
+          def onComplete(event: AsyncEvent) {}
 
           def onTimeout(event: AsyncEvent) {
             onAsyncEvent(event) {
