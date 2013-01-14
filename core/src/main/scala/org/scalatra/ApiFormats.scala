@@ -25,46 +25,48 @@ trait ApiFormats extends ScalatraSyntax {
   /**
    * A map of suffixes to content types.
    */
-  val formats: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
-    "json" -> "application/json",
-    "xml" -> "application/xml",
+  val formats: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "atom" -> "application/atom+xml",
-    "rss" -> "application/rss+xml",
-    "xslt" -> "application/xslt+xml",
-    "svg" -> "application/svg+xml",
-    "pdf" -> "application/pdf",
-    "swf" -> "application/x-shockwave-flash",
-    "flv" -> "video/x-flv",
-    "js" -> "text/javascript",
     "css" -> "text/stylesheet",
-    "txt" -> "text/plain",
+    "flv" -> "video/x-flv",
     "html" -> "text/html",
     "html5" -> "text/html",
-    "xhtml" -> "application/xhtml+xml").asJava).asScala
+    "js" -> "text/javascript",
+    "json" -> "application/json",
+    "pdf" -> "application/pdf",
+    "rss" -> "application/rss+xml",
+    "svg" -> "application/svg+xml",
+    "swf" -> "application/x-shockwave-flash",
+    "txt" -> "text/plain",
+    "xhtml" -> "application/xhtml+xml",
+    "xml" -> "application/xml",
+    "xslt" -> "application/xslt+xml"
+  ).asJava).asScala
 
   /**
    * A map of content types to suffixes.  Not strictly a reverse of `formats`.
    */
-  val mimeTypes: ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
-    "application/json" -> "json",
-    "application/xml" -> "xml",
+  val mimeTypes: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "application/atom+xml" -> "atom",
-    "application/rss+xml" -> "rss",
-    "application/xslt+xml" -> "xslt",
-    "application/pdf" -> "pdf",
-    "application/x-www-form-urlencoded" -> "html",
-    "multipart/form-data" -> "html",
-    "application/svg+xml" -> "svg",
-    "application/x-shockwave-flash" -> "swf",
-    "video/x-flv" -> "flv",
-    "text/javascript" -> "json",
-    "application/javascript" -> "json",
     "application/ecmascript" -> "json",
+    "application/javascript" -> "json",
+    "application/json" -> "json",
+    "application/pdf" -> "pdf",
+    "application/rss+xml" -> "rss",
+    "application/svg+xml" -> "svg",
     "application/x-ecmascript" -> "json",
-    "text/stylesheet" -> "css",
+    "application/x-shockwave-flash" -> "swf",
+    "application/x-www-form-urlencoded" -> "html",
+    "application/xhtml+xml" -> "html",
+    "application/xml" -> "xml",
+    "application/xslt+xml" -> "xslt",
+    "multipart/form-data" -> "html",
     "text/html" -> "html",
+    "text/javascript" -> "json",
     "text/plain" -> "txt",
-    "application/xhtml+xml" -> "html").asJava).asScala
+    "text/stylesheet" -> "css",
+    "video/x-flv" -> "flv"
+  ).asJava).asScala
 
   /**
    * The default format.

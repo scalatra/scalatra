@@ -1,2 +1,6 @@
+### scalatra
+
+* Add reverse lookup of text/plain to ApiFormat's MIME types.
+
 ### scalatra-test
 * Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
