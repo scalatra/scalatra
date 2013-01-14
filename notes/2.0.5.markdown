@@ -1,0 +1,3 @@
+### core
+
+* Add reverse lookup of text/plain to ApiFormat's MIME types.
