@@ -6,6 +6,7 @@ import org.scalatra.ScalatraBase
 import org.scalatra.util.{ using, io }
 import java.io.{ File, FileOutputStream }
 import javax.servlet.http._
+import java.util
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
   * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
@@ -92,7 +93,6 @@ trait FileUploadSupport extends ServletBase {
 
   private def isMultipartRequest(req: HttpServletRequest): Boolean = {
     val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
-
     isPostOrPut && (req.contentType match {
       case Some(contentType) => contentType.startsWith("multipart/")
       case _ => false
@@ -128,9 +128,9 @@ trait FileUploadSupport extends ServletBase {
     }
   }
 
-  private def getParts(req: HttpServletRequest) = {
+  private def getParts(req: HttpServletRequest): util.Collection[Part] = {
     try {
-      req.getParts
+      if (isMultipartRequest(req)) req.getParts else Iterable.empty[Part]
     } catch {
       case e: Exception if isSizeConstraintException(e) => throw new SizeConstraintExceededException("Too large request or file", e)
     }
