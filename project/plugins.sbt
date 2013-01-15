@@ -1,8 +1,7 @@
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 resolvers ++= Seq(
-  "less is" at "http://repo.lessis.me",
-  "coda" at "http://repo.plugcodahale.com"
+  "less is" at "http://repo.lessis.me"
 )
 
 libraryDependencies <+= sbtVersion(v => v match {
