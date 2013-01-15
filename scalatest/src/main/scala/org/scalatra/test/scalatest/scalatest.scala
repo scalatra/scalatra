@@ -40,7 +40,7 @@ trait ScalatraFeatureSpec extends FeatureSpec with ScalatraSuite
 /**
  * Convenience trait to add Scalatra test support to Spec.
  */
-trait ScalatraSpec extends Spec with ScalatraSuite
+trait ScalatraSpec extends FunSpec with ScalatraSuite
 
 /**
  * Convenience trait to add Scalatra test support to FlatSpec.

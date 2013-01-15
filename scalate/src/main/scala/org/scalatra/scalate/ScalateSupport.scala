@@ -129,7 +129,6 @@ trait ScalateSupport extends ScalatraKernel {
     }
     catch {
       case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
-      case e => throw e
     }
   }
 
