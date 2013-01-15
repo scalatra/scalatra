@@ -73,7 +73,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-socketio",
     base = file("socketio"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= version(v => Seq(jettyWebsocket, socketioCore(v))),
+      libraryDependencies ++= Seq(jettyWebsocket, socketioCore),
       description := "Socket IO support for Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -109,7 +109,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalatest",
     base = file("scalatest"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(scalatest(sv), junit, testng, guice)),
+      libraryDependencies <++= scalaVersion(sv => Seq(scalatest(sv), junit, testng % "optional", guice % "optional")),
       description := "ScalaTest support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
@@ -136,7 +136,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-example",
     base = file("example"),
     settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
-      libraryDependencies ++= Seq(servletApi, jettyWebapp % "container"),
+      libraryDependencies ++= Seq(servletApi % "container;provided", jettyWebapp % "container"),
       description := "Scalatra example project"
     )
   ) dependsOn(
@@ -148,100 +148,105 @@ object ScalatraBuild extends Build {
     id = "scalatra-jetty8-tests",
     base = file("test/jetty8"),
     settings = scalatraSettings ++ doNotPublish ++ Seq(
-      libraryDependencies ++= Seq(servletApi_3_0, testJettyServlet_8 % "test"),
+      libraryDependencies ++= Seq(servletApi_3_0 % "test", testJettyServlet8 % "test"),
       description := "Compatibility tests for Jetty 8"
     )
   ) dependsOn(scalatraSpecs2 % "test->compile")
 
   object Dependencies {
-    def antiXml(scalaVersion: String) = scalaVersion match {
-      case x if x startsWith "2.10." => "no.arktekk" %% "anti-xml" % "0.5.1"
-      case _ => "com.codecommit" %% "anti-xml" % "0.2"
+
+    // Sort by artifact ID.
+    lazy val antiXml: MM           = sv => antiXmlGroup(sv)          %% "anti-xml"           % antiXmlVersion(sv)
+    lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
+    lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
+    lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
+    lazy val commonsLang3               =  "org.apache.commons"      %  "commons-lang3"      % "3.1"
+    lazy val guice                      =  "com.google.inject"       %  "guice"              % "3.0"
+    lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
+    lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
+    lazy val junit                      =  "junit"                   %  "junit"              % "4.11"
+    lazy val liftJson: MM          = sv => "net.liftweb"             %% "lift-json"          % liftVersion(sv)
+    lazy val liftTestkit: MM       = sv => "net.liftweb"             %% "lift-testkit"       % liftVersion(sv)
+    lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.8.5"
+    lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
+    lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
+    lazy val servletApi                 =  "org.eclipse.jetty.orbit" %  "javax.servlet"      % "2.5.0.v201103041518" artifacts (Artifact("javax.servlet", "jar", "jar"))
+    lazy val servletApi_3_0             =  "org.eclipse.jetty.orbit" %  "javax.servlet"      % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
+    lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.2"
+    lazy val socketioCore               =  "org.scalatra.socketio-java" % "socketio-core"    % "2.0.0"
+    lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
+    lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)
+    lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
+    lazy val testJettyServlet8          =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jetty8Version
+    lazy val testng                     =  "org.testng"              %  "testng"             % "6.8"
+
+    type MM = String => ModuleID
+
+    // Now entering Cross Build Hell
+
+    private val antiXmlGroup: String => String = {
+      case sv if sv startsWith "2.8."   => "com.codecommit"
+      case "2.9.0-1"                    => "com.codecommit"
+      case "2.9.1"                      => "com.codecommit"
+      case _                            => "no.arktekk"
+    }
+    private val antiXmlVersion: String => String = {
+      case sv if sv startsWith "2.8."   => "0.2"
+      case "2.9.0-1"                    => "0.3"
+      case "2.9.1"                      => "0.3"
+      case _                            => "0.5.1"
     }
 
-    val base64 = "net.iharder" % "base64" % "2.3.8"
+    private val jettyVersion  = "7.6.8.v20121106"
+    private val jetty8Version = "8.1.8.v20121106"
 
-    val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
-    val commonsIo = "commons-io" % "commons-io" % "2.1"
-    val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
+//    private val jettyVersion  = "8.1.0.v20120127"
+//    private val jetty8Version = "7.6.0.v20120127"
 
-    // Exclude is due to http://jira.codehaus.org/browse/JETTY-1493
-    private def jettyDep(name: String, version: String = "7.6.0.v20120127") =
-      "org.eclipse.jetty" % name % version
-    val testJettyServlet = jettyDep("test-jetty-servlet")
-    val testJettyServlet_8 = jettyDep("test-jetty-servlet", "8.1.0.v20120127")
-    val jettyWebsocket = jettyDep("jetty-websocket")
-    val jettyWebapp = jettyDep("jetty-webapp")
-
-    val junit = "junit" % "junit" % "4.10"
-
-    private def liftDep(name: String, scalaVersion: String) = {
-      val version = scalaVersion match {
-        case sv if sv.startsWith("2.10.") => "2.5-M4"
-        case sv => "2.4"
-      }
-      "net.liftweb" %% name % version
-    }
-    def liftJson(scalaVersion: String) = liftDep("lift-json", scalaVersion)
-    def liftTestkit(scalaVersion: String) = liftDep("lift-testkit", scalaVersion) % "test"
-
-    val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
-
-    def scalate(scalaVersion: String) = scalaVersion match {
-      // 1.5.3-scala_2.8.2 fails on 2.8.1 loading
-      // scala/tools/nsc/interactive/Global$
-      case "2.8.1" => 
-        "org.fusesource.scalate" % "scalate-core" % "1.5.2-scala_2.8.1"
-      case x if x startsWith "2.8." => 
-        "org.fusesource.scalate" % "scalate-core" % "1.5.3-scala_2.8.2"
-      case x if x startsWith "2.10." => 
-        "org.fusesource.scalate" % "scalate-core_2.10" % "1.6.1"
-      case _ => 
-        "org.fusesource.scalate" % "scalate-core" % "1.5.3"
+    private val liftVersion: String => String = {
+      case sv if sv startsWith "2.8."   => "2.4"
+      case sv if sv startsWith "2.9."   => "2.4"
+      case _                            => "2.5-M4"
     }
 
-    def scalatest(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5.1"
-        case x if x startsWith "2.10." => "1.9.1"
-        case _ => "1.6.1"
-      }
-      "org.scalatest" %% "scalatest" % libVersion
+    private val scalateArtifact: String => String = {
+      case sv if sv startsWith "2.8."   => "scalate-core"
+      case "2.9.0-1"                    => "scalate-core"
+      case sv if sv startsWith "2.9."   => "scalate-core_2.9"
+      case sv if sv startsWith "2.10."  => "scalate-core_2.10"
+    }
+    private val scalateVersion: String => String = {
+      case "2.8.1"                      => "1.5.2-scala_2.8.1"
+      case "2.8.2"                      => "1.5.3-scala_2.8.2"
+      case "2.9.0-1"                    => "1.5.1"
+      case "2.9.1"                      => "1.6.1"
+      case "2.9.2"                      => "1.6.1"
+      case _                            => "1.6.1"
     }
 
-    def specs(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case "2.9.1" => "1.6.9"
-        case x if x startsWith "2.10." => "1.6.9"
-        case _ => "1.6.8"
-      }
-      "org.scala-tools.testing" % "specs" % libVersion cross CrossVersion.binaryMapped {
-        case "2.8.2" => "2.8.1" // Has bad checksum for 2.8.2, not republished
-        case "2.10.0" => "2.10"
-        case x => x
-      }
+    private val scalatestVersion: String => String = {
+      case sv if sv startsWith "2.8."   => "1.8"
+      case _                            => "1.9.1"
     }
 
-    def specs2(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5"
-        case "2.9.0" => "1.5" // https://github.com/etorreborre/specs2/issues/33
-        case x if x startsWith "2.9." => "1.6.1"
-        case _ => "1.13"
-      }
-      "org.specs2" %% "specs2" % libVersion
+    private val specsCross = CrossVersion.binaryMapped {
+      case "2.8.2"                      => "2.8.1" // _2.8.2 published with bad checksum
+      case "2.9.2"                      => "2.9.1"
+      case "2.10.0"                     => "2.10"  // sbt bug?
+      case bin                          => bin
+    }
+    private val specsVersion: String => String = {
+      case sv if sv startsWith "2.8."   => "1.6.8"
+      case "2.9.0-1"                    => "1.6.8"
+      case _                            => "1.6.9"
     }
 
-    val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
-    val servletApi_3_0 = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
-
-    val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
-
-    def socketioCore(version: String) = "org.scalatra.socketio-java" % "socketio-core" % "2.0.0"
-
-    val testng = "org.testng" % "testng" % "6.3" % "optional"
-    // testng fails to load without guice. :(
-    val guice = "com.google.inject" % "guice" % "3.0" % "optional"
+    private val specs2Version: String => String = {
+      case sv if sv startsWith "2.8."   => "1.5"
+      case "2.9.0-1"                    => "1.8.2"
+      case sv if sv startsWith "2.9."   => "1.12.3"
+      case _                            => "1.13"
+    }
   }
 
   object Resolvers {
