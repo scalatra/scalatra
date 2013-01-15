@@ -11,7 +11,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.5-SNAPSHOT",
-    crossScalaVersions := Seq("2.10.0", "2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
+    crossScalaVersions := Seq("2.10.0", "2.9.2", "2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
@@ -200,12 +200,10 @@ object ScalatraBuild extends Build {
     private val jettyVersion  = "7.6.8.v20121106"
     private val jetty8Version = "8.1.8.v20121106"
 
-//    private val jettyVersion  = "8.1.0.v20120127"
-//    private val jetty8Version = "7.6.0.v20120127"
-
     private val liftVersion: String => String = {
       case sv if sv startsWith "2.8."   => "2.4"
-      case sv if sv startsWith "2.9."   => "2.4"
+      case "2.9.0-1"                    => "2.4"
+      case "2.9.1"                      => "2.4"
       case _                            => "2.5-M4"
     }
 

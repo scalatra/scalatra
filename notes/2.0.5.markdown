@@ -1,6 +1,6 @@
 ### scalatra-project
 
-* Cross build for Scala 2.10.
+* Cross build for Scala 2.10 and 2.9.2.
 
 ### core
 
