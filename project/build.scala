@@ -229,8 +229,8 @@ object ScalatraBuild extends Build {
    base = file("example"),
    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
-     libraryDependencies += servletApi % "test",
-     libraryDependencies += jettyWebsocket,
+     libraryDependencies += servletApi % "container;test",
+     libraryDependencies += jettyWebsocket % "container;test",
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      libraryDependencies += json4sJackson,
      description := "Scalatra example project"
