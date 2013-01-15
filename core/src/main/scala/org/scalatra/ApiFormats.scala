@@ -1,10 +1,10 @@
 package org.scalatra
 
 import collection.JavaConverters._
-import collection.concurrent.{Map => ConcurrentMap}
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
+import scala.collection.concurrent
 
 object ApiFormats {
   /**
@@ -25,7 +25,7 @@ trait ApiFormats extends ScalatraSyntax {
   /**
    * A map of suffixes to content types.
    */
-  val formats: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
+  val formats: concurrent.Map[String, String] = new ConcurrentHashMap[String, String](Map(
     "atom" -> "application/atom+xml",
     "css" -> "text/stylesheet",
     "flv" -> "video/x-flv",
@@ -46,7 +46,7 @@ trait ApiFormats extends ScalatraSyntax {
   /**
    * A map of content types to suffixes.  Not strictly a reverse of `formats`.
    */
-  val mimeTypes: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
+  val mimeTypes: concurrent.Map[String, String] = new ConcurrentHashMap[String, String](Map(
     "application/atom+xml" -> "atom",
     "application/ecmascript" -> "json",
     "application/javascript" -> "json",

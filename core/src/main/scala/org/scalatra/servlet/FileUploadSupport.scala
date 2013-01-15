@@ -93,7 +93,6 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   private def isMultipartRequest(req: HttpServletRequest): Boolean = {
     val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
-
     isPostOrPut && (req.contentType match {
       case Some(contentType) => contentType.startsWith("multipart/")
       case _ => false
@@ -131,7 +130,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   private def getParts(req: HttpServletRequest) = {
     try {
-      req.getParts.asScala
+      if (isMultipartRequest(req)) req.getParts.asScala else Seq.empty[Part]
     } catch {
       case e: Exception if isSizeConstraintException(e) => throw new SizeConstraintExceededException("Too large request or file", e)
     }

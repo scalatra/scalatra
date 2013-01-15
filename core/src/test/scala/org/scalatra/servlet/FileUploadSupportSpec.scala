@@ -6,6 +6,7 @@ import org.scalatra.ScalatraServlet
 import java.io.File
 import org.eclipse.jetty.servlet.ServletHolder
 import javax.servlet.{MultipartConfigElement, ServletException}
+import javax.servlet.http.HttpServlet
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders() {
@@ -85,6 +86,10 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
     tempFile.deleteOnExit
     "file size: " + tempFile.length
   }
+
+  error {
+    case e => e.printStackTrace()
+  }
 }
 
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
@@ -101,20 +106,21 @@ class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploa
     }
   }
 
-  //Jetty 8.1.3 throws ServletException instead of IllegalStateException.
-  override def isSizeConstraintException(e: Exception) = e match {
-    case _: ServletException => true
-    case _ => false
-  }
-
   post("/upload") {
     "ok"
   }
 }
 
 class FileUploadSupportSpec extends MutableScalatraSpec {
-  addServlet(new FileUploadSupportSpecServlet, "/*")
-  addServlet(new FileUploadSupportMaxSizeTestServlet, "/max-size/*")
+  private def addMultipartServlet(servlet: HttpServlet, mapping: String, maxSize: Long) {
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=395000
+    val holder = new ServletHolder(servlet)
+    holder.getRegistration.setMultipartConfig(new MultipartConfigElement("", maxSize, -1, 1024*1024*1024))
+    servletContextHandler.addServlet(holder, mapping)
+  }
+
+  addMultipartServlet(new FileUploadSupportSpecServlet, "/*", 4096L)
+  addMultipartServlet(new FileUploadSupportMaxSizeTestServlet, "/max-size/*", 1024L)
 
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")

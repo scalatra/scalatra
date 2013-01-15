@@ -1,3 +1,6 @@
+### scalatra-core
+* Don't crash if `fileParams` is called on a non-multipart request.
+
 ### scalatra-akka
 * Do not require ActorSystem.  Use implicit executor parameter. [GH-250](https://github.com/scalatra/scalatra/pull/250)
 
