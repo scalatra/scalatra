@@ -292,7 +292,7 @@ object ScalatraBuild extends Build {
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "6.0.4"
-    lazy val servletApi                 =  "javax.servlet"           %  "javax.servlet-api"  % "3.0.1"
+    lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.2"
     lazy val socketioCore               =  "org.scalatra.socketio-java" % "socketio-core"    % "2.0.0"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
@@ -479,5 +479,5 @@ object ScalatraBuild extends Build {
 
   lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
 
-  
+
 }
