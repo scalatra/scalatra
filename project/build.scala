@@ -21,6 +21,7 @@ object ScalatraBuild extends Build {
     manifestSetting,
     publishSetting,
     crossPaths := true,
+    crossVersion := CrossVersion.binary,
     resolvers ++= Seq(sonatypeNexusSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
