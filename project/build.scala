@@ -24,7 +24,7 @@ object ScalatraBuild extends Build {
     resolvers ++= Seq(sonatypeNexusSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
-  ) ++ mavenCentralFrouFrou ++ jettyOrbitHack
+  ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
@@ -263,7 +263,6 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %  "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %  "akka-testkit"       % akkaVersion(sv)
-    lazy val antiXml: MM           = sv => antiXmlGroup(sv)          %% "anti-xml"           % antiXmlVersion(sv)
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.8"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
@@ -304,25 +303,10 @@ object ScalatraBuild extends Build {
 
     type MM = String => ModuleID
 
-    // Now entering Cross Build Hell
-
     private val akkaVersion: String => String = {
       case "2.9.1"                      => "2.0.2"
       case "2.9.2"                      => "2.0.5"
       case _                            => "2.1.0"
-    }
-
-    private val antiXmlGroup: String => String = {
-      case sv if sv startsWith "2.8."   => "com.codecommit"
-      case "2.9.0-1"                    => "com.codecommit"
-      case "2.9.1"                      => "com.codecommit"
-      case _                            => "no.arktekk"
-    }
-    private val antiXmlVersion: String => String = {
-      case sv if sv startsWith "2.8."   => "0.2"
-      case "2.9.0-1"                    => "0.3"
-      case "2.9.1"                      => "0.3"
-      case _                            => "0.5.1"
     }
 
     private val grizzledSlf4jVersion: String => String = {
@@ -493,16 +477,5 @@ object ScalatraBuild extends Build {
 
   lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
 
-  // http://jira.codehaus.org/browse/JETTY-1493
-  // https://issues.apache.org/jira/browse/IVY-899
-  //
-  // This prevents Ivy from attempting to resolve these dependencies,
-  // but does not put the exclusions in the pom.  For that, every
-  // module that depends on this atrocity needs an explicit exclude
-  // statement.
-  lazy val jettyOrbitHack = Seq(
-    ivyXML := <dependencies>
-      <exclude org="org.eclipse.jetty.orbit" />
-    </dependencies>
-  )
+
 }

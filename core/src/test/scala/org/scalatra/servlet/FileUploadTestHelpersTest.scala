@@ -54,13 +54,7 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
 }
 
 class FileUploadTestHelpersTest extends ScalatraFunSuite {
-  private def addMultipartServlet(servlet: HttpServlet, mapping: String, maxSize: Long = 0L) {
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=395000
-    val holder = new ServletHolder(servlet)
-    holder.getRegistration.setMultipartConfig(new MultipartConfigElement("", maxSize, -1, 1024*1024*1024))
-    servletContextHandler.addServlet(holder, mapping)
-  }
-  addMultipartServlet(new FileUploadTestHelpersTestServlet, "/*")
+  mount(new FileUploadTestHelpersTestServlet, "/*")
 
   val files = Map(
     "textFile" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
