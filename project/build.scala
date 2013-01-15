@@ -17,7 +17,7 @@ object ScalatraBuild extends Build {
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
-    resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots)
+    resolvers ++= Seq(sonatypeNexusSnapshots)
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
@@ -119,10 +119,7 @@ object ScalatraBuild extends Build {
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <+= scalaVersion(specs),
-      description := "Specs support for the Scalatra test framework", 
-      // The one in Maven Central has a bad checksum for 2.8.2.  
-      // Try ScalaTools first.
-      resolvers ~= { rs => ScalaToolsReleases +: rs }
+      description := "Specs support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
 
@@ -218,7 +215,11 @@ object ScalatraBuild extends Build {
         case x if x startsWith "2.10." => "1.6.9"
         case _ => "1.6.8"
       }
-      "org.scala-tools.testing" %% "specs" % libVersion
+      "org.scala-tools.testing" % "specs" % libVersion cross CrossVersion.binaryMapped {
+        case "2.8.2" => "2.8.1" // Has bad checksum for 2.8.2, not republished
+        case "2.10.0" => "2.10"
+        case x => x
+      }
     }
 
     def specs2(scalaVersion: String) = {
