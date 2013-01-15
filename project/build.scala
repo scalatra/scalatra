@@ -13,14 +13,13 @@ object ScalatraBuild extends Build {
     organization := "org.scalatra",
     crossScalaVersions := Seq("2.10.0"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xcheckinit", "-encoding", "utf8"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6", "-Xlint:deprecation"),
     manifestSetting,
     publishSetting,
-    crossPaths := true,
     resolvers ++= Seq(sonatypeNexusSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra"),
-    (LsKeys.docsUrl in LsKeys.lsync) <<= (version){ v =>
+    (LsKeys.docsUrl in LsKeys.lsync) <<= (version) { v =>
       val majorVersion = v.split(".").dropRight(1).mkString(".")
       Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
     }
