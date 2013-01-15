@@ -13,8 +13,8 @@ object ScalatraBuild extends Build {
     version := "2.0.5-SNAPSHOT",
     crossScalaVersions := Seq("2.10.0", "2.9.2", "2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-unchecked", "-deprecation"),
-    javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xcheckinit", "-encoding", "utf8"),
+    javacOptions ++= Seq("-target", "1.6", "-source", "1.6", "-Xlint:deprecation"),
     manifestSetting,
     publishSetting,
     resolvers ++= Seq(sonatypeNexusSnapshots)
