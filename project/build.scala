@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi, slf4jSimple % "test"),
+      libraryDependencies ++= Seq(servletApi % "provided", slf4jSimple % "test"),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
