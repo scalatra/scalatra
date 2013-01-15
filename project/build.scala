@@ -9,21 +9,20 @@ object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  lazy val majorVersion = "2.2"
-
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    version := "%s.0-SNAPSHOT" format majorVersion,
     crossScalaVersions := Seq("2.9.2"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-unchecked", "-deprecation"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-optimize"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
     manifestSetting,
     publishSetting,
-    crossPaths := false,
     resolvers ++= Seq(sonatypeNexusSnapshots),
-    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
-    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
+    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra"),
+    (LsKeys.docsUrl in LsKeys.lsync) <<= (version){ v =>
+      val majorVersion = v.split(".").dropRight(1).mkString(".")
+      Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
+    }
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
