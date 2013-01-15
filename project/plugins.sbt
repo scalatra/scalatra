@@ -2,7 +2,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 resolvers ++= Seq(
   "less is" at "http://repo.lessis.me",
-  "coda" at "http://repo.codahale.com"
+  "coda" at "http://repo.plugcodahale.com"
 )
 
 libraryDependencies <+= sbtVersion(v => v match {
@@ -12,8 +12,6 @@ libraryDependencies <+= sbtVersion(v => v match {
   case "0.11.3" => "com.github.siasia" %% "xsbt-web-plugin" % "0.11.3-0.2.11.1"
   case x if (x.startsWith("0.12")) => "com.github.siasia" %% "xsbt-web-plugin" % "0.12.0-0.2.11.1"
 })
-
-//addSbtPlugin("net.databinder" % "posterous-sbt" % "0.3.2")
 
 addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.2")
 
