@@ -21,7 +21,7 @@ object ScalatraBuild extends Build {
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
-    id = "scalatra-project",
+    id = "scalatra-projecScent",
     base = file("."),
     settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
@@ -167,7 +167,7 @@ object ScalatraBuild extends Build {
     lazy val junit                      =  "junit"                   %  "junit"              % "4.11"
     lazy val liftJson: MM          = sv => "net.liftweb"             %% "lift-json"          % liftVersion(sv)
     lazy val liftTestkit: MM       = sv => "net.liftweb"             %% "lift-testkit"       % liftVersion(sv)
-    lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.8.5"
+    lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" %  "javax.servlet"      % "2.5.0.v201103041518" artifacts (Artifact("javax.servlet", "jar", "jar"))
