@@ -25,14 +25,13 @@ trait ServletBase
   protected implicit def configWrapper(config: ConfigT) = new Config {
     def context = config.getServletContext
 
-    object initParameters extends DefaultMap[String, String] {
-      def get(key: String): Option[String] =
-	Option(config.getInitParameter(key))
+  object initParameters extends DefaultMap[String, String] {
+    def get(key: String): Option[String] = Option(config.getInitParameter(key))
 
-      def iterator: Iterator[(String, String)] =
-	for (name <- config.getInitParameterNames.asScala.toIterator)
-	  yield (name, config.getInitParameter(name))
-    }
+    def iterator: Iterator[(String, String)] =
+      for (name <- config.getInitParameterNames.asScala.toIterator)
+        yield (name, config.getInitParameter(name))
+      }
   }
 
   override def addSessionId(uri: String) = response.encodeURL(uri)
