@@ -28,7 +28,7 @@ trait LiftJsonRequestBody extends ScalatraKernel with ApiFormats {
     } else if (format == "xml") {
       transformRequestBody(toJson(scala.xml.XML.loadString(content)))
     } else JString(content)
-  } catch { case _ ⇒ JNothing }
+  } catch { case _: Exception ⇒ JNothing }
 
   protected def transformRequestBody(body: JValue) = body
 

@@ -8,6 +8,6 @@ object Reflection {
       Right(MethodUtils.invokeMethod(target, methodName, args :_*))
     }
     catch {
-      case e => Left(e)
+      case e: Throwable => Left(e)
     }
 }

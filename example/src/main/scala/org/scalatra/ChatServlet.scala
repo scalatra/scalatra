@@ -14,7 +14,7 @@ class ChatServlet extends ScalatraServlet with SocketIOSupport {
         try {
           send(SocketIOFrame.JSON_MESSAGE_TYPE, """{ "welcome": "Welcome to Socket IO chat" }""")
         } catch {
-          case _ => disconnect()
+          case _: Exception => disconnect()
         }
         broadcast(SocketIOFrame.JSON_MESSAGE_TYPE,
           """{ "announcement": "New participant [%s]" }""".format(clientId))
