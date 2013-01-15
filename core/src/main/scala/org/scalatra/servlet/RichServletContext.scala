@@ -119,10 +119,10 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
       servlet match {
         case s: HasMultipartConfig =>
           r.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
-        case s: AsyncSupport =>
-          r.setAsyncSupported(true)
         case _ =>
       }
+      if (servlet.isInstanceOf[AsyncSupport])
+        r.setAsyncSupported(true)
       r
     }
 
