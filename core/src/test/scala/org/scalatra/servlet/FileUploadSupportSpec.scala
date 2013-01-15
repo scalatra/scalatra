@@ -112,15 +112,9 @@ class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploa
 }
 
 class FileUploadSupportSpec extends MutableScalatraSpec {
-  private def addMultipartServlet(servlet: HttpServlet, mapping: String, maxSize: Long) {
-    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=395000
-    val holder = new ServletHolder(servlet)
-    holder.getRegistration.setMultipartConfig(new MultipartConfigElement("", maxSize, -1, 1024*1024*1024))
-    servletContextHandler.addServlet(holder, mapping)
-  }
 
-  addMultipartServlet(new FileUploadSupportSpecServlet, "/*", 4096L)
-  addMultipartServlet(new FileUploadSupportMaxSizeTestServlet, "/max-size/*", 1024L)
+  mount(new FileUploadSupportSpecServlet, "/*")
+  mount(new FileUploadSupportMaxSizeTestServlet, "/max-size/*")
 
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")

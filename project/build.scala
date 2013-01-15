@@ -9,25 +9,25 @@ object ScalatraBuild extends Build {
   import Dependencies._
   import Resolvers._
 
-  lazy val majorVersion = "2.2"
-
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    version := "%s.0-SNAPSHOT" format majorVersion,
     crossScalaVersions := Seq("2.10.0"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-unchecked", "-deprecation"),
-    javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xcheckinit", "-encoding", "utf8"),
+    javacOptions ++= Seq("-target", "1.6", "-source", "1.6", "-Xlint:deprecation"),
     manifestSetting,
     publishSetting,
     crossPaths := true,
     resolvers ++= Seq(sonatypeNexusSnapshots),
-    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra"),
-    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
-  ) ++ mavenCentralFrouFrou ++ jettyOrbitHack
+    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra"),
+    (LsKeys.docsUrl in LsKeys.lsync) <<= (version){ v =>
+      val majorVersion = v.split(".").dropRight(1).mkString(".")
+      Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
+    }
+  ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
-    id = "scalatra-project",
+    id = "scalatra-projecScent",
     base = file("."),
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
@@ -230,8 +230,8 @@ object ScalatraBuild extends Build {
    base = file("example"),
    settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
-     libraryDependencies += servletApi % "test",
-     libraryDependencies += jettyWebsocket,
+     libraryDependencies += servletApi % "container;test",
+     libraryDependencies += jettyWebsocket % "container;test",
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      libraryDependencies += json4sJackson,
      description := "Scalatra example project"
@@ -264,7 +264,6 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %% "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %% "akka-testkit"       % akkaVersion(sv)
-    lazy val antiXml: MM           = sv => antiXmlGroup(sv)          %% "anti-xml"           % antiXmlVersion(sv)
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.8"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
@@ -287,13 +286,13 @@ object ScalatraBuild extends Build {
     lazy val json4sNative               =  "org.json4s"              %% "json4s-native"      % json4sVersion
     lazy val junit                      =  "junit"                   %  "junit"              % "4.11"
     lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.9"
-    lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.8.5"
+    lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
     lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.1"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "6.0.4"
-    lazy val servletApi                 =  "javax.servlet"           %  "javax.servlet-api"  % "3.0.1"
+    lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.2"
     lazy val socketioCore               =  "org.scalatra.socketio-java" % "socketio-core"    % "2.0.0"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
@@ -305,25 +304,10 @@ object ScalatraBuild extends Build {
 
     type MM = String => ModuleID
 
-    // Now entering Cross Build Hell
-
     private val akkaVersion: String => String = {
       case "2.9.1"                      => "2.0.2"
       case "2.9.2"                      => "2.0.5"
       case _                            => "2.1.0"
-    }
-
-    private val antiXmlGroup: String => String = {
-      case sv if sv startsWith "2.8."   => "com.codecommit"
-      case "2.9.0-1"                    => "com.codecommit"
-      case "2.9.1"                      => "com.codecommit"
-      case _                            => "no.arktekk"
-    }
-    private val antiXmlVersion: String => String = {
-      case sv if sv startsWith "2.8."   => "0.2"
-      case "2.9.0-1"                    => "0.3"
-      case "2.9.1"                      => "0.3"
-      case _                            => "0.5.1"
     }
 
     private val grizzledSlf4jVersion: String => String = {
@@ -495,16 +479,5 @@ object ScalatraBuild extends Build {
 
   lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
 
-  // http://jira.codehaus.org/browse/JETTY-1493
-  // https://issues.apache.org/jira/browse/IVY-899
-  //
-  // This prevents Ivy from attempting to resolve these dependencies,
-  // but does not put the exclusions in the pom.  For that, every
-  // module that depends on this atrocity needs an explicit exclude
-  // statement.
-  lazy val jettyOrbitHack = Seq(
-    ivyXML := <dependencies>
-      <exclude org="org.eclipse.jetty.orbit" />
-    </dependencies>
-  )
+
 }
