@@ -127,7 +127,7 @@ object FlashMapSupport {
  * @see FlashMap
  */
 trait FlashMapSupport extends Handler {
-  this: CoreDsl with DynamicScope with SessionSupport =>
+  this: CoreDsl with RequestResponseScope with SessionSupport =>
 
   import FlashMapSupport._
 
