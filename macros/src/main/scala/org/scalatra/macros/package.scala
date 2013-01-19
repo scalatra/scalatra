@@ -12,27 +12,27 @@ package object macros {
     c.universe.reify { null: HttpServletResponse }
   }
 
-  def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    c.universe.reify { null: Route }
-  }
+  import HttpMethod._
 
-  def postImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    c.universe.reify { null: Route }
-  }
+  def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] =
+    addRoute(c, Get)(transformers: _*)(block)
 
-  def putImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    c.universe.reify { null: Route }
-  }
+  def postImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] =
+    addRoute(c, Post)(transformers: _*)(block)
 
-  def deleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    c.universe.reify { null: Route }
-  }
+  def putImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] =
+    addRoute(c, Put)(transformers: _*)(block)
 
-  def optionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    c.universe.reify { null: Route }
-  }
+  def deleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] =
+    addRoute(c, Delete)(transformers: _*)(block)
 
-  def patchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+  def optionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] =
+    addRoute(c, Options)(transformers: _*)(block)
+
+  def patchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] =
+    addRoute(c, Patch)(transformers: _*)(block)
+
+  def addRoute[C <: Context](c: Context, method: HttpMethod)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     c.universe.reify { null: Route }
   }
 }
