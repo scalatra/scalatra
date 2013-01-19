@@ -15,4 +15,24 @@ package object macros {
   def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     c.universe.reify { null: Route }
   }
+
+  def postImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    c.universe.reify { null: Route }
+  }
+
+  def putImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    c.universe.reify { null: Route }
+  }
+
+  def deleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    c.universe.reify { null: Route }
+  }
+
+  def optionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    c.universe.reify { null: Route }
+  }
+
+  def patchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    c.universe.reify { null: Route }
+  }
 }

@@ -140,27 +140,27 @@ trait CoreDsl extends Handler with RequestResponseScope with Control with Servle
   /**
    * @see get
    */
-  def post(transformers: RouteTransformer*)(block: => Any): Route
+  def post(transformers: RouteTransformer*)(block: Any): Route = macro macros.postImpl
 
   /**
    * @see get
    */
-  def put(transformers: RouteTransformer*)(block: => Any): Route
+  def put(transformers: RouteTransformer*)(block: Any): Route = macro macros.putImpl
 
   /**
    * @see get
    */
-  def delete(transformers: RouteTransformer*)(block: => Any): Route
+  def delete(transformers: RouteTransformer*)(block: Any): Route = macro macros.deleteImpl
 
   /**
    * @see get
    */
-  def options(transformers: RouteTransformer*)(block: => Any): Route
+  def options(transformers: RouteTransformer*)(block: Any): Route = macro macros.optionsImpl
 
   /**
    * @see patch
    */
-  def patch(transformers: RouteTransformer*)(block: => Any): Route
+  def patch(transformers: RouteTransformer*)(block: Any): Route = macro macros.patchImpl
 
   /**
    * Error handler for HTTP response status code range. You can intercept every response code previously
