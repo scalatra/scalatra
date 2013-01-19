@@ -27,10 +27,14 @@ trait ScalatraJUnit3Suite extends JUnit3Suite with ScalatraSuite
  */
 trait ScalatraJUnitSuite extends JUnitSuite with ScalatraSuite
 
+/*
+ * Crashes IntelliJ because sbt-idea doesn't find optional deps.
+ *
 /**
  * Convenience trait to add Scalatra test support to TestNGSuite.
  */
 trait ScalatraTestNGSuite extends TestNGSuite with ScalatraSuite
+ */
 
 /**
  * Convenience trait to add Scalatra test support to FeatureSpec.
