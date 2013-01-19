@@ -135,7 +135,7 @@ trait CoreDsl extends Handler with RequestResponseScope with Control with Servle
    * }}}
    *
    */
-  def get(transformers: RouteTransformer*)(block: => Any): Route
+  def get(transformers: RouteTransformer*)(block: Any): Route = macro macros.getImpl
 
   /**
    * @see get

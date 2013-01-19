@@ -11,4 +11,8 @@ package object macros {
   def responseImpl(c: Context): c.Expr[HttpServletResponse] = {
     c.universe.reify { null: HttpServletResponse }
   }
+
+  def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    c.universe.reify { null: Route }
+  }
 }

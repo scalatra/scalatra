@@ -13,4 +13,3 @@ trait MapWithIndifferentAccess[+B] extends Map[String, B] {
   def getOrElse[B1 >: B](key: Symbol, default: => B1): B1 = getOrElse(key.name, default)
   def apply(key: Symbol): B = apply(key.name)
 }
-
