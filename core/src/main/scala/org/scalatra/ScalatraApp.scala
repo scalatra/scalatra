@@ -52,17 +52,6 @@ abstract class ScalatraApp[T <: {
     res
   }
 
-
-  /**
-   * The currently scoped request.  Valid only inside the `handle` method.
-   */
-  implicit def request: HttpServletRequest = _request.get()
-
-  /**
-   * The currently scoped response.  Valid only inside the `handle` method.
-   */
-  implicit def response: HttpServletResponse = _response.get()
-
   @deprecated("Move this code into the constructor, the initialize method is not really used in a scalatra app.", "2.2")
   def initialize(config: ConfigT) {}
   initialize(config)

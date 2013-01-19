@@ -48,6 +48,18 @@ object ScalatraBuild extends Build {
     )
   )
 
+  lazy val scalatraMacros = Project(
+    id = "macros",
+    base = file("macros"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <++= scalaVersion(sv => Seq(
+        "org.scala-lang" % "scala-compiler" % sv,
+        servletApi % "provided"
+      )),
+      description := "Macros to enhance the safety of the Scalatra DSL"
+    )
+  )
+
   lazy val scalatraCore = Project(
     id = "scalatra",
     base = file("core"),
@@ -65,7 +77,8 @@ object ScalatraBuild extends Build {
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
     scalatraScalatest % "test->compile",
-    scalatraCommon % "compile;test->test"
+    scalatraCommon % "compile;test->test",
+    scalatraMacros
   )
 
   lazy val scalatraAuth = Project(
