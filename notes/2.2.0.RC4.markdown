@@ -1,5 +1,7 @@
 ### scalatra-core
 * Don't crash if `fileParams` is called on a non-multipart request.
+* add an as[T] method in addition to getAs[T] on params and multiParams
+* Use type converters on attributes maps too.
 
 ### scalatra-akka
 * Do not require ActorSystem.  Use implicit executor parameter. [GH-250](https://github.com/scalatra/scalatra/pull/250)

@@ -44,25 +44,6 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     resource(path)
   }
 
-
-  /**
-   * Mounts a handler to the servlet context.
-   *
-   * @param factory the factory to mount
-   *
-   * @param urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
-   * not already, as path-mapping is the most natural fit for Scalatra.
-   * If you don't want path mapping, use the native Servlet API.
-   *
-   * @param name the name of the handler
-   */
-  def mount[T <: Handler](factory: (ServletConfig, HttpServletRequest, HttpServletResponse) => T, urlPattern: String, name: String) {
-    mountServlet(new ScalatraHost(factory), pathMapping(urlPattern), name)
-  }
-
-  def mount[T <: Handler : Manifest](factory: (ServletConfig, HttpServletRequest, HttpServletResponse) => T, urlPattern: String): Unit =
-    mount(factory, urlPattern, manifest[T].erasure.getName)
-
   private[this] def pathMapping(urlPattern: String) = urlPattern match {
     case s if s.endsWith("/*") => s
     case s if s.endsWith("/") => s + "*"

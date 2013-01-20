@@ -8,7 +8,6 @@ import javax.servlet.ServletConfig
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
-class ActionResultApp(config: ServletConfig, req: HttpServletRequest, res: HttpServletResponse) extends ScalatraApp(config, req, res) with ActionResultTestBase
 
 
 trait ActionResultTestBase  { self: ScalatraSyntax =>
@@ -69,9 +68,6 @@ trait ActionResultTestBase  { self: ScalatraSyntax =>
 
 class ActionResultServletSpec extends ActionResultsSpec {
   mount(classOf[ActionResultServlet], "/*")
-}
-class ActionResultAppSpec extends ActionResultsSpec {
-  mount(new ActionResultApp(_, _, _), "/*")
 }
 abstract class ActionResultsSpec extends MutableScalatraSpec {
 

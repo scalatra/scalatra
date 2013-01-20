@@ -5,6 +5,7 @@ import scala.collection.mutable.Map
 import scala.collection.JavaConverters._
 import java.util.Enumeration
 import util.MutableMapWithIndifferentAccess
+import util.conversion.TypeConverter
 
 /**
  * Adapts attributes from servlet objects (e.g., ServletRequest, HttpSession,
@@ -37,11 +38,8 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    * @return an option value containing the attributed associated with the key in the underlying servlet object,
    *         or None if none exists
    */
-  def getAs[T](key: String): Option[T] = {
-    get(key) flatMap {
-      case t: T => Some(t)
-      case _ => None
-    }
+  def getAs[T](key: String)(implicit mf: Manifest[T], converter: TypeConverter[Any, T]): Option[T] = {
+    get(key) flatMap (converter(_))
   }
 
   /**
@@ -52,7 +50,8 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    * @return an value for the attributed associated with the key in the underlying servlet object,
    *         or throw an exception if the key doesn't exist
    */
-  def as[T](key: String): T = getAs[T](key) getOrElse (throw new ScalatraException("Key "+key+" not found"))
+  def as[T](key: String)(implicit mf: Manifest[T], converter: TypeConverter[Any, T]): T =
+    getAs[T](key) getOrElse (throw new ScalatraException("Key "+key+" not found"))
 
   /**
    * Creates a new iterator over all attributes in the underlying servlet object.

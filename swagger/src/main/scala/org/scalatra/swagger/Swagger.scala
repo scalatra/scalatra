@@ -225,7 +225,7 @@ object DataType {
     else if (isInt[T]) this.Int
     else if (isDecimal[T]) DataType("double")
     else if (isDate[T]) this.Date
-    else if (mf <:< manifest[Boolean] || mf <:< manifest[java.lang.Boolean]) this.Boolean
+    else if (mf <:< Manifest.Boolean || mf <:< manifest[java.lang.Boolean]) this.Boolean
     else if (mf <:< manifest[java.lang.Enum[_]]) this.Enum
     else if (isMap[T]) {
       if (mf.typeArguments.size == 2) {
@@ -243,17 +243,17 @@ object DataType {
   }
   
   private[this] def isInt[T](implicit mf: Manifest[T]) = 
-    mf <:< manifest[Int] || 
+    mf <:< Manifest.Int ||
     mf <:< manifest[java.lang.Integer] || 
-    mf <:< manifest[Long] || 
+    mf <:< Manifest.Long ||
     mf <:< manifest[java.lang.Long] || 
     mf <:< manifest[BigInt] || 
     mf <:< manifest[java.math.BigInteger]
   
   private[this] def isDecimal[T](implicit mf: Manifest[T]) = 
-    mf <:< manifest[Double] ||
+    mf <:< Manifest.Double ||
     mf <:< manifest[java.lang.Double] ||
-    mf <:< manifest[Float] ||
+    mf <:< Manifest.Float ||
     mf <:< manifest[java.lang.Float] ||
     mf <:< manifest[BigDecimal] ||
     mf <:< manifest[java.math.BigDecimal]
