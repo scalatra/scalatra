@@ -6,7 +6,6 @@ import javax.servlet.ServletConfig
 
 
 class AfterTestServlet extends ScalatraServlet with AfterTestAppBase
-class AfterTestApp(config: ServletConfig, req: HttpServletRequest, res: HttpServletResponse) extends ScalatraApp(config, req, res) with AfterTestAppBase
 trait AfterTestAppBase extends ScalatraSyntax {
 
   after() {
@@ -31,9 +30,6 @@ trait AfterTestAppBase extends ScalatraSyntax {
 
 class AfterServletTest extends AfterTest {
   mount(classOf[AfterTestServlet], "/*")
-}
-class AfterAppTest extends AfterTest {
-  mount(new AfterTestApp(_, _, _), "/*")
 }
 abstract class AfterTest extends ScalatraFunSuite {
 
