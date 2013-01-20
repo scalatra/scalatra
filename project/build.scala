@@ -70,6 +70,10 @@ object ScalatraBuild extends Build {
         jodaTime,
         jodaConvert
       )),
+      scalacOptions <+= (packageBin in (rrpsPlugin, Compile)) map { p =>
+        "-Xplugin:"+p
+      },
+      compile <<= (compile in Compile) dependsOn (packageBin in (rrpsPlugin, Compile)),
       description := "The core Scalatra framework"
     )
   ) dependsOn(
