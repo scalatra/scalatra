@@ -32,28 +32,20 @@ trait RequestResponseScope {
 
 }
 
-
-/**
- * The Scalatra DSL requires a dynamically scoped request and response.
- * This trick is explained in greater detail in Gabriele Renzi's blog
- * post about Step, out of which Scalatra grew:
- *
- * http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework
- */
 trait DynamicScope extends RequestResponseScope {
   /**
    * The currently scoped request.  Valid only inside the `handle` method.
    */
-  implicit def request: HttpServletRequest = dynamicRequest.value
+  implicit def request: HttpServletRequest = currentRequest
 
-  private[this] val dynamicRequest = new DynamicVariable[HttpServletRequest](null)
+  private[this] var currentRequest: HttpServletRequest = null
 
   /**
    * The currently scoped response.  Valid only inside the `handle` method.
    */
-  implicit def response: HttpServletResponse = dynamicResponse.value
+  implicit def response: HttpServletResponse = currentResponse
 
-  private[this] val dynamicResponse = new DynamicVariable[HttpServletResponse](null)
+  private[this] var currentResponse: HttpServletResponse = null
 
   protected def withRequestResponse[A](request: HttpServletRequest, response: HttpServletResponse)(f: => A) = {
     withRequest(request) {
@@ -67,23 +59,29 @@ trait DynamicScope extends RequestResponseScope {
    * Executes the block with the given request bound to the `request`
    * method.
    */
-  protected def withRequest[A](request: HttpServletRequest)(f: => A) =
-    dynamicRequest.withValue(request) {
+  protected def withRequest[A](request: HttpServletRequest)(f: => A) = {
+    val oldRequest = currentRequest
+    try {
+      currentRequest = request
       f
     }
+    finally {
+      currentRequest = oldRequest
+    }
+  }
 
   /**
    * Executes the block with the given response bound to the `response`
    * method.
    */
-  protected def withResponse[A](response: HttpServletResponse)(f: => A) =
-    dynamicResponse.withValue(response) {
+  protected def withResponse[A](response: HttpServletResponse)(f: => A) = {
+    val oldResponse = currentResponse
+    try {
+      currentResponse = response
       f
     }
-
-  @deprecated("Do not invoke directly. Use `withRequest` to change the binding, or request to get the value", "2.1.0")
-  protected def _request = dynamicRequest
-
-  @deprecated("Do not invoke directly. Use `withResponse` to change the binding, or `response` to get the value", "2.1.0")
-  protected def _response = dynamicResponse
+    finally {
+      currentResponse = oldResponse
+    }
+  }
 }

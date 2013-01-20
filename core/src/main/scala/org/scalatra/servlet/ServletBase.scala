@@ -15,6 +15,7 @@ trait ServletBase
   extends ScalatraBase
   with SessionSupport 
   with Initializable
+  with Cloneable
 {
   type ConfigT <: {
     def getServletContext(): ServletContext
@@ -43,5 +44,10 @@ trait ServletBase
     if (request.getCharacterEncoding == null)
       request.setCharacterEncoding(defaultCharacterEncoding)
     super.handle(request, response)
+  }
+
+  protected def cloneAndHandle(request: HttpServletRequest, response: HttpServletResponse) {
+    val klone = super.clone().asInstanceOf[Handler]
+    klone.handle(request, response)
   }
 }

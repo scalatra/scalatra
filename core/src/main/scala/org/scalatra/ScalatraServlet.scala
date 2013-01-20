@@ -53,7 +53,7 @@ abstract class ScalatraServlet
   with ServletBase
   with Initializable {
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
-    handle(request, response)
+    cloneAndHandle(request, response)
   }
 
   /**

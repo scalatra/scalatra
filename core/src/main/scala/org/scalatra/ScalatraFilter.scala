@@ -31,7 +31,7 @@ trait ScalatraFilter extends Filter with ServletBase {
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
     _filterChain.withValue(chain) {
-      handle(httpRequest, httpResponse)
+      cloneAndHandle(httpRequest, httpResponse)
     }
   }
 
