@@ -24,9 +24,11 @@ class RrpsPlugin(val global: Global) extends Plugin {
     import global.definitions._
 
     val global = RrpsPlugin.this.global
-    
+
+    val symRequestResponseScope = definitions.getClass("org.scalatra.RequestResponseScope")
+
     // TODO: change that according to your requirements
-    override val runsAfter = List("parser")
+    override val runsAfter = List("typer")
 
     /** The phase name of the compiler plugin
      *  @todo Adapt to specific plugin.
@@ -38,9 +40,10 @@ class RrpsPlugin(val global: Global) extends Plugin {
     class RrpsTransformer(unit: CompilationUnit) extends Transformer {
       // TODO: fill in your logic here
       override def transform(tree: Tree): Tree = tree match {
-        case Literal(Constant(str: String)) => Literal(Constant("ICanHazYourStrngLiterls"))
-
-        // don't forget this case, so that tree is actually traversed
+        case Select(qualifier, name) if Set("request", "response").contains(name.decode) =>
+          val isSub = qualifier.symbol.typeOfThis.baseClasses.exists(_ == symRequestResponseScope)
+          if (isSub) unit.warning(tree.pos, "unsafe "+name+" access")
+          tree
         case _ => super.transform(tree)
       }
     }
