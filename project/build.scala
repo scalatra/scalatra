@@ -48,6 +48,17 @@ object ScalatraBuild extends Build {
     )
   )
 
+  lazy val scalatraMacros = Project(
+    id = "scalatra-macros",
+    base = file("macros"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies <++= scalaVersion(sv => Seq(
+        servletApi % "provided,test",
+        scalaCompiler(sv)
+      ))
+    )
+  )
+
   lazy val scalatraCore = Project(
     id = "scalatra",
     base = file("core"),
@@ -65,7 +76,8 @@ object ScalatraBuild extends Build {
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
     scalatraScalatest % "test->compile",
-    scalatraCommon % "compile;test->test"
+    scalatraCommon % "compile;test->test",
+    scalatraMacros
   )
 
   lazy val scalatraAuth = Project(
@@ -287,6 +299,7 @@ object ScalatraBuild extends Build {
     lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.9"
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
     lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.1"
+    lazy val scalaCompiler: MM     = sv => "org.scala-lang"          %  "scala-compiler"     % sv
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
