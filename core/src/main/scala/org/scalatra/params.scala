@@ -2,7 +2,7 @@ package org.scalatra
 
 import util.conversion._
 import java.util.Date
-import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView}
+import util.{MultiMap, MultiMapHeadView}
 
 /**
  * Add some implicits

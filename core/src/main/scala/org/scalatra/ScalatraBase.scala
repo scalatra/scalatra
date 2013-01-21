@@ -6,12 +6,13 @@ import util.conversion.DefaultImplicitConversions
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import scala.annotation.tailrec
-import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
+import util._
 import util.RicherString._
 import rl.UrlCodingUtils
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.util.control.Exception._
+import scala.Some
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
@@ -73,7 +74,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
 
     withRequestResponse(request, response) {
 //      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
-      executeRoutes()
+      executeRoutes(request, response)
     }
   }
 
@@ -95,7 +96,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * $ 4. Executes the after filters with `runFilters`.
    * $ 5. The action result is passed to `renderResponse`.
    */
-  protected def executeRoutes() {
+  protected def executeRoutes(implicit request: HttpServletRequest, response: HttpServletResponse) {
     var result: Any = null
     try {
       val prehandleException = request.get("org.scalatra.PrehandleException")
@@ -104,7 +105,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
         val actionResult = runRoutes(routes(request.requestMethod)).headOption
         // Give the status code handler a chance to override the actionResult
         result = handleStatusCode(status) getOrElse {
-          actionResult orElse matchOtherMethods() getOrElse doNotFound()
+          actionResult orElse matchOtherMethods(request, response) getOrElse doNotFound(request, response)
         }
       } else {
         throw prehandleException.get.asInstanceOf[Exception]
@@ -168,9 +169,9 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       liftAction(matchedRoute.action)
     }
 
-  private def liftAction(action: Action): Option[Any] =
+  private def liftAction(action: Action)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[Any] =
     try {
-      Some(action())
+      Some(action(request, response))
     }
     catch {
       case e: PassException => None
@@ -182,20 +183,11 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    */
   def requestPath: String
 
-  def before(transformers: RouteTransformer*)(fun: => Any) {
-    routes.appendBeforeFilter(Route(transformers, () => fun))
-  }
-
-  def after(transformers: RouteTransformer*)(fun: => Any) {
-    routes.appendAfterFilter(Route(transformers, () => fun))
-  }
-
   /**
    * Called if no route matches the current request for any method.  The
    * default implementation varies between servlet and filter.
    */
   protected var doNotFound: Action
-  def notFound(fun: => Any) { doNotFound = { () => fun } }
 
   /**
    * Called if no route matches the current request method, but routes
@@ -209,9 +201,9 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
   }
   def methodNotAllowed(f: Set[HttpMethod] => Any) { doMethodNotAllowed = f }
 
-  private def matchOtherMethods(): Option[Any] = {
+  private def matchOtherMethods(implicit request: HttpServletRequest, response: HttpServletResponse): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
-    if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
+    if (allow.isEmpty) None else liftAction((request, response) => doMethodNotAllowed(allow))
   }
 
   private def handleStatusCode(status: Int): Option[Any] =
@@ -286,9 +278,9 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * called recursively until it returns ().  () indicates that the
    * response has been rendered.
    */
-  protected def renderPipeline: RenderPipeline = {
+  protected def renderPipeline(implicit request: HttpServletRequest, response: HttpServletResponse): RenderPipeline = {
     case 404 =>
-      doNotFound()
+      doNotFound(request, response)
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
@@ -299,7 +291,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
     case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response
-    case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound()
+    case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound(request, response)
     case actionResult: ActionResult =>
       response.status = actionResult.status
       actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }
@@ -381,10 +373,10 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
   protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
     new BooleanBlockRouteMatcher(block)
 
-  protected def renderHaltException(e: HaltException) {
+  protected def renderHaltException(e: HaltException)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     e match {
       case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
-        doNotFound()
+        doNotFound(request, response)
       case HaltException(Some(status), Some(reason), _, _) =>
         response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) =>
@@ -395,19 +387,6 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
     renderResponse(e.body)
   }
 
-  def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
-
-  def post(transformers: RouteTransformer*)(action: => Any) = addRoute(Post, transformers, action)
-
-  def put(transformers: RouteTransformer*)(action: => Any) = addRoute(Put, transformers, action)
-
-  def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
-
-  def trap(codes: Range)(block: => Any) { addStatusRoute(codes, block) }
-
-  def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
-
-  def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
 
   /**
    * Prepends a new route for the given HTTP method.
@@ -422,8 +401,8 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    *
    * @see org.scalatra.ScalatraKernel#removeRoute
    */
-  protected def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: => Any): Route = {
-    val route = Route(transformers, () => action, () => routeBasePath)
+  protected def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: Action): Route = {
+    val route = Route(transformers, action, () => routeBasePath)
     routes.prependRoute(method, route)
     route
   }
@@ -447,8 +426,8 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
     removeRoute(HttpMethod(method), route)
   }
 
-  protected[scalatra] def addStatusRoute(codes: Range, action: => Any)  {
-    val route = Route(Seq.empty, () => action, () => routeBasePath)
+  protected[scalatra] def addStatusRoute(codes: Range, action: Action)  {
+    val route = Route(Seq.empty, action, () => routeBasePath)
     routes.addStatusRoute(codes, route)
   }
 

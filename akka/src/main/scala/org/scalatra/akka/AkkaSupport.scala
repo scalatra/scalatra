@@ -12,9 +12,7 @@ import scala.concurrent.duration.Duration
 trait AkkaSupport extends AsyncSupport {
   implicit protected def executor: ExecutionContext
 
-  override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
-
-  // Still thinking of the best way to specify this before making it public. 
+  // Still thinking of the best way to specify this before making it public.
   // In the meantime, this gives us enough control for our test.
   // IPC: it may not be perfect but I need to be able to configure this timeout in an application
   protected def asyncTimeout: Duration = 30 seconds

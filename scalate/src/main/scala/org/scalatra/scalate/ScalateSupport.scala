@@ -9,6 +9,7 @@ import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import org.fusesource.scalate.support.TemplateFinder
+import servlet.ServletBase
 
 object ScalateSupport {
   val DefaultLayouts = Seq(
@@ -30,7 +31,7 @@ object ScalateSupport {
  * ScalateSupport creates and configures a template engine and provides
  * helper methods and bindings to integrate with the ScalatraKernel.
  */
-trait ScalateSupport extends ScalatraKernel {
+trait ScalateSupport extends ServletBase {
   /**
    * The template engine used by the methods in this support class.  It
    * provides a lower-level interface to Scalate and may be used directly

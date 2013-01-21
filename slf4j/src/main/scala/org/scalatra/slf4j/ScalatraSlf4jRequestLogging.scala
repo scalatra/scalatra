@@ -96,10 +96,10 @@ trait ScalatraSlf4jRequestLogging extends ScalatraSyntax with Handler {
    *
    * @see org.scalatra.ScalatraKernel#removeRoute
    */
-  override protected def addRoute(method: HttpMethod, transformers: Seq[_root_.org.scalatra.RouteTransformer], action: => Any): Route = {
-    val newAction = () => {
+  override protected def addRoute(method: HttpMethod, transformers: Seq[_root_.org.scalatra.RouteTransformer], action: Action): Route = {
+    val newAction = (request: HttpServletRequest, response: HttpServletResponse) => {
       try { logRequest() } catch { case _: Throwable => }
-      action
+      action(request, response)
     }
     val route = Route(transformers, newAction, () => routeBasePath)
     routes.prependRoute(method, route)

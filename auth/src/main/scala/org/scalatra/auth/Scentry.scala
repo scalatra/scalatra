@@ -5,7 +5,7 @@ import ScentryAuthStore.ScentryAuthStore
 import collection.mutable
 import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
-import util.{MapWithIndifferentAccess, MultiMapHeadView}
+import util.{MultiMapHeadView}
 
 object Scentry {
 

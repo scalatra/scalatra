@@ -7,6 +7,7 @@ import java.io.{Writer, StringWriter, PrintWriter}
 import org.json4s._
 import org.json4s.Xml._
 import text.Document
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
@@ -35,7 +36,7 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
   protected def transformResponseBody(body: JValue) = body
 
-  override protected def renderPipeline = ({
+  override protected def renderPipeline(implicit request: HttpServletRequest, response: HttpServletResponse) = ({
     case jv: JValue if responseFormat == "xml" =>
       contentType = formats("xml")
       writeJsonAsXml(transformResponseBody(jv), response.writer)

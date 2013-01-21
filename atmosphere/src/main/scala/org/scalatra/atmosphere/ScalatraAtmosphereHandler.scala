@@ -7,7 +7,7 @@ import org.scalatra.servlet.ServletApiImplicits._
 import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
-import javax.servlet.http.HttpSession
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
 import grizzled.slf4j.Logger
@@ -98,7 +98,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   }
 
   private[this] def clientForRoute(route: MatchedRoute): AtmosphereClient = {
-    liftAction(route.action) getOrElse {
+    liftAction(route.action)(route.request, route.response) getOrElse {
       throw new ScalatraException("An atmosphere route should return an atmosphere client")
     }
   }
@@ -133,8 +133,8 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     resource.addEventListener(new ScalatraResourceEventListener)
   }
 
-  private[this] def liftAction(action: org.scalatra.Action) = try {
-    action() match {
+  private[this] def liftAction(action: org.scalatra.Action)(implicit request: HttpServletRequest, response: HttpServletResponse) = try {
+    action(request, response) match {
       case cl: AtmosphereClient => Some(cl)
       case _ => None
     }

@@ -1,8 +1,12 @@
 package org.scalatra
 package servlet
 
+import scala.languageFeature.experimental.{macros => _}
+
 import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
+import macros.Macros
 
 trait AsyncSupport extends ServletBase {
 
@@ -64,36 +68,30 @@ trait AsyncSupport extends ServletBase {
    * }}}
    *
    */
-  def asyncGet(transformers: RouteTransformer*)(block: => Any): Route = 
-    get(transformers: _*)(asynchronously(block)())
+  def asyncGet(transformers: RouteTransformer*)(block: Any): Route = macro Macros.asyncGet
 
   /**
    * @see asyncGet
    */
-  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route = 
-    post(transformers: _*)(asynchronously(block)())
+  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.asyncPost
 
   /**
    * @see asyncGet
    */
-  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route = 
-    put(transformers: _*)(asynchronously(block)())
+  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.asyncPut
 
   /**
    * @see asyncGet
    */
-  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route = 
-    delete(transformers: _*)(asynchronously(block)())
+  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.asyncDelete
 
   /**
    * @see asyncGet
    */
-  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route = 
-    options(transformers: _*)(asynchronously(block)())
+  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.asyncOptions
 
   /**
    * @see asyncGet
    */
-  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route = 
-    patch(transformers: _*)(asynchronously(block)())
+  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.asyncPatch
 }

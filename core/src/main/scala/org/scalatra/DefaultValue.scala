@@ -1,6 +1,7 @@
 package org.scalatra
 
 import collection.generic.CanBuildFrom
+import util.MapWithIndifferentAccess
 
 /*
  * All credit for the code in this file is a minimized version of scalaz' Zero
@@ -90,7 +91,7 @@ trait DefaultValueImplicits {
   implicit def MultiMapHeadViewDefaultValue: DefaultValue[util.MultiMapHeadView[String, String]] = 
     default(util.MultiMapHeadView.empty[String, String])
 
-  implicit def IndifferentMultiMapHeadViewDefaultValue: DefaultValue[util.MultiMapHeadView[String, String] with util.MapWithIndifferentAccess[String]] = 
+  implicit def IndifferentMultiMapHeadViewDefaultValue: DefaultValue[util.MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]] =
     default(util.MultiMapHeadView.emptyIndifferent[String])
 
   implicit def Tuple2DefaultValue[A, B](implicit az: DefaultValue[A], bz: DefaultValue[B]): DefaultValue[(A, B)] =

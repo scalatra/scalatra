@@ -4,6 +4,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.concurrent.{Map => ConcurrentMap}
 import java.util.concurrent.ConcurrentHashMap
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 class RouteRegistry {
 
@@ -40,7 +41,7 @@ class RouteRegistry {
    *
    * HEAD must be identical to GET without a body, so GET implies HEAD.
    */
-  def matchingMethods(requestPath: String): Set[HttpMethod] = matchingMethodsExcept(requestPath) { _ => false }
+  def matchingMethods(requestPath: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Set[HttpMethod] = matchingMethodsExcept(requestPath) { _ => false }
 
   /**
    * Returns a set of methods with a matching route minus a specified
@@ -50,7 +51,7 @@ class RouteRegistry {
    * - GET implies HEAD
    * - filtering one filters the other
    */
-  def matchingMethodsExcept(method: HttpMethod, requestPath: String): Set[HttpMethod] = {
+  def matchingMethodsExcept(method: HttpMethod, requestPath: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Set[HttpMethod] = {
     val p: HttpMethod => Boolean = method match {
       case Get | Head => { m => m == Get || m == Head }
       case _ => { _ == method }
@@ -58,7 +59,7 @@ class RouteRegistry {
     matchingMethodsExcept(requestPath)(p)
   }
 
-  private def matchingMethodsExcept(requestPath: String)(p: HttpMethod => Boolean) = {
+  private def matchingMethodsExcept(requestPath: String)(p: HttpMethod => Boolean)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     var methods = (_methodRoutes filter { kv =>
       val method = kv._1
       val routes = kv._2

@@ -116,7 +116,7 @@ abstract class ScalatraApp[T <: {
    *
    * This action can be overridden by a notFound block.
    */
-  protected var doNotFound: Action = () => {
+  protected var doNotFound: Action = (request, response) => {
     serveStaticResource() getOrElse resourceNotFound()
   }
 

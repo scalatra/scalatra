@@ -3,7 +3,7 @@ package org.scalatra
 import scala.util.matching.Regex
 import scala.util.parsing.combinator._
 import util.MultiMap
-import util.RicherString._
+import util.RicherString.stringToRicherString
 
 /**
  * A route matcher is evaluated in the context it was created and returns a

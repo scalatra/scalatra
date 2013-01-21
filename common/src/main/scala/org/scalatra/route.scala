@@ -1,6 +1,7 @@
 package org.scalatra
 
 import util.MultiMap
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /**
  * A route is a set of matchers and an action.  A route is considered to match
@@ -22,13 +23,13 @@ case class Route(
    * None is returned.  If there are no route matchers, some empty map is
    * returned.
    */
-  def apply(requestPath: String): Option[MatchedRoute] = {
+  def apply(requestPath: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[MatchedRoute] = {
     routeMatchers.foldLeft(Option(MultiMap())) {
       (acc: Option[MultiParams], routeMatcher: RouteMatcher) => for {
         routeParams <- acc
         matcherParams <- routeMatcher(requestPath)
       } yield routeParams ++ matcherParams
-    } map { routeParams => MatchedRoute(action, routeParams) }
+    } map { routeParams => MatchedRoute(action, routeParams, request, response) }
   }
 
   /**
@@ -63,4 +64,4 @@ object Route {
 /**
  * An action and the multi-map of route parameters to invoke it with.
  */
-case class MatchedRoute(action: Action, multiParams: MultiParams)
+case class MatchedRoute(action: Action, multiParams: MultiParams, request: HttpServletRequest, response: HttpServletResponse)

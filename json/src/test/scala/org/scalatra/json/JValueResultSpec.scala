@@ -4,6 +4,7 @@ package json
 import test.specs2.MutableScalatraSpec
 import org.json4s._
 import org.json4s.jackson.JsonMethods.parse
+import Created
 
 case class NamedThing(name: String = "tom")
 class JValueResultSpec extends MutableScalatraSpec {

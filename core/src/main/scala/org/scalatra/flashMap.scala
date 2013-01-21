@@ -1,14 +1,14 @@
 package org.scalatra
 
 import scala.collection.mutable.{Map => MMap, Set => MSet}
-import util.MutableMapWithIndifferentAccess
+import util.{MapWithIndifferentAccess, MutableMapWithIndifferentAccess}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
  *
- * FlashMap behaves like [[org.scalatra.util.MapWithIndifferentAccess]].  By
+ * FlashMap behaves like [[MapWithIndifferentAccess]].  By
  * default, anything placed in the map is available to the current request and
  * next request, and is then discarded.
  *

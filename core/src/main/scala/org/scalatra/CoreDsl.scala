@@ -1,7 +1,10 @@
 package org.scalatra
 
+import scala.languageFeature.experimental.{macros => _}
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
+import macros.Macros
 import servlet.ServletApiImplicits
 
 /**
@@ -77,20 +80,20 @@ trait CoreDsl extends Handler with Control with ServletApiImplicits {
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def before(transformers: RouteTransformer*)(block: => Any): Unit
+  def before(transformers: RouteTransformer*)(block: Any): Unit = macro Macros.before
 
   /**
    * Adds a filter to run after the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def after(transformers: RouteTransformer*)(block: => Any): Unit
+  def after(transformers: RouteTransformer*)(block: => Any): Unit = macro Macros.after
 
   /**
    * Defines a block to run if no matching routes are found, or if all
    * matching routes pass.
    */
-  def notFound(block: => Any): Unit
+  def notFound(block: => Any): Unit = macro Macros.notFound
 
   /**
    * Defines a block to run if matching routes are found only for other
@@ -145,32 +148,32 @@ trait CoreDsl extends Handler with Control with ServletApiImplicits {
    * }}}
    *
    */
-  def get(transformers: RouteTransformer*)(block: => Any): Route
+  def get(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.get
 
   /**
    * @see get
    */
-  def post(transformers: RouteTransformer*)(block: => Any): Route
+  def post(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.post
 
   /**
    * @see get
    */
-  def put(transformers: RouteTransformer*)(block: => Any): Route
+  def put(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.put
 
   /**
    * @see get
    */
-  def delete(transformers: RouteTransformer*)(block: => Any): Route
+  def delete(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.delete
 
   /**
    * @see get
    */
-  def options(transformers: RouteTransformer*)(block: => Any): Route
+  def options(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.options
 
   /**
    * @see patch
    */
-  def patch(transformers: RouteTransformer*)(block: => Any): Route
+  def patch(transformers: RouteTransformer*)(block: => Any): Route = macro Macros.patch
 
   /**
    * Error handler for HTTP response status code range. You can intercept every response code previously
@@ -181,12 +184,10 @@ trait CoreDsl extends Handler with Control with ServletApiImplicits {
    *   }
    }* }}}
    }}*/
-  def trap(codes: Range)(block: => Any): Unit
+  def trap(codes: Range)(block: => Any): Unit = macro Macros.trapRange
 
   /**
    * @see error
    */
-  def trap(code: Int)(block: => Any) {
-    trap(Range(code, code+1))(block)
-  }
+  def trap(code: Int)(block: => Any) = macro Macros.trapCode
 }

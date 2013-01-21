@@ -1,7 +1,7 @@
 package org.scalatra
 
 import org.specs2.mutable.Specification
-import org.scalatra.util.{MultiMap, MultiMapHeadView, MapWithIndifferentAccess}
+import util.{MapWithIndifferentAccess, MultiMap, MultiMapHeadView}
 import org.scalatra.util.conversion.TypeConverter
 import java.util.Date
 import java.text.SimpleDateFormat

@@ -44,7 +44,10 @@ object ScalatraBuild extends Build {
     id = "scalatra-common",
     base = file("common"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi % "provided,test")
+      libraryDependencies ++= Seq(
+        servletApi % "provided,test",
+        rl
+      )
     )
   )
 
@@ -57,6 +60,8 @@ object ScalatraBuild extends Build {
         scalaCompiler(sv)
       ))
     )
+  ) dependsOn (
+    scalatraCommon % "compile;test->test"
   )
 
   lazy val scalatraCore = Project(
@@ -66,7 +71,6 @@ object ScalatraBuild extends Build {
       libraryDependencies <++= scalaVersion(sv => Seq(
         servletApi % "provided;test",
         grizzledSlf4j(sv),
-        rl,
         jodaTime,
         jodaConvert,
         akkaActor(sv) % "test"
