@@ -60,7 +60,8 @@ object ScalatraBuild extends Build {
         jodaConvert,
         akkaActor(sv) % "test"
       )),
-      description := "The core Scalatra framework"
+      description := "The core Scalatra framework",
+      concurrentRestrictions in ThisProject += Tags.limit(Tags.Test, 1)
     )
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
