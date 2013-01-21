@@ -74,7 +74,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
 
     withRequestResponse(request, response) {
 //      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
-      executeRoutes(request, response)
+      executeRoutes(ActionContext(request, response))
     }
   }
 
@@ -96,7 +96,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * $ 4. Executes the after filters with `runFilters`.
    * $ 5. The action result is passed to `renderResponse`.
    */
-  protected def executeRoutes(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  protected def executeRoutes(implicit ctx: ActionContext) {
     var result: Any = null
     try {
       val prehandleException = request.get("org.scalatra.PrehandleException")
@@ -105,7 +105,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
         val actionResult = runRoutes(routes(request.requestMethod)).headOption
         // Give the status code handler a chance to override the actionResult
         result = handleStatusCode(status) getOrElse {
-          actionResult orElse matchOtherMethods(request, response) getOrElse doNotFound(request, response)
+          actionResult orElse matchOtherMethods(ctx) getOrElse doNotFound(ctx)
         }
       } else {
         throw prehandleException.get.asInstanceOf[Exception]
@@ -136,7 +136,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * Invokes each filters with `invoke`.  The results of the filters
    * are discarded.
    */
-  protected def runFilters(filters: Traversable[Route])(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  protected def runFilters(filters: Traversable[Route])(implicit ctx: ActionContext) {
     for {
       route <- filters
       matchedRoute <- route(requestPath)
@@ -147,7 +147,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * Lazily invokes routes with `invoke`.  The results of the routes
    * are returned as a stream.
    */
-  protected def runRoutes(routes: Traversable[Route])(implicit request: HttpServletRequest, response: HttpServletResponse) =
+  protected def runRoutes(routes: Traversable[Route])(implicit ctx: ActionContext) =
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route(requestPath)
@@ -164,14 +164,14 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * @return the result of the matched route's action wrapped in `Some`,
    * or `None` if the action calls `pass`.
    */
-  protected def invoke(matchedRoute: MatchedRoute)(implicit request: HttpServletRequest, response: HttpServletResponse) =
+  protected def invoke(matchedRoute: MatchedRoute)(implicit ctx: ActionContext) =
     withRouteMultiParams(Some(matchedRoute)) {
       liftAction(matchedRoute.action)
     }
 
-  private def liftAction(action: Action)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[Any] =
+  private def liftAction(action: Action)(implicit ctx: ActionContext): Option[Any] =
     try {
-      Some(action(request, response))
+      Some(action(ctx))
     }
     catch {
       case e: PassException => None
@@ -201,12 +201,12 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
   }
   def methodNotAllowed(f: Set[HttpMethod] => Any) { doMethodNotAllowed = f }
 
-  private def matchOtherMethods(implicit request: HttpServletRequest, response: HttpServletResponse): Option[Any] = {
+  private def matchOtherMethods(implicit ctx: ActionContext): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
-    if (allow.isEmpty) None else liftAction((request, response) => doMethodNotAllowed(allow))
+    if (allow.isEmpty) None else liftAction(ctx => doMethodNotAllowed(allow))
   }
 
-  private def handleStatusCode(status: Int)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[Any] =
+  private def handleStatusCode(status: Int)(implicit ctx: ActionContext): Option[Any] =
     for {
       handler <- routes(status)
       matchedHandler <- handler(requestPath)
@@ -234,7 +234,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * $ - If the content type is still null, call the contentTypeInferrer.
    * $ - Call the render pipeline on the result.
    */
-  protected def renderResponse(actionResult: Any)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  protected def renderResponse(actionResult: Any)(implicit ctx: ActionContext) {
     if (contentType == null)
       contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
 
@@ -265,7 +265,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    *
    * @see #renderPipeline
    */
-  protected def renderResponseBody(actionResult: Any)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  protected def renderResponseBody(actionResult: Any)(implicit ctx: ActionContext) {
     @tailrec def loop(ar: Any): Any = ar match {
       case _: Unit | Unit =>
       case a => loop(renderPipeline.lift(a) getOrElse ())
@@ -278,9 +278,9 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * called recursively until it returns ().  () indicates that the
    * response has been rendered.
    */
-  protected def renderPipeline(implicit request: HttpServletRequest, response: HttpServletResponse): RenderPipeline = {
+  protected def renderPipeline(implicit ctx: ActionContext): RenderPipeline = {
     case 404 =>
-      doNotFound(request, response)
+      doNotFound(ctx)
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
@@ -291,7 +291,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
     case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response
-    case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound(request, response)
+    case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound(ctx)
     case actionResult: ActionResult =>
       response.status = actionResult.status
       actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }
@@ -373,10 +373,10 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
   protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
     new BooleanBlockRouteMatcher(block)
 
-  protected def renderHaltException(e: HaltException)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  protected def renderHaltException(e: HaltException)(implicit ctx: ActionContext) {
     e match {
       case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
-        doNotFound(request, response)
+        doNotFound(ctx)
       case HaltException(Some(status), Some(reason), _, _) =>
         response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) =>

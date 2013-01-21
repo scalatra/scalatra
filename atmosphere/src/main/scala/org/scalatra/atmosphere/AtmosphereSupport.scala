@@ -109,7 +109,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    */
   abstract override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     withRequestResponse(request, response) {
-      val atmoRoute = atmosphereRoute(request, response)
+      val atmoRoute = atmosphereRoute(ActionContext(request, response ))
       if (atmoRoute.isDefined) {
         request.setAttribute(ScalatraAtmosphereHandler.AtmosphereRouteKey, atmoRoute.get)
         request.getSession(true) // force session creation
@@ -123,7 +123,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] def atmosphereRoutes = routes.methodRoutes(Get).filter(_.metadata.contains('Atmosphere))
 
-  private[this] def atmosphereRoute(implicit request: HttpServletRequest, response: HttpServletResponse) = (for {
+  private[this] def atmosphereRoute(implicit ctx: ActionContext) = (for {
     route <- atmosphereRoutes.toStream
     matched <- route(requestPath)
   } yield matched).headOption

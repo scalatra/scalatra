@@ -24,7 +24,7 @@ trait AkkaSupport extends AsyncSupport {
     case _ => false
   }
 
-  override protected def renderResponse(actionResult: Any)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+  override protected def renderResponse(actionResult: Any)(implicit ctx: ActionContext) = {
 
     actionResult match {
       case f: Future[_] ⇒ {

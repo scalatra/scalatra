@@ -36,7 +36,7 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
   protected def transformResponseBody(body: JValue) = body
 
-  override protected def renderPipeline(implicit request: HttpServletRequest, response: HttpServletResponse) = ({
+  override protected def renderPipeline(implicit ctx: ActionContext) = ({
     case jv: JValue if responseFormat == "xml" =>
       contentType = formats("xml")
       writeJsonAsXml(transformResponseBody(jv), response.writer)

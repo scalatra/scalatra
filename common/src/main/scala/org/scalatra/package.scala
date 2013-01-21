@@ -14,7 +14,7 @@ package object scalatra
 
   type Params = util.MultiMapHeadView[String, String] with util.MapWithIndifferentAccess[String]
 
-  type Action = (HttpServletRequest, HttpServletResponse) => Any
+  type Action = (ActionContext) => Any
 
   type ErrorHandler = PartialFunction[Throwable, Any]
 

@@ -98,7 +98,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   }
 
   private[this] def clientForRoute(route: MatchedRoute): AtmosphereClient = {
-    liftAction(route.action)(route.request, route.response) getOrElse {
+    liftAction(route.action)(route.ctx) getOrElse {
       throw new ScalatraException("An atmosphere route should return an atmosphere client")
     }
   }
@@ -133,8 +133,8 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     resource.addEventListener(new ScalatraResourceEventListener)
   }
 
-  private[this] def liftAction(action: org.scalatra.Action)(implicit request: HttpServletRequest, response: HttpServletResponse) = try {
-    action(request, response) match {
+  private[this] def liftAction(action: org.scalatra.Action)(implicit ctx: ActionContext) = try {
+    action(ctx) match {
       case cl: AtmosphereClient => Some(cl)
       case _ => None
     }

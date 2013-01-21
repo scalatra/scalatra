@@ -23,13 +23,13 @@ case class Route(
    * None is returned.  If there are no route matchers, some empty map is
    * returned.
    */
-  def apply(requestPath: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[MatchedRoute] = {
+  def apply(requestPath: String)(implicit ctx: ActionContext): Option[MatchedRoute] = {
     routeMatchers.foldLeft(Option(MultiMap())) {
       (acc: Option[MultiParams], routeMatcher: RouteMatcher) => for {
         routeParams <- acc
         matcherParams <- routeMatcher(requestPath)
       } yield routeParams ++ matcherParams
-    } map { routeParams => MatchedRoute(action, routeParams, request, response) }
+    } map { routeParams => MatchedRoute(action, routeParams) }
   }
 
   /**
@@ -64,4 +64,4 @@ object Route {
 /**
  * An action and the multi-map of route parameters to invoke it with.
  */
-case class MatchedRoute(action: Action, multiParams: MultiParams, request: HttpServletRequest, response: HttpServletResponse)
+case class MatchedRoute(action: Action, multiParams: MultiParams)(implicit val ctx: ActionContext)

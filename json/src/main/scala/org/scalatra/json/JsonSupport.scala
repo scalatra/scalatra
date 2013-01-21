@@ -53,7 +53,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
   protected def transformRequestBody(body: JValue) = body
 
 
-  override protected def invoke(matchedRoute: MatchedRoute)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+  override protected def invoke(matchedRoute: MatchedRoute)(implicit ctx: ActionContext) = {
     withRouteMultiParams(Some(matchedRoute)) {
       val mt = request.contentType map {
         _.split(";").head

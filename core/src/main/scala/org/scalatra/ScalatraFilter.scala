@@ -69,7 +69,7 @@ trait ScalatraFilter extends Filter with ServletBase {
     servletContext.getContextPath
   }
 
-  protected var doNotFound: Action = (request, response) => filterChain.doFilter(request, response)
+  protected var doNotFound: Action = (ctx) => filterChain.doFilter(ctx.request, ctx.response)
 
   methodNotAllowed { _ => filterChain.doFilter(request, response) }
 
