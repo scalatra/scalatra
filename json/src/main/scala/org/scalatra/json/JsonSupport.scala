@@ -5,6 +5,7 @@ import java.io.{InputStreamReader, InputStream}
 import org.json4s._
 import Xml._
 import text.Document
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 object JsonSupport {
 
@@ -52,7 +53,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
   protected def transformRequestBody(body: JValue) = body
 
 
-  override protected def invoke(matchedRoute: MatchedRoute) = {
+  override protected def invoke(matchedRoute: MatchedRoute)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     withRouteMultiParams(Some(matchedRoute)) {
       val mt = request.contentType map {
         _.split(";").head

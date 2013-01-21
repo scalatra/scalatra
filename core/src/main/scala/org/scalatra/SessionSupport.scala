@@ -6,9 +6,7 @@ import servlet.ServletApiImplicits
 /**
  * This trait provides session support for stateful applications.
  */
-trait SessionSupport extends ServletApiImplicits {
-  def request: HttpServletRequest
-
+trait SessionSupport extends RequestResponse with ServletApiImplicits {
   /**
    * The current session.  Creates a session if none exists.
    */

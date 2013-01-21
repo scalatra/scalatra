@@ -8,6 +8,7 @@ import servlet.AsyncSupport
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.concurrent.duration.Duration
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 trait AkkaSupport extends AsyncSupport {
   implicit protected def executor: ExecutionContext
@@ -23,7 +24,7 @@ trait AkkaSupport extends AsyncSupport {
     case _ => false
   }
 
-  override protected def renderResponse(actionResult: Any) = {
+  override protected def renderResponse(actionResult: Any)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
 
     actionResult match {
       case f: Future[_] ⇒ {

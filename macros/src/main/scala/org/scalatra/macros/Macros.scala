@@ -3,8 +3,21 @@ package macros
 
 import scala.languageFeature.experimental.macros._
 import scala.reflect.macros.Context
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 object Macros {
+  def request(c: Context): c.Expr[HttpServletRequest] = {
+    import c.universe._
+    c.warning(c.macroApplication.pos, "unsafe access to request")
+    reify { ???.asInstanceOf[HttpServletRequest] }
+  }
+
+  def response(c: Context): c.Expr[HttpServletResponse] = {
+    import c.universe._
+    c.warning(c.macroApplication.pos, "unsafe access to response")
+    reify { ???.asInstanceOf[HttpServletResponse] }
+  }
+
   def before(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
     reify { ??? }

@@ -129,8 +129,8 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
       "WebSocket".equalsIgnoreCase(request.headers.get("Upgrade").getOrElse(""))) &&
       !requestPath.contains("eb_ping") // don't do anything for the ping endpoint
 
-  private def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty
-  private def isPreflightRequest = {
+  private def isValidRoute(implicit request: HttpServletRequest, response: HttpServletResponse): Boolean = routes.matchingMethods(requestPath).nonEmpty
+  private def isPreflightRequest(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val isCors = isCORSRequest
     val validRoute = isValidRoute
     val isPreflight = request.headers.get(AccessControlRequestMethodHeader).flatMap(_.blankOption).isDefined
@@ -191,7 +191,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
     withRequestResponse(req, res) {
       //      logger debug "the headers are: %s".format(req.getHeaderNames.mkString(", "))
       request.requestMethod match {
-        case Options if isPreflightRequest ⇒ {
+        case Options if isPreflightRequest(req, res) ⇒ {
           handlePreflightRequest()
         }
         case Get | Post | Head if isSimpleRequest ⇒ {

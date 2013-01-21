@@ -10,16 +10,11 @@ import servlet.ServletApiImplicits
 /**
  * The core Scalatra DSL.
  */
-trait CoreDsl extends Handler with Control with ServletApiImplicits {
+trait CoreDsl extends Handler with RequestResponse with Control with ServletApiImplicits {
   @deprecated("Use servletContext instead", "2.1.0")
   def applicationContext: ServletContext = servletContext
 
   implicit def servletContext: ServletContext
-
-  /**
-   * The current request
-   */
-  implicit def request: HttpServletRequest
 
   /**
    * A map of the current parameters.  The map contains the head of every
@@ -36,11 +31,6 @@ trait CoreDsl extends Handler with Control with ServletApiImplicits {
    * The map has a default value of `Seq.empty`.
    */
   def multiParams: MultiParams
-
-  /**
-   * The current response.
-   */
-  implicit def response: HttpServletResponse
 
   /**
    * Gets the content type of the current response.

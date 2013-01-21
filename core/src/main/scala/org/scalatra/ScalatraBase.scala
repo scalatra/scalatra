@@ -136,7 +136,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * Invokes each filters with `invoke`.  The results of the filters
    * are discarded.
    */
-  protected def runFilters(filters: Traversable[Route]) {
+  protected def runFilters(filters: Traversable[Route])(implicit request: HttpServletRequest, response: HttpServletResponse) {
     for {
       route <- filters
       matchedRoute <- route(requestPath)
@@ -147,7 +147,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * Lazily invokes routes with `invoke`.  The results of the routes
    * are returned as a stream.
    */
-  protected def runRoutes(routes: Traversable[Route]) =
+  protected def runRoutes(routes: Traversable[Route])(implicit request: HttpServletRequest, response: HttpServletResponse) =
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route(requestPath)
@@ -164,7 +164,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * @return the result of the matched route's action wrapped in `Some`,
    * or `None` if the action calls `pass`.
    */
-  protected def invoke(matchedRoute: MatchedRoute) =
+  protected def invoke(matchedRoute: MatchedRoute)(implicit request: HttpServletRequest, response: HttpServletResponse) =
     withRouteMultiParams(Some(matchedRoute)) {
       liftAction(matchedRoute.action)
     }
@@ -206,7 +206,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
     if (allow.isEmpty) None else liftAction((request, response) => doMethodNotAllowed(allow))
   }
 
-  private def handleStatusCode(status: Int): Option[Any] =
+  private def handleStatusCode(status: Int)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[Any] =
     for {
       handler <- routes(status)
       matchedHandler <- handler(requestPath)
@@ -234,7 +234,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * $ - If the content type is still null, call the contentTypeInferrer.
    * $ - Call the render pipeline on the result.
    */
-  protected def renderResponse(actionResult: Any) {
+  protected def renderResponse(actionResult: Any)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     if (contentType == null)
       contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
 
@@ -265,7 +265,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    *
    * @see #renderPipeline
    */
-  protected def renderResponseBody(actionResult: Any) {
+  protected def renderResponseBody(actionResult: Any)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     @tailrec def loop(ar: Any): Any = ar match {
       case _: Unit | Unit =>
       case a => loop(renderPipeline.lift(a) getOrElse ())
