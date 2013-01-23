@@ -17,8 +17,14 @@ class ScalatraListener extends ServletContextListener {
   private[this] var servletContext: ServletContext = _
 
   def contextInitialized(sce: ServletContextEvent) {
-    configureServletContext(sce)
-    configureCycleClass()
+    try {
+      configureServletContext(sce)
+      configureCycleClass(Thread.currentThread.getContextClassLoader)
+    } catch {
+      case e: Throwable =>
+        logger.error("Failed to initialize scalatra application at " + sce.getServletContext.getContextPath, e)
+        throw e
+    }
   }
 
   def contextDestroyed(sce: ServletContextEvent) {
@@ -28,18 +34,19 @@ class ScalatraListener extends ServletContextListener {
     }
   }
 
-  protected def probeForCycleClass() = {
+  protected def probeForCycleClass(classLoader: ClassLoader) = {
     val cycleClassName = 
       Option(servletContext.getAttribute(LifeCycleKey)).flatMap(_.asInstanceOf[String].blankOption) getOrElse DefaultLifeCycle
+    logger debug ("The cycle class name from the config: " + (if (cycleClassName == null) "null" else cycleClassName))
 
-    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName) } catch { case _: Throwable => null }
-    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle) } catch { case _: Throwable => null }
+    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName, true, classLoader) } catch { case _: Throwable => null }
+    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle, true, classLoader) } catch { case _: Throwable => null }
     val cycleClass: Class[_] = if (lifeCycleClass != null) lifeCycleClass else oldLifeCycleClass
 
-    if (cycleClass != null && !classOf[LifeCycle].isAssignableFrom(cycleClass)) {
-      logger.error("This is no lifecycle class.")
-      throw new ClassCastException("This is no lifecycle class.")
-    }
+    assert(cycleClass != null, "No lifecycle class found!")
+    assert(classOf[LifeCycle].isAssignableFrom(cycleClass), "This is no lifecycle class.")
+    logger debug "Loaded lifecycle class: %s".format(cycleClass)
+
     if (cycleClass.getName == OldDefaultLifeCycle)
       logger.warn("The Scalatra name for a boot class will be removed eventually. Please use ScalatraBootstrap instead as class name.")
     (cycleClass.getSimpleName, cycleClass.newInstance.asInstanceOf[LifeCycle])
@@ -49,8 +56,8 @@ class ScalatraListener extends ServletContextListener {
     servletContext = sce.getServletContext
   }
 
-  protected def configureCycleClass() {
-    val (cycleClassName, cycleClass) = probeForCycleClass()
+  protected def configureCycleClass(classLoader: ClassLoader) {
+    val (cycleClassName, cycleClass) = probeForCycleClass(classLoader)
     cycle = cycleClass
     logger.info("Initializing life cycle class: %s".format(cycleClassName))
     cycle.init(servletContext)
