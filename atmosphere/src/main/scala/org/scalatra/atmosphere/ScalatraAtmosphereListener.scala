@@ -14,7 +14,7 @@ class ScalatraAtmosphereListener extends ScalatraListener {
   override def contextInitialized(sce: ServletContextEvent) {
     configureServletContext(sce)
     configureAkkaSystem(sce)
-    configureCycleClass()
+    configureCycleClass(Thread.currentThread.getContextClassLoader)
   }
 
   private[this] def configureAkkaSystem(sce: ServletContextEvent) {
