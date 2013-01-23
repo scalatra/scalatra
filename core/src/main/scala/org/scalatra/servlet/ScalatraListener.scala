@@ -36,7 +36,7 @@ class ScalatraListener extends ServletContextListener {
 
   protected def probeForCycleClass(classLoader: ClassLoader) = {
     val cycleClassName = 
-      Option(servletContext.getAttribute(LifeCycleKey)).flatMap(_.asInstanceOf[String].blankOption) getOrElse DefaultLifeCycle
+      Option(servletContext.getInitParameter(LifeCycleKey)).flatMap(_.blankOption) getOrElse DefaultLifeCycle
     logger debug ("The cycle class name from the config: " + (if (cycleClassName == null) "null" else cycleClassName))
 
     val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName, true, classLoader) } catch { case _: Throwable => null }
