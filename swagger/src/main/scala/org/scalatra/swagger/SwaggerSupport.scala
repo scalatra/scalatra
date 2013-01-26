@@ -160,7 +160,6 @@ trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with Swagger
     } sortBy (_.path)
   }*/
 
-
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
@@ -173,7 +172,7 @@ trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with Swagger
       val endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
       Entry(endpoint, operations(route, method))
     }) filter (l ⇒ l.value.nonEmpty && l.value.head.nickname.isDefined) groupBy (_.key)
-    
+
     (List.empty[Endpoint] /: ops) { (r, op) ⇒
       val name = op._1
       val sec = false //_secured.lift apply name getOrElse true
