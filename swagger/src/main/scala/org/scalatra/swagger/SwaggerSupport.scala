@@ -115,6 +115,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
   protected def summary(value: String) = swaggerMeta(Summary, value)
   protected def notes(value: String) = swaggerMeta(Notes, value)
+  @deprecated("Use the variant where you use a type parameter, this method doesn't allow for reflection", "2.2.0")
   protected def responseClass(value: String) = swaggerMeta(ResponseClass, value)
   protected def responseClass[T](implicit mf: Manifest[T]) = {
 //    models_=(Map(mf.erasure))
@@ -137,8 +138,28 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
  * Provides the necessary support for adding documentation to your routes.
  */
 trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with SwaggerSupportSyntax {
+/*
+  /**
+   * Builds the documentation for all the endpoints discovered in an API.
+   */
+  def endpoints(basePath: String): List[Endpoint] = {
+    case class Entry(key: String, value: List[Operation])
+    val ops = (for {
+      (method, routes) ← routes.methodRoutes
+      route ← routes
+      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
+      operation = operations(route, method)
+      if (operation.nonEmpty && operation.head.nickname.isDefined)
+    } yield Entry(endpoint, operation))
 
-  
+    (List.empty[Endpoint] /: (ops groupBy (_.key))) { (r, op) ⇒
+      val name = op._1
+      val sec = false //_secured.lift apply name getOrElse true
+      val desc = _description.lift apply name getOrElse ""
+      new Endpoint("%s/%s" format (basePath, name), desc, sec, (op._2.toList flatMap (_.value)) ) :: r
+    } sortBy (_.path)
+  }*/
+
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
