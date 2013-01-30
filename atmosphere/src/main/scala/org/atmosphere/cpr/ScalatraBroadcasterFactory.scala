@@ -48,7 +48,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
 
   def destroy() {
     val s = cfg.getInitParameter(ApplicationConfig.SHARED)
-    if (s != null && s.equalsIgnoreCase("true")) {
+    if (s != null && s.equalsIgnoreCase("TRUE")) {
         logger.warn("Factory shared, will not be destroyed. That can possibly cause memory leaks if" +
                 "Broadcaster where created. Make sure you destroy them manually.")
     }
@@ -69,7 +69,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
 
   def get(c: Class[_ <: Broadcaster], id: Any): Broadcaster = lookup(c, id)
 
-  def get(id: Any): Broadcaster = lookup(id, true)
+  def get(id: Any): Broadcaster = lookup(id, createIfNull = true)
 
   def lookup(c: Class[_ <: Broadcaster], id: Any): Broadcaster = lookup(c, id, false)
 
@@ -95,11 +95,13 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
     store.get(id).orNull
   }
 
-  def lookup(id: Any): Broadcaster = lookup(id, false)
+  def lookup(id: Any): Broadcaster = lookup(id, createIfNull = false)
 
   def lookup(id: Any, createIfNull: Boolean): Broadcaster = lookup(classOf[ScalatraBroadcaster], id, createIfNull)
 
-  def lookupAll(): java.util.Collection[Broadcaster] = store.values.toList.asJavaCollection
+  def lookupAll(): java.util.Collection[Broadcaster] = {
+    store.values.toList.asJavaCollection
+  }
 
   def remove(b: Broadcaster, id: Any): Boolean = {
     val removed: Boolean = store.remove(id, b)

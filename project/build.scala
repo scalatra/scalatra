@@ -26,7 +26,7 @@ object ScalatraBuild extends Build {
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
-    id = "scalatra-projecScent",
+    id = "scalatra-project",
     base = file("."),
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
@@ -100,7 +100,8 @@ object ScalatraBuild extends Build {
     id = "scalatra-atmosphere",
     base = file("atmosphere"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(atmosphereRuntime, akkaActor(sv), akkaTestkit(sv))),
+      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv))),
+      libraryDependencies ++= Seq(atmosphereRuntime, atmosphereClient % "test", jettyWebsocket % "test"),
       description := "Atmosphere integration for scalatra"
     )
   ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
@@ -263,7 +264,8 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %  "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %  "akka-testkit"       % akkaVersion(sv)
-    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.8"
+    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.9"
+    lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.beta1"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
@@ -293,7 +295,6 @@ object ScalatraBuild extends Build {
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "6.0.4"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.2"
-    lazy val socketioCore               =  "org.scalatra.socketio-java" % "socketio-core"    % "2.0.0"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
     lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)
     lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross
