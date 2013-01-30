@@ -24,6 +24,23 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
     )
   }
 
+  get("/print-broadcasters") {
+    val bcs = AtmosphereClient.lookupAll()
+    bcs foreach println
+    bcs.mkString("[",", ", "]")
+  }
+
+  get("/broadcast") {
+    val jv = ("author" -> "System") ~ ("message" -> "big brother speaking") ~ ("time" -> (new Date().getTime.toString))
+    AtmosphereClient.broadcast(routeBasePath + "/the-chat", jv)
+
+  }
+
+  get("/broadcast-all") {
+    val jv = ("author" -> "System") ~ ("message" -> "big brother speaking") ~ ("time" -> (new Date().getTime.toString))
+    AtmosphereClient.broadcastAll(jv)
+  }
+
   atmosphere("/the-chat") {
     new AtmosphereClient {
       def receive: AtmoReceive = {

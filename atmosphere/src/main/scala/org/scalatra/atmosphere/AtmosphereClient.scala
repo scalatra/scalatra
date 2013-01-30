@@ -6,6 +6,35 @@ import org.json4s._
 import org.scalatra.util.RicherString._
 import grizzled.slf4j.Logger
 import concurrent.ExecutionContext
+import scala.collection.JavaConverters._
+
+object AtmosphereClient {
+  def lookupAll(): Seq[ScalatraBroadcaster] = {
+    BroadcasterFactory.getDefault.lookupAll().asScala.toSeq collect {
+      case b: ScalatraBroadcaster => b
+    }
+  }
+
+  def lookup(path: String): Option[ScalatraBroadcaster] = {
+    val pth = path.blankOption getOrElse "/*"
+    val norm = if (!pth.endsWith("/*")) {
+      if (!pth.endsWith("/")) pth + "/*" else "*"
+    } else pth
+    val res = BroadcasterFactory.getDefault.lookup(norm)
+    if (res.isInstanceOf[ScalatraBroadcaster]) Option(res).map(_.asInstanceOf[ScalatraBroadcaster])
+    else None
+  }
+
+  def broadcast(path: String, message: OutboundMessage, filter: ClientFilter = _ => true)(implicit executionContext: ExecutionContext) = {
+    lookup(path) foreach { _.broadcast(message, filter) }
+  }
+
+  def broadcastAll(message: OutboundMessage, filter: ClientFilter = _ => true)(implicit executionContext: ExecutionContext) = {
+    lookupAll() foreach {
+      _ broadcast (message, filter)
+    }
+  }
+}
 
 /**
  * Provides a handle for a single Atmosphere connection. 

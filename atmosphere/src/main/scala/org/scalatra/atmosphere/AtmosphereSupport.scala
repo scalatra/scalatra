@@ -25,8 +25,9 @@ import scala.util.control.Exception.allCatch
 import org.atmosphere.client.TrackMessageSizeInterceptor
 import org.atmosphere.interceptor.SessionCreationInterceptor
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import servlet.ScalatraAsyncSupport
 
-trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 
@@ -53,6 +54,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   implicit protected def scalatraActorSystem: ActorSystem =
     servletContext.get(ScalatraAtmosphereListener.ActorSystemKey).map(_.asInstanceOf[ActorSystem]) getOrElse {
       val msg = "Scalatra Actor system not present. Did you configure the %s in the web.xml?".format(listenerClass.getName)
+      println(msg)
       logger.warn(msg)
       val cfg = ConfigFactory.load
       val defRef = ConfigFactory.defaultReference

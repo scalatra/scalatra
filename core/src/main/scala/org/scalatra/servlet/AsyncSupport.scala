@@ -4,7 +4,7 @@ package servlet
 import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-trait AsyncSupport extends ServletBase {
+trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
 
   /**
    * Takes a block and converts it to an action that can be run asynchronously.

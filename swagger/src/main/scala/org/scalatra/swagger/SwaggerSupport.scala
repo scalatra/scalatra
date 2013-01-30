@@ -160,6 +160,7 @@ trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with Swagger
     } sortBy (_.path)
   }*/
 
+
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
