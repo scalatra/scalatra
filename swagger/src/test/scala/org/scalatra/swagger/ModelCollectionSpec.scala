@@ -28,39 +28,39 @@ class ModelCollectionSpec extends Specification {
   "Collect models" should {
 
     "return an empty set for a primitive" in {
-      Swagger.collectModels[Int] must beEmpty
-      Swagger.collectModels[Double] must beEmpty
-      Swagger.collectModels[Long] must beEmpty
-      Swagger.collectModels[Byte] must beEmpty
-      Swagger.collectModels[Short] must beEmpty
-      Swagger.collectModels[Float] must beEmpty
-      Swagger.collectModels[Char] must beEmpty
-      Swagger.collectModels[String] must beEmpty
-      Swagger.collectModels[Unit] must beEmpty
-      Swagger.collectModels[Date] must beEmpty
+      Swagger.collectModels[Int](Set.empty) must beEmpty
+      Swagger.collectModels[Double](Set.empty) must beEmpty
+      Swagger.collectModels[Long](Set.empty) must beEmpty
+      Swagger.collectModels[Byte](Set.empty) must beEmpty
+      Swagger.collectModels[Short](Set.empty) must beEmpty
+      Swagger.collectModels[Float](Set.empty) must beEmpty
+      Swagger.collectModels[Char](Set.empty) must beEmpty
+      Swagger.collectModels[String](Set.empty) must beEmpty
+      Swagger.collectModels[Unit](Set.empty) must beEmpty
+      Swagger.collectModels[Date](Set.empty) must beEmpty
     }
 
     "only return the top level object for a case class with only primitives" in {
-      Swagger.collectModels[OnlyPrimitives] must_== Set(onlyPrimitivesModel)
+      Swagger.collectModels[OnlyPrimitives](Set.empty) must_== Set(onlyPrimitivesModel)
     }
 
     "collect all the models in a nested structure" in {
-      Swagger.collectModels[TaggedThing] must haveTheSameElementsAs(taggedThingModels)
+      Swagger.collectModels[TaggedThing](Set.empty) must haveTheSameElementsAs(taggedThingModels)
     }
 
     "collect models when hiding in a list" in {
-      val collected = Swagger.collectModels[Things]
+      val collected = Swagger.collectModels[Things](Set.empty)
       println("Collected: " + collected.map(_.id))
       collected.map(_.id) must haveTheSameElementsAs(thingsModels.map(_.id))
     }
     "collect models when hiding in a map" in {
-      val collected = Swagger.collectModels[MapThings]
+      val collected = Swagger.collectModels[MapThings](Set.empty)
 
       collected must haveTheSameElementsAs(mapThingsModels)
     }
 
     "collect models when provided as a list" in {
-      val collected = Swagger.collectModels[List[Name]]
+      val collected = Swagger.collectModels[List[Name]](Set.empty)
       println("Collected: " + collected.map(_.id))
       collected.map(_.id) must_== Set(Swagger.modelToSwagger[Name]).map(_.id)
     }
