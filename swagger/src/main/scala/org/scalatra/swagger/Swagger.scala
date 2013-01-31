@@ -7,8 +7,11 @@ import ext.{ JodaTimeSerializers, EnumNameSerializer }
 import org.joda.time._
 import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
-import java.math.BigInteger
 import java.util.Date
+import reflect.{ScalaType, PrimitiveDescriptor, ClassDescriptor, Reflector}
+import com.wordnik.swagger.core.ApiPropertiesReader
+import collection.JavaConverters._
+
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String 
@@ -29,6 +32,44 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
    */
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String])
 
+}
+
+object Swagger {
+  def collectModels[T: Manifest]: Set[Model] = collectModels(Reflector.scalaTypeOf[T])
+  private[swagger] def collectModels(tpe: ScalaType, known: Set[ScalaType] = Set.empty): Set[Model] = {
+    if (tpe.isMap) collectModels(tpe.typeArgs.head, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, tpe.typeArgs.toSet)
+    else if (tpe.isCollection || tpe.isOption) {
+      val ntpe = tpe.typeArgs.head
+      if (! known.contains(ntpe)) collectModels(ntpe, known + ntpe)
+      else Set.empty
+    }
+    else {
+      val descr = Reflector.describe(tpe)
+      descr match {
+        case descriptor: ClassDescriptor =>
+          val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
+          val propModels = descriptor.properties.filterNot(_.isPrimitive)
+          val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
+          val toplevel = (subModels + descriptor.erasure).filterNot(_.isCollection).map(m => modelToSwagger(m.erasure))
+          val nested = subModels.foldLeft((toplevel, known + descriptor.erasure)){ (acc, b) =>
+            val m = collectModels(b, acc._2)
+            (acc._1 ++ m, acc._2 + b)
+          }
+          nested._1
+        case _ => Set.empty
+      }
+    }
+  }
+
+  def modelToSwagger[T](implicit mf: Manifest[T]): Model = modelToSwagger(mf.erasure)
+  def modelToSwagger(klass: Class[_]): Model = {
+    val docObj = ApiPropertiesReader.read(klass)
+    val name = docObj.getName
+    val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
+      yield (field.name -> ModelField(field.name, field.notes, DataType(field.paramType)))
+
+    Model(name, name, fields.toMap)
+  }
 }
 
 /**
