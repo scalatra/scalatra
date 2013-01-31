@@ -138,7 +138,6 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
  * Provides the necessary support for adding documentation to your routes.
  */
 trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with SwaggerSupportSyntax {
-/*
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
@@ -152,34 +151,13 @@ trait SwaggerSupport extends ScalatraSyntax with SwaggerSupportBase with Swagger
       if (operation.nonEmpty && operation.head.nickname.isDefined)
     } yield Entry(endpoint, operation))
 
-    (List.empty[Endpoint] /: (ops groupBy (_.key))) { (r, op) ⇒
-      val name = op._1
+    (ops groupBy (_.key)).toList map { case (name, entries) ⇒
       val sec = false //_secured.lift apply name getOrElse true
-      val desc = _description.lift apply name getOrElse ""
-      new Endpoint("%s/%s" format (basePath, name), desc, sec, (op._2.toList flatMap (_.value)) ) :: r
+      val desc = _description lift name getOrElse ""
+      val pth = if (basePath endsWith "/") basePath else basePath + "/"
+      new Endpoint(pth + name, desc, sec, (entries.toList flatMap (_.value)) )
     } sortBy (_.path)
-  }*/
 
-
-  /**
-   * Builds the documentation for all the endpoints discovered in an API.
-   */
-  def endpoints(basePath: String): List[Endpoint] = {
-    case class Entry(key: String, value: List[Operation])
-    val ops = (for {
-      (method, routes) ← routes.methodRoutes
-      route ← routes
-    } yield {
-      val endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
-      Entry(endpoint, operations(route, method))
-    }) filter (l ⇒ l.value.nonEmpty && l.value.head.nickname.isDefined) groupBy (_.key)
-
-    (List.empty[Endpoint] /: ops) { (r, op) ⇒
-      val name = op._1
-      val sec = false //_secured.lift apply name getOrElse true
-      val desc = _description.lift apply name getOrElse ""
-      new Endpoint("%s/%s" format (basePath, name), desc, sec, (op._2.toList flatMap (_.value)) ) :: r
-    } sortWith { (a, b) ⇒ a.path < b.path }
   }
 
   /**

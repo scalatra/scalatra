@@ -24,7 +24,7 @@ object ScalatraAtmosphereHandler {
       val resource = event.getResource
         resource.transport match {
           case JSONP | AJAX | LONG_POLLING =>
-          case _ => resource.getResponse().flushBuffer()
+          case _ => resource.getResponse.flushBuffer()
         }
     }
 
@@ -34,7 +34,7 @@ object ScalatraAtmosphereHandler {
         val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
         client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
         if (!event.getResource.isResumed) {
-           event.getResource.session.invalidate
+           event.getResource.session.invalidate()
          }
 
       }
@@ -54,7 +54,7 @@ class ScalatraAtmosphereException(message: String) extends ScalatraException(mes
 class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
 
-  private[this] val internalLogger = Logger[this.type]
+  private[this] val internalLogger = Logger(getClass)
 
   def onRequest(resource: AtmosphereResource) {
     val req = resource.getRequest
