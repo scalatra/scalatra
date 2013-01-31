@@ -35,28 +35,31 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 }
 
 object Swagger {
-  def collectModels[T: Manifest]: Set[Model] = collectModels(Reflector.scalaTypeOf[T])
-  private[swagger] def collectModels(tpe: ScalaType, known: Set[ScalaType] = Set.empty): Set[Model] = {
-    if (tpe.isMap) collectModels(tpe.typeArgs.head, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, tpe.typeArgs.toSet)
+  def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
+  private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
+    if (tpe.isMap) collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
     else if (tpe.isCollection || tpe.isOption) {
       val ntpe = tpe.typeArgs.head
-      if (! known.contains(ntpe)) collectModels(ntpe, known + ntpe)
+      if (! known.contains(ntpe)) collectModels(ntpe, alreadyKnown, known + ntpe)
       else Set.empty
     }
     else {
-      val descr = Reflector.describe(tpe)
-      descr match {
-        case descriptor: ClassDescriptor =>
-          val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
-          val propModels = descriptor.properties.filterNot(_.isPrimitive)
-          val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
-          val toplevel = (subModels + descriptor.erasure).filterNot(_.isCollection).map(m => modelToSwagger(m.erasure))
-          val nested = subModels.foldLeft((toplevel, known + descriptor.erasure)){ (acc, b) =>
-            val m = collectModels(b, acc._2)
-            (acc._1 ++ m, acc._2 + b)
-          }
-          nested._1
-        case _ => Set.empty
+      if (alreadyKnown.map(_.id).contains(tpe.simpleName)) Set.empty
+      else {
+        val descr = Reflector.describe(tpe)
+        descr match {
+          case descriptor: ClassDescriptor =>
+            val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
+            val propModels = descriptor.properties.filterNot(_.isPrimitive)
+            val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
+            val toplevel = (subModels + descriptor.erasure).filterNot(p => p.isCollection || p.isOption || p.isMap).map(m => modelToSwagger(m.erasure))
+            val nested = subModels.foldLeft((toplevel, known + descriptor.erasure)){ (acc, b) =>
+              val m = collectModels(b, alreadyKnown, acc._2)
+              (acc._1 ++ m, acc._2 + b)
+            }
+            nested._1
+          case _ => Set.empty
+        }
       }
     }
   }
