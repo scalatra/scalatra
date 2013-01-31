@@ -34,7 +34,6 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
   val listResourceJValue = readJson("resources.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
 
   val listOperationsJValue = readJson("pet.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
-  println(JsonMethods.pretty(JsonMethods.render(listOperationsJValue)))
 
   private def readJson(file: String) = {
     val f = if ( file startsWith "/" ) file else "/"+file
@@ -133,7 +132,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
 
   val data = new PetData
 
-  models = Map(classOf[Pet], classOf[Tag], classOf[Category])
+//  models = Map(classOf[Pet], classOf[Tag], classOf[Category])
 
   get("/",
       summary("Show all pets"),

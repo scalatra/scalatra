@@ -69,21 +69,22 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    val corsCfg = CORSConfig(
+    def createDefault = CORSConfig(
       Option(config.context.getInitParameter(AllowedOriginsKey)).getOrElse(AnyOrigin).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowedMethodsKey)).getOrElse(DefaultMethods).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowedHeadersKey)).getOrElse(DefaultHeaders).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowCredentialsKey)).map(_.toBoolean).getOrElse(true),
       Option(config.context.getInitParameter(PreflightMaxAgeKey)).map(_.toInt).getOrElse(1800))
 
+
+
+
+    val corsCfg = config.context.getOrElseUpdate(CorsConfigKey, createDefault).asInstanceOf[CORSConfig]
     import corsCfg._
     logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s".format(
         allowedOrigins mkString ", ",
         allowedMethods mkString ", ",
         allowedHeaders mkString ", ")
-
-
-    config.context(CorsConfigKey) = corsCfg
   }
 
 

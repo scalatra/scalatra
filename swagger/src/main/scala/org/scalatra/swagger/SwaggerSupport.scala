@@ -1,6 +1,7 @@
 package org.scalatra
 package swagger
 
+import reflect.{ClassDescriptor, Reflector}
 import Symbols._
 import collection.JavaConverters._
 import util.RicherString._
@@ -94,6 +95,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
   }
 
+  @deprecated("This implicit conversion will be removed in the future", "2.2.0")
   implicit protected def modelToSwagger(cls: Class[_]): (String, Model) = {
     val docObj = ApiPropertiesReader.read(cls)
     val name = docObj.getName
@@ -104,21 +106,28 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   }
 
   private[swagger] var _models: Map[String, Model] = Map.empty
+
+  protected def registerModel(model: Model) = {
+    models += model.id -> model
+  }
+  protected def registerModel[T:Manifest]() {
+    models ++= Swagger.collectModels[T].map(m => m.id -> m)
+  }
+
+  @deprecated("Use `registerModel[T] or registerModel(model) instead, this method will be removed in the future", "2.2.0")
   protected def models_=(m: Map[String, Model]) = _models ++= m
   def models = _models
 
   private[swagger] var _description: PartialFunction[String, String] = Map.empty
   protected def description(f: PartialFunction[String, String]) = _description = _description orElse f
 
-//  private[swagger] var _secured: PartialFunction[String, Boolean] = Map.empty
-//  protected def secured(f: PartialFunction[String, Boolean]) = _secured = _secured orElse f
 
   protected def summary(value: String) = swaggerMeta(Summary, value)
   protected def notes(value: String) = swaggerMeta(Notes, value)
-  @deprecated("Use the variant where you use a type parameter, this method doesn't allow for reflection", "2.2.0")
+  @deprecated("Use the variant where you use a type parameter, this method doesn't allow for reflection and requires you to manually ad the model", "2.2.0")
   protected def responseClass(value: String) = swaggerMeta(ResponseClass, value)
   protected def responseClass[T](implicit mf: Manifest[T]) = {
-//    models_=(Map(mf.erasure))
+    registerModel[T]
     swaggerMeta(ResponseClass, DataType[T].name)
   }
   protected def nickname(value: String) = swaggerMeta(Nickname, value)

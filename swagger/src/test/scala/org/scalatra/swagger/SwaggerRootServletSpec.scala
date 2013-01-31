@@ -41,7 +41,6 @@ class SwaggerRootServletSpec extends MutableScalatraSpec {
 
 
   def listResources = get("/api-docs/resources.json") {
-    println(JsonMethods.pretty(JsonMethods.render(JsonParser.parse(body))))
     JsonParser.parseOpt(body) must beSome(listResourceJValue)
   }
 
@@ -50,7 +49,6 @@ class SwaggerRootServletSpec extends MutableScalatraSpec {
   def listOperations = {
     get("/api-docs/pet.json") {
       val bo = JsonParser.parseOpt(body)
-      println(JsonMethods.pretty(JsonMethods.render(JsonParser.parse(body))))
       bo must beSome[JValue] and
         verifyCommon(bo.get) and
         operations.map(verifyOperation(bo.get, _)).reduce(_ and _)
