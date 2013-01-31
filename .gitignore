@@ -29,3 +29,7 @@ target/
 *.sublime-*
 atlassian-ide-plugin.xml
 .lib
+
+.history
+
+.jvmopts

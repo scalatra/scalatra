@@ -147,17 +147,18 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
     val ops = (for {
       (method, routes) ← routes.methodRoutes
       route ← routes
+      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
+      operation = operations(route, method)
+      if (operation.nonEmpty && operation.head.nickname.isDefined)
     } yield {
-      val endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
-      Entry(endpoint, operations(route, method))
+      Entry(endpoint, operation)
     }) 
-    val filtered = ops filter (l ⇒ l.value.nonEmpty && l.value.head.nickname.isDefined) groupBy (_.key)
-    filtered.toList map { op => 
-      val name = op._1
-      val sec = op._2.exists(_.value.exists(!_.allows.apply(None))) //_secured.lift apply name getOrElse true
+    (ops groupBy (_.key)).toList map { case (name, entries) =>
+      val sec = entries.exists(_.value.exists(!_.allows.apply(None)))
       val desc = _description.lift apply name getOrElse ""
-      new AuthEndpoint[TypeForUser]("%s/%s" format (basePath, name), desc, sec, op._2.toList flatMap (_.value))
-    } sortWith { (a, b) ⇒ a.path < b.path }
+      val pth = if (basePath endsWith "/") basePath else basePath + "/"
+      new AuthEndpoint[TypeForUser](pth + name, desc, sec, entries.toList flatMap (_.value))
+    } sortBy (_.path)
   }
   /**
    * Returns a list of operations based on the given route. The default implementation returns a list with only 1
