@@ -69,6 +69,11 @@ trait ApiFormats extends ScalatraSyntax {
     "video/x-flv" -> "flv"
   ).asJava).asScala
 
+  protected def addMimeMapping(mime: String, extension: String) {
+    mimeTypes += mime -> extension
+    formats += extension -> mime
+  }
+
   /**
    * The default format.
    */

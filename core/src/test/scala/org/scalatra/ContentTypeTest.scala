@@ -27,7 +27,11 @@ class ContentTypeTestServlet extends ScalatraServlet {
   }
 
   get("/implicit/byte-array") {
-    "test".getBytes
+    Array[Byte]()
+  }
+
+  get("/implicit/byte-array-text") {
+    "Здравствуйте!".getBytes("iso-8859-5")
   }
 
   get("/implicit/text-element") {
@@ -105,6 +109,13 @@ class ContentTypeTest extends ScalatraFunSuite {
   test("contentType of a byte array defaults to application/octet-stream") {
     get("/implicit/byte-array") {
       response.mediaType should equal (Some("application/octet-stream"))
+    }
+  }
+
+  test("contentType of a byte array with text content detects text/plain; charset=iso-8859-5") {
+    get("/implicit/byte-array-text") {
+      response.charset should equal (Some("ISO-8859-5"))
+      response.mediaType should equal (Some("text/plain"))
     }
   }
 

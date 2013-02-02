@@ -99,7 +99,7 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
 
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
-        response.getContentType mustEqual "application/octet-stream;charset=UTF-8"
+        response.getContentType mustEqual "text/plain;charset=UTF-8"
       }
     }
 
