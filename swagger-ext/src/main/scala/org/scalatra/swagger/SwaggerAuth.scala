@@ -22,7 +22,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String) extend
   }
 }
 
-trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: ScalatraSyntax with JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
+trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
   protected def docToJson(doc: ApiType): JValue = doc.toJValue(userOption)
@@ -30,21 +30,25 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Sca
   before() {
     scentry.authenticate()    
   }
-  
-  get("/:doc.:format") {
-    def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
-    swagger.doc(params("doc")) match {
-      case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
-      case _         ⇒ NotFound()
+
+  abstract override def initialize(config: ConfigT) {
+    super.initialize(config)
+
+    get("/:doc(.:format)") {
+      def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
+      swagger.doc(params("doc")) match {
+        case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+        case _         ⇒ NotFound()
+      }
+    }
+
+    get("/"+indexRoute+"(.:format)") {
+      val docs = swagger.docs.filter(_.apis.exists(_.operations.exists(_.allows(userOption)))).toList
+      if (docs.isEmpty) halt(NotFound())
+      renderIndex(docs.asInstanceOf[List[ApiType]])
     }
   }
-  
-  get("/resources.:format") {
-    val docs = swagger.docs.filter(_.apis.exists(_.operations.exists(_.allows(userOption)))).toList
-    if (docs.isEmpty) halt(NotFound())
-    renderIndex(docs.asInstanceOf[List[ApiType]])
-  }
-  
+
   override protected def renderDoc(doc: AuthApi[TypeForUser]): JValue = {
     doc.toJValue(userOption) merge
       ("basePath" -> fullUrl("/", includeServletPath = false)) ~
@@ -58,7 +62,7 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Sca
       ("apiVersion" -> swagger.apiVersion) ~
       ("apis" ->
         (docs.toList map {
-          doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + ".{format}")) ~
+          doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + (if (includeFormatParameter) ".{format}" else ""))) ~
                  ("description" -> doc.description))
         }))
   }

@@ -7,6 +7,8 @@
   json interface. The application developer can then mix in the json support he wants and retain all functionality.
 * Defers reading request parameters until the last responsible moment (aka lazify)
 * Contrib project has been removed, all the modules have been moved into the main scalatra project
+* Add `shutdown` hook.  Unifies the destruction of servlets and filters.
+* Support case insensitive method override header
 
 ### Core
 * Adds typed param support, previously in contrib
@@ -28,6 +30,15 @@
 * Folds `TypedParamSupport` into core making the `params.getAs[Int]` methods available everywhere
 * When an action returns `halt(404)`, `halt(NotFound())`, `404` or `NotFound()` then the not found handler is run
   If this has a body then the not found handler is skipped
+* Don't crash if `fileParams` is called on a non-multipart request.
+* add an `as[T]` and a `getAsOrElse[T]` method in addition to `getAs[T]` on params and multiParams
+* Use type converters on attributes maps too.
+* Auto detection of mime type when action result is `Array[Byte]`, `InputStream`, `File`. [GH-216](https://github.com/scalatra/scalatra/issues/216)
+* Auto detection of charset when action result is `File`. [GH-216](https://github.com/scalatra/scalatra/issues/216)
+* Add a `addMimeMapping` method to `ApiFormats`
+* Log errors when they occur in ScalatraBootstrap. [GH-220](https://github.com/scalatra/scalatra/issues/220)
+* Fix loading scalatra listener class name from web.xml
+* TypeConverter no longer inherits of a function
 
 ### lift-json
 * removed for json4s support
@@ -43,11 +54,15 @@
 * fix reading json from post without the right header
 * Include `JValueResult` by default in the `NativeJsonSupport` and `JacksonJsonSupport`
 * Make `JValueResult` only serialize `Traversable` and `Product` classes
+* fix rendering nodeseq
+* update to json4s 3.1.0
 
 ### Scalate
 * Adds ScalateRenderSupport trait taken from contrib
+* update to scalate 1.6.1
+* Shut down the compiler thread when the servlet or filter is destroyed.
 
-### Databinding
+### Commands
 * Adds a databinding module for commands.
   The commands can have validations attached and will read data from headers, params and the request body (like json/xml)
   This is implemented using an infrastructure of type classes and uses scalaz validations to capture the validation information.
@@ -68,9 +83,12 @@
 
         }
 * Renames databinding to commands. this resolves the confusion created by the name databinding.
+* replace .toOption with folds for scalaz 7 source compatibility
+* Adds a json4s serializer for validation errors
 
 ### Akka
-* Updates akka to 2.0.4
+* Updates akka to 2.0.5
+* *BREAKING* Do not require ActorSystem.  Use implicit executor parameter. [GH-250](https://github.com/scalatra/scalatra/pull/250)
 
 ### Atmosphere
 * Adds an atmosphere integration
@@ -85,9 +103,10 @@
             case JsonMessage(json) => broadcast(json)
           }
         }
-* Updates atmosphere to 1.0.6
+* Updates atmosphere to 1.0.9
 * Fixes atmosphere long-polling etc. A big thanks to @jfarcand
 * Fix `ScalatraBroadcasterFactory#lookup` to return null when nothing is found instead of throwing an exception
+* Add a method to selective broadcast to any atmosphere connected client.
 
 
 ### Swagger
@@ -103,12 +122,12 @@
 * Allows for using either jackson or native json to generate the service description json
 * Auto-registers servlets and filters that extend the SwaggerSupport trait in the swagger manager.
 * Includes the swagger-core and swagger-annotations jars as transitive dependencies (batteries included)
-* the models property in the `SwaggerSupport` can now be Set as `Map(classOf[Pet])`
 * responseClass can now be set with a type parameter `responseClass[Pet]`
 * data types in `Parameter` and `ModelField` definitions can now be defined as `DataType[List[String]]`
 * Make swagger optionally support authentication
 * Optionally integrate commands into swagger support to generate model and parameter definitions.
-
+* Fix generating paths for servlet mounted at / in the context.
+* Deprecated manually registering models, use reflection and the values in responseClass and DataType to build up the models list.
 
 ### Swagger-Ext
 
@@ -141,10 +160,10 @@
 
 ### Testing
 * Added a method `ensureSessionIsSerializable` method which will try to serialize every session value.
+* Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
 
 ### Specs
 * Deprecate scalatra-specs in anticipation of Scala 2.10 support.
-
 
 ### Auth
 * Scentry is now lazily initialized so the order of the traits doesn't matter anymore

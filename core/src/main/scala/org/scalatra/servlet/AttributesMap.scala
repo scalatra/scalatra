@@ -53,6 +53,19 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
   def as[T](key: String)(implicit mf: Manifest[T], converter: TypeConverter[Any, T]): T =
     getAs[T](key) getOrElse (throw new ScalatraException("Key "+key+" not found"))
 
+
+  /**
+   * Return the attribute associated with the key or throw an exception when nothing found
+   *
+   * @param key The key to find
+   * @tparam T The type of the value
+   * @return an value for the attributed associated with the key in the underlying servlet object,
+   *         or throw an exception if the key doesn't exist
+   */
+  def getAsOrElse[T](key: String, default: => T)(implicit mf: Manifest[T], converter: TypeConverter[Any, T]): T =
+    getAs[T](key) getOrElse default
+
+
   /**
    * Creates a new iterator over all attributes in the underlying servlet object.
    *

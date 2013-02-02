@@ -23,6 +23,12 @@ trait ScalatraParamsImplicits {
     def as[T <: Date](nameAndFormat: (String, String)): Date =
       getAs[T](nameAndFormat) getOrElse (throw new ScalatraException("Key %s could not be found.".format(nameAndFormat._1)))
 
+    def getAsOrElse[T <: Any](name: String, default: => T)(implicit tc: TypeConverter[String, T]): T =
+      getAs[T](name).getOrElse(default)
+
+    def getAsOrElse(nameAndFormat: (String, String), default: => Date)(implicit tc: TypeConverter[String, Date]): Date =
+      getAs[Date](nameAndFormat).getOrElse(default)
+
   }
 
   sealed class TypedMultiParams(multiParams: MultiParams) {
@@ -39,6 +45,13 @@ trait ScalatraParamsImplicits {
 
     def as[T <: Date](nameAndFormat: (String, String)): Seq[Date] =
       getAs[T](nameAndFormat) getOrElse (throw new ScalatraException("Key %s could not be found.".format(nameAndFormat._1)))
+
+
+    def getAsOrElse[T <: Any](name: String, default: => Seq[T])(implicit tc: TypeConverter[String, T]): Seq[T] =
+      getAs[T](name).getOrElse(default)
+
+    def getAsOrElse(nameAndFormat: (String, String), default: => Seq[Date])(implicit tc: TypeConverter[String, Date]): Seq[Date] =
+      getAs[Date](nameAndFormat).getOrElse(default)
 
   }
 

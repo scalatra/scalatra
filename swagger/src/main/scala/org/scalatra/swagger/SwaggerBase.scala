@@ -8,7 +8,7 @@ import json.JsonSupport
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBaseBase { self: ScalatraSyntax with JsonSupport[_] with CorsSupport =>
+trait SwaggerBaseBase extends Initializable with ScalatraSyntax { self: JsonSupport[_] with CorsSupport =>
 
   protected type ApiType <: SwaggerApi[_]
 
@@ -16,23 +16,44 @@ trait SwaggerBaseBase { self: ScalatraSyntax with JsonSupport[_] with CorsSuppor
   
   protected def docToJson(doc: ApiType): JValue
 
+  implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
+
+  /**
+   * The name of the route to use when getting the index listing for swagger
+   * defaults to optional resources.:format or /
+   * @return The name of the route
+   */
+  protected def indexRoute: String = "resources"
+
+  /**
+   * Whether to include the format parameter in the index listing for swagger
+   * defaults to true, the format parameter will be present but is still optional.
+   * @return true if the format parameter should be included in the returned json
+   */
+  protected def includeFormatParameter: Boolean = true
+
+  abstract override def initialize(config: ConfigT) {
+    super.initialize(config)
+    get("/:doc(.:format)") {
+      swagger.doc(params("doc")) match {
+        case Some(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+        case _         ⇒ halt(404)
+      }
+    }
+
+    get("/("+indexRoute+"(.:format))") {
+      renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
+    }
+
+    options("/("+indexRoute+"(.:format))") {}
+  }
+
   /**
    * Returns the Swagger instance responsible for generating the resource and operation listings.
    */
   protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
   
-  get("/:doc.:format") {
-    swagger.doc(params("doc")) match {
-      case Some(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
-      case _         ⇒ halt(404)
-    }
-  }
 
-  get("/resources.:format") {
-    renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
-  }
-
-  options("/resources.:format") {}
 
   protected def renderDoc(doc: ApiType): JValue = {
     docToJson(doc) merge
@@ -47,7 +68,7 @@ trait SwaggerBaseBase { self: ScalatraSyntax with JsonSupport[_] with CorsSuppor
       ("apiVersion" -> swagger.apiVersion) ~
       ("apis" ->
         (swagger.docs.toList map {
-          doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + ".{format}")) ~
+          doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + (if (includeFormatParameter) ".{format}" else ""))) ~
                  ("description" -> doc.description))
         }))
   }

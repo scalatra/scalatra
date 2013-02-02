@@ -6,7 +6,7 @@ import util.conversion.DefaultImplicitConversions
 import util.io.zeroCopy
 import java.io.{File, FileInputStream}
 import scala.annotation.tailrec
-import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView, using}
+import util._
 import util.RicherString._
 import rl.UrlCodingUtils
 import javax.servlet.ServletContext
@@ -69,6 +69,8 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
 //    val realMultiParams = request.multiParameters
 
+    redispatchToActualServlet()
+
     response.characterEncoding = Some(defaultCharacterEncoding)
 
     withRequestResponse(request, response) {
@@ -76,6 +78,8 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       executeRoutes()
     }
   }
+
+  protected def redispatchToActualServlet() {}
 
   /**
    * Executes routes in the context of the current request and response.
@@ -258,12 +262,14 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    *   $ - "text/html" for any other result
    */
   protected def contentTypeInferrer: ContentTypeInferrer = {
-    case _: String => "text/plain"
-    case _: Array[Byte] => "application/octet-stream"
+    case s: String => "text/plain"
+    case bytes: Array[Byte] => MimeTypes(bytes)
+    case is: java.io.InputStream => MimeTypes(is)
+    case file: File => MimeTypes(file)
     case actionResult: ActionResult =>
       actionResult.headers.find {
-        case (name, value) => name.toLowerCase == "content-type"
-      }.getOrElse(("content-type", contentTypeInferrer(actionResult.body)))._2
+        case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
+      }.getOrElse(("Content-Type", contentTypeInferrer(actionResult.body)))._2
 
     case _ => "text/html"
   }
@@ -292,10 +298,12 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
+      if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(bytes).name)
       response.outputStream.write(bytes)
     case is: java.io.InputStream =>
       using(is) { util.io.copy(_, response.outputStream) }
     case file: File =>
+      if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(file).name)
       using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
     case _: Unit | Unit =>
       // If an action returns Unit, it assumes responsibility for the response

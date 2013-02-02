@@ -56,6 +56,8 @@ object ScalatraBuild extends Build {
         servletApi % "provided;test",
         grizzledSlf4j(sv),
         rl,
+        jUniversalChardet,
+        mimeUtil,
         jodaTime,
         jodaConvert,
         akkaActor(sv) % "test"
@@ -287,7 +289,9 @@ object ScalatraBuild extends Build {
     lazy val json4sJackson              =  "org.json4s"              %% "json4s-jackson"     % json4sVersion
     lazy val json4sNative               =  "org.json4s"              %% "json4s-native"      % json4sVersion
     lazy val junit                      =  "junit"                   %  "junit"              % "4.11"
+    lazy val jUniversalChardet          =  "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
     lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.9"
+    lazy val mimeUtil                   =  "eu.medsea.mimeutil"      % "mime-util"           % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
     lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.2"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
