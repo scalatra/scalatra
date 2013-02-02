@@ -35,6 +35,7 @@ object ScalatraBase {
     val registrations = app.servletContext.getServletRegistrations.values().asScala.toList
     registrations.find(_.getClassName == app.getClass.getName)
   }
+
 }
 
 /**
@@ -69,8 +70,6 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
 //    val realMultiParams = request.multiParameters
 
-    redispatchToActualServlet()
-
     response.characterEncoding = Some(defaultCharacterEncoding)
 
     withRequestResponse(request, response) {
@@ -78,8 +77,6 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       executeRoutes()
     }
   }
-
-  protected def redispatchToActualServlet() {}
 
   /**
    * Executes routes in the context of the current request and response.
@@ -324,7 +321,6 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    * outside `handle`.
    */
   def multiParams: MultiParams = {
-//    request(MultiParamsKey).asInstanceOf[MultiParams].withDefaultValue(Seq.empty)
     val read = request.contains("MultiParamsRead")
     val found = request.get(MultiParamsKey) map (
       _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)

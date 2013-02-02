@@ -1,6 +1,7 @@
 package org.scalatra
 package servlet
 
+//import akka.actor.ActorSystem
 import javax.servlet.ServletContext
 import javax.servlet.{ServletContextEvent, ServletContextListener}
 import grizzled.slf4j.Logger
@@ -19,6 +20,7 @@ class ScalatraListener extends ServletContextListener {
   def contextInitialized(sce: ServletContextEvent) {
     try {
       configureServletContext(sce)
+      configureExecutionContext(sce)
       configureCycleClass(Thread.currentThread.getContextClassLoader)
     } catch {
       case e: Throwable =>
@@ -32,6 +34,12 @@ class ScalatraListener extends ServletContextListener {
       logger.info("Destroying life cycle class: %s".format(cycle.getClass.getName))
       cycle.destroy(servletContext)
     }
+  }
+
+  protected def configureExecutionContext(sce: ServletContextEvent) {
+//    val ctxt = sce.getServletContext
+//    val system = ActorSystem("scalatra", ConfigFactory.load.getConfig("scalatra"))
+//    ctxt.setAttribute(ActorSystemKey, system)
   }
 
   protected def probeForCycleClass(classLoader: ClassLoader) = {

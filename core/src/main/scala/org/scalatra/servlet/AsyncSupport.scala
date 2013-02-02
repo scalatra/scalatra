@@ -4,7 +4,13 @@ package servlet
 import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
+object AsyncSupport {
+  val ExecutionContextKey = "org.scalatra.ExecutionContext"
+}
+
+trait AsyncSupport[T <: ScalatraAsyncContext] extends ServletBase with ScalatraAsyncSupport {
+  type AsyncResult <: T
+  type AsyncContext <: ScalatraAsyncContext
 
   /**
    * Takes a block and converts it to an action that can be run asynchronously.
@@ -19,7 +25,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
     }
   }
 
-  protected def withinAsyncContext(context: AsyncContext)(thunk: => Any) {
+  protected def withinAsyncContext(context: javax.servlet.AsyncContext)(thunk: => Any) {
     if (context.hasOriginalRequestAndResponse) {
       withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
         withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
@@ -52,7 +58,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
    *   }
    *
    *   asyncPost("/echo") {
-   *     "hello {params('name)}!"
+   *     s"hello {params('name)}!"
    *   }
    * }}}
    *

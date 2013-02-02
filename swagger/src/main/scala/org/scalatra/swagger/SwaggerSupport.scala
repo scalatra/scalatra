@@ -108,10 +108,10 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   private[swagger] var _models: Map[String, Model] = Map.empty
 
   protected def registerModel(model: Model) = {
-    models += model.id -> model
+    _models += model.id -> model
   }
   protected def registerModel[T:Manifest]() {
-    models ++= Swagger.collectModels[T](_models.values.toSet).map(m => m.id -> m)
+    _models ++= Swagger.collectModels[T](_models.values.toSet).map(m => m.id -> m)
   }
 
   @deprecated("Use `registerModel[T] or registerModel(model) instead, this method will be removed in the future", "2.2.0")
