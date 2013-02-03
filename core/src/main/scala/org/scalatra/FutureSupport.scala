@@ -103,33 +103,21 @@ trait FutureSupport extends AsyncSupport[MinimalAsyncResult] {
   }
 }
 
+class AsyncContextWrapper(parent: ScalatraContext, dur: Duration) extends ScalatraAsyncContext {
+  type ConfigT = parent.ConfigT
+  val config: ConfigT = parent.config
+  implicit val request: HttpServletRequest = parent.request
+  implicit val timeout: Timeout = Timeout(dur)
+  implicit val response: HttpServletResponse =  parent.response
+  val servletContext: ServletContext = parent.servletContext
+  val requestPath: String = parent.requestPath
+  protected val routeBasePath: String = parent.routeBasePath
+}
+
 trait DefaultAsyncContext { self: FutureSupport =>
   type AsyncContext = ScalatraAsyncContext
   type AsyncResult = MinimalAsyncResult
 
-  implicit protected def asyncContext(implicit executor: ExecutionContext): AsyncContext = new ScalatraAsyncContext {
-    type ConfigT = self.ConfigT
-    val config: ConfigT = self.config
-    implicit val request: HttpServletRequest = self.request
-    implicit val timeout: Timeout = Timeout(asyncTimeout)
-    implicit val response: HttpServletResponse =  self.response
-    val servletContext: ServletContext = self.servletContext
-    val requestPath: String = self.requestPath
-    protected val routeBasePath: String = self.routeBasePath
-  }
-}
-
-class MyApp extends ScalatraServlet with FutureSupport with DefaultAsyncContext {
-
-  implicit protected def executor: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
-
-  get("/foo") {
-    new AsyncResult { def is =
-      Future {
-        "hey"
-      }
-    }
-  }
-
-
+  implicit protected def asyncContext(implicit executor: ExecutionContext): AsyncContext =
+    new AsyncContextWrapper(self, asyncTimeout)
 }
