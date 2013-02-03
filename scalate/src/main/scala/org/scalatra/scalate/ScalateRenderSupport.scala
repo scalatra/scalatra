@@ -1,7 +1,7 @@
 package org.scalatra
 package scalate
 
-trait ScalateRenderSupport { self: ScalatraSyntax with ScalateSupport =>
+trait ScalateRenderSupport { self: ScalatraBase with ScalateSupport =>
 
   val templateBaseDirectory = "/WEB-INF/scalate/templates"
   val scalateExtension = "ssp"

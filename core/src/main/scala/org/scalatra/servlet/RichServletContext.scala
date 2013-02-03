@@ -102,7 +102,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
           r.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
         case _ =>
       }
-      if (servlet.isInstanceOf[AsyncSupport])
+      if (servlet.isInstanceOf[ScalatraAsyncSupport])
         r.setAsyncSupported(true)
       r
     }

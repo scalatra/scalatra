@@ -19,7 +19,7 @@ object SwaggerAuthSpec {
   
   class SpecSwagger extends SwaggerWithAuth("1.1", "1")
   
-  class HeaderOrQueryToken(protected val app: ScalatraSyntax) extends ScentryStrategy[User] {
+  class HeaderOrQueryToken(protected val app: ScalatraBase) extends ScentryStrategy[User] {
     override def name = "header_or_query_token"
     private def token = (app.request.header("API-TOKEN") orElse app.params.get("api_token")).flatMap(_.blankOption)
     override def isValid = token.isDefined
@@ -33,7 +33,7 @@ object SwaggerAuthSpec {
     }
   }
   
-  trait AuthenticatedBase extends ScalatraServlet with NativeJsonSupport with CookieSupport with ScentrySupport[User] {
+  trait AuthenticatedBase extends ScalatraServlet with NativeJsonSupport with ScentrySupport[User] {
     type ScentryConfiguration = ScentryConfig
     protected val scentryConfig: ScentryConfiguration = new ScentryConfig {}
     

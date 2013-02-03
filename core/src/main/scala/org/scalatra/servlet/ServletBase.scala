@@ -34,8 +34,6 @@ trait ServletBase
       }
   }
 
-  override def addSessionId(uri: String) = response.encodeURL(uri)
-
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     // As default, the servlet tries to decode params with ISO_8859-1.
     // It causes an EOFException if params are actually encoded with the 

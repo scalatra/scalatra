@@ -7,70 +7,17 @@ import servlet.ServletApiImplicits
 /**
  * The core Scalatra DSL.
  */
-trait CoreDsl extends Handler with Control with ServletApiImplicits {
-  @deprecated("Use servletContext instead", "2.1.0")
-  def applicationContext: ServletContext = servletContext
-
-  implicit def servletContext: ServletContext
-
-  /**
-   * The current request
-   */
-  implicit def request: HttpServletRequest
-
-  /**
-   * A map of the current parameters.  The map contains the head of every
-   * non-empty value in `multiParams`.
-   */
-  def params: Map[String, String]
-
-  /**
-   * A multi-map of the current parameters.  Parameters may come from:
-   * - the query string
-   * - the POST body
-   * - the route matchers of the currently executing route
-   *
-   * The map has a default value of `Seq.empty`.
-   */
-  def multiParams: MultiParams
-
-  /**
-   * The current response.
-   */
-  implicit def response: HttpServletResponse
+trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiImplicits {
 
   /**
    * Gets the content type of the current response.
    */
-  def contentType: String = response.contentType getOrElse null
-
-  /**
-   * Sets the content type of the current response.
-   */
-  def contentType_=(contentType: String) {
-    response.contentType = Option(contentType)
-  }
-
-  @deprecated("Use status_=(Int) instead", "2.1.0")
-  def status(code: Int) { status_=(code) }
-
-  /**
-   * Sets the status code of the current response.
-   */
-  def status_=(code: Int) { response.status = ResponseStatus(code) }
+  def contentType(implicit response: HttpServletResponse): String = response.contentType getOrElse null
 
   /**
    * Gets the status code of the current response.
    */
-  def status: Int = response.status.code
-
-  /**
-   * Sends a redirect response and immediately halts the current action.
-   */
-  def redirect(uri: String) {
-    response.redirect(uri)
-    halt()
-  }
+  def status(implicit response: HttpServletResponse): Int = response.status.code
 
   /**
    * Adds a filter to run before the route.  The filter only runs if each
@@ -117,7 +64,7 @@ trait CoreDsl extends Handler with Control with ServletApiImplicits {
    * and a block as the action body.  The return value of the block is
    * rendered through the pipeline and sent to the client as the response body.
    *
-   * See [[org.scalatra.ScalatraSyntax#renderResponseBody]] for the detailed
+   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
    * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *

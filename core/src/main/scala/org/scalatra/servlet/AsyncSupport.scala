@@ -4,6 +4,10 @@ package servlet
 import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+object AsyncSupport {
+  val ExecutionContextKey = "org.scalatra.ExecutionContext"
+}
+
 trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
 
   /**
@@ -19,7 +23,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
     }
   }
 
-  protected def withinAsyncContext(context: AsyncContext)(thunk: => Any) {
+  protected def withinAsyncContext(context: javax.servlet.AsyncContext)(thunk: => Any) {
     if (context.hasOriginalRequestAndResponse) {
       withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
         withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
@@ -36,7 +40,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
    * The block of these methods is executed in a lightweight event-driven thread
    * from Akka's dispatchers
    *
-   * See [[org.scalatra.ScalatraSyntax#renderResponseBody]] for the detailed
+   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
    * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *
@@ -52,7 +56,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
    *   }
    *
    *   asyncPost("/echo") {
-   *     "hello {params('name)}!"
+   *     s"hello {params('name)}!"
    *   }
    * }}}
    *

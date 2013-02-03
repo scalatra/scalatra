@@ -66,7 +66,7 @@ abstract class ScalatraServlet
    * All other servlet mappings likely want to return request.getServletPath.
    * Custom implementations are allowed for unusual cases.
    */
-  def requestPath = {
+  def requestPath(implicit request: HttpServletRequest) = {
     def getRequestPath = request.getRequestURI match {
       case requestURI: String =>
         var uri = requestURI
@@ -92,7 +92,7 @@ abstract class ScalatraServlet
     }
   }
 
-  protected def routeBasePath = {
+  protected def routeBasePath(implicit request: HttpServletRequest) = {
     if (request == null)
       throw new IllegalStateException("routeBasePath requires an active request to determine the servlet path")
     request.getContextPath + request.getServletPath

@@ -114,27 +114,14 @@ object CookieSupport {
   val SweetCookiesKey = "org.scalatra.SweetCookies"
   val CookieOptionsKey = "org.scalatra.CookieOptions"
 }
-trait CookieSupport extends Handler with Initializable {
-  self: ScalatraSyntax =>
 
+trait CookieContext { self: ScalatraContext =>
   import CookieSupport._
   implicit def cookieOptions: CookieOptions = servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]
 
   def cookies = request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]
 
-
-  abstract override def initialize(config: ConfigT) {
-    super.initialize(config)
-    val path = contextPath match {
-      case "" => "/" // The root servlet is "", but the root cookie path is "/"
-      case p => p
-    }
-    servletContext(CookieOptionsKey) = CookieOptions(path = path)
-  }
-
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
-    super.handle(req, res)
-  }
-
+}
+@deprecated("You can remove this mixin, it's included in core by default", "2.2")
+trait CookieSupport { self: ScalatraBase =>
 }

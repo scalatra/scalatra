@@ -3,11 +3,19 @@ package auth
 
 import servlet.ServletBase
 
-import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
+import javax.servlet.http.{HttpServletResponse, HttpSession, HttpServletRequest, Cookie}
+import javax.servlet.ServletContext
 
-trait ScentryStrategy[UserType <: AnyRef] {
+trait ScentryStrategy[UserType <: AnyRef] extends ScalatraContext {
 
-  protected def app: ScalatraSyntax
+  protected def app: ScalatraBase
+
+  implicit def request: HttpServletRequest = app.request
+
+  implicit def response: HttpServletResponse = app.response
+
+  def servletContext: ServletContext = app.servletContext
+
   def name: String = "NameMe"
 
   def registerWith(registrar: Scentry[UserType]) {
@@ -15,7 +23,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
     else registrar.register(name, createStrategy _)
   }
 
-  def createStrategy(app: ScalatraSyntax): this.type = {
+  def createStrategy(app: ScalatraBase): this.type = {
     throwOverrideException
   }
 

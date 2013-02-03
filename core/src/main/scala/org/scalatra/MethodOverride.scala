@@ -28,7 +28,7 @@ trait MethodOverride extends Handler with ServletApiImplicits {
     super.handle(req2, res)
   }
 
-  private def methodOverride(req: HttpServletRequest) = {
+  private[this] def methodOverride(req: HttpServletRequest) = {
     import MethodOverride._
     val methodOpt = req.parameters get ParamName
     methodOpt orElse {

@@ -5,6 +5,7 @@ import java.io.{InputStreamReader, InputStream}
 import org.json4s._
 import Xml._
 import text.Document
+import javax.servlet.http.HttpServletRequest
 
 object JsonSupport {
 
@@ -18,7 +19,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
 
   private[this] val _defaultCacheRequestBody = true
   protected def cacheRequestBodyAsString: Boolean = _defaultCacheRequestBody
-  protected def parseRequestBody(format: String) = try {
+  protected def parseRequestBody(format: String)(implicit request: HttpServletRequest) = try {
     val ct = request.contentType getOrElse ""
     if (format == "json") {
       val bd  = {
@@ -68,7 +69,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
   private def shouldParseBody(fmt: String) =
     (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
-  def parsedBody: JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
+  def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
     val fmt = format
     var bd: JValue = JNothing
     if (fmt == "json" || fmt == "xml") {

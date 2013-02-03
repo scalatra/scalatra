@@ -1,6 +1,7 @@
 package org.scalatra.util
 
 import scala.collection.immutable.Map
+import javax.servlet.http.HttpServletRequest
 
 object MultiMapHeadView {
   def empty[A, B]: MultiMapHeadView[A, B] = 

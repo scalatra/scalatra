@@ -3,9 +3,10 @@ package i18n
 
 import test.scalatest.ScalatraWordSpec
 
-class I18nSupportServlet extends ScalatraServlet with I18nSupport with CookieSupport {
+class I18nSupportServlet extends ScalatraServlet with I18nSupport {
   get("/:key") {
-    messages(params("key"))
+    val msgs = messages
+    msgs(params("key"))
   }
 
   get("/getcookie") {

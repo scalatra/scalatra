@@ -11,8 +11,8 @@ trait ScentryConfig {
   val failureUrl = "/unauthenticated"
 }
 
-trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with CookieSupport {
-  self: ScalatraSyntax ⇒
+trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable {
+  self: ScalatraBase ⇒
 
   type ScentryConfiguration <: ScentryConfig
 
@@ -37,11 +37,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with
 
 
   private def initializeScentry = {
-    val store = self match {
-      case a: SessionSupport => new ScentryAuthStore.SessionAuthStore(a.session)
-      case a: ScalatraSyntax with CookieSupport => new ScentryAuthStore.CookieAuthStore(a)
-      case _ => throw new ScalatraException("Scentry needs either SessionSupport or CookieSupport mixed in.")
-    }
+    val store = new ScentryAuthStore.SessionAuthStore(this)
     request.setAttribute(Scentry.ScentryRequestKey, new Scentry[UserType](self, toSession, fromSession, store))
   }
 
@@ -74,22 +70,22 @@ trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with
 
   }
 
-  protected def scentry: Scentry[UserType] = {
+  protected def scentry(implicit request: HttpServletRequest): Scentry[UserType] = {
     if (!request.contains(Scentry.ScentryRequestKey))
       createScentry()
     request(Scentry.ScentryRequestKey).asInstanceOf[Scentry[UserType]]
   }
-  protected def scentryOption: Option[Scentry[UserType]] = Option(request(Scentry.ScentryRequestKey)).map(_.asInstanceOf[Scentry[UserType]])
-  protected def userOption: Option[UserType] = scentry.userOption
-  implicit protected def user: UserType = scentry.user
-  protected def user_=(user: UserType) = scentry.user = user
-  protected def isAuthenticated: Boolean = scentry.isAuthenticated
-  protected def isAnonymous: Boolean = !isAuthenticated
+  protected def scentryOption(implicit request: HttpServletRequest): Option[Scentry[UserType]] = Option(request(Scentry.ScentryRequestKey)).map(_.asInstanceOf[Scentry[UserType]])
+  protected def userOption(implicit request: HttpServletRequest): Option[UserType] = scentry.userOption
+  implicit protected def user(implicit request: HttpServletRequest): UserType = scentry.user
+  protected def user_=(user: UserType)(implicit request: HttpServletRequest) = scentry.user = user
+  protected def isAuthenticated(implicit request: HttpServletRequest): Boolean = scentry.isAuthenticated
+  protected def isAnonymous(implicit request: HttpServletRequest): Boolean = !isAuthenticated
 
-  protected def authenticate() = {
+  protected def authenticate()(implicit request: HttpServletRequest) = {
     scentry.authenticate()
   }
 
-  protected def logOut() = scentry.logout()
+  protected def logOut()(implicit request: HttpServletRequest) = scentry.logout()
 
 }

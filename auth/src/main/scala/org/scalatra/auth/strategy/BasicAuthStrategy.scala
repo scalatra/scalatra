@@ -24,7 +24,7 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
  * for more details on usage check:
  * https://gist.github.com/732347
  */
-trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraSyntax with ScentrySupport[UserType])  =>
+trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraBase with ScentrySupport[UserType])  =>
 
   def realm: String
 
@@ -71,7 +71,7 @@ object BasicAuthStrategy {
     def password = credentials map { _._2 } getOrElse null
   }
 }
-abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraSyntax, realm: String)
+abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraBase, realm: String)
   extends ScentryStrategy[UserType]
   with RemoteAddress {
 

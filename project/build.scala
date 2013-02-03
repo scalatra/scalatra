@@ -36,7 +36,7 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
-      scalatraExample, scalatraAkka, scalatraSwagger, scalatraJetty,
+      scalatraExample, scalatraSwagger, scalatraJetty,
       scalatraCommon, scalatraSwaggerExt)
   )
 
@@ -62,8 +62,9 @@ object ScalatraBuild extends Build {
         jodaConvert,
         akkaActor(sv) % "test"
       )),
+      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
       description := "The core Scalatra framework",
-      concurrentRestrictions in ThisProject += Tags.limit(Tags.Test, 1)
+      resolvers += "Akka Repo" at "http://repo.akka.io/repository"
     )
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
@@ -80,15 +81,15 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCommands)
 
-  lazy val scalatraAkka = Project(
-    id = "scalatra-akka",
-    base = file("akka"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
-      resolvers += "Akka Repo" at "http://repo.akka.io/repository",
-      description := "Scalatra akka integration module"
-    )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+//  lazy val scalatraAkka = Project(
+//    id = "scalatra-akka",
+//    base = file("akka"),
+//    settings = scalatraSettings ++ Seq(
+//      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
+//      resolvers += "Akka Repo" at "http://repo.akka.io/repository",
+//      description := "Scalatra akka integration module"
+//    )
+//  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraFileupload = Project(
     id = "scalatra-fileupload",
@@ -241,27 +242,8 @@ object ScalatraBuild extends Build {
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraAkka, scalatraJetty, scalatraCommands, scalatraAtmosphere
+   scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
  )
-
-  /*
- lazy val scalatraStacks = Project(
-   id = "scalatra-stacks",
-   base = file("stacks"),
-   settings = scalatraSettings ++ Seq(
-     description := "Scalatra Stacks, provides base traits with sensible defaults"
-   )
- ) dependsOn(
-   scalatraCore % "compile;test->test;provided->provided",
-   scalatraScalate % "provided->compile",
-   scalatraAuth % "provided->compile",
-   scalatraFileupload % "provided->compile",
-   scalatraAkka % "provided->compile",
-   scalatraJetty % "provided->compile",
-   scalatraCommands % "provided->compile",
-   scalatraAtmosphere % "provided->compile"
- )
- */
 
   object Dependencies {
     // Sort by artifact ID.

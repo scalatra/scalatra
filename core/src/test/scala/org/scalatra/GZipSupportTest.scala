@@ -12,7 +12,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
  * Test servlet using GZipSupport.
  */
 class GZipSupportTestServlet extends ScalatraServlet with GZipSupportAppBase
-trait GZipSupportAppBase extends ScalatraSyntax with GZipSupport {
+trait GZipSupportAppBase extends ScalatraBase with GZipSupport {
 
   get("/") {
     Helper.body
