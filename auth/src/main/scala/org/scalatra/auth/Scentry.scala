@@ -54,7 +54,7 @@ class Scentry[UserType <: AnyRef](
   }
 
   //def session = app.session
-  def params: Params = app.params
+  def params: Params = app.params(app.request)
   def redirect(uri: String) { app.redirect(uri)(app.request, app.response) }
 
   def register(strategy: => ScentryStrategy[UserType]) {

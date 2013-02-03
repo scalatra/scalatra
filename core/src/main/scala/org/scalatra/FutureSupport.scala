@@ -3,7 +3,7 @@ package org.scalatra
 import _root_.akka.util.duration._
 import _root_.akka.util.{Timeout, Duration}
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.{AsyncEvent, AsyncListener}
+import javax.servlet.{ServletContext, AsyncEvent, AsyncListener}
 import servlet.{AsyncSupport}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import _root_.akka.dispatch.{ExecutionContext, Future}
@@ -12,8 +12,8 @@ import _root_.akka.dispatch.{ExecutionContext, Future}
 abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext  {
 
   implicit val request: HttpServletRequest = scalatraContext.request
-
   implicit val response: HttpServletResponse = scalatraContext.response
+  val servletContext: ServletContext = scalatraContext.servletContext
 
   implicit def timeout: Timeout
   def is: Future[_]

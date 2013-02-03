@@ -110,24 +110,6 @@ object FlashMapSupport {
   val FlashMapKey = "org.scalatra.FlashMap"
 }
 
-trait FlashMapContext { self: ScalatraContext =>
-  import FlashMapSupport.SessionKey
-  private[this] def getFlash(req: HttpServletRequest): FlashMap =
-    req.get(SessionKey).map(_.asInstanceOf[FlashMap]).getOrElse {
-      val map = session.get(SessionKey).map {
-        _.asInstanceOf[FlashMap]
-      }.getOrElse(new FlashMap)
-
-      req.setAttribute(SessionKey, map)
-      map
-    }
-
-  /**
-   * Returns the [[org.scalatra.FlashMap]] instance for the current request.
-   */
-  def flash: FlashMap = getFlash(request)
-}
-
 /**
  * Allows an action to set key-value pairs in a transient state that is accessible only to the next action and is expired immediately after that.
  * This is especially useful when using the POST-REDIRECT-GET pattern to trace the result of an operation.
@@ -144,7 +126,7 @@ trait FlashMapContext { self: ScalatraContext =>
  * }}}
  * @see FlashMap
  */
-trait FlashMapSupport extends Handler with FlashMapContext {
+trait FlashMapSupport extends Handler {
   this: ScalatraBase =>
 
   import FlashMapSupport._
@@ -187,7 +169,22 @@ trait FlashMapSupport extends Handler with FlashMapContext {
     }
   }
 
+  private[this] def getFlash(req: HttpServletRequest): FlashMap =
+    req.get(SessionKey).map(_.asInstanceOf[FlashMap]).getOrElse {
+      val map = session.get(SessionKey).map {
+        _.asInstanceOf[FlashMap]
+      }.getOrElse(new FlashMap)
 
+      req.setAttribute(SessionKey, map)
+      map
+    }
+
+  /**
+   * Returns the [[org.scalatra.FlashMap]] instance for the current request.
+   */
+  def flash(implicit request: HttpServletRequest): FlashMap = getFlash(request)
+
+  def flash(key: String)(implicit request: HttpServletRequest) = getFlash(request)(key)
 
   /**
    * Determines whether unused flash entries should be swept.  The default is false.

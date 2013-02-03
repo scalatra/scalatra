@@ -31,11 +31,12 @@ object ScentryAuthStore {
 
   class SessionAuthStore(app: ScalatraBase) extends ScentryAuthStore {
 
+    import app.request
     def get: String = {
       app.session.get(Scentry.scentryAuthKey).map(_.asInstanceOf[String]).orNull
     }
     def set(value: String) {
-      app.session(Scentry.scentryAuthKey) = value
+      app.session(app.request)(Scentry.scentryAuthKey) = value
     }
     def invalidate() {
       app.session.invalidate()

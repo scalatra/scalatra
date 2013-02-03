@@ -1,7 +1,7 @@
 package org.scalatra
 
-import servlet.ServletApiImplicits
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import servlet.ServletApiImplicits
 import util.{MapWithIndifferentAccess, MultiMapHeadView}
 import javax.servlet.ServletContext
 
@@ -15,16 +15,11 @@ class ScalatraParams(protected val multiMap: Map[String, Seq[String]]) extends M
 object ScalatraContext {
   private class StableValuesContext(implicit val request: HttpServletRequest, val response: HttpServletResponse, val servletContext: ServletContext) extends ScalatraContext
 }
-trait ScalatraContext extends SessionSupport with CookieContext {
+trait ScalatraContext extends ServletApiImplicits with SessionSupport with CookieContext {
   import ScalatraContext.StableValuesContext
   implicit def request: HttpServletRequest
   implicit def response: HttpServletResponse
   def servletContext: ServletContext
-
-  /**
-   * Gets the content type of the current response.
-   */
-  def contentType: String = response.contentType getOrElse null
 
   /**
    * Sets the content type of the current response.
@@ -42,28 +37,20 @@ trait ScalatraContext extends SessionSupport with CookieContext {
   def status_=(code: Int) { response.status = ResponseStatus(code) }
 
   /**
-   * Gets the status code of the current response.
+   * Explicitly sets the request-scoped format.  This takes precedence over
+   * whatever was inferred from the request.
    */
-  def status: Int = response.status.code
-
-  /**
-   * The current multiparams.  Multiparams are a result of merging the
-   * standard request params (query string or post params) with the route
-   * parameters extracted from the route matchers of the current route.
-   * The default value for an unknown param is the empty sequence.  Invalid
-   * outside `handle`.
-   */
-  def multiParams: MultiParams = {
-    val read = request.contains("MultiParamsRead")
-    val found = request.get(MultiParamsKey) map (
-     _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
-    )
-    val multi = found getOrElse request.multiParameters
-    request("MultiParamsRead") = new {}
-    request(MultiParamsKey) = multi
-    multi.withDefaultValue(Seq.empty)
+  def format_=(formatValue: Symbol) {
+    request(ApiFormats.FormatKey) = formatValue.name
   }
 
-  def params: Params = new ScalatraParams(multiParams)
-  implicit def scalatraContext: ScalatraContext  = new StableValuesContext()(request, response, servletContext)
+  /**
+   * Explicitly sets the request-scoped format.  This takes precedence over
+   * whatever was inferred from the request.
+   */
+  def format_=(formatValue: String) {
+    request(ApiFormats.FormatKey) = formatValue
+  }
+
+  protected[this] implicit def scalatraContext: ScalatraContext  = new StableValuesContext()(request, response, servletContext)
 }

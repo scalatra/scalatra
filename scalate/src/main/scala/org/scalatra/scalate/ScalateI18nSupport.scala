@@ -32,8 +32,8 @@ trait ScalateI18nSupport extends ScalateSupport with I18nSupport {
    * #{messages("hello")}
    */
   override protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response, out: PrintWriter = response.getWriter): RenderContext = {
-    val context = new ScalatraRenderContext(this, req, resp)
-    context.attributes.update("messages", messages)
+    val context = super.createRenderContext(req, resp, out)
+    context.attributes("messages") = messages(request)
     context
   }
 }

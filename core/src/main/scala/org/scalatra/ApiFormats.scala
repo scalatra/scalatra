@@ -92,8 +92,8 @@ trait ApiFormats extends ScalatraBase {
    */
   def defaultAcceptedFormats: List[Symbol] = List.empty
 
-  def responseFormat(implicit context: ScalatraContext): String = {
-    context.response.contentType flatMap ( ctt => ctt.split(";").headOption map mimeTypes) getOrElse format(context)
+  def responseFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+    response.contentType flatMap ( ctt => ctt.split(";").headOption map mimeTypes) getOrElse format
   }
 
   /**
@@ -102,8 +102,8 @@ trait ApiFormats extends ScalatraBase {
    */
   def acceptHeader(implicit request: HttpServletRequest): List[String] = parseAcceptHeader
 
-  private[this] def getFromParams(implicit context: ScalatraContext) = {
-    context.params.get('format).find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
+  private[this] def getFromParams(implicit request: HttpServletRequest) = {
+    params.get('format).find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
   }
 
   private[this] def getFromAcceptHeader(implicit request: HttpServletRequest) = {
@@ -158,8 +158,8 @@ trait ApiFormats extends ScalatraBase {
     conditions.isEmpty || (conditions filter { s => formats.get(s.name).isDefined } contains contentType)
   }
 
-  private def getFormat(implicit context: ScalatraContext) =
-    getFromParams orElse getFromAcceptHeader(context.request) getOrElse defaultFormat.name
+  private def getFormat(implicit request: HttpServletRequest) =
+    getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
 
   import ApiFormats.FormatKey
 
@@ -170,27 +170,13 @@ trait ApiFormats extends ScalatraBase {
    * $ - the format from the `Content-Type` header, as looked up in `mimeTypes`
    * $ - the default format
    */
-  def format(implicit context: ScalatraContext) = {
-    context.request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
+  def format(implicit request: HttpServletRequest) = {
+    request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
       val fmt = getFormat
-      context.request(FormatKey) = fmt
+      request(FormatKey) = fmt
       fmt
     }
   }
 
-  /**
-   * Explicitly sets the request-scoped format.  This takes precedence over
-   * whatever was inferred from the request.
-   */
-  def format_=(formatValue: Symbol)(implicit request: HttpServletRequest) {
-    request(FormatKey) = formatValue.name
-  }
 
-  /**
-   * Explicitly sets the request-scoped format.  This takes precedence over
-   * whatever was inferred from the request.
-   */
-  def format_=(formatValue: String)(implicit request: HttpServletRequest) {
-    request(FormatKey) = formatValue
-  }
 }

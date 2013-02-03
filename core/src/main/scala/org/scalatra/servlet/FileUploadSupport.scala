@@ -3,7 +3,7 @@ package org.scalatra.servlet
 import scala.collection.JavaConverters._
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
-import org.scalatra.util.{ using, io }
+import org.scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView, using, io}
 import java.io.{ File, FileOutputStream }
 import javax.servlet.http._
 import javax.servlet.MultipartConfigElement
@@ -171,29 +171,18 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
     wrapped
   }
 
-  def fileMultiParams: FileMultiParams = extractMultipartParams(request).fileParams
-
-  protected val _fileParams = new collection.Map[String, FileItem] {
-    def get(key: String) = fileMultiParams.get(key) flatMap {
-      _.headOption
-    }
-
-    override def size = fileMultiParams.size
-
-    override def iterator = (fileMultiParams map {
-      case (k, v) => (k, v.head)
-    }).iterator
-
-    override def -(key: String) = Map() ++ this - key
-
-    override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
-  }
+  def fileMultiParams(implicit request: HttpServletRequest): FileMultiParams = extractMultipartParams(request).fileParams
+  def fileMultiParams(key: String)(implicit request: HttpServletRequest): Seq[FileItem] = fileMultiParams(request)(key)
 
   /**
    * @return a Map, keyed on the names of multipart file upload parameters,
    *         of all multipart files submitted with the request
    */
-  def fileParams = _fileParams
+  def fileParams(implicit request: HttpServletRequest) = new MultiMapHeadView[String, FileItem] {
+    protected def multiMap = fileMultiParams
+  }
+
+  def fileParams(key: String)(implicit request: HttpServletRequest): FileItem = fileParams(request)(key)
 }
 
 object FileUploadSupport {

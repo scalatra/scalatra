@@ -220,7 +220,7 @@ class CommandSupportSpec extends Specification with Mockito {
          * The default value for an unknown param is the empty sequence.  Invalid
          * outside `handle`.
          */
-        override def multiParams: _root_.org.scalatra.MultiParams = MultiMap()
+        override def multiParams(implicit request: HttpServletRequest): _root_.org.scalatra.MultiParams = MultiMap()
 
         /**
          * The currently scoped request.  Valid only inside the `handle` method.

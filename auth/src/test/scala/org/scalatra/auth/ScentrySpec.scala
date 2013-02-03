@@ -18,13 +18,14 @@ object ScentrySpec extends Specification with Mockito {
     var invalidateCalled = false
     val context = new ScalatraFilter {
       private[this] val sessionMap = scala.collection.mutable.HashMap[String, Any](Scentry.scentryAuthKey -> "6789")
-      override val session = smartMock[HttpSession]
-      session.getAttribute(anyString) answers { k => sessionMap.getOrElse(k.asInstanceOf[String], null).asInstanceOf[AnyRef] }
-      session.setAttribute(anyString, anyObject) answers { (kv, wtfIsThis) =>
+      val mockSession = smartMock[HttpSession]
+      override def session(implicit request: HttpServletRequest) = mockSession
+      mockSession.getAttribute(anyString) answers { k => sessionMap.getOrElse(k.asInstanceOf[String], null).asInstanceOf[AnyRef] }
+      mockSession.setAttribute(anyString, anyObject) answers { (kv, wtfIsThis) =>
         val Array(k: String, v: Any) = kv
         sessionMap(k) = v
       }
-      session.invalidate() answers { k =>
+      mockSession.invalidate() answers { k =>
         invalidateCalled = true
         sessionMap.clear()
       }

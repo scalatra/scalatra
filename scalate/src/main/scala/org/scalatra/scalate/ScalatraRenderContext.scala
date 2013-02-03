@@ -1,7 +1,7 @@
 package org.scalatra
 package scalate
 
-import servlet.ServletBase
+import servlet.{FileItem, FileUploadSupport, FileMultiParams, ServletBase}
 
 import java.io.PrintWriter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
@@ -16,26 +16,41 @@ class ScalatraRenderContext(
     protected val kernel: ServletBase,
     engine: TemplateEngine,
     out: PrintWriter,
-    request: HttpServletRequest,
-    response: HttpServletResponse)
-  extends ServletRenderContext(engine, out, request, response, kernel.servletContext)
-{
-  def this(scalate: ScalateSupport, request: HttpServletRequest, response: HttpServletResponse) = this(scalate, scalate.templateEngine, response.getWriter, request, response)
-
-  def this(scalate: ScalateSupport) = this(scalate, scalate.request, scalate.response)
+    req: HttpServletRequest,
+    res: HttpServletResponse) extends ServletRenderContext(engine, out, req, res, kernel.servletContext) {
 
   def flash: scala.collection.Map[String, Any] = kernel match {
-    case flashMapSupport: FlashMapSupport => flashMapSupport.flash
+    case flashMapSupport: FlashMapSupport => flashMapSupport.flash(request)
     case _ => Map.empty
   }
 
-  def session: HttpSession = kernel.session
+  def session: HttpSession = kernel.session(request)
 
-  def sessionOption: Option[HttpSession] = kernel.sessionOption
+  def sessionOption: Option[HttpSession] = kernel.sessionOption(request)
 
-  def params: Map[String, String] = kernel.params
+  def params: Params = kernel.params(request)
 
-  def multiParams: MultiParams = kernel.multiParams
+  def multiParams: MultiParams = kernel.multiParams(request)
+
+  def format: String = kernel match {
+    case af: ApiFormats => af.format(request)
+    case _ => ""
+  }
+
+  def responseFormat: String = kernel match {
+    case af: ApiFormats => af.responseFormat(request, response)
+    case _ => ""
+  }
+
+  def fileMultiParams: FileMultiParams = kernel match {
+    case fu: FileUploadSupport => fu.fileMultiParams(request)
+    case _ => new FileMultiParams()
+  }
+
+  def fileParams: scala.collection.Map[String, FileItem] = kernel match {
+    case fu: FileUploadSupport => fu.fileParams(request)
+    case _ => Map.empty
+  }
 
   def csrfKey = kernel match {
     case csrfTokenSupport: CsrfTokenSupport => csrfTokenSupport.csrfKey

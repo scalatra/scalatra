@@ -632,4 +632,26 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
 
   protected def addSessionId(uri: String)(implicit response: HttpServletResponse): String = response.encodeURL(uri)
 
+  def multiParams(key: String)(implicit request: HttpServletRequest): Seq[String] = multiParams(request)(key)
+  /**
+   * The current multiparams.  Multiparams are a result of merging the
+   * standard request params (query string or post params) with the route
+   * parameters extracted from the route matchers of the current route.
+   * The default value for an unknown param is the empty sequence.  Invalid
+   * outside `handle`.
+   */
+  def multiParams(implicit request: HttpServletRequest): MultiParams = {
+    val read = request.contains("MultiParamsRead")
+    val found = request.get(MultiParamsKey) map (
+     _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
+    )
+    val multi = found getOrElse request.multiParameters
+    request("MultiParamsRead") = new {}
+    request(MultiParamsKey) = multi
+    multi.withDefaultValue(Seq.empty)
+  }
+
+  def params(key: String)(implicit request: HttpServletRequest): String = params(request)(key)
+  def params(key: Symbol)(implicit request: HttpServletRequest): String = params(request)(key)
+  def params(implicit request: HttpServletRequest): Params = new ScalatraParams(multiParams)
 }
