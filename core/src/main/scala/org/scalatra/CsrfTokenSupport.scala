@@ -2,6 +2,7 @@ package org.scalatra
 
 
 import java.security.SecureRandom
+import javax.servlet.http.HttpServletRequest
 
 object GenerateId {
   def apply(): String = {
@@ -28,20 +29,6 @@ object CsrfTokenSupport {
   val HeaderNames = Vector("X-CSRF-TOKEN")
 }
 
-trait CsrfTokenContext { self: ScalatraContext =>
-  /**
-   * The key used to store the token on the session, as well as the parameter
-   * of the request.
-   */
-  def csrfKey: String = CsrfTokenSupport.DefaultKey
-
-  /**
-   * Returns the token from the session.
-   */
-  protected[scalatra] def csrfToken: String = session(csrfKey).asInstanceOf[String]
-
-}
-
 /**
  * Provides cross-site request forgery protection.
  *
@@ -49,8 +36,7 @@ trait CsrfTokenContext { self: ScalatraContext =>
  * `handleForgery()` hook is invoked.  Otherwise, a token for the next
  * request is prepared with `prepareCsrfToken`.
  */
-trait CsrfTokenSupport extends CsrfTokenContext {
-  this: ScalatraSyntax with SessionSupport =>
+trait CsrfTokenSupport { this: ScalatraBase =>
 
 
 
@@ -88,25 +74,35 @@ trait CsrfTokenSupport extends CsrfTokenContext {
 
   @deprecated("Use prepareCsrfToken()", "2.0.0")
   protected def prepareCSRFToken() = prepareCsrfToken()
+
+  /**
+   * The key used to store the token on the session, as well as the parameter
+   * of the request.
+   */
+  def csrfKey: String = CsrfTokenSupport.DefaultKey
+
+  /**
+   * Returns the token from the session.
+   */
+  protected[scalatra] def csrfToken(implicit request: HttpServletRequest): String =
+    request.getSession.getAttribute(csrfKey).asInstanceOf[String]
 }
 
-trait XsrfTokenContext { self: ScalatraContext =>
+
+trait XsrfTokenSupport { this: ScalatraBase =>
+
   import XsrfTokenSupport._
   /**
    * The key used to store the token on the session, as well as the parameter
    * of the request.
    */
-  protected def xsrfKey: String = DefaultKey
+  def xsrfKey: String = DefaultKey
 
   /**
    * Returns the token from the session.
    */
-  protected def xsrfToken: String = session(xsrfKey).asInstanceOf[String]
-}
-
-trait XsrfTokenSupport extends XsrfTokenContext { this: ScalatraSyntax with SessionSupport =>
-
-  import XsrfTokenSupport._
+  def xsrfToken(implicit request: HttpServletRequest): String =
+    request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
   def xsrfGuard(only: RouteTransformer*) {
     before((only.toSeq ++ Seq[RouteTransformer](isForged)):_*) { handleForgery() }

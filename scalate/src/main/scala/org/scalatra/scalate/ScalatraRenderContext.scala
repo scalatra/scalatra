@@ -43,7 +43,16 @@ class ScalatraRenderContext(
   }
 
   def csrfToken = kernel match {
-    case csrfTokenSupport: CsrfTokenSupport => csrfTokenSupport.csrfToken
+    case csrfTokenSupport: CsrfTokenSupport => csrfTokenSupport.csrfToken(request)
+    case _ => ""
+  }
+  def xsrfKey = kernel match {
+    case csrfTokenSupport: XsrfTokenSupport => csrfTokenSupport.xsrfKey
+    case _ => ""
+  }
+
+  def xsrfToken = kernel match {
+    case csrfTokenSupport: XsrfTokenSupport => csrfTokenSupport.xsrfToken(request)
     case _ => ""
   }
 }

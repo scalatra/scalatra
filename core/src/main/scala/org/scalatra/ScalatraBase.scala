@@ -12,9 +12,11 @@ import rl.UrlCodingUtils
 import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import scala.util.control.Exception._
+import org.scalatra.ScalatraBase._
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
+
   def secondStep(uri: String) = uri.replaceAll("%23", "#").replaceAll("%2F", "/").replaceAll("%3F", "?")
 }
 
@@ -31,7 +33,8 @@ object ScalatraBase {
   val ForceHttpsKey = "org.scalatra.ForceHttps"
 
   import collection.JavaConverters._
-  def getServletRegistration(app: ScalatraSyntax) = {
+
+  def getServletRegistration(app: ScalatraBase) = {
     val registrations = app.servletContext.getServletRegistrations.values().asScala.toList
     registrations.find(_.getClassName == app.getClass.getName)
   }
@@ -42,7 +45,9 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseScope with Initializable {
+trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions with SessionSupport {
+  @deprecated("Use servletContext instead", "2.1.0")
+  def applicationContext: ServletContext = servletContext
 
   /**
    * The routes registered in this kernel.
@@ -58,20 +63,20 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    * Handles a request and renders a response.
    *
    * $ 1. If the request lacks a character encoding, `defaultCharacterEncoding`
-   *      is set to the request.
+   * is set to the request.
    *
    * $ 2. Sets the response's character encoding to `defaultCharacterEncoding`.
    *
    * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
-   *      `executeRoutes()`.
+   * `executeRoutes()`.
    */
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
-//    val realMultiParams = request.multiParameters
+    //    val realMultiParams = request.multiParameters
     request(CookieSupport.SweetCookiesKey) = new SweetCookies(request.cookies, response)
     response.characterEncoding = Some(defaultCharacterEncoding)
 
     withRequestResponse(request, response) {
-//      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
+      //      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
       executeRoutes()
     }
   }
@@ -87,13 +92,13 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    *
    * $ 1. Executes each before filter with `runFilters`.
    * $ 2. Executes the routes in the route registry with `runRoutes` for
-   *      the request's method.
-   *      a. The result of runRoutes becomes the _action result_.
-   *      b. If no route matches the requested method, but matches are
-   *         found for other methods, then the `doMethodNotAllowed` hook is
-   *         run with each matching method.
-   *      c. If no route matches any method, then the `doNotFound` hook is
-   *         run, and its return value becomes the action result.
+   * the request's method.
+   * a. The result of runRoutes becomes the _action result_.
+   * b. If no route matches the requested method, but matches are
+   * found for other methods, then the `doMethodNotAllowed` hook is
+   * run with each matching method.
+   * c. If no route matches any method, then the `doNotFound` hook is
+   * run, and its return value becomes the action result.
    * $ 3. If an exception is thrown during the before filters or the route
    * $    actions, then it is passed to the `errorHandler` function, and its
    * $    result becomes the action result.
@@ -166,7 +171,7 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    * @param matchedRoute the matched route to execute
    *
    * @return the result of the matched route's action wrapped in `Some`,
-   * or `None` if the action calls `pass`.
+   *         or `None` if the action calls `pass`.
    */
   protected def invoke(matchedRoute: MatchedRoute) =
     withRouteMultiParams(Some(matchedRoute)) {
@@ -182,7 +187,6 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
     }
 
 
-
   def before(transformers: RouteTransformer*)(fun: => Any) {
     routes.appendBeforeFilter(Route(transformers, () => fun))
   }
@@ -196,7 +200,12 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    * default implementation varies between servlet and filter.
    */
   protected var doNotFound: Action
-  def notFound(fun: => Any) { doNotFound = { () => fun } }
+
+  def notFound(fun: => Any) {
+    doNotFound = {
+      () => fun
+    }
+  }
 
   /**
    * Called if no route matches the current request method, but routes
@@ -204,11 +213,15 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    * and an `Allow` header containing a comma-delimited list of the allowed
    * methods.
    */
-  protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = { allow =>
-    status = 405
-    response.headers("Allow") = allow.mkString(", ")
+  protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = {
+    allow =>
+      status = 405
+      response.headers("Allow") = allow.mkString(", ")
   }
-  def methodNotAllowed(f: Set[HttpMethod] => Any) { doMethodNotAllowed = f }
+
+  def methodNotAllowed(f: Set[HttpMethod] => Any) {
+    doMethodNotAllowed = f
+  }
 
   private def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
@@ -226,16 +239,26 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    * The error handler function, called if an exception is thrown during
    * before filters or the routes.
    */
-  protected var errorHandler: ErrorHandler = { case t => throw t }
-  def error(handler: ErrorHandler) { errorHandler = handler orElse errorHandler }
+  protected var errorHandler: ErrorHandler = {
+    case t => throw t
+  }
+
+  def error(handler: ErrorHandler) {
+    errorHandler = handler orElse errorHandler
+  }
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
-    val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map { case (key, values) =>
-      key -> values.map(UriDecoder.secondStep(_))
+    val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
+      case (key, values) =>
+        key -> values.map(UriDecoder.secondStep(_))
     }
     request(MultiParamsKey) = originalParams ++ routeParams
-    try { thunk } finally { request(MultiParamsKey) = originalParams }
+    try {
+      thunk
+    } finally {
+      request(MultiParamsKey) = originalParams
+    }
   }
 
   /**
@@ -245,7 +268,9 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    */
   protected def renderResponse(actionResult: Any) {
     if (contentType == null)
-      contentTypeInferrer.lift(actionResult) foreach { contentType = _ }
+      contentTypeInferrer.lift(actionResult) foreach {
+        contentType = _
+      }
 
     renderResponseBody(actionResult)
   }
@@ -254,9 +279,9 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    * A partial function to infer the content type from the action result.
    *
    * @return
-   *   $ - "text/plain" for String
-   *   $ - "application/octet-stream" for a byte array
-   *   $ - "text/html" for any other result
+   * $ - "text/plain" for String
+   * $ - "application/octet-stream" for a byte array
+   * $ - "text/html" for any other result
    */
   protected def contentTypeInferrer: ContentTypeInferrer = {
     case s: String => "text/plain"
@@ -279,7 +304,7 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
       case _: Unit | Unit =>
-      case a => loop(renderPipeline.lift(a) getOrElse ())
+      case a => loop(renderPipeline.lift(a) getOrElse())
     }
     loop(actionResult)
   }
@@ -298,18 +323,24 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
       if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(bytes).name)
       response.outputStream.write(bytes)
     case is: java.io.InputStream =>
-      using(is) { util.io.copy(_, response.outputStream) }
+      using(is) {
+        util.io.copy(_, response.outputStream)
+      }
     case file: File =>
       if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(file).name)
-      using(new FileInputStream(file)) { in => zeroCopy(in, response.outputStream) }
+      using(new FileInputStream(file)) {
+        in => zeroCopy(in, response.outputStream)
+      }
     case _: Unit | Unit =>
-      // If an action returns Unit, it assumes responsibility for the response
+    // If an action returns Unit, it assumes responsibility for the response
     case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound()
     case actionResult: ActionResult =>
       response.status = actionResult.status
-      actionResult.headers.foreach { case(name, value) => response.addHeader(name, value) }
+      actionResult.headers.foreach {
+        case (name, value) => response.addHeader(name, value)
+      }
       actionResult.body
-    case x: Any  =>
+    case x: Any =>
       response.writer.print(x.toString)
   }
 
@@ -346,7 +377,7 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
    * @param block a block that evaluates to a boolean
    *
    * @return a route matcher based on `block`.  The route matcher should
-   * return `Some` if the block is true and `None` if the block is false.
+   *         return `Some` if the block is true and `None` if the block is false.
    *
    * @see [[org.scalatra.BooleanBlockRouteMatcher]]
    */
@@ -363,7 +394,9 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
         response.status = ResponseStatus(status)
       case HaltException(None, _, _, _) => // leave status line alone
     }
-    e.headers foreach { case(name, value) => response.addHeader(name, value) }
+    e.headers foreach {
+      case (name, value) => response.addHeader(name, value)
+    }
     renderResponse(e.body)
   }
 
@@ -375,7 +408,9 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
 
   def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
 
-  def trap(codes: Range)(block: => Any) { addStatusRoute(codes, block) }
+  def trap(codes: Range)(block: => Any) {
+    addStatusRoute(codes, block)
+  }
 
   def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
 
@@ -414,7 +449,7 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
     removeRoute(HttpMethod(method), route)
   }
 
-  protected[scalatra] def addStatusRoute(codes: Range, action: => Any)  {
+  protected[scalatra] def addStatusRoute(codes: Range, action: => Any) {
     val route = Route(Seq.empty, () => action, () => routeBasePath)
     routes.addStatusRoute(codes, route)
   }
@@ -422,24 +457,8 @@ trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseSc
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
    */
-  def config: ConfigT
-
-  def initialize(config: ConfigT)
-
-
-}
-
-/**
- * The base implementation of the Scalatra DSL.  Intended to be portable
- * to all supported backends.
- */
-trait ScalatraBase extends ScalatraSyntax with DynamicScope {
-
-
-  /**
-   * The configuration, typically a ServletConfig or FilterConfig.
-   */
   var config: ConfigT = _
+
 
   /**
    * Initializes the kernel.  Used to provide context that is unavailable
@@ -456,5 +475,161 @@ trait ScalatraBase extends ScalatraSyntax with DynamicScope {
     }
     servletContext(CookieSupport.CookieOptionsKey) = CookieOptions(path = path)
   }
+
+  def relativeUrl(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true)(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+    url(path, params, includeContextPath, includeServletPath, absolutize = false)
+  }
+
+  /**
+   * Returns a context-relative, session-aware URL for a path and specified
+   * parameters.
+   * Finally, the result is run through `response.encodeURL` for a session
+   * ID, if necessary.
+   *
+   * @param path the base path.  If a path begins with '/', then the context
+   *             path will be prepended to the result
+   *
+   * @param params params, to be appended in the form of a query string
+   *
+   * @return the path plus the query string, if any.  The path is run through
+   *         `response.encodeURL` to add any necessary session tracking parameters.
+   */
+  def url(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true, absolutize: Boolean = true)(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+
+    val newPath = path match {
+      case x if x.startsWith("/") && includeContextPath && includeServletPath =>
+        ensureSlash(routeBasePath) + ensureContextPathsStripped(ensureSlash(path))
+      case x if x.startsWith("/") && includeContextPath =>
+        ensureSlash(contextPath) + ensureContextPathStripped(ensureSlash(path))
+      case x if x.startsWith("/") && includeServletPath => request.getServletPath.blankOption map {
+        ensureSlash(_) + ensureServletPathStripped(ensureSlash(path))
+      } getOrElse "/"
+      case _ if absolutize => ensureContextPathsStripped(ensureSlash(path))
+      case _ => path
+    }
+
+    val pairs = params map {
+      case (key, None) => key.urlEncode + "="
+      case (key, Some(value)) => key.urlEncode + "=" + value.toString.urlEncode
+      case (key, value) => key.urlEncode + "=" + value.toString.urlEncode
+    }
+    val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
+    addSessionId(newPath + queryString)
+  }
+
+  private[this] def ensureContextPathsStripped(path: String)(implicit request: HttpServletRequest) =
+    ((ensureContextPathStripped _) andThen (ensureServletPathStripped _))(path)
+
+  private[this] def ensureServletPathStripped(path: String)(implicit request: HttpServletRequest) = {
+    val sp = ensureSlash(request.getServletPath.blankOption getOrElse "")
+    val np = if (path.startsWith(sp + "/")) path.substring(sp.length) else path
+    ensureSlash(np)
+  }
+
+  private[this] def ensureContextPathStripped(path: String) = {
+    val cp = ensureSlash(contextPath)
+    val np = if (path.startsWith(cp + "/")) path.substring(cp.length) else path
+    ensureSlash(np)
+  }
+
+  private[this] def ensureSlash(candidate: String) = {
+    val p = if (candidate.startsWith("/")) candidate else "/" + candidate
+    if (p.endsWith("/")) p.dropRight(1) else p
+  }
+
+
+  protected def isHttps(implicit request: HttpServletRequest) = {
+    // also respect load balancer version of the protocol
+    val h = request.getHeader("X-Forwarded-Proto").blankOption
+    request.isSecure || (h.isDefined && h.forall(_ equalsIgnoreCase "HTTPS"))
+  }
+
+  protected def needsHttps =
+    allCatch.withApply(_ => false) {
+      servletContext.getInitParameter(ForceHttpsKey).blankOption.map(_.toBoolean) getOrElse false
+    }
+
+  /**
+   * Sends a redirect response and immediately halts the current action.
+   */
+  def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+    response.redirect(fullUrl(uri, includeServletPath = false))
+    halt()
+  }
+
+  /**
+   * The base path for URL generation
+   */
+  protected def routeBasePath(implicit request: HttpServletRequest): String
+
+  /**
+   * Builds a full URL from the given relative path. Takes into account the port configuration, https, ...
+   *
+   * @param path a relative path
+   *
+   * @return the full URL
+   */
+  def fullUrl(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+    if (path.startsWith("http")) path
+    else {
+      val p = url(path, params, includeContextPath, includeServletPath)
+      buildBaseUrl + ensureSlash(p)
+    }
+  }
+
+  private[this] def buildBaseUrl(implicit request: HttpServletRequest) = {
+    "%s://%s".format(
+      if (needsHttps || isHttps) "https" else "http",
+      serverAuthority
+    )
+  }
+
+  private[this] def serverAuthority = {
+    val p = serverPort
+    val h = serverHost
+    if (p == 80 || p == 443) h else h + ":" + p.toString
+  }
+
+  def serverHost = {
+    servletContext.getInitParameter(HostNameKey).blankOption getOrElse request.getServerName
+  }
+
+  def serverPort = {
+    servletContext.getInitParameter(PortKey).blankOption.map(_.toInt) getOrElse request.getServerPort
+  }
+
+  protected def contextPath: String = servletContext.contextPath
+
+  /**
+   * Gets an init paramter from the config.
+   *
+   * @param name the name of the key
+   *
+   * @return an option containing the value of the parameter if defined, or
+   *         `None` if the parameter is not set.
+   */
+  def initParameter(name: String): Option[String] = config.initParameters.get(name)
+
+  /**
+   * A free form string representing the environment.
+   * `org.scalatra.Environment` is looked up as a system property, and if
+   * absent, and init parameter.  The default value is `development`.
+   */
+  def environment: String = System.getProperty(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("DEVELOPMENT"))
+
+  /**
+   * A boolean flag representing whether the kernel is in development mode.
+   * The default is true if the `environment` begins with "dev", case-insensitive.
+   */
+  def isDevelopmentMode = environment.toUpperCase.startsWith("DEV")
+
+
+  /**
+   * The effective path against which routes are matched.  The definition
+   * varies between servlets and filters.
+   */
+  def requestPath(implicit request: HttpServletRequest): String
+
+  protected def addSessionId(uri: String)(implicit response: HttpServletResponse): String = response.encodeURL(uri)
 
 }

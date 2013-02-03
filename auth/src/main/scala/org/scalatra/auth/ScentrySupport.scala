@@ -12,7 +12,7 @@ trait ScentryConfig {
 }
 
 trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable {
-  self: ScalatraSyntax ⇒
+  self: ScalatraBase ⇒
 
   type ScentryConfiguration <: ScentryConfig
 

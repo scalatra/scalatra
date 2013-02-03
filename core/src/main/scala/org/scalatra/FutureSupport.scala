@@ -3,35 +3,23 @@ package org.scalatra
 import _root_.akka.util.duration._
 import _root_.akka.util.{Timeout, Duration}
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.{ServletContext, AsyncEvent, AsyncListener}
-import servlet.{ScalatraAsyncContext, ServletApiImplicits, AsyncSupport}
+import javax.servlet.{AsyncEvent, AsyncListener}
+import servlet.{AsyncSupport}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import _root_.akka.dispatch.{ExecutionContext, Future}
-import util.{MapWithIndifferentAccess, MultiMapHeadView}
-import java.util.concurrent.{Executors, ExecutorService}
-import java.{util => ju}
-import collection.immutable.DefaultMap
-import collection.JavaConverters._
-import org.scalatra.util.conversion.DefaultImplicitConversions
 
 
-abstract class MinimalAsyncResult(implicit val asyncContext: ScalatraAsyncContext) extends ScalatraAsyncContext  {
+abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext  {
 
-  /* AsyncContextProxy */
-  type ConfigT = asyncContext.ConfigT
-  implicit val request: HttpServletRequest = asyncContext.request
-  implicit val response: HttpServletResponse = asyncContext.response
-  implicit val timeout: Timeout = asyncContext.timeout
-  val config: ConfigT = asyncContext.config
-  val servletContext: ServletContext = asyncContext.servletContext
-  val requestPath: String = asyncContext.requestPath
-  protected def routeBasePath: String = ""
-  /* end AsyncContextProxy */
+  implicit val request: HttpServletRequest = scalatraContext.request
 
+  implicit val response: HttpServletResponse = scalatraContext.response
+
+  implicit def timeout: Timeout
   def is: Future[_]
 }
 
-trait FutureSupport extends AsyncSupport[MinimalAsyncResult] {
+trait FutureSupport extends AsyncSupport {
 
   implicit protected def executor: ExecutionContext
 
@@ -45,11 +33,9 @@ trait FutureSupport extends AsyncSupport[MinimalAsyncResult] {
 
   override protected def isAsyncExecutable(result: Any) = classOf[Future[_]].isAssignableFrom(result.getClass)
 
-  implicit protected def asyncContext(implicit executor: ExecutionContext): AsyncContext
-
   override protected def renderResponse(actionResult: Any) {
     actionResult match {
-      case r: MinimalAsyncResult => renderResponse(r.is)
+      case r: AsyncResult => renderResponse(r.is)
       case f: Future[_] ⇒ {
         val gotResponseAlready = new AtomicBoolean(false)
         val context = request.startAsync()
@@ -103,21 +89,4 @@ trait FutureSupport extends AsyncSupport[MinimalAsyncResult] {
   }
 }
 
-class AsyncContextWrapper(parent: ScalatraContext, dur: Duration) extends ScalatraAsyncContext {
-  type ConfigT = parent.ConfigT
-  val config: ConfigT = parent.config
-  implicit val request: HttpServletRequest = parent.request
-  implicit val timeout: Timeout = Timeout(dur)
-  implicit val response: HttpServletResponse =  parent.response
-  val servletContext: ServletContext = parent.servletContext
-  val requestPath: String = parent.requestPath
-  protected val routeBasePath: String = parent.routeBasePath
-}
 
-trait DefaultAsyncContext { self: FutureSupport =>
-  type AsyncContext = ScalatraAsyncContext
-  type AsyncResult = MinimalAsyncResult
-
-  implicit protected def asyncContext(implicit executor: ExecutionContext): AsyncContext =
-    new AsyncContextWrapper(self, asyncTimeout)
-}

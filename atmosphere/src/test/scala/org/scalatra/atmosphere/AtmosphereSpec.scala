@@ -43,8 +43,8 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     withRequestResponse(request, response) {
       println(request.headers)
-      println(routeBasePath)
-      println(requestPath)
+      println(routeBasePath(request))
+      println(requestPath(request))
 
       super.handle(request, response)
     }

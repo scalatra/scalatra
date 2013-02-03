@@ -1,7 +1,6 @@
 package org.scalatra
 package servlet
 
-import _root_.akka.util.Timeout
 import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -9,12 +8,7 @@ object AsyncSupport {
   val ExecutionContextKey = "org.scalatra.ExecutionContext"
 }
 
-trait ScalatraAsyncContext extends ScalatraContext {
-  implicit def timeout: Timeout
-}
-trait AsyncSupport[T <: ScalatraAsyncContext] extends ServletBase with ScalatraAsyncSupport {
-  type AsyncResult <: T
-  type AsyncContext <: ScalatraAsyncContext
+trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
 
   /**
    * Takes a block and converts it to an action that can be run asynchronously.
@@ -46,7 +40,7 @@ trait AsyncSupport[T <: ScalatraAsyncContext] extends ServletBase with ScalatraA
    * The block of these methods is executed in a lightweight event-driven thread
    * from Akka's dispatchers
    *
-   * See [[org.scalatra.ScalatraSyntax#renderResponseBody]] for the detailed
+   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
    * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *

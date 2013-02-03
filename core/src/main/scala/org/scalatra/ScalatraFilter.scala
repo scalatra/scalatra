@@ -37,7 +37,7 @@ trait ScalatraFilter extends Filter with ServletBase {
 
   // What goes in servletPath and what goes in pathInfo depends on how the underlying servlet is mapped.
   // Unlike the Scalatra servlet, we'll use both here by default.  Don't like it?  Override it.
-  def requestPath = {
+  def requestPath(implicit request: HttpServletRequest) = {
     def getRequestPath = request.getRequestURI match {
       case requestURI: String =>
         var uri = requestURI
@@ -62,7 +62,7 @@ trait ScalatraFilter extends Filter with ServletBase {
     }
   }
 
-  protected def routeBasePath = {
+  protected def routeBasePath(implicit request: HttpServletRequest) = {
     if (servletContext == null)
       throw new IllegalStateException("routeBasePath requires an initialized servlet context to determine the context path")
     servletContext.getContextPath

@@ -9,7 +9,7 @@ import util.{MapWithIndifferentAccess, MultiMapHeadView}
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = ScalatraSyntax ⇒ ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ScalatraBase ⇒ ScentryStrategy[UserType]
 
   private val _globalStrategies = new mutable.HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
@@ -30,14 +30,14 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-    app: ScalatraSyntax,
+    app: ScalatraBase,
     serialize: PartialFunction[UserType, String],
     deserialize: PartialFunction[String, UserType],
     private[this] var _store: ScentryAuthStore) {
 
   private[this] lazy val logger = Logger(getClass)
   type StrategyType = ScentryStrategy[UserType]
-  type StrategyFactory = ScalatraSyntax ⇒ StrategyType
+  type StrategyFactory = ScalatraBase ⇒ StrategyType
 
   import Scentry._
 
@@ -55,10 +55,10 @@ class Scentry[UserType <: AnyRef](
 
   //def session = app.session
   def params: Params = app.params
-  def redirect(uri: String) { app.redirect(uri) }
+  def redirect(uri: String) { app.redirect(uri)(app.request, app.response) }
 
   def register(strategy: => ScentryStrategy[UserType]) {
-    register(strategy.name, ((_: ScalatraSyntax) => strategy))
+    register(strategy.name, ((_: ScalatraBase) => strategy))
   }
   
   def register(name: String, strategyFactory: StrategyFactory) {

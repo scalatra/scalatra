@@ -15,7 +15,7 @@ object ScentryAuthStore {
     def invalidate()
   }
 
-  class CookieAuthStore(app: ScalatraSyntax)(implicit cookieOptions: CookieOptions = CookieOptions(path = "/")) extends ScentryAuthStore {
+  class CookieAuthStore(app: ScalatraBase)(implicit cookieOptions: CookieOptions = CookieOptions(path = "/")) extends ScentryAuthStore {
 
     def get = app.cookies.get(Scentry.scentryAuthKey) getOrElse ""
 
@@ -29,7 +29,7 @@ object ScentryAuthStore {
 
   }
 
-  class SessionAuthStore(app: ScalatraSyntax) extends ScentryAuthStore {
+  class SessionAuthStore(app: ScalatraBase) extends ScentryAuthStore {
 
     def get: String = {
       app.session.get(Scentry.scentryAuthKey).map(_.asInstanceOf[String]).orNull

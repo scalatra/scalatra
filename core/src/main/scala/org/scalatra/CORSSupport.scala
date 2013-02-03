@@ -61,7 +61,7 @@ object CorsSupport {
             "Content-Type").mkString(",")
 
 }
-trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
+trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
 
   import CorsSupport._
 

@@ -4,7 +4,7 @@ import test.specs2.MutableScalatraSpec
 import java.net.HttpCookie
 import collection.JavaConverters._
 
-class XsrfTokenServlet extends ScalatraServlet with CookieSupport with XsrfTokenSupport {
+class XsrfTokenServlet extends ScalatraServlet with XsrfTokenSupport {
 
   xsrfGuard()
 

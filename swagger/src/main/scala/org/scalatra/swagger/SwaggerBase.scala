@@ -8,7 +8,7 @@ import json.JsonSupport
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBaseBase extends Initializable with ScalatraSyntax { self: JsonSupport[_] with CorsSupport =>
+trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
 
   protected type ApiType <: SwaggerApi[_]
 
@@ -75,7 +75,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraSyntax { self: JsonSupp
 
 }
 
-trait SwaggerBase extends SwaggerBaseBase { self: ScalatraSyntax with JsonSupport[_] with CorsSupport =>
+trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   type ApiType = Api
   protected def docToJson(doc: Api): JValue = doc.toJValue
   protected implicit def swagger: SwaggerEngine[ApiType]

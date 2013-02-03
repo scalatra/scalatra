@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponseWrapper
 /**
  * Scalatra handler for gzipped responses.
  */
-trait GZipSupport extends Handler with Initializable {
-  self: ScalatraSyntax =>
+trait GZipSupport extends Handler {
+  self: ScalatraBase =>
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
 

@@ -2,6 +2,7 @@ package org.scalatra
 package i18n
 
 import java.util.Locale
+import javax.servlet.http.HttpServletRequest
 
 object I18nSupport {
   val LocaleKey = "org.scalatra.i18n.locale"
@@ -13,24 +14,24 @@ object I18nSupport {
 
 trait I18nSupport {
 
-  this: ScalatraSyntax =>
+  this: ScalatraBase =>
 
   import I18nSupport._
 
 
-  def locale: Locale  = if (request == null) {
+  def locale(implicit request: HttpServletRequest): Locale  = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call locale")
   } else {
     request.get(LocaleKey).map(_.asInstanceOf[Locale]).orNull
   }
 
-  def userLocales: Array[Locale] = if (request == null) {
+  def userLocales(implicit request: HttpServletRequest): Array[Locale] = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call userLocales")
   } else {
     request.get(UserLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
   }
 
-  def messages: Messages = if (request == null) {
+  def messages(implicit request: HttpServletRequest): Messages = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call messages")
   } else {
     request.get(MessagesKey).map(_.asInstanceOf[Messages]).orNull

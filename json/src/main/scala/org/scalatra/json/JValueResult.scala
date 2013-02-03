@@ -9,7 +9,7 @@ import java.io.{FileInputStream, File}
 import org.scalatra.ActionResult
 import xml.{Node, NodeSeq}
 
-trait JValueResult extends ScalatraSyntax { self: JsonSupport[_] =>
+trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
 
   implicit protected def jsonFormats: Formats
 
