@@ -23,6 +23,9 @@ abstract class MinimalAsyncResult(implicit val asyncContext: ScalatraAsyncContex
   implicit val response: HttpServletResponse = asyncContext.response
   implicit val timeout: Timeout = asyncContext.timeout
   val config: ConfigT = asyncContext.config
+  val servletContext: ServletContext = asyncContext.servletContext
+  val requestPath: String = asyncContext.requestPath
+  protected def routeBasePath: String = ""
   /* end AsyncContextProxy */
 
   def is: Future[_]
@@ -42,14 +45,7 @@ trait FutureSupport extends AsyncSupport[MinimalAsyncResult] {
 
   override protected def isAsyncExecutable(result: Any) = classOf[Future[_]].isAssignableFrom(result.getClass)
 
-  implicit protected def asyncContext(implicit executor: ExecutionContext): AsyncContext = new ScalatraAsyncContext {
-    type ConfigT = FutureSupport.this.ConfigT
-    val config: ConfigT = FutureSupport.this.config
-    implicit val request: HttpServletRequest = FutureSupport.this.request
-    implicit val timeout: Timeout = Timeout(asyncTimeout)
-    implicit val response: HttpServletResponse =  FutureSupport.this.response
-  }
-
+  implicit protected def asyncContext(implicit executor: ExecutionContext): AsyncContext
 
   override protected def renderResponse(actionResult: Any) {
     actionResult match {
@@ -108,11 +104,24 @@ trait FutureSupport extends AsyncSupport[MinimalAsyncResult] {
 }
 
 trait DefaultAsyncContext { self: FutureSupport =>
-  type AsyncContext = ScalatraContext
+  type AsyncContext = ScalatraAsyncContext
   type AsyncResult = MinimalAsyncResult
+
+  implicit protected def asyncContext(implicit executor: ExecutionContext): AsyncContext = new ScalatraAsyncContext {
+    type ConfigT = self.ConfigT
+    val config: ConfigT = self.config
+    implicit val request: HttpServletRequest = self.request
+    implicit val timeout: Timeout = Timeout(asyncTimeout)
+    implicit val response: HttpServletResponse =  self.response
+    val servletContext: ServletContext = self.servletContext
+    val requestPath: String = self.requestPath
+    protected val routeBasePath: String = self.routeBasePath
+  }
 }
 
 class MyApp extends ScalatraServlet with FutureSupport with DefaultAsyncContext {
+
+  implicit protected def executor: ExecutionContext = ExecutionContext.fromExecutorService(Executors.newCachedThreadPool())
 
   get("/foo") {
     new AsyncResult { def is =
@@ -121,4 +130,6 @@ class MyApp extends ScalatraServlet with FutureSupport with DefaultAsyncContext 
       }
     }
   }
+
+
 }

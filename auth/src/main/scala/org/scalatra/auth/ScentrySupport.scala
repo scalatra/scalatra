@@ -11,7 +11,7 @@ trait ScentryConfig {
   val failureUrl = "/unauthenticated"
 }
 
-trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with CookieSupport {
+trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable {
   self: ScalatraSyntax ⇒
 
   type ScentryConfiguration <: ScentryConfig
@@ -37,11 +37,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable with
 
 
   private def initializeScentry = {
-    val store = self match {
-      case a: SessionSupport => new ScentryAuthStore.SessionAuthStore(a.session)
-      case a: ScalatraSyntax with CookieSupport => new ScentryAuthStore.CookieAuthStore(a)
-      case _ => throw new ScalatraException("Scentry needs either SessionSupport or CookieSupport mixed in.")
-    }
+    val store = new ScentryAuthStore.SessionAuthStore(this)
     request.setAttribute(Scentry.ScentryRequestKey, new Scentry[UserType](self, toSession, fromSession, store))
   }
 

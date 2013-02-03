@@ -33,7 +33,7 @@ object SwaggerAuthSpec {
     }
   }
   
-  trait AuthenticatedBase extends ScalatraServlet with NativeJsonSupport with CookieSupport with ScentrySupport[User] {
+  trait AuthenticatedBase extends ScalatraServlet with NativeJsonSupport with ScentrySupport[User] {
     type ScentryConfiguration = ScentryConfig
     protected val scentryConfig: ScentryConfiguration = new ScentryConfig {}
     

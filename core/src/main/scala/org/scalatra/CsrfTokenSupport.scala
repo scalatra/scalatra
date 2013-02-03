@@ -104,7 +104,7 @@ trait XsrfTokenContext { self: ScalatraContext =>
   protected def xsrfToken: String = session(xsrfKey).asInstanceOf[String]
 }
 
-trait XsrfTokenSupport extends XsrfTokenContext { this: ScalatraSyntax with SessionSupport with CookieSupport =>
+trait XsrfTokenSupport extends XsrfTokenContext { this: ScalatraSyntax with SessionSupport =>
 
   import XsrfTokenSupport._
 

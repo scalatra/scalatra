@@ -28,6 +28,10 @@ package object scalatra
   
   @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraSyntax if you don't.", "2.1.0")
   type ScalatraKernel = servlet.ServletBase
+
+  type CoreStack = CorsSupport with FutureSupport with FlashMapSupport
+  type CoreStackWithCsrfToken = CoreStack with CsrfTokenSupport
+  type CoreStackWithXsrfToken = CoreStack with XsrfTokenSupport
   
 //  class OptionDefaults[T](value: Option[T]) {
 //	  /**

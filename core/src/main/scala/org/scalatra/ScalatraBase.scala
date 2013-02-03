@@ -42,9 +42,7 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializable with ScalatraContext with CookieSupport {
-  import ScalatraBase.{HostNameKey, PortKey, ForceHttpsKey}
-
+trait ScalatraSyntax extends ScalatraContext with CoreDsl with RequestResponseScope with Initializable {
 
   /**
    * The routes registered in this kernel.
@@ -69,7 +67,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
    */
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
 //    val realMultiParams = request.multiParameters
-
+    request(CookieSupport.SweetCookiesKey) = new SweetCookies(request.cookies, response)
     response.characterEncoding = Some(defaultCharacterEncoding)
 
     withRequestResponse(request, response) {
@@ -77,6 +75,12 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
       executeRoutes()
     }
   }
+
+
+  /**
+   * The servlet context in which this kernel runs.
+   */
+  def servletContext: ServletContext = config.context
 
   /**
    * Executes routes in the context of the current request and response.
@@ -418,7 +422,7 @@ trait ScalatraSyntax extends CoreDsl with RequestResponseScope with Initializabl
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
    */
-  protected def config: ConfigT
+  def config: ConfigT
 
   def initialize(config: ConfigT)
 
@@ -435,7 +439,7 @@ trait ScalatraBase extends ScalatraSyntax with DynamicScope {
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
    */
-  protected var config: ConfigT = _
+  var config: ConfigT = _
 
   /**
    * Initializes the kernel.  Used to provide context that is unavailable
@@ -444,6 +448,13 @@ trait ScalatraBase extends ScalatraSyntax with DynamicScope {
    *
    * @param config the configuration.
    */
-  def initialize(config: ConfigT) { this.config = config }
+  def initialize(config: ConfigT) {
+    this.config = config
+    val path = contextPath match {
+      case "" => "/" // The root servlet is "", but the root cookie path is "/"
+      case p => p
+    }
+    servletContext(CookieSupport.CookieOptionsKey) = CookieOptions(path = path)
+  }
 
 }

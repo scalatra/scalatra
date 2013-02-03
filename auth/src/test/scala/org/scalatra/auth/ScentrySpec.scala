@@ -29,7 +29,7 @@ object ScentrySpec extends Specification with Mockito {
         sessionMap.clear()
       }
     }
-    val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)}, new SessionAuthStore(context.session))
+    val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)}, new SessionAuthStore(context))
     var beforeFetchCalled = false
     var afterFetchCalled = false
     var beforeSetUserCalled = false
