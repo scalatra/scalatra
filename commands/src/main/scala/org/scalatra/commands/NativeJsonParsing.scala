@@ -3,16 +3,17 @@ package commands
 
 import json.{ NativeJsonSupport, NativeJsonValueReaderProperty }
 import grizzled.slf4j.Logger
+import javax.servlet.http.HttpServletRequest
 
 trait NativeJsonParsing extends CommandSupport with NativeJsonValueReaderProperty { self: NativeJsonSupport with CommandSupport =>
   type CommandType = JsonCommand
 
-  override protected def bindCommand[T <: CommandType](newCommand: T)(implicit mf: Manifest[T]): T = {
+  override protected def bindCommand[T <: CommandType](newCommand: T)(implicit request: HttpServletRequest, mf: Manifest[T]): T = {
     format match {
-      case "json" | "xml" => newCommand.bindTo(parsedBody, multiParams, request.headers)
-      case _ => newCommand.bindTo(params, multiParams, request.headers)
+      case "json" | "xml" => newCommand.bindTo(parsedBody(request), multiParams(request), request.headers)
+      case _ => newCommand.bindTo(params(request), multiParams(request), request.headers)
     }
-    requestProxy.update(commandRequestKey[T], newCommand)
+    request.update(commandRequestKey[T], newCommand)
     newCommand
   }
 

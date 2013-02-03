@@ -177,6 +177,7 @@ class CommandSupportSpec extends Specification with Mockito {
     "provide a convention for request keys with commandRequestKey[T]" in {
 
       val page = new ScalatraPage
+      implicit val mockRequest: HttpServletRequest = smartMock[HttpServletRequest]
       val key = page.commandRequestKey[CommandSample]
       key must_== "_command_" + classOf[CommandSample].getName
 
@@ -186,55 +187,31 @@ class CommandSupportSpec extends Specification with Mockito {
 
       import collection.mutable._
 
-      val mockRequest: Map[String, Any] = Map.empty
-
-      val page = new ScalatraPage {
-        override private[commands] def requestProxy = mockRequest
-      }
-
-      page.commandOption[CommandSample] must beNone
-
+      implicit val mockRequest = smartMock[HttpServletRequest]
+      val page = new ScalatraPage
       val instance = new CommandSample
       val key = page.commandRequestKey[CommandSample]
-      mockRequest(key) = instance
-
+      mockRequest.getAttribute(key) answers { k => instance }
       page.commandOption[CommandSample] must beSome[CommandSample]
       page.commandOption[CommandSample].get must_== instance
     }
 
     "create, bind and store in request new commands with command[T]" in {
 
-      import org.scalatra.servlet.ServletApiImplicits._
-      import collection.mutable._
-
-      val req = smartMock[HttpServletRequest]
-      val mockRequest: Map[String, Any] = Map.empty
-
+      implicit val req = mock[HttpServletRequest].smart
       val page = new ScalatraPage {
-
-
-        /**
-         * The current multiparams.  Multiparams are a result of merging the
-         * standard request params (query string or post params) with the route
-         * parameters extracted from the route matchers of the current route.
-         * The default value for an unknown param is the empty sequence.  Invalid
-         * outside `handle`.
-         */
-        override def multiParams(implicit request: HttpServletRequest): _root_.org.scalatra.MultiParams = MultiMap()
-
-        /**
-         * The currently scoped request.  Valid only inside the `handle` method.
-         */
+        override def multiParams(implicit request: HttpServletRequest): MultiParams = MultiMap()
         override implicit def request = req
-
-        override private[commands] def requestProxy = mockRequest
       }
+      val key = page.commandRequestKey[CommandSample]
+      var cmd: CommandSample = null
+      req.setAttribute(anyString, any[CommandSample]) answers { k =>
+        cmd = k.asInstanceOf[Array[Any]](1).asInstanceOf[CommandSample]
+        ()
+      }
+      req.getAttribute(key) returns cmd
 
       val command = page.command[CommandSample]
-
-      val key = page.commandRequestKey[CommandSample]
-      mockRequest(key).asInstanceOf[AnyRef] must beTheSameAs(command)
-
       command.bound must beTrue
     }
   }
