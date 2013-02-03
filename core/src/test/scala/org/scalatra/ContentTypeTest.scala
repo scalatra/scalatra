@@ -1,9 +1,9 @@
 package org.scalatra
 
-import akka.actor._
-import akka.actor.Actor
-import akka.pattern.ask
-import akka.util.Timeout
+import _root_.akka.actor._
+import _root_.akka.actor.Actor
+import _root_.akka.pattern.ask
+import _root_.akka.util.Timeout
 import scala.xml.Text
 import test.scalatest.ScalatraFunSuite
 import org.scalatra.util.RicherString._
