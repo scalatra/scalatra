@@ -57,25 +57,20 @@ trait FutureSupport extends AsyncSupport {
           def onStartAsync(event: AsyncEvent) {}
         })
 
-        f onSuccess {
+        f onComplete {
           case a ⇒ {
             withinAsyncContext(context) {
               if (gotResponseAlready.compareAndSet(false, true)) {
-                runFilters(routes.afterFilters)
-                super.renderResponse(a)
-
-                context.complete()
-              }
-            }
-          }
-        } onFailure {
-          case t ⇒ {
-            withinAsyncContext(context) {
-              if (gotResponseAlready.compareAndSet(false, true)) {
-                t match {
-                  case e: HaltException ⇒ renderHaltException(e)
-                  case e ⇒ renderResponse(errorHandler(e))
-                }
+                a.fold(
+                  _ match {
+                    case e: HaltException ⇒ renderHaltException(e)
+                    case e ⇒ renderResponse(errorHandler(e))
+                  },
+                  r => {
+                    runFilters(routes.afterFilters)
+                    super.renderResponse(r)
+                  }
+                )
                 context.complete()
               }
             }
