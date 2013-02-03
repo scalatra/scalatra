@@ -1,0 +1,8 @@
+package org.scalatra
+
+
+
+trait CoreStack extends ScalatraSyntax with CorsSupport with FutureSupport with FlashMapSupport
+trait CoreStackWithCsrfToken extends CoreStack with CsrfTokenSupport
+trait CoreStackWithXsrfToken extends CoreStack with XsrfTokenSupport
+trait CoreStackWithCsrfAndXsrfToken extends CoreStack with CsrfTokenSupport with XsrfTokenSupport

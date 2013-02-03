@@ -1,6 +1,7 @@
 package org.scalatra
 package servlet
 
+import _root_.akka.util.Timeout
 import javax.servlet.{AsyncContext, AsyncEvent}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
@@ -8,6 +9,9 @@ object AsyncSupport {
   val ExecutionContextKey = "org.scalatra.ExecutionContext"
 }
 
+trait ScalatraAsyncContext extends ScalatraContext {
+  implicit def timeout: Timeout
+}
 trait AsyncSupport[T <: ScalatraAsyncContext] extends ServletBase with ScalatraAsyncSupport {
   type AsyncResult <: T
   type AsyncContext <: ScalatraAsyncContext

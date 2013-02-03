@@ -35,7 +35,7 @@ object CorsSupport {
                allowCredentials: Boolean,
                preflightMaxAge: Int = 0)
 
-  private def configKey(name: String) = "org.scalatra.cors."+name
+  private[this] def configKey(name: String) = "org.scalatra.cors."+name
   val AllowedOriginsKey = configKey("allowedOrigins")
   val AllowedMethodsKey = configKey("allowedMethods")
   val AllowedHeadersKey = configKey("allowedHeaders")
@@ -119,19 +119,19 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
 */
   }
 
-  private def corsConfig = servletContext.get(CorsConfigKey).orNull.asInstanceOf[CORSConfig]
+  private[this] def corsConfig = servletContext.get(CorsConfigKey).orNull.asInstanceOf[CORSConfig]
 
-  private def originMatches = // 6.2.2
+  private[this] def originMatches = // 6.2.2
     corsConfig.allowedOrigins.contains(AnyOrigin) ||
       (corsConfig.allowedOrigins contains request.headers.get(OriginHeader).getOrElse(""))
 
-  private def isEnabled =
+  private[this] def isEnabled =
     !("Upgrade".equalsIgnoreCase(request.headers.get("Connection").getOrElse("")) &&
       "WebSocket".equalsIgnoreCase(request.headers.get("Upgrade").getOrElse(""))) &&
       !requestPath.contains("eb_ping") // don't do anything for the ping endpoint
 
-  private def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty
-  private def isPreflightRequest = {
+  private[this] def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty
+  private[this] def isPreflightRequest = {
     val isCors = isCORSRequest
     val validRoute = isValidRoute
     val isPreflight = request.headers.get(AccessControlRequestMethodHeader).flatMap(_.blankOption).isDefined
@@ -146,9 +146,9 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
     result
   }
 
-  private def isCORSRequest = request.headers.get(OriginHeader).flatMap(_.blankOption).isDefined // 6.x.1
+  private[this] def isCORSRequest = request.headers.get(OriginHeader).flatMap(_.blankOption).isDefined // 6.x.1
 
-  private def isSimpleHeader(header: String) = {
+  private[this] def isSimpleHeader(header: String) = {
     val ho = header.blankOption
     ho.isDefined && (ho forall { h ⇒
       val hu = h.toUpperCase(ENGLISH)
@@ -157,12 +157,12 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
     })
   }
 
-  private def allOriginsMatch = { // 6.1.2
+  private[this] def allOriginsMatch = { // 6.1.2
     val h = request.headers.get(OriginHeader).flatMap(_.blankOption)
     h.isDefined && h.get.split(" ").nonEmpty && h.get.split(" ").forall(corsConfig.allowedOrigins.contains)
   }
 
-  private def isSimpleRequest = {
+  private[this] def isSimpleRequest = {
     val isCors = isCORSRequest
     val enabled = isEnabled
     val allOrigins = allOriginsMatch
@@ -171,7 +171,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
     res
   }
 
-  private def allowsMethod = { // 5.2.3 and 5.2.5
+  private[this] def allowsMethod = { // 5.2.3 and 5.2.5
     val accessControlRequestMethod = request.headers.get(AccessControlRequestMethodHeader).flatMap(_.blankOption).getOrElse("")
     //    logger.debug("%s is %s" format (ACCESS_CONTROL_REQUEST_METHOD_HEADER, accessControlRequestMethod))
     val result = accessControlRequestMethod.nonBlank && corsConfig.allowedMethods.contains(accessControlRequestMethod.toUpperCase(ENGLISH))
@@ -179,7 +179,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraSyntax ⇒
     result
   }
 
-  private def headersAreAllowed = { // 5.2.4 and 5.2.6
+  private[this] def headersAreAllowed = { // 5.2.4 and 5.2.6
     val allowedHeaders = corsConfig.allowedHeaders.map(_.trim.toUpperCase(ENGLISH))
     val requestedHeaders = for (
       header <- request.headers.getMulti(AccessControlRequestHeadersHeader) if header.nonBlank

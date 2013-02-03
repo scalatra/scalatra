@@ -110,6 +110,10 @@ object FlashMapSupport {
   val FlashMapKey = "org.scalatra.FlashMap"
 }
 
+trait FlashMapContext { self: ScalatraContext =>
+  def flash: FlashMap
+}
+
 /**
  * Allows an action to set key-value pairs in a transient state that is accessible only to the next action and is expired immediately after that.
  * This is especially useful when using the POST-REDIRECT-GET pattern to trace the result of an operation.
@@ -126,8 +130,8 @@ object FlashMapSupport {
  * }}}
  * @see FlashMap
  */
-trait FlashMapSupport extends Handler {
-  this: CoreDsl with DynamicScope with SessionSupport =>
+trait FlashMapSupport extends Handler with FlashMapContext {
+  this: ScalatraSyntax =>
 
   import FlashMapSupport._
 

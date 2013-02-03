@@ -8,7 +8,7 @@ object GenerateId {
     generateCsrfToken()
   }
 
-  private def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
+  private[this] def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
     if((b.toInt & 0xff) < 0x10) sb.append("0")
     sb.append(Integer.toString(b.toInt & 0xff, 16))
   }).toString
@@ -28,16 +28,7 @@ object CsrfTokenSupport {
   val HeaderNames = Vector("X-CSRF-TOKEN")
 }
 
-/**
- * Provides cross-site request forgery protection.
- *
- * Adds a before filter.  If a request is determined to be forged, the
- * `handleForgery()` hook is invoked.  Otherwise, a token for the next
- * request is prepared with `prepareCsrfToken`.
- */
-trait CsrfTokenSupport {
-  this: ScalatraSyntax with SessionSupport =>
-
+trait CsrfTokenContext { self: ScalatraContext =>
   /**
    * The key used to store the token on the session, as well as the parameter
    * of the request.
@@ -48,6 +39,20 @@ trait CsrfTokenSupport {
    * Returns the token from the session.
    */
   protected[scalatra] def csrfToken: String = session(csrfKey).asInstanceOf[String]
+
+}
+
+/**
+ * Provides cross-site request forgery protection.
+ *
+ * Adds a before filter.  If a request is determined to be forged, the
+ * `handleForgery()` hook is invoked.  Otherwise, a token for the next
+ * request is prepared with `prepareCsrfToken`.
+ */
+trait CsrfTokenSupport extends CsrfTokenContext {
+  this: ScalatraSyntax with SessionSupport =>
+
+
 
   before(isForged) { handleForgery() }
   before() { prepareCsrfToken() }
@@ -85,8 +90,7 @@ trait CsrfTokenSupport {
   protected def prepareCSRFToken() = prepareCsrfToken()
 }
 
-trait XsrfTokenSupport { this: ScalatraSyntax with SessionSupport with CookieSupport =>
-
+trait XsrfTokenContext { self: ScalatraContext =>
   import XsrfTokenSupport._
   /**
    * The key used to store the token on the session, as well as the parameter
@@ -98,6 +102,11 @@ trait XsrfTokenSupport { this: ScalatraSyntax with SessionSupport with CookieSup
    * Returns the token from the session.
    */
   protected def xsrfToken: String = session(xsrfKey).asInstanceOf[String]
+}
+
+trait XsrfTokenSupport extends XsrfTokenContext { this: ScalatraSyntax with SessionSupport with CookieSupport =>
+
+  import XsrfTokenSupport._
 
   def xsrfGuard(only: RouteTransformer*) {
     before((only.toSeq ++ Seq[RouteTransformer](isForged)):_*) { handleForgery() }

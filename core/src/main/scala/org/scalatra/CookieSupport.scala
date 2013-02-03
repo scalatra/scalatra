@@ -114,13 +114,18 @@ object CookieSupport {
   val SweetCookiesKey = "org.scalatra.SweetCookies"
   val CookieOptionsKey = "org.scalatra.CookieOptions"
 }
-trait CookieSupport extends Handler with Initializable {
-  self: ScalatraSyntax =>
 
+trait CookieContext { self: ScalatraContext =>
   import CookieSupport._
   implicit def cookieOptions: CookieOptions = servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]
 
   def cookies = request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]
+
+}
+trait CookieSupport extends Handler with Initializable {
+  self: ScalatraSyntax =>
+  import CookieSupport._
+
 
 
   abstract override def initialize(config: ConfigT) {
