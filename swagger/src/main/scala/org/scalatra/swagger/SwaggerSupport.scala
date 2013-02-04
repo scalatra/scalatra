@@ -411,6 +411,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def apiOperation[T: Manifest](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
+  protected def bodyParam[T: Manifest]: ParameterBuilder[T] = bodyParam[T]("body")
+  protected def bodyParam(model: Model): ModelParameterBuilder = bodyParam("body", model)
   protected def bodyParam[T: Manifest](name: String): ParameterBuilder[T] =
     new ParameterBuilder(_models).name(name).fromBody
   protected def bodyParam(name: String, model: Model): ModelParameterBuilder =
