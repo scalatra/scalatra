@@ -19,10 +19,7 @@ object ScalatraBuild extends Build {
     publishSetting,
     resolvers ++= Seq(sonatypeNexusSnapshots),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra"),
-    (LsKeys.docsUrl in LsKeys.lsync) <<= (version){ v =>
-      val majorVersion = v.split(".").dropRight(1).mkString(".")
-      Some(new URL("http://www.scalatra.org/%s/book/" format majorVersion))
-    }
+    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
@@ -80,15 +77,6 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCommands)
 
-//  lazy val scalatraAkka = Project(
-//    id = "scalatra-akka",
-//    base = file("akka"),
-//    settings = scalatraSettings ++ Seq(
-//      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
-//      resolvers += "Akka Repo" at "http://repo.akka.io/repository",
-//      description := "Scalatra akka integration module"
-//    )
-//  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
   lazy val scalatraFileupload = Project(
     id = "scalatra-fileupload",
@@ -103,7 +91,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-atmosphere",
     base = file("atmosphere"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv))),
+      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
       libraryDependencies ++= Seq(atmosphereRuntime, atmosphereClient % "test", jettyWebsocket % "test"),
       description := "Atmosphere integration for scalatra"
     )
@@ -124,7 +112,7 @@ object ScalatraBuild extends Build {
     base = file("json"),
     settings = scalatraSettings ++ Seq(
       description := "JSON support for Scalatra",
-      libraryDependencies ++= Seq(json4sJackson, json4sNative)
+      libraryDependencies ++= Seq(json4sJackson % "provided", json4sNative % "provided", json4sCore)
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -134,7 +122,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.4"
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5"
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=

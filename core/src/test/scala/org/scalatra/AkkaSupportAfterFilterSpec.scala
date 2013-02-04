@@ -1,17 +1,16 @@
-package org.scalatra.akka
+package org.scalatra
 
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.scalatra.ScalatraFilter
-import akka.actor.ActorSystem
-import akka.dispatch.Future
+import _root_.akka.actor.ActorSystem
+import _root_.akka.dispatch.Future
 
 
-class AkkaSupportAfterFilterFilter extends ScalatraFilter with AkkaSupport {
+class AkkaSupportAfterFilterServlet extends ScalatraServlet with FutureSupport {
   val system = ActorSystem()
   var actionTime: Long = _
   var afterTime: Long = _
   var afterCount: Long = _
-  protected implicit lazy val executor = system.dispatcher
+  protected implicit val executor = system.dispatcher
 
   asyncGet("/async") {
     Thread.sleep(2000)
@@ -57,72 +56,71 @@ class AkkaSupportAfterFilterFilter extends ScalatraFilter with AkkaSupport {
   }
 }
 
-class AkkaSupportAfterFilterForFiltersSpec extends MutableScalatraSpec {
+class AkkaSupportAfterFilterSpec extends MutableScalatraSpec {
   sequential
 
-  val filter = new AkkaSupportAfterFilterFilter()
-  addFilter(filter, "/foo/*")
-  addFilter(filter, "/*")
+  val servlet = new AkkaSupportAfterFilterServlet()
+  addServlet(servlet, "/foo/*")
+  addServlet(servlet, "/*")
 
   "after filters for asynchronous actions" should {
     "run after the action" in {
-      filter.reset()
+      servlet.reset()
 
       get("/async") {
-        filter.afterTime must beGreaterThan(filter.actionTime)
+        servlet.afterTime must beGreaterThan(servlet.actionTime)
       }
     }
 
     "run only once" in {
-      filter.reset()
+      servlet.reset()
 
       get("/async") {
-        filter.afterCount mustEqual 1
+        servlet.afterCount mustEqual 1
       }
     }
 
     "all execute" in {
-      filter.reset()
+      servlet.reset()
 
       get("/async-two-afters") {
-        filter.afterCount mustEqual 2
+        servlet.afterCount mustEqual 2
       }
     }
 
     "work when contextPath != /" in {
-      pending("Until we come up with a thread-safe solution to this")
-      filter.reset()
+      servlet.reset()
 
       get("/foo/async-two-afters") {
-        filter.afterCount mustEqual 2
+        servlet.afterCount mustEqual 2
       }
     }
   }
 
   "after filters for synchronous get with Future return value" should {
     "run after the action" in {
-      filter.reset()
+      servlet.reset()
 
       get("/future") {
-        filter.afterTime must beGreaterThan(filter.actionTime)
+        servlet.afterTime must beGreaterThan(servlet.actionTime)
       }
     }
 
     "run only once" in {
-      filter.reset()
+      servlet.reset()
 
       get("/future") {
-        filter.afterCount mustEqual 1
+        servlet.afterCount mustEqual 1
       }
     }
   }
 
   "after filters for synchronous actions" should {
     "run normally" in {
-      filter.reset()
+      servlet.reset()
 
       get("/sync") {
-        filter.afterCount mustEqual 1
+        servlet.afterCount mustEqual 1
       }
     }
   }
