@@ -14,7 +14,7 @@
   }, {
     "organization" : "org.clapper",
     "name" : "grizzled-slf4j",
-    "version" : "0.6.10"
+    "version" : "1.0.1"
   }, {
     "organization" : "org.scalatra.rl",
     "name" : "rl",
@@ -38,9 +38,9 @@
   }, {
     "organization" : "com.typesafe.akka",
     "name" : "akka-actor",
-    "version" : "2.0.5"
+    "version" : "2.1.0"
   } ],
-  "scalas" : [ "2.9.2" ],
+  "scalas" : [ "2.10.0" ],
   "licenses" : [ {
     "name" : "BSD",
     "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"

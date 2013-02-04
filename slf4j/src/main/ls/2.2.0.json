@@ -10,13 +10,13 @@
   "dependencies" : [ {
     "organization" : "org.clapper",
     "name" : "grizzled-slf4j",
-    "version" : "0.6.10"
+    "version" : "1.0.1"
   }, {
     "organization" : "ch.qos.logback",
     "name" : "logback-classic",
     "version" : "1.0.9"
   } ],
-  "scalas" : [ "2.9.2" ],
+  "scalas" : [ "2.10.0" ],
   "licenses" : [ {
     "name" : "BSD",
     "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"

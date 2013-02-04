@@ -24,7 +24,7 @@
     "name" : "guice",
     "version" : "3.0"
   } ],
-  "scalas" : [ "2.9.2" ],
+  "scalas" : [ "2.10.0" ],
   "licenses" : [ {
     "name" : "BSD",
     "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"

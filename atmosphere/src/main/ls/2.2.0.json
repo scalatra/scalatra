@@ -10,13 +10,13 @@
   "dependencies" : [ {
     "organization" : "com.typesafe.akka",
     "name" : "akka-actor",
-    "version" : "2.0.5"
+    "version" : "2.1.0"
   }, {
     "organization" : "org.atmosphere",
     "name" : "atmosphere-runtime",
     "version" : "1.0.9"
   } ],
-  "scalas" : [ "2.9.2" ],
+  "scalas" : [ "2.10.0" ],
   "licenses" : [ {
     "name" : "BSD",
     "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"

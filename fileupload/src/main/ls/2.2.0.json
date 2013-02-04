@@ -16,7 +16,7 @@
     "name" : "commons-io",
     "version" : "2.4"
   } ],
-  "scalas" : [ "2.9.2" ],
+  "scalas" : [ "2.10.0" ],
   "licenses" : [ {
     "name" : "BSD",
     "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"

@@ -16,7 +16,7 @@
     "name" : "jetty-servlet",
     "version" : "8.1.8.v20121106"
   } ],
-  "scalas" : [ "2.9.2" ],
+  "scalas" : [ "2.10.0" ],
   "licenses" : [ {
     "name" : "BSD",
     "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"

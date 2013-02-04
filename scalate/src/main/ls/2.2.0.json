@@ -9,10 +9,10 @@
   "resolvers" : [ "https://oss.sonatype.org/content/repositories/releases" ],
   "dependencies" : [ {
     "organization" : "org.fusesource.scalate",
-    "name" : "scalate-core_2.9",
+    "name" : "scalate-core_2.10",
     "version" : "1.6.1"
   } ],
-  "scalas" : [ "2.9.2" ],
+  "scalas" : [ "2.10.0" ],
   "licenses" : [ {
     "name" : "BSD",
     "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"
