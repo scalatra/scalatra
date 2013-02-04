@@ -130,32 +130,26 @@ object SwaggerSupportSyntax {
   }
 
 
-  class ParameterBuilder[T:Manifest](models: mutable.Map[String, Model]) {
+  trait SwaggerParameterBuilder {
 
-    registerModel[T]
+
 
     private[this] var _name: String = _
     private[this] var _description: String = ""
-    private[this] val dataType: DataType.DataType = DataType[T]
+
     private[this] var _notes: Option[String] = None
     private[this] var _paramType: ParamType.ParamType = ParamType.Query
-    private[this] var _defaultValue: Option[String] = None
+
     private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
     private[this] var _required: Boolean = true
 
-    protected def registerModel[R:Manifest]() {
-      models ++= Swagger.collectModels[R](models.values.toSet).map(m => m.id -> m)
-    }
-
+    def dataType: DataType.DataType
     def name(name: String): this.type = { _name = name; this }
     def description(description: String): this.type = { _description = description; this }
 
     def notes(notes: String): this.type = { _notes = notes.blankOption; this }
     def paramType(name: ParamType.ParamType): this.type = { _paramType = name; this }
-    def defaultValue(value: T): this.type = {
-      _defaultValue = allCatch.withApply(_ => None){ value.toString.blankOption }
-      this
-    }
+
     def allowableValues[V](values: V*): this.type = {
       _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values:_*)
       this
@@ -167,12 +161,12 @@ object SwaggerSupportSyntax {
     def allowableValues(values: Range): this.type = { _allowableValues = AllowableValues(values); this }
     def required: this.type = { _required = true; this }
     def optional: this.type = { _required = false; this }
-
+    def defaultValue: Option[String] = None
     def name: String = _name
     def description: String = _description
     def notes: Option[String] = _notes
     def paramType: ParamType.ParamType = _paramType
-    def defaultValue: Option[String] = _defaultValue
+
     def allowableValues: AllowableValues = _allowableValues
     def isRequired: Boolean = _required
     def allowsMultiple: Boolean = {
@@ -182,6 +176,25 @@ object SwaggerSupportSyntax {
 
     def result =
       Parameter(name, description, dataType, notes, paramType, defaultValue, allowableValues, isRequired, allowsMultiple)
+  }
+
+  class ParameterBuilder[T:Manifest](models: mutable.Map[String, Model]) extends SwaggerParameterBuilder {
+    registerModel[T]
+    private[this] var _defaultValue: Option[String] = None
+    val dataType: DataType.DataType = DataType[T]
+    override def defaultValue = _defaultValue
+    protected def registerModel[R:Manifest]() {
+      models ++= Swagger.collectModels[R](models.values.toSet).map(m => m.id -> m)
+    }
+    def defaultValue(value: T): this.type = {
+      _defaultValue = allCatch.withApply(_ => None){ value.toString.blankOption }
+      this
+    }
+  }
+
+  class ModelParameterBuilder(models: mutable.Map[String, Model], model: Model) extends SwaggerParameterBuilder {
+    models += model.id -> model
+    val dataType: DataType.DataType = DataType(model.id)
   }
 
   trait SwaggerOperationBuilder[T <: SwaggerOperation] {
@@ -229,6 +242,20 @@ object SwaggerSupportSyntax {
   class OperationBuilder[T:Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[Operation] {
     registerModel[T]
     val resultClass: String = DataType[T].name
+    def result: Operation = Operation(
+      null,
+      resultClass,
+      summary,
+      notes,
+      deprecated,
+      nickname,
+      parameters,
+      errorResponses ::: defaultErrors)
+  }
+
+  class ModelOperationBuilder(val models: mutable.Map[String, Model], protected val defaultErrors: List[Error], model: Model) extends SwaggerOperationBuilder[Operation] {
+    models += model.id -> model
+    val resultClass: String = model.id
     def result: Operation = Operation(
       null,
       resultClass,
@@ -377,8 +404,11 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
   import SwaggerSupportSyntax._
   protected def apiOperation[T: Manifest](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
-  implicit def parameterBuilder2parameter[T](pmb: ParameterBuilder[T]): Parameter = pmb.result
-  protected def parameter[T: Manifest](name: String) = new ParameterBuilder(_models).name(name)
+  implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
+  protected def parameter[T: Manifest](name: String): ParameterBuilder[T] =
+    new ParameterBuilder(_models).name(name)
+  protected def parameter(name: String, model: Model): ModelParameterBuilder =
+    new ModelParameterBuilder(_models, model).name(name)
   protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
 
 
@@ -405,9 +435,11 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
 
   import SwaggerSupportSyntax._
 
-  protected implicit def operationBuilder2operation[T](bldr: OperationBuilder[T]): Operation = bldr.result
+  protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
   protected def apiOperation[T: Manifest](nickname: String): OperationBuilder[T] =
     new OperationBuilder[T](_models, swaggerDefaultErrors).nickname(nickname)
+  protected def apiOperation(nickname: String, model: Model): ModelOperationBuilder =
+    new ModelOperationBuilder(_models, swaggerDefaultErrors, model).nickname(nickname)
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
