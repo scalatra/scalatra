@@ -84,13 +84,33 @@ object AuthApi {
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
-  class AuthOperationBuilder[T <: AnyRef, M: Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[AuthOperation[T]] {
-    registerModel[M]
-    val resultClass: String = DataType[M].name
+  trait SwaggerAuthOperationBuilder[T <: AnyRef] extends SwaggerOperationBuilder[AuthOperation[T]] {
     private[this] var _allows: Option[T] => Boolean = (u: Option[T]) => true
     def allows: Option[T] => Boolean = _allows
     def allows(guard: Option[T] => Boolean): this.type = { _allows = guard; this }
     def allowAll: this.type = { _allows = (u: Option[T]) => true; this }
+  }
+  class AuthOperationBuilder[T <: AnyRef, M: Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerAuthOperationBuilder[T] {
+    registerModel[M]
+    val resultClass: String = DataType[M].name
+
+    def result: AuthOperation[T] = AuthOperation[T](
+      null,
+      resultClass,
+      summary,
+      notes,
+      deprecated,
+      nickname,
+      parameters,
+      errorResponses ::: defaultErrors,
+      allows
+    )
+  }
+
+  class ModelAuthOperationBuilder[T <: AnyRef](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error], model: Model) extends SwaggerAuthOperationBuilder[T] {
+    models += model.id -> model
+    val resultClass: String = model.id
+
     def result: AuthOperation[T] = AuthOperation[T](
       null,
       resultClass,
@@ -167,11 +187,14 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
   
   private def allowAll = (u: Option[TypeForUser]) => true
 
-  protected implicit def operationBuilder2operation[T:Manifest](bldr: AuthApi.AuthOperationBuilder[TypeForUser, T]): AuthOperation[TypeForUser] =
+  protected implicit def operationBuilder2operation[T:Manifest](bldr: AuthApi.SwaggerAuthOperationBuilder[TypeForUser]): AuthOperation[TypeForUser] =
     bldr.result
 
   protected def apiOperation[T: Manifest](nickname: String): AuthApi.AuthOperationBuilder[TypeForUser, T] =
     new AuthApi.AuthOperationBuilder[TypeForUser, T](_models, swaggerDefaultErrors).nickname(nickname)
+
+  protected def apiOperation(nickname: String, model: Model): AuthApi.ModelAuthOperationBuilder[TypeForUser] =
+    new AuthApi.ModelAuthOperationBuilder[TypeForUser](_models, swaggerDefaultErrors, model).nickname(nickname)
 
 
   /**
