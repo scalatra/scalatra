@@ -1,12 +1,11 @@
-package org.scalatra.akka
+package org.scalatra
 
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.scalatra.ScalatraServlet
-import akka.actor.ActorSystem
 import scala.concurrent.Future
+import _root_.akka.actor.ActorSystem
 
 
-class AkkaSupportAfterFilterServlet extends ScalatraServlet with AkkaSupport {
+class AkkaSupportAfterFilterServlet extends ScalatraServlet with FutureSupport {
   val system = ActorSystem()
   var actionTime: Long = _
   var afterTime: Long = _

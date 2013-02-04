@@ -1,5 +1,4 @@
 package org.scalatra
-package akka
 
 import _root_.akka.actor._
 import scala.concurrent.Await
@@ -12,23 +11,23 @@ import test.specs2.MutableScalatraSpec
 import scala.util.control.ControlThrowable
 import runtime.NonLocalReturnControl
 
-class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
+class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   val system = ActorSystem()
   protected implicit val executor = system.dispatcher
   override def asyncTimeout = 2 seconds
-  
+
   asyncGet("/working") {
     "the-working-reply"
   }
-    
+
   asyncGet("/timeout") {
     Thread.sleep((asyncTimeout plus 1.second).toMillis)
   }
-  
+
   asyncGet("/fail") {
     throw new RuntimeException
   }
-    
+
   asyncGet("/halt") {
     halt(419)
   }
@@ -45,9 +44,9 @@ class AkkaSupportServlet extends ScalatraServlet with AkkaSupport {
     case e => "caught"
   }
 
-  override def destroy() { 
+  override def destroy() {
     super.destroy()
-    system.shutdown() 
+    system.shutdown()
   }
 }
 
@@ -62,7 +61,7 @@ class AkkaSupportSpec extends MutableScalatraSpec {
         body must_== "the-working-reply"
       }
     }
-    
+
     "respond with timeout if no timely reply from the actor" in {
       get("/timeout") {
         status must_== 504

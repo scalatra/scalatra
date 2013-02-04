@@ -1,7 +1,8 @@
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 resolvers ++= Seq(
-  "less is" at "http://repo.lessis.me"
+  "less is" at "http://repo.lessis.me",
+  "coda" at "http://repo.codahale.com"
 )
 
 libraryDependencies <+= sbtVersion(v => v match {
@@ -15,4 +16,5 @@ libraryDependencies <+= sbtVersion(v => v match {
 addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.2")
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.2.0")
+
 
