@@ -1,6 +1,7 @@
 package org.scalatra
 package akka
 
+import _root_.akka.util.Duration
 import _root_.akka.util.duration._
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.servlet.{ AsyncContext, AsyncEvent, AsyncListener }
@@ -17,10 +18,7 @@ trait AkkaSupport extends AsyncSupport {
   private implicit lazy val _executor = akkaDispatcherName map system.dispatchers.lookup getOrElse system.dispatcher
   override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
 
-  // Still thinking of the best way to specify this before making it public. 
-  // In the meantime, this gives us enough control for our test.
-  private[scalatra] def asyncTimeout = 30 seconds
-
+  protected def asyncTimeout: Duration = 30 seconds
 
   override protected def isAsyncExecutable(result: Any) = result match {
     case _: Future[_] => true
