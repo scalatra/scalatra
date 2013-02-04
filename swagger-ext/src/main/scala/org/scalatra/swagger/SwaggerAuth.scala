@@ -187,10 +187,10 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
   
   private def allowAll = (u: Option[TypeForUser]) => true
 
-  protected implicit def operationBuilder2operation[T:Manifest](bldr: AuthApi.SwaggerAuthOperationBuilder[TypeForUser]): AuthOperation[TypeForUser] =
+  protected implicit def operationBuilder2operation(bldr: AuthApi.SwaggerAuthOperationBuilder[TypeForUser]): AuthOperation[TypeForUser] =
     bldr.result
 
-  protected def apiOperation[T: Manifest](nickname: String): AuthApi.AuthOperationBuilder[TypeForUser, T] =
+  protected def apiOperation[T](nickname: String)(implicit mf: Manifest[T]): AuthApi.AuthOperationBuilder[TypeForUser, T] =
     new AuthApi.AuthOperationBuilder[TypeForUser, T](_models, swaggerDefaultErrors).nickname(nickname)
 
   protected def apiOperation(nickname: String, model: Model): AuthApi.ModelAuthOperationBuilder[TypeForUser] =
