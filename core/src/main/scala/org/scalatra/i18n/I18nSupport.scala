@@ -31,6 +31,7 @@ trait I18nSupport {
     request.get(UserLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
   }
 
+  def messages(key: String)(implicit request: HttpServletRequest): String = messages(request)(key)
   def messages(implicit request: HttpServletRequest): Messages = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call messages")
   } else {
