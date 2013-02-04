@@ -137,8 +137,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
       summary "Show all pets"
       notes "shows all the pets in the data store")
   get("/",
-      operation(rootOperation),
-      endpoint("")) {
+      operation(rootOperation)) {
     data.pets
   }
 
@@ -149,7 +148,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
       errors (Error(400, "Invalid ID supplied"), Error(404, "Pet not found"))
       parameter parameter[String]("id").description("ID of pet that needs to be fetched").paramType(ParamType.Path))
 
-  get("/:id", endpoint("{id}"), operation(getPet)) {
+  get("/:id", operation(getPet)) {
     data.getPetbyId(params.getAs[Long]("petId").getOrElse(0))
   }
 
@@ -159,7 +158,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
       error Error(400, "Invalid pet data supplied")
       parameter parameter[Pet]("body").description("Pet object that needs to be added to the store").paramType(ParamType.Body))
 
-  post("/", endpoint(""), operation(createPet)) {
+  post("/", operation(createPet)) {
     ApiResponse(ApiResponseType.OK, "pet added to store")
   }
 
@@ -169,7 +168,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
       error Error(404, "Pet not found")
       parameter parameter[Pet]("body").description("Pet object that needs to be updated in the store").paramType(ParamType.Body))
 
-  put("/", endpoint(""), operation(updatePet)) {
+  put("/", operation(updatePet)) {
     ApiResponse(ApiResponseType.OK, "pet updated")
   }
 
@@ -182,7 +181,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
                   defaultValue "available"
                   allowableValues ("available", "pending", "sold")))
 
-  get("/findByStatus", endpoint("findByStatus"), operation(findByStatus)) {
+  get("/findByStatus", operation(findByStatus)) {
     data.findPetsByStatus(params("status"))
   }
 
@@ -192,7 +191,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
         notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
         parameter parameter[String]("tags").description("Tags to filter by"))
 
-  get("/findByTags", endpoint("findByTags"), operation(findByTags)) {
+  get("/findByTags", operation(findByTags)) {
     data.findPetsByTags(params("tags"))
   }
 }

@@ -6,6 +6,7 @@ import collection.JavaConverters._
 import util.RicherString._
 import javax.servlet.{ Servlet, Filter }
 import com.wordnik.swagger.core.ApiPropertiesReader
+import scala.util.parsing.combinator.RegexParsers
 
 trait SwaggerSupportBase {
   /**
@@ -21,6 +22,112 @@ trait SwaggerSupportBase {
 }
 object SwaggerSupportSyntax {
   private[swagger] case class Entry[T <: SwaggerOperation](key: String, value: T)
+
+  class SinatraSwaggerGenerator(matcher: SinatraRouteMatcher) {
+    def toSwaggerPath: String = BuilderGeneratorParser(matcher.toString)(Builder("")).get
+
+    case class Builder(path: String) {
+
+      def addLiteral(text: String): Builder = copy(path = path + text)
+
+      def addSplat: Builder = throw new ScalatraException("Splats are not supported for swagger path inference")
+
+      def addNamed(name: String): Builder =
+        copy(path = path+"{"+name+"}")
+
+      def addOptional(name: String): Builder =
+        copy(path = path+"{"+name+"}")
+
+      def addPrefixedOptional(name: String, prefix: String): Builder =
+        copy(path = path+prefix+"{"+name+"}")
+
+      // checks all splats are used, appends additional params as a query string
+      def get: String = path
+    }
+
+    object BuilderGeneratorParser extends RegexParsers {
+
+      def apply(pattern: String): (Builder => Builder) = parseAll(tokens, pattern) get
+
+      private def tokens: Parser[Builder => Builder] = rep(token) ^^ {
+        tokens => tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
+      }
+
+      private def token: Parser[Builder => Builder] = splat | prefixedOptional | optional | named | literal
+
+      private def splat: Parser[Builder => Builder] = "*" ^^^ { builder => builder addSplat }
+
+      private def prefixedOptional: Parser[Builder => Builder] =
+        ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ {
+          case p ~ "?:" ~ o ~ "?" => builder => builder addPrefixedOptional (o, p)
+        }
+
+      private def optional: Parser[Builder => Builder] =
+        "?:" ~> """\w+""".r <~ "?" ^^ { str => builder => builder addOptional str }
+
+      private def named: Parser[Builder => Builder] =
+        ":" ~> """\w+""".r ^^ { str => builder => builder addNamed str }
+
+      private def literal: Parser[Builder => Builder] =
+        ("""[\.\+\(\)\$]""".r | ".".r) ^^ { str => builder => builder addLiteral str }
+    }
+  }
+
+  class RailsSwaggerGenerator(matcher: RailsRouteMatcher) {
+    def toSwaggerPath: String = BuilderGeneratorParser(matcher.toString())(Builder("")).get
+
+    case class Builder(path: String) {
+
+      def addStatic(text: String): Builder = copy(path = path + text)
+
+      def addParam(name: String): Builder =
+        copy(path = path+"{"+name+"}")
+
+      def optional(builder: Builder => Builder): Builder =
+        try builder(this)
+        catch { case e: Exception => this }
+
+      // appends additional params as a query string
+      def get: String = path
+    }
+
+    object BuilderGeneratorParser extends RegexParsers {
+
+      def apply(pattern: String): (Builder => Builder) = parseAll(tokens, pattern) get
+
+      private def tokens: Parser[Builder => Builder] = rep(token) ^^ {
+        tokens => tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
+      }
+
+      //private def token = param | glob | optional | static
+      private def token: Parser[Builder => Builder] = param | glob | optional | static
+
+      private def param: Parser[Builder => Builder] =
+        ":" ~> identifier ^^ { str => builder => builder addParam str }
+
+      private def glob: Parser[Builder => Builder] =
+        "*" ~> identifier ^^ { str => builder => builder addParam str }
+
+      private def optional: Parser[Builder => Builder] =
+        "(" ~> tokens <~ ")" ^^ { subBuilder => builder => builder optional subBuilder }
+
+      private def static: Parser[Builder => Builder] =
+        (escaped | char) ^^ { str => builder => builder addStatic str }
+
+      private def identifier = """[a-zA-Z_]\w*""".r
+
+      private def escaped = literal("\\") ~> (char | paren)
+
+      private def char = metachar | stdchar
+
+      private def metachar = """[.^$|?+*{}\\\[\]-]""".r
+
+      private def stdchar = """[^()]""".r
+
+      private def paren = ("(" | ")")
+    }
+  }
+
 
   class ParameterBuilder[T:Manifest](models: mutable.Map[String, Model]) {
 
@@ -275,12 +382,14 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
     route.copy(metadata = route.metadata + (s -> v))
   }
   implicit def dataType2string(dt: DataType.DataType) = dt.name
+
   protected def inferSwaggerEndpoint(route: Route): String = route match {
-    case rev if rev.isReversible => rev.routeMatchers.head match {
-      case sin: SinatraRouteMatcher => sin.toString
-      case rails: RailsPathPatternParser => rails.toString
-      case _ => ""
-    }
+    case rev if rev.isReversible =>
+      rev.routeMatchers collectFirst {
+        case sin: SinatraRouteMatcher => new SinatraSwaggerGenerator(sin).toSwaggerPath
+        case rails: RailsRouteMatcher => new RailsSwaggerGenerator(rails).toSwaggerPath
+        case path: PathPatternRouteMatcher => path.toString
+      } getOrElse ""
     case _ => ""
   }
 }
@@ -310,7 +419,8 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
     (ops groupBy (_.key)).toList map { case (name, entries) ⇒
       val desc = _description lift name getOrElse ""
       val pth = if (basePath endsWith "/") basePath else basePath + "/"
-      new Endpoint(pth + name, desc, false, (entries.toList map (_.value)) )
+      val nm = if (name startsWith "/") name.substring(1) else name
+      new Endpoint(pth + nm, desc, false, (entries.toList map (_.value)) )
     } sortBy (_.path)
   }
 

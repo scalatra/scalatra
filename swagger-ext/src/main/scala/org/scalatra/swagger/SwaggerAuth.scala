@@ -190,7 +190,8 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
       val sec = entries.exists(!_.value.allows(None))
       val desc = _description.lift apply name getOrElse ""
       val pth = if (basePath endsWith "/") basePath else basePath + "/"
-      new AuthEndpoint[TypeForUser](pth + name, desc, sec, entries.toList map (_.value))
+      val nm = if (name startsWith "/") name.substring(1) else name
+      new AuthEndpoint[TypeForUser](pth + nm, desc, sec, entries.toList map (_.value))
     } sortBy (_.path)
   }
   /**
