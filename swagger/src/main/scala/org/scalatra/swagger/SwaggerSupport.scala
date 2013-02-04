@@ -74,7 +74,7 @@ object SwaggerSupportSyntax {
   }
 
   trait SwaggerOperationBuilder[T <: SwaggerOperation] {
-    protected def models: mutable.Map[String, Model]
+    def models: mutable.Map[String, Model]
     protected def defaultErrors: List[Error]
 
     private[this] var _summary: String = ""
@@ -84,7 +84,7 @@ object SwaggerSupportSyntax {
     private[this] var _parameters: List[Parameter] = Nil
     private[this] var _errorResponses: List[Error] = Nil
 
-    protected def registerModel[R:Manifest]() {
+    def registerModel[R:Manifest]() {
       models ++= Swagger.collectModels[R](models.values.toSet).map(m => m.id -> m)
     }
     def resultClass: String
@@ -115,7 +115,7 @@ object SwaggerSupportSyntax {
 
     def result: T
   }
-  class OperationBuilder[T:Manifest](protected val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[Operation] {
+  class OperationBuilder[T:Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[Operation] {
     registerModel[T]
     val resultClass: String = DataType[T].name
     def result: Operation = Operation(

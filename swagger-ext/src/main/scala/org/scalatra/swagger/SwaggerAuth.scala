@@ -84,7 +84,7 @@ object AuthApi {
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
-  class AuthOperationBuilder[T <: AnyRef, M: Manifest](protected val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[AuthOperation[T]] {
+  class AuthOperationBuilder[T <: AnyRef, M: Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[AuthOperation[T]] {
     registerModel[M]
     val resultClass: String = DataType[M].name
     private[this] var _allows: Option[T] => Boolean = (u: Option[T]) => true

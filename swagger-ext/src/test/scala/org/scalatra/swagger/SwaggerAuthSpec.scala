@@ -86,19 +86,19 @@ object SwaggerAuthSpec {
       uu.isDefined && uu != Some("john")
     }
     
-    get("/", endpoint(""), nickname("getPets")) {
+    get("/", endpoint(""), operation(apiOperation[Unit]("getPets"))) {
       "OK"
     }
     
-    get("/authenticated", endpoint("authenticated"), allows(allowsAuthenticated), nickname("authenticated")) {
+    get("/authenticated", endpoint("authenticated"), operation(apiOperation[Unit]("authenticated").allows(allowsAuthenticated))) {
       "OK"
     }
     
-    get("/admin", endpoint("admin"), allows(allowsTom), nickname("admin")) {
+    get("/admin", endpoint("admin"), operation(apiOperation[Unit]("admin").allows(allowsTom))) {
       "OK"
     }
     
-    get("/kate-and-tom", endpoint("kate-and-tom"), allows(noJohn), nickname("getKateAndTom")) {
+    get("/kate-and-tom", endpoint("kate-and-tom"), operation(apiOperation[Unit]("getKateAndTom").allows(noJohn))) {
       "OK"
     }
   }
@@ -114,16 +114,16 @@ object SwaggerAuthSpec {
       u.map(_.login) == Some("tom")
     }
     
-    get("/", allows(isAllowed), endpoint(""), nickname("adminlist")) {
+    get("/", endpoint(""), operation(apiOperation[Unit]("adminlist").allows(isAllowed))) {
       println("executing / ")
       "OK"
     }
     
-    get("/blah", allows(isAllowed), endpoint("blah"), nickname("getBlah")) {
+    get("/blah",  endpoint("blah"), operation(apiOperation[Unit]("blah").allows(isAllowed))) {
       "OK"
     }
     
-    post("/blah", allows(isAllowed), endpoint("blah"), nickname("createBlah")) {
+    post("/blah", endpoint("blah"), operation(apiOperation[Unit]("createBlah").allows(isAllowed))) {
       "OK"
     }
   }

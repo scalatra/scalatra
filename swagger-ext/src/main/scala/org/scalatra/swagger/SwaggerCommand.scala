@@ -5,6 +5,8 @@ import org.scalatra.commands._
 import org.scalatra.util.RicherString._
 import scalaz._
 import Scalaz._
+import swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
+import swagger.SwaggerCommandSupport.CommandOperationBuilder
 
 object SwaggerCommandSupport {
   
@@ -59,14 +61,34 @@ object SwaggerCommandSupport {
     val modelFields = fields.map(f => f.name -> ModelField(f.name, f.description, f.dataType, f.defaultValue, required = f.required))
     Model(cmd.commandName, cmd.commandDescription, Map(modelFields:_*))
   }
+
+  class CommandOperationBuilder[B <: SwaggerOperationBuilder[_]](underlying: B) {
+    def parametersFromCommand[C <: Command : Manifest]: B =
+      parametersFromCommand(manifest[C].erasure.newInstance().asInstanceOf[C])
+
+    def parametersFromCommand[C <: Command : Manifest](cmd: => C): B = {
+      SwaggerCommandSupport.parametersFromCommand(cmd) match {
+        case (parameters, None) =>
+        case (parameters, Some(model)) =>
+          underlying.models += model.id -> model
+          underlying.parameters(parameters:_*)
+      }
+      underlying
+    }
+  }
 }
 trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
 
+  @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def parameters[T <: CommandType : Manifest] =
     swaggerMeta(Symbols.Parameters, parametersFromCommand[T])
 
+  @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def parameters[T <: CommandType : Manifest](cmd: => T) =
     swaggerMeta(Symbols.Parameters, parametersFromCommand(cmd))
+
+  protected implicit def operationBuilder2commandOpBuilder[B <: SwaggerOperationBuilder[_]](underlying: B) =
+    new CommandOperationBuilder(underlying)
   
   
   private[this] def parametersFromCommand[T <: CommandType](implicit mf: Manifest[T]): List[Parameter] = {
