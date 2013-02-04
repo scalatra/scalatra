@@ -1,8 +1,9 @@
 package org.scalatra
 
-import scala.collection.mutable.{Map => MMap, Set => MSet}
 import util.MutableMapWithIndifferentAccess
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import collection.JavaConverters._
+import java.util.concurrent.{ConcurrentSkipListSet, ConcurrentHashMap}
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
@@ -15,8 +16,8 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
  * @see FlashMapSupport
  */
 class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
-  private[this] val m = MMap[String, Any]()
-  private[this] val flagged = MSet[String]()
+  private[this] val m = new ConcurrentHashMap[String, Any]().asScala
+  private[this] val flagged = new ConcurrentSkipListSet[String]().asScala
 
   /**
    * Removes an entry from the flash map.  It is no longer available for this
