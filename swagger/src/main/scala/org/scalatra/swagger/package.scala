@@ -10,5 +10,7 @@ package object swagger {
     val Errors = Symbol("swagger.errors")
     val Endpoint = Symbol("swagger.endpoint")
     val Allows = Symbol("swagger.allows")
+    val Operation = Symbol("swagger.extractOperation")
+    val Description = Symbol("swagger.description")
   }
 }

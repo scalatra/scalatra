@@ -9,6 +9,11 @@
 * Contrib project has been removed, all the modules have been moved into the main scalatra project
 * Add `shutdown` hook.  Unifies the destruction of servlets and filters.
 * Support case insensitive method override header
+* *BREAKING* Most of the methods that use the request or response now take a request or response as implicit parameter.
+  In combination with using the AsyncResult as container for futures sorts out the issues we have with
+  the dynamic variables being thread-locals and using params or session values in the closures passed to futures.
+  This may break your code when you have overrides for the affected methods.
+  In most cases adding an (implicit request: HttpServletRequest) to the overriden method is enough to fix it.
 
 ### Core
 * Adds typed param support, previously in contrib
@@ -89,6 +94,7 @@
 ### Akka
 * Updates akka to 2.0.5
 * *BREAKING* Do not require ActorSystem.  Use implicit executor parameter. [GH-250](https://github.com/scalatra/scalatra/pull/250)
+* This has been moved into scalatra-core and renamed to `org.scalatra.FutureSupport`
 
 ### Atmosphere
 * Adds an atmosphere integration
@@ -128,6 +134,19 @@
 * Optionally integrate commands into swagger support to generate model and parameter definitions.
 * Fix generating paths for servlet mounted at / in the context.
 * Deprecated manually registering models, use reflection and the values in responseClass and DataType to build up the models list.
+* Adds the ability to build a swagger api operation definition outside of the context of a route and then register it
+  with the new `operation(myApiOperation)` in the route.
+
+        val myApiOperation =
+          (swaggerOperation
+            responseClass[MyClass]
+            summary "This operation does foo"
+            notes "when foo is red then all bars are green"
+            nickname "myApiMethodName")
+
+        get("/my-api-operation", operation(myApiOperation)) {
+          // do stuff here
+        }
 
 ### Swagger-Ext
 

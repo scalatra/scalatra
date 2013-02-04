@@ -1,13 +1,11 @@
 package org.scalatra
 package swagger
 
-import reflect.{ClassDescriptor, Reflector}
-import Symbols._
+import collection.mutable
 import collection.JavaConverters._
 import util.RicherString._
-import javax.servlet.{ Servlet, Filter, Registration }
+import javax.servlet.{ Servlet, Filter }
 import com.wordnik.swagger.core.ApiPropertiesReader
-import grizzled.slf4j.Logger
 
 trait SwaggerSupportBase {
   /**
@@ -19,9 +17,118 @@ trait SwaggerSupportBase {
    * Returns a list of operations based on the given route. The default implementation returns a list with only 1
    * operation.
    */
-  protected def operations(route: Route, method: HttpMethod): List[SwaggerOperation]
+  protected def extractOperation(route: Route, method: HttpMethod): SwaggerOperation
 }
+object SwaggerSupportSyntax {
+  private[swagger] case class Entry[T <: SwaggerOperation](key: String, value: T)
 
+  class ParameterBuilder[T:Manifest](models: mutable.Map[String, Model]) {
+
+    registerModel[T]
+
+    private[this] var _name: String = _
+    private[this] var _description: String = ""
+    private[this] val dataType: DataType.DataType = DataType[T]
+    private[this] var _notes: Option[String] = None
+    private[this] var _paramType: ParamType.ParamType = ParamType.Query
+    private[this] var _defaultValue: Option[String] = None
+    private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
+    private[this] var _required: Boolean = true
+
+    protected def registerModel[R:Manifest]() {
+      models ++= Swagger.collectModels[R](models.values.toSet).map(m => m.id -> m)
+    }
+
+    def name(name: String): this.type = { _name = name; this }
+    def description(description: String): this.type = { _description = description; this }
+
+    def notes(notes: String): this.type = { _notes = notes.blankOption; this }
+    def paramType(name: ParamType.ParamType): this.type = { _paramType = name; this }
+    def defaultValue(value: String): this.type = { _defaultValue = value.blankOption; this }
+    def allowableValues[T](values: T*): this.type = {
+      _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values:_*)
+      this
+    }
+    def allowableValues[T](values: List[T]): this.type = {
+      _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values)
+      this
+    }
+    def allowableValues(values: Range): this.type = { _allowableValues = AllowableValues(values); this }
+    def required: this.type = { _required = true; this }
+    def optional: this.type = { _required = false; this }
+
+    def name: String = _name
+    def description: String = _description
+    def notes: Option[String] = _notes
+    def paramType: ParamType.ParamType = _paramType
+    def defaultValue: Option[String] = _defaultValue
+    def allowableValues: AllowableValues = _allowableValues
+    def isRequired: Boolean = _required
+    def allowsMultiple: Boolean = {
+      val dn = dataType.name.toUpperCase
+      dn.startsWith("LIST") || dn.startsWith("MAP")
+    }
+
+    def result =
+      Parameter(name, description, dataType, notes, paramType, defaultValue, allowableValues, isRequired, allowsMultiple)
+  }
+
+  trait SwaggerOperationBuilder[T <: SwaggerOperation] {
+    protected def models: mutable.Map[String, Model]
+    protected def defaultErrors: List[Error]
+
+    private[this] var _summary: String = ""
+    private[this] var _notes: String = ""
+    private[this] var _deprecated: Boolean = false
+    private[this] var _nickname: String = _
+    private[this] var _parameters: List[Parameter] = Nil
+    private[this] var _errorResponses: List[Error] = Nil
+
+    protected def registerModel[R:Manifest]() {
+      models ++= Swagger.collectModels[R](models.values.toSet).map(m => m.id -> m)
+    }
+    def resultClass: String
+    def summary(content: String): this.type = {
+      _summary = content
+      this
+    }
+    def summary: String = _summary
+    def notes(content: String): this.type = {
+      _notes = content
+      this
+    }
+    def notes: Option[String] = _notes.blankOption
+    def deprecated(value: Boolean): this.type = {
+      _deprecated = value
+      this
+    }
+    def deprecated: Boolean = _deprecated
+    def nickname(value: String): this.type = { _nickname = value; this }
+    def nickName(value: String): this.type = nickname(value)
+    def nickname: Option[String] = _nickname.blankOption
+    def parameters(params: Parameter*): this.type = { _parameters :::= params.toList; this }
+    def parameter(param: Parameter): this.type = parameters(param)
+    def parameters: List[Parameter] = _parameters
+    def errors(errs: Error*): this.type = { _errorResponses :::= errs.toList; this }
+    def error(err: Error): this.type = errors(err)
+    def errorResponses: List[Error] = _errorResponses
+
+    def result: T
+  }
+  class OperationBuilder[T:Manifest](protected val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[Operation] {
+    registerModel[T]
+    val resultClass: String = DataType[T].name
+    def result: Operation = Operation(
+      null,
+      resultClass,
+      summary,
+      notes,
+      deprecated,
+      nickname,
+      parameters,
+      errorResponses ::: defaultErrors)
+  }
+}
 trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
   protected implicit def swagger: SwaggerEngine[_]
 
@@ -95,7 +202,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
   }
 
-  @deprecated("This implicit conversion will be removed in the future", "2.2.0")
+  @deprecated("This implicit conversion will be removed in the future", "2.2")
   implicit protected def modelToSwagger(cls: Class[_]): (String, Model) = {
     val docObj = ApiPropertiesReader.read(cls)
     val name = docObj.getName
@@ -105,87 +212,133 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
     Model(name, name, fields.toMap)
   }
 
-  private[swagger] var _models: Map[String, Model] = Map.empty
+  private[swagger] val _models: mutable.Map[String, Model] = mutable.Map.empty
 
-  protected def registerModel(model: Model) = {
+  /**
+   * Registers a model for swagger
+   * @param model the model to add to the swagger definition
+   */
+  protected def registerModel(model: Model) {
     _models += model.id -> model
   }
+
+  /**
+   * Registers a model for swagger, this method reflects over the class and collects all
+   * non-primitive classes and adds those to the swagger defintion
+   * @tparam T the class of the model to register
+   */
   protected def registerModel[T:Manifest]() {
-    _models ++= Swagger.collectModels[T](_models.values.toSet).map(m => m.id -> m)
+    Swagger.collectModels[T](_models.values.toSet) map registerModel
   }
 
-  @deprecated("Use `registerModel[T] or registerModel(model) instead, this method will be removed in the future", "2.2.0")
+  @deprecated("Use `registerModel[T]` or `registerModel(model)` instead, this method will be removed in the future", "2.2")
   protected def models_=(m: Map[String, Model]) = _models ++= m
+
+  /**
+   * The currently registered model descriptions for swagger
+   * @return a map of swagger models
+   */
   def models = _models
 
   private[swagger] var _description: PartialFunction[String, String] = Map.empty
-  protected def description(f: PartialFunction[String, String]) = _description = _description orElse f
+  protected def description(f: PartialFunction[String, String]) = _description = f orElse _description
 
-
-  protected def summary(value: String) = swaggerMeta(Summary, value)
-  protected def notes(value: String) = swaggerMeta(Notes, value)
-  @deprecated("Use the variant where you use a type parameter, this method doesn't allow for reflection and requires you to manually ad the model", "2.2.0")
-  protected def responseClass(value: String) = swaggerMeta(ResponseClass, value)
+  @deprecated("Use the `apiOperation.summary` and `operation` methods to build swagger descriptions of endpoints", "2.2")
+  protected def summary(value: String) = swaggerMeta(Symbols.Summary, value)
+  @deprecated("Use the `apiOperation.notes` and `operation` methods to build swagger descriptions of endpoints", "2.2")
+  protected def notes(value: String) = swaggerMeta(Symbols.Notes, value)
+  @deprecated("Use the variant where you use a type parameter, this method doesn't allow for reflection and requires you to manually ad the model", "2.2")
+  protected def responseClass(value: String) = swaggerMeta(Symbols.ResponseClass, value)
+  @deprecated("Use the `apiOperation.responseClass` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def responseClass[T](implicit mf: Manifest[T]) = {
     registerModel[T]
-    swaggerMeta(ResponseClass, DataType[T].name)
+    swaggerMeta(Symbols.ResponseClass, DataType[T].name)
   }
-  protected def nickname(value: String) = swaggerMeta(Nickname, value)
+  @deprecated("Use the `apiOperation.nickname` and `operation` methods to build swagger descriptions of endpoints", "2.2")
+  protected def nickname(value: String) = swaggerMeta(Symbols.Nickname, value)
+
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
-  protected def parameters(value: Parameter*) = swaggerMeta(Parameters, value.toList)
-  protected def errors(value: Error*) = swaggerMeta(Errors, value.toList)
-  
+  @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
+  protected def parameters(value: Parameter*) = swaggerMeta(Symbols.Parameters, value.toList)
+  @deprecated("Use the `apiOperation.errors` and `operation` methods to build swagger descriptions of endpoints", "2.2")
+  protected def errors(value: Error*) = swaggerMeta(Symbols.Errors, value.toList)
+
+
+  import SwaggerSupportSyntax._
+  protected def apiOperation[T: Manifest](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
+  implicit def parameterBuilder2parameter[T](pmb: ParameterBuilder[T]): Parameter = pmb.result
+  protected def parameter[T: Manifest](name: String) = new ParameterBuilder(_models).name(name)
+  protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
+
 
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
     route.copy(metadata = route.metadata + (s -> v))
   }
   implicit def dataType2string(dt: DataType.DataType) = dt.name
-
+  protected def inferSwaggerEndpoint(route: Route): String = route match {
+    case rev if rev.isReversible => rev.routeMatchers.head match {
+      case sin: SinatraRouteMatcher => sin.toString
+      case rails: RailsPathPatternParser => rails.toString
+      case _ => ""
+    }
+    case _ => ""
+  }
 }
 
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
 trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax {
+
+  import SwaggerSupportSyntax._
+
+  protected implicit def operationBuilder2operation[T](bldr: OperationBuilder[T]): Operation = bldr.result
+  protected def apiOperation[T: Manifest](nickname: String): OperationBuilder[T] =
+    new OperationBuilder[T](_models, swaggerDefaultErrors).nickname(nickname)
+
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
   def endpoints(basePath: String): List[Endpoint] = {
-    case class Entry(key: String, value: List[Operation])
     val ops = (for {
       (method, routes) ← routes.methodRoutes
       route ← routes
-      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
-      operation = operations(route, method)
-      if (operation.nonEmpty && operation.head.nickname.isDefined)
+      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
+      operation = this.extractOperation(route, method)
     } yield Entry(endpoint, operation))
 
     (ops groupBy (_.key)).toList map { case (name, entries) ⇒
-      val sec = false //_secured.lift apply name getOrElse true
       val desc = _description lift name getOrElse ""
       val pth = if (basePath endsWith "/") basePath else basePath + "/"
-      new Endpoint(pth + name, desc, sec, (entries.toList flatMap (_.value)) )
+      new Endpoint(pth + name, desc, false, (entries.toList map (_.value)) )
     } sortBy (_.path)
   }
+
+
+
 
   /**
    * Returns a list of operations based on the given route. The default implementation returns a list with only 1
    * operation.
    */
-  protected def operations(route: Route, method: HttpMethod): List[Operation] = {
-    val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
-    val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[Error]]) getOrElse Nil
-    val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[String]) getOrElse DataType.Void.name
-    val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
-    val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
-    val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
-    List(Operation(httpMethod = method,
-      responseClass = responseClass,
-      summary = summary,
-      notes = notes,
-      nickname = nick,
-      parameters = theParams,
-      errorResponses = errors ::: swaggerDefaultErrors))
+  protected def extractOperation(route: Route, method: HttpMethod): Operation = {
+    val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[Operation])
+    op map (_.copy(httpMethod = method)) getOrElse {
+      val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
+      val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[Error]]) getOrElse Nil
+      val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[String]) getOrElse DataType.Void.name
+      val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
+      val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
+      val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
+      Operation(
+        httpMethod = method,
+        responseClass = responseClass,
+        summary = summary,
+        notes = notes,
+        nickname = nick,
+        parameters = theParams,
+        errorResponses = errors ::: swaggerDefaultErrors)
+    }
   }
 
 
