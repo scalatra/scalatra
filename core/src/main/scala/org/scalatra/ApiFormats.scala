@@ -103,7 +103,7 @@ trait ApiFormats extends ScalatraBase {
   def acceptHeader(implicit request: HttpServletRequest): List[String] = parseAcceptHeader
 
   private[this] def getFromParams(implicit request: HttpServletRequest) = {
-    params.get('format).find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
+    params.get("format").find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
   }
 
   private[this] def getFromAcceptHeader(implicit request: HttpServletRequest) = {
@@ -173,7 +173,7 @@ trait ApiFormats extends ScalatraBase {
   def format(implicit request: HttpServletRequest) = {
     request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
       val fmt = getFormat
-      request(FormatKey) = fmt
+//      request(FormatKey) = fmt
       fmt
     }
   }

@@ -21,7 +21,6 @@ trait ScalatraContext extends ServletApiImplicits with SessionSupport with Cooki
   implicit def response: HttpServletResponse
   def servletContext: ServletContext
 
-
   /**
    * Gets the content type of the current response.
    */
@@ -31,6 +30,7 @@ trait ScalatraContext extends ServletApiImplicits with SessionSupport with Cooki
    * Gets the status code of the current response.
    */
   def status: Int = response.status.code
+
 
   /**
    * Sets the content type of the current response.
