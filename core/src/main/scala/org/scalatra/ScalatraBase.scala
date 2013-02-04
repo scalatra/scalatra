@@ -45,7 +45,7 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions with SessionSupport {
+trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions with SessionSupport with CookieSupport {
   @deprecated("Use servletContext instead", "2.1.0")
   def applicationContext: ServletContext = servletContext
 
@@ -340,7 +340,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
         case (name, value) => response.addHeader(name, value)
       }
       actionResult.body
-    case x: Any =>
+    case x =>
       response.writer.print(x.toString)
   }
 

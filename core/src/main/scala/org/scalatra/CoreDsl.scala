@@ -10,16 +10,6 @@ import servlet.ServletApiImplicits
 trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiImplicits {
 
   /**
-   * Gets the content type of the current response.
-   */
-  def contentType(implicit response: HttpServletResponse): String = response.contentType getOrElse null
-
-  /**
-   * Gets the status code of the current response.
-   */
-  def status(implicit response: HttpServletResponse): Int = response.status.code
-
-  /**
    * Adds a filter to run before the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
