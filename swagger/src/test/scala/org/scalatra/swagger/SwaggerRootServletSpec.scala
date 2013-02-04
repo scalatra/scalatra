@@ -70,9 +70,9 @@ class SwaggerRootServletSpec extends MutableScalatraSpec {
   def verifyOperation(jv: JValue, name: String) = {
     val op = findOperation(jv, name)
     val exp = findOperation(listOperationsJValue, name)
-    (op must beSome[JValue]).setMessage("Couldn't find operation: " + name) and {
+    (op must beSome[JValue]).setMessage("Couldn't find extractOperation: " + name) and {
       val m = verifyFields(op.get, exp.get, "httpMethod", "nickname", "responseClass", "summary", "parameters", "notes", "errorResponses")
-      m setMessage (m.message + " of the operation " + name)
+      m setMessage (m.message + " of the extractOperation " + name)
     }
   }
 

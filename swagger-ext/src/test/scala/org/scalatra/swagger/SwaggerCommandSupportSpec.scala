@@ -31,8 +31,10 @@ object SwaggerCommandSupportSpec  {
 
   class CommandSupportServlet(protected implicit val swagger: Swagger) extends ScalatraServlet with ParamsOnlyCommandSupport with SwaggerSupport with SwaggerCommandSupport {
 
-    get("/all", parameters[SimpleCommand], endpoint("all"), nickname("all")) { "OK" }
-    get("/new", parameters(new SimpleCommand), endpoint("new"), nickname("new")) { "OK" }
+    val allOperation = apiOperation[Unit]("all").parametersFromCommand[SimpleCommand]
+    val newOperation = apiOperation[Unit]("new").parametersFromCommand(new SimpleCommand)
+    get("/all", endpoint("all"), operation(allOperation)) { "OK" }
+    get("/new", endpoint("new"), operation(newOperation)) { "OK" }
 
     protected def applicationDescription: String = "The command support servlet"
 

@@ -10,6 +10,7 @@ import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
 import org.scalatra.json.JsonSupport
 import org.scalatra.auth.ScentrySupport
+import collection.mutable
 
 class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String) extends SwaggerEngine[AuthApi[AnyRef]] {
   private[this] val logger = Logger[this.type]
@@ -18,7 +19,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String) extend
    */
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    _docs = _docs + (name -> AuthApi(path, listingPath, description, s.endpoints(path).map(_.asInstanceOf[AuthEndpoint[AnyRef]]), s.models))
+    _docs = _docs + (name -> AuthApi(path, listingPath, description, s.endpoints(path).map(_.asInstanceOf[AuthEndpoint[AnyRef]]), s.models.toMap))
   }
 }
 
@@ -79,8 +80,29 @@ case class AuthApi[TypeForUser <: AnyRef](resourcePath: String,
 
 object AuthApi {
   import SwaggerSerializers._
+  import SwaggerSupportSyntax.SwaggerOperationBuilder
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
+
+  class AuthOperationBuilder[T <: AnyRef, M: Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[AuthOperation[T]] {
+    registerModel[M]
+    val resultClass: String = DataType[M].name
+    private[this] var _allows: Option[T] => Boolean = (u: Option[T]) => true
+    def allows: Option[T] => Boolean = _allows
+    def allows(guard: Option[T] => Boolean): this.type = { _allows = guard; this }
+    def allowAll: this.type = { _allows = (u: Option[T]) => true; this }
+    def result: AuthOperation[T] = AuthOperation[T](
+      null,
+      resultClass,
+      summary,
+      notes,
+      deprecated,
+      nickname,
+      parameters,
+      errorResponses ::: defaultErrors,
+      allows
+    )
+  }
 
   private[this] def formats[T <: AnyRef](userOption: Option[T]) = new DefaultFormats {
     override val dateFormat = new DateFormat {
@@ -127,7 +149,6 @@ case class AuthEndpoint[TypeForUser <: AnyRef](path: String,
 												                    description: String,
 												                    secured: Boolean = false,
 												                    operations: List[AuthOperation[TypeForUser]] = Nil) extends SwaggerEndpoint[AuthOperation[TypeForUser]]
-
 case class AuthOperation[TypeForUser <: AnyRef](httpMethod: HttpMethod,
 												                     responseClass: String,
 												                     summary: String,
@@ -139,51 +160,64 @@ case class AuthOperation[TypeForUser <: AnyRef](httpMethod: HttpMethod,
 												                     allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
+  import SwaggerSupportSyntax._
+
+  @deprecated("Use the `apiOperation.allows` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def allows(value: Option[TypeForUser] => Boolean) = swaggerMeta(Symbols.Allows, value)
   
   private def allowAll = (u: Option[TypeForUser]) => true
+
+  protected implicit def operationBuilder2operation[T:Manifest](bldr: AuthApi.AuthOperationBuilder[TypeForUser, T]): AuthOperation[TypeForUser] =
+    bldr.result
+
+  protected def apiOperation[T: Manifest](nickname: String): AuthApi.AuthOperationBuilder[TypeForUser, T] =
+    new AuthApi.AuthOperationBuilder[TypeForUser, T](_models, swaggerDefaultErrors).nickname(nickname)
+
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
   def endpoints(basePath: String): List[AuthEndpoint[TypeForUser]] = {
-    case class Entry(key: String, value: List[AuthOperation[TypeForUser]])
     val ops = (for {
       (method, routes) ← routes.methodRoutes
       route ← routes
-      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse ""
-      operation = operations(route, method)
-      if (operation.nonEmpty && operation.head.nickname.isDefined)
+      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
+      operation = this.extractOperation(route, method)
     } yield {
       Entry(endpoint, operation)
     }) 
     (ops groupBy (_.key)).toList map { case (name, entries) =>
-      val sec = entries.exists(_.value.exists(!_.allows.apply(None)))
+      val sec = entries.exists(!_.value.allows(None))
       val desc = _description.lift apply name getOrElse ""
       val pth = if (basePath endsWith "/") basePath else basePath + "/"
-      new AuthEndpoint[TypeForUser](pth + name, desc, sec, entries.toList flatMap (_.value))
+      val nm = if (name startsWith "/") name.substring(1) else name
+      new AuthEndpoint[TypeForUser](pth + nm, desc, sec, entries.toList map (_.value))
     } sortBy (_.path)
   }
   /**
    * Returns a list of operations based on the given route. The default implementation returns a list with only 1
    * operation.
    */
-  protected def operations(route: Route, method: HttpMethod): List[AuthOperation[TypeForUser]] = {
-    val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
-    val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[Error]]) getOrElse Nil
-    val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[String]) getOrElse DataType.Void.name
-    val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
-    val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
-    val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
-    val allows = route.metadata.get(Symbols.Allows) map (_.asInstanceOf[Option[TypeForUser] => Boolean]) getOrElse allowAll
-    List(AuthOperation[TypeForUser](httpMethod = method,
-      responseClass = responseClass,
-      summary = summary,
-      notes = notes,
-      nickname = nick,
-      parameters = theParams,
-      errorResponses = errors ::: swaggerDefaultErrors,
-      allows = allows))
+  protected def extractOperation(route: Route, method: HttpMethod): AuthOperation[TypeForUser] = {
+    val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[AuthOperation[TypeForUser]])
+    op map (_.copy(httpMethod = method)) getOrElse {
+      val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
+      val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[Error]]) getOrElse Nil
+      val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[String]) getOrElse DataType.Void.name
+      val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
+      val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
+      val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
+      val allows = route.metadata.get(Symbols.Allows) map (_.asInstanceOf[Option[TypeForUser] => Boolean]) getOrElse allowAll
+      AuthOperation[TypeForUser](
+        httpMethod = method,
+        responseClass = responseClass,
+        summary = summary,
+        notes = notes,
+        nickname = nick,
+        parameters = theParams,
+        errorResponses = errors ::: swaggerDefaultErrors,
+        allows = allows)
+    }
   }
 
 }

@@ -13,7 +13,7 @@ import org.scalatra.json.{JValueResult, NativeJsonSupport}
 import scala.io.Source
 import java.net.ServerSocket
 
-class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
+class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   "Swagger integration should"                                  ^
     "list resources"                       ! listResources       ^
     "list operations"                      ! listOperations     ^
@@ -72,7 +72,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
   def verifyOperation(jv: JValue, name: String) = {
     val op = findOperation(jv, name)
     val exp = findOperation(listOperationsJValue, name)
-    (op must beSome[JValue]).setMessage("Couldn't find operation: " + name) and {
+    (op must beSome[JValue]).setMessage("Couldn't find extractOperation: " + name) and {
       val m = verifyFields(op.get, exp.get, "httpMethod", "nickname", "responseClass", "summary", "parameters", "notes", "errorResponses")
       m setMessage (m.message + " of the operation " + name)
     }
@@ -87,7 +87,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is =
           val r = af map { v =>
             val mm = verifyFields(
               v,
-              ef find (_ \ "code" == v \ "code") get,
+              ef find (_ \ "code" == v \ "code") getOrElse JNothing,
               "code", "reason")
             mm setMessage (mm.message + " in error responses collection")
           }
@@ -132,84 +132,68 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
 
   val data = new PetData
 
-//  models = Map(classOf[Pet], classOf[Tag], classOf[Category])
-
+  val rootOperation =
+    (apiOperation[List[Pet]]("allPets")
+      summary "Show all pets"
+      notes "shows all the pets in the data store")
   get("/",
-      summary("Show all pets"),
-      nickname("allPets"),
-      responseClass[List[Pet]],
-      endpoint(""),
-      notes("shows all the pets in the data store")) {
+      operation(rootOperation)) {
     data.pets
   }
 
-  get("/:id",
-    summary("Find by ID"),
-    nickname("findById"),
-    responseClass[Pet],
-    endpoint("{id}"),
-    notes("Returns a pet when ID < 10. ID > 10 or nonintegers will simulate API error conditions"),
-    errors(Error(400, "Invalid ID supplied"), Error(404, "Pet not found")),
-    parameters(
-      Parameter("id", "ID of pet that needs to be fetched", DataType.String, paramType = ParamType.Path))) {
-      data.getPetbyId(params.getAs[Long]("petId").getOrElse(0))
-    }
+  val getPet =
+    (apiOperation[Pet]("findById")
+      summary "Find by ID"
+      notes "Returns a pet when ID < 10. ID > 10 or nonintegers will simulate API error conditions"
+      errors (Error(400, "Invalid ID supplied"), Error(404, "Pet not found"))
+      parameter parameter[String]("id").description("ID of pet that needs to be fetched").paramType(ParamType.Path))
 
-  post("/",
-    summary("Add a new pet to the store"),
-    nickname("addPet"),
-    responseClass[Unit],
-    errors(Error(400, "Invalid pet data supplied")),
-    endpoint(""),
-    parameters(
-      Parameter("body", "Pet object that needs to be added to the store",
-        DataType[Pet],
-        paramType = ParamType.Body))) {
-      ApiResponse(ApiResponseType.OK, "pet added to store")
-    }
+  get("/:id", operation(getPet)) {
+    data.getPetbyId(params.getAs[Long]("petId").getOrElse(0))
+  }
 
-  put("/",
-    summary("Update an existing pet"),
-    nickname("updatePet"),
-    responseClass[Unit],
-    endpoint(""),
-    errors(Error(404, "Pet not found")),
-    parameters(
-      Parameter("body", "Pet object that needs to be updated in the store",
-        DataType[Pet],
-        paramType = ParamType.Body))) {
-      ApiResponse(ApiResponseType.OK, "pet updated")
-    }
+  val createPet =
+    (apiOperation[Unit]("addPet")
+      summary "Add a new pet to the store"
+      error Error(400, "Invalid pet data supplied")
+      parameter parameter[Pet]("body").description("Pet object that needs to be added to the store").paramType(ParamType.Body))
 
-  get("/findByStatus",
-    summary("Finds Pets by status"),
-    nickname("findPetsByStatus"),
-    responseClass[List[Pet]],
-    endpoint("findByStatus"),
-    notes("Multiple status values can be provided with comma separated strings"),
-    parameters(
-      Parameter("status",
-        "Status values that need to be considered for filter",
-        DataType.String,
-        paramType = ParamType.Query,
-        defaultValue = Some("available"),
-        allowableValues = AllowableValues("available", "pending", "sold")))) {
-      data.findPetsByStatus(params("status"))
-    }
+  post("/", operation(createPet)) {
+    ApiResponse(ApiResponseType.OK, "pet added to store")
+  }
 
-  get("/findByTags",
-    summary("Finds Pets by tags"),
-    nickname("findByTags"),
-    responseClass[List[Pet]],
-    endpoint("findByTags"),
-    notes("Muliple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."),
-    parameters(
-      Parameter("tags",
-        "Tags to filter by",
-        DataType.String,
-        paramType = ParamType.Query))) {
-      data.findPetsByTags(params("tags"))
-    }
+  val updatePet =
+    (apiOperation[Unit]("updatePet")
+      summary "Update an existing pet"
+      error Error(404, "Pet not found")
+      parameter parameter[Pet]("body").description("Pet object that needs to be updated in the store").paramType(ParamType.Body))
+
+  put("/", operation(updatePet)) {
+    ApiResponse(ApiResponseType.OK, "pet updated")
+  }
+
+  val findByStatus =
+    (apiOperation[List[Pet]]("findPetsByStatus")
+      summary "Finds Pets by status"
+      notes "Multiple status values can be provided with comma separated strings"
+      parameter (parameter[String]("status")
+                  description "Status values that need to be considered for filter"
+                  defaultValue "available"
+                  allowableValues ("available", "pending", "sold")))
+
+  get("/findByStatus", operation(findByStatus)) {
+    data.findPetsByStatus(params("status"))
+  }
+
+  val findByTags =
+      (apiOperation[List[Pet]]("findByTags")
+        summary "Finds Pets by tags"
+        notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
+        parameter parameter[String]("tags").description("Tags to filter by"))
+
+  get("/findByTags", operation(findByTags)) {
+    data.findPetsByTags(params("tags"))
+  }
 }
 
 class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase 

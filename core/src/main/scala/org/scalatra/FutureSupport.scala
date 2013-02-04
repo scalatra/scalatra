@@ -8,7 +8,9 @@ import servlet.AsyncSupport
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.concurrent.{ExecutionContext, Future}
 
-
+object AsyncResult {
+  val DefaultTimeout = Timeout(30 seconds)
+}
 abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext  {
 
   implicit val request: HttpServletRequest = scalatraContext.request
@@ -85,5 +87,7 @@ trait FutureSupport extends AsyncSupport {
     }
   }
 }
+
+
 
 
