@@ -18,7 +18,7 @@ object ScalatraBuild extends Build {
     manifestSetting,
     publishSetting,
     resolvers ++= Seq(sonatypeNexusSnapshots),
-    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra"),
+    (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
   ) ++ mavenCentralFrouFrou
 
@@ -73,7 +73,8 @@ object ScalatraBuild extends Build {
     base = file("auth"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(base64),
-      description := "Scalatra authentication module"
+      description := "Scalatra authentication module",
+      LsKeys.tags in LsKeys.lsync += "auth"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCommands)
 
@@ -93,7 +94,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
       libraryDependencies ++= Seq(atmosphereRuntime, atmosphereClient % "test", jettyWebsocket % "test"),
-      description := "Atmosphere integration for scalatra"
+      description := "Atmosphere integration for scalatra",
+      LsKeys.tags in LsKeys.lsync ++= Seq("atmosphere", "comet", "sse", "websocket")
     )
   ) dependsOn(scalatraJson % "compile;test->test;provided->provided")
 
@@ -103,7 +105,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies <+= scalaVersion(scalate),
       resolvers ++= Seq(sonatypeNexusSnapshots),
-      description := "Scalate integration with Scalatra"
+      description := "Scalate integration with Scalatra",
+      LsKeys.tags in LsKeys.lsync ++= Seq("templating", "scalate", "ssp", "jade", "mustache", "scaml", "haml")
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -112,7 +115,9 @@ object ScalatraBuild extends Build {
     base = file("json"),
     settings = scalatraSettings ++ Seq(
       description := "JSON support for Scalatra",
-      libraryDependencies ++= Seq(json4sJackson % "provided", json4sNative % "provided", json4sCore)
+      libraryDependencies ++= Seq(json4sJackson % "provided", json4sNative % "provided", json4sCore),
+      LsKeys.tags in LsKeys.lsync += "json",
+      LsKeys.tags in LsKeys.lsync += "json4s"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -135,7 +140,8 @@ object ScalatraBuild extends Build {
           |import commands._
           |import BindingSyntax._
         """.stripMargin,
-      description := "Data binding and validation with scalaz for Scalatra"
+      description := "Data binding and validation with scalaz for Scalatra",
+      LsKeys.tags in LsKeys.lsync += "validation"
     )
   ) dependsOn(
     scalatraJson % "compile;test->test;provided->provided")
@@ -195,7 +201,8 @@ object ScalatraBuild extends Build {
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(json4sExt, swaggerCore, swaggerAnnotations),
-      description := "Scalatra integration with Swagger"
+      description := "Scalatra integration with Swagger",
+      LsKeys.tags in LsKeys.lsync ++= Seq("swagger", "docs")
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
 
@@ -203,7 +210,8 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger-ext",
     base = file("swagger-ext"),
     settings = scalatraSettings ++ Seq(
-      description := "Deeper Swagger integration for scalatra"
+      description := "Deeper Swagger integration for scalatra",
+      LsKeys.tags in LsKeys.lsync ++= Seq("swagger", "docs")
     )
   ) dependsOn(scalatraSwagger % "compile;test->test;provided->provided", scalatraCommands % "compile;test->test;provided->provided", scalatraAuth % "compile;test->test")
 
@@ -212,7 +220,8 @@ object ScalatraBuild extends Build {
     base = file("slf4j"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(grizzledSlf4j(sv), logbackClassic % "provided")),
-      description := "Scalatra integration with SLF4J and Logback"
+      description := "Scalatra integration with SLF4J and Logback",
+      LsKeys.tags in LsKeys.lsync ++= Seq("logging", "slf4js")
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
@@ -225,7 +234,8 @@ object ScalatraBuild extends Build {
      libraryDependencies += jettyWebsocket % "container;test",
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      libraryDependencies += json4sJackson,
-     description := "Scalatra example project"
+     description := "Scalatra example project",
+     LsKeys.skipWrite := true
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
