@@ -136,8 +136,8 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[List[Pet]]("allPets")
       summary "Show all pets"
       notes "shows all the pets in the data store")
-  get("/",
-      operation(rootOperation)) {
+
+  get("/", operation(rootOperation)) {
     data.pets
   }
 
@@ -156,7 +156,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[Unit]("addPet")
       summary "Add a new pet to the store"
       error Error(400, "Invalid pet data supplied")
-      parameter bodyParam[Pet]("body").description("Pet object that needs to be added to the store"))
+      parameter bodyParam[Pet].description("Pet object that needs to be added to the store"))
 
   post("/", operation(createPet)) {
     ApiResponse(ApiResponseType.OK, "pet added to store")
@@ -166,7 +166,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[Unit]("updatePet")
       summary "Update an existing pet"
       error Error(404, "Pet not found")
-      parameter bodyParam[Pet]("body").description("Pet object that needs to be updated in the store"))
+      parameter bodyParam[Pet].description("Pet object that needs to be updated in the store"))
 
   put("/", operation(updatePet)) {
     ApiResponse(ApiResponseType.OK, "pet updated")
