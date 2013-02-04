@@ -7,6 +7,7 @@ import util.RicherString._
 import javax.servlet.{ Servlet, Filter }
 import com.wordnik.swagger.core.ApiPropertiesReader
 import scala.util.parsing.combinator.RegexParsers
+import scala.util.control.Exception.allCatch
 
 trait SwaggerSupportBase {
   /**
@@ -151,12 +152,15 @@ object SwaggerSupportSyntax {
 
     def notes(notes: String): this.type = { _notes = notes.blankOption; this }
     def paramType(name: ParamType.ParamType): this.type = { _paramType = name; this }
-    def defaultValue(value: String): this.type = { _defaultValue = value.blankOption; this }
-    def allowableValues[T](values: T*): this.type = {
+    def defaultValue(value: T): this.type = {
+      _defaultValue = allCatch.withApply(_ => None){ value.toString.blankOption }
+      this
+    }
+    def allowableValues[V](values: V*): this.type = {
       _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values:_*)
       this
     }
-    def allowableValues[T](values: List[T]): this.type = {
+    def allowableValues[V](values: List[V]): this.type = {
       _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values)
       this
     }
