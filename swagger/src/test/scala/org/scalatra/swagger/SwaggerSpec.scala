@@ -146,7 +146,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
       summary "Find by ID"
       notes "Returns a pet when ID < 10. ID > 10 or nonintegers will simulate API error conditions"
       errors (Error(400, "Invalid ID supplied"), Error(404, "Pet not found"))
-      parameter parameter[String]("id").description("ID of pet that needs to be fetched").paramType(ParamType.Path))
+      parameter pathParam[String]("id").description("ID of pet that needs to be fetched"))
 
   get("/:id", operation(getPet)) {
     data.getPetbyId(params.getAs[Long]("petId").getOrElse(0))
@@ -156,7 +156,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[Unit]("addPet")
       summary "Add a new pet to the store"
       error Error(400, "Invalid pet data supplied")
-      parameter parameter[Pet]("body").description("Pet object that needs to be added to the store").paramType(ParamType.Body))
+      parameter bodyParam[Pet]("body").description("Pet object that needs to be added to the store"))
 
   post("/", operation(createPet)) {
     ApiResponse(ApiResponseType.OK, "pet added to store")
@@ -166,7 +166,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[Unit]("updatePet")
       summary "Update an existing pet"
       error Error(404, "Pet not found")
-      parameter parameter[Pet]("body").description("Pet object that needs to be updated in the store").paramType(ParamType.Body))
+      parameter bodyParam[Pet]("body").description("Pet object that needs to be updated in the store"))
 
   put("/", operation(updatePet)) {
     ApiResponse(ApiResponseType.OK, "pet updated")
@@ -176,7 +176,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[List[Pet]]("findPetsByStatus")
       summary "Finds Pets by status"
       notes "Multiple status values can be provided with comma separated strings"
-      parameter (parameter[String]("status")
+      parameter (queryParam[String]("status")
                   description "Status values that need to be considered for filter"
                   defaultValue "available"
                   allowableValues ("available", "pending", "sold")))
@@ -189,7 +189,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
       (apiOperation[List[Pet]]("findByTags")
         summary "Finds Pets by tags"
         notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
-        parameter parameter[String]("tags").description("Tags to filter by"))
+        parameter queryParam[String]("tags").description("Tags to filter by"))
 
   get("/findByTags", operation(findByTags)) {
     data.findPetsByTags(params("tags"))

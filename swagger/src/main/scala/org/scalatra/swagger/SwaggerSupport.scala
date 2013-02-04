@@ -150,6 +150,11 @@ object SwaggerSupportSyntax {
     def notes(notes: String): this.type = { _notes = notes.blankOption; this }
     def paramType(name: ParamType.ParamType): this.type = { _paramType = name; this }
 
+    def fromBody: this.type = paramType(ParamType.Body)
+    def fromPath: this.type = paramType(ParamType.Path)
+    def fromQuery: this.type = paramType(ParamType.Query)
+    def fromHeader: this.type = paramType(ParamType.Header)
+
     def allowableValues[V](values: V*): this.type = {
       _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values:_*)
       this
@@ -405,10 +410,28 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   import SwaggerSupportSyntax._
   protected def apiOperation[T: Manifest](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
-  protected def parameter[T: Manifest](name: String): ParameterBuilder[T] =
-    new ParameterBuilder(_models).name(name)
-  protected def parameter(name: String, model: Model): ModelParameterBuilder =
-    new ModelParameterBuilder(_models, model).name(name)
+
+  protected def bodyParam[T: Manifest](name: String): ParameterBuilder[T] =
+    new ParameterBuilder(_models).name(name).fromBody
+  protected def bodyParam(name: String, model: Model): ModelParameterBuilder =
+    new ModelParameterBuilder(_models, model).name(name).fromBody
+
+
+  protected def queryParam[T: Manifest](name: String): ParameterBuilder[T] =
+    new ParameterBuilder(_models).name(name).fromQuery
+  protected def queryParam(name: String, model: Model): ModelParameterBuilder =
+    new ModelParameterBuilder(_models, model).name(name).fromQuery
+
+  protected def headerParam[T: Manifest](name: String): ParameterBuilder[T] =
+    new ParameterBuilder(_models).name(name).fromHeader
+  protected def headerParam(name: String, model: Model): ModelParameterBuilder =
+    new ModelParameterBuilder(_models, model).name(name).fromHeader
+
+  protected def pathParam[T: Manifest](name: String): ParameterBuilder[T] =
+    new ParameterBuilder(_models).name(name).fromPath
+  protected def pathParam(name: String, model: Model): ModelParameterBuilder =
+    new ModelParameterBuilder(_models, model).name(name).fromPath
+
   protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
 
 
