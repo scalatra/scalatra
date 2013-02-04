@@ -320,7 +320,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
-      if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(bytes).name)
+      if (contentType != null && contentType.startsWith("text")) response.setCharacterEncoding(FileCharset(bytes).name)
       response.outputStream.write(bytes)
     case is: java.io.InputStream =>
       using(is) {
@@ -331,7 +331,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       using(new FileInputStream(file)) {
         in => zeroCopy(in, response.outputStream)
       }
-    case _: Unit | Unit =>
+    case _: Unit | Unit | null =>
     // If an action returns Unit, it assumes responsibility for the response
     case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound()
     case actionResult: ActionResult =>

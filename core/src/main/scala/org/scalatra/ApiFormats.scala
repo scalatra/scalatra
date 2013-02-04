@@ -163,6 +163,24 @@ trait ApiFormats extends ScalatraBase {
 
   import ApiFormats.FormatKey
 
+  protected override def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
+    val originalParams = multiParams
+    val routeParams: Map[String, Seq[String]] = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
+      case (key, values) =>
+        key -> values.map(UriDecoder.secondStep(_))
+    }
+    if (routeParams.contains("format")) request(FormatKey) = routeParams.apply("format").head
+    request(MultiParamsKey) = originalParams ++ routeParams
+    try {
+      thunk
+    } finally {
+      request(MultiParamsKey) = originalParams
+    }
+  }
+
+
+
+
   /**
    * Returns the request-scoped format.  If not explicitly set, the format is:
    * $ - the `format` request parameter, if present in `formatParams`
@@ -173,7 +191,7 @@ trait ApiFormats extends ScalatraBase {
   def format(implicit request: HttpServletRequest) = {
     request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
       val fmt = getFormat
-//      request(FormatKey) = fmt
+      request(FormatKey) = fmt
       fmt
     }
   }
