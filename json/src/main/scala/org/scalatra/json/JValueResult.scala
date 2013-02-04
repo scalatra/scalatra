@@ -13,35 +13,20 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
 
   implicit protected def jsonFormats: Formats
 
-  override protected def renderPipeline: RenderPipeline = logged(renderToJson orElse super.renderPipeline)
+  override protected def renderPipeline: RenderPipeline = renderToJson orElse super.renderPipeline
 
-  private[this] def logged(pl: RenderPipeline): RenderPipeline = {
-    case x if pl.isDefinedAt(x) =>
-      try {
-        def to_s(s: Any) = if (s == null) "null" else s
-        println("responseFormat: " + responseFormat)
-        println("format " + format )
-        println("Matching " + to_s(x) + " in jvalueresult")
-        pl(x)
-      } catch {
-        case e: Throwable =>
-          e.printStackTrace()
-          throw e
-      }
-  }
 
 
   private[this] def renderToJson: RenderPipeline = {
+    case JNull | JNothing =>
     case a: JValue => super.renderPipeline(a)
     case status: Int => super.renderPipeline(status)
     case bytes: Array[Byte] => super.renderPipeline(bytes)
     case is: java.io.InputStream => super.renderPipeline(is)
     case file: File => super.renderPipeline(file)
     case a: ActionResult => super.renderPipeline(a)
-    case _: Unit | Unit => super.renderPipeline(())
+    case _: Unit | Unit | null =>
     case s: String => super.renderPipeline(s)
-    case null if responseFormat == "json" || responseFormat == "xml" => JNull
-    case null => response.writer.write(null.asInstanceOf[String])
     case x: scala.xml.Node if responseFormat == "xml" ⇒
       contentType = formats("xml")
       response.writer.write(scala.xml.Utility.trim(x).toString())

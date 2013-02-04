@@ -26,7 +26,7 @@ class JValueResultSpec extends MutableScalatraSpec {
       contentType = formats("json")
       NamedThing()
     }
-    get("/empty-notfound") {
+    get("/empty-not-found") {
       NotFound()
     }
     get("/null-value.:format") {
@@ -45,40 +45,40 @@ class JValueResultSpec extends MutableScalatraSpec {
   }, "/*")
 
   "The JValueResult trait" should {
-//    "render a JValue result" in {
-//      get("/jvalue") {
-//        parse(body) must_== jValue
-//      }
-//    }
-//    "render an ActionResult result" in {
-//      get("/actionresult") {
-//        status must_== 201
-//        parse(body) must_== jValue
-//      }
-//    }
-//    "render a Unit result" in {
-//      get("/unit") {
-//        body must_== "printed\n"
-//      }
-//    }
-//    "render a NamedThing result" in {
-//      get("/namedthing") { parse(body) must_== jValue }
-//    }
-//    "render an empty not found" in {
-//      pending
-//    }
-    "render a null value" in {
-      get("/null-value.json") {
-        println("contenttype: " + response.mediaType)
-        println(body)
-        parse(body) must_== JNull
+    "render a JValue result" in {
+      get("/jvalue") {
+        parse(body) must_== jValue
       }
     }
-//    "render a null value" in {
-//      get("/null-value.html") {
-//        body must_== null
-//      }
-//    }
+    "render an ActionResult result" in {
+      get("/actionresult") {
+        status must_== 201
+        parse(body) must_== jValue
+      }
+    }
+    "render a Unit result" in {
+      get("/unit") {
+        body must_== "printed\n"
+      }
+    }
+    "render a NamedThing result" in {
+      get("/namedthing") { parse(body) must_== jValue }
+    }
+    "render an empty not found" in {
+      get("/empty-not-found") {
+        status must_== 404
+      }
+    }
+    "render a null value" in {
+      get("/null-value.json") {
+         body must_== ""
+      }
+    }
+    "render a null value" in {
+      get("/null-value.html") {
+        body must_== ""
+      }
+    }
   }
 
 }
