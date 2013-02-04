@@ -2,5 +2,8 @@
 * Add reverse lookup of text/plain to ApiFormat's MIME types.
 * Don't crash if `fileParams` is called on a non-multipart request.
 
+### scalatra-akka
+* Let asyncTimeout be overridden outside the Scalatra framework.
+
 ### scalatra-test
 * Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
