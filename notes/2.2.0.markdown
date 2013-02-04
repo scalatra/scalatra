@@ -44,6 +44,7 @@
 * Log errors when they occur in ScalatraBootstrap. [GH-220](https://github.com/scalatra/scalatra/issues/220)
 * Fix loading scalatra listener class name from web.xml
 * TypeConverter no longer inherits of a function
+* Flashmap now uses java.util.concurrent classes internally
 
 ### lift-json
 * removed for json4s support
@@ -134,19 +135,19 @@
 * Optionally integrate commands into swagger support to generate model and parameter definitions.
 * Fix generating paths for servlet mounted at / in the context.
 * Deprecated manually registering models, use reflection and the values in responseClass and DataType to build up the models list.
+* Infers the endpoint path now from the scalatra route definition so using the `endpoint` method is no longer required
 * Adds the ability to build a swagger api operation definition outside of the context of a route and then register it
   with the new `operation(myApiOperation)` in the route.
 
         val myApiOperation =
-          (swaggerOperation
-            responseClass[MyClass]
+          (apiOperation[MyClass]("myApiMethodName")
             summary "This operation does foo"
-            notes "when foo is red then all bars are green"
-            nickname "myApiMethodName")
+            notes "when foo is red then all bars are green")
 
         get("/my-api-operation", operation(myApiOperation)) {
           // do stuff here
         }
+
 
 ### Swagger-Ext
 
