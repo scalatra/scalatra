@@ -24,7 +24,11 @@ object Reflector {
         classOf[java.lang.Short], classOf[Date], classOf[Timestamp], classOf[Symbol], classOf[Unit])
   }
 
+  private[this] val defaultExcluded = Set(classOf[Nothing], classOf[Null])
+
   def isPrimitive(t: Type) = primitives contains t
+
+  def isExcluded(t: Type, excludes: Seq[Type] = Nil) = (defaultExcluded ++ excludes) contains t
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = {
     ScalaType(mf)

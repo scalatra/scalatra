@@ -90,10 +90,9 @@ object AuthApi {
     def allows(guard: Option[T] => Boolean): this.type = { _allows = guard; this }
     def allowAll: this.type = { _allows = (u: Option[T]) => true; this }
   }
-  class AuthOperationBuilder[T <: AnyRef, M: Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerAuthOperationBuilder[T] {
-    registerModel[M]
-    val resultClass: String = DataType[M].name
 
+
+  class AuthOperationBuilder[T <: AnyRef](val resultClass: String) extends SwaggerAuthOperationBuilder[T] {
     def result: AuthOperation[T] = AuthOperation[T](
       null,
       resultClass,
@@ -102,24 +101,7 @@ object AuthApi {
       deprecated,
       nickname,
       parameters,
-      errorResponses ::: defaultErrors,
-      allows
-    )
-  }
-
-  class ModelAuthOperationBuilder[T <: AnyRef](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error], model: Model) extends SwaggerAuthOperationBuilder[T] {
-    models += model.id -> model
-    val resultClass: String = model.id
-
-    def result: AuthOperation[T] = AuthOperation[T](
-      null,
-      resultClass,
-      summary,
-      notes,
-      deprecated,
-      nickname,
-      parameters,
-      errorResponses ::: defaultErrors,
+      errorResponses,
       allows
     )
   }
@@ -180,6 +162,7 @@ case class AuthOperation[TypeForUser <: AnyRef](httpMethod: HttpMethod,
 												                     allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
+  import AuthApi.AuthOperationBuilder
   import SwaggerSupportSyntax._
 
   @deprecated("Use the `apiOperation.allows` and `operation` methods to build swagger descriptions of endpoints", "2.2")
@@ -190,26 +173,23 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
   protected implicit def operationBuilder2operation(bldr: AuthApi.SwaggerAuthOperationBuilder[TypeForUser]): AuthOperation[TypeForUser] =
     bldr.result
 
-  protected def apiOperation[T](nickname: String)(implicit mf: Manifest[T]): AuthApi.AuthOperationBuilder[TypeForUser, T] =
-    new AuthApi.AuthOperationBuilder[TypeForUser, T](_models, swaggerDefaultErrors).nickname(nickname)
+  protected def apiOperation[T](nickname: String)(implicit mf: Manifest[T]): AuthOperationBuilder[TypeForUser] = {
+    registerModel[T]()
+    new AuthOperationBuilder[TypeForUser](DataType[T].name).nickname(nickname).errors(swaggerDefaultErrors:_*)
+  }
 
-  protected def apiOperation(nickname: String, model: Model): AuthApi.ModelAuthOperationBuilder[TypeForUser] =
-    new AuthApi.ModelAuthOperationBuilder[TypeForUser](_models, swaggerDefaultErrors, model).nickname(nickname)
+  protected def apiOperation(nickname: String, model: Model): AuthOperationBuilder[TypeForUser] = {
+    registerModel(model)
+    new AuthOperationBuilder[TypeForUser](model.id).nickname(nickname).errors(swaggerDefaultErrors:_*)
+  }
 
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
   def endpoints(basePath: String): List[AuthEndpoint[TypeForUser]] = {
-    val ops = (for {
-      (method, routes) ← routes.methodRoutes
-      route ← routes
-      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
-      operation = this.extractOperation(route, method)
-    } yield {
-      Entry(endpoint, operation)
-    }) 
-    (ops groupBy (_.key)).toList map { case (name, entries) =>
+
+    (swaggerEndpointEntries(extractOperation) groupBy (_.key)).toList map { case (name, entries) =>
       val sec = entries.exists(!_.value.allows(None))
       val desc = _description.lift apply name getOrElse ""
       val pth = if (basePath endsWith "/") basePath else basePath + "/"

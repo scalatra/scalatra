@@ -5,14 +5,16 @@ import java.lang.reflect.{Field, TypeVariable}
 sealed trait Descriptor
 object ScalaType {
   def apply[T](mf: Manifest[T]): ScalaType = {
+    val extra = if (mf.erasure.isArray) List(Reflector.scalaTypeOf(mf.erasure.getComponentType)) else Nil
     new ScalaType(
       mf.erasure,
-      mf.typeArguments.map(ta => Reflector.scalaTypeOf(ta)),
+      mf.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ::: extra,
       Map.empty ++
-        mf.erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(mf.typeArguments map (ScalaType(_))))
+        mf.erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(mf.typeArguments map (ScalaType(_))),
+      mf.erasure.isArray)
   }
 }
-case class ScalaType(erasure: Class[_], typeArgs: Seq[ScalaType], typeVars: Map[TypeVariable[_], ScalaType]) extends Descriptor {
+case class ScalaType(erasure: Class[_], typeArgs: Seq[ScalaType], typeVars: Map[TypeVariable[_], ScalaType], isArray: Boolean = false) extends Descriptor {
   lazy val rawFullName: String = erasure.getName
   lazy val rawSimpleName: String = erasure.getSimpleName
   lazy val simpleName: String = rawSimpleName + (if (typeArgs.nonEmpty) typeArgs.map(_.simpleName).mkString("[", ", ", "]") else "")
