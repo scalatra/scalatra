@@ -185,7 +185,7 @@ object SwaggerSupportSyntax {
     override def defaultValue = _defaultValue
     def defaultValue(value: T): this.type = {
       _defaultValue = allCatch.withApply(_ => None){ value.toString.blankOption }
-      this
+      this.optional
     }
   }
 
