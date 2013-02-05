@@ -13,6 +13,11 @@ class JValueResultSpec extends MutableScalatraSpec {
 
     implicit protected def jsonFormats: Formats = DefaultFormats
 
+    notFound {
+      status = 404
+      "the custom not found"
+    }
+
     get("/jvalue") {
       jValue
     }
@@ -28,6 +33,9 @@ class JValueResultSpec extends MutableScalatraSpec {
     }
     get("/empty-not-found") {
       NotFound()
+    }
+    get("/halted-not-found") {
+      halt(NotFound())
     }
     get("/null-value.:format") {
       null
@@ -68,6 +76,7 @@ class JValueResultSpec extends MutableScalatraSpec {
     "render an empty not found" in {
       get("/empty-not-found") {
         status must_== 404
+        body must_== "the custom not found"
       }
     }
     "render a null value" in {
@@ -78,6 +87,12 @@ class JValueResultSpec extends MutableScalatraSpec {
     "render a null value" in {
       get("/null-value.html") {
         body must_== ""
+      }
+    }
+    "render a halted empty not found" in {
+      get("/halted-not-found") {
+        status must_== 404
+        body must_== "the custom not found"
       }
     }
   }
