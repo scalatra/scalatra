@@ -253,6 +253,7 @@ object DataType {
   val Void = DataType("void")
   val String = DataType("string")
   val Int = DataType("int")
+  val Long = DataType("long")
   val Boolean = DataType("boolean")
   val Date = DataType("date")
   val Enum = DataType("enum")
@@ -273,54 +274,57 @@ object DataType {
   def apply(name: String) = new DataType(name)
   def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](mf)
 
-  private[this] def fromManifest[T](implicit mf: Manifest[T]): DataType = {
-    if (mf <:< manifest[Unit]) this.Void
-    else if (mf <:< manifest[String] || mf <:< manifest[java.lang.String]) this.String
-    else if (isInt[T]) this.Int
-    else if (isDecimal[T]) DataType("double")
-    else if (isDate[T]) this.Date
-    else if (mf <:< Manifest.Boolean || mf <:< manifest[java.lang.Boolean]) this.Boolean
-    else if (mf <:< manifest[java.lang.Enum[_]]) this.Enum
-    else if (isMap[T]) {
-      if (mf.typeArguments.size == 2) {
-        val (k :: v :: Nil) = mf.typeArguments
-        GenMap(fromManifest(k), fromManifest(v))
+  private[this] val StringTypes = Set[Class[_]](classOf[String],classOf[java.lang.String])
+  private[this] val BoolTypes = Set[Class[_]](classOf[Boolean],classOf[java.lang.Boolean])
+
+  private[swagger] def fromManifest[T](implicit mf: Manifest[T]): DataType = fromScalaType(Reflector.scalaTypeOf[T])
+  private[swagger] def fromClass(klass: Class[_]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
+  private[swagger] def fromScalaType(st: ScalaType): DataType = {
+    val klass = st.erasure
+    if (classOf[Unit].isAssignableFrom(klass)) this.Void
+    else if (StringTypes.contains(klass)) this.String
+    else if (classOf[Byte].isAssignableFrom(klass) || classOf[java.lang.Byte].isAssignableFrom(klass)) DataType("byte")
+    else if (classOf[Long].isAssignableFrom(klass) || classOf[java.lang.Long].isAssignableFrom(klass)) DataType("long")
+    else if (isInt(klass)) this.Int
+    else if (classOf[Float].isAssignableFrom(klass) || classOf[java.lang.Float].isAssignableFrom(klass)) DataType("float")
+    else if (isDecimal(klass)) DataType("double")
+    else if (isDate(klass)) this.Date
+    else if (BoolTypes contains klass) this.Boolean
+    else if (classOf[java.lang.Enum[_]].isAssignableFrom(klass)) this.Enum
+    else if (isMap(klass)) {
+      if (st.typeArgs.size == 2) {
+        val (k :: v :: Nil) = st.typeArgs.toList
+        GenMap(fromScalaType(k), fromScalaType(v))
       } else GenMap()
     }
-    else if (isCollection[T]) {
-      if (mf.typeArguments.size > 0)
-        GenList(fromManifest(mf.typeArguments.head))
+    else if (isCollection(klass)) {
+      if (st.typeArgs.nonEmpty)
+        GenList(fromScalaType(st.typeArgs.head))
       else
         GenList()
     }
-    else new DataType(mf.erasure.getSimpleName())
+    else new DataType(klass.getSimpleName())
   }
-  
-  private[this] def isInt[T](implicit mf: Manifest[T]) = 
-    mf <:< Manifest.Int ||
-    mf <:< manifest[java.lang.Integer] || 
-    mf <:< Manifest.Long ||
-    mf <:< manifest[java.lang.Long] || 
-    mf <:< manifest[BigInt] || 
-    mf <:< manifest[java.math.BigInteger]
-  
-  private[this] def isDecimal[T](implicit mf: Manifest[T]) = 
-    mf <:< Manifest.Double ||
-    mf <:< manifest[java.lang.Double] ||
-    mf <:< Manifest.Float ||
-    mf <:< manifest[java.lang.Float] ||
-    mf <:< manifest[BigDecimal] ||
-    mf <:< manifest[java.math.BigDecimal]
-  
-  private[this] def isDate[T](implicit mf: Manifest[T]) = mf <:< manifest[Date] || mf <:< manifest[DateTime]
-  
-  private[this] def isMap[T](implicit mf: Manifest[T]) =
-    classOf[collection.Map[_, _]].isAssignableFrom(mf.erasure) ||
-    classOf[java.util.Map[_, _]].isAssignableFrom(mf.erasure)
 
-  private[this] def isCollection[T](implicit mf: Manifest[T]) =
-    classOf[collection.Traversable[_]].isAssignableFrom(mf.erasure) ||
-    classOf[java.util.Collection[_]].isAssignableFrom(mf.erasure)
+  private[this] val IntTypes =
+    Set[Class[_]](classOf[Int], classOf[java.lang.Integer], classOf[Short], classOf[java.lang.Short], classOf[BigInt], classOf[java.math.BigInteger])
+  private[this] def isInt(klass: Class[_]) = IntTypes.contains(klass)
+
+  private[this] val DecimalTypes =
+    Set[Class[_]](classOf[Double], classOf[java.lang.Double], classOf[BigDecimal], classOf[java.math.BigDecimal])
+  private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
+
+  private[this] val DateTypes =
+    Set[Class[_]](classOf[Date], classOf[DateTime])
+  private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
+  
+  private[this] def isMap(klass: Class[_]) =
+    classOf[collection.Map[_, _]].isAssignableFrom(klass) ||
+    classOf[java.util.Map[_, _]].isAssignableFrom(klass)
+
+  private[this] def isCollection(klass: Class[_]) =
+    classOf[collection.Traversable[_]].isAssignableFrom(klass) ||
+    classOf[java.util.Collection[_]].isAssignableFrom(klass)
 
 }
 

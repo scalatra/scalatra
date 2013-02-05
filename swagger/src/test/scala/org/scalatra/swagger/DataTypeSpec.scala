@@ -18,20 +18,34 @@ class DataTypeSpec extends Specification {
     "return a correct Int datatype" in {
       DataType[java.lang.Integer] must_== DataType.Int
       DataType[Int] must_== DataType.Int
-      DataType[java.lang.Long] must_== DataType.Int
-      DataType[Long] must_== DataType.Int
+      DataType[java.lang.Short] must_== DataType.Int
+      DataType[Short] must_== DataType.Int
       DataType[BigInt] must_== DataType.Int
       DataType[java.math.BigInteger] must_== DataType.Int
+    }
+
+    "return correct Long datatype" in {
+      DataType[java.lang.Long] must_== DataType.Long
+      DataType[Long] must_== DataType.Long
+    }
+
+    "return correct Byte datatype" in {
+      DataType[java.lang.Byte] must_== DataType("byte")
+      DataType[Byte] must_== DataType("byte")
     }
 
     "return a correct Decimal datatype" in {
       val dd = DataType("double")
       DataType[java.lang.Double] must_== dd
       DataType[Double] must_== dd
-      DataType[java.lang.Float] must_== dd
-      DataType[Float] must_== dd
       DataType[BigDecimal] must_== dd
       DataType[java.math.BigDecimal] must_== dd
+    }
+
+    "return a correct Decimal datatype" in {
+      val dd = DataType("float")
+      DataType[java.lang.Float] must_== dd
+      DataType[Float] must_== dd
     }
 
     "return a correct Date datatype" in {

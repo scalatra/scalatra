@@ -3,6 +3,7 @@ package swagger
 
 import collection.mutable
 import collection.JavaConverters._
+import reflect.{ManifestFactory, Reflector}
 import util.RicherString._
 import javax.servlet.{ Servlet, Filter }
 import com.wordnik.swagger.core.ApiPropertiesReader
@@ -168,7 +169,7 @@ object SwaggerSupportSyntax {
     def paramType: ParamType.ParamType = _paramType
 
     def allowableValues: AllowableValues = _allowableValues
-    def isRequired: Boolean = _required
+    def isRequired: Boolean = paramType == ParamType.Path || _required
     def multiValued: this.type = { _allowMultiple = true; this }
     def singleValued: this.type = { _allowMultiple = false; this }
 
@@ -381,13 +382,26 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def apiOperation[T: Manifest](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
-  protected def swaggerParam[T: Manifest](name: String): ParameterBuilder[T] = {
-    registerModel[T]()
-    val b = new ParameterBuilder[T](DataType[T]).name(name)
+  private[this] def swaggerParam[T: Manifest](
+                      name: String, liftCollection: Boolean = false, allowsCollection: Boolean = true, allowsOption: Boolean = true): ParameterBuilder[T] = {
+    val st = Reflector.scalaTypeOf[T]
+    if (st.isCollection && !allowsCollection) sys.error("Parameter ["+name+"] does not allow for a collection.")
+    if (st.isOption && !allowsOption) sys.error("Parameter ["+name+"] does not allow optional values.")
+    if (st.isCollection && st.typeArgs.isEmpty) sys.error("A collection needs to have a type for swagger parameter ["+name+"].")
+    if (st.isOption && st.typeArgs.isEmpty) sys.error("An Option needs to have a type for swagger parameter ["+name+"].")
+    Swagger.collectModels(st, models.values.toSet) map registerModel
+    val dt =
+      if (liftCollection && (st.isCollection || st.isOption)) DataType.fromScalaType(st.typeArgs.head)
+      else DataType[T]
+
+    val b = new ParameterBuilder[T](dt).name(name)
+    if (st.isOption) b.optional
+    if (st.isCollection) b.multiValued
+
     Swagger.modelToSwagger[T] foreach { m => b.description(m.description) }
     b
   }
-  protected def swaggerParam(name: String, model: Model): ModelParameterBuilder = {
+  private[this]  def swaggerParam(name: String, model: Model): ModelParameterBuilder = {
     registerModel(model)
     new ModelParameterBuilder(DataType(model.id)).description(model.description).name(name)
   }
@@ -396,11 +410,13 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def bodyParam(model: Model): ModelParameterBuilder = bodyParam("body", model)
   protected def bodyParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromBody
   protected def bodyParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromBody
-  protected def queryParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name)
+  protected def queryParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true)
   protected def queryParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model)
-  protected def headerParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromHeader
+  protected def headerParam[T: Manifest](name: String): ParameterBuilder[T] =
+    swaggerParam[T](name, allowsCollection = false).fromHeader
   protected def headerParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromHeader
-  protected def pathParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromPath
+  protected def pathParam[T: Manifest](name: String): ParameterBuilder[T] =
+    swaggerParam[T](name, allowsCollection = false, allowsOption = false).fromPath
   protected def pathParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromPath
 
   protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
