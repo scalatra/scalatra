@@ -266,6 +266,16 @@ object DataType {
     def apply(v: DataType): DataType = new DataType("List[%s]" format (v.name))
   }
 
+  object GenSet {
+    def apply(): DataType = DataType("Set")
+    def apply(v: DataType): DataType = new DataType("Set[%s]" format (v.name))
+  }
+
+  object GenArray {
+    def apply(): DataType = DataType("Array")
+    def apply(v: DataType): DataType = new DataType("Array[%s]" format (v.name))
+  }
+
   object GenMap {
     def apply(): DataType = Map
     def apply(k: DataType, v: DataType): DataType = new DataType("Map[%s, %s]" format(k.name, v.name))
@@ -277,7 +287,9 @@ object DataType {
   private[this] val StringTypes = Set[Class[_]](classOf[String],classOf[java.lang.String])
   private[this] val BoolTypes = Set[Class[_]](classOf[Boolean],classOf[java.lang.Boolean])
 
-  private[swagger] def fromManifest[T](implicit mf: Manifest[T]): DataType = fromScalaType(Reflector.scalaTypeOf[T])
+  private[swagger] def fromManifest[T](implicit mf: Manifest[T]): DataType = {
+    fromScalaType(Reflector.scalaTypeOf[T])
+  }
   private[swagger] def fromClass(klass: Class[_]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
   private[swagger] def fromScalaType(st: ScalaType): DataType = {
     val klass = st.erasure
@@ -297,11 +309,17 @@ object DataType {
         GenMap(fromScalaType(k), fromScalaType(v))
       } else GenMap()
     }
-    else if (isCollection(klass)) {
-      if (st.typeArgs.nonEmpty)
-        GenList(fromScalaType(st.typeArgs.head))
-      else
-        GenList()
+    else if (classOf[scala.collection.Set[_]].isAssignableFrom(klass) || classOf[java.util.Set[_]].isAssignableFrom(klass)) {
+      if (st.typeArgs.nonEmpty) GenSet(fromScalaType(st.typeArgs.head))
+      else GenSet()
+    }
+    else if (classOf[collection.Seq[_]].isAssignableFrom(klass) || classOf[java.util.List[_]].isAssignableFrom(klass)) {
+      if (st.typeArgs.nonEmpty) GenList(fromScalaType(st.typeArgs.head))
+      else GenList()
+    }
+    else if (st.isArray || isCollection(klass)) {
+      if (st.typeArgs.nonEmpty) GenArray(fromScalaType(st.typeArgs.head))
+      else GenArray()
     }
     else new DataType(klass.getSimpleName())
   }
