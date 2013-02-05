@@ -123,7 +123,7 @@ object AuthApi {
     new ModelFieldSerializer,
     new AuthOperationSerializer(userOption)) ++ JodaTimeSerializers.all
 
-  def toJValue[T <: AnyRef](doc: Any, uOpt: Option[T]) = (Extraction.decompose(doc)(formats(uOpt)).noNulls)
+  def toJValue[T <: AnyRef](doc: Any, uOpt: Option[T]) = Extraction.decompose(doc)(formats(uOpt))
 
   class AuthOperationSerializer[T <: AnyRef](userOption: Option[T]) extends Serializer[AuthOperation[T]] {
 
