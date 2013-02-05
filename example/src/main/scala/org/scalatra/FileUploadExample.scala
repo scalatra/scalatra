@@ -1,37 +1,25 @@
 package org.scalatra
 
-import javax.servlet.annotation.MultipartConfig
-import servlet.{SizeConstraintExceededException, FileUploadSupport}
+import servlet.{MultipartConfig, SizeConstraintExceededException, FileUploadSupport}
 import xml.Node
 
-@MultipartConfig(maxFileSize = 3*1024*1024)
 class FileUploadExample extends ScalatraServlet with FileUploadSupport with FlashMapSupport {
-  object Template {
-    def page(content: Seq[Node]) = {
-      <html>
-        <head>
-          <title>File Upload</title>
-        </head>
-        <body>
-          <form action={url("/upload")} method="post" enctype="multipart/form-data">
-           <p>File to upload: <input type="file" name="file" /></p>
-           <p><input type="submit" value="Upload" /></p>
-         </form>
+  configureMultipartHandling(MultipartConfig(maxFileSize = Some(3*1024*1024)))
 
-          {content}
-        </body>
-      </html>
-    }
-  }
+  def displayPage(content: Seq[Node]) = Template.page("File upload example", content, url(_))
 
   error {
     case e: SizeConstraintExceededException =>
-      RequestEntityTooLarge(Template.page(
+      RequestEntityTooLarge(displayPage(
         <p>The file you uploaded exceeded the 3 MB limit.</p>))
   }
 
   get("/") {
-    Template.page(
+    displayPage(
+      <form action={url("/upload")} method="post" enctype="multipart/form-data">
+       <p>File to upload: <input type="file" name="file" /></p>
+       <p><input type="submit" value="Upload" /></p>
+      </form>
       <p>
         Upload a file using the above form. After you hit "Upload"
         the file will be uploaded and your browser will start
@@ -52,7 +40,7 @@ class FileUploadExample extends ScalatraServlet with FileUploadSupport with Flas
         ))
 
       case None =>
-        BadRequest(Template.page(
+        BadRequest(displayPage(
           <p>
             Hey! You forgot to select a file.
           </p>))

@@ -1,0 +1,22 @@
+### scalatra-core
+* Don't crash if `fileParams` is called on a non-multipart request.
+* add an `as[T]` and a `getAsOrElse[T]` method in addition to `getAs[T]` on params and multiParams
+* Use type converters on attributes maps too.
+* Auto detection of mime type when action result is `Array[Byte]`, `InputStream`, `File`. [GH-216](https://github.com/scalatra/scalatra/issues/216)
+* Auto detection of charset when action result is `File`. [GH-216](https://github.com/scalatra/scalatra/issues/216)
+* Add a `addMimeMapping` method to `ApiFormats`
+* Log errors when they occur in ScalatraBootstrap. [GH-220](https://github.com/scalatra/scalatra/issues/220)
+
+### scalatra-akka
+* *BREAKING* Do not require ActorSystem.  Use implicit executor parameter. [GH-250](https://github.com/scalatra/scalatra/pull/250)
+
+### scalatra-test
+* Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
+
+### scalatra-atmosphere
+* Upgrade to atmosphere 1.0.9
+* Add a method to selective broadcast to any atmosphere connected client.
+
+### scalatra-swagger
+* Fix generating paths for servlet mounted at / in the context.
+* Deprecated manually registering models, use reflection and the values in responseClass and DataType to build up the models list.

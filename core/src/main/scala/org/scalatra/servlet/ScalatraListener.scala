@@ -1,27 +1,32 @@
 package org.scalatra
 package servlet
 
+//import akka.actor.ActorSystem
 import javax.servlet.ServletContext
 import javax.servlet.{ServletContextEvent, ServletContextListener}
 import grizzled.slf4j.Logger
+import util.RicherString._
+import scala.util.control.Exception._
 
 class ScalatraListener extends ServletContextListener {
   import ScalatraListener._
 
-  private val logger: Logger = Logger[this.type]
+  private[this] val logger: Logger = Logger[this.type]
   
-  private var cycle: LifeCycle = _
+  private[this] var cycle: LifeCycle = _
 
-  private var servletContext: ServletContext = _
+  private[this] var servletContext: ServletContext = _
 
   def contextInitialized(sce: ServletContextEvent) {
-    servletContext = sce.getServletContext
-    val cycleClassName = 
-      Option(servletContext.getInitParameter(LifeCycleKey)) getOrElse DefaultLifeCycle
-    val cycleClass = Class.forName(cycleClassName)
-    cycle = cycleClass.newInstance.asInstanceOf[LifeCycle]
-    logger.info("Initializing life cycle class: %s".format(cycleClassName))
-    cycle.init(servletContext)
+    try {
+      configureServletContext(sce)
+      configureExecutionContext(sce)
+      configureCycleClass(Thread.currentThread.getContextClassLoader)
+    } catch {
+      case e: Throwable =>
+        logger.error("Failed to initialize scalatra application at " + sce.getServletContext.getContextPath, e)
+        throw e
+    }
   }
 
   def contextDestroyed(sce: ServletContextEvent) {
@@ -30,9 +35,49 @@ class ScalatraListener extends ServletContextListener {
       cycle.destroy(servletContext)
     }
   }
+
+  protected def configureExecutionContext(sce: ServletContextEvent) {
+//    val ctxt = sce.getServletContext
+//    val system = ActorSystem("scalatra", ConfigFactory.load.getConfig("scalatra"))
+//    ctxt.setAttribute(ActorSystemKey, system)
+  }
+
+  protected def probeForCycleClass(classLoader: ClassLoader) = {
+    val cycleClassName = 
+      Option(servletContext.getInitParameter(LifeCycleKey)).flatMap(_.blankOption) getOrElse DefaultLifeCycle
+    logger debug ("The cycle class name from the config: " + (if (cycleClassName == null) "null" else cycleClassName))
+
+    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName, true, classLoader) } catch { case _: Throwable => null }
+    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle, true, classLoader) } catch { case _: Throwable => null }
+    val cycleClass: Class[_] = if (lifeCycleClass != null) lifeCycleClass else oldLifeCycleClass
+
+    assert(cycleClass != null, "No lifecycle class found!")
+    assert(classOf[LifeCycle].isAssignableFrom(cycleClass), "This is no lifecycle class.")
+    logger debug "Loaded lifecycle class: %s".format(cycleClass)
+
+    if (cycleClass.getName == OldDefaultLifeCycle)
+      logger.warn("The Scalatra name for a boot class will be removed eventually. Please use ScalatraBootstrap instead as class name.")
+    (cycleClass.getSimpleName, cycleClass.newInstance.asInstanceOf[LifeCycle])
+  }
+
+  protected def configureServletContext(sce: ServletContextEvent) {
+    servletContext = sce.getServletContext
+  }
+
+  protected def configureCycleClass(classLoader: ClassLoader) {
+    val (cycleClassName, cycleClass) = probeForCycleClass(classLoader)
+    cycle = cycleClass
+    logger.info("Initializing life cycle class: %s".format(cycleClassName))
+    cycle.init(servletContext)
+  }
 }
 
 object ScalatraListener {
-  val DefaultLifeCycle = "Scalatra"
+  
+  // DO NOT RENAME THIS CLASS NAME AS IT BREAKS THE ENTIRE WORLD
+  // TOGETHER WITH THE WORLD IT WILL BREAK ALL EXISTING SCALATRA APPS
+  // RENAMING THIS CLASS WILL RESULT IN GETTING SHOT, IF YOU SURVIVE YOU WILL BE SHOT AGAIN
+  val DefaultLifeCycle = "ScalatraBootstrap"
+  val OldDefaultLifeCycle = "Scalatra"
   val LifeCycleKey = "org.scalatra.LifeCycle"
 }

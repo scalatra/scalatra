@@ -16,7 +16,7 @@ trait UrlGeneratorSupport {
    * determined.  This may occur outside of an HTTP request's lifecycle.
    */
   def url(route: Route, params: Pair[String, String]*): String =
-    url(route, params.toMap)
+    url(route, params.toMap, Seq.empty)
 
   /**
    * Calculate a URL for a reversible route and some splats.
@@ -45,12 +45,12 @@ trait UrlGeneratorSupport {
    */
   def url(
     route: Route,
-    params: Map[String, String] = Map(),
-    splats: Iterable[String] = Seq()
+    params: Map[String, String],
+    splats: Iterable[String]
   ): String =
     route.reversibleMatcher match {
       case Some(matcher: ReversibleRouteMatcher) => route.contextPath() + matcher.reverse(params, splats.toList)
-      case None =>
+      case _ =>
         throw new Exception("Route \"%s\" is not reversible" format (route))
     }
 }

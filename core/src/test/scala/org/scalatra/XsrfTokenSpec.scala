@@ -1,10 +1,10 @@
 package org.scalatra
 
-import test.specs.ScalatraSpecification
+import test.specs2.MutableScalatraSpec
 import java.net.HttpCookie
 import collection.JavaConverters._
 
-class XsrfTokenServlet extends ScalatraServlet with CookieSupport with XsrfTokenSupport {
+class XsrfTokenServlet extends ScalatraServlet with XsrfTokenSupport {
 
   xsrfGuard()
 
@@ -17,7 +17,7 @@ class XsrfTokenServlet extends ScalatraServlet with CookieSupport with XsrfToken
   }
 }
 
-object XsrfTokenSpec extends ScalatraSpecification {
+object XsrfTokenSpec extends MutableScalatraSpec {
 
   addServlet(classOf[XsrfTokenServlet], "/*")
 
@@ -29,8 +29,8 @@ object XsrfTokenSpec extends ScalatraSpecification {
 
   "the get request should include the CSRF token" in {
     get("/renderForm") {
-      tokenFromCookie mustNot beNull
-      tokenFromCookie mustNot beEmpty
+      tokenFromCookie must not be null
+      tokenFromCookie must not be empty
       body must beMatching("GO")
     }
   }
@@ -55,7 +55,7 @@ object XsrfTokenSpec extends ScalatraSpecification {
       }
       post("/renderForm", headers = Map(XsrfTokenSupport.HeaderNames.head -> "Hey I'm different")) {
         status must be_==(403)
-        body mustNot be_==("SUCCESS")
+        body must not be_==("SUCCESS")
       }
     }
   }

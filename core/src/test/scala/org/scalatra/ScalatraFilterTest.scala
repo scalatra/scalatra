@@ -3,6 +3,7 @@ package org.scalatra
 import test.scalatest.ScalatraFunSuite
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
+import javax.servlet.http.HttpServletRequest
 
 /*
  * There are four types of servlet mappings: path, extension, default, and exact-match.  Test them all, as they can all
@@ -63,7 +64,7 @@ class ScalatraFilterTestExtensionMappedServlet extends ScalatraServlet {
   }
 
   // Non path-mapped servlets need this to work
-  override def requestPath = request.getServletPath
+  override def requestPath(implicit request: HttpServletRequest) = request.getServletPath
 }
 
 class ScalatraFilterTestDefaultServlet extends ScalatraServlet {
@@ -76,7 +77,7 @@ class ScalatraFilterTestDefaultServlet extends ScalatraServlet {
   }
 
   // Non path-mapped servlets need this to work
-  override def requestPath = request.getServletPath
+  override def requestPath(implicit request: HttpServletRequest) = request.getServletPath
 }
 
 class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
@@ -89,7 +90,7 @@ class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
   }
 
   // Non path-mapped servlets need this to work
-  override def requestPath = request.getServletPath
+  override def requestPath(implicit request: HttpServletRequest) = request.getServletPath
 }
 
 @RunWith(classOf[JUnitRunner])

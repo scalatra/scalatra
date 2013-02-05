@@ -1,0 +1,20 @@
+### scalatra
+* Add `shutdown` hook.  Unifies the destruction of servlets and filters.
+* Support case insensitive method override header
+
+### scalatra-scalate
+* Shut down the compiler thread when the servlet or filter is destroyed.
+
+### scalatra-atmosphere
+* Use atmosphere 1.0.6
+* Fix long-polling connections
+
+### scalatra-commands
+* replace .toOption with folds for scalaz 7 source compatibility
+
+### scalatra-json
+* fix rendering nodeseq
+* update to json4s 3.1.0
+
+### scalatra-scalate
+* update to scalate 1.6.1

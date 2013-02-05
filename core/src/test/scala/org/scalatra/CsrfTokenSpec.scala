@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.scalatra._
 
-import test.specs.ScalatraSpecification
+import test.specs2.MutableScalatraSpec
 
 class CsrfTokenServlet extends ScalatraServlet with CsrfTokenSupport {
   get("/renderForm") {
@@ -18,14 +18,14 @@ class CsrfTokenServlet extends ScalatraServlet with CsrfTokenSupport {
   }
 }
 
-object CsrfTokenSpec extends ScalatraSpecification {
+object CsrfTokenSpec extends MutableScalatraSpec {
 
   addServlet(classOf[CsrfTokenServlet], "/*")
 
 
   "the get request should include the CSRF token" in {
     get("/renderForm") {
-      body must beMatching("""value="\w+""")
+      body must beMatching("""(?s).*value="\w+".*""")
     }
   }
 
@@ -47,7 +47,7 @@ object CsrfTokenSpec extends ScalatraSpecification {
       }
       post("/renderForm", CsrfTokenSupport.DefaultKey -> "Hey I'm different") {
         status must be_==(403)
-        body mustNot be_==("SUCCESS")
+        body must not be_==("SUCCESS")
       }
     }
   }

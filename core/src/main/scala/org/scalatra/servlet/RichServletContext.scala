@@ -3,16 +3,17 @@ package servlet
 
 import java.net.{MalformedURLException, URL}
 import java.util.EnumSet
-import javax.servlet.{DispatcherType, Filter, ServletContext}
-import javax.servlet.http.{HttpServlet, HttpServletRequest}
-import scala.collection.JavaConversions._
+import javax.servlet.{ServletConfig, DispatcherType, Filter, ServletContext}
+import javax.servlet.http.{HttpServletResponse, HttpServlet, HttpServletRequest}
+import scala.collection.JavaConverters._
 import scala.collection.mutable
+import java.{ util => jutil }
+import org.scalatra.util
 
 /**
  * Extension methods to the standard ServletContext.
  */
-case class RichServletContext(sc: ServletContext) extends AttributesMap 
-{
+case class RichServletContext(sc: ServletContext) extends AttributesMap {
   protected def attributes = sc
 
   /**
@@ -43,6 +44,12 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     resource(path)
   }
 
+  private[this] def pathMapping(urlPattern: String) = urlPattern match {
+    case s if s.endsWith("/*") => s
+    case s if s.endsWith("/") => s + "*"
+    case s => s + "/*"
+  }
+
   /**
    * Mounts a handler to the servlet context.  Must be an HttpServlet or a
    * Filter.
@@ -56,11 +63,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
    * @param name the name of the handler
    */
   def mount(handler: Handler, urlPattern: String, name: String) {
-    val pathMap = urlPattern match {
-      case s if s.endsWith("/*") => s
-      case s if s.endsWith("/") => s + "*"
-      case s => s + "/*"
-    }
+    val pathMap = pathMapping(urlPattern)
 
     handler match {
       case servlet: HttpServlet => mountServlet(servlet, pathMap, name)
@@ -92,37 +95,58 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap
     mount(handlerClass, urlPattern, handlerClass.getName)
 
   private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String) {
-    val reg = sc.addServlet(name, servlet)
+    val reg = Option(sc.getServletRegistration(name)) getOrElse {
+      val r = sc.addServlet(name, servlet)
+      servlet match {
+        case s: HasMultipartConfig =>
+          r.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
+        case _ =>
+      }
+      if (servlet.isInstanceOf[ScalatraAsyncSupport])
+        r.setAsyncSupported(true)
+      r
+    }
+
     reg.addMapping(urlPattern)
   }
 
   private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String) {
-      val reg = sc.addServlet(name, servletClass)
-      reg.addMapping(urlPattern)
-    }
+    val reg = Option(sc.getServletRegistration(name)) getOrElse sc.addServlet(name, servletClass)
+    reg.addMapping(urlPattern)
+  }
 
   private def mountFilter(filter: Filter, urlPattern: String, name: String) {
-    val reg = sc.addFilter(name, filter)
+    val reg = Option(sc.getFilterRegistration(name)) getOrElse sc.addFilter(name, filter)
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
-    val dispatchers = EnumSet.allOf(classOf[DispatcherType])
+    val dispatchers = jutil.EnumSet.allOf(classOf[DispatcherType])
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
 
   private def mountFilter(filterClass: Class[Filter], urlPattern: String, name: String) {
-    val reg = sc.addFilter(name, filterClass)
+    val reg = Option(sc.getFilterRegistration(name)) getOrElse sc.addFilter(name, filterClass)
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
-    val dispatchers = EnumSet.allOf(classOf[DispatcherType])
+    val dispatchers = jutil.EnumSet.allOf(classOf[DispatcherType])
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
 
   object initParameters extends mutable.Map[String, String] {
     def get(key: String): Option[String] = Option(sc.getInitParameter(key))
 
-    def iterator: Iterator[(String, String)] = 
-      for (name <- sc.getInitParameterNames.toIterator) 
-      yield (name, sc.getInitParameter(name))
+    def iterator: Iterator[(String, String)] = {
+      val theInitParams = sc.getInitParameterNames
+
+      new Iterator[(String, String)] {
+
+        def hasNext: Boolean = theInitParams.hasMoreElements
+
+        def next(): (String, String) = {
+          val nm = theInitParams.nextElement()
+          (nm, sc.getInitParameter(nm))
+        }
+      }
+    }
 
     def +=(kv: (String, String)): this.type = {
       sc.setInitParameter(kv._1, kv._2)

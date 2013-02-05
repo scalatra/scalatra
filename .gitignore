@@ -15,8 +15,21 @@ target/
 .ensime
 .target
 
+# paulp script #
+/.lib/
+
 # eclipse artifacts
 .settings
 .project
 .classpath
 .cache
+.ensime_lucene
+
+# sublime artifacts
+*.sublime-*
+atlassian-ide-plugin.xml
+.lib
+
+.history
+
+.jvmopts

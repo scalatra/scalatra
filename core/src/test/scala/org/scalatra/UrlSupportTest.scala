@@ -8,11 +8,15 @@ class UrlSupportTest extends ScalatraFunSuite {
   addServlet(new ScalatraServlet {
     get("/") {
       if (params.contains("session")) session // trigger a jsessionid
-      this.url(params("url"), params - "url")
+      this.url(params("url"), params - "url", absolutize = false)
     }
 
     get("/option") {
-      this.url(params("url"), Seq("id" -> params.get("id")))
+      this.url(params("url"), Seq("id" -> params.get("id")), absolutize = false)
+    }
+
+    get("/strip-context") {
+      this.url(params("url"))//, includeContextPath = false)
     }
   }, "/*")
 
@@ -37,6 +41,14 @@ class UrlSupportTest extends ScalatraFunSuite {
 
   test("empty params should not generate a query string") {
     url("foo", Map.empty) should equal ("foo")
+  }
+
+  test("a '/' should come out as /context") {
+    get("/context/strip-context?url=/") { body should equal("/context") }
+  }
+
+  test("a '' should come out as /") {
+    get("/context/strip-context?url=") { body should equal("") }
   }
 
   test("params should be rendered as a query string") {

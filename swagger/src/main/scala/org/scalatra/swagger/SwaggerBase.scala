@@ -1,49 +1,82 @@
 package org.scalatra
 package swagger
 
-import net.liftweb.json._
+import org.json4s._
 import JsonDSL._
+import json.JsonSupport
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBase extends ScalatraBase {
+trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
 
-  before() {
-    contentType = "application/json"
-  }
+  protected type ApiType <: SwaggerApi[_]
 
-  get("/:doc.json") {
-    swagger.doc(params("doc")) match {
-      case Some(doc) ⇒ renderDoc(doc)
-      case _         ⇒ halt(404)
+  protected implicit val jsonFormats: Formats = Api.formats
+  
+  protected def docToJson(doc: ApiType): JValue
+
+  implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
+
+  /**
+   * The name of the route to use when getting the index listing for swagger
+   * defaults to optional resources.:format or /
+   * @return The name of the route
+   */
+  protected def indexRoute: String = "resources"
+
+  /**
+   * Whether to include the format parameter in the index listing for swagger
+   * defaults to true, the format parameter will be present but is still optional.
+   * @return true if the format parameter should be included in the returned json
+   */
+  protected def includeFormatParameter: Boolean = true
+
+  abstract override def initialize(config: ConfigT) {
+    super.initialize(config)
+    get("/:doc(.:format)") {
+      swagger.doc(params("doc")) match {
+        case Some(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+        case _         ⇒ halt(404)
+      }
     }
-  }
 
-  get("/resources.json") {
-    renderIndex(swagger.docs.toList)
-  }
+    get("/("+indexRoute+"(.:format))") {
+      renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
+    }
 
-  options("/resources.json") {}
-
-  protected def renderDoc(doc: Api) = {
-    val j = Api.toJObject(doc) ~ ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion)
-    Printer.compact(JsonAST.render(j))
-  }
-
-  protected def renderIndex(docs: List[Api]) = {
-    val j = ("basePath" -> buildFullUrl("")) ~ ("swaggerVersion" -> swagger.swaggerVersion) ~ ("apiVersion" -> swagger.apiVersion) ~
-      ("apis" -> (swagger.docs.toList map (doc => (("path" -> (doc.resourcePath + ".{format}")) ~ ("description" -> doc.description)))))
-    Printer.compact(JsonAST.render(j))
+    options("/("+indexRoute+"(.:format))") {}
   }
 
   /**
    * Returns the Swagger instance responsible for generating the resource and operation listings.
    */
-  protected def swagger: Swagger
+  protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
+  
 
-  /**
-   * Builds a full URL based on the given path.
-   */
-  protected def buildFullUrl(path: String): String
+
+  protected def renderDoc(doc: ApiType): JValue = {
+    docToJson(doc) merge
+      ("basePath" -> fullUrl("/", includeServletPath = false)) ~
+      ("swaggerVersion" -> swagger.swaggerVersion) ~
+      ("apiVersion" -> swagger.apiVersion)
+  }
+
+  protected def renderIndex(docs: List[ApiType]): JValue = {
+    ("basePath" -> fullUrl("/", includeServletPath = false)) ~
+      ("swaggerVersion" -> swagger.swaggerVersion) ~
+      ("apiVersion" -> swagger.apiVersion) ~
+      ("apis" ->
+        (swagger.docs.toList map {
+          doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + (if (includeFormatParameter) ".{format}" else ""))) ~
+                 ("description" -> doc.description))
+        }))
+  }
+
+}
+
+trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
+  type ApiType = Api
+  protected def docToJson(doc: Api): JValue = doc.toJValue
+  protected implicit def swagger: SwaggerEngine[ApiType]
 }

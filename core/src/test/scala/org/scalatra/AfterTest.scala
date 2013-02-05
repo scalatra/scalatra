@@ -1,9 +1,12 @@
 package org.scalatra
 
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import test.scalatest.ScalatraFunSuite
+import javax.servlet.ServletConfig
 
-class AfterTestServlet extends ScalatraServlet {
+
+class AfterTestServlet extends ScalatraServlet with AfterTestAppBase
+trait AfterTestAppBase extends ScalatraBase {
 
   after() {
     response.setStatus(204)
@@ -25,8 +28,11 @@ class AfterTestServlet extends ScalatraServlet {
 
 }
 
-class AfterTest extends ScalatraFunSuite {
-  addServlet(classOf[AfterTestServlet], "/*")
+class AfterServletTest extends AfterTest {
+  mount(classOf[AfterTestServlet], "/*")
+}
+abstract class AfterTest extends ScalatraFunSuite {
+
 
   test("afterAll is applied to all paths") {
     get("/third/path") {

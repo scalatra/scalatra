@@ -2,13 +2,14 @@ package org.scalatra
 
 
 import java.security.SecureRandom
+import javax.servlet.http.HttpServletRequest
 
 object GenerateId {
   def apply(): String = {
     generateCsrfToken()
   }
 
-  private def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
+  private[this] def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
     if((b.toInt & 0xff) < 0x10) sb.append("0")
     sb.append(Integer.toString(b.toInt & 0xff, 16))
   }).toString
@@ -35,19 +36,9 @@ object CsrfTokenSupport {
  * `handleForgery()` hook is invoked.  Otherwise, a token for the next
  * request is prepared with `prepareCsrfToken`.
  */
-trait CsrfTokenSupport {
-  this: ScalatraBase with SessionSupport =>
+trait CsrfTokenSupport { this: ScalatraBase =>
 
-  /**
-   * The key used to store the token on the session, as well as the parameter
-   * of the request.
-   */
-  protected def csrfKey: String = CsrfTokenSupport.DefaultKey
 
-  /**
-   * Returns the token from the session.
-   */
-  protected def csrfToken: String = session(csrfKey).asInstanceOf[String]
 
   before(isForged) { handleForgery() }
   before() { prepareCsrfToken() }
@@ -83,21 +74,35 @@ trait CsrfTokenSupport {
 
   @deprecated("Use prepareCsrfToken()", "2.0.0")
   protected def prepareCSRFToken() = prepareCsrfToken()
+
+  /**
+   * The key used to store the token on the session, as well as the parameter
+   * of the request.
+   */
+  def csrfKey: String = CsrfTokenSupport.DefaultKey
+
+  /**
+   * Returns the token from the session.
+   */
+  protected[scalatra] def csrfToken(implicit request: HttpServletRequest): String =
+    request.getSession.getAttribute(csrfKey).asInstanceOf[String]
 }
 
-trait XsrfTokenSupport { this: ScalatraBase with SessionSupport with CookieSupport =>
+
+trait XsrfTokenSupport { this: ScalatraBase =>
 
   import XsrfTokenSupport._
   /**
    * The key used to store the token on the session, as well as the parameter
    * of the request.
    */
-  protected def xsrfKey: String = DefaultKey
+  def xsrfKey: String = DefaultKey
 
   /**
    * Returns the token from the session.
    */
-  protected def xsrfToken: String = session(xsrfKey).asInstanceOf[String]
+  def xsrfToken(implicit request: HttpServletRequest): String =
+    request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
   def xsrfGuard(only: RouteTransformer*) {
     before((only.toSeq ++ Seq[RouteTransformer](isForged)):_*) { handleForgery() }

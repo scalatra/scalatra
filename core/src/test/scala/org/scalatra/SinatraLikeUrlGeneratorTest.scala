@@ -12,7 +12,7 @@ class SinatraLikeUrlGeneratorTest extends FunSuite with MustMatchers {
     url(path, Map[String, String](), splat +: moreSplats)
 
   def url(path: String, params: Map[String, String] = Map(), splats: Iterable[String] = Seq()): String =
-    new SinatraRouteMatcher(path, "/").reverse(params, splats.toList)
+    new SinatraRouteMatcher(path).reverse(params, splats.toList)
 
   test("Simple string route reverses to the same url") {
     url("/foo") must equal ("/foo")

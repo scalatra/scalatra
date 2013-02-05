@@ -1,7 +1,15 @@
 package org.scalatra.util
 
 import scala.collection.immutable.Map
+import javax.servlet.http.HttpServletRequest
 
+object MultiMapHeadView {
+  def empty[A, B]: MultiMapHeadView[A, B] = 
+    new MultiMapHeadView[A, B] { protected val multiMap = Map.empty[A, Seq[B]] }
+
+  def emptyIndifferent[B]: MultiMapHeadView[String, B] with MapWithIndifferentAccess[B] = 
+    new MultiMapHeadView[String, B] with MapWithIndifferentAccess[B] { protected val multiMap = Map.empty[String, Seq[B]] }
+}
 trait MultiMapHeadView[A, B] extends Map[A, B] {
   protected def multiMap: Map[A, Seq[B]]
 

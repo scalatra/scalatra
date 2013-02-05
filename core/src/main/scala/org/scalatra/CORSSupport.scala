@@ -35,7 +35,7 @@ object CorsSupport {
                allowCredentials: Boolean,
                preflightMaxAge: Int = 0)
 
-  private def configKey(name: String) = "org.scalatra.cors."+name
+  private[this] def configKey(name: String) = "org.scalatra.cors."+name
   val AllowedOriginsKey = configKey("allowedOrigins")
   val AllowedMethodsKey = configKey("allowedMethods")
   val AllowedHeadersKey = configKey("allowedHeaders")
@@ -69,21 +69,22 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    val corsCfg = CORSConfig(
+    def createDefault = CORSConfig(
       Option(config.context.getInitParameter(AllowedOriginsKey)).getOrElse(AnyOrigin).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowedMethodsKey)).getOrElse(DefaultMethods).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowedHeadersKey)).getOrElse(DefaultHeaders).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowCredentialsKey)).map(_.toBoolean).getOrElse(true),
       Option(config.context.getInitParameter(PreflightMaxAgeKey)).map(_.toInt).getOrElse(1800))
 
+
+
+
+    val corsCfg = config.context.getOrElseUpdate(CorsConfigKey, createDefault).asInstanceOf[CORSConfig]
     import corsCfg._
     logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s".format(
         allowedOrigins mkString ", ",
         allowedMethods mkString ", ",
         allowedHeaders mkString ", ")
-
-
-    config.context(CorsConfigKey) = corsCfg
   }
 
 
@@ -118,19 +119,19 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
 */
   }
 
-  private def corsConfig = servletContext.get(CorsConfigKey).orNull.asInstanceOf[CORSConfig]
+  private[this] def corsConfig = servletContext.get(CorsConfigKey).orNull.asInstanceOf[CORSConfig]
 
-  private def originMatches = // 6.2.2
+  private[this] def originMatches = // 6.2.2
     corsConfig.allowedOrigins.contains(AnyOrigin) ||
       (corsConfig.allowedOrigins contains request.headers.get(OriginHeader).getOrElse(""))
 
-  private def isEnabled =
+  private[this] def isEnabled =
     !("Upgrade".equalsIgnoreCase(request.headers.get("Connection").getOrElse("")) &&
       "WebSocket".equalsIgnoreCase(request.headers.get("Upgrade").getOrElse(""))) &&
       !requestPath.contains("eb_ping") // don't do anything for the ping endpoint
 
-  private def isValidRoute: Boolean = routes.matchingMethods.nonEmpty
-  private def isPreflightRequest = {
+  private[this] def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty
+  private[this] def isPreflightRequest = {
     val isCors = isCORSRequest
     val validRoute = isValidRoute
     val isPreflight = request.headers.get(AccessControlRequestMethodHeader).flatMap(_.blankOption).isDefined
@@ -145,9 +146,9 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
     result
   }
 
-  private def isCORSRequest = request.headers.get(OriginHeader).flatMap(_.blankOption).isDefined // 6.x.1
+  private[this] def isCORSRequest = request.headers.get(OriginHeader).flatMap(_.blankOption).isDefined // 6.x.1
 
-  private def isSimpleHeader(header: String) = {
+  private[this] def isSimpleHeader(header: String) = {
     val ho = header.blankOption
     ho.isDefined && (ho forall { h ⇒
       val hu = h.toUpperCase(ENGLISH)
@@ -156,12 +157,12 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
     })
   }
 
-  private def allOriginsMatch = { // 6.1.2
+  private[this] def allOriginsMatch = { // 6.1.2
     val h = request.headers.get(OriginHeader).flatMap(_.blankOption)
     h.isDefined && h.get.split(" ").nonEmpty && h.get.split(" ").forall(corsConfig.allowedOrigins.contains)
   }
 
-  private def isSimpleRequest = {
+  private[this] def isSimpleRequest = {
     val isCors = isCORSRequest
     val enabled = isEnabled
     val allOrigins = allOriginsMatch
@@ -170,7 +171,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
     res
   }
 
-  private def allowsMethod = { // 5.2.3 and 5.2.5
+  private[this] def allowsMethod = { // 5.2.3 and 5.2.5
     val accessControlRequestMethod = request.headers.get(AccessControlRequestMethodHeader).flatMap(_.blankOption).getOrElse("")
     //    logger.debug("%s is %s" format (ACCESS_CONTROL_REQUEST_METHOD_HEADER, accessControlRequestMethod))
     val result = accessControlRequestMethod.nonBlank && corsConfig.allowedMethods.contains(accessControlRequestMethod.toUpperCase(ENGLISH))
@@ -178,18 +179,13 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
     result
   }
 
-  private def headersAreAllowed = { // 5.2.4 and 5.2.6
-    val accessControlRequestHeaders = request.headers.get(AccessControlRequestHeadersHeader).flatMap(_.blankOption)
-    //    logger.debug("%s is %s".format(ACCESS_CONTROL_REQUEST_HEADERS_HEADER, accessControlRequestHeaders))
-    val ah = (corsConfig.allowedHeaders ++ CorsHeaders).map(_.trim.toUpperCase(ENGLISH))
-    val result = corsConfig.allowedHeaders.contains(AnyOrigin) && (accessControlRequestHeaders forall { hdr ⇒
-      val hdrs = hdr.split(",").map(_.trim.toUpperCase(ENGLISH))
-      //      logger.debug("Headers [%s]".format(hdrs))
-      (hdrs.nonEmpty && hdrs.forall { h ⇒ ah.contains(h) }) || isSimpleHeader(hdr)
-    })
-    //    logger.debug("Headers [%s] are %s among allowed headers %s".format(
-    //      accessControlRequestHeaders getOrElse "No headers", if (result) "" else " not", ah))
-    result
+  private[this] def headersAreAllowed = { // 5.2.4 and 5.2.6
+    val allowedHeaders = corsConfig.allowedHeaders.map(_.trim.toUpperCase(ENGLISH))
+    val requestedHeaders = for (
+      header <- request.headers.getMulti(AccessControlRequestHeadersHeader) if header.nonBlank
+    ) yield header.toUpperCase(ENGLISH)
+
+    requestedHeaders.forall(h => isSimpleHeader(h) || allowedHeaders.contains(h))
   }
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {

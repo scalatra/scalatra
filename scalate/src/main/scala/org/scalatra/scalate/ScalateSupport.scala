@@ -2,7 +2,7 @@ package org.scalatra
 package scalate
 
 import scala.collection.mutable
-import java.io.PrintWriter
+import java.io.{StringWriter, PrintWriter}
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
@@ -45,6 +45,11 @@ trait ScalateSupport extends ScalatraKernel {
     templateEngine = createTemplateEngine(config)
   }
 
+  abstract override def shutdown() {
+    if (templateEngine != null) templateEngine.compiler.shutdown()
+    super.shutdown()
+  }
+
   /**
    * Creates the templateEngine from the config.  There is little reason to
    * override this unless you have created a ScalatraKernel extension outside
@@ -70,7 +75,6 @@ trait ScalateSupport extends ScalatraKernel {
    */
   trait ScalatraTemplateEngine {
     this: TemplateEngine =>
-
     /**
      * Returns a ServletRenderContext constructed from the current
      * request and response.
@@ -90,7 +94,7 @@ trait ScalateSupport extends ScalatraKernel {
 
     ScalateSupport.setLayoutStrategy(this)
     templateDirectories = defaultTemplatePath
-    bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, true, isImplicit = true)
+    bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, importMembers = true, isImplicit = true)
     importStatements ::= "import org.scalatra.servlet.ServletApiImplicits._"
   }
 
@@ -112,8 +116,8 @@ trait ScalateSupport extends ScalatraKernel {
    * are urged to consider layoutTemplate instead.
    */
   @deprecated("not idiomatic Scalate; consider layoutTemplate instead", "2.0.0")
-  def renderTemplate(path: String, attributes: (String, Any)*) =
-    createRenderContext().render(path, Map(attributes : _*))
+  def renderTemplate(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse) =
+    createRenderContext(request, response, response.writer).render(path, Map(attributes : _*))
 
   /**
    * Flag whether the Scalate error page is enabled.  If true, uncaught
@@ -129,7 +133,6 @@ trait ScalateSupport extends ScalatraKernel {
     }
     catch {
       case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
-      case e => throw e
     }
   }
 
@@ -175,31 +178,30 @@ trait ScalateSupport extends ScalatraKernel {
    * - `/WEB-INF/views` (recommended)
    * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
    */
-  protected def defaultLayoutPath: List[String] =
-    List("/WEB-INF/views", "/WEB-INF/scalate/templates")
+  protected def defaultLayoutPath: Option[String] = None
 
   /**
    * Convenience method for `layoutTemplateAs("jade")`.
    */
-  protected def jade(path: String, attributes: (String, Any)*): String =
+  protected def jade(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
     layoutTemplateAs(Set("jade"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("scaml")`.
    */
-  protected def scaml(path: String, attributes: (String, Any)*): String =
+  protected def scaml(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
     layoutTemplateAs(Set("scaml"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("ssp")`.
    */
-  protected def ssp(path: String, attributes: (String, Any)*): String =
+  protected def ssp(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
     layoutTemplateAs(Set("ssp"))(path, attributes:_*)
 
   /**
    * Convenience method for `layoutTemplateAs("mustache")`.
    */
-  protected def mustache(path: String, attributes: (String, Any)*): String =
+  protected def mustache(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
     layoutTemplateAs(Set("mustache"))(path, attributes:_*)
 
   /**
@@ -211,9 +213,19 @@ trait ScalateSupport extends ScalatraKernel {
    * @param attributes Attributes to path to the render context.  Disable
    * layouts by passing `layout -> ""`.
    */
-  protected def layoutTemplateAs(ext: Set[String])(path: String, attributes: (String, Any)*): String = {
+  protected def layoutTemplateAs(ext: Set[String])(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
     val uri = findTemplate(path, ext).getOrElse(path)
-    templateEngine.layout(uri, Map(attributes:_*))
+    val buffer = new StringWriter()
+    val out = new PrintWriter(buffer)
+    val context = createRenderContext(request, response, out)
+    val attrs = templateAttributes ++ (defaultLayoutPath map (p => Map("layout" -> p) ++ Map(attributes:_*)) getOrElse Map(attributes:_*))
+
+
+    attrs foreach {
+      case (k, v) => context.attributes(k) = v
+    }
+    templateEngine.layout(uri, context)
+    buffer.toString
   }
 
   /**
@@ -244,6 +256,9 @@ trait ScalateSupport extends ScalatraKernel {
    * will be set to any render context created with the `createRenderContext`
    * method.
    */
-  protected def templateAttributes: mutable.Map[String, Any] =
+  protected def templateAttributes(implicit request: HttpServletRequest): mutable.Map[String, Any] =
     request.getOrElseUpdate(ScalateSupport.TemplateAttributesKey, mutable.Map.empty).asInstanceOf[mutable.Map[String, Any]]
+
+  protected def templateAttributes(key: String)(implicit request: HttpServletRequest): Any =
+    templateAttributes(request)(key)
 }

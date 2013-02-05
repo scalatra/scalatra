@@ -1,11 +1,12 @@
 package org.scalatra.servlet
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
-import org.scalatra.util.{ using, io }
+import org.scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView, using, io}
 import java.io.{ File, FileOutputStream }
 import javax.servlet.http._
+import javax.servlet.MultipartConfigElement
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
   * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
@@ -46,7 +47,7 @@ import javax.servlet.http._
   * }
   * }}}
   *
-  * @note Once any handler with FileUploadSupport has accessed the request, the
+  }}* @note Once any handler with FileUploadSupport has accessed the request, the
   *       fileParams returned by FileUploadSupport will remain fixed for the
   *       lifetime of the request.
   *
@@ -55,7 +56,7 @@ import javax.servlet.http._
   * scalatra-fileupload module still works for earlier versions
   * of Jetty.
   */
-trait FileUploadSupport extends ServletBase {
+trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   import FileUploadSupport._
 
@@ -91,8 +92,7 @@ trait FileUploadSupport extends ServletBase {
   }
 
   private def isMultipartRequest(req: HttpServletRequest): Boolean = {
-    val isPostOrPut = Set("POST", "PUT").contains(req.getMethod)
-
+    val isPostOrPut = Set("POST", "PUT", "PATCH").contains(req.getMethod)
     isPostOrPut && (req.contentType match {
       case Some(contentType) => contentType.startsWith("multipart/")
       case _ => false
@@ -130,7 +130,7 @@ trait FileUploadSupport extends ServletBase {
 
   private def getParts(req: HttpServletRequest) = {
     try {
-      req.getParts
+      if (isMultipartRequest(req)) req.getParts.asScala else Seq.empty[Part]
     } catch {
       case e: Exception if isSizeConstraintException(e) => throw new SizeConstraintExceededException("Too large request or file", e)
     }
@@ -143,7 +143,7 @@ trait FileUploadSupport extends ServletBase {
 
   private def mergeFormParamsWithQueryString(req: HttpServletRequest, bodyParams: BodyParams): Map[String, List[String]] = {
     var mergedParams = bodyParams.formParams
-    req.getParameterMap.asInstanceOf[JMap[String, Array[String]]] foreach {
+    req.getParameterMap.asScala foreach {
       case (name, values) =>
         val formValues = mergedParams.getOrElse(name, List.empty)
         mergedParams += name -> (values.toList ++ formValues)
@@ -158,42 +158,31 @@ trait FileUploadSupport extends ServletBase {
         _.head
       } getOrElse null
 
-      override def getParameterNames = formMap.keysIterator
+      override def getParameterNames = formMap.keysIterator.asJavaEnumeration
 
       override def getParameterValues(name: String) = formMap.get(name) map {
         _.toArray
       } getOrElse null
 
-      override def getParameterMap = new JHashMap[String, Array[String]] ++ (formMap transform {
+      override def getParameterMap = (new JHashMap[String, Array[String]].asScala ++ (formMap transform {
         (k, v) => v.toArray
-      })
+      })).asJava
     }
     wrapped
   }
 
-  protected def fileMultiParams: FileMultiParams = extractMultipartParams(request).fileParams
-
-  protected val _fileParams = new collection.Map[String, FileItem] {
-    def get(key: String) = fileMultiParams.get(key) flatMap {
-      _.headOption
-    }
-
-    override def size = fileMultiParams.size
-
-    override def iterator = (fileMultiParams map {
-      case (k, v) => (k, v.head)
-    }).iterator
-
-    override def -(key: String) = Map() ++ this - key
-
-    override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
-  }
+  def fileMultiParams(implicit request: HttpServletRequest): FileMultiParams = extractMultipartParams(request).fileParams
+  def fileMultiParams(key: String)(implicit request: HttpServletRequest): Seq[FileItem] = fileMultiParams(request)(key)
 
   /**
    * @return a Map, keyed on the names of multipart file upload parameters,
    *         of all multipart files submitted with the request
    */
-  def fileParams = _fileParams
+  def fileParams(implicit request: HttpServletRequest) = new MultiMapHeadView[String, FileItem] {
+    protected def multiMap = fileMultiParams
+  }
+
+  def fileParams(key: String)(implicit request: HttpServletRequest): FileItem = fileParams(request)(key)
 }
 
 object FileUploadSupport {

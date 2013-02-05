@@ -5,21 +5,22 @@ import java.util.Locale
 import java.util.ResourceBundle
 import java.util.MissingResourceException
 
+object Messages {
+  def apply(locale: Locale = Locale.getDefault): Messages = new Messages(locale)
+}
 class Messages(locale: Locale) {
-  private val bundle = ResourceBundle.getBundle("i18n/messages", locale)
-  
-  def this() = this(Locale.getDefault)
-  
+  private[this] val bundle = ResourceBundle.getBundle("i18n/messages", locale)
+
   /**
    * Null-safe implementation is preferred by using Option. The caller can 
    * support default value by using getOrElse:
    * messages.get("hello").getOrElse("world")
    * 
    * The return value can also be used with format:
-   * messages.get("hello %d").foreach(_.format(5))
+   * messages.get("hello %d").map(_.format(5))
    * 
    * To return the string itself:
-   * messages.get("hello").get
+   * messages("hello")
    */
   def get(key: String): Option[String] = {
     try {

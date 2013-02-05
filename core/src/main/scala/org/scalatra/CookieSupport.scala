@@ -6,7 +6,6 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => Se
 import servlet.ServletApiImplicits
 import util.DateUtil
 import util.RicherString._
-import java.text.SimpleDateFormat
 
 case class CookieOptions(
         domain  : String  = "",
@@ -19,11 +18,11 @@ case class CookieOptions(
         encoding: String  = "UTF-8")
 
 object Cookie {
-  private[this] var _currentTimeMillis: Option[Long] = None
+  @volatile private[this] var _currentTimeMillis: Option[Long] = None
   def currentTimeMillis = _currentTimeMillis getOrElse System.currentTimeMillis
-  def currentTimeMillis_=(ct: Long) = synchronized { _currentTimeMillis = Some(ct) }
-  def freezeTime() = synchronized { _currentTimeMillis = Some(System.currentTimeMillis()) }
-  def unfreezeTime() = synchronized { _currentTimeMillis = None }
+  def currentTimeMillis_=(ct: Long) = _currentTimeMillis = Some(ct)
+  def freezeTime() = _currentTimeMillis = Some(System.currentTimeMillis())
+  def unfreezeTime() = _currentTimeMillis = None
   def formatExpires(date: Date) = DateUtil.formatDate(date, "EEE, dd MMM yyyy HH:mm:ss zzz")
 }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
@@ -75,8 +74,8 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
 }
 
 
-class SweetCookies(private val reqCookies: Map[String, String], private val response: HttpServletResponse) extends ServletApiImplicits {
-  private lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
+class SweetCookies(private[this] val reqCookies: Map[String, String], private[this] val response: HttpServletResponse) extends ServletApiImplicits {
+  private[this] lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
   def get(key: String) = cookies.get(key)
 
@@ -115,27 +114,14 @@ object CookieSupport {
   val SweetCookiesKey = "org.scalatra.SweetCookies"
   val CookieOptionsKey = "org.scalatra.CookieOptions"
 }
-trait CookieSupport extends Handler with Initializable {
-  self: ScalatraBase =>
 
+trait CookieContext { self: ScalatraContext =>
   import CookieSupport._
   implicit def cookieOptions: CookieOptions = servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]
 
   def cookies = request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]
 
-
-  abstract override def initialize(config: ConfigT) {
-    super.initialize(config)
-    val path = contextPath match {
-      case "" => "/" // The root servlet is "", but the root cookie path is "/"
-      case p => p
-    }
-    servletContext(CookieOptionsKey) = CookieOptions(path = path)
-  }
-
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    req(SweetCookiesKey) = new SweetCookies(req.cookies, res)
-    super.handle(req, res)
-  }
-
+}
+@deprecated("You can remove this mixin, it's included in core by default", "2.2")
+trait CookieSupport { self: ScalatraBase =>
 }

@@ -4,8 +4,13 @@ import ActionResult._
 
 import test.specs2.MutableScalatraSpec
 import java.io.ByteArrayOutputStream
+import javax.servlet.ServletConfig
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-class ActionResultServlet extends ScalatraServlet {
+class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
+
+
+trait ActionResultTestBase  { self: ScalatraBase =>
   error {
     case e => BadRequest("something went wrong")
   }
@@ -61,8 +66,11 @@ class ActionResultServlet extends ScalatraServlet {
   }
 }
 
-class ActionResultsSpec extends MutableScalatraSpec {
-  addServlet(classOf[ActionResultServlet], "/*")
+class ActionResultServletSpec extends ActionResultsSpec {
+  mount(classOf[ActionResultServlet], "/*")
+}
+abstract class ActionResultsSpec extends MutableScalatraSpec {
+
 
   "returning ActionResult from action with status and body" should {
     "set the status code" in {
@@ -91,7 +99,7 @@ class ActionResultsSpec extends MutableScalatraSpec {
 
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
-        response.getContentType mustEqual "application/octet-stream;charset=UTF-8"
+        response.getContentType mustEqual "text/plain;charset=UTF-8"
       }
     }
 

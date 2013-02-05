@@ -1,0 +1,195 @@
+### Global
+
+* Removes jerkson support
+* Removes anti-xml support
+* Adds Jackson support
+* Adds common traits for pluggable json serialization, these traits allow library writers to write against a generic
+  json interface. The application developer can then mix in the json support he wants and retain all functionality.
+* Defers reading request parameters until the last responsible moment (aka lazify)
+* Contrib project has been removed, all the modules have been moved into the main scalatra project
+* Add `shutdown` hook.  Unifies the destruction of servlets and filters.
+* Support case insensitive method override header
+* *BREAKING* Most of the methods that use the request or response now take a request or response as implicit parameter.
+  In combination with using the AsyncResult as container for futures sorts out the issues we have with
+  the dynamic variables being thread-locals and using params or session values in the closures passed to futures.
+  This may break your code when you have overrides for the affected methods.
+  In most cases adding an (implicit request: HttpServletRequest) to the overriden method is enough to fix it.
+
+### Core
+* Adds typed param support, previously in contrib
+* `ApiFormats` now also has a method responseFormat which looks at the content type of the response and falls back to the format of the request.
+* The default bootstrap file is renamed from `Scalatra` to `ScalatraBootstrap`
+* `FileUpload` can now be configured through init parameters
+* RouteMatchers don't use any by-name params anymore
+* `RouteMatcher` now takes a `requestPath` as a param to the `apply` method
+* You are able to mount the same servlet more than once in the ScalatraBootstrap class
+* Added a new `relativeUrl` method which will compose a path for redirection and keep relative paths relative
+* Refactored the `url` method to allow for a more granular building of the path with regards to the context path and servlet path
+* Added a `fullUrl` method which will use the absolute path created by the `url` method to build a url with protocol, host, port and path + querystring
+* Added a `isHttps` method which also looks in the headers for a `X-Forwarded-Proto` header
+* Added a `needsHttps` method which looks in the init params for a key `org.scalatra.ForceHttps` for a boolean value (true/false), this is used by the `fullUrl` method to work out the protocol
+* Added a `org.scalatra.HostName` init parameter in which you can override the host name of this scalatra application, if unset the value from `request.getServerName` will be used
+* Added a `org.scalatra.Port` init parameter in which you can override the port of this scalatra application, if unset the value from `request.getServerPort` will be used
+* ApiFormats now also has a reverse mapping for the txt extension
+* Adds `GZipSupport`, contributed by @Marza
+* Folds `TypedParamSupport` into core making the `params.getAs[Int]` methods available everywhere
+* When an action returns `halt(404)`, `halt(NotFound())`, `404` or `NotFound()` then the not found handler is run
+  If this has a body then the not found handler is skipped
+* Don't crash if `fileParams` is called on a non-multipart request.
+* add an `as[T]` and a `getAsOrElse[T]` method in addition to `getAs[T]` on params and multiParams
+* Use type converters on attributes maps too.
+* Auto detection of mime type when action result is `Array[Byte]`, `InputStream`, `File`. [GH-216](https://github.com/scalatra/scalatra/issues/216)
+* Auto detection of charset when action result is `File`. [GH-216](https://github.com/scalatra/scalatra/issues/216)
+* Add a `addMimeMapping` method to `ApiFormats`
+* Log errors when they occur in ScalatraBootstrap. [GH-220](https://github.com/scalatra/scalatra/issues/220)
+* Fix loading scalatra listener class name from web.xml
+* TypeConverter no longer inherits of a function
+* Flashmap now uses java.util.concurrent classes internally
+* Fix issues rendering halt(NotFound())
+
+### lift-json
+* removed for json4s support
+
+### Jackson
+* removed for json4s support
+
+### JSON
+* previous lift-json support is replaced with json4s support.
+* Jackson integration is also provided through json4s
+* Replaces ProductToJsonSupport trait with a `JValueResult` trait which will try to serialize any value to json or xml
+  when the accept headers or format parameter indicate the user wants json or xml.
+* fix reading json from post without the right header
+* Include `JValueResult` by default in the `NativeJsonSupport` and `JacksonJsonSupport`
+* Make `JValueResult` only serialize `Traversable` and `Product` classes
+* fix rendering nodeseq
+* update to json4s 3.1.0
+* resolved issues with rendering null when jvalueresult is included
+
+### Scalate
+* Adds ScalateRenderSupport trait taken from contrib
+* update to scalate 1.6.1
+* Shut down the compiler thread when the servlet or filter is destroyed.
+
+### Commands
+* Adds a databinding module for commands.
+  The commands can have validations attached and will read data from headers, params and the request body (like json/xml)
+  This is implemented using an infrastructure of type classes and uses scalaz validations to capture the validation information.
+
+        class RegisterForm extends JacksonCommand { // you have to pick the json library of choice
+
+          val login: Field[String] = bind[String]("login").required.notBlank.minLength(6).validForFormat("\\w+".r)
+
+          val name: Field[String] = bind[String]("name")
+
+          val email: Field[String] = bind[String]("email").required.notBlank.validEmail
+
+          val homepage: Field[String] = bind[String]("homepage").validUrl
+
+          val passwordConfirmation: FieldBinding = bind[String]("passwordConfirmation").required.notBlank
+
+          val password: FieldBinding = bind[String]("password").required.notBlank.validConfirmation("passwordConfirmation", passwordConfirmation.value)
+
+        }
+* Renames databinding to commands. this resolves the confusion created by the name databinding.
+* replace .toOption with folds for scalaz 7 source compatibility
+* Adds a json4s serializer for validation errors
+
+### Akka
+* Updates akka to 2.0.5
+* *BREAKING* Do not require ActorSystem.  Use implicit executor parameter. [GH-250](https://github.com/scalatra/scalatra/pull/250)
+* This has been moved into scalatra-core and renamed to `org.scalatra.FutureSupport`
+
+### Atmosphere
+* Adds an atmosphere integration
+  This module adds support for websockets, long-polling, server-side events, ....
+  
+        class MyAtmoServlet {
+          def receive = {
+            case Connected =>
+            case Disconnected(disconnector, Some(error)) =>
+            case Error(Some(error)) =>
+            case TextMessage(text) => send("ECHO: " + text)
+            case JsonMessage(json) => broadcast(json)
+          }
+        }
+* Updates atmosphere to 1.0.9
+* Fixes atmosphere long-polling etc. A big thanks to @jfarcand
+* Fix `ScalatraBroadcasterFactory#lookup` to return null when nothing is found instead of throwing an exception
+* Add a method to selective broadcast to any atmosphere connected client.
+
+
+### Swagger
+* Added serialization for AllowableValues in `Swagger.scala`.  These are passed as strings in the AllowableValues object:
+
+        // as List
+        allowableValues = AllowableValues(1, 2, 3)
+        
+        // as range
+        allowableValues = AllowableValues(0 to 1000)
+
+* Updated to support the [swagger-1.1 spec](https://github.com/wordnik/swagger-core/wiki/API-Declaration)
+* Allows for using either jackson or native json to generate the service description json
+* Auto-registers servlets and filters that extend the SwaggerSupport trait in the swagger manager.
+* Includes the swagger-core and swagger-annotations jars as transitive dependencies (batteries included)
+* responseClass can now be set with a type parameter `responseClass[Pet]`
+* data types in `Parameter` and `ModelField` definitions can now be defined as `DataType[List[String]]`
+* Make swagger optionally support authentication
+* Optionally integrate commands into swagger support to generate model and parameter definitions.
+* Fix generating paths for servlet mounted at / in the context.
+* Deprecated manually registering models, use reflection and the values in responseClass and DataType to build up the models list.
+* Infers the endpoint path now from the scalatra route definition so using the `endpoint` method is no longer required
+* Adds the ability to build a swagger api operation definition outside of the context of a route and then register it
+  with the new `operation(myApiOperation)` in the route.
+
+        val myApiOperation =
+          (apiOperation[MyClass]("myApiMethodName")
+            summary "This operation does foo"
+            notes "when foo is red then all bars are green")
+
+        get("/my-api-operation", operation(myApiOperation)) {
+          // do stuff here
+        }
+
+
+### Swagger-Ext
+
+* Adds support for authorization through scentry to Swagger.  Shows only actions a user is allowed to see.
+  [Example](https://github.com/scalatra/scalatra/blob/develop/swagger-ext/src/test/scala/org/scalatra/swagger/SwaggerAuthSpec.scala)
+* Adds support for using commands with Swagger. This creates a model definition for the body parameters and parameter
+  definitions for the query, path and header params as well as a parameter for the body model
+
+        get("/id", endpoint("id"), nickname("getById"), parameters[MyCommand])
+
+        class MyCommand extends JsonCommand {
+          protected implicit val jsonFormats: Formats = DefaultFormats
+          
+          val name: Field[String] = bind[String]("name").notBlank
+
+          val age: Field[Int] = "age"
+
+          val token: Field[String] = (
+              bind[String]("API-TOKEN").notBlank
+                sourcedFrom ValueSource.Header 
+                description "The API token for this request"
+                notes "Invalid data kills cute innocent kittens"
+                allowableValues "123")
+
+          val skip: Field[Int] = bind[Int]("skip").sourcedFrom(ValueSource.Query).description("The offset for this collection index")
+          
+          val limit: Field[Int] = bind[Int]("limit").sourcedFrom(ValueSource.Query).withDefaultValue(20).description("the max number of items to return")
+        }
+
+
+### Testing
+* Added a method `ensureSessionIsSerializable` method which will try to serialize every session value.
+* Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
+
+### Specs
+* Deprecate scalatra-specs in anticipation of Scala 2.10 support.
+
+### Auth
+* Scentry is now lazily initialized so the order of the traits doesn't matter anymore
+
+### SLF4J
+* Rename `LogbackSupport` to `ScalatraSlf4jRequestLogging`
+* Updates slf4j-api to 1.7.2

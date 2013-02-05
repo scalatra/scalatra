@@ -2,12 +2,16 @@ package org.scalatra
 
 package object swagger {
   object Symbols {
-    lazy val Summary = Symbol("swagger.summary")
-    lazy val Notes = Symbol("swagger.notes")
-    lazy val Nickname = Symbol("swagger.nickname")
-    lazy val ResponseClass = Symbol("swagger.responseClass")
-    lazy val Parameters = Symbol("swagger.parameters")
-    lazy val Errors = Symbol("swagger.errors")
-    lazy val Endpoint = Symbol("swagger.endpoint")
+    val Summary = Symbol("swagger.summary")
+    val Notes = Symbol("swagger.notes")
+    val Nickname = Symbol("swagger.nickname")
+    val ResponseClass = Symbol("swagger.responseClass")
+    val Parameters = Symbol("swagger.parameters")
+    val Errors = Symbol("swagger.errors")
+    val Endpoint = Symbol("swagger.endpoint")
+    val Allows = Symbol("swagger.allows")
+    val Operation = Symbol("swagger.extractOperation")
+    val Description = Symbol("swagger.description")
+    val AllSymbols = Set(Summary, Notes, Nickname, ResponseClass, Parameters, Errors, Endpoint, Allows, Operation)
   }
 }

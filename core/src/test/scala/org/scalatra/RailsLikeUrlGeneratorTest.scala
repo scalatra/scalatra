@@ -12,7 +12,7 @@ class RailsLikeUrlGeneratorTest extends FunSuite with MustMatchers {
     url(path, Map[String, String](), splat +: moreSplats)
 
   def url(path: String, params: Map[String, String] = Map(), splats: Iterable[String] = Seq()): String =
-    new RailsRouteMatcher(path, "/").reverse(params, splats.toList)
+    new RailsRouteMatcher(path).reverse(params, splats.toList)
 
   test("static string") {
     url("/foo") must equal ("/foo")

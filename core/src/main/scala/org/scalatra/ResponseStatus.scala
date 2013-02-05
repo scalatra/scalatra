@@ -7,7 +7,7 @@ object ResponseStatus {
   /**
    * Status code list taken from http://www.iana.org/assignments/http-status-codes/http-status-codes.xml
    */
-  private val ReasonMap = Map(
+  private[this] val ReasonMap = Map(
     100 -> "Continue",
     101 -> "Switching Protocols",
     102 -> "Processing",
@@ -75,7 +75,7 @@ case class ResponseStatus(code: Int, message: String)
   def compare(that: ResponseStatus) = code.compareTo(that.code)
 
   def line = {
-    val buf = new StringBuilder(message.length + 5);
+    val buf = new StringBuilder(message.length + 5)
     buf.append(code)
     buf.append(' ')
     buf.append(message)

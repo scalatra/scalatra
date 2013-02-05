@@ -1,7 +1,6 @@
 package org.scalatra
 package fileupload
 
-import java.net.{URLDecoder, URLEncoder}
 import org.apache.commons.io.IOUtils
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith

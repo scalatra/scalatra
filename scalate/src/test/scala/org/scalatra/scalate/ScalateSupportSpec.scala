@@ -33,7 +33,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "set status to 500 when rendering 500.scaml"                  ! e24
 
   addServlet(new ScalatraServlet with ScalateSupport
-    with ScalateUrlGeneratorSupport with FlashMapSupport with CookieSupport {
+    with ScalateUrlGeneratorSupport with FlashMapSupport {
 
     get("/barf") {
       throw new RuntimeException

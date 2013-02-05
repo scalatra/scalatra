@@ -1,6 +1,6 @@
 package org.scalatra
 
-import test.specs.ScalatraSpecification
+import test.specs2.MutableScalatraSpec
 
 class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
   override protected implicit def string2RouteMatcher(path: String): RouteMatcher = RailsPathPatternParser(path)
@@ -9,10 +9,14 @@ class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
     format
   }
 
+  get("/hi") {
+    format
+  }
+
 
 }
 
-class ApiFormatsSpec extends ScalatraSpecification {
+class ApiFormatsSpec extends MutableScalatraSpec {
 
   addServlet(new ApiFormatsServlet, "/*")
 
@@ -20,7 +24,6 @@ class ApiFormatsSpec extends ScalatraSpecification {
     "get the format from the params" in {
       get("/hello.json") {
         val b = body
-        println(b)
         response.getContentType must startWith("application/json")
         b must_== "json"
       }
@@ -30,6 +33,13 @@ class ApiFormatsSpec extends ScalatraSpecification {
       get("/hello") {
         response.getContentType must startWith("text/html")
         body must_== "html"
+      }
+    }
+
+    "get the format from a query string param" in {
+      get("/hi?format=json") {
+        response.getContentType must startWith("application/json")
+        body must_== "json"
       }
     }
 

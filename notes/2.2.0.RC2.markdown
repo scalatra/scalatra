@@ -1,0 +1,31 @@
+### Core
+* Adds `GZipSupport`, contributed by @Marza
+* Folds `TypedParamSupport` into core making the `params.getAs[Int]` methods available everywhere
+
+### JSON
+* fix reading json from post without the right header
+* Include `JValueResult` by default in the `NativeJsonSupport` and `JacksonJsonSupport`
+* Make `JValueResult` only serialize `Traversable` and `Product` classes
+
+### SLF4J
+* Rename `LogbackSupport` to `ScalatraSlf4jRequestLogging`
+* Updates slf4j-api to 1.7.2
+
+### Databinding
+* Renames databinding to commands. this resolves the confusion created by the name databinding.
+
+### Akka
+* Updates akka to 2.0.4
+
+### Atmosphere
+* Updates atmosphere to 1.0.6
+* Fixes atmosphere long-polling etc. A big thanks to @jfarcand
+* Fix `ScalatraBroadcasterFactory#lookup` to return null when nothing is found instead of throwing an exception
+
+### Swagger
+* Make swagger optionally support authentication
+* Optionally integrate commands into swagger support to generate model and parameter definitions.
+
+### Specs
+* Deprecate scalatra-specs in anticipation of Scala 2.10 support.
+

@@ -1,1 +1,1 @@
-[Scalatra](http://github.com/scalatra/scalatra) is a tiny, [Sinatra](http://sinatrarb.com/)-like web framework for Scala.
+[Scalatra](http://github.com/scalatra/scalatra) is a blazing fast, async Scala web micro-framework; inspired by [Sinatra](http://sinatrarb.com/).

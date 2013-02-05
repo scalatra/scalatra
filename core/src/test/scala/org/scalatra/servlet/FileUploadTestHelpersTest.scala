@@ -4,6 +4,9 @@ import scala.collection.JavaConversions._
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatra.ScalatraServlet
 import java.io.File
+import javax.servlet.http.HttpServlet
+import org.eclipse.jetty.servlet.ServletHolder
+import javax.servlet.MultipartConfigElement
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
   def handleRequest() {
@@ -44,10 +47,14 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
 
     "OK"
   }
+
+  error {
+    case e => e.printStackTrace()
+  }
 }
 
 class FileUploadTestHelpersTest extends ScalatraFunSuite {
-  addServlet(classOf[FileUploadTestHelpersTestServlet], "/*")
+  mount(new FileUploadTestHelpersTestServlet, "/*")
 
   val files = Map(
     "textFile" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),

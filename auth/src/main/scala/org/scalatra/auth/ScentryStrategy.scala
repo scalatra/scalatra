@@ -3,11 +3,19 @@ package auth
 
 import servlet.ServletBase
 
-import javax.servlet.http.{HttpSession, HttpServletRequest, Cookie}
+import javax.servlet.http.{HttpServletResponse, HttpSession, HttpServletRequest, Cookie}
+import javax.servlet.ServletContext
 
-trait ScentryStrategy[UserType <: AnyRef] {
+trait ScentryStrategy[UserType <: AnyRef] extends ScalatraContext {
 
   protected def app: ScalatraBase
+
+  implicit def request: HttpServletRequest = app.request
+
+  implicit def response: HttpServletResponse = app.response
+
+  def servletContext: ServletContext = app.servletContext
+
   def name: String = "NameMe"
 
   def registerWith(registrar: Scentry[UserType]) {
@@ -32,18 +40,12 @@ trait ScentryStrategy[UserType <: AnyRef] {
    */
   def isValid = true
 
-  @deprecated("use isValid", "2.0.0")
-  def valid_? = isValid
-
   /**
    * Perform the authentication for this strategy
    *
    * @return a UserType option where None indicates auth failure
    */
   def authenticate(): Option[UserType]
-
-  @deprecated("use authenticate()", "2.0.0")
-  def authenticate_! = authenticate()
 
   /**
    * Perform stuff before authenticating, only run when the module is valid

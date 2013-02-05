@@ -31,6 +31,6 @@ class RichRequestTest extends FunSuite with ShouldMatchers {
 }
 
 private[scalatra] class FakeServletInputStream(data: Array[Byte]) extends ServletInputStream {
-  private val backend = new ByteArrayInputStream(data)
+  private[this] val backend = new ByteArrayInputStream(data)
   def read = backend.read
 }

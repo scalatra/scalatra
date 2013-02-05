@@ -2,44 +2,46 @@ package org.scalatra
 package i18n
 
 import java.util.Locale
+import javax.servlet.http.HttpServletRequest
 
 object I18nSupport {
-  def localeKey = "locale"
+  val LocaleKey = "org.scalatra.i18n.locale"
 
-  def userLocalesKey = "userLocales"
+  val UserLocalesKey = "org.scalatra.i18n.userLocales"
 
-  def messagesKey = "messages"
+  val MessagesKey = "messages"
 }
 
 trait I18nSupport {
 
-  this: ScalatraBase with CookieSupport =>
+  this: ScalatraBase =>
 
   import I18nSupport._
 
 
-  def locale  = if (request == null) {
+  def locale(implicit request: HttpServletRequest): Locale  = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call locale")
   } else {
-    request.get(localeKey).map(_.asInstanceOf[Locale]).orNull
+    request.get(LocaleKey).map(_.asInstanceOf[Locale]).orNull
   }
 
-  def userLocales = if (request == null) {
+  def userLocales(implicit request: HttpServletRequest): Array[Locale] = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call userLocales")
   } else {
-    request.get(userLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
+    request.get(UserLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
   }
 
-  def messages = if (request == null) {
+  def messages(key: String)(implicit request: HttpServletRequest): String = messages(request)(key)
+  def messages(implicit request: HttpServletRequest): Messages = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call messages")
   } else {
-    request.get(messagesKey).map(_.asInstanceOf[Messages]).orNull
+    request.get(MessagesKey).map(_.asInstanceOf[Messages]).orNull
   }
 
 
   before() {
-    request.setAttribute(localeKey, resolveLocale)
-    request.setAttribute(messagesKey, new Messages(locale))
+    request.setAttribute(LocaleKey, resolveLocale)
+    request.setAttribute(MessagesKey, Messages(locale))
   }
 
   /*
@@ -61,11 +63,11 @@ trait I18nSupport {
    *
    */
   private def resolveHttpLocale: Option[Locale] = {
-    (params.get(localeKey) match {
+    (params.get(LocaleKey) match {
       case Some(localeValue) =>
-        cookies.set(localeKey, localeValue)
+        cookies.set(LocaleKey, localeValue)
         Some(localeValue)
-      case _ => cookies.get(localeKey)
+      case _ => cookies.get(LocaleKey)
     }).map(localeFromString(_)) orElse resolveHttpLocaleFromUserAgent
   }
 
@@ -78,29 +80,29 @@ trait I18nSupport {
   private def resolveHttpLocaleFromUserAgent: Option[Locale] = {
 
     request.headers.get("Accept-Language") map { s =>
-        val locales = s.split(",").map(s => {
-          def splitLanguageCountry(s: String): Locale = {
-            val langCountry = s.split("-")
-            if (langCountry.length > 1) {
-              new Locale(langCountry.head, langCountry.last)
-            } else {
-              new Locale(langCountry.head)
-            }
-          }
-          // If this language has a quality index:
-          if (s.indexOf(";") > 0) {
-            val qualityLocale = s.split(";")
-            splitLanguageCountry(qualityLocale.head)
+      val locales = s.split(",").map(s => {
+        def splitLanguageCountry(s: String): Locale = {
+          val langCountry = s.split("-")
+          if (langCountry.length > 1) {
+            new Locale(langCountry.head, langCountry.last)
           } else {
-            splitLanguageCountry(s)
+            new Locale(langCountry.head)
           }
-        })
-        // save all found locales for later user
-        request.setAttribute(userLocalesKey, locales)
+        }
+        // If this language has a quality index:
+        if (s.indexOf(";") > 0) {
+          val qualityLocale = s.split(";")
+          splitLanguageCountry(qualityLocale.head)
+        } else {
+          splitLanguageCountry(s)
+        }
+      })
+      // save all found locales for later user
+      request.setAttribute(UserLocalesKey, locales)
 
-        // We assume that all accept-languages are stored in order of quality
-        // (so first language is preferred)
-        locales.head
+      // We assume that all accept-languages are stored in order of quality
+      // (so first language is preferred)
+      locales.head
     }
   }
 

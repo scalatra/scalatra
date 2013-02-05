@@ -15,12 +15,12 @@ case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
     if (m.matches) {
       var i = 0
       captureGroupNames foreach { name =>
-	i += 1
-	val value = m.group(i)
+        i += 1
+        val value = m.group(i)
         if (value != null) {
-	  val values = multiParams.getOrElse(name, Vector()) :+ value
-	  multiParams = multiParams.updated(name, values)
-	}
+          val values = multiParams.getOrElse(name, Vector()) :+ value
+          multiParams = multiParams.updated(name, values)
+        }
       }
       Some(multiParams)
     } else None

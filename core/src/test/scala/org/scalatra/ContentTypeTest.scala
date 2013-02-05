@@ -2,9 +2,9 @@ package org.scalatra
 
 import scala.actors.{Actor, TIMEOUT}
 import scala.xml.Text
-import java.net.URLEncoder
-import java.nio.charset.Charset
 import test.scalatest.ScalatraFunSuite
+import org.scalatra.util.RicherString._
+import java.nio.charset.Charset
 
 class ContentTypeTestServlet extends ScalatraServlet {
   get("/json") {
@@ -27,7 +27,11 @@ class ContentTypeTestServlet extends ScalatraServlet {
   }
 
   get("/implicit/byte-array") {
-    "test".getBytes
+    Array[Byte]()
+  }
+
+  get("/implicit/byte-array-text") {
+    "Здравствуйте!".getBytes("iso-8859-5")
   }
 
   get("/implicit/text-element") {
@@ -108,6 +112,13 @@ class ContentTypeTest extends ScalatraFunSuite {
     }
   }
 
+  test("contentType of a byte array with text content detects text/plain; charset=iso-8859-5") {
+    get("/implicit/byte-array-text") {
+      response.charset should equal (Some("ISO-8859-5"))
+      response.mediaType should equal (Some("text/plain"))
+    }
+  }
+
   test("contentType of a text element defaults to text/html") {
     get("/implicit/text-element") {
       response.mediaType should equal (Some("text/html"))
@@ -153,11 +164,11 @@ class ContentTypeTest extends ScalatraFunSuite {
     val charset = "iso-8859-5"
     val message = "Здравствуйте!"
 
+
     post(
       "/echo",
       headers = Map("Content-Type" -> ("application/x-www-form-urlencoded; charset=" + charset)),
-      body = "echo="+URLEncoder.encode(message, charset))
-    {
+      body = ("echo="+ message.urlEncode(Charset.forName(charset)))) {
       body should equal(message)
     }
   }
