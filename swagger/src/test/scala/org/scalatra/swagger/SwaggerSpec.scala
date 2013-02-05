@@ -180,7 +180,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[List[Pet]]("findPetsByStatus")
       summary "Finds Pets by status"
       notes "Multiple status values can be provided with comma separated strings"
-      parameter (queryParam[String]("status")
+      parameter (queryParam[String]("status").required
                   description "Status values that need to be considered for filter"
                   defaultValue "available"
                   allowableValues ("available", "pending", "sold")))

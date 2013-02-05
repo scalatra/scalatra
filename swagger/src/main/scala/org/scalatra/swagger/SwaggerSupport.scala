@@ -136,7 +136,7 @@ object SwaggerSupportSyntax {
     private[this] var _notes: Option[String] = None
     private[this] var _paramType: ParamType.ParamType = ParamType.Query
     private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
-    private[this] var _required: Boolean = true
+    protected[this] var _required: Option[Boolean] = None
     private[this] var _allowMultiple: Boolean = false
 
     def dataType: DataType.DataType
@@ -160,8 +160,8 @@ object SwaggerSupportSyntax {
       this
     }
     def allowableValues(values: Range): this.type = { _allowableValues = AllowableValues(values); this }
-    def required: this.type = { _required = true; this }
-    def optional: this.type = { _required = false; this }
+    def required: this.type = { _required = Some(true); this }
+    def optional: this.type = { _required = Some(false); this }
     def defaultValue: Option[String] = None
     def name: String = _name
     def description: String = _description
@@ -169,7 +169,7 @@ object SwaggerSupportSyntax {
     def paramType: ParamType.ParamType = _paramType
 
     def allowableValues: AllowableValues = _allowableValues
-    def isRequired: Boolean = paramType == ParamType.Path || _required
+    def isRequired: Boolean = paramType == ParamType.Path || _required.isEmpty || _required.get
     def multiValued: this.type = { _allowMultiple = true; this }
     def singleValued: this.type = { _allowMultiple = false; this }
 
@@ -184,8 +184,9 @@ object SwaggerSupportSyntax {
     private[this] var _defaultValue: Option[String] = None
     override def defaultValue = _defaultValue
     def defaultValue(value: T): this.type = {
+      if (_required.isEmpty) optional
       _defaultValue = allCatch.withApply(_ => None){ value.toString.blankOption }
-      this.optional
+      this
     }
   }
 
