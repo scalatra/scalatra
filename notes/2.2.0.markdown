@@ -45,6 +45,7 @@
 * Fix loading scalatra listener class name from web.xml
 * TypeConverter no longer inherits of a function
 * Flashmap now uses java.util.concurrent classes internally
+* Fix issues rendering halt(NotFound())
 
 ### lift-json
 * removed for json4s support
@@ -62,6 +63,7 @@
 * Make `JValueResult` only serialize `Traversable` and `Product` classes
 * fix rendering nodeseq
 * update to json4s 3.1.0
+* resolved issues with rendering null when jvalueresult is included
 
 ### Scalate
 * Adds ScalateRenderSupport trait taken from contrib
