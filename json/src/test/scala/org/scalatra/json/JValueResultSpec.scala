@@ -38,6 +38,7 @@ class JValueResultSpec extends MutableScalatraSpec {
     get("/empty-halt") {
       halt(400, null)
     }
+
     error {
       case t: Throwable =>
         t.printStackTrace()
