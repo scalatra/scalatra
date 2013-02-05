@@ -52,8 +52,13 @@ object Swagger {
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
             val propModels = descriptor.properties.filterNot(_.isPrimitive)
             val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
-            val toplevel = (subModels + descriptor.erasure).filterNot(p => p.isCollection || p.isOption || p.isMap).map(m => modelToSwagger(m.erasure))
-            val nested = subModels.foldLeft((toplevel, known + descriptor.erasure)){ (acc, b) =>
+            val topLevel = for {
+              tl <- (subModels + descriptor.erasure)
+              if !(tl.isCollection || tl.isOption || tl.isMap)
+              m <- modelToSwagger(tl.erasure)
+            } yield m
+
+            val nested = subModels.foldLeft((topLevel, known + descriptor.erasure)){ (acc, b) =>
               val m = collectModels(b, alreadyKnown, acc._2)
               (acc._1 ++ m, acc._2 + b)
             }
@@ -64,14 +69,19 @@ object Swagger {
     }
   }
 
-  def modelToSwagger[T](implicit mf: Manifest[T]): Model = modelToSwagger(mf.erasure)
-  def modelToSwagger(klass: Class[_]): Model = {
-    val docObj = ApiPropertiesReader.read(klass)
-    val name = docObj.getName
-    val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
-      yield (field.name -> ModelField(field.name, field.notes, DataType(field.paramType)))
+  def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = {
+    modelToSwagger(mf.erasure)
+  }
+  def modelToSwagger(klass: Class[_]): Option[Model] = {
+    if (Reflector.isPrimitive(klass) || Reflector.isExcluded(klass)) None
+    else {
+      val docObj = ApiPropertiesReader.read(klass)
+      val name = docObj.getName
+      val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
+        yield (field.name -> ModelField(field.name, field.notes, DataType(field.paramType)))
 
-    Model(name, name, fields.toMap)
+      Some(Model(name, name, fields.toMap))
+    }
   }
 }
 

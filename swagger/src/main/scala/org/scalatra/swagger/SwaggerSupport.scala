@@ -16,8 +16,7 @@ trait SwaggerSupportBase {
   def endpoints(basePath: String): List[SwaggerEndpoint[_ <: SwaggerOperation]]
 
   /**
-   * Returns a list of operations based on the given route. The default implementation returns a list with only 1
-   * operation.
+   * Extract an operation from a route
    */
   protected def extractOperation(route: Route, method: HttpMethod): SwaggerOperation
 }
@@ -129,19 +128,15 @@ object SwaggerSupportSyntax {
     }
   }
 
-
+  private val SingleValued = Set(ParamType.Body, ParamType.Path)
   trait SwaggerParameterBuilder {
-
-
-
     private[this] var _name: String = _
     private[this] var _description: String = ""
-
     private[this] var _notes: Option[String] = None
     private[this] var _paramType: ParamType.ParamType = ParamType.Query
-
     private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
     private[this] var _required: Boolean = true
+    private[this] var _allowMultiple: Boolean = false
 
     def dataType: DataType.DataType
     def name(name: String): this.type = { _name = name; this }
@@ -174,37 +169,28 @@ object SwaggerSupportSyntax {
 
     def allowableValues: AllowableValues = _allowableValues
     def isRequired: Boolean = _required
-    def allowsMultiple: Boolean = {
-      val dn = dataType.name.toUpperCase
-      dn.startsWith("LIST") || dn.startsWith("MAP")
-    }
+    def multiValued: this.type = { _allowMultiple = true; this }
+    def singleValued: this.type = { _allowMultiple = false; this }
+
+
+    def allowsMultiple: Boolean = !SwaggerSupportSyntax.SingleValued.contains(paramType) && _allowMultiple
 
     def result =
       Parameter(name, description, dataType, notes, paramType, defaultValue, allowableValues, isRequired, allowsMultiple)
   }
 
-  class ParameterBuilder[T:Manifest](models: mutable.Map[String, Model]) extends SwaggerParameterBuilder {
-    registerModel[T]
+  class ParameterBuilder[T:Manifest](val dataType: DataType.DataType) extends SwaggerParameterBuilder {
     private[this] var _defaultValue: Option[String] = None
-    val dataType: DataType.DataType = DataType[T]
     override def defaultValue = _defaultValue
-    protected def registerModel[R:Manifest]() {
-      models ++= Swagger.collectModels[R](models.values.toSet).map(m => m.id -> m)
-    }
     def defaultValue(value: T): this.type = {
       _defaultValue = allCatch.withApply(_ => None){ value.toString.blankOption }
       this
     }
   }
 
-  class ModelParameterBuilder(models: mutable.Map[String, Model], model: Model) extends SwaggerParameterBuilder {
-    models += model.id -> model
-    val dataType: DataType.DataType = DataType(model.id)
-  }
+  class ModelParameterBuilder(val dataType: DataType.DataType) extends SwaggerParameterBuilder
 
   trait SwaggerOperationBuilder[T <: SwaggerOperation] {
-    def models: mutable.Map[String, Model]
-    protected def defaultErrors: List[Error]
 
     private[this] var _summary: String = ""
     private[this] var _notes: String = ""
@@ -213,10 +199,8 @@ object SwaggerSupportSyntax {
     private[this] var _parameters: List[Parameter] = Nil
     private[this] var _errorResponses: List[Error] = Nil
 
-    def registerModel[R:Manifest]() {
-      models ++= Swagger.collectModels[R](models.values.toSet).map(m => m.id -> m)
-    }
-    def resultClass: String
+   def resultClass: String
+
     def summary(content: String): this.type = {
       _summary = content
       this
@@ -244,23 +228,9 @@ object SwaggerSupportSyntax {
 
     def result: T
   }
-  class OperationBuilder[T:Manifest](val models: mutable.Map[String, Model], protected val defaultErrors: List[Error]) extends SwaggerOperationBuilder[Operation] {
-    registerModel[T]
-    val resultClass: String = DataType[T].name
-    def result: Operation = Operation(
-      null,
-      resultClass,
-      summary,
-      notes,
-      deprecated,
-      nickname,
-      parameters,
-      errorResponses ::: defaultErrors)
-  }
 
-  class ModelOperationBuilder(val models: mutable.Map[String, Model], protected val defaultErrors: List[Error], model: Model) extends SwaggerOperationBuilder[Operation] {
-    models += model.id -> model
-    val resultClass: String = model.id
+
+  class OperationBuilder(val resultClass: String) extends SwaggerOperationBuilder[Operation] {
     def result: Operation = Operation(
       null,
       resultClass,
@@ -269,7 +239,7 @@ object SwaggerSupportSyntax {
       deprecated,
       nickname,
       parameters,
-      errorResponses ::: defaultErrors)
+      errorResponses)
   }
 }
 trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
@@ -362,7 +332,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
    * @param model the model to add to the swagger definition
    */
   protected def registerModel(model: Model) {
-    _models += model.id -> model
+    _models.getOrElseUpdate(model.id, model)
   }
 
   /**
@@ -394,7 +364,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def responseClass(value: String) = swaggerMeta(Symbols.ResponseClass, value)
   @deprecated("Use the `apiOperation.responseClass` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def responseClass[T](implicit mf: Manifest[T]) = {
-    registerModel[T]
+    registerModel[T]()
     swaggerMeta(Symbols.ResponseClass, DataType[T].name)
   }
   @deprecated("Use the `apiOperation.nickname` and `operation` methods to build swagger descriptions of endpoints", "2.2")
@@ -411,28 +381,27 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def apiOperation[T: Manifest](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
+  protected def swaggerParam[T: Manifest](name: String): ParameterBuilder[T] = {
+    registerModel[T]()
+    val b = new ParameterBuilder[T](DataType[T]).name(name)
+    Swagger.modelToSwagger[T] foreach { m => b.description(m.description) }
+    b
+  }
+  protected def swaggerParam(name: String, model: Model): ModelParameterBuilder = {
+    registerModel(model)
+    new ModelParameterBuilder(DataType(model.id)).description(model.description).name(name)
+  }
+
   protected def bodyParam[T: Manifest]: ParameterBuilder[T] = bodyParam[T]("body")
   protected def bodyParam(model: Model): ModelParameterBuilder = bodyParam("body", model)
-  protected def bodyParam[T: Manifest](name: String): ParameterBuilder[T] =
-    new ParameterBuilder(_models).name(name).fromBody
-  protected def bodyParam(name: String, model: Model): ModelParameterBuilder =
-    new ModelParameterBuilder(_models, model).name(name).fromBody
-
-
-  protected def queryParam[T: Manifest](name: String): ParameterBuilder[T] =
-    new ParameterBuilder(_models).name(name).fromQuery
-  protected def queryParam(name: String, model: Model): ModelParameterBuilder =
-    new ModelParameterBuilder(_models, model).name(name).fromQuery
-
-  protected def headerParam[T: Manifest](name: String): ParameterBuilder[T] =
-    new ParameterBuilder(_models).name(name).fromHeader
-  protected def headerParam(name: String, model: Model): ModelParameterBuilder =
-    new ModelParameterBuilder(_models, model).name(name).fromHeader
-
-  protected def pathParam[T: Manifest](name: String): ParameterBuilder[T] =
-    new ParameterBuilder(_models).name(name).fromPath
-  protected def pathParam(name: String, model: Model): ModelParameterBuilder =
-    new ModelParameterBuilder(_models, model).name(name).fromPath
+  protected def bodyParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromBody
+  protected def bodyParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromBody
+  protected def queryParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name)
+  protected def queryParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model)
+  protected def headerParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromHeader
+  protected def headerParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromHeader
+  protected def pathParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromPath
+  protected def pathParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromPath
 
   protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
 
@@ -451,6 +420,14 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
       } getOrElse ""
     case _ => ""
   }
+
+  protected def swaggerEndpointEntries[T <: SwaggerOperation](extract: (Route, HttpMethod) => T) =
+    for {
+      (method, routes) ← routes.methodRoutes
+      route ← routes if (route.metadata.keySet & Symbols.AllSymbols).nonEmpty
+      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
+      operation = extract(route, method)
+    } yield Entry(endpoint, operation)
 }
 
 /**
@@ -461,23 +438,20 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   import SwaggerSupportSyntax._
 
   protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
-  protected def apiOperation[T: Manifest](nickname: String): OperationBuilder[T] =
-    new OperationBuilder[T](_models, swaggerDefaultErrors).nickname(nickname)
-  protected def apiOperation(nickname: String, model: Model): ModelOperationBuilder =
-    new ModelOperationBuilder(_models, swaggerDefaultErrors, model).nickname(nickname)
+  protected def apiOperation[T: Manifest](nickname: String): OperationBuilder = {
+    registerModel[T]()
+    new OperationBuilder(DataType[T].name).nickname(nickname).errors(swaggerDefaultErrors:_*)
+  }
+  protected def apiOperation(nickname: String, model: Model): OperationBuilder = {
+    registerModel(model)
+    new OperationBuilder(model.id).nickname(nickname).errors(swaggerDefaultErrors:_*)
+  }
 
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
   def endpoints(basePath: String): List[Endpoint] = {
-    val ops = (for {
-      (method, routes) ← routes.methodRoutes
-      route ← routes
-      endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
-      operation = this.extractOperation(route, method)
-    } yield Entry(endpoint, operation))
-
-    (ops groupBy (_.key)).toList map { case (name, entries) ⇒
+    (swaggerEndpointEntries(extractOperation) groupBy (_.key)).toList map { case (name, entries) ⇒
       val desc = _description lift name getOrElse ""
       val pth = if (basePath endsWith "/") basePath else basePath + "/"
       val nm = if (name startsWith "/") name.substring(1) else name

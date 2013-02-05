@@ -12,5 +12,6 @@ package object swagger {
     val Allows = Symbol("swagger.allows")
     val Operation = Symbol("swagger.extractOperation")
     val Description = Symbol("swagger.description")
+    val AllSymbols = Set(Summary, Notes, Nickname, ResponseClass, Parameters, Errors, Endpoint, Allows, Operation)
   }
 }

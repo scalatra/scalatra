@@ -13,7 +13,7 @@ object ModelCollectionSpec {
   case class TaggedThing(id: Long, tag: Tag, created: Date)
 
   val taggedThingModels = Set(Swagger.modelToSwagger[Tag], Swagger.modelToSwagger[Name], Swagger.modelToSwagger[Sequence], Swagger.modelToSwagger[TaggedThing])
-  val onlyPrimitivesModel = Swagger.modelToSwagger[OnlyPrimitives]
+  val onlyPrimitivesModel = Swagger.modelToSwagger[OnlyPrimitives].get
 
   case class Things(id: Long, taggedThings: List[TaggedThing], visits: List[Date], created: Date)
   val thingsModels = taggedThingModels + Swagger.modelToSwagger[Things]
@@ -45,24 +45,24 @@ class ModelCollectionSpec extends Specification {
     }
 
     "collect all the models in a nested structure" in {
-      Swagger.collectModels[TaggedThing](Set.empty) must haveTheSameElementsAs(taggedThingModels)
+      Swagger.collectModels[TaggedThing](Set.empty) must haveTheSameElementsAs(taggedThingModels.flatten)
     }
 
     "collect models when hiding in a list" in {
       val collected = Swagger.collectModels[Things](Set.empty)
       println("Collected: " + collected.map(_.id))
-      collected.map(_.id) must haveTheSameElementsAs(thingsModels.map(_.id))
+      collected.map(_.id) must haveTheSameElementsAs(thingsModels.flatten.map(_.id))
     }
     "collect models when hiding in a map" in {
       val collected = Swagger.collectModels[MapThings](Set.empty)
 
-      collected must haveTheSameElementsAs(mapThingsModels)
+      collected must haveTheSameElementsAs(mapThingsModels.flatten)
     }
 
     "collect models when provided as a list" in {
       val collected = Swagger.collectModels[List[Name]](Set.empty)
       println("Collected: " + collected.map(_.id))
-      collected.map(_.id) must_== Set(Swagger.modelToSwagger[Name]).map(_.id)
+      collected.map(_.id) must_== Set(Swagger.modelToSwagger[Name].get).map(_.id)
     }
   }
 }

@@ -132,6 +132,10 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
 
   val data = new PetData
 
+  get("/undocumented") {
+    BadRequest("This should not show up")
+  }
+
   val rootOperation =
     (apiOperation[List[Pet]]("allPets")
       summary "Show all pets"
