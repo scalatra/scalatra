@@ -1,5 +1,7 @@
 package org
 
+import org.http4s._
+
 import scalatra.servlet.FileUploadSupport
 import scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView}
 
@@ -8,6 +10,8 @@ package object scalatra
 //  with DefaultValues // make defaults visible
 {
   import util.MultiMap
+
+  type RequestMatcher = (Request => Option[MultiParams])
 
   type RouteTransformer = (Route => Route)
 
