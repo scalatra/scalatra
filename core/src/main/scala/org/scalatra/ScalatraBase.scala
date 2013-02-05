@@ -385,9 +385,11 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     new BooleanBlockRouteMatcher(block)
 
   protected def renderHaltException(e: HaltException) {
+    var rendered = false
     e match {
       case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
-        doNotFound()
+        renderResponse(doNotFound())
+        rendered = true
       case HaltException(Some(status), Some(reason), _, _) =>
         response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) =>
@@ -397,7 +399,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     e.headers foreach {
       case (name, value) => response.addHeader(name, value)
     }
-    renderResponse(e.body)
+    if (!rendered) renderResponse(e.body)
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
