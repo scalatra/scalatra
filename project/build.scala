@@ -10,7 +10,7 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
-    version := "2.0.6-SNAPSHOT",
+    version := "2.0.5",
     crossScalaVersions := Seq("2.10.0", "2.9.2", "2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xcheckinit", "-encoding", "utf8"),
