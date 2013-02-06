@@ -58,7 +58,8 @@ object ScalatraBuild extends Build {
         mimeUtil,
         jodaTime,
         jodaConvert,
-        akkaActor(sv) % "test"
+        akkaActor(sv) % "test",
+        scalaCompiler(sv)
       )),
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
       description := "The core Scalatra framework",
@@ -242,7 +243,8 @@ object ScalatraBuild extends Build {
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
+   scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere,
+   http4sCore
  )
 
   lazy val http4sCore = ProjectRef(uri("git://github.com/http4s/http4s.git"), "core")
@@ -279,6 +281,7 @@ object ScalatraBuild extends Build {
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
     lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.2"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
+    lazy val scalaCompiler: MM     = sv => "org.scala-lang"          %  "scala-compiler"     % sv
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "6.0.4"
