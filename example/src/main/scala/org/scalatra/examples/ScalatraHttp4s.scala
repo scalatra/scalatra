@@ -8,6 +8,11 @@ import scala.concurrent.duration._
 object ScalatraExample extends Scalatra {
   get("/foo") { request.pathInfo }
   get("/bar") { "bar" }
+
+  // Rightfully fails to compile.
+  // def pathInfo = request.pathInfo
+
+  def pathInfo(implicit request: Request) = request.pathInfo
 }
 
 object ScalatraExampleApp extends App {

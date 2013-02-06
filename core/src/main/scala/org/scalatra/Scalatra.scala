@@ -12,37 +12,27 @@ import org.http4s._
 import play.api.libs.iteratee.{Enumerator, Done}
 
 import util.MultiMap
+import scala.util.parsing.combinator.testing.Ident
 
-abstract class Scalatra // has to be a class to be cloneable
-  extends Cloneable
-  with h4s.Route
+trait Scalatra
+  extends h4s.Route
   with HandlerImplicits
-  with Scalatra.Context
 {
-  // TODO This can't be an http4s route, because we use ourself as the context.
-  // It could probably be redone to look a lot like the old route registry.
-  private var router: Scalatra.Route = PartialFunction.empty
+  private var router: h4s.Route = PartialFunction.empty
 
-  protected[scalatra] def request: Request = _request
+  protected[scalatra] def request: Request = macro ScalatraMacros.request
+
+  private[scalatra] def DummyRequest: Request =
+    throw new AssertionError("Should have been rewritten by macro. This is a bug.")
+
   private var _request: Request = _
 
   def apply(req: Request): h4s.Handler = applyOrElse(req, PartialFunction.empty)
 
-  override def applyOrElse[A1 <: Request, B1 >: h4s.Handler](req: A1, default: (A1) => B1): B1 = {
-    val klone = cloneWithRequest(req)
-    klone.router.applyOrElse(klone, { _: Scalatra => default(req) })
-  }
+  override def applyOrElse[A1 <: Request, B1 >: h4s.Handler](req: A1, default: (A1) => B1): B1 =
+    router.applyOrElse(req, default)
 
-  def isDefinedAt(req: Request): Boolean = {
-    val klone = cloneWithRequest(req)
-    klone.router.isDefinedAt(klone)
-  }
-
-  private[scalatra] def cloneWithRequest(req: Request) = {
-    val klone = this.clone().asInstanceOf[Scalatra]
-    klone._request = req
-    klone
-  }
+  def isDefinedAt(req: Request): Boolean = router.isDefinedAt(req)
 
   // Is a macro so we can rewrite it as a function of the context, i.e., this.
   def get(matcher: RequestMatcher)(f: h4s.Handler) = macro ScalatraMacros.get
@@ -55,24 +45,20 @@ abstract class Scalatra // has to be a class to be cloneable
         None
   }
 
-  protected[scalatra] def addRoute(method: Method, matchers: RequestMatcher*)(f: Scalatra.Context => h4s.Handler) {
+  protected[scalatra] def addRoute(method: Method, matchers: RequestMatcher*)(f: Request => h4s.Handler) {
     val route = new Scalatra.Route {
-      def apply(ctx: Scalatra.Context): h4s.Handler = applyOrElse(ctx, PartialFunction.empty)
-      override def applyOrElse[A1 <: Scalatra.Context, B1 >: h4s.Handler](ctx: A1, default: (A1) => B1): B1 =
-        if (isDefinedAt(ctx)) f(ctx) else default(ctx)
-      def isDefinedAt(ctx: Scalatra.Context): Boolean =
-        matchers.forall(_(ctx.request).isDefined)
+      def apply(req: Request): h4s.Handler = applyOrElse(req, PartialFunction.empty)
+      override def applyOrElse[A1 <: Request, B1 >: h4s.Handler](req: A1, default: (A1) => B1): B1 =
+        if (isDefinedAt(req)) f(req) else default(req)
+      def isDefinedAt(req: Request): Boolean =
+        matchers.forall(_(req).isDefined)
     }
     router = router orElse route
   }
 }
 
 object Scalatra {
-  type Route = PartialFunction[Scalatra.Context, h4s.Handler]
-
-  trait Context {
-    protected[scalatra] def request: Request
-  }
+  type Route = h4s.Route
 }
 
 trait HandlerImplicits {
@@ -82,24 +68,28 @@ trait HandlerImplicits {
 object ScalatraMacros {
   type ScalatraContext = Context { type PrefixType = Scalatra }
 
+  def request(c: ScalatraContext): c.Expr[Request] = {
+    if (c.enclosingMethod != null) {
+      c.error(c.macroApplication.pos, "invalid request access")
+    }
+    c.universe.reify { c.prefix.splice.DummyRequest }
+  }
+
   def get(c: ScalatraContext)(matcher: c.Expr[RequestMatcher])(f: c.Expr[h4s.Handler]): c.Expr[Unit] = {
     import c.universe._
 
-    val Request = newTermName("request")
+    val Request = newTermName("DummyRequest")
     def rewrite(tree: Tree) = new Transformer {
       override def transform(tree: Tree): Tree =
         tree match {
-          case Select(_, Request) =>
-            // TODO verify that we're selecting from a Scalatra.
-            Select(Ident(newTermName("ctx")), Request)
-          case tree =>
-            super.transform(tree)
+          case Select(tree, Request) => c.universe.Ident("req")
+          case tree => super.transform(tree)
         }
     }.transform(tree)
 
     c.universe.reify {
       c.prefix.splice.addRoute(Method.Get, matcher.splice) {
-        ctx: Scalatra.Context => c.Expr[org.http4s.Handler](c.resetLocalAttrs(rewrite(f.tree))).splice
+        implicit req: Request => c.Expr[org.http4s.Handler](c.resetLocalAttrs(rewrite(f.tree))).splice
       }
     }
   }
