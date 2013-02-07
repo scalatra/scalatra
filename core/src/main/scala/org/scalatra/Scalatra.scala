@@ -35,7 +35,7 @@ trait Scalatra
   def isDefinedAt(req: Request): Boolean = router.isDefinedAt(req)
 
   // Is a macro so we can rewrite it as a function of the context, i.e., this.
-  def get(matcher: RequestMatcher)(f: h4s.Handler) = macro ScalatraMacros.get
+  def get(matcher: RequestMatcher)(f: h4s.Handler): Scalatra.Route = macro ScalatraMacros.get
 
   protected implicit def stringToRequestMatcher(path: String): RequestMatcher = {
     req: Request =>
@@ -45,7 +45,7 @@ trait Scalatra
         None
   }
 
-  protected[scalatra] def addRoute(method: Method, matchers: RequestMatcher*)(f: Request => h4s.Handler) {
+  protected[scalatra] def addRoute(method: Method, matchers: RequestMatcher*)(f: Request => h4s.Handler): Scalatra.Route = {
     val route = new Scalatra.Route {
       def apply(req: Request): h4s.Handler = applyOrElse(req, PartialFunction.empty)
       override def applyOrElse[A1 <: Request, B1 >: h4s.Handler](req: A1, default: (A1) => B1): B1 =
@@ -54,6 +54,7 @@ trait Scalatra
         matchers.forall(_(req).isDefined)
     }
     router = router orElse route
+    route
   }
 }
 
@@ -75,7 +76,7 @@ object ScalatraMacros {
     c.universe.reify { c.prefix.splice.DummyRequest }
   }
 
-  def get(c: ScalatraContext)(matcher: c.Expr[RequestMatcher])(f: c.Expr[h4s.Handler]): c.Expr[Unit] = {
+  def get(c: ScalatraContext)(matcher: c.Expr[RequestMatcher])(f: c.Expr[h4s.Handler]): c.Expr[Scalatra.Route] = {
     import c.universe._
 
     val Request = newTermName("DummyRequest")
