@@ -317,6 +317,12 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   protected def renderPipeline: RenderPipeline = {
     case 404 =>
       doNotFound()
+    case ActionResult(status, x: Int, resultHeaders) =>
+      response.status = status
+      resultHeaders foreach {
+        case (name, value) => response.addHeader(name, value)
+      }
+      response.writer.print(x.toString)
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
