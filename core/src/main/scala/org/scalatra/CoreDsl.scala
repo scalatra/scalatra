@@ -9,7 +9,6 @@ import servlet.ServletApiImplicits
  */
 trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiImplicits {
 
-
   /**
    * Adds a filter to run before the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the

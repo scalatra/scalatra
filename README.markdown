@@ -22,22 +22,20 @@ Please see [The Scalatra Book](http://www.scalatra.org/guides/) for more.
 
 ## Latest version
 
-The latest version of Scalatra is `2.1.1`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
+The latest version of Scalatra is `2.2.0`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" % "scalatra" % "2.1.1"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.2.0"
 ```
 
 ### Development version
 
-The develop branch is published as `2.2.0-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
-
-Starting with 2.1.x, Scalatra is no longer crossbuilt.  This means no `%%` operator in the library dependency.
+The develop branch is published as `2.2.1-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
 
 ```scala
 resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "org.scalatra" % "scalatra" % "2.2.0-SNAPSHOT"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.2.1-SNAPSHOT"
 ```
 
 ## Community

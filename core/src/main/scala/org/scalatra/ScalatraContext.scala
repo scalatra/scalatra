@@ -4,23 +4,19 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import servlet.ServletApiImplicits
 import util.{MapWithIndifferentAccess, MultiMapHeadView}
 import javax.servlet.ServletContext
+import annotation.implicitNotFound
 
 class ScalatraParams(protected val multiMap: Map[String, Seq[String]]) extends MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
-
-/*
-  Needs contexts for
-  FlashMap, file upload support
- */
 
 object ScalatraContext {
   private class StableValuesContext(implicit val request: HttpServletRequest, val response: HttpServletResponse, val servletContext: ServletContext) extends ScalatraContext
 }
+
 trait ScalatraContext extends ServletApiImplicits with SessionSupport with CookieContext {
   import ScalatraContext.StableValuesContext
   implicit def request: HttpServletRequest
   implicit def response: HttpServletResponse
   def servletContext: ServletContext
-
 
   /**
    * Gets the content type of the current response.
@@ -31,6 +27,7 @@ trait ScalatraContext extends ServletApiImplicits with SessionSupport with Cooki
    * Gets the status code of the current response.
    */
   def status: Int = response.status.code
+
 
   /**
    * Sets the content type of the current response.

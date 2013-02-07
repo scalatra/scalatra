@@ -103,7 +103,7 @@ trait ApiFormats extends ScalatraBase {
   def acceptHeader(implicit request: HttpServletRequest): List[String] = parseAcceptHeader
 
   private[this] def getFromParams(implicit request: HttpServletRequest) = {
-    params.get('format).find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
+    params.get("format").find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
   }
 
   private[this] def getFromAcceptHeader(implicit request: HttpServletRequest) = {
@@ -162,6 +162,24 @@ trait ApiFormats extends ScalatraBase {
     getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
 
   import ApiFormats.FormatKey
+
+  protected override def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
+    val originalParams = multiParams
+    val routeParams: Map[String, Seq[String]] = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
+      case (key, values) =>
+        key -> values.map(UriDecoder.secondStep(_))
+    }
+    if (routeParams.contains("format")) request(FormatKey) = routeParams.apply("format").head
+    request(MultiParamsKey) = originalParams ++ routeParams
+    try {
+      thunk
+    } finally {
+      request(MultiParamsKey) = originalParams
+    }
+  }
+
+
+
 
   /**
    * Returns the request-scoped format.  If not explicitly set, the format is:

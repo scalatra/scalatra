@@ -45,7 +45,7 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions with SessionSupport {
+trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions with SessionSupport with CookieSupport {
   @deprecated("Use servletContext instead", "2.1.0")
   def applicationContext: ServletContext = servletContext
 
@@ -320,7 +320,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>
-      if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(bytes).name)
+      if (contentType != null && contentType.startsWith("text")) response.setCharacterEncoding(FileCharset(bytes).name)
       response.outputStream.write(bytes)
     case is: java.io.InputStream =>
       using(is) {
@@ -331,7 +331,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       using(new FileInputStream(file)) {
         in => zeroCopy(in, response.outputStream)
       }
-    case _: Unit | Unit =>
+    case _: Unit | Unit | null =>
     // If an action returns Unit, it assumes responsibility for the response
     case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound()
     case actionResult: ActionResult =>
@@ -340,7 +340,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
         case (name, value) => response.addHeader(name, value)
       }
       actionResult.body
-    case x: Any =>
+    case x =>
       response.writer.print(x.toString)
   }
 
@@ -385,9 +385,11 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     new BooleanBlockRouteMatcher(block)
 
   protected def renderHaltException(e: HaltException) {
+    var rendered = false
     e match {
       case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
-        doNotFound()
+        renderResponse(doNotFound())
+        rendered = true
       case HaltException(Some(status), Some(reason), _, _) =>
         response.status = ResponseStatus(status, reason)
       case HaltException(Some(status), None, _, _) =>
@@ -397,7 +399,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     e.headers foreach {
       case (name, value) => response.addHeader(name, value)
     }
-    renderResponse(e.body)
+    if (!rendered) renderResponse(e.body)
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
