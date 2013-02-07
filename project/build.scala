@@ -244,10 +244,11 @@ object ScalatraBuild extends Build {
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
    scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere,
-   http4sCore
+   http4sCore, http4sServlet
  )
 
   lazy val http4sCore = ProjectRef(uri("git://github.com/http4s/http4s.git"), "core")
+  lazy val http4sServlet = ProjectRef(uri("git://github.com/http4s/http4s.git"), "servlet")
 
   object Dependencies {
     // Sort by artifact ID.

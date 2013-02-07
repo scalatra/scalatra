@@ -2,8 +2,11 @@ package org.scalatra.examples
 
 import org.scalatra._
 import org.http4s._
+import org.http4s.servlet._
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.servlet.{ServletHolder, ServletContextHandler}
 
 object ScalatraExample extends Scalatra {
   get("/foo") { request.pathInfo }
@@ -16,21 +19,16 @@ object ScalatraExample extends Scalatra {
 }
 
 object ScalatraExampleApp extends App {
-  import scala.concurrent.ExecutionContext.Implicits.global
+  val server = new Server(8080)
 
-  val server = new MockServer(ScalatraExample)
+  val context = new ServletContextHandler()
+  context.setContextPath("/")
+  server.setHandler(context)
 
-  def render(response: MockServer.Response) {
-    println(response.statusLine)
-    response.headers.foreach(println)
-    println
-    System.out.write(response.body)
-    println
-    println
-  }
+  val servlet = new Http4sServlet(ScalatraExample)
 
-  for (path <- Seq("/foo", "/bar", "/baz")) {
-    println(s"Requesting $path")
-    render(Await.result(server(Request(pathInfo = path)), 3 seconds))
-  }
+  context.addServlet(new ServletHolder(servlet), "/*")
+
+  server.start()
+  server.join()
 }
