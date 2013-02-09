@@ -3,9 +3,16 @@ package auth
 
 import org.specs2.mutable._
 import org.mockito.Matchers._
-import javax.servlet.http.{Cookie, HttpServletResponse, HttpServletRequest, HttpSession}
+import javax.servlet.http._
 import auth.ScentryAuthStore.SessionAuthStore
 import org.specs2.mock.Mockito
+import javax.servlet._
+import java.util
+import java.io.BufferedReader
+import util.Locale
+import scala.Some
+import scala.Some
+import java.security.Principal
 
 object ScentrySpec extends Specification with Mockito {
   sequential
@@ -30,6 +37,11 @@ object ScentrySpec extends Specification with Mockito {
         sessionMap.clear()
       }
     }
+
+    implicit val req = mock[HttpServletRequest]
+
+    implicit val res = mock[HttpServletResponse].smart
+
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)}, new SessionAuthStore(context))
     var beforeFetchCalled = false
     var afterFetchCalled = false
@@ -54,30 +66,30 @@ object ScentrySpec extends Specification with Mockito {
 
     val s = new ScentryStrategy[User] {
         protected val app = context
-        def authenticate() ={
+        def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) ={
           successStrategyCalled = true
           Some(User("12345"))
         }
-        override def beforeFetch[IdType](id: IdType) = beforeFetchCalled = true
-        override def afterFetch(user: User) = afterFetchCalled = true
-        override def beforeSetUser(user: User) = beforeSetUserCalled = true
-        override def afterSetUser(user: User) = afterSetUserCalled = true
-        override def beforeLogout(user: User) = beforeLogoutCalled = true
-        override def afterLogout(user: User) = afterLogoutCalled = true
-        override def beforeAuthenticate = beforeAuthenticateCalled = true
-        override def afterAuthenticate(winningStrategy: String, user: User) = afterAuthenticateCalled = true
-        override def unauthenticated() { unauthenticatedSuccessCalled = true }
+        override def beforeFetch[IdType](id: IdType)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeFetchCalled = true
+        override def afterFetch(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterFetchCalled = true
+        override def beforeSetUser(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeSetUserCalled = true
+        override def afterSetUser(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterSetUserCalled = true
+        override def beforeLogout(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeLogoutCalled = true
+        override def afterLogout(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterLogoutCalled = true
+        override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
+        override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
+        override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedSuccessCalled = true }
     }
 
     val sUnsuccess = new ScentryStrategy[User] {
         protected val app = context
-        def authenticate() = {
+        def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
           failingStrategyCalled = true
           None
         }
-        override def beforeAuthenticate = beforeAuthenticateCalled = true
-        override def afterAuthenticate(winningStrategy: String, user: User) = afterAuthenticateCalled = true
-        override def unauthenticated() { unauthenticatedCalled = true }
+        override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
+        override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
+        override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedCalled = true }
       }
     "allow registration of global strategies" in {
       Scentry.register("Bogus", (_: ScalatraBase) =>  s)
@@ -97,6 +109,7 @@ object ScentrySpec extends Specification with Mockito {
 
     "run all fetch user callbacks" in {
       theScentry.register("LocalFoo", _ => s)
+      req.getAttribute("scentry.auth.default.user") returns null
       theScentry.user must be_==(User("6789"))
       beforeFetchCalled must beTrue
       afterFetchCalled must beTrue
@@ -104,14 +117,19 @@ object ScentrySpec extends Specification with Mockito {
 
     "run all set user callbacks" in {
       theScentry.register("LocalFoo", _ => s)
+      req.getAttribute("scentry.auth.default.user") returns null
       (theScentry.user = User("6789")) must be_==("6789")
+      req.getAttribute("scentry.auth.default.user") returns User("6789")
+      there was atLeastOne(req).setAttribute("scentry.auth.default.user", User("6789"))
       beforeSetUserCalled must beTrue
       afterSetUserCalled must beTrue
     }
 
     "run all logout callbacks" in {
       theScentry.register("LocalFoo", _ => s)
+      req.getAttribute("scentry.auth.default.user") returns User("6789")
       theScentry.logout
+      there was one(req).setAttribute("scentry.auth.default.user", null)
       beforeLogoutCalled must beTrue
       afterLogoutCalled must beTrue
       invalidateCalled must beTrue
@@ -119,7 +137,10 @@ object ScentrySpec extends Specification with Mockito {
 
     "run all login callbacks on successful authentication" in {
       theScentry.register("LocalFoo", _ => s)
+      req.getAttribute("scentry.auth.default.user") returns null
       theScentry.authenticate()
+      there were two(req).setAttribute("scentry.auth.default.user", User("12345"))
+      req.getAttribute("scentry.auth.default.user") returns User("12345")
       beforeAuthenticateCalled must beTrue
       afterAuthenticateCalled must beTrue
       beforeSetUserCalled must beTrue

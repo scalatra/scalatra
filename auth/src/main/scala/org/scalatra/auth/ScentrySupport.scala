@@ -11,7 +11,7 @@ trait ScentryConfig {
   val failureUrl = "/unauthenticated"
 }
 
-trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable {
+trait ScentrySupport[UserType <: AnyRef] extends Initializable {
   self: ScalatraBase ⇒
 
   type ScentryConfiguration <: ScentryConfig
@@ -26,15 +26,6 @@ trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable {
     super.initialize(config)
     readStrategiesFromConfig(config)
   }
-
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) = {
-    withRequest(req) {
-
-      super.handle(req, res)
-    }
-  }
-
-
 
   private def initializeScentry = {
     val store = new ScentryAuthStore.SessionAuthStore(this)
@@ -82,9 +73,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Handler with Initializable {
   protected def isAuthenticated(implicit request: HttpServletRequest): Boolean = scentry.isAuthenticated
   protected def isAnonymous(implicit request: HttpServletRequest): Boolean = !isAuthenticated
 
-  protected def authenticate()(implicit request: HttpServletRequest) = {
-    scentry.authenticate()
-  }
+  protected def authenticate()(implicit request: HttpServletRequest) = scentry.authenticate()
 
   protected def logOut()(implicit request: HttpServletRequest) = scentry.logout()
 

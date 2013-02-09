@@ -6,14 +6,14 @@ import util.RicherString._
 import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
 import net.iharder.Base64
 import java.util.Locale
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import io.Codec
 
 trait RemoteAddress { self: ScentryStrategy[_]  =>
 
-  protected def remoteAddress ={
-    val proxied = app.request.getHeader("X-FORWARDED-FOR")
-    val res = if (proxied.nonBlank) proxied else app.request.getRemoteAddr
+  protected def remoteAddress(implicit request: HttpServletRequest) ={
+    val proxied = request.getHeader("X-FORWARDED-FOR")
+    val res = if (proxied.nonBlank) proxied else request.getRemoteAddr
     res
   }
 }
@@ -29,7 +29,7 @@ trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraBase with ScentrySup
   def realm: String
 
 
-  protected def basicAuth() = {
+  protected def basicAuth()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val baReq = new BasicAuthStrategy.BasicAuthRequest(request)
     if(!baReq.providesAuth) {
       response.setHeader("WWW-Authenticate", "Basic realm=\"%s\"" format realm)
@@ -84,30 +84,25 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
   protected def challenge = "Basic realm=\"%s\"" format realm
 
 
-  override def isValid = {
-    app.request.isBasicAuth && app.request.providesAuth
-  }
+  override def isValid(implicit request: HttpServletRequest) = request.isBasicAuth && request.providesAuth
 
-  def authenticate() = {
-    val req = app.request
-    validate(req.username, req.password)
-  }
+  def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) =
+    validate(request.username, request.password)
 
-  protected def getUserId(user: UserType): String
-  protected def validate(userName: String, password: String): Option[UserType]
+  protected def getUserId(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): String
+  protected def validate(userName: String, password: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType]
 
 
-  override def afterSetUser(user: UserType) {
-    app.response.setHeader(REMOTE_USER, getUserId(user))
+  override def afterSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+    response.setHeader(REMOTE_USER, getUserId(user))
   }
 
 
-  override def unauthenticated() {
-    app.response.setHeader("WWW-Authenticate", challenge)
-    app.halt(401, "Unauthenticated")
+  override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) {
+    app halt Unauthorized(headers = Map("WWW-Authenticate" -> challenge))
   }
 
-  override def afterLogout(user: UserType) {
-    app.response.setHeader(REMOTE_USER, "")
+  override def afterLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+    response.setHeader(REMOTE_USER, "")
   }
 }
