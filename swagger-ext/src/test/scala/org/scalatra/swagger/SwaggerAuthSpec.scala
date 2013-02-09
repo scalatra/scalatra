@@ -11,6 +11,7 @@ import org.scalatra.servlet.ServletApiImplicits._
 import util.RicherString._
 import org.scalatra.auth.ScentryConfig
 import org.scalatra.auth.ScentryAuthStore.CookieAuthStore
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 object SwaggerAuthSpec {
   case class User(login: String, token: String = "the_token")
@@ -21,9 +22,9 @@ object SwaggerAuthSpec {
   
   class HeaderOrQueryToken(protected val app: ScalatraBase) extends ScentryStrategy[User] {
     override def name = "header_or_query_token"
-    private def token = (app.request.header("API-TOKEN") orElse app.params.get("api_token")).flatMap(_.blankOption)
-    override def isValid = token.isDefined
-    def authenticate() = {
+    private def token(implicit request: HttpServletRequest) = (app.request.header("API-TOKEN") orElse app.params.get("api_token")).flatMap(_.blankOption)
+    override def isValid(implicit request: HttpServletRequest) = token.isDefined
+    def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
       token match {
         case Some("token1") => Option(Users(0))
         case Some("token2") => Option(Users(1))
