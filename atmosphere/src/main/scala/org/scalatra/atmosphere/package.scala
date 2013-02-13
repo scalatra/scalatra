@@ -12,11 +12,15 @@ package object atmosphere {
   type AtmoReceive = PartialFunction[InboundMessage, Unit]
   type ClientFilter = AtmosphereClient => Boolean
 
+  val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
+  val AtmosphereRouteKey = "org.scalatra.atmosphere.AtmosphereRoute"
+  val ActorSystemKey = "org.scalatra.atmosphere.ActorSystem"
+
   import org.scalatra.servlet.ServletApiImplicits._
 
   implicit def atmoResourceWithClient(res: AtmosphereResource) = new {
-    def clientOption = res.session.get(ScalatraAtmosphereHandler.AtmosphereClientKey).asInstanceOf[Option[AtmosphereClient]]
-    def client = res.session.apply(ScalatraAtmosphereHandler.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+    def clientOption = res.session.get(AtmosphereClientKey).asInstanceOf[Option[AtmosphereClient]]
+    def client = res.session.apply(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
   }
 
   private[atmosphere] implicit def jucFuture2akkaFuture[T](javaFuture: java.util.concurrent.Future[T])(implicit system: ActorSystem): Future[T] = {

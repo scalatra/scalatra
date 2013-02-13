@@ -69,6 +69,7 @@ object SwaggerCommandSupport {
     def parametersFromCommand[C <: Command : Manifest](cmd: => C): B = {
       SwaggerCommandSupport.parametersFromCommand(cmd) match {
         case (parameters, None) =>
+          underlying.parameters(parameters:_*)
         case (parameters, Some(model)) =>
           registerModel(model)
           underlying.parameters(parameters:_*)
@@ -96,11 +97,11 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
   }
 
   private[this] def parametersFromCommand[T <: CommandType](cmd: => T)(implicit mf: Manifest[T]): List[Parameter] = {
-      SwaggerCommandSupport.parametersFromCommand(cmd) match {
-        case (parameters, None) => parameters
-        case (parameters, Some(model)) =>
-          _models += model
-          parameters
-      }
+    SwaggerCommandSupport.parametersFromCommand(cmd) match {
+      case (parameters, None) => parameters
+      case (parameters, Some(model)) =>
+        _models += model
+        parameters
     }
+  }
 }

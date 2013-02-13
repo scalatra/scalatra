@@ -52,7 +52,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   private[this] val listenerClass = classOf[ScalatraAtmosphereListener]
 
   implicit protected def scalatraActorSystem: ActorSystem =
-    servletContext.get(ScalatraAtmosphereListener.ActorSystemKey).map(_.asInstanceOf[ActorSystem]) getOrElse {
+    servletContext.get(ActorSystemKey).map(_.asInstanceOf[ActorSystem]) getOrElse {
       val msg = "Scalatra Actor system not present. Did you configure the %s in the web.xml?".format(listenerClass.getName)
       println(msg)
       logger.warn(msg)

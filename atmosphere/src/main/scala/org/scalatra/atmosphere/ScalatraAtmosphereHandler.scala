@@ -13,8 +13,10 @@ import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
 import grizzled.slf4j.Logger
 
 object ScalatraAtmosphereHandler {
-  val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
-  val AtmosphereRouteKey = "org.scalatra.atmosphere.AtmosphereRoute"
+  @deprecated("Use `org.scalatra.atmosphere.AtmosphereClientKey` instead", "2.2.1")
+  val AtmosphereClientKey = org.scalatra.atmosphere.AtmosphereClientKey
+  @deprecated("Use `org.scalatra.atmosphere.AtmosphereRouteKey` instead", "2.2.1")
+  val AtmosphereRouteKey = org.scalatra.atmosphere.AtmosphereRouteKey
 
   private class ScalatraResourceEventListener extends AtmosphereResourceEventListener {
     def client(resource: AtmosphereResource) =
