@@ -7,7 +7,8 @@ import _root_.akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 
 object ScalatraAtmosphereListener {
-  val ActorSystemKey = "org.scalatra.atmosphere.ActorSystem"
+  @deprecated("Use `org.scalatra.atmosphere.AtmosphereRouteKey` instead", "2.2.1")
+  val ActorSystemKey = org.scalatra.atmosphere.ActorSystemKey
 }
 class ScalatraAtmosphereListener extends ScalatraListener {
   import ScalatraAtmosphereListener._

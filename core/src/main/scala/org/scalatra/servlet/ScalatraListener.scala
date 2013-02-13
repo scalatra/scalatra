@@ -20,7 +20,6 @@ class ScalatraListener extends ServletContextListener {
   def contextInitialized(sce: ServletContextEvent) {
     try {
       configureServletContext(sce)
-      configureExecutionContext(sce)
       configureCycleClass(Thread.currentThread.getContextClassLoader)
     } catch {
       case e: Throwable =>
@@ -37,9 +36,6 @@ class ScalatraListener extends ServletContextListener {
   }
 
   protected def configureExecutionContext(sce: ServletContextEvent) {
-//    val ctxt = sce.getServletContext
-//    val system = ActorSystem("scalatra", ConfigFactory.load.getConfig("scalatra"))
-//    ctxt.setAttribute(ActorSystemKey, system)
   }
 
   protected def probeForCycleClass(classLoader: ClassLoader) = {
