@@ -66,7 +66,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
     }
   }
 
-  private def shouldParseBody(fmt: String) =
+  private def shouldParseBody(fmt: String)(implicit request: HttpServletRequest) =
     (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
   def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
