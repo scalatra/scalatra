@@ -152,7 +152,7 @@ class Scentry[UserType <: AnyRef](
   def logout()(implicit request: HttpServletRequest, response: HttpServletResponse) {
     val usr = user
     runCallbacks() { _.beforeLogout(usr) }
-    if (request.get(scentryAuthKey).isDefined) request(scentryAuthKey) = null.asInstanceOf[UserType]
+    request -= scentryAuthKey
     store.invalidate()
     runCallbacks() { _.afterLogout(usr) }
   }
