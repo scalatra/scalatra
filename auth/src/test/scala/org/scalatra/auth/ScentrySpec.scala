@@ -129,7 +129,7 @@ object ScentrySpec extends Specification with Mockito {
       theScentry.register("LocalFoo", _ => s)
       req.getAttribute("scentry.auth.default.user") returns User("6789")
       theScentry.logout
-      there was one(req).setAttribute("scentry.auth.default.user", null)
+      there was one(req).removeAttribute("scentry.auth.default.user")
       beforeLogoutCalled must beTrue
       afterLogoutCalled must beTrue
       invalidateCalled must beTrue
