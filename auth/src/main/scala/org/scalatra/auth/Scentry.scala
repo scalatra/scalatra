@@ -5,7 +5,9 @@ import ScentryAuthStore.ScentryAuthStore
 import collection.mutable
 import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
-import util.{MapWithIndifferentAccess, MultiMapHeadView}
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import servlet.ServletApiImplicits._
+
 
 object Scentry {
 
@@ -42,20 +44,23 @@ class Scentry[UserType <: AnyRef](
   import Scentry._
 
   private[this] val _strategies = new mutable.HashMap[String, StrategyFactory]()
-  private[this] var _user: UserType = null.asInstanceOf[UserType]
+  private[this] def _user(implicit request: HttpServletRequest): UserType =
+    request.get(scentryAuthKey).orNull.asInstanceOf[UserType]
 
   def store = _store
   def store_=(newStore: ScentryAuthStore) {
     _store = newStore
   }
 
-  def isAuthenticated = {
+  def isAuthenticated(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     userOption.isDefined
   }
 
   //def session = app.session
-  def params: Params = app.params(app.request)
-  def redirect(uri: String) { app.redirect(uri)(app.request, app.response) }
+  def params(implicit request: HttpServletRequest): Params = app.params(request)
+  def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+    app.redirect(uri)(request, response)
+  }
 
   def register(strategy: => ScentryStrategy[UserType]) {
     register(strategy.name, ((_: ScalatraBase) => strategy))
@@ -68,33 +73,37 @@ class Scentry[UserType <: AnyRef](
   def strategies: mutable.Map[String, ScentryStrategy[UserType]] =
     (globalStrategies ++ _strategies) map { case (nm, fact) ⇒ (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
-  def userOption: Option[UserType] = Option(user)
+  def userOption(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] =
+    Option(_user) orElse {
+      store.get.blankOption flatMap { key =>
+        runCallbacks() { _.beforeFetch(key) }
+        val o = fromSession lift key map { res =>
+          runCallbacks() { _.afterFetch(res) }
+          request(scentryAuthKey) = res
+          res
+        }
+        if (o.isEmpty) request(scentryAuthKey) = null
+        o
+      }
+    }
 
-  def user: UserType = if (_user != null) _user else {
-    val key = store.get
-    if (key.nonBlank) {
-      runCallbacks() { _.beforeFetch(key) }
-      val res = fromSession(key)
-      if (res != null) runCallbacks() { _.afterFetch(res) }
-      _user = res
-      res
-    } else null.asInstanceOf[UserType]
-  }
+  def user(implicit request: HttpServletRequest, response: HttpServletResponse): UserType =
+    userOption getOrElse null.asInstanceOf[UserType]
 
-  def user_=(v: UserType) = {
-    _user = v
+  def user_=(v: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+    request(scentryAuthKey) = v
     if (v != null) {
       runCallbacks() { _.beforeSetUser(v) }
       val res = toSession(v)
       store.set(res)
       runCallbacks() { _.afterSetUser(v) }
       res
-    } else v
+    } else ""
   }
 
-  def fromSession = deserialize orElse missingDeserializer
+  def fromSession: PartialFunction[String, UserType] = deserialize orElse missingDeserializer
 
-  def toSession = serialize orElse missingSerializer
+  def toSession: PartialFunction[UserType, String] = serialize orElse missingSerializer
 
   private def missingSerializer: PartialFunction[UserType, String] = {
     case _ ⇒ throw new RuntimeException("You need to provide a session serializer for Scentry")
@@ -104,22 +113,22 @@ class Scentry[UserType <: AnyRef](
     case _ ⇒ throw new RuntimeException("You need to provide a session deserializer for Scentry")
   }
 
-//  @deprecated("Use the version that uses string keys instead", "2.0")
-  def authenticate(name: Symbol, names: Symbol*): Option[UserType] =
+  @deprecated("Use the version that uses string keys instead", "2.2")
+  def authenticate(name: Symbol, names: Symbol*)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] =
     authenticate((Seq(name) ++ names.toSeq).map(_.name):_*)
 
-  def authenticate(names: String*): Option[UserType] = {
+  def authenticate(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] = {
     val r = runAuthentication(names: _*) map {
       case (stratName, usr) ⇒
         runCallbacks() { _.afterAuthenticate(stratName, usr) }
-        user = usr
+        user_=(usr)
         user
     }
     if (names.isEmpty) r orElse { defaultUnauthenticated foreach (_.apply()); None }
     else r
   }
 
-  private def runAuthentication(names: String*) = {
+  private[this] def runAuthentication(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
     (subset filter (_.isValid) map { strat =>
       logger.debug("Authenticating with: %s" format strat.name)
@@ -133,18 +142,6 @@ class Scentry[UserType <: AnyRef](
     }).find(_.isDefined) getOrElse None
   }
 
-  private def runUnauthenticated(names: String*) = {
-    (strategies filter { case (name, strat) ⇒ strat.isValid && (names.isEmpty || names.contains(name)) }).values.toList match {
-      case Nil ⇒ {
-        defaultUnauthenticated foreach { _.apply() }
-      }
-      case l ⇒ {
-        l foreach { s ⇒ runCallbacks(_.name == s.name) { _.unauthenticated() } }
-      }
-    }
-    None
-
-  }
 
   private[this] var defaultUnauthenticated: Option[() ⇒ Unit] = None
 
@@ -152,15 +149,15 @@ class Scentry[UserType <: AnyRef](
     defaultUnauthenticated = Some(() ⇒ callback)
   }
 
-  def logout() {
+  def logout()(implicit request: HttpServletRequest, response: HttpServletResponse) {
     val usr = user
     runCallbacks() { _.beforeLogout(usr) }
-    if (_user != null) _user = null.asInstanceOf[UserType]
+    if (request(scentryAuthKey) != null) request(scentryAuthKey) = null.asInstanceOf[UserType]
     store.invalidate()
     runCallbacks() { _.afterLogout(usr) }
   }
 
-  private def runCallbacks(guard: StrategyType ⇒ Boolean = s ⇒ true)(which: StrategyType ⇒ Unit) {
+  private[this] def runCallbacks(guard: StrategyType ⇒ Boolean = s ⇒ true)(which: StrategyType ⇒ Unit) {
     strategies foreach {
       case (_, v) if guard(v) ⇒ which(v)
       case _                  ⇒ // guard failed

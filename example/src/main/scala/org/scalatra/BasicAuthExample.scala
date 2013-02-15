@@ -3,6 +3,7 @@ package org.scalatra
 import auth.strategy.{BasicAuthStrategy, BasicAuthSupport}
 import auth.{ScentrySupport, ScentryConfig}
 import org.scalatra.BasicAuthExample.AuthenticationSupport
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 object BasicAuthExample {
 
@@ -11,12 +12,12 @@ object BasicAuthExample {
   class OurBasicAuthStrategy(protected override val app: ScalatraBase, realm: String)
     extends BasicAuthStrategy[MyUser](app, realm) {
 
-    protected def validate(userName: String, password: String): Option[MyUser] = {
+    protected def validate(userName: String, password: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[MyUser] = {
       if(userName == "scalatra" && password == "scalatra") Some(MyUser("scalatra"))
       else None
     }
 
-    protected def getUserId(user: MyUser): String = user.id
+    protected def getUserId(user: MyUser)(implicit request: HttpServletRequest, response: HttpServletResponse): String = user.id
   }
 
   trait AuthenticationSupport extends ScentrySupport[MyUser] with BasicAuthSupport[MyUser] { 
@@ -37,7 +38,7 @@ object BasicAuthExample {
     }
 
     override protected def registerAuthStrategies = {
-      scentry.register("Basic", app => new OurBasicAuthStrategy(app, realm))
+      scentry.register("Basic", new OurBasicAuthStrategy(_, realm))
     }
 
   }

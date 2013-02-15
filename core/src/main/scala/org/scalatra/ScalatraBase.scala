@@ -156,12 +156,19 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * Lazily invokes routes with `invoke`.  The results of the routes
    * are returned as a stream.
    */
-  protected def runRoutes(routes: Traversable[Route]) =
-    for {
+  protected def runRoutes(routes: Traversable[Route]) = {
+    val result = for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
-      matchedRoute <- route(requestPath)
+      matchedRoute <- route.apply(requestPath)
       actionResult <- invoke(matchedRoute)
-    } yield actionResult
+    } yield (actionResult, matchedRoute)
+    result map {
+      case (actionResult, matchedRoute) =>
+        setMultiparams(Some(matchedRoute), multiParams)
+        actionResult
+    }
+    result.map(_._1)
+  }
 
   /**
    * Invokes a route or filter.  The multiParams gathered from the route
@@ -223,12 +230,12 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     doMethodNotAllowed = f
   }
 
-  private def matchOtherMethods(): Option[Any] = {
+  private[this] def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
 
-  private def handleStatusCode(status: Int): Option[Any] =
+  private[this] def handleStatusCode(status: Int): Option[Any] =
     for {
       handler <- routes(status)
       matchedHandler <- handler(requestPath)
@@ -249,16 +256,21 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
-    val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
-      case (key, values) =>
-        key -> values.map(UriDecoder.secondStep(_))
-    }
-    request(MultiParamsKey) = originalParams ++ routeParams
+    setMultiparams(matchedRoute, originalParams)
     try {
       thunk
     } finally {
       request(MultiParamsKey) = originalParams
     }
+  }
+
+
+  def setMultiparams[S](matchedRoute: Option[MatchedRoute], originalParams: MultiParams) {
+    val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
+      case (key, values) =>
+        key -> values.map(UriDecoder.secondStep(_))
+    }
+    request(MultiParamsKey) = originalParams ++ routeParams
   }
 
   /**
@@ -317,6 +329,12 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   protected def renderPipeline: RenderPipeline = {
     case 404 =>
       doNotFound()
+    case ActionResult(status, x: Int, resultHeaders) =>
+      response.status = status
+      resultHeaders foreach {
+        case (name, value) => response.addHeader(name, value)
+      }
+      response.writer.print(x.toString)
     case status: Int =>
       response.status = ResponseStatus(status)
     case bytes: Array[Byte] =>

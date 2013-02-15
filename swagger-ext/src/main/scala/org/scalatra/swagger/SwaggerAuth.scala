@@ -50,24 +50,6 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
     }
   }
 
-  override protected def renderDoc(doc: AuthApi[TypeForUser]): JValue = {
-    doc.toJValue(userOption) merge
-      ("basePath" -> fullUrl("/", includeServletPath = false)) ~
-      ("swaggerVersion" -> swagger.swaggerVersion) ~
-      ("apiVersion" -> swagger.apiVersion)
-  }
-
-  override protected def renderIndex(docs: List[ApiType]): JValue = {
-    ("basePath" -> fullUrl("/", includeServletPath = false)) ~
-      ("swaggerVersion" -> swagger.swaggerVersion) ~
-      ("apiVersion" -> swagger.apiVersion) ~
-      ("apis" ->
-        (docs.toList map {
-          doc => (("path" -> ((doc.listingPath getOrElse doc.resourcePath) + (if (includeFormatParameter) ".{format}" else ""))) ~
-                 ("description" -> doc.description))
-        }))
-  }
-  
 }
 
 case class AuthApi[TypeForUser <: AnyRef](resourcePath: String,
@@ -139,7 +121,7 @@ object AuthApi {
         ("summary" -> x.summary) ~
         ("notes" -> x.notes) ~
         ("deprecated" -> x.deprecated) ~
-        ("nickName" -> x.nickname) ~
+        ("nickname" -> x.nickname) ~
         ("parameters" -> x.parameters.map(decompose)) ~
         ("errorResponses" -> x.errorResponses.map(decompose)) 
       case x: AuthOperation[_] => JNothing

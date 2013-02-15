@@ -6,15 +6,9 @@ import servlet.ServletBase
 import javax.servlet.http.{HttpServletResponse, HttpSession, HttpServletRequest, Cookie}
 import javax.servlet.ServletContext
 
-trait ScentryStrategy[UserType <: AnyRef] extends ScalatraContext {
+trait ScentryStrategy[UserType <: AnyRef] {
 
   protected def app: ScalatraBase
-
-  implicit def request: HttpServletRequest = app.request
-
-  implicit def response: HttpServletResponse = app.response
-
-  def servletContext: ServletContext = app.servletContext
 
   def name: String = "NameMe"
 
@@ -38,58 +32,58 @@ trait ScentryStrategy[UserType <: AnyRef] extends ScalatraContext {
    *
    * @return a Boolean to indicate validity
    */
-  def isValid = true
+  def isValid(implicit request: HttpServletRequest) = true
 
   /**
    * Perform the authentication for this strategy
    *
    * @return a UserType option where None indicates auth failure
    */
-  def authenticate(): Option[UserType]
+  def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType]
 
   /**
    * Perform stuff before authenticating, only run when the module is valid
    */
-  def beforeAuthenticate {}
+  def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff after authentication only run when the module is valid
    */
-  def afterAuthenticate(winningStrategy: String, user: UserType) {}
+  def afterAuthenticate(winningStrategy: String, user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff before setting the user in the session
    */
-  def beforeSetUser(user: UserType) {}
+  def beforeSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff after setting the user in the session
    */
-  def afterSetUser(user: UserType) {}
+  def afterSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff before fetching and serializing the user from session
    */
-  def beforeFetch[IdType](userId: IdType) {}
+  def beforeFetch[IdType](userId: IdType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff after fetching and serializing the user from session
    */
-  def afterFetch(user: UserType) {}
+  def afterFetch(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff before logging the user out and invalidating the session
    */
-  def beforeLogout(user: UserType) {}
+  def beforeLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff after logging the user out and invalidating the session
    */
-  def afterLogout(user: UserType) {}
+  def afterLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
   /**
    * Perform stuff when the request is unauthenticated and the strategy is valid
    */
-  def unauthenticated() {}
+  def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) {}
 
 }

@@ -19,7 +19,7 @@ abstract class AsyncResult(implicit override val scalatraContext: ScalatraContex
 
   // This is a Duration instead of a timeout because a duration has the concept of infinity
   implicit def timeout: Duration = 30 seconds
-  def is: Future[_]
+  val is: Future[_]
 }
 
 trait FutureSupport extends AsyncSupport {
