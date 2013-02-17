@@ -10,7 +10,7 @@ import test.specs2.MutableScalatraSpec
 object SwaggerCommandSupportSpec  {
   class SimpleCommand extends ParamsOnlyCommand {
     val name: Field[String] = asString("name").notBlank
-    val age: Field[Int] = "age"
+    val age: Field[Int] = bind[Int]("age").optional
   }
   
   class FullCommand extends JsonCommand {
@@ -18,14 +18,14 @@ object SwaggerCommandSupportSpec  {
     import ValueSource._
     
     val name: Field[String] = asString("name").notBlank
-    val age: Field[Int] = "age"
+    val age: Field[Int] = bind[Int]("age").withDefaultValue(0)
     val token: Field[String] = (
         asString("API-TOKEN").notBlank
 	        sourcedFrom Header 
 	        description "The API token for this request"
 	        notes "Invalid data kills kittens"
 	        allowableValues "123")
-    val skip: Field[Int] = asInt("skip").sourcedFrom(Query).description("The offset for this collection index")
+    val skip: Field[Int] = asInt("skip").withDefaultValue(0).sourcedFrom(Query).description("The offset for this collection index")
     val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
   }
 

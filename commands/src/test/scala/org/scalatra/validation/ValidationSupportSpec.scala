@@ -9,9 +9,9 @@ import Scalaz._
 import org.scalatra.commands.BindingSyntax._
 
 class WithValidation extends WithBindingFromParams {
-  val notRequiredCap: Field[Int] = asInt("cap").greaterThan(100)
+  val notRequiredCap: Field[Int] = asInt("cap").optional.greaterThan(100)
 
-  val legalAge: Field[Int] = asInt("age").required.greaterThanOrEqualTo(18)
+  val legalAge: Field[Int] = asInt("age").greaterThanOrEqualTo(18)
 }
 
 
