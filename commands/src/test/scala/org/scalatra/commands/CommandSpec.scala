@@ -16,11 +16,11 @@ import org.scalatra.util
 trait BindingTemplate { self: Command with TypeConverterFactories =>
 
 
-  val upperCaseName: Field[String] = bind[String]("name").transform(_.toUpperCase)
+  val upperCaseName: Field[String] = bind[String]("name").transform(_.toUpperCase).optional
 
-  val lowerCaseSurname: Field[String] = asString("surname").transform(_.toLowerCase)
+  val lowerCaseSurname: Field[String] = asString("surname").transform(_.toLowerCase).optional
 
-  val age: Field[Int] = asType[Int]("age") // explicit
+  val age: Field[Int] = asType[Int]("age").optional // explicit
 
   val cap: Field[Int] = "cap" // implicit
 
