@@ -88,6 +88,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
         allowedHeaders mkString ", ")
   }
 
+  options("/*") {}
 
   protected def handlePreflightRequest() {
     logger debug "handling preflight request"
