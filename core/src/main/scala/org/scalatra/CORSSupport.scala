@@ -4,6 +4,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import util.RicherString._
 import java.util.Locale.ENGLISH
 import grizzled.slf4j.Logger
+import collection.JavaConverters._
 
 object CorsSupport {
   val OriginHeader: String = "Origin"
@@ -97,7 +98,8 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
     // 5.2.9
     response.headers(AccessControlAllowMethodsHeader) = corsConfig.allowedMethods mkString ","
     // 5.2.10
-    response.headers(AccessControlAllowHeadersHeader) = corsConfig.allowedHeaders mkString ","
+    val rh = corsConfig.allowedHeaders ++ request.getHeaders(AccessControlRequestHeadersHeader).asScala.flatMap(_ split (","))
+    response.headers(AccessControlAllowHeadersHeader) = rh mkString ","
     response.end()
 
   }
@@ -111,12 +113,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
 
     response.headers(AccessControlAllowOriginHeader) = hdr
     if (corsConfig.allowCredentials) response.headers(AccessControlAllowCredentialsHeader) = "true"
-    /*
-    if (allowedHeaders.nonEmpty) {
-      val hdrs = allowedHeaders.filterNot(hn => SIMPLE_RESPONSE_HEADERS.contains(hn.toUpperCase(ENGLISH))).mkString(",")
-      response.addHeader(ACCESS_CONTROL_ALLOW_HEADERS_HEADER, hdrs)
-    }
-*/
+    response.setHeader(AccessControlAllowHeadersHeader, request.getHeader(AccessControlRequestHeadersHeader))
   }
 
   private[this] def corsConfig = servletContext.get(CorsConfigKey).orNull.asInstanceOf[CORSConfig]
