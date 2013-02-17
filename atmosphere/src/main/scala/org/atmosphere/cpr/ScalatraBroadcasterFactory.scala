@@ -31,7 +31,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
       InjectorProvider.getInjector.inject(b)
 
       if (b.getBroadcasterConfig == null) {
-        b.setBroadcasterConfig(new BroadcasterConfig(cfg.framework().broadcasterFilters, cfg))
+        b.setBroadcasterConfig(new BroadcasterConfig(cfg.framework().broadcasterFilters, cfg, "scalatra-broadcaster-factory"))
       }
 
       b.setBroadcasterLifeCyclePolicy(BroadcasterLifeCyclePolicy.NEVER)

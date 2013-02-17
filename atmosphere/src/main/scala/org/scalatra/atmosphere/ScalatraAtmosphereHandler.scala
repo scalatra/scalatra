@@ -20,7 +20,10 @@ object ScalatraAtmosphereHandler {
 
   private class ScalatraResourceEventListener extends AtmosphereResourceEventListener {
     def client(resource: AtmosphereResource) =
-      Option(resource.session()).flatMap(_.get(AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
+      Option(resource.session()).flatMap(_.get(org.scalatra.atmosphere.AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
+
+
+    def onPreSuspend(event: AtmosphereResourceEvent) {}
 
     def onBroadcast(event: AtmosphereResourceEvent) {
       val resource = event.getResource
@@ -31,7 +34,7 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
-      event.getResource.session.removeAttribute(AtmosphereClientKey)
+      event.getResource.session.removeAttribute(org.scalatra.atmosphere.AtmosphereClientKey)
       if (event.isCancelled) {
         val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
         client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
