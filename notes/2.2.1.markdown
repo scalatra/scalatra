@@ -1,0 +1,19 @@
+### Core
+* An action result with an int body renders the int as body not status
+* Make matched route params available for a broader scope
+* AsyncResult now uses an abstract val to force eager creation of the future
+* Fixes preflight request for CORS (no longer necessary to define an options route)
+
+### Atmosphere
+* Upgrade to atmosphere 1.1.0.beta3
+
+### Commands
+* Fields are now required by default
+
+### Auth
+* Make scentry use implicit request and response
+
+### Swagger
+* Fixes nickname field swagger spec generation
+* Skips rendering swagger api's without api operations registered
+* Fix command support for swagger with new dsl syntax
