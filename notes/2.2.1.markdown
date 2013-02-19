@@ -8,7 +8,7 @@
 * Upgrade to atmosphere 1.1.0.beta3
 
 ### Commands
-* Fields are now required by default
+* All validation error messages are now configurable
 
 ### Auth
 * Make scentry use implicit request and response
