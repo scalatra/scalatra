@@ -76,7 +76,7 @@ class BasicFieldDescriptor[T](
     val name: String, 
     val validator: Option[Validator[T]] = None, 
     private[commands] val transformations: T => T = identity _,
-    private[commands] var isRequired: Boolean = true,
+    private[commands] var isRequired: Boolean = false,
     val description: String = "",
     val notes: String = "",
     private[commands] val defVal: DefVal[T],
