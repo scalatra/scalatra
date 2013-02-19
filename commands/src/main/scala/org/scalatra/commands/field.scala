@@ -343,7 +343,7 @@ object BindingValidators {
       b.validateWith(BindingValidators.validConfirmation(against, messageFormat))
 
 
-    def minLength(min: Int, messageFormat: String = "%%s must be at least %s long."): FieldDescriptor[String] =
+    def minLength(min: Int, messageFormat: String = "%%s must be at least %s characters long."): FieldDescriptor[String] =
       b.validateWith(BindingValidators.minLength(min, messageFormat))
 
 
