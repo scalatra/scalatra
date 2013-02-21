@@ -5,7 +5,7 @@ import scalate.ScalateSupport
 
 object Template {
 
-    def page(title:String, content:Seq[Node], url: String => String = identity _, head: Seq[Node] = Nil, scripts: Seq[String] = Nil) = {
+    def page(title:String, content:Seq[Node], url: String => String = identity _, head: Seq[Node] = Nil, scripts: Seq[String] = Seq.empty, defaultScripts: Seq[String] = Seq("/assets/js/jquery.min.js", "/assets/js/bootstrap.min.js")) = {
       <html lang="en">
         <head>
           <title>{ title }</title>
@@ -68,9 +68,7 @@ object Template {
             <!-- Le javascript
             ================================================== -->
             <!-- Placed at the end of the document so the pages load faster -->
-            <script src="/assets/js/jquery.min.js"></script>
-            <script src="/assets/js/bootstrap.min.js"></script>
-            { scripts map { pth =>
+            { (defaultScripts ++ scripts) map { pth =>
               <script type="text/javascript" src={pth}></script>
             } }
 

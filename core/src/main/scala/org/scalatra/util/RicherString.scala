@@ -31,6 +31,11 @@ class RicherString(orig: String) {
   }
 
   def regexEscape = Pattern.quote(orig)
+
+  def toCheckboxBool = orig.toUpperCase match {
+    case "ON" | "TRUE" | "OK" | "1" | "CHECKED" | "YES" | "ENABLE" | "ENABLED" => true
+    case _ => false
+  }
 }
 
 object RicherString {
