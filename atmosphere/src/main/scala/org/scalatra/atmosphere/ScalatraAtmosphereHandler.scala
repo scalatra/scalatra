@@ -7,7 +7,7 @@ import org.scalatra.servlet.ServletApiImplicits._
 import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
-import javax.servlet.http.HttpSession
+import javax.servlet.http.{HttpServletRequest, HttpSession}
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
 import grizzled.slf4j.Logger
@@ -93,10 +93,19 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   }
 
   private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
-    val client = clientForRoute(route)
-    session(org.scalatra.atmosphere.AtmosphereClientKey) = client
-    client.resource = resource
-    client
+    withRouteMultiParams(route, resource.getRequest) {
+      val client = clientForRoute(route)
+      session(org.scalatra.atmosphere.AtmosphereClientKey) = client
+      client.resource = resource
+      client
+    }
+  }
+  private[this] def createClient(route: MatchedRoute, resource: AtmosphereResource) = {
+    withRouteMultiParams(route, resource.getRequest) {
+      val client = clientForRoute(route)
+      client.resource = resource
+      client
+    }
   }
 
   private[this] def clientForRoute(route: MatchedRoute): AtmosphereClient = {
@@ -133,6 +142,40 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
   private[this] def  addEventListener(resource: AtmosphereResource) {
     resource.addEventListener(new ScalatraResourceEventListener)
+  }
+  /**
+   * The current multiparams.  Multiparams are a result of merging the
+   * standard request params (query string or post params) with the route
+   * parameters extracted from the route matchers of the current route.
+   * The default value for an unknown param is the empty sequence.  Invalid
+   * outside `handle`.
+   */
+  private[this] def multiParams(request: HttpServletRequest): MultiParams = {
+    val read = request.contains("MultiParamsRead")
+    val found = request.get(MultiParamsKey) map (
+     _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
+    )
+    val multi = found getOrElse request.multiParameters
+    request("MultiParamsRead") = new {}
+    request(MultiParamsKey) = multi
+    multi.withDefaultValue(Seq.empty)
+  }
+  private[this] def withRouteMultiParams[S](matchedRoute: MatchedRoute, request: HttpServletRequest)(thunk: => S): S = {
+    val originalParams = multiParams(request)
+    setMultiparams(matchedRoute, originalParams, request)
+    try {
+      thunk
+    } finally {
+      request(MultiParamsKey) = originalParams
+    }
+  }
+
+  def setMultiparams[S](matchedRoute: MatchedRoute, originalParams: MultiParams, request: HttpServletRequest) {
+    val routeParams = matchedRoute.multiParams map {
+      case (key, values) =>
+        key -> values.map(UriDecoder.secondStep(_))
+    }
+    request(MultiParamsKey) = originalParams ++ routeParams
   }
 
   private[this] def liftAction(action: org.scalatra.Action) = try {

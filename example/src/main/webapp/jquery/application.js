@@ -11,8 +11,8 @@ $(function() {
   var logged = false;
   var socket = $.atmosphere;
   var subSocket;
-//  var transport = 'long-polling';
-  var transport = 'websocket';
+  var transport = 'long-polling';
+//  var transport = 'websocket';
 
   var request = {
     url: "/atmosphere/the-chat",
@@ -20,7 +20,8 @@ $(function() {
     logLevel: 'debug',
     transport: transport,
     trackMessageLength : true,
-    fallbackTransport: 'long-polling'
+//    fallbackTransport: 'long-polling'
+    fallbackTransport: 'websocket'
   };
 
   request.onOpen = function(response) {
