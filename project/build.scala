@@ -4,6 +4,7 @@ import scala.xml._
 import java.net.URL
 import com.github.siasia.WebPlugin.webSettings
 import ls.Plugin.LsKeys
+import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 
 object ScalatraBuild extends Build {
   import Dependencies._
@@ -230,7 +231,7 @@ object ScalatraBuild extends Build {
  lazy val scalatraExample = Project(
    id = "scalatra-example",
    base = file("example"),
-   settings = scalatraSettings ++ webSettings ++ doNotPublish ++ WarOverlayPlugin.warOverlaySettings ++ Seq(
+   settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApi % "container;test",
      libraryDependencies += jettyWebsocket % "container;test",
