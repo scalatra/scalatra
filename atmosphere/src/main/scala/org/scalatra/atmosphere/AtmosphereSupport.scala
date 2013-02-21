@@ -2,13 +2,11 @@ package org.scalatra
 package atmosphere
 
 import json.JsonSupport
-import javax.servlet.ServletConfig
-import javax.servlet.FilterConfig
+import javax.servlet.{ServletContext, ServletConfig, FilterConfig, ServletException}
 import org.apache.catalina.CometProcessor
 import org.jboss.servlet.http.HttpEventServlet
 import org.atmosphere.di.ServletContextProvider
 import java.io.IOException
-import javax.servlet.ServletException
 import org.atmosphere.container.Tomcat7CometSupport
 import org.atmosphere.container.TomcatCometSupport
 import org.jboss.servlet.http.HttpEvent
@@ -16,7 +14,7 @@ import org.atmosphere.container.JBossWebCometSupport
 import org.atmosphere.cpr._
 import collection.JavaConverters._
 import org.json4s._
-import org.atmosphere.cache.HeaderBroadcasterCache
+import org.atmosphere.cache.{UUIDBroadcasterCache, HeaderBroadcasterCache}
 import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import grizzled.slf4j.Logger
@@ -26,6 +24,7 @@ import org.atmosphere.client.TrackMessageSizeInterceptor
 import org.atmosphere.interceptor.SessionCreationInterceptor
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import servlet.ScalatraAsyncSupport
+import java.util
 
 trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
 
@@ -63,8 +62,8 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] implicit def filterConfig2servletConfig(fc: FilterConfig): ServletConfig = {
     new ServletConfig {
-      def getInitParameter(name: String): String = fc.getInitParameter(name)
-      def getInitParameterNames() = fc.getInitParameterNames()
+      def getInitParameter(name: String): String = getServletContext.getInitParameter(name)
+      def getInitParameterNames() = getServletContext.getInitParameterNames()
       def getServletName() = fc.getFilterName()
       def getServletContext() = fc.getServletContext()
     }
@@ -74,17 +73,30 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     super.initialize(config)
     val cfg: ServletConfig = config match {
       case c: FilterConfig => c
-      case c: ServletConfig => c
+      case c: ServletConfig => new ServletConfig {
+        def getInitParameterNames: util.Enumeration[String] = getServletContext.getInitParameterNames
+        def getServletName: String = c.getServletName
+        def getInitParameter(name: String): String = getServletContext.getInitParameter(name)
+        def getServletContext: ServletContext = c.getServletContext
+      }
     }
+
     allCatch.withApply(ex => logger.error(ex.getMessage, ex)) {
       atmosphereFramework.enableSessionSupport()
       configureBroadcasterCache()
       configureBroadcasterFactory()
-      atmosphereFramework.interceptor(new SessionCreationInterceptor)
-      atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
+      configureInterceptors(cfg)
       atmosphereFramework.init(cfg)
       setupAtmosphereHandlerMappings(cfg)
     }
+  }
+
+  protected def configureInterceptors(cfg: ServletConfig) = {
+    atmosphereFramework.interceptor(new SessionCreationInterceptor)
+    if (cfg.getInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT).isBlank)
+      cfg.getServletContext.setInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT, "true")
+    if (cfg.getInitParameter(TrackMessageSize).blankOption.map(_.toCheckboxBool).getOrElse(false))
+      atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
   }
 
   private[this] def setupAtmosphereHandlerMappings(cfg: ServletConfig) {
@@ -113,7 +125,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     withRequestResponse(request, response) {
       val atmoRoute = atmosphereRoute(request)
       if (atmoRoute.isDefined) {
-        request.setAttribute(ScalatraAtmosphereHandler.AtmosphereRouteKey, atmoRoute.get)
+        request(AtmosphereRouteKey) = atmoRoute.get
         request.getSession(true) // force session creation
         if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER).isEmpty)
           atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
@@ -138,7 +150,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] def configureBroadcasterCache() {
     if (atmosphereFramework.getBroadcasterCacheClassName.isBlank)
-      atmosphereFramework.setBroadcasterCacheClassName(classOf[HeaderBroadcasterCache].getName)
+      atmosphereFramework.setBroadcasterCacheClassName(classOf[UUIDBroadcasterCache].getName)
   }
 
   private[atmosphere] val Atmosphere: RouteTransformer = route => route.copy(metadata = route.metadata + ('Atmosphere -> 'Atmosphere))

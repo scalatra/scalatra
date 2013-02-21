@@ -36,7 +36,7 @@ $(function() {
     }
   };
 
-  request.onReconnect = function(rq, rs) {
+  request.onReconnect = function(/* request, response */) {
     socket.info("Reconnecting")
   };
 
@@ -48,7 +48,7 @@ $(function() {
     var message = rs.responseBody;
     try {
       var json = jQuery.parseJSON(message);
-      console.log("got a message")
+      console.log("got a message");
       console.log(json)
     } catch (e) {
       console.log('This doesn\'t look like a valid JSON object: ', message.data);
@@ -68,11 +68,11 @@ $(function() {
     }
   };
 
-  request.onClose = function(rs) {
+  request.onClose = function(/* response */) {
     logged = false;
   };
 
-  request.onError = function(rs) {
+  request.onError = function(/* response */) {
     content.html($('<p>', {
       text: 'Sorry, but there\'s some problem with your ' + 'socket or the server is down'
     }));

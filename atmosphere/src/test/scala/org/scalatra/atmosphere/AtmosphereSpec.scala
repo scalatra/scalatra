@@ -27,13 +27,17 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
   atmosphere("/test1") {
     new AtmosphereClient {
       def receive: AtmoReceive = {
+        case Connected =>
+          println("connected client")
+          broadcast("connected", to = Everyone)
         case TextMessage(txt) =>
           println("text message: " + txt)
           send(("seen" -> txt):JValue)
         case JsonMessage(json) =>
           println("json message: " + json)
           send(("seen" -> "test1") ~ ("data" -> json))
-        case _ =>
+        case m =>
+          println("Got unknown message " + m.getClass + " " + m.toString)
       }
     }
   }
@@ -45,8 +49,8 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     withRequestResponse(request, response) {
       println(request.headers)
-      println(routeBasePath(request))
-      println(requestPath(request))
+      println("routeBasePath: " + routeBasePath(request))
+      println("requestPath: " + requestPath(request))
 
       super.handle(request, response)
     }
@@ -98,7 +102,7 @@ class AtmosphereSpec extends MutableScalatraSpec with NoTimeConversions {
   private val stringEncoder = (s: String) => s
   private val stringDecoder = (s: String) => s
 
-
+  sequential
 
   "To support Atmosphere, Scalatra" should {
 
@@ -114,21 +118,29 @@ class AtmosphereSpec extends MutableScalatraSpec with NoTimeConversions {
 //      val client = ClientFactory.getDefault.newClient()
 //      val req = (client.newRequestBuilder()
 //                  method Get
-//                  uri (baseUrl + "/echo")
-//                  encoder stringEncoder
-//                  decoder stringDecoder
+//                  uri (baseUrl + "/test1")
+//
 //                  transport LongPolling)
-//      (client.create()
-//       on { (s: String) =>
-//        println(s)
-//        latch.countDown()
-//       }
-//       on printIOException
-//       open req.build()
-//       fire "hello"
-//       fire """{"id":1}""")
+//      val opts = new org.atmosphere.wasync.Options.OptionsBuilder().reconnect(false).build()
+//      val conn = client.create(opts)
+//      conn.on(new Function[AnyRef] {
+//        def on(t: AnyRef) {
+//          println("Got Anyref " + t)
+//        }
+//      })
+//      (conn
+//         on { (s: String) =>
+//          println("Got String: " + s)
+//          latch.countDown()
+//         }
+////         on printIOException
+//         open req.build()
+//         fire "hello"
+//         fire """{"id":1}"""
+//         done())
 //
 //      latch.await(5, TimeUnit.SECONDS) must beTrue
+
       pending
     }
   }

@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 import xml._
 import concurrent.ExecutionContext
 
-class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValueResult with SessionSupport with AtmosphereSupport {
+class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with AtmosphereSupport {
   implicit protected val jsonFormats: Formats = DefaultFormats
 
   import ExecutionContext.Implicits.global
@@ -20,7 +20,8 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
       title = "Scalatra Atmosphere Chat",
       content = bodyHtml,
       url = url(_),
-      scripts = "/jquery/jquery.atmosphere.js" :: "/jquery/application.js" :: Nil
+      scripts = "/jquery/jquery.atmosphere.js" :: "/jquery/application.js" :: Nil,
+      defaultScripts = "/jquery/jquery-1.9.0.js" :: "/assets/js/bootstrap.min.js" :: Nil
     )
   }
 
@@ -58,7 +59,7 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
 
         case JsonMessage(json) =>
           println("Got message %s from %s".format((json \ "message").extract[String], (json \ "author").extract[String]))
-          val msg = json merge (("time" -> (new Date().getTime().toString)): JValue)
+          val msg = json merge (("time" -> (new Date().getTime.toString)): JValue)
           broadcast(msg) // by default a broadcast is to everyone but self
 //          send(msg) // also send to the sender
       }

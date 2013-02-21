@@ -230,12 +230,13 @@ object ScalatraBuild extends Build {
  lazy val scalatraExample = Project(
    id = "scalatra-example",
    base = file("example"),
-   settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
+   settings = scalatraSettings ++ webSettings ++ doNotPublish ++ WarOverlayPlugin.warOverlaySettings ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApi % "container;test",
      libraryDependencies += jettyWebsocket % "container;test",
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      libraryDependencies += json4sJackson,
+     libraryDependencies += atmosphereJQuery,
      description := "Scalatra example project",
      LsKeys.skipWrite := true
    )
@@ -248,7 +249,8 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)
-    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.1.0.beta3"
+    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.1.0-SNAPSHOT"
+    lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.1.0-SNAPSHOT" artifacts(Artifact("atmosphere-jquery", "war", "war"))
     lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.beta1"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"

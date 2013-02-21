@@ -6,6 +6,7 @@ import scala.concurrent.duration._
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.cpr.AtmosphereResource
 import scala.util.control.Exception._
+import java.util.concurrent.Executors
 
 package object atmosphere {
 
@@ -15,6 +16,7 @@ package object atmosphere {
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
   val AtmosphereRouteKey = "org.scalatra.atmosphere.AtmosphereRoute"
   val ActorSystemKey = "org.scalatra.atmosphere.ActorSystem"
+  val TrackMessageSize = "org.scalatra.atmosphere.TrackMessageSize"
 
   import org.scalatra.servlet.ServletApiImplicits._
 
@@ -43,4 +45,6 @@ package object atmosphere {
       }
     }
   }
+
+//  private[atmoshpere] val atmoScheduler = Executors.newScheduledThreadPool(1)
 }

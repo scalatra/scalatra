@@ -63,21 +63,20 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
   def onRequest(resource: AtmosphereResource) {
     val req = resource.getRequest
-    val method = req.requestMethod
-    val route = Option(req.getAttribute(AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
+    val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
     var session = resource.session()
-    val isNew = !session.contains(AtmosphereClientKey)
+    val isNew = !session.contains(org.scalatra.atmosphere.AtmosphereClientKey)
 
-    if (method == Post) {
-      var client : AtmosphereClient = null
-      if (isNew) {
-        session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
-      }
+    (req.requestMethod, route.isDefined) match {
+      case (Post, _) =>
+        var client : AtmosphereClient = null
+        if (isNew) {
+          session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
+        }
 
-      client = session(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
-      handleIncomingMessage(req, client)
-    } else {
-      if (route.isDefined) {
+        client = session(org.scalatra.atmosphere.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+        handleIncomingMessage(req, client)
+      case (_, true) =>
         if (isNew) {
           createClient(route.get, session, resource).receive.lift(Connected)
         }
@@ -86,18 +85,16 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
         resumeIfNeeded(resource)
         configureBroadcaster(resource)
         resource.suspend
-      } else {
+      case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
         internalLogger.warn(ex.getMessage)
         throw ex
-      }
-
     }
   }
 
   private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
     val client = clientForRoute(route)
-    session(AtmosphereClientKey) = client
+    session(org.scalatra.atmosphere.AtmosphereClientKey) = client
     client.resource = resource
     client
   }
