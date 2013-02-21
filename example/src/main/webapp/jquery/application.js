@@ -15,7 +15,7 @@ $(function() {
 //  var transport = 'websocket';
 
   var request = {
-    url: "/atmosphere/the-chat",
+    url: "/atmosphere/multiroom/scalatra",
     contentType: "application/json",
     logLevel: 'debug',
     transport: transport,
