@@ -20,6 +20,7 @@ $(function() {
     logLevel: 'debug',
     transport: transport,
     trackMessageLength : true,
+    enableProtocol: true, /* needed for long-polling transport */
 //    fallbackTransport: 'long-polling'
     fallbackTransport: 'websocket'
   };

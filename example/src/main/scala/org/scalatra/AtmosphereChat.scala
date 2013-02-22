@@ -17,7 +17,7 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with Atmosp
       content = bodyHtml,
       url = url(_),
       scripts = "/jquery/jquery.atmosphere.js" :: "/jquery/application.js" :: Nil,
-      defaultScripts = "/jquery/jquery-1.9.0.js" :: "/assets/js/bootstrap.min.js" :: Nil
+      defaultScripts = "/jquery/jquery-1.7.2.js" :: "/assets/js/bootstrap.min.js" :: Nil
     )
   }
 
@@ -83,8 +83,12 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with Atmosp
         case JsonMessage(json) =>
           println("Got message %s from %s in room: %s".format((json \ "message").extract[String], (json \ "author").extract[String], room))
           val msg = json merge (("time" -> (new Date().getTime.toString)): JValue)
-          broadcast(msg) // by default a broadcast is to everyone but self
-//          send(msg) // also send to the sender
+
+          broadcast(msg, to = Others) // this is the default
+//          broadcast(msg, to = Everyone) // Send to all connected clients for this route
+//          broadcast(msg) // by default a broadcast is to everyone but self
+//          broadcast(msg, to = Me) // Only send to current connection
+//          send(msg) // Only send to current connection
       }
     }
   }

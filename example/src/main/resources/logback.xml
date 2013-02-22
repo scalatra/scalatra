@@ -8,7 +8,8 @@
     </encoder>
   </appender>
 
-  <root level="debug">
+  <logger name="org.scalatra" level="DEBUG"/>
+  <root level="WARN">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

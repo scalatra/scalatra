@@ -30,17 +30,10 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
-
-//      event.getResource.session.removeAttribute(org.scalatra.atmosphere.AtmosphereClientKey)
-      if (event.isCancelled) {
-        val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
-        event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
-//        if (!event.getResource.isResumed) {
-//           event.getResource.session.invalidate()
-//         }
-
-      }
+      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
+      if (!event.getResource.isResumed) event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
       activeClients -= event.getResource.uuid()
+
     }
 
     def onResume(event: AtmosphereResourceEvent) {}
@@ -58,7 +51,7 @@ class ScalatraAtmosphereException(message: String) extends ScalatraException(mes
 class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
 
-  private[this] val internalLogger = Logger(getClass)
+  private[this] val internalLogger = Logger("org.scalatra.atmosphere.AtmosphereClient")
 
 //  private[this] val clientsForResources =
 
@@ -72,7 +65,10 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
     (req.requestMethod, route.isDefined) match {
       case (Post, _) =>
-        clientOption map (handleIncomingMessage(req, _))
+        clientOption map { client =>
+          client.resource = resource
+          handleIncomingMessage(req, client)
+        }
       case (Get, true) =>
         if (isNew) {
           createClient(route.get, resource).receive.lift(Connected)
@@ -81,6 +77,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
         addEventListener(resource)
         resumeIfNeeded(resource)
         configureBroadcaster(resource)
+//        resource.getResponse.getAsyncIOWriter.write(resource.uuid).flush()
         resource.suspend
       case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
