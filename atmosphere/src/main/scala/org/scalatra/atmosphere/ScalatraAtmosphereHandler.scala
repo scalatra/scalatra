@@ -30,6 +30,7 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
+
 //      event.getResource.session.removeAttribute(org.scalatra.atmosphere.AtmosphereClientKey)
       if (event.isCancelled) {
         val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
@@ -39,6 +40,7 @@ object ScalatraAtmosphereHandler {
 //         }
 
       }
+      activeClients -= event.getResource.uuid()
     }
 
     def onResume(event: AtmosphereResourceEvent) {}
@@ -52,19 +54,20 @@ object ScalatraAtmosphereHandler {
 }
 
 class ScalatraAtmosphereException(message: String) extends ScalatraException(message)
+
 class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import ScalatraAtmosphereHandler._
 
   private[this] val internalLogger = Logger(getClass)
+
 //  private[this] val clientsForResources =
 
   def onRequest(resource: AtmosphereResource) {
+    internalLogger.debug("Got an atmosphere resource with uuid: " + resource.uuid)
     val req = resource.getRequest
     val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
-    val broadcasterOption = lookupBroadcaster(resource)
     val clientOption = resource.clientOption
     val isNew = clientOption.isEmpty
-    internalLogger.debug("The broadcaster: %s".format(broadcasterOption.map(_.getClass.getName)))
     internalLogger.debug("This is a new client? " + isNew)
 
     (req.requestMethod, route.isDefined) match {
@@ -98,7 +101,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   val req = resource.getRequest
     withRouteMultiParams(route, req) {
       val client = clientForRoute(route)
-      req(org.scalatra.atmosphere.AtmosphereClientKey) = client
+      activeClients(resource.uuid) = client
       client.resource = resource
       client
     }

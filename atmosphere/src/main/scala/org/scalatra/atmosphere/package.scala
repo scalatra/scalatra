@@ -7,7 +7,9 @@ import _root_.akka.util.duration._
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.cpr.AtmosphereResource
 import scala.util.control.Exception._
-import java.util.concurrent.Executors
+import java.util.concurrent.{ConcurrentHashMap, Executors}
+import collection.mutable
+import collection.JavaConverters._
 
 package object atmosphere {
 
@@ -19,11 +21,11 @@ package object atmosphere {
   val ActorSystemKey = "org.scalatra.atmosphere.ActorSystem"
   val TrackMessageSize = "org.scalatra.atmosphere.TrackMessageSize"
 
-  import org.scalatra.servlet.ServletApiImplicits._
+  private[atmosphere] val activeClients: mutable.ConcurrentMap[String, AtmosphereClient] = new ConcurrentHashMap[String, AtmosphereClient].asScala
 
   implicit def atmoResourceWithClient(res: AtmosphereResource) = new {
-    def clientOption = res.getRequest.get(AtmosphereClientKey).map(_.asInstanceOf[AtmosphereClient])
-    def client = res.getRequest()(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+    def clientOption = activeClients.get(res.uuid)
+    def client = activeClients(res.uuid)
   }
 
   private[atmosphere] implicit def jucFuture2akkaFuture[T](javaFuture: java.util.concurrent.Future[T])(implicit system: ActorSystem): Future[T] = {
