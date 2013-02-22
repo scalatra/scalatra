@@ -19,11 +19,7 @@ object ScalatraAtmosphereHandler {
   val AtmosphereRouteKey = org.scalatra.atmosphere.AtmosphereRouteKey
 
   private class ScalatraResourceEventListener extends AtmosphereResourceEventListener {
-    def client(resource: AtmosphereResource) =
-      Option(resource.session()).flatMap(_.get(org.scalatra.atmosphere.AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
 
-
-    def onPreSuspend(event: AtmosphereResourceEvent) {}
 
     def onBroadcast(event: AtmosphereResourceEvent) {
       val resource = event.getResource
@@ -34,13 +30,13 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
-      event.getResource.session.removeAttribute(org.scalatra.atmosphere.AtmosphereClientKey)
+//      event.getResource.session.removeAttribute(org.scalatra.atmosphere.AtmosphereClientKey)
       if (event.isCancelled) {
         val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
-        client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
-        if (!event.getResource.isResumed) {
-           event.getResource.session.invalidate()
-         }
+        event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+//        if (!event.getResource.isResumed) {
+//           event.getResource.session.invalidate()
+//         }
 
       }
     }
@@ -50,7 +46,7 @@ object ScalatraAtmosphereHandler {
     def onSuspend(event: AtmosphereResourceEvent) {}
 
     def onThrowable(event: AtmosphereResourceEvent) {
-      client(event.getResource) foreach (_.receive.lift(Error(Option(event.throwable()))))
+      event.getResource.clientOption foreach (_.receive.lift(Error(Option(event.throwable()))))
     }
   }
 }
@@ -60,25 +56,23 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   import ScalatraAtmosphereHandler._
 
   private[this] val internalLogger = Logger(getClass)
+//  private[this] val clientsForResources =
 
   def onRequest(resource: AtmosphereResource) {
     val req = resource.getRequest
     val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
-    var session = resource.session()
-    val isNew = !session.contains(org.scalatra.atmosphere.AtmosphereClientKey)
+    val broadcasterOption = lookupBroadcaster(resource)
+    val clientOption = resource.clientOption
+    val isNew = clientOption.isEmpty
+    internalLogger.debug("The broadcaster: %s".format(broadcasterOption.map(_.getClass.getName)))
+    internalLogger.debug("This is a new client? " + isNew)
 
     (req.requestMethod, route.isDefined) match {
       case (Post, _) =>
-        var client : AtmosphereClient = null
+        clientOption map (handleIncomingMessage(req, _))
+      case (Get, true) =>
         if (isNew) {
-          session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
-        }
-
-        client = session(org.scalatra.atmosphere.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
-        handleIncomingMessage(req, client)
-      case (_, true) =>
-        if (isNew) {
-          createClient(route.get, session, resource).receive.lift(Connected)
+          createClient(route.get, resource).receive.lift(Connected)
         }
 
         addEventListener(resource)
@@ -87,22 +81,24 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
         resource.suspend
       case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
-        internalLogger.warn(ex.getMessage)
+        internalLogger.warn(ex.getMessage, ex)
         throw ex
     }
   }
 
-  private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
-    withRouteMultiParams(route, resource.getRequest) {
-      val client = clientForRoute(route)
-      session(org.scalatra.atmosphere.AtmosphereClientKey) = client
-      client.resource = resource
-      client
-    }
-  }
+//  private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
+//    withRouteMultiParams(route, resource.getRequest) {
+//      val client = clientForRoute(route)
+//      session(org.scalatra.atmosphere.AtmosphereClientKey) = client
+//      client.resource = resource
+//      client
+//    }
+//  }
   private[this] def createClient(route: MatchedRoute, resource: AtmosphereResource) = {
-    withRouteMultiParams(route, resource.getRequest) {
+  val req = resource.getRequest
+    withRouteMultiParams(route, req) {
       val client = clientForRoute(route)
+      req(org.scalatra.atmosphere.AtmosphereClientKey) = client
       client.resource = resource
       client
     }
@@ -124,8 +120,12 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     resource.setBroadcaster(bc)
   }
 
+  private[this] def lookupBroadcaster(resource: AtmosphereResource) = {
+    Option(BroadcasterFactory.getDefault.lookup(requestUri(resource))) map (_.asInstanceOf[ScalatraBroadcaster])
+  }
   private[this] def handleIncomingMessage(req: AtmosphereRequest, client: AtmosphereClient) {
     val parsed: InboundMessage = wireFormat.parseInMessage(readBody(req))
+    internalLogger.debug("Handling incoming message: " + parsed)
     client.receive.lift(parsed)
   }
 

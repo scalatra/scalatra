@@ -233,7 +233,7 @@ object ScalatraBuild extends Build {
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApi % "container;test",
      libraryDependencies += jettyWebsocket % "container;test",
-     libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
+     libraryDependencies ++= Seq(jettyWebapp % "container;test", logbackClassic),
      libraryDependencies += json4sJackson,
      libraryDependencies += atmosphereJQuery,
      description := "Scalatra example project",
@@ -288,6 +288,7 @@ object ScalatraBuild extends Build {
     lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross
     lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
     lazy val testng                     =  "org.testng"              %  "testng"             % "6.8"
+
 
     type MM = String => ModuleID
 

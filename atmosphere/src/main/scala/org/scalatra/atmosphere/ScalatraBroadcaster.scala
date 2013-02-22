@@ -6,10 +6,11 @@ import _root_.akka.dispatch._
 import collection.JavaConverters._
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
-import org.json4s.Formats
+import java.net.URI
 
+final class ScalatraBroadcaster(name: String, uri: URI, config: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends DefaultBroadcaster(name, uri, config) {
 
-final class ScalatraBroadcaster(id: String, config: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends DefaultBroadcaster(id, config) {
+  def this(name: String, config: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) = this(name, URI.create("http://localhost"), config)
 
   private[this] val logger: Logger = Logger[ScalatraBroadcaster]
 

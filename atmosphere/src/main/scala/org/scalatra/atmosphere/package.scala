@@ -22,8 +22,8 @@ package object atmosphere {
   import org.scalatra.servlet.ServletApiImplicits._
 
   implicit def atmoResourceWithClient(res: AtmosphereResource) = new {
-    def clientOption = res.session.get(AtmosphereClientKey).asInstanceOf[Option[AtmosphereClient]]
-    def client = res.session.apply(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+    def clientOption = res.getRequest.get(AtmosphereClientKey).map(_.asInstanceOf[AtmosphereClient])
+    def client = res.getRequest()(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
   }
 
   private[atmosphere] implicit def jucFuture2akkaFuture[T](javaFuture: java.util.concurrent.Future[T])(implicit system: ActorSystem): Future[T] = {
@@ -47,5 +47,5 @@ package object atmosphere {
     }
   }
 
-//  private[atmoshpere] val atmoScheduler = Executors.newScheduledThreadPool(1)
+//  private[atmosphere] val atmoScheduler = Executors.newSingleThreadScheduledExecutor()
 }

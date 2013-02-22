@@ -21,12 +21,11 @@ import grizzled.slf4j.Logger
 import com.typesafe.config.ConfigFactory
 import scala.util.control.Exception.allCatch
 import org.atmosphere.client.TrackMessageSizeInterceptor
-import org.atmosphere.interceptor.SessionCreationInterceptor
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import servlet.ScalatraAsyncSupport
 import java.util
 
-trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 
@@ -58,19 +57,15 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       ActorSystem("scalatra", cfg.getConfig("scalatra").withFallback(defRef))
     }
 
-  private[this] implicit def filterConfig2servletConfig(fc: FilterConfig): ServletConfig = {
-    new ServletConfig {
-      def getInitParameter(name: String): String = getServletContext.getInitParameter(name)
-      def getInitParameterNames() = getServletContext.getInitParameterNames()
-      def getServletName() = fc.getFilterName()
-      def getServletContext() = fc.getServletContext()
-    }
-  }
-
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
     val cfg: ServletConfig = config match {
-      case c: FilterConfig => c
+      case fc: FilterConfig => new ServletConfig {
+        def getInitParameter(name: String): String = getServletContext.getInitParameter(name)
+        def getInitParameterNames = getServletContext.getInitParameterNames
+        def getServletName = fc.getFilterName
+        def getServletContext = fc.getServletContext
+      }
       case c: ServletConfig => new ServletConfig {
         def getInitParameterNames: util.Enumeration[String] = getServletContext.getInitParameterNames
         def getServletName: String = c.getServletName
@@ -80,7 +75,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
 
     allCatch.withApply(ex => logger.error(ex.getMessage, ex)) {
-      atmosphereFramework.enableSessionSupport()
+//      atmosphereFramework.enableSessionSupport()
       configureBroadcasterCache()
       configureBroadcasterFactory()
       configureInterceptors(cfg)
@@ -90,7 +85,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   }
 
   protected def configureInterceptors(cfg: ServletConfig) = {
-    atmosphereFramework.interceptor(new SessionCreationInterceptor)
+//    atmosphereFramework.interceptor(new SessionCreationInterceptor)
     if (cfg.getInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT).isBlank)
       cfg.getServletContext.setInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT, "true")
     if (cfg.getInitParameter(TrackMessageSize).blankOption.map(_.toCheckboxBool).getOrElse(false))
@@ -124,7 +119,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       val atmoRoute = atmosphereRoute(request)
       if (atmoRoute.isDefined) {
         request(AtmosphereRouteKey) = atmoRoute.get
-        request.getSession(true) // force session creation
+//        request.getSession(true) // force session creation
         if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER).isEmpty)
           atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
       } else {
@@ -142,8 +137,8 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] def configureBroadcasterFactory() {
     val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig)
-    atmosphereFramework.setBroadcasterFactory(factory)
     atmosphereFramework.setDefaultBroadcasterClassName(classOf[ScalatraBroadcaster].getName)
+    atmosphereFramework.setBroadcasterFactory(factory)
   }
 
   private[this] def configureBroadcasterCache() {
