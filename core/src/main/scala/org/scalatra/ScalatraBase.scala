@@ -604,17 +604,17 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     )
   }
 
-  private[this] def serverAuthority = {
+  private[this] def serverAuthority(implicit request: HttpServletRequest) = {
     val p = serverPort
     val h = serverHost
     if (p == 80 || p == 443) h else h + ":" + p.toString
   }
 
-  def serverHost = {
+  def serverHost(implicit request: HttpServletRequest) = {
     servletContext.getInitParameter(HostNameKey).blankOption getOrElse request.getServerName
   }
 
-  def serverPort = {
+  def serverPort(implicit request: HttpServletRequest) = {
     servletContext.getInitParameter(PortKey).blankOption.map(_.toInt) getOrElse request.getServerPort
   }
 
