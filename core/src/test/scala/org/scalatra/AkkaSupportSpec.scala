@@ -1,7 +1,7 @@
 package org.scalatra
 
 import _root_.akka.actor._
-import _root_.akka.dispatch.Await
+import _root_.akka.dispatch.{Future, Await}
 import _root_.akka.pattern.ask
 import _root_.akka.actor.SupervisorStrategy._
 import _root_.akka.util.duration._
@@ -13,6 +13,18 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   val system = ActorSystem()
   protected implicit val executor = system.dispatcher
   override def asyncTimeout = 2 seconds
+
+  get("/redirect") {
+    new AsyncResult {
+      val is: Future[_] = Future {
+        redirect("redirected")
+      }
+    }
+  }
+
+  get("/redirected") {
+    "redirected"
+  }
 
   asyncGet("/working") {
     "the-working-reply"
@@ -80,6 +92,13 @@ class AkkaSupportSpec extends MutableScalatraSpec {
     "infers the content type of the future result" in {
       get("/foo.jpg") {
         header("Content-Type") must startWith ("image/jpeg")
+      }
+    }
+
+    "redirect with the redirect method" in {
+      get("/redirect") {
+        status must_== 302
+        response.header("Location") must_== (baseUrl + "/redirected")
       }
     }
   }
