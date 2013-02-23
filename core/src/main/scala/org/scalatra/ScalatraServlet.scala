@@ -72,30 +72,31 @@ abstract class ScalatraServlet
         var uri = requestURI
         if (request.getContextPath != null && request.getContextPath.trim.nonEmpty) uri = uri.substring(request.getContextPath.length)
         if (request.getServletPath != null && request.getServletPath.trim.nonEmpty) uri = uri.substring(request.getServletPath.length)
-        if (uri.isEmpty) {
-          uri = "/"
-        } else {
+        val dec = if (uri.isEmpty) "/"
+        else {
           val pos = uri.indexOf(';')
-          if (pos >= 0) uri = uri.substring(0, pos)
+          if (pos >= 0) uri.substring(0, pos)
+          else uri
         }
-        UriDecoder.firstStep(uri)
+        UriDecoder.firstStep(dec)
       case null => "/"
     }
 
-    request.get("org.scalatra.ScalatraServlet.requestPath") match {
-      case Some(uri) => uri.toString
+    request.getAs[String]("org.scalatra.ScalatraServlet.requestPath") match {
+      case Some(uri) => uri
       case _         => {
         val requestPath = getRequestPath
-        request.setAttribute("org.scalatra.ScalatraServlet.requestPath", requestPath)
-        requestPath.toString
+        request("org.scalatra.ScalatraServlet.requestPath") = requestPath
+        requestPath
       }
     }
   }
 
   protected def routeBasePath(implicit request: HttpServletRequest) = {
-    if (request == null)
-      throw new IllegalStateException("routeBasePath requires an active request to determine the servlet path")
-    request.getContextPath + request.getServletPath
+    require(config != null, "routeBasePath requires the servlet to be initialize")
+    require(request != null, "routeBasePath requires an active request to determine the servlet path")
+
+    servletContext.getContextPath + request.getServletPath
   }
 
   /**

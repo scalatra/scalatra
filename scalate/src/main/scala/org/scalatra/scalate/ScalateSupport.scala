@@ -75,17 +75,17 @@ trait ScalateSupport extends ScalatraKernel {
    */
   trait ScalatraTemplateEngine {
     this: TemplateEngine =>
-    /**
-     * Returns a ServletRenderContext constructed from the current
-     * request and response.
-     */
-    override def createRenderContext(uri: String, out: PrintWriter) = {
-      val ctx = ScalateSupport.this.createRenderContext(out = out)
-      ScalateSupport.this.templateAttributes foreach {
-        case (name, value) => ctx.setAttribute(name, Some(value))
-      }
-      ctx
-    }
+//    /**
+//     * Returns a ServletRenderContext constructed from the current
+//     * request and response.
+//     */
+//    override def createRenderContext(uri: String, out: PrintWriter) = {
+//      val ctx = ScalateSupport.this.createRenderContext(out = out)
+//      ScalateSupport.this.templateAttributes foreach {
+//        case (name, value) => ctx.setAttribute(name, Some(value))
+//      }
+//      ctx
+//    }
 
     /**
      * Delegates to the ScalatraKernel's isDevelopmentMode flag.
@@ -107,8 +107,9 @@ trait ScalateSupport extends ScalatraKernel {
    * If you return something other than a ScalatraRenderContext, you will
    * also want to redefine that binding.
    */
-  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response, out: PrintWriter = response.getWriter): RenderContext =
+  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response, out: PrintWriter = response.getWriter): RenderContext = {
     new ScalatraRenderContext(this, templateEngine, out, req, resp)
+  }
 
   /**
    * Creates a render context and renders directly to that.  No template
@@ -136,6 +137,12 @@ trait ScalateSupport extends ScalatraKernel {
     }
   }
 
+
+  override protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+    if (isScalateErrorPageEnabled) renderScalateErrorPage(request, response, e)
+    else super.renderUncaughtException(e)
+  }
+
   // Hack: Have to pass it the request and response, because we're outside the
   // scope of the super handler.
   private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
@@ -155,7 +162,7 @@ trait ScalateSupport extends ScalatraKernel {
   /**
    * The default template format.
    */
-  protected def defaultTemplateFormat: String = "scaml"
+  protected def defaultTemplateFormat: String = "jade"
 
   /**
    * The default path to search for templates.  Left as a def so it can be
@@ -236,7 +243,7 @@ trait ScalateSupport extends ScalatraKernel {
    * @param attributes Attributes to path to the render context.  Disable
    * layouts by passing `layout -> ""`.
    */
-  protected def layoutTemplate(path: String, attributes: (String, Any)*): String =
+  protected def layoutTemplate(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
     layoutTemplateAs(templateEngine.extensions)(path, attributes :_*)
 
   /**

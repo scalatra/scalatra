@@ -53,7 +53,6 @@ trait FutureSupport extends AsyncSupport {
     else
       context.setTimeout(-1)
     context addListener (new AsyncListener {
-      def onComplete(event: AsyncEvent) {}
 
       def onTimeout(event: AsyncEvent) {
         onAsyncEvent(event) {
@@ -64,8 +63,8 @@ trait FutureSupport extends AsyncSupport {
         }
       }
 
+      def onComplete(event: AsyncEvent) {}
       def onError(event: AsyncEvent) {}
-
       def onStartAsync(event: AsyncEvent) {}
     })
 
@@ -73,17 +72,25 @@ trait FutureSupport extends AsyncSupport {
       case a ⇒ {
         withinAsyncContext(context) {
           if (gotResponseAlready.compareAndSet(false, true)) {
-            a.fold(
-              _ match {
-                case e: HaltException ⇒ renderHaltException(e)
-                case e ⇒ renderResponse(errorHandler(e))
-              },
-              r => {
-                runFilters(routes.afterFilters)
-                super.renderResponse(r)
-              }
-            )
-            context.complete()
+            try {
+              a.fold(
+                _ match {
+                  case e: HaltException ⇒ renderHaltException(e)
+                  case e ⇒
+                    try {
+                      renderResponse(errorHandler(e))
+                    } catch {
+                      case e => renderUncaughtException(e)
+                    }
+                },
+                r => {
+                  runFilters(routes.afterFilters)
+                  super.renderResponse(r)
+                }
+              )
+            } finally {
+              context.complete()
+            }
           }
         }
       }

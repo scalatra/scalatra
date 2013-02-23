@@ -2,6 +2,7 @@ package org.scalatra
 
 import util.MultiMap
 import javax.activation.MimetypesFileTypeMap
+import javax.servlet.http.HttpServletRequest
 
 /**
  * A route is a set of matchers and an action.  A route is considered to match
@@ -12,7 +13,7 @@ import javax.activation.MimetypesFileTypeMap
 case class Route(
   routeMatchers: Seq[RouteMatcher] = Seq.empty,
   action: Action,
-  contextPath: () => String = () => "",
+  contextPath: HttpServletRequest => String = _ => "",
   metadata: Map[Symbol, Any] = Map.empty
 )
 {
@@ -49,9 +50,9 @@ case class Route(
 
 object Route {
   def apply(transformers: Seq[RouteTransformer], action: Action): Route =
-    apply(transformers, action, () => "")
+    apply(transformers, action, (_: HttpServletRequest) => "")
   
-  def apply(transformers: Seq[RouteTransformer], action: Action, contextPath: () => String): Route = {
+  def apply(transformers: Seq[RouteTransformer], action: Action, contextPath: HttpServletRequest => String): Route = {
     val route = Route(action = action, contextPath = contextPath)
     transformers.foldLeft(route){ (route, transformer) => transformer(route) }
   }

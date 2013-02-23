@@ -275,7 +275,7 @@ object ScalatraBuild extends Build {
     lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.9"
     lazy val mimeUtil                   =  "eu.medsea.mimeutil"      % "mime-util"           % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
-    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.2"
+    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.3"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
