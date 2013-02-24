@@ -50,7 +50,7 @@ object Swagger {
         descr match {
           case descriptor: ClassDescriptor =>
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
-            val propModels = descriptor.properties.filterNot(_.isPrimitive)
+            val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
             val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
             val topLevel = for {
               tl <- (subModels + descriptor.erasure)
