@@ -378,8 +378,8 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       case a => loop(renderPipeline.lift(a) getOrElse())
     }
     try {
-      loop(actionResult)
       runCallbacks(Success(actionResult))
+      loop(actionResult)
     } catch {
       case e: Throwable =>
         runCallbacks(Failure(e))
