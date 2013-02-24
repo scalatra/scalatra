@@ -139,7 +139,6 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * $ 5. The action result is passed to `renderResponse`.
    */
   protected def executeRoutes() {
-
     var result: Any = null
     var rendered = true
 
@@ -374,15 +373,18 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * @see #renderPipeline
    */
   protected def renderResponseBody(actionResult: Any) {
+    @tailrec def loop(ar: Any): Any = ar match {
+      case _: Unit | Unit => runRenderCallbacks(Success(actionResult))
+      case a => loop(renderPipeline.lift(a) getOrElse())
+    }
     try {
-      runCallbacks(Success(actionResult))
-      @tailrec def loop(ar: Any): Any = ar match {
-        case _: Unit | Unit => runRenderCallbacks(Success(actionResult))
-        case a => loop(renderPipeline.lift(a) getOrElse())
-      }
       loop(actionResult)
+      runCallbacks(Success(actionResult))
     } catch {
-      case e: Throwable => renderUncaughtException(e)
+      case e: Throwable =>
+        runCallbacks(Failure(e))
+        renderUncaughtException(e)
+        runCallbacks(Failure(e))
     }
   }
 
@@ -489,6 +491,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       case e: Throwable =>
         runCallbacks(Failure(e))
         renderUncaughtException(e)
+        runCallbacks(Failure(e))
     }
   }
 
