@@ -83,8 +83,7 @@ class ScalatraRenderContext(
    * @throws IllegalStateException if the route's base path cannot be
    * determined.  This may occur outside of an HTTP request's lifecycle.
    */
-  def url(route: Route, params: Pair[String, String]*): String =
-    url(route, params.toMap, Seq.empty)
+  def url(route: Route, params: (String, String)*): String = UrlGenerator.url(route, params:_*)(request)
 
   /**
    * Calculate a URL for a reversible route and some splats.
@@ -97,8 +96,7 @@ class ScalatraRenderContext(
    * @throws IllegalStateException if the route's base path cannot be
    * determined.  This may occur outside of an HTTP request's lifecycle.
    */
-  def url(route: Route, splat: String, moreSplats: String*): String =
-    url(route, Map[String, String](), splat +: moreSplats)
+  def url(route: Route, splat: String, moreSplats: String*): String = UrlGenerator.url(route, splat, moreSplats:_*)(request)
 
   /**
    * Calculate a URL for a reversible route, some params, and some splats.
@@ -114,36 +112,5 @@ class ScalatraRenderContext(
   def url(
     route: Route,
     params: Map[String, String],
-    splats: Iterable[String]
-  ): String = {
-
-    route.reversibleMatcher match {
-      case Some(matcher: ReversibleRouteMatcher) =>
-        withRouteMultiParams(MatchedRoute(route.action, multiParams)) {
-          println("multiparams " + multiParams)
-          route.contextPath(request) + matcher.reverse(params, splats.toList)
-        }
-      case _ =>
-        throw new Exception("Route \"%s\" is not reversible" format (route))
-    }
-  }
-
-
-  private[this] def withRouteMultiParams[S](matchedRoute: MatchedRoute)(thunk: => S): S = {
-    val originalParams = multiParams
-    setMultiparams(matchedRoute, originalParams)
-    try {
-      thunk
-    } finally {
-      request(MultiParamsKey) = originalParams
-    }
-  }
-
-  def setMultiparams[S](matchedRoute: MatchedRoute, originalParams: MultiParams) {
-    val routeParams = matchedRoute.multiParams map {
-      case (key, values) =>
-        key -> values.map(UriDecoder.secondStep(_))
-    }
-    request(MultiParamsKey) = originalParams ++ routeParams
-  }
+    splats: Iterable[String]): String = UrlGenerator.url(route, params, splats)(request)
 }
