@@ -136,6 +136,20 @@ trait FlashMapSupport extends Handler {
     withRequest(req) {
       val f = flash
       val isOutermost = !req.contains(LockKey)
+      ScalatraBase onCompleted { _ =>
+        /*
+         * http://github.com/scalatra/scalatra/issues/41
+         * http://github.com/scalatra/scalatra/issues/57
+         *
+         * Only the outermost FlashMapSupport sweeps it at the end.
+         * This deals with both nested filters and redirects to other servlets.
+         */
+        if (isOutermost) {
+          f.sweep()
+        }
+        flashMapSetSession(f)
+      }
+
       if (isOutermost) {
         req(LockKey) = "locked"
         if (sweepUnusedFlashEntries(req)) {
@@ -143,17 +157,6 @@ trait FlashMapSupport extends Handler {
         }
       }
       super.handle(req, res)
-      /*
-       * http://github.com/scalatra/scalatra/issues/41
-       * http://github.com/scalatra/scalatra/issues/57
-       *
-       * Only the outermost FlashMapSupport sweeps it at the end.  
-       * This deals with both nested filters and redirects to other servlets.
-       */
-      if (isOutermost) {
-        f.sweep()
-      }
-      flashMapSetSession(f)
     }
   }
   

@@ -48,4 +48,3 @@ trait HasMultipartConfig extends Initializable { self: { def servletContext: Ser
     providedConfig = Some(config)
   }
 }
-

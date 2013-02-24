@@ -32,15 +32,27 @@ trait FutureSupport extends AsyncSupport {
   // In the meantime, this gives us enough control for our test.
   // IPC: it may not be perfect but I need to be able to configure this timeout in an application
   // this is a duration because durations have a concept of infinity unlike timeouts
+  @deprecated("Override the `timeout` method on a `org.scalatra.AsyncResult` instead.", "2.2")
   protected def asyncTimeout: Duration = 30 seconds
 
 
-  override protected def isAsyncExecutable(result: Any) = classOf[Future[_]].isAssignableFrom(result.getClass)
+  override protected def isAsyncExecutable(result: Any) =
+    classOf[Future[_]].isAssignableFrom(result.getClass) ||
+      classOf[AsyncResult].isAssignableFrom(result.getClass)
 
   override protected def renderResponse(actionResult: Any) {
     actionResult match {
-      case r: AsyncResult ⇒ handleFuture(r.is, r.timeout)
-      case f: Future[_]   ⇒ handleFuture(f, asyncTimeout)
+      case r: AsyncResult ⇒
+        val req = request
+        setMultiparams(matchedRoute(req), multiParams(req))
+        val prelude = new AsyncResult {
+          val is: Future[_] = Future { setMultiparams(matchedRoute, multiParams) }
+        }
+        handleFuture(prelude.is flatMap (_ => r.is) , r.timeout)
+      case f: Future[_]   ⇒
+        val req = request
+        setMultiparams(matchedRoute(req), multiParams(req))
+        handleFuture(Future { setMultiparams(matchedRoute(req), multiParams(req))(req) } flatMap (_ => f), asyncTimeout)
       case a              ⇒ super.renderResponse(a)
     }
   }
@@ -73,21 +85,19 @@ trait FutureSupport extends AsyncSupport {
         withinAsyncContext(context) {
           if (gotResponseAlready.compareAndSet(false, true)) {
             try {
-              a.fold(
-                _ match {
-                  case e: HaltException ⇒ renderHaltException(e)
-                  case e ⇒
-                    try {
-                      renderResponse(errorHandler(e))
-                    } catch {
-                      case e => renderUncaughtException(e)
-                    }
-                },
-                r => {
-                  runFilters(routes.afterFilters)
-                  super.renderResponse(r)
-                }
-              )
+              a.right.map(renderResponse(_)).left.map {
+                case e: HaltException ⇒
+                  renderHaltException(e)
+                case e ⇒
+                  try {
+                    renderResponse(errorHandler(e))
+                  } catch {
+                    case e: Throwable =>
+                      ScalatraBase.runCallbacks(Left(e))
+                      renderUncaughtException(e)
+                      ScalatraBase.runRenderCallbacks(Left(e))
+                  }
+              }
             } finally {
               context.complete()
             }

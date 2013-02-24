@@ -9,8 +9,8 @@ import scala.annotation.tailrec
 import util._
 import util.RicherString._
 import rl.UrlCodingUtils
-import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{Filter, ServletContext}
+import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import scala.util.control.Exception._
 import org.scalatra.ScalatraBase._
 
@@ -31,6 +31,39 @@ object ScalatraBase {
   val HostNameKey = "org.scalatra.HostName"
   val PortKey = "org.scalatra.Port"
   val ForceHttpsKey = "org.scalatra.ForceHttps"
+
+  private[this] val KeyPrefix = classOf[FutureSupport].getName
+  val Callbacks = KeyPrefix + ".callbacks"
+  val RenderCallbacks = KeyPrefix + ".renderCallbacks"
+  val IsAsyncKey = KeyPrefix + ".isAsync"
+
+  import servlet.ServletApiImplicits._
+  def isAsyncResponse(implicit request: HttpServletRequest) = request.get(IsAsyncKey).getOrElse(false)
+
+  def onSuccess(fn: Any => Unit)(implicit request: HttpServletRequest) = addCallback(_.right.foreach(fn))
+  def onFailure(fn: Throwable => Unit)(implicit request: HttpServletRequest) = addCallback(_.left.foreach(fn))
+  def onCompleted(fn: Either[Throwable, Any] => Unit)(implicit request: HttpServletRequest) = addCallback(fn)
+  def onRenderedSuccess(fn: Any => Unit)(implicit request: HttpServletRequest) = addRenderCallback(_.right.foreach(fn))
+  def onRenderedFailure(fn: Throwable => Unit)(implicit request: HttpServletRequest) = addRenderCallback(_.left.foreach(fn))
+  def onRenderedCompleted(fn: Either[Throwable, Any] => Unit)(implicit request: HttpServletRequest) = addRenderCallback(fn)
+
+  def callbacks(implicit request: HttpServletRequest) =
+    request.getOrElse(Callbacks, List.empty[Either[Throwable, Any] => Unit]).asInstanceOf[List[Either[Throwable, Any] => Unit]]
+
+  def addCallback(callback: Either[Throwable, Any] => Unit)(implicit request: HttpServletRequest) {
+    request(Callbacks) = callback :: callbacks
+  }
+
+  def runCallbacks(data: Either[Throwable, Any])(implicit request: HttpServletRequest) = callbacks.reverse foreach (_(data))
+  def renderCallbacks(implicit request: HttpServletRequest) =
+    request.getOrElse(RenderCallbacks, List.empty[Either[Throwable, Any] => Unit]).asInstanceOf[List[Either[Throwable, Any] => Unit]]
+
+  def addRenderCallback(callback: Either[Throwable, Any] => Unit)(implicit request: HttpServletRequest) {
+    request(RenderCallbacks) = callback :: callbacks
+  }
+
+  def runRenderCallbacks(data: Either[Throwable, Any])(implicit request: HttpServletRequest) = renderCallbacks.reverse foreach (_(data))
+
 
   import collection.JavaConverters._
 
@@ -106,40 +139,57 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * $ 5. The action result is passed to `renderResponse`.
    */
   protected def executeRoutes() {
-    try {
-      var result: Any = null
-      try {
-        val prehandleException = request.get("org.scalatra.PrehandleException")
-        if (prehandleException.isEmpty) {
-          runFilters(routes.beforeFilters)
-          val actionResult = runRoutes(routes(request.requestMethod)).headOption
-          // Give the status code handler a chance to override the actionResult
-          result = handleStatusCode(status) getOrElse {
-            actionResult orElse matchOtherMethods() getOrElse doNotFound()
-          }
-        } else {
-          throw prehandleException.get.asInstanceOf[Exception]
-        }
-      }
-      catch {
-        case e: HaltException => renderHaltException(e)
-        case e: Throwable => {
-          try {
-            result = errorHandler(e)
-          } catch {
-            case e2: HaltException => renderHaltException(e2)
-          }
-        }
-      }
-      finally {
-        if (result == null || !isAsyncExecutable(result)) {
-          runFilters(routes.afterFilters)
-        }
-      }
+    var result: Any = null
+    var rendered = true
 
-      renderResponse(result)
-    } catch {
-      case e: Throwable => renderUncaughtException(e)
+    def runActions = {
+      val prehandleException = request.get(PrehandleExceptionKey)
+      if (prehandleException.isEmpty) {
+        val (rq, rs) = (request, response)
+        onCompleted { _ =>
+          withRequestResponse(rq, rs) {
+            this match {
+              case f: Filter if !rq.contains("org.scalatra.ScalatraFilter.afterFilters.Run") =>
+                rq("org.scalatra.ScalatraFilter.afterFilters.Run") = new {}
+                runFilters(routes.afterFilters)
+              case f: HttpServlet if !rq.contains("org.scalatra.ScalatraServlet.afterFilters.Run") =>
+                rq("org.scalatra.ScalatraServlet.afterFilters.Run") = new {}
+                runFilters(routes.afterFilters)
+              case _ =>
+            }
+          }
+        }
+        runFilters(routes.beforeFilters)
+        val actionResult = runRoutes(routes(request.requestMethod)).headOption
+        // Give the status code handler a chance to override the actionResult
+        val r = handleStatusCode(status) getOrElse {
+          actionResult orElse matchOtherMethods() getOrElse doNotFound()
+        }
+        rendered = false
+        r
+      } else {
+        throw prehandleException.get.asInstanceOf[Exception]
+      }
+    }
+
+    cradleHalt(result = runActions, e => {
+      cradleHalt({
+        result = errorHandler(e)
+        rendered = false
+      }, e => {
+        runCallbacks(Left(e))
+        renderUncaughtException(e)
+        runRenderCallbacks(Left(e))
+      })
+    })
+
+    if (!rendered) renderResponse(result)
+  }
+
+  private[this] def cradleHalt(body: => Any, error: Throwable => Any) = {
+    try { body } catch {
+      case e: HaltException => renderHaltException(e)
+      case e: Throwable => error(e)
     }
   }
 
@@ -170,11 +220,14 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     } yield (actionResult, matchedRoute)
     result map {
       case (actionResult, matchedRoute) =>
+        request("org.scalatra.MatchedRoute") = matchedRoute
         setMultiparams(Some(matchedRoute), multiParams)
         actionResult
     }
-    result.map(_._1)
   }
+
+  private[scalatra] def matchedRoute(implicit request: HttpServletRequest) =
+    request.get("org.scalatra.MatchedRoute").map(_.asInstanceOf[MatchedRoute])
 
   /**
    * Invokes a route or filter.  The multiParams gathered from the route
@@ -271,7 +324,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   }
 
 
-  def setMultiparams[S](matchedRoute: Option[MatchedRoute], originalParams: MultiParams) {
+  protected def setMultiparams[S](matchedRoute: Option[MatchedRoute], originalParams: MultiParams)(implicit request: HttpServletRequest) {
     val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
       case (key, values) =>
         key -> values.map(UriDecoder.secondStep(_))
@@ -321,10 +374,18 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    */
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
-      case _: Unit | Unit =>
+      case _: Unit | Unit => runRenderCallbacks(Right(actionResult))
       case a => loop(renderPipeline.lift(a) getOrElse())
     }
-    loop(actionResult)
+    try {
+      runCallbacks(Right(actionResult))
+      loop(actionResult)
+    } catch {
+      case e: Throwable =>
+        runCallbacks(Left(e))
+        renderUncaughtException(e)
+        runRenderCallbacks(Left(e))
+    }
   }
 
   /**
@@ -409,21 +470,28 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     new BooleanBlockRouteMatcher(block)
 
   protected def renderHaltException(e: HaltException) {
-    var rendered = false
-    e match {
-      case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
-        renderResponse(doNotFound())
-        rendered = true
-      case HaltException(Some(status), Some(reason), _, _) =>
-        response.status = ResponseStatus(status, reason)
-      case HaltException(Some(status), None, _, _) =>
-        response.status = ResponseStatus(status)
-      case HaltException(None, _, _, _) => // leave status line alone
+    try {
+      var rendered = false
+      e match {
+        case HaltException(Some(404), _, _, _: Unit | Unit) | HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
+          renderResponse(doNotFound())
+          rendered = true
+        case HaltException(Some(status), Some(reason), _, _) =>
+          response.status = ResponseStatus(status, reason)
+        case HaltException(Some(status), None, _, _) =>
+          response.status = ResponseStatus(status)
+        case HaltException(None, _, _, _) => // leave status line alone
+      }
+      e.headers foreach {
+        case (name, value) => response.addHeader(name, value)
+      }
+      if (!rendered) renderResponse(e.body)
+    } catch {
+      case e: Throwable =>
+        runCallbacks(Left(e))
+        renderUncaughtException(e)
+        runCallbacks(Left(e))
     }
-    e.headers foreach {
-      case (name, value) => response.addHeader(name, value)
-    }
-    if (!rendered) renderResponse(e.body)
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
@@ -579,8 +647,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * Sends a redirect response and immediately halts the current action.
    */
   def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse) {
-    response.redirect(fullUrl(uri, includeServletPath = false))
-    halt()
+    halt(Found(fullUrl(uri, includeServletPath = false)))
   }
 
   /**
