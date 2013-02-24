@@ -8,6 +8,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.ServletRenderContext
 import javax.servlet.ServletContext
+import servlet.ServletApiImplicits._
 
 /**
  * A render context integrated with Scalatra.  Exposes a few extra
@@ -114,11 +115,34 @@ class ScalatraRenderContext(
     route: Route,
     params: Map[String, String],
     splats: Iterable[String]
-  ): String =
+  ): String = {
+
     route.reversibleMatcher match {
       case Some(matcher: ReversibleRouteMatcher) =>
-        route.contextPath(request) + matcher.reverse(params, splats.toList)
+        withRouteMultiParams(MatchedRoute(route.action, multiParams)) {
+          route.contextPath(request) + matcher.reverse(params, splats.toList)
+        }
       case _ =>
         throw new Exception("Route \"%s\" is not reversible" format (route))
     }
+  }
+
+
+  private[this] def withRouteMultiParams[S](matchedRoute: MatchedRoute)(thunk: => S): S = {
+    val originalParams = multiParams
+    setMultiparams(matchedRoute, originalParams)
+    try {
+      thunk
+    } finally {
+      request(MultiParamsKey) = originalParams
+    }
+  }
+
+  def setMultiparams[S](matchedRoute: MatchedRoute, originalParams: MultiParams) {
+    val routeParams = matchedRoute.multiParams map {
+      case (key, values) =>
+        key -> values.map(UriDecoder.secondStep(_))
+    }
+    request(MultiParamsKey) = originalParams ++ routeParams
+  }
 }
