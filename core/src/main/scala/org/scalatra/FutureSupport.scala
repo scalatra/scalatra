@@ -44,14 +44,14 @@ trait FutureSupport extends AsyncSupport {
     actionResult match {
       case r: AsyncResult ⇒
         val req = request
-        setMultiparams(matchedRoute(req), multiParams(req))
+        setMultiparams(matchedRoute(req), multiParams(req))(req)
         val prelude = new AsyncResult {
           val is: Future[_] = Future { setMultiparams(matchedRoute, multiParams) }
         }
         handleFuture(prelude.is flatMap (_ => r.is) , r.timeout)
       case f: Future[_]   ⇒
         val req = request
-        setMultiparams(matchedRoute(req), multiParams(req))
+        setMultiparams(matchedRoute(req), multiParams(req))(req)
         handleFuture(Future { setMultiparams(matchedRoute(req), multiParams(req))(req) } flatMap (_ => f), asyncTimeout)
       case a              ⇒ super.renderResponse(a)
     }
