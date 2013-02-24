@@ -77,7 +77,9 @@ object Swagger {
     else {
       val docObj = ApiPropertiesReader.read(klass)
       val name = docObj.getName
-      val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
+      val flds = docObj.getFields.asScala.filter(d => d.paramType != null)
+
+      val fields = for (field <- flds)
         yield (field.name -> ModelField(field.name, field.notes, DataType(field.paramType)))
 
       Some(Model(name, name, fields.toMap))

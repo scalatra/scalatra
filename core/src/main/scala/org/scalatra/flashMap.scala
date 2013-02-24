@@ -135,28 +135,34 @@ trait FlashMapSupport extends Handler {
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     withRequest(req) {
       val f = flash
-      val isOutermost = !req.contains(LockKey)
+      val isOutermost = !request.contains(LockKey)
+
+      ScalatraBase onCompleted { _ =>
+        /*
+         * http://github.com/scalatra/scalatra/issues/41
+         * http://github.com/scalatra/scalatra/issues/57
+         *
+         * Only the outermost FlashMapSupport sweeps it at the end.
+         * This deals with both nested filters and redirects to other servlets.
+         */
+        if (isOutermost) {
+          f.sweep()
+        }
+        flashMapSetSession(f)
+      }
+
       if (isOutermost) {
         req(LockKey) = "locked"
         if (sweepUnusedFlashEntries(req)) {
           f.flag()
         }
       }
+
+
       super.handle(req, res)
-      /*
-       * http://github.com/scalatra/scalatra/issues/41
-       * http://github.com/scalatra/scalatra/issues/57
-       *
-       * Only the outermost FlashMapSupport sweeps it at the end.  
-       * This deals with both nested filters and redirects to other servlets.
-       */
-      if (isOutermost) {
-        f.sweep()
-      }
-      flashMapSetSession(f)
     }
   }
-  
+
   /**
    * Override to implement custom session retriever, or sanity checks if session is still active
    * @param f

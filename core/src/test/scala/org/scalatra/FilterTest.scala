@@ -2,7 +2,9 @@ package org.scalatra
 
 import org.scalatest.BeforeAndAfterEach
 import test.scalatest.ScalatraFunSuite
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
+class ScalatraExpectedFilterException extends RuntimeException
 class FilterTestServlet extends ScalatraServlet {
   var beforeCount = 0
   var afterCount = 0
@@ -18,19 +20,24 @@ class FilterTestServlet extends ScalatraServlet {
   after() {
     afterCount += 1
     params.get("after") match {
-      case Some(x) => response.getWriter.write(x)
+      case Some(x) =>
+        response.getWriter.write(x)
       case None =>
     }
   }
 
   get("/") {}
 
-  get("/before-counter") { beforeCount.toString }
+  get("/before-counter") {
+    beforeCount.toString
+  }
 
-  get("/after-counter") { afterCount.toString }
+  get("/after-counter") {
+    afterCount.toString
+  }
 
   get("/demons-be-here") {
-    throw new RuntimeException
+    throw new ScalatraExpectedFilterException
   }
 
   post("/reset-counters") {
@@ -53,28 +60,30 @@ class FilterTestFilter extends ScalatraFilter {
     beforeCount = 0
     pass
   }
+
 }
 
 class MultipleFilterTestServlet extends ScalatraServlet {
   before() {
-    response.getWriter.print("one\n")
+    response.writer.print("one\n")
   }
 
   before() {
-    response.getWriter.print("two\n")
+    response.writer.print("two\n")
   }
 
   get("/") {
-    response.getWriter.print("three\n")
+    response.writer.print("three\n")
   }
 
   after() {
-    response.getWriter.print("four\n")
+    response.writer.print("four\n")
   }
 
   after() {
-    response.getWriter.print("five\n")
+    response.writer.print("five\n")
   }
+
 }
 
 class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {

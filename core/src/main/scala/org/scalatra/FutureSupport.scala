@@ -7,6 +7,7 @@ import javax.servlet.{ServletContext, AsyncEvent, AsyncListener}
 import servlet.AsyncSupport
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 object AsyncResult {
   val DefaultTimeout = Timeout(30 seconds)
@@ -32,15 +33,27 @@ trait FutureSupport extends AsyncSupport {
   // In the meantime, this gives us enough control for our test.
   // IPC: it may not be perfect but I need to be able to configure this timeout in an application
   // This is a Duration instead of a timeout because a duration has the concept of infinity
+  @deprecated("Override the `timeout` method on a `org.scalatra.AsyncResult` instead.", "2.2")
   protected def asyncTimeout: Duration = 30 seconds
 
 
-  override protected def isAsyncExecutable(result: Any) = classOf[Future[_]].isAssignableFrom(result.getClass)
+  override protected def isAsyncExecutable(result: Any) =
+    classOf[Future[_]].isAssignableFrom(result.getClass) ||
+    classOf[AsyncResult].isAssignableFrom(result.getClass)
 
   override protected def renderResponse(actionResult: Any) {
     actionResult match {
-      case r: AsyncResult ⇒ handleFuture(r.is, r.timeout)
-      case f: Future[_]   ⇒ handleFuture(f, asyncTimeout)
+      case r: AsyncResult ⇒
+        val req = request
+        setMultiparams(matchedRoute(req), multiParams(req))
+        val prelude = new AsyncResult {
+          val is: Future[_] = Future { setMultiparams(matchedRoute, multiParams) }
+        }
+        handleFuture(prelude.is flatMap (_ => r.is) , r.timeout)
+      case f: Future[_]   ⇒
+        val req = request
+        setMultiparams(matchedRoute(req), multiParams(req))
+        handleFuture(Future { setMultiparams(matchedRoute(req), multiParams(req))(req) } flatMap (_ => f), asyncTimeout)
       case a              ⇒ super.renderResponse(a)
     }
   }
@@ -53,7 +66,6 @@ trait FutureSupport extends AsyncSupport {
     else
       context.setTimeout(-1)
     context addListener (new AsyncListener {
-      def onComplete(event: AsyncEvent) {}
 
       def onTimeout(event: AsyncEvent) {
         onAsyncEvent(event) {
@@ -64,8 +76,8 @@ trait FutureSupport extends AsyncSupport {
         }
       }
 
+      def onComplete(event: AsyncEvent) {}
       def onError(event: AsyncEvent) {}
-
       def onStartAsync(event: AsyncEvent) {}
     })
 
@@ -73,14 +85,25 @@ trait FutureSupport extends AsyncSupport {
       case t ⇒ {
         withinAsyncContext(context) {
           if (gotResponseAlready.compareAndSet(false, true)) {
-            t map { result =>
-              runFilters(routes.afterFilters)
-              super.renderResponse(result)
-            } recover {
-              case e: HaltException ⇒ renderHaltException(e)
-              case e => renderResponse(errorHandler(e))
+            try {
+              t map { result ⇒
+                renderResponse(result)
+              } recover {
+                case e: HaltException ⇒
+                  renderHaltException(e)
+                case e ⇒
+                  try {
+                    renderResponse(errorHandler(e))
+                  } catch {
+                    case e: Throwable =>
+                      ScalatraBase.runCallbacks(Failure(e))
+                      renderUncaughtException(e)
+                      ScalatraBase.runRenderCallbacks(Failure(e))
+                  }
+              }
+            } finally {
+              context.complete()
             }
-            context.complete()
           }
         }
       }
