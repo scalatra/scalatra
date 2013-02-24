@@ -213,17 +213,18 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * are returned as a stream.
    */
   protected def runRoutes(routes: Traversable[Route]) = {
-    val result = for {
+    for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route.apply(requestPath)
-      actionResult <- invoke(matchedRoute)
-    } yield (actionResult, matchedRoute)
-    result map {
-      case (actionResult, matchedRoute) =>
-        request("org.scalatra.MatchedRoute") = matchedRoute
-        setMultiparams(Some(matchedRoute), multiParams)
-        actionResult
-    }
+      saved = saveMatchedRoute(matchedRoute)
+      actionResult <- invoke(saved)
+    } yield actionResult
+  }
+
+  private[scalatra] def saveMatchedRoute(matchedRoute: MatchedRoute) = {
+    request("org.scalatra.MatchedRoute") = matchedRoute
+    setMultiparams(Some(matchedRoute), multiParams)
+    matchedRoute
   }
 
   private[scalatra] def matchedRoute(implicit request: HttpServletRequest) =

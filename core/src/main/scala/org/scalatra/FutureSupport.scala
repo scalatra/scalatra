@@ -42,17 +42,8 @@ trait FutureSupport extends AsyncSupport {
 
   override protected def renderResponse(actionResult: Any) {
     actionResult match {
-      case r: AsyncResult ⇒
-        val req = request
-        setMultiparams(matchedRoute(req), multiParams(req))(req)
-        val prelude = new AsyncResult {
-          val is: Future[_] = Future { setMultiparams(matchedRoute, multiParams) }
-        }
-        handleFuture(prelude.is flatMap (_ => r.is) , r.timeout)
-      case f: Future[_]   ⇒
-        val req = request
-        setMultiparams(matchedRoute(req), multiParams(req))(req)
-        handleFuture(Future { setMultiparams(matchedRoute(req), multiParams(req))(req) } flatMap (_ => f), asyncTimeout)
+      case r: AsyncResult ⇒ handleFuture(r.is , r.timeout)
+      case f: Future[_]   ⇒ handleFuture(f, asyncTimeout)
       case a              ⇒ super.renderResponse(a)
     }
   }
