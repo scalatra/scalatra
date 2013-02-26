@@ -77,7 +77,7 @@ class Scentry[UserType <: AnyRef](
     Option(_user) orElse {
       store.get.blankOption flatMap { key =>
         runCallbacks() { _.beforeFetch(key) }
-        val o = fromSession lift key map { res =>
+        val o = fromSession lift key flatMap (Option(_)) map { res =>
           runCallbacks() { _.afterFetch(res) }
           request(scentryAuthKey) = res
           res
