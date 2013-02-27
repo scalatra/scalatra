@@ -4,33 +4,27 @@ import servlet.ServletBase
 import javax.servlet._
 import javax.servlet.http._
 import org.scalatra.util.RicherString._
-import java.io.File
+import scala.util.control.Exception.catching
 
 object ScalatraServlet {
   import servlet.ServletApiImplicits._
   def requestPath(request: HttpServletRequest) = {
-    def getRequestPath = request.getRequestURI match {
-      case requestURI: String =>
-        var uri = requestURI
-        if (request.getContextPath != null && request.getContextPath.trim.nonEmpty) uri = uri.substring(request.getContextPath.length)
-        if (request.getServletPath != null && request.getServletPath.trim.nonEmpty) uri = uri.substring(request.getServletPath.length)
-        if (uri.isEmpty) {
-          uri = "/"
-        } else {
-          val pos = uri.indexOf(';')
-          if (pos >= 0) uri = uri.substring(0, pos)
-        }
-        UriDecoder.firstStep(uri)
-      case null => "/"
+    require(request != null, "The request can't be null for getting the request path")
+    def getRequestPath(r: HttpServletRequest) = {
+      val u = (catching(classOf[NullPointerException]) opt { r.getRequestURI } getOrElse "/")
+      val u2 = (u.blankOption map { uri =>
+        val uu = if (r.getContextPath.nonBlank) uri.substring(r.getContextPath.length) else uri
+        if (r.getServletPath.nonBlank) uu.substring(r.getServletPath.length) else uu
+      } flatMap(_.blankOption) getOrElse "/")
+      val pos = u2.indexOf(';')
+      val u3 = if (pos > -1) u2.substring(0, pos) else u2
+      UriDecoder.firstStep(u3)
     }
 
-    request.get("org.scalatra.ScalatraServlet.requestPath") match {
-      case Some(uri) => uri.toString
-      case _         => {
-        val requestPath = getRequestPath
-        request.setAttribute("org.scalatra.ScalatraServlet.requestPath", requestPath)
-        requestPath.toString
-      }
+    request.get("org.scalatra.ScalatraServlet.requestPath") map (_.toString) getOrElse {
+      val requestPath = getRequestPath(request)
+      request("org.scalatra.ScalatraServlet.requestPath") = requestPath
+      requestPath
     }
   }
 }
@@ -66,36 +60,13 @@ abstract class ScalatraServlet
    * All other servlet mappings likely want to return request.getServletPath.
    * Custom implementations are allowed for unusual cases.
    */
-  def requestPath(implicit request: HttpServletRequest) = {
-    def getRequestPath = request.getRequestURI match {
-      case requestURI: String =>
-        var uri = requestURI
-        if (request.getContextPath != null && request.getContextPath.trim.nonEmpty) uri = uri.substring(request.getContextPath.length)
-        if (request.getServletPath != null && request.getServletPath.trim.nonEmpty) uri = uri.substring(request.getServletPath.length)
-        if (uri.isEmpty) {
-          uri = "/"
-        } else {
-          val pos = uri.indexOf(';')
-          if (pos >= 0) uri = uri.substring(0, pos)
-        }
-        UriDecoder.firstStep(uri)
-      case null => "/"
-    }
-
-    request.get("org.scalatra.ScalatraServlet.requestPath") match {
-      case Some(uri) => uri.toString
-      case _         => {
-        val requestPath = getRequestPath
-        request.setAttribute("org.scalatra.ScalatraServlet.requestPath", requestPath)
-        requestPath.toString
-      }
-    }
-  }
+  def requestPath(implicit request: HttpServletRequest) = ScalatraServlet.requestPath(request)
 
   protected def routeBasePath(implicit request: HttpServletRequest) = {
-    if (request == null)
-      throw new IllegalStateException("routeBasePath requires an active request to determine the servlet path")
-    request.getContextPath + request.getServletPath
+    require(config != null, "routeBasePath requires the servlet to be initialized")
+    require(request != null, "routeBasePath requires an active request to determine the servlet path")
+
+    servletContext.getContextPath + request.getServletPath
   }
 
   /**

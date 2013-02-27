@@ -4,6 +4,7 @@ import scala.xml._
 import java.net.URL
 import com.github.siasia.WebPlugin.webSettings
 import ls.Plugin.LsKeys
+import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 
 object ScalatraBuild extends Build {
   import Dependencies._
@@ -232,12 +233,13 @@ object ScalatraBuild extends Build {
  lazy val scalatraExample = Project(
    id = "scalatra-example",
    base = file("example"),
-   settings = scalatraSettings ++ webSettings ++ doNotPublish ++ Seq(
+   settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
      resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApi % "container;test",
      libraryDependencies += jettyWebsocket % "container;test",
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
      libraryDependencies += json4sJackson,
+     libraryDependencies += atmosphereJQuery,
      description := "Scalatra example project",
      LsKeys.skipWrite := true
    )
@@ -252,9 +254,10 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
     // Sort by artifact ID.
-    lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %% "akka-actor"         % akkaVersion(sv)
-    lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %% "akka-testkit"       % akkaVersion(sv)
-    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.9"
+    lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)
+    lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)
+    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.1.0-SNAPSHOT"
+    lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.1.0-SNAPSHOT" artifacts(Artifact("atmosphere-jquery", "war", "war"))
     lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.beta1"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
@@ -280,7 +283,7 @@ object ScalatraBuild extends Build {
     lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.9"
     lazy val mimeUtil                   =  "eu.medsea.mimeutil"      % "mime-util"           % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
-    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.2"
+    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.3"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalaCompiler: MM     = sv => "org.scala-lang"          %  "scala-compiler"     % sv
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)

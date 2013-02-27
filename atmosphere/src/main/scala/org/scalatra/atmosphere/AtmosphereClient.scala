@@ -55,12 +55,15 @@ trait AtmosphereClient {
    * Deliver the message to everyone except the current user.
    */
   final protected def SkipSelf: ClientFilter = _.uuid != uuid
-  
+  final protected def Others: ClientFilter = SkipSelf
+
   /**
    * Deliver the message only to the current user.
    */
   final protected def OnlySelf: ClientFilter = _.uuid == uuid
-  
+
+  final protected def Me: ClientFilter = OnlySelf
+
   /**
    * Deliver the message to all connected users.
    */
@@ -84,9 +87,9 @@ trait AtmosphereClient {
 
   /**
    * A convenience method which sends a message only to the current client,
-   * using a broadcast filter.
+   * using a broadcast filter.  This is the same as calling `broadcast(message, to = Me)`
    */
-  final def send(msg: OutboundMessage)(implicit executionContext: ExecutionContext) = broadcast(msg, OnlySelf)(executionContext)
+  final def send(msg: OutboundMessage)(implicit executionContext: ExecutionContext) = broadcast(msg, to = Me)(executionContext)
 
   /**
    * A convenience method which sends a message only to the current client,
@@ -99,14 +102,14 @@ trait AtmosphereClient {
    * (i.e. normal chat server behaviour). Optionally filter the clients to
    * deliver the message to by applying a filter.
    */
-  final def broadcast(msg: OutboundMessage, filter: ClientFilter = SkipSelf)(implicit executionContext: ExecutionContext) = {
+  final def broadcast(msg: OutboundMessage, to: ClientFilter = Others)(implicit executionContext: ExecutionContext) = {
     if (resource == null)
       internalLogger.warn("The resource is null, can't publish")
 
     if (resource.getBroadcaster == null)
       internalLogger.warn("The broadcaster is null, can't publish")
 
-    broadcaster.broadcast(msg, filter)
+    broadcaster.broadcast(msg, to)
   }
 
   /**
@@ -114,6 +117,6 @@ trait AtmosphereClient {
    * (i.e. normal chat server behaviour). Optionally filter the clients to
    * deliver the message to by applying a filter.
    */
-  final def ><(msg: OutboundMessage, filter: ClientFilter = SkipSelf)(implicit executionContext: ExecutionContext) = broadcast(msg, filter)(executionContext)
+  final def ><(msg: OutboundMessage, to: ClientFilter = Others)(implicit executionContext: ExecutionContext) = broadcast(msg, to)(executionContext)
 
 }

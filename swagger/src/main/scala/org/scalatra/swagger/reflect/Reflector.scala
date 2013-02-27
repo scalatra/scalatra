@@ -138,11 +138,20 @@ object Reflector {
               val theType = genParams(cp._2) match {
                 case v: TypeVariable[_] =>
                   val a = tpe.typeVars.getOrElse(v, scalaTypeOf(v))
-                  if (a.erasure == classOf[java.lang.Object])
+                  val tt = if (a.erasure == classOf[java.lang.Object])
                     scalaTypeOf(ScalaSigReader.readConstructor(cp._1, tpe.erasure, cp._2, ctorParameterNames.toList))
                   else a
-                case x => scalaTypeOf(x)
-              }
+                  tt
+                case x =>
+                  val st = scalaTypeOf(x)
+                  val tt = if (st.isCollection || st.isOption) {
+                    val inner = st.typeArgs.head
+                    if (inner.erasure == classOf[java.lang.Object])
+                      st.copy(typeArgs = Seq(scalaTypeOf(ScalaSigReader.readConstructor(cp._1, tpe.erasure, cp._2, ctorParameterNames.toList))) )
+                    else st
+                  } else st
+                  tt
+               }
               ConstructorParamDescriptor(decoded, cp._1, cp._2, theType, default)
           }
           ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)

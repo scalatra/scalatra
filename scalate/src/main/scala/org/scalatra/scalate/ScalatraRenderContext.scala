@@ -7,6 +7,8 @@ import java.io.PrintWriter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.ServletRenderContext
+import javax.servlet.ServletContext
+import servlet.ServletApiImplicits._
 
 /**
  * A render context integrated with Scalatra.  Exposes a few extra
@@ -70,4 +72,45 @@ class ScalatraRenderContext(
     case csrfTokenSupport: XsrfTokenSupport => csrfTokenSupport.xsrfToken(request)
     case _ => ""
   }
+
+  /**
+   * Calculate a URL for a reversible route and some params.
+   *
+   * @param route a reversible route
+   * @param params a list of named param/value pairs
+   * @return a URI that matches the route for the given params
+   * @throws Exception if the route is not reversible
+   * @throws IllegalStateException if the route's base path cannot be
+   * determined.  This may occur outside of an HTTP request's lifecycle.
+   */
+  def url(route: Route, params: (String, String)*): String = UrlGenerator.url(route, params:_*)(request)
+
+  /**
+   * Calculate a URL for a reversible route and some splats.
+   *
+   * @param route a reversible route
+   * @param splat the first splat parameter
+   * @param moreSplats any splat parameters beyond the first
+   * @return a URI that matches the route for the given splats
+   * @throws Exception if the route is not reversible
+   * @throws IllegalStateException if the route's base path cannot be
+   * determined.  This may occur outside of an HTTP request's lifecycle.
+   */
+  def url(route: Route, splat: String, moreSplats: String*): String = UrlGenerator.url(route, splat, moreSplats:_*)(request)
+
+  /**
+   * Calculate a URL for a reversible route, some params, and some splats.
+   *
+   * @param route a reversible route
+   * @param params a map of param/value pairs
+   * @param splats a series of splat parameters
+   * @return a URI that matches the route for the given splats
+   * @throws Exception if the route is not reversible
+   * @throws IllegalStateException if the route's base path cannot be
+   * determined.  This may occur outside of an HTTP request's lifecycle.
+   */
+  def url(
+    route: Route,
+    params: Map[String, String],
+    splats: Iterable[String]): String = UrlGenerator.url(route, params, splats)(request)
 }

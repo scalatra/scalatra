@@ -1,5 +1,7 @@
 package org.scalatra
 
+import javax.servlet.http.HttpServletRequest
+
 /**
  * Adds support for generating URIs from routes and their params.
  */
@@ -15,7 +17,7 @@ trait UrlGeneratorSupport {
    * @throws IllegalStateException if the route's base path cannot be
    * determined.  This may occur outside of an HTTP request's lifecycle.
    */
-  def url(route: Route, params: Pair[String, String]*): String =
+  def url(route: Route, params: Pair[String, String]*)(implicit req: HttpServletRequest): String =
     url(route, params.toMap, Seq.empty)
 
   /**
@@ -29,7 +31,7 @@ trait UrlGeneratorSupport {
    * @throws IllegalStateException if the route's base path cannot be
    * determined.  This may occur outside of an HTTP request's lifecycle.
    */
-  def url(route: Route, splat: String, moreSplats: String*): String =
+  def url(route: Route, splat: String, moreSplats: String*)(implicit req: HttpServletRequest): String =
     url(route, Map[String, String](), splat +: moreSplats)
 
   /**
@@ -47,9 +49,10 @@ trait UrlGeneratorSupport {
     route: Route,
     params: Map[String, String],
     splats: Iterable[String]
-  ): String =
+  )(implicit req: HttpServletRequest): String =
     route.reversibleMatcher match {
-      case Some(matcher: ReversibleRouteMatcher) => route.contextPath() + matcher.reverse(params, splats.toList)
+      case Some(matcher: ReversibleRouteMatcher) =>
+        route.contextPath(req) + matcher.reverse(params, splats.toList)
       case _ =>
         throw new Exception("Route \"%s\" is not reversible" format (route))
     }

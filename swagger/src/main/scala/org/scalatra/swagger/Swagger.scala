@@ -50,7 +50,7 @@ object Swagger {
         descr match {
           case descriptor: ClassDescriptor =>
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
-            val propModels = descriptor.properties.filterNot(_.isPrimitive)
+            val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
             val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
             val topLevel = for {
               tl <- (subModels + descriptor.erasure)
@@ -77,7 +77,9 @@ object Swagger {
     else {
       val docObj = ApiPropertiesReader.read(klass)
       val name = docObj.getName
-      val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
+      val flds = docObj.getFields.asScala.filter(d => d.paramType != null)
+
+      val fields = for (field <- flds)
         yield (field.name -> ModelField(field.name, field.notes, DataType(field.paramType)))
 
       Some(Model(name, name, fields.toMap))

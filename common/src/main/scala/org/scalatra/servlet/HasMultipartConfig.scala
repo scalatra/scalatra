@@ -27,17 +27,24 @@ trait HasMultipartConfig extends Initializable { self: { def servletContext: Ser
     }
   }
 
-  def multipartConfig: MultipartConfig = multipartConfigFromContext getOrElse DefaultMultipartConfig
+  def multipartConfig: MultipartConfig = try {
+    multipartConfigFromContext getOrElse DefaultMultipartConfig
+  } catch {
+    case e: Throwable =>
+      System.err.println("Couldn't get the multipart config from the servlet context because: ")
+      e.printStackTrace()
+      DefaultMultipartConfig
+  }
 
   private[this] var providedConfig: Option[MultipartConfig] = None
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    providedConfig foreach { _ apply servletContext }
+
+    providedConfig foreach { _ apply config.context }
   }
 
   def configureMultipartHandling(config: MultipartConfig) {
     providedConfig = Some(config)
   }
 }
-

@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
 import xml._
 import concurrent.ExecutionContext
 
-class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValueResult with SessionSupport with AtmosphereSupport {
+class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with AtmosphereSupport {
   implicit protected val jsonFormats: Formats = DefaultFormats
 
   import ExecutionContext.Implicits.global
@@ -20,7 +20,8 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
       title = "Scalatra Atmosphere Chat",
       content = bodyHtml,
       url = url(_),
-      scripts = "/jquery/jquery.atmosphere.js" :: "/jquery/application.js" :: Nil
+      scripts = "/jquery/jquery.atmosphere.js" :: "/jquery/application.js" :: Nil,
+      defaultScripts = "/jquery/jquery-1.9.0.js" :: "/assets/js/bootstrap.min.js" :: Nil
     )
   }
 
@@ -58,13 +59,39 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with JValue
 
         case JsonMessage(json) =>
           println("Got message %s from %s".format((json \ "message").extract[String], (json \ "author").extract[String]))
-          val msg = json merge (("time" -> (new Date().getTime().toString)): JValue)
+          val msg = json merge (("time" -> (new Date().getTime.toString)): JValue)
           broadcast(msg) // by default a broadcast is to everyone but self
 //          send(msg) // also send to the sender
       }
     }
   }
 
+
+  atmosphere("/multiroom/:id") {
+    println("id: " + params("id"))
+    val room = params("id")
+    new AtmosphereClient {
+      def receive: AtmoReceive = {
+        case Connected =>
+          println("Client %s is connected" format uuid)
+          broadcast(("author" -> "Someone") ~ ("message" -> ("joined the room: " + room)) ~ ("time" -> (new Date().getTime.toString )), Everyone)
+
+        case Disconnected(ClientDisconnected, _) =>
+          broadcast(("author" -> "Someone") ~ ("message" -> ("left the room: " + room)) ~ ("time" -> (new Date().getTime.toString )), Everyone)
+
+        case Disconnected(ServerDisconnected, _) =>
+          println("Server disconnected the client %s" format uuid)
+        case _: TextMessage =>
+          send(("author" -> "system") ~ ("message" -> "Only json is allowed") ~ ("time" -> (new Date().getTime.toString )))
+
+        case JsonMessage(json) =>
+          println("Got message %s from %s in room: %s".format((json \ "message").extract[String], (json \ "author").extract[String], room))
+          val msg = json merge (("time" -> (new Date().getTime.toString)): JValue)
+          broadcast(msg) // by default a broadcast is to everyone but self
+//          send(msg) // also send to the sender
+      }
+    }
+  }
   error {
     case t: Throwable => t.printStackTrace()
   }

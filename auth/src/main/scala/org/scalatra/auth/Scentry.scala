@@ -77,7 +77,7 @@ class Scentry[UserType <: AnyRef](
     Option(_user) orElse {
       store.get.blankOption flatMap { key =>
         runCallbacks() { _.beforeFetch(key) }
-        val o = fromSession lift key map { res =>
+        val o = fromSession lift key flatMap (Option(_)) map { res =>
           runCallbacks() { _.afterFetch(res) }
           request(scentryAuthKey) = res
           res
@@ -152,7 +152,7 @@ class Scentry[UserType <: AnyRef](
   def logout()(implicit request: HttpServletRequest, response: HttpServletResponse) {
     val usr = user
     runCallbacks() { _.beforeLogout(usr) }
-    if (request(scentryAuthKey) != null) request(scentryAuthKey) = null.asInstanceOf[UserType]
+    request -= scentryAuthKey
     store.invalidate()
     runCallbacks() { _.afterLogout(usr) }
   }
