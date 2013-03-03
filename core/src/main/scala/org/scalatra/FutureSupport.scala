@@ -1,5 +1,6 @@
 package org.scalatra
 
+import scala.language.experimental.macros
 import scala.concurrent.duration._
 import _root_.akka.util.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
@@ -12,8 +13,18 @@ import scala.util.{Failure, Success, Try}
 object AsyncResult {
   val DefaultTimeout = Timeout(30 seconds)
 
-  def apply[A](f: A)(implicit executor: ExecutionContext, scalatraContext: ScalatraContext): AsyncResult =
-    new AsyncResult { val is = Future(f) }
+  def apply(f: Any)(implicit executor: ExecutionContext, scalatraContext: ScalatraContext): AsyncResult =
+    macro applyImpl
+
+  def applyImpl(c: scala.reflect.macros.Context)(f: c.Expr[Any])
+               (executor: c.Expr[ExecutionContext], scalatraContext: c.Expr[org.scalatra.ScalatraContext]): c.Expr[org.scalatra.AsyncResult] = {
+    c.error(c.macroApplication.pos, "Broken. f refers to its enclosing context, not to scalatraContext.")
+    c.universe.reify {
+      new AsyncResult()(scalatraContext.splice) {
+        val is: Future[Any] = Future(f.splice)(executor.splice)
+      }
+    }
+  }
 }
 abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext  {
 

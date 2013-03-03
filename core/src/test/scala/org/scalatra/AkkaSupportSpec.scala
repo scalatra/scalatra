@@ -17,7 +17,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   override def asyncTimeout = 2 seconds
 
   get("/redirect") {
-    AsyncResult { redirect("redirected") }
+    AsyncResult { Future { redirect("redirected") } }
   }
 
   get("/redirected") {
