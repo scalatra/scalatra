@@ -25,106 +25,101 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
   protected implicit val executor = ExecutionContext.fromExecutorService(exec)
 
   get("/barf") {
-    new AsyncResult { val is = Future { throw new RuntimeException } }
+    AsyncResult { throw new RuntimeException }
   }
 
   get("/happy-happy") {
-    new AsyncResult { val is = Future { "puppy dogs" } }
+    AsyncResult { "puppy dogs" }
   }
 
   get("/simple-template") {
-    new AsyncResult { val is = Future { layoutTemplate("/simple.jade") } }
+    AsyncResult { layoutTemplate("/simple.jade") }
   }
 
   get("/params") {
-    new AsyncResult { val is = Future { layoutTemplate("/params.jade", "foo" -> "Configurable") } }
+    AsyncResult { layoutTemplate("/params.jade", "foo" -> "Configurable") }
   }
 
   get("/jade-template") {
-    new AsyncResult { val is = Future { jade("simple") } }
+    AsyncResult { jade("simple") }
   }
 
   get("/jade-params") {
-    new AsyncResult { val is = Future { jade("params", "foo" -> "Configurable") } }
+    AsyncResult { jade("params", "foo" -> "Configurable") }
   }
 
   get("/scaml-template") {
-    new AsyncResult { val is = Future { scaml("simple") } }
+    AsyncResult { scaml("simple") }
   }
 
   get("/scaml-params") {
-    new AsyncResult { val is = Future { scaml("params", "foo" -> "Configurable") } }
+    AsyncResult { scaml("params", "foo" -> "Configurable") }
   }
 
   get("/ssp-template") {
-    new AsyncResult { val is = Future { ssp("simple") } }
+    AsyncResult { ssp("simple") }
   }
 
   get("/ssp-params") {
-    new AsyncResult { val is = Future { ssp("params", "foo" -> "Configurable") } }
+    AsyncResult { ssp("params", "foo" -> "Configurable") }
   }
 
   get("/mustache-template") {
-    new AsyncResult { val is = Future { mustache("simple") } }
+    AsyncResult { mustache("simple") }
   }
 
   get("/mustache-params") {
-    new AsyncResult { val is = Future { mustache("params", "foo" -> "Configurable") } }
+    AsyncResult { mustache("params", "foo" -> "Configurable") }
   }
 
   get("/layout-strategy") {
-    new AsyncResult { val is = Future { templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";" } }
+    AsyncResult { templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";" }
   }
 
   val urlGeneration = get("/url-generation") {
-    new AsyncResult { val is = Future { layoutTemplate("/urlGeneration.jade") } }
+    AsyncResult { layoutTemplate("/urlGeneration.jade") }
   }
 
   val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
-
-    new AsyncResult { val is = Future {
+    AsyncResult {
       println("Rendering reverse routing template")
       layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
-    } }
+    }
   }
 
   get("/legacy-view-path") {
-    new AsyncResult { val is = Future { jade("legacy") } }
+    AsyncResult { jade("legacy") }
   }
 
   get("/directory") {
-    new AsyncResult { val is = Future { jade("directory/index") } }
+    AsyncResult { jade("directory/index") }
   }
 
   get("/bindings/*") {
-    new AsyncResult { val is =
-      Future {
-        flash.now("message") = "flash works"
-        session("message") = "session works"
-        jade(requestPath)
-      }
+    AsyncResult {
+      flash.now("message") = "flash works"
+      session("message") = "session works"
+      jade(requestPath)
     }
   }
 
   get("/bindings/params/:foo") {
-    new AsyncResult { val is = Future { jade("/bindings/params") } }
+    AsyncResult { jade("/bindings/params") }
   }
 
   get("/bindings/multiParams/*/*") {
-    new AsyncResult { val is = Future { jade("/bindings/multiParams") } }
+    AsyncResult { jade("/bindings/multiParams") }
   }
 
   get("/template-attributes") {
-    new AsyncResult { val is =
-      Future {
-        templateAttributes("foo") = "from attributes"
-        scaml("params")
-      }
+    AsyncResult {
+      templateAttributes("foo") = "from attributes"
+      scaml("params")
     }
   }
 
   get("/render-to-string") {
-    new AsyncResult { val is = Future { response.setHeader("X-Template-Output", layoutTemplate("simple")) } }
+    AsyncResult { response.setHeader("X-Template-Output", layoutTemplate("simple")) }
   }
 }
 

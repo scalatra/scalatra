@@ -11,6 +11,9 @@ import scala.util.{Failure, Success, Try}
 
 object AsyncResult {
   val DefaultTimeout = Timeout(30 seconds)
+
+  def apply[A](f: A)(implicit executor: ExecutionContext, scalatraContext: ScalatraContext): AsyncResult =
+    new AsyncResult { val is = Future(f) }
 }
 abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext  {
 
