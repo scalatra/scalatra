@@ -1,6 +1,7 @@
 package org.scalatra
 
 import collection.generic.CanBuildFrom
+import annotation.implicitNotFound
 
 /*
  * All credit for the code in this file is a minimized version of scalaz' Zero
@@ -12,6 +13,9 @@ import collection.generic.CanBuildFrom
 /**
  * A DefaultValue in type Z provides a default value for a given type Z
  */
+@implicitNotFound(
+  "No default value found for type ${Z}. Try to implement an implicit org.scalatra.DefaultValue for this type."
+)
 trait DefaultValue[Z] {
   val default: Z
 }

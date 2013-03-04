@@ -150,6 +150,11 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   private def doAfterBindingActions() = postBindingActions.foreach(_.apply())
 
   override def toString: String = "%s(bindings: [%s])".format(getClass.getName, bindings.mkString(", "))
+
+  private type ExecutorView[S] = (this.type => S) => CommandExecutor[this.type, S]
+  def apply[S](handler: this.type => S)(implicit executor: ExecutorView[S]) = handler.execute(this)
+  def execute[S](handler: this.type => S)(implicit executor: ExecutorView[S]) = apply(handler)
+  def >>[S](handler: this.type => S)(implicit executor: ExecutorView[S]): S = apply(handler)
 }
 
 trait ParamsOnlyCommand extends TypeConverterFactories with Command {

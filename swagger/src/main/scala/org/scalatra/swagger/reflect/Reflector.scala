@@ -88,18 +88,6 @@ object Reflector {
 
   private[reflect] def createClassDescriptor(tpe: ScalaType): Descriptor = {
 
-
-
-    //    val sig = ScalaSigReader.findScalaSig(tpe.erasure).getOrElse(Meta.fail("Can't find ScalaSig for " + tpe.fullName))
-    //    val sym = ScalaSigReader.findClass(sig, tpe.erasure).getOrElse(Meta.fail("Can't find " + tpe.fullName + " from parsed ScalaSig"))
-    //    val children = sym.children
-    //    val ctorChildren =
-    //      children.filter(c => c.isCaseAccessor && !c.isPrivate).map(_.asInstanceOf[MethodSymbol]).zipWithIndex map {
-    //        case (ms, idx) =>
-    //          ConstructorParamDescriptor(unmangleName(ms.name), ms.name, idx, null, )
-    //      }
-
-
     def properties: Seq[PropertyDescriptor] = {
       def fields(clazz: Class[_]): List[PropertyDescriptor] = {
         val lb = new jutil.LinkedList[PropertyDescriptor]().asScala
@@ -110,7 +98,7 @@ object Reflector {
             val st = ScalaType(f.getType, f.getGenericType match {
               case p: ParameterizedType => p.getActualTypeArguments map (c => scalaTypeOf(c))
               case _ => Nil
-            }, Map.empty)
+            })
             val decoded = unmangleName(f.getName)
             f.setAccessible(true)
             lb += PropertyDescriptor(decoded, f.getName, st, f)
@@ -162,9 +150,10 @@ object Reflector {
     else {
       val path = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
       val c = resolveClass(path, Vector(getClass.getClassLoader))
-      val companion = c map {
-        cl =>
+      val companion = c flatMap { cl =>
+        allCatch opt {
           SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
+        }
       }
       ClassDescriptor(tpe.simpleName, tpe.fullName, tpe, companion, constructors(companion), properties)
     }

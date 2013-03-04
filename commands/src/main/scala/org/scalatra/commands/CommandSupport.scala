@@ -9,14 +9,16 @@ import java.util.concurrent.ConcurrentHashMap
 import grizzled.slf4j.Logger
 import scala.collection.concurrent.{ Map => ConcurrentMap }
 import javax.servlet.http.HttpServletRequest
+import scala.concurrent.{Future, ExecutionContext}
+
 
 /**
 * Support for [[org.scalatra.commands.Command]] binding and validation.
 */
-trait CommandSupport extends ParamsValueReaderProperties { this: ScalatraBase =>
+trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors { this: ScalatraBase =>
 
   type CommandType <: Command
-  
+
   private[this] val commandFactories: ConcurrentMap[Class[_], () => Command] = new ConcurrentHashMap[Class[_], () => Command].asScala
 
   def registerCommand[T <: Command](cmd: => T)(implicit mf: Manifest[T]) {
