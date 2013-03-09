@@ -6,13 +6,11 @@ import scala.util.control.Exception._
 import collection.JavaConverters._
 import java.util.Date
 import java.sql.Timestamp
-import org.json4s.ScalaSigReader
 
 object Reflector {
 
   private[this] val rawClasses = new Memo[Type, Class[_]]
   private[this] val unmangledNames = new Memo[String, String]
-  private[this] val types = new Memo[Type, ScalaType]
   private[this] val descriptors = new Memo[ScalaType, Descriptor]
 
   private[this] val primitives = {
@@ -32,18 +30,15 @@ object Reflector {
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = {
     ScalaType(mf)
-//    types(mf.erasure, _ => ScalaType(mf))
   }
 
   def scalaTypeOf(clazz: Class[_]): ScalaType = {
     val mf = ManifestFactory.manifestOf(clazz)
-//    types(mf.erasure, _ => ScalaType(mf))
     ScalaType(mf)
   }
 
   def scalaTypeOf(t: Type): ScalaType = {
     val mf = ManifestFactory.manifestOf(t)
-//    types(mf.erasure, _ => ScalaType(mf))
     ScalaType(mf)
   }
 
@@ -111,36 +106,45 @@ object Reflector {
       fields(tpe.erasure)
     }
 
+    def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
+      val idxes = container.map(_._2.reverse)
+      t  match {
+        case v: TypeVariable[_] =>
+          val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
+          if (a.erasure == classOf[java.lang.Object]) {
+            val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
+            scalaTypeOf(r)
+          } else a
+        case v: ParameterizedType =>
+          val st = scalaTypeOf(v)
+          val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map {
+            case (ct, idx) =>
+              val prev = container.map(_._2).getOrElse(Nil)
+              ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
+          }
+          st.copy(typeArgs = actualArgs)
+        case x =>
+          val st = scalaTypeOf(x)
+          if (st.erasure == classOf[java.lang.Object])
+            scalaTypeOf(ScalaSigReader.readConstructor(name, owner, idxes getOrElse List(index), ctorParameterNames))
+          else st
+      }
+    }
+
     def constructors(companion: Option[SingletonDescriptor]): Seq[ConstructorDescriptor] = {
       tpe.erasure.getConstructors.toSeq map {
         ctor =>
           val ctorParameterNames = ParanamerReader.lookupParameterNames(ctor)
           val genParams = Vector(ctor.getGenericParameterTypes: _*)
           val ctorParams = ctorParameterNames.zipWithIndex map {
-            cp =>
-              val decoded = unmangleName(cp._1)
+            case (paramName, index) =>
+              val decoded = unmangleName(paramName)
               val default = companion flatMap {
                 comp =>
-                  defaultValue(comp.erasure.erasure, comp.instance, cp._2)
+                  defaultValue(comp.erasure.erasure, comp.instance, index)
               }
-              val theType = genParams(cp._2) match {
-                case v: TypeVariable[_] =>
-                  val a = tpe.typeVars.getOrElse(v, scalaTypeOf(v))
-                  val tt = if (a.erasure == classOf[java.lang.Object])
-                    scalaTypeOf(ScalaSigReader.readConstructor(cp._1, tpe.erasure, cp._2, ctorParameterNames.toList))
-                  else a
-                  tt
-                case x =>
-                  val st = scalaTypeOf(x)
-                  val tt = if (st.isCollection || st.isOption) {
-                    val inner = st.typeArgs.head
-                    if (inner.erasure == classOf[java.lang.Object])
-                      st.copy(typeArgs = Seq(scalaTypeOf(ScalaSigReader.readConstructor(cp._1, tpe.erasure, cp._2, ctorParameterNames.toList))) )
-                    else st
-                  } else st
-                  tt
-               }
-              ConstructorParamDescriptor(decoded, cp._1, cp._2, theType, default)
+              val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
+              ConstructorParamDescriptor(decoded, paramName, index, theType, default)
           }
           ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
       }
@@ -169,8 +173,7 @@ object Reflector {
 
   def rawClassOf(t: Type): Class[_] = rawClasses(t, _ match {
     case c: Class[_] => c
-    case p: ParameterizedType =>
-      rawClassOf(p.getRawType)
+    case p: ParameterizedType => rawClassOf(p.getRawType)
     case x => sys.error("Raw type of " + x + " not known")
   })
 
