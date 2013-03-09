@@ -17,7 +17,7 @@ class ScalatraExample extends ScalatraServlet {
 
 ## Documentation
 
-Please see [The Scalatra Book](http://www.scalatra.org/guides/) for more.
+Please see [The Scalatra Guides](http://www.scalatra.org/guides/) for more.
 
 
 ## Latest version
