@@ -60,7 +60,7 @@ class BindingSpec extends Specification {
       cont.original must beAnInstanceOf[Option[String]]
       val bound = cont(Right(Option("joske".asInstanceOf[cont.S])))
       bound.name must_== "login"
-      bound.original must_== Some("joske")
+      bound.original must_== Some(Some("joske"))
       bound.validation must_== "joske".success
     }
     

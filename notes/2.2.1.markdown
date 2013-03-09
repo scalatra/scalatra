@@ -3,17 +3,28 @@
 * Make matched route params available for a broader scope
 * AsyncResult now uses an abstract val to force eager creation of the future
 * Fixes preflight request for CORS (no longer necessary to define an options route)
+* Fix redirecting from within an AsyncResult
 
 ### Atmosphere
-* Upgrade to atmosphere 1.1.0.beta3
+* Upgrade to atmosphere 1.0.11
+* Route params are now available inside the atmosphere route
 
 ### Commands
 * All validation error messages are now configurable
+* Type class based execution instead of the command handler
+* Fix detecting isRequired
 
 ### Auth
 * Make scentry use implicit request and response
+* Fix a case where the user would be falsely returned as Some(null)
 
 ### Swagger
 * Fixes nickname field swagger spec generation
 * Skips rendering swagger api's without api operations registered
 * Fix command support for swagger with new dsl syntax
+* Reflection now correctly detects scala value types
+* Reflection knows about nested generic types
+
+### Scalate
+* Fixes scalate usage in AsyncResult
+
