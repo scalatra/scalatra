@@ -56,6 +56,12 @@ class CommandWithConfirmationValidation extends ParamsOnlyCommand {
   val password: Field[String] = asString("password").notBlank.validForConfirmation(passwordConfirmation)
 }
 
+class CommandWithRequiredValuesValidation extends ParamsOnlyCommand {
+  val name: Field[String] = asString("name").required
+  val age: Field[Int] = bind[Int]("age").required
+  val newsLetter: Field[Boolean] = bind[Boolean]("newsLetter").required
+
+}
 
 class CommandSpec extends Specification {
 
@@ -102,6 +108,17 @@ class CommandSpec extends Specification {
       form.isValid must beTrue
     }
 
+    "detect missing values" in {
+      val form = new CommandWithRequiredValuesValidation
+      form.bindTo(Map.empty[String, String])
+      form.isValid must beFalse
+      form.errors.size must_== 3
+
+      val form2 = new CommandWithRequiredValuesValidation
+      form2.bindTo(Map("name" -> "", "age" -> "0", "newsLetter" -> "true"))
+      form2.isValid must beTrue
+    }
+
     "provide pluggable actions processed 'BEFORE' binding " in {
       import System._
 
@@ -126,7 +143,7 @@ class CommandSpec extends Specification {
 
       bound.timestamp must be_<(currentTimeMillis())
       bound.a.validation must_== params("name").toUpperCase.success
-      bound.a.original must_== params.get("name")
+      bound.a.original must_== Option(params.get("name"))
     }
 
     "provide pluggable actions processed 'AFTER' binding " in {
