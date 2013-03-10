@@ -40,8 +40,8 @@ trait I18nSupport {
 
 
   before() {
-    request.setAttribute(LocaleKey, resolveLocale)
-    request.setAttribute(MessagesKey, Messages(locale))
+    request(LocaleKey) = resolveLocale
+    request(MessagesKey) = Messages(locale)
   }
 
   /*
