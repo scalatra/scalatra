@@ -6,10 +6,10 @@ import java.util.ResourceBundle
 import java.util.MissingResourceException
 
 object Messages {
-  def apply(locale: Locale = Locale.getDefault): Messages = new Messages(locale)
+  def apply(locale: Locale = Locale.getDefault, bundlePath: String = "i18n/messages"): Messages = new Messages(locale, bundlePath)
 }
-class Messages(locale: Locale) {
-  private[this] val bundle = ResourceBundle.getBundle("i18n/messages", locale)
+class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
+  private[this] val bundle = ResourceBundle.getBundle(bundlePath, locale)
 
   /**
    * Null-safe implementation is preferred by using Option. The caller can 
@@ -21,6 +21,8 @@ class Messages(locale: Locale) {
    * 
    * To return the string itself:
    * messages("hello")
+   *
+   * @param key The key to find the message for
    */
   def get(key: String): Option[String] = {
     try {
@@ -32,6 +34,15 @@ class Messages(locale: Locale) {
   
   def apply(key: String): String = {
     bundle.getString(key)
+  }
+
+  /**
+   * Return the value for the key or fall back to the provided default
+   */
+  def getOrElse(key: String, default: => String): String = try {
+    bundle.getString(key)
+  } catch {
+    case e: MissingResourceException => default
   }
   
   /**
