@@ -22,6 +22,7 @@ object ScalatraAtmosphereHandler {
 
 
     def onBroadcast(event: AtmosphereResourceEvent) {
+      println("broadcasting to: " + event.getResource.uuid() + " on " + event.getResource.transport())
       val resource = event.getResource
         resource.transport match {
           case JSONP | AJAX | LONG_POLLING =>
@@ -30,17 +31,23 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
+      println("disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
       val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
       if (!event.getResource.isResumed) event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
       activeClients -= event.getResource.uuid()
 
     }
 
-    def onResume(event: AtmosphereResourceEvent) {}
+    def onResume(event: AtmosphereResourceEvent) {
+      println("resuming: " + event.getResource.uuid() + " on " + event.getResource.transport())
+    }
 
-    def onSuspend(event: AtmosphereResourceEvent) {}
+    def onSuspend(event: AtmosphereResourceEvent) {
+      println("suspending: " + event.getResource.uuid() + " on " + event.getResource.transport())
+    }
 
     def onThrowable(event: AtmosphereResourceEvent) {
+      println("error for: " + event.getResource.uuid() + " on " + event.getResource.transport())
       event.getResource.clientOption foreach (_.receive.lift(Error(Option(event.throwable()))))
     }
   }

@@ -248,8 +248,8 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %  "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %  "akka-testkit"       % akkaVersion(sv)
-    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.11"
-    lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.0.11" artifacts(Artifact("atmosphere-jquery", "war", "war"))
+    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.12"
+    lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.0.12" artifacts(Artifact("atmosphere-jquery", "war", "war"))
     lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.beta1"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"

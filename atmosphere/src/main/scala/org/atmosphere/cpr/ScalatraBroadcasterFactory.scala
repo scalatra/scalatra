@@ -14,8 +14,7 @@ object ScalatraBroadcasterFactory {
 
 }
 class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
-  BroadcasterFactory.config = cfg
-  if (BroadcasterFactory.factory == null) BroadcasterFactory.factory = this
+  BroadcasterFactory.setBroadcasterFactory(this, cfg)
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
   private[this] val store: mutable.ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
