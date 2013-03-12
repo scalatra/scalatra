@@ -686,11 +686,11 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   }
 
   def serverHost(implicit request: HttpServletRequest) = {
-    servletContext.getInitParameter(HostNameKey).blankOption getOrElse request.getServerName
+    initParameter(HostNameKey).flatMap(_.blankOption) getOrElse request.getServerName
   }
 
   def serverPort(implicit request: HttpServletRequest) = {
-    servletContext.getInitParameter(PortKey).blankOption.map(_.toInt) getOrElse request.getServerPort
+    initParameter(PortKey).flatMap(_.blankOption).map(_.toInt) getOrElse request.getServerPort
   }
 
   protected def contextPath: String = servletContext.contextPath
