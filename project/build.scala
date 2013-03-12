@@ -296,7 +296,7 @@ object ScalatraBuild extends Build {
     private val akkaVersion: String => String = {
       case "2.9.1"                      => "2.0.2"
       case "2.9.2"                      => "2.0.5"
-      case _                            => "2.1.0"
+      case _                            => "2.1.1"
     }
 
     private val grizzledSlf4jVersion: String => String = {
