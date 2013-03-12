@@ -48,6 +48,7 @@ trait AtmosphereClient {
 
   @volatile private[atmosphere] var resource: AtmosphereResource = _
   private[this] val internalLogger = Logger[AtmosphereClient]
+//  @volatile private[atmosphere] var broadcaster: ScalatraBroadcaster = _
   private[this] def broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
 
   /**

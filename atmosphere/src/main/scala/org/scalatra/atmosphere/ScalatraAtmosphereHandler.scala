@@ -63,7 +63,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 //  private[this] val clientsForResources =
 
   def onRequest(resource: AtmosphereResource) {
-    internalLogger.debug("Got an atmosphere resource with uuid: " + resource.uuid)
+    internalLogger.debug("Got an atmosphere resource with uuid: " + resource.uuid + " for path " + requestUri(resource) + " is suspended: " + resource.isSuspended)
     val req = resource.getRequest
     val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
     val clientOption = resource.clientOption
@@ -85,7 +85,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
         resumeIfNeeded(resource)
         configureBroadcaster(resource)
 //        resource.getResponse.getAsyncIOWriter.write(resource.uuid).flush()
-        resource.suspend
+        resource.suspend()
       case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
         internalLogger.warn(ex.getMessage, ex)
@@ -102,7 +102,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 //    }
 //  }
   private[this] def createClient(route: MatchedRoute, resource: AtmosphereResource) = {
-  val req = resource.getRequest
+    val req = resource.getRequest
     withRouteMultiParams(route, req) {
       val client = clientForRoute(route)
       activeClients(resource.uuid) = client
@@ -123,8 +123,11 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   }
 
   private[this] def configureBroadcaster(resource: AtmosphereResource) {
-    val bc = BroadcasterFactory.getDefault.get(requestUri(resource))
+    val reqUri = requestUri(resource)
+    internalLogger.debug("Configuring broadcaster for path: %s" format reqUri)
+    val bc = BroadcasterFactory.getDefault.get(reqUri)
     resource.setBroadcaster(bc)
+//    resource.client.broadcaster = bc.asInstanceOf[ScalatraBroadcaster]
   }
 
   private[this] def lookupBroadcaster(resource: AtmosphereResource) = {
