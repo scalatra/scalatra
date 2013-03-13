@@ -9,6 +9,7 @@
   </appender>
 
   <logger name="org.scalatra" level="DEBUG"/>
+  <logger name="org.atmosphere" level="DEBUG"/>
   <root level="WARN">
     <appender-ref ref="STDOUT" />
   </root>

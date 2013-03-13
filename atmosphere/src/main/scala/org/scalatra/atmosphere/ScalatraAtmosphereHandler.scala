@@ -20,9 +20,10 @@ object ScalatraAtmosphereHandler {
 
   private class ScalatraResourceEventListener extends AtmosphereResourceEventListener {
 
+    private[this] val logger = Logger[ScalatraResourceEventListener]
 
     def onBroadcast(event: AtmosphereResourceEvent) {
-      println("broadcasting to: " + event.getResource.uuid() + " on " + event.getResource.transport())
+      logger.debug("broadcasting to: " + event.getResource.uuid() + " on " + event.getResource.transport())
       val resource = event.getResource
         resource.transport match {
           case JSONP | AJAX | LONG_POLLING =>
@@ -31,7 +32,7 @@ object ScalatraAtmosphereHandler {
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
-      println("disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
+      logger.debug("disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
       val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
       if (!event.getResource.isResumed) event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
       activeClients -= event.getResource.uuid()
@@ -39,15 +40,15 @@ object ScalatraAtmosphereHandler {
     }
 
     def onResume(event: AtmosphereResourceEvent) {
-      println("resuming: " + event.getResource.uuid() + " on " + event.getResource.transport())
+      logger.debug("resuming: " + event.getResource.uuid() + " on " + event.getResource.transport())
     }
 
     def onSuspend(event: AtmosphereResourceEvent) {
-      println("suspending: " + event.getResource.uuid() + " on " + event.getResource.transport())
+      logger.debug("suspending: " + event.getResource.uuid() + " on " + event.getResource.transport())
     }
 
     def onThrowable(event: AtmosphereResourceEvent) {
-      println("error for: " + event.getResource.uuid() + " on " + event.getResource.transport())
+      logger.debug("error for: " + event.getResource.uuid() + " on " + event.getResource.transport())
       event.getResource.clientOption foreach (_.receive.lift(Error(Option(event.throwable()))))
     }
   }
@@ -71,7 +72,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     internalLogger.debug("This is a new client? " + isNew)
 
     (req.requestMethod, route.isDefined) match {
-      case (Post, _) =>
+      case (Post, true) =>
         clientOption map { client =>
           client.resource = resource
           handleIncomingMessage(req, client)

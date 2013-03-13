@@ -160,8 +160,6 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    * [[org.apache.catalina.CometProcessor]] without invoking [[javax.servlet.Servlet#service]]
    *
    * @param cometEvent the [[org.apache.catalina.CometEvent]]
-   * @throws java.io.IOException
-   * @throws javax.servlet.ServletException
    */
   @throws(classOf[IOException])
   @throws(classOf[ServletException])
@@ -204,8 +202,6 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    * [[org.jboss.servlet.http.HttpEventServlet]] without invoking [[javax.servlet.Servlet#service]]
    *
    * @param httpEvent the [[org.jboss.servlet.http.HttpEvent]]
-   * @throws java.io.IOException
-   * @throws javax.servlet.ServletException
    */
   @throws(classOf[IOException])
   @throws(classOf[ServletException])
