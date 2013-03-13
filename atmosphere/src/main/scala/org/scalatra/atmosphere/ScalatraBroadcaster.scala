@@ -16,7 +16,7 @@ final class ScalatraBroadcaster(name: String, uri: URI, config: AtmosphereConfig
 
   def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter): Future[T] = {
     logger.debug("There are %s resources in the [%s] broadcaster.".format(resources.size(), name))
-    val selectedResources = resources.asScala map (_.client) filter clientFilter
+    val selectedResources = (resources.asScala map (_.clientOption)).flatten filter clientFilter
     logger.info("Sending %s to %s".format(msg, selectedResources.map(_.uuid)))
     broadcast(wireFormat.render(msg), selectedResources.map(_.resource).toSet.asJava).map(_ => msg)
   }

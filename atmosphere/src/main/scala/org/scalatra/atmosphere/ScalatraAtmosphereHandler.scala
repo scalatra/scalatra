@@ -33,8 +33,8 @@ object ScalatraAtmosphereHandler {
 
     def onDisconnect(event: AtmosphereResourceEvent) {
       logger.debug("disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
-      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
-      if (!event.getResource.isResumed) event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+//      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
+//      if (!event.getResource.isResumed) event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
       activeClients -= event.getResource.uuid()
 
     }
@@ -72,21 +72,23 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     internalLogger.debug("This is a new client? " + isNew)
 
     (req.requestMethod, route.isDefined) match {
-      case (Post, true) =>
+      case (Post, _) =>
+        internalLogger.debug("This is a post request")
         clientOption map { client =>
-          client.resource = resource
+//          client.resource = resource  // => makes it so that the broadcaster is wrong, it works without this too
           handleIncomingMessage(req, client)
         }
       case (Get, true) =>
+        internalLogger.debug("This is a get request")
         if (isNew) {
-          createClient(route.get, resource).receive.lift(Connected)
+          createClient(route.get, resource) //.receive.lift(Connected)
         }
 
         addEventListener(resource)
         resumeIfNeeded(resource)
         configureBroadcaster(resource)
 //        resource.getResponse.getAsyncIOWriter.write(resource.uuid).flush()
-        resource.suspend()
+        resource.suspend
       case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
         internalLogger.warn(ex.getMessage, ex)
