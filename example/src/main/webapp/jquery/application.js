@@ -11,8 +11,8 @@ $(function() {
   var logged = false;
   var socket = $.atmosphere;
   var subSocket;
-//  var transport = 'long-polling';
-  var transport = 'websocket';
+  var transport = 'long-polling';
+//  var transport = 'websocket';
 
   var request = {
     url: "/atmosphere/multiroom/scalatra",
@@ -21,8 +21,8 @@ $(function() {
     transport: transport,
     trackMessageLength : true,
     enableProtocol: true, /* needed for long-polling transport */
-    fallbackTransport: 'long-polling'
-//    fallbackTransport: 'websocket'
+//    fallbackTransport: 'long-polling'
+    fallbackTransport: 'websocket'
   };
 
   request.onOpen = function(response) {

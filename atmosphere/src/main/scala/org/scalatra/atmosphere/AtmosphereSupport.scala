@@ -142,8 +142,8 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   }
 
   private[this] def configureBroadcasterCache() {
-//    if (atmosphereFramework.getBroadcasterCacheClassName.isBlank)
-//      atmosphereFramework.setBroadcasterCacheClassName(classOf[UUIDBroadcasterCache].getName)
+    if (atmosphereFramework.getBroadcasterCacheClassName.isBlank)
+      atmosphereFramework.setBroadcasterCacheClassName(classOf[UUIDBroadcasterCache].getName)
   }
 
   private[atmosphere] val Atmosphere: RouteTransformer = route => route.copy(metadata = route.metadata + ('Atmosphere -> 'Atmosphere))

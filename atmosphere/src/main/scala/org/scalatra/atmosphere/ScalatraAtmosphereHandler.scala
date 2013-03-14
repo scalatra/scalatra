@@ -61,8 +61,6 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
   private[this] val internalLogger = Logger("org.scalatra.atmosphere.AtmosphereClient")
 
-//  private[this] val clientsForResources =
-
   def onRequest(resource: AtmosphereResource) {
     internalLogger.debug("Got an atmosphere resource with uuid: " + resource.uuid + " for path " + requestUri(resource) + " is suspended: " + resource.isSuspended)
     val req = resource.getRequest
@@ -73,21 +71,18 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
     (req.requestMethod, route.isDefined) match {
       case (Post, _) =>
-        internalLogger.debug("This is a post request")
         clientOption map { client =>
-//          client.resource = resource  // => makes it so that the broadcaster is wrong, it works without this too
           handleIncomingMessage(req, client)
         }
       case (Get, true) =>
-        internalLogger.debug("This is a get request")
         if (isNew) {
-          createClient(route.get, resource) //.receive.lift(Connected)
+          createClient(route.get, resource)
         }
 
         addEventListener(resource)
         resumeIfNeeded(resource)
         configureBroadcaster(resource)
-//        resource.getResponse.getAsyncIOWriter.write(resource.uuid).flush()
+//        if (isNew) resource.client.receive.lift(Connected)
         resource.suspend
       case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
@@ -96,14 +91,6 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     }
   }
 
-//  private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
-//    withRouteMultiParams(route, resource.getRequest) {
-//      val client = clientForRoute(route)
-//      session(org.scalatra.atmosphere.AtmosphereClientKey) = client
-//      client.resource = resource
-//      client
-//    }
-//  }
   private[this] def createClient(route: MatchedRoute, resource: AtmosphereResource) = {
     val req = resource.getRequest
     withRouteMultiParams(route, req) {
