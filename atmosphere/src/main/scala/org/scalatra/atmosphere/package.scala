@@ -5,7 +5,7 @@ import _root_.akka.dispatch.Promise
 import _root_.akka.util.Deadline
 import _root_.akka.util.duration._
 import _root_.akka.actor.ActorSystem
-import org.atmosphere.cpr.{ApplicationConfig, AtmosphereResource}
+import org.atmosphere.cpr.{AtmosphereResourceFactory, ApplicationConfig, AtmosphereResource}
 import scala.util.control.Exception._
 import java.util.concurrent.{ConcurrentHashMap, Executors}
 import collection.mutable
@@ -25,12 +25,24 @@ package object atmosphere {
   private[atmosphere] val activeClients: mutable.ConcurrentMap[String, AtmosphereClient] = new ConcurrentHashMap[String, AtmosphereClient].asScala
 
   implicit def atmoResourceWithClient(res: AtmosphereResource) = new {
-    private[this] def realUuid = {
-      val uuidOpt = Option(res.getRequest.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID))
-      uuidOpt map (_.asInstanceOf[String]) getOrElse res.uuid()
+
+    def realUuid = {
+      res.transport match {
+        case AtmosphereResource.TRANSPORT.WEBSOCKET =>
+          val uuidOpt = Option(res.getRequest.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID))
+          uuidOpt map (_.asInstanceOf[String]) getOrElse res.uuid
+        case _ => res.uuid
+      }
     }
-    def clientOption = activeClients.get(realUuid)
-    def client = activeClients(realUuid)
+    def clientOption = activeClients.get(realUuid) map { client =>
+      client.resource = AtmosphereResourceFactory.getDefault.find(realUuid)
+      client
+    }
+    def client = {
+      val cl = activeClients(realUuid)
+      cl.resource = AtmosphereResourceFactory.getDefault.find(realUuid)
+      cl
+    }
   }
 
   private[atmosphere] implicit def jucFuture2akkaFuture[T](javaFuture: java.util.concurrent.Future[T])(implicit system: ActorSystem): Future[T] = {

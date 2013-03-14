@@ -6,7 +6,7 @@ import grizzled.slf4j.Logger
 import collection.mutable
 import java.util.concurrent.ConcurrentHashMap
 import org.atmosphere.di.InjectorProvider
-import java.util.UUID
+import java.util.{Collections, UUID}
 import org.scalatra.atmosphere.{WireFormat, ScalatraBroadcaster}
 import collection.JavaConverters._
 
@@ -18,6 +18,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
   private[this] val store: mutable.ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
+  private[this] val policy = new BroadcasterLifeCyclePolicy.Builder().policy(BroadcasterLifeCyclePolicy.ATMOSPHERE_RESOURCE_POLICY.NEVER).build()
 
   private def createBroadcaster(c: Class[_<:Broadcaster], id: Any): Broadcaster = {
     try {
@@ -33,10 +34,10 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
         b.setBroadcasterConfig(new BroadcasterConfig(cfg.framework().broadcasterFilters, cfg, "scalatra-broadcaster-factory"))
       }
 
-      b.setBroadcasterLifeCyclePolicy(BroadcasterLifeCyclePolicy.NEVER)
+      b.setBroadcasterLifeCyclePolicy(policy)
       broadcasterListeners.asScala foreach { l =>
         b.addBroadcasterListener(l)
-        l.onPostCreate(b)
+        try { l.onPostCreate(b) } catch { case t: Throwable => logger.error("onPostCreate", t) }
       }
       b
     } catch {
@@ -46,22 +47,30 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
   def add(b: Broadcaster, id: Any): Boolean = store.put(id, b).isEmpty
 
   def destroy() {
-    val s = cfg.getInitParameter(ApplicationConfig.SHARED)
-    if (s != null && s.equalsIgnoreCase("TRUE")) {
+    synchronized {
+      val s = cfg.getInitParameter(ApplicationConfig.SHARED)
+      if (s != null && s.equalsIgnoreCase("TRUE")) {
         logger.warn("Factory shared, will not be destroyed. That can possibly cause memory leaks if" +
-                "Broadcaster where created. Make sure you destroy them manually.")
-    }
+          "Broadcaster where created. Make sure you destroy them manually.")
+      } else {
+        var bc: BroadcasterConfig = null
+        store foreach {
+          case (k, b) =>
+            b.resumeAll()
+            b.destroy()
+            bc = b.getBroadcasterConfig
+        }
 
-    var bc: BroadcasterConfig = null
-    store foreach { case (k, b) =>
-      b.resumeAll()
-      b.destroy()
-      bc = b.getBroadcasterConfig
-    }
-    if (bc != null) bc.forceDestroy()
+        try {
+          if (bc != null) bc.forceDestroy()
+        } catch {
+          case t: Throwable => logger.error("Destroy", t)
+        }
 
-    store.clear()
-    BroadcasterFactory.factory = null
+        store.clear()
+        BroadcasterFactory.setBroadcasterFactory(null, cfg)
+      }
+    }
   }
 
   def get(): Broadcaster = lookup(UUID.randomUUID().toString)
@@ -99,7 +108,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
   def lookup(id: Any, createIfNull: Boolean): Broadcaster = lookup(classOf[ScalatraBroadcaster], id, createIfNull)
 
   def lookupAll(): java.util.Collection[Broadcaster] = {
-    store.values.toList.asJavaCollection
+    Collections.unmodifiableCollection(store.values.asJavaCollection)
   }
 
   def remove(b: Broadcaster, id: Any): Boolean = {

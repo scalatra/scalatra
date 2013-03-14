@@ -305,7 +305,7 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.3"
 
-    private val jettyVersion = "8.1.8.v20121106"
+    private val jettyVersion = "8.1.10.v20130312"
 
     private val json4sVersion = "3.1.0"
 

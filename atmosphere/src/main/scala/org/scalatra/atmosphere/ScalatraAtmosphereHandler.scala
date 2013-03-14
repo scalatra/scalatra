@@ -25,17 +25,22 @@ object ScalatraAtmosphereHandler {
     def onBroadcast(event: AtmosphereResourceEvent) {
       logger.debug("broadcasting to: " + event.getResource.uuid() + " on " + event.getResource.transport())
       val resource = event.getResource
-        resource.transport match {
-          case JSONP | AJAX | LONG_POLLING =>
-          case _ => resource.getResponse.flushBuffer()
-        }
+      resource.transport match {
+        case JSONP | AJAX | LONG_POLLING =>
+        case _ => resource.getResponse.flushBuffer()
+      }
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
       logger.debug("disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
-//      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
-//      if (!event.getResource.isResumed) event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
-      activeClients -= event.getResource.uuid()
+      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
+      if (!event.getResource.isResumed) {
+        event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
+        if (event.isCancelled) {
+          logger.debug("actually disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
+          event.getResource.clientOption foreach { cl => activeClients -= cl.uuid }
+        }
+      }
 
     }
 
@@ -82,8 +87,8 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
         addEventListener(resource)
         resumeIfNeeded(resource)
         configureBroadcaster(resource)
-//        if (isNew) resource.client.receive.lift(Connected)
         resource.suspend
+//        if (isNew) resource.client.receive.lift(Connected)
       case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
         internalLogger.warn(ex.getMessage, ex)
