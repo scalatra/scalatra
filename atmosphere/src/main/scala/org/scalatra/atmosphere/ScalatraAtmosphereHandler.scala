@@ -33,8 +33,8 @@ object ScalatraAtmosphereHandler {
 
     def onDisconnect(event: AtmosphereResourceEvent) {
       logger.debug("disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
-      val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
       if (!event.getResource.isResumed) {
+        val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
         event.getResource.clientOption foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
         if (event.isCancelled) {
           logger.debug("actually disconnecting: " + event.getResource.uuid() + " on " + event.getResource.transport())
@@ -69,6 +69,8 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   def onRequest(resource: AtmosphereResource) {
     internalLogger.debug("Got an atmosphere resource with uuid: " + resource.uuid + " for path " + requestUri(resource) + " is suspended: " + resource.isSuspended)
     val req = resource.getRequest
+    req(FrameworkConfig.ATMOSPHERE_RESOURCE) = resource
+    req(FrameworkConfig.ATMOSPHERE_HANDLER) = this
     val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
     val clientOption = resource.clientOption
     val isNew = clientOption.isEmpty
