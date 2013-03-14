@@ -5,11 +5,12 @@ import _root_.akka.dispatch.Promise
 import _root_.akka.util.Deadline
 import _root_.akka.util.duration._
 import _root_.akka.actor.ActorSystem
-import org.atmosphere.cpr.AtmosphereResource
+import org.atmosphere.cpr.{ApplicationConfig, AtmosphereResource}
 import scala.util.control.Exception._
 import java.util.concurrent.{ConcurrentHashMap, Executors}
 import collection.mutable
 import collection.JavaConverters._
+import annotation.switch
 
 package object atmosphere {
 
@@ -24,8 +25,12 @@ package object atmosphere {
   private[atmosphere] val activeClients: mutable.ConcurrentMap[String, AtmosphereClient] = new ConcurrentHashMap[String, AtmosphereClient].asScala
 
   implicit def atmoResourceWithClient(res: AtmosphereResource) = new {
-    def clientOption = activeClients.get(res.uuid)
-    def client = activeClients(res.uuid)
+    private[this] def realUuid = {
+      val uuidOpt = Option(res.getRequest.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID))
+      uuidOpt map (_.asInstanceOf[String]) getOrElse res.uuid()
+    }
+    def clientOption = activeClients.get(realUuid)
+    def client = activeClients(realUuid)
   }
 
   private[atmosphere] implicit def jucFuture2akkaFuture[T](javaFuture: java.util.concurrent.Future[T])(implicit system: ActorSystem): Future[T] = {
