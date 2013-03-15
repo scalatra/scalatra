@@ -19,7 +19,7 @@ $(function() {
     contentType: "application/json",
     logLevel: 'debug',
     transport: transport,
-    trackMessageLength : true,
+    trackMessageLength : false,
     enableProtocol: true, /* needed for long-polling transport */
 //    fallbackTransport: 'long-polling'
     fallbackTransport: 'websocket'

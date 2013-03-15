@@ -9,23 +9,23 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
   <listener>
     <listener-class>org.scalatra.servlet.ScalatraListener</listener-class>
   </listener>
-  <servlet>
-    <description>PlainMeteorChat</description>
-    <servlet-name>PlainMeteorChat</servlet-name>
-    <servlet-class>org.atmosphere.cpr.MeteorServlet</servlet-class>
-    <load-on-startup>0</load-on-startup>
-    <init-param>
-      <param-name>org.atmosphere.servlet</param-name>
-      <param-value>org.scalatra.PlainMeteorChat</param-value>
-    </init-param>
-  </servlet>
-  <servlet-mapping>
-  <servlet-name>PlainMeteorChat</servlet-name>
-    <url-pattern>/meteor</url-pattern>
-  </servlet-mapping>
-  <session-config>
-    <session-timeout>25</session-timeout>
-  </session-config>
+  <!--<servlet>-->
+    <!--<description>PlainMeteorChat</description>-->
+    <!--<servlet-name>PlainMeteorChat</servlet-name>-->
+    <!--<servlet-class>org.atmosphere.cpr.MeteorServlet</servlet-class>-->
+    <!--<load-on-startup>0</load-on-startup>-->
+    <!--<init-param>-->
+      <!--<param-name>org.atmosphere.servlet</param-name>-->
+      <!--<param-value>org.scalatra.PlainMeteorChat</param-value>-->
+    <!--</init-param>-->
+  <!--</servlet>-->
+  <!--<servlet-mapping>-->
+  <!--<servlet-name>PlainMeteorChat</servlet-name>-->
+    <!--<url-pattern>/meteor</url-pattern>-->
+  <!--</servlet-mapping>-->
+  <!--<session-config>-->
+    <!--<session-timeout>25</session-timeout>-->
+  <!--</session-config>-->
   <servlet-mapping>
     <servlet-name>default</servlet-name>
     <url-pattern>/images/*</url-pattern>
