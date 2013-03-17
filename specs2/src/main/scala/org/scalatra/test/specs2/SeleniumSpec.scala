@@ -3,7 +3,8 @@ package test
 package specs2
 
 import org.specs2.Specification
-import org.specs2.specification.{BaseSpecification, Step, Fragments}
+import org.specs2.specification._
+import org.specs2.main.ArgumentsShortcuts._
 
 import SeleniumWebBrowser._
 
@@ -13,7 +14,7 @@ import SeleniumWebBrowser._
  * ScalatraSpec or MutableScalatraSpec.
  */
 trait BaseSeleniumSpec extends BaseSpecification with SeleniumTests {
-  override def map(fs: =>Fragments) = Step(start()) ^ super.map(fs) ^ Step(stop())
+  override def map(fs: =>Fragments) = sequential ^ Step(start()) ^ super.map(fs) ^ Step(stop())
 }
 
 trait MutableSeleniumSpec extends Specification with BaseSeleniumSpec
