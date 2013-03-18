@@ -2,7 +2,13 @@ package org.scalatra.test
 
 object SeleniumWebBrowser {
   trait Chrome extends org.scalatest.selenium.Chrome {
-
+    /**
+     * remapping of a selenium/scalatest method since it conflicts with
+     * a specs2 method
+     */
+    def nameQuery(elementName: String): NameQuery = {
+      name(elementName)
+    }
   }
 
   trait Firefox extends org.scalatest.selenium.Firefox {
@@ -45,9 +51,5 @@ object SeleniumWebBrowser {
     }
   }
 
-  trait EmbeddedJettyContainerSelenium extends EmbeddedJettyContainer {
-    override def port: Int = 8081
-  }
-
-  trait SeleniumTests extends EmbeddedJettyContainerSelenium with HttpComponentsClient { }
+  trait SeleniumTests extends EmbeddedJettyContainer with HttpComponentsClient { }
 }
