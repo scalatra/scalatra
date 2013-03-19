@@ -1,7 +1,7 @@
 package org.scalatra.commands
 
 import scalaz._
-import Scalaz._
+import syntax.validation._
 import org.scalatra.validation._
 import grizzled.slf4j.Logger
 import mojolly.inflector.InflectorImports._
@@ -55,8 +55,9 @@ abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]
 
       res match {
         case Succ(r) ⇒
+          def plur(count: Int) = if (count == 1) "failure" else "failures"
           val resultLog = r.fold(
-            { failures ⇒ s"with ${failures.tail.size + 1} failures\n${failures.list}" },
+            { failures ⇒ s"with ${failures.tail.size + 1} ${failures.list.size}\n${failures.list}" },
             { _ ⇒ "successfully" })
           logger.debug(s"Command [${cmd.getClass.getName}] executed $resultLog")
           r
@@ -109,8 +110,9 @@ abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidatio
 
       res onSuccess {
         case r ⇒
+          def plur(count: Int) = if (count == 1) "failure" else "failures"
           val resultLog = r.fold(
-            { failures ⇒ s"with ${failures.list.size} ${"failure".plural(failures.list.size)}.\n${failures.list}" },
+            { failures ⇒ s"with ${failures.list.size} ${plur(failures.list.size)}.\n${failures.list}" },
             { _ ⇒ "successfully" })
           logger.debug(s"Command [${cmd.getClass.getName}] executed $resultLog")
       }
@@ -124,7 +126,8 @@ abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidatio
       val f = cmd.errors.map(_.validation) collect {
         case Failure(e) ⇒ e
       }
-      logger.debug(s"Command [${cmd.getClass.getName}] executed with ${f.size} ${"failure".plural(f.size)}.\n${f.toList}")
+      def failures = if (f.size == 1) "failure" else "failures"
+      logger.debug(s"Command [${cmd.getClass.getName}] executed with ${f.size} ${failures}.\n${f.toList}")
       Future.successful(NonEmptyList(f.head, f.tail: _*).fail)
     }
   }

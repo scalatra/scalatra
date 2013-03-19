@@ -2,7 +2,7 @@ package org.scalatra
 
 import validation.ValidationError
 import scalaz._
-import Scalaz._
+import scalaz.syntax.validation._
 import org.json4s.JsonAST.{JValue, JNothing}
 import java.util.Date
 import org.joda.time.{ DateTime, DateTimeZone }
@@ -11,7 +11,7 @@ package object commands extends DefaultValues {
 
   type FieldValidation[T] = Validation[ValidationError, T]
   
-  type ModelValidation[T] = ValidationNEL[ValidationError, T]
+  type ModelValidation[T] = ValidationNel[ValidationError, T]
 
   type Validator[T] = FieldValidation[T] => FieldValidation[T]
 

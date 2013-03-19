@@ -5,10 +5,8 @@ import org.scalatra.util.conversion._
 import validation._
 import java.util.Date
 import scalaz._
-import Scalaz._
+import syntax.std.option._
 import org.joda.time.DateTime
-import java.util.concurrent.atomic.AtomicReference
-import scala.util.matching.Regex
 
 class BindingException(message: String) extends ScalatraException(message)
 

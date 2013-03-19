@@ -7,25 +7,30 @@ import org.scalatra.util.RicherString._
 import scala.util.control.Exception.catching
 
 object ScalatraServlet {
+
+  val RequestPathKey = "org.scalatra.ScalatraServlet.requestPath"
   import servlet.ServletApiImplicits._
-  def requestPath(request: HttpServletRequest) = {
+  def requestPath(request: HttpServletRequest): String = {
     require(request != null, "The request can't be null for getting the request path")
+    def startIndex(r: HttpServletRequest) =
+      r.getContextPath.blankOption.map(_.length).getOrElse(0) + r.getServletPath.blankOption.map(_.length).getOrElse(0)
     def getRequestPath(r: HttpServletRequest) = {
       val u = (catching(classOf[NullPointerException]) opt { r.getRequestURI } getOrElse "/")
-      val u2 = (u.blankOption map { uri =>
-        val uu = if (r.getContextPath.nonBlank) uri.substring(r.getContextPath.length) else uri
-        if (r.getServletPath.nonBlank) uu.substring(r.getServletPath.length) else uu
-      } flatMap(_.blankOption) getOrElse "/")
-      val pos = u2.indexOf(';')
-      val u3 = if (pos > -1) u2.substring(0, pos) else u2
-      UriDecoder.firstStep(u3)
+      requestPath(u, startIndex(r))
     }
 
-    request.get("org.scalatra.ScalatraServlet.requestPath") map (_.toString) getOrElse {
-      val requestPath = getRequestPath(request)
-      request("org.scalatra.ScalatraServlet.requestPath") = requestPath
-      requestPath
+    request.get(RequestPathKey) map (_.toString) getOrElse {
+      val rp = getRequestPath(request)
+      request(RequestPathKey) = rp
+      rp
     }
+  }
+
+  def requestPath(uri: String, idx: Int): String = {
+    val u2 = (uri.blankOption map { _.substring(idx) } flatMap(_.blankOption) getOrElse "/")
+    val pos = u2.indexOf(';')
+    val u3 = if (pos > -1) u2.substring(0, pos) else u2
+    UriDecoder.firstStep(u3)
   }
 }
 

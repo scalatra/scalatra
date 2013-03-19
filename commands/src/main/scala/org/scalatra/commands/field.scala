@@ -4,7 +4,8 @@ package commands
 import validation._
 import util.conversion._
 import scalaz._
-import Scalaz._
+import syntax.validation._
+import syntax.std.option._
 import mojolly.inflector.InflectorImports._
 import org.scalatra.util.RicherString._
 
