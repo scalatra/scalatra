@@ -1,7 +1,7 @@
 package org.scalatra.commands
 
 import scalaz._
-import Scalaz._
+import syntax.validation._
 import akka.dispatch.{Promise, ExecutionContext, Future}
 import org.scalatra.validation._
 import grizzled.slf4j

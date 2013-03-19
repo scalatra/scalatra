@@ -52,6 +52,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(
         servletApi % "provided;test",
+        slf4jApi,
         grizzledSlf4j(sv),
         rl,
         jUniversalChardet,
@@ -279,9 +280,10 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-M8"
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-M9"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
-    lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.2"
+    lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.3"
+    lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.3"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
     lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)
     lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross
@@ -304,9 +306,9 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.3"
 
-    private val jettyVersion = "8.1.8.v20121106"
+    private val jettyVersion = "8.1.10.v20130312"
 
-    private val json4sVersion = "3.1.0"
+    private val json4sVersion = "3.2.0"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"
@@ -344,7 +346,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
       case sv if sv startsWith "2.9."   => "1.12.3"
-      case _                            => "1.13"
+      case _                            => "1.14"
     }
 
     private val swaggerCross = CrossVersion.binaryMapped {
