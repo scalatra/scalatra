@@ -5,7 +5,6 @@ import java.lang.reflect.{ TypeVariable, WildcardType, ParameterizedType, Type, 
 
 private[swagger] object ManifestFactory {
   def manifestOf(t: Type): Manifest[_] = t match {
-    case c: Class[_] => fromClass(c)
 
     case pt: ParameterizedType =>
       val clazz = manifestOf(pt.getRawType).erasure
@@ -31,6 +30,9 @@ private[swagger] object ManifestFactory {
       val upper = wt.getBounds
       if (upper != null && upper.size > 0) manifestOf(upper(0))
       else manifestOf(classOf[AnyRef])
+
+    case c: Class[_] => fromClass(c)
+
   }
 
   def manifestOf(erasure: Class[_], typeArgs: Seq[Manifest[_]]): Manifest[_] = {
