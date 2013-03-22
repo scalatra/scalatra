@@ -4,7 +4,6 @@ package specs2
 
 import org.specs2.SpecificationLike
 
-
 /**
  * A Specification that starts the tester before the specification and stops it
  * afterward.

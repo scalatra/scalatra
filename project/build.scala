@@ -8,7 +8,6 @@ import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 
 object ScalatraBuild extends Build {
   import Dependencies._
-  import Resolvers._
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
@@ -19,7 +18,7 @@ object ScalatraBuild extends Build {
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6", "-Xlint:deprecation"),
     manifestSetting,
     publishSetting,
-    resolvers ++= Seq(sonatypeNexusSnapshots),
+    resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
   ) ++ mavenCentralFrouFrou
@@ -108,7 +107,6 @@ object ScalatraBuild extends Build {
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <+= scalaVersion(scalate),
-      resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra",
       LsKeys.tags in LsKeys.lsync ++= Seq("templating", "scalate", "ssp", "jade", "mustache", "scaml", "haml")
     )
@@ -233,7 +231,6 @@ object ScalatraBuild extends Build {
    id = "scalatra-example",
    base = file("example"),
    settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
-     resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApi % "container;test",
      libraryDependencies += jettyWebsocket % "container;test",
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
@@ -310,7 +307,7 @@ object ScalatraBuild extends Build {
 
     private val jettyVersion = "8.1.10.v20130312"
 
-    private val json4sVersion = "3.2.0"
+    private val json4sVersion = "3.2.1"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"
@@ -347,7 +344,7 @@ object ScalatraBuild extends Build {
     private val specs2Version: String => String = {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
-      case sv if sv startsWith "2.9."   => "1.12.3"
+      case sv if sv startsWith "2.9."   => "1.12.4.1"
       case _                            => "1.14"
     }
 
@@ -356,13 +353,6 @@ object ScalatraBuild extends Build {
       case _                            => "2.10.0"
     }
     private val swaggerVersion = "1.2.0"
-  }
-
-  object Resolvers {
-    val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-    val sonatypeNexusReleases = "Sonatype Nexus Releases" at "https://oss.sonatype.org/content/repositories/releases"
-    val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-    val fuseSourceSnapshots = "FuseSource Snapshots" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
@@ -383,9 +373,9 @@ object ScalatraBuild extends Build {
 
   lazy val publishSetting = publishTo <<= (version) { version: String =>
     if (version.trim.endsWith("SNAPSHOT"))
-      Some(sonatypeNexusSnapshots)
+      Some(Opts.resolver.sonatypeSnapshots)
     else
-      Some(sonatypeNexusStaging)
+      Some(Opts.resolver.sonatypeStaging)
   }
 
   // Things we care about primarily because Maven Central demands them
