@@ -11,4 +11,4 @@ import org.specs2.mutable.SpecificationLike
  * This is a spec of the mutable variation of the specs2 framework.
  * All documentation for specs2 still applies.
  */
-trait MutableScalatraSpec extends BaseScalatraSpec with SpecificationLike with ScalatraTests
+trait MutableScalatraSpec extends SpecificationLike with BaseScalatraSpec
