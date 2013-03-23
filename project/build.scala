@@ -175,7 +175,9 @@ object ScalatraBuild extends Build {
         httpclient,
         httpmime,
         jodaTime % "provided",
-        jodaConvert % "provided"
+        jodaConvert % "provided",
+        scalatest(sv),
+        seleniumjava
       )),
       description := "The abstract Scalatra test framework"
     )
@@ -282,6 +284,7 @@ object ScalatraBuild extends Build {
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-M8"
+    lazy val seleniumjava               =  "org.seleniumhq.selenium" % "selenium-java"       % "2.31.0"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.2"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
@@ -327,7 +330,7 @@ object ScalatraBuild extends Build {
 
     private val scalatestVersion: String => String = {
       case sv if sv startsWith "2.8."   => "1.8"
-      case _                            => "1.9.1"
+      case _                            => "2.0.M5b"
     }
 
     private val specsCross = CrossVersion.binaryMapped {
