@@ -1,1 +1,1 @@
-crossPaths in ThisBuild := false
+crossPaths in ThisBuild := true

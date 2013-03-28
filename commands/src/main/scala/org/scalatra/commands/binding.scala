@@ -56,7 +56,7 @@ object Binding {
     type S = I
 
     override def toString() = {
-      "Binding[%s, %s](name: %s, original: %s, value: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, validation, original)
+      "Binding[%s, %s](name: %s, value: %s, original: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, validation, original)
     }
 
     def transform(transformer: (T) => T): Binding =

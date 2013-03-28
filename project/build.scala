@@ -11,12 +11,11 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.9.2"),
+    crossScalaVersions := Seq("2.9.3", "2.9.2"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xcheckinit", "-encoding", "utf8"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6", "-Xlint:deprecation"),
     manifestSetting,
-    publishSetting,
     resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
@@ -253,7 +252,7 @@ object ScalatraBuild extends Build {
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
     lazy val commonsLang3               =  "org.apache.commons"      %  "commons-lang3"      % "3.1"
-    lazy val grizzledSlf4j: MM     = sv => "org.clapper"             %% "grizzled-slf4j"     % grizzledSlf4jVersion(sv)
+    lazy val grizzledSlf4j: MM     = sv => "org.clapper"             % "grizzled-slf4j"      % grizzledSlf4jVersion(sv) cross crossMapped("2.9.3" -> "2.9.2")
     lazy val guice                      =  "com.google.inject"       %  "guice"              % "3.0"
     lazy val httpclient                 =  "org.apache.httpcomponents" % "httpclient"        % httpcomponentsVersion
     lazy val httpmime                   =  "org.apache.httpcomponents" % "httpmime"          % httpcomponentsVersion
@@ -277,7 +276,7 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-M9"
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-M9" cross crossMapped("2.9.3" -> "2.9.2")
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.3"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.3"
@@ -290,11 +289,14 @@ object ScalatraBuild extends Build {
 
     type MM = String => ModuleID
 
-    private val akkaVersion: String => String = {
-      case "2.9.1"                      => "2.0.2"
-      case "2.9.2"                      => "2.0.5"
-      case _                            => "2.1.0"
-    }
+    def crossMapped(mappings: (String, String)*): CrossVersion =
+      CrossVersion.binaryMapped(Map(mappings: _*) orElse { case v => v })
+
+    def defaultOrMapped(default: String, alternatives: (String, String)*): String => String =
+      Map(alternatives: _*) orElse { case _ => default }
+
+    private val akkaVersion: String => String =
+      defaultOrMapped("2.1.2", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
 
     private val grizzledSlf4jVersion: String => String = {
       case sv if sv startsWith "2.9."   => "0.6.10"
@@ -305,7 +307,7 @@ object ScalatraBuild extends Build {
 
     private val jettyVersion = "8.1.10.v20130312"
 
-    private val json4sVersion = "3.2.1"
+    private val json4sVersion = "3.2.3"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"
@@ -322,22 +324,12 @@ object ScalatraBuild extends Build {
       case _                            => "1.6.1"
     }
 
-    private val scalatestVersion: String => String = {
-      case sv if sv startsWith "2.8."   => "1.8"
-      case _                            => "1.9.1"
-    }
+    private val scalatestVersion: String => String =
+      defaultOrMapped("1.9.1", "2.8.0" -> "1.8", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
 
-    private val specsCross = CrossVersion.binaryMapped {
-      case "2.8.2"                      => "2.8.1" // _2.8.2 published with bad checksum
-      case "2.9.2"                      => "2.9.1"
-      case "2.10.0"                     => "2.10"  // sbt bug?
-      case bin                          => bin
-    }
-    private val specsVersion: String => String = {
-      case sv if sv startsWith "2.8."   => "1.6.8"
-      case "2.9.0-1"                    => "1.6.8"
-      case _                            => "1.6.9"
-    }
+    private val specsCross = crossMapped("2.8.2" -> "2.8.1", "2.9.2" -> "2.9.1")
+    private val specsVersion: String => String =
+      defaultOrMapped("1.6.9", "2.9.0-1" -> "1.6.8", "2.8.0" -> "1.6.8", "2.8.1" -> "1.6.8", "2.8.2" -> "1.6.8")
 
     private val specs2Version: String => String = {
       case sv if sv startsWith "2.8."   => "1.5"
@@ -367,13 +359,6 @@ object ScalatraBuild extends Build {
         "Implementation-Vendor-Id" -> vendor,
         "Implementation-Vendor" -> vendor
       )
-  }
-
-  lazy val publishSetting = publishTo <<= (version) { version: String =>
-    if (version.trim.endsWith("SNAPSHOT"))
-      Some(Opts.resolver.sonatypeSnapshots)
-    else
-      Some(Opts.resolver.sonatypeStaging)
   }
 
   // Things we care about primarily because Maven Central demands them
