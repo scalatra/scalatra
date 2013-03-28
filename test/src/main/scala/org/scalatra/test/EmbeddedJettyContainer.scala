@@ -1,6 +1,7 @@
 package org.scalatra.test
 
 import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.servlet.ServletContextHandler
 
 trait EmbeddedJettyContainer extends JettyContainer {
@@ -11,10 +12,13 @@ trait EmbeddedJettyContainer extends JettyContainer {
 
   /**
    * The port of the currently running Jetty.  May differ from port if port is 0.
-   * 
+   *
    * @return Some port if Jetty is currently listening, or None if it is not.
    */
-  def localPort: Option[Int] = server.getConnectors.headOption map { _.getLocalPort }
+  def localPort: Option[Int] = server.getConnectors.headOption map {
+    case conn: ServerConnector => conn.getLocalPort
+    case _ => sys.error("can't get local port")
+  }
 
   def contextPath = "/"
 
@@ -36,11 +40,11 @@ trait EmbeddedJettyContainer extends JettyContainer {
 
   def baseUrl: String =
     server.getConnectors.headOption match {
-      case Some(conn) => 
+      case Some(conn: ServerConnector) =>
         val host = Option(conn.getHost) getOrElse "localhost"
         val port = conn.getLocalPort
         "http://%s:%d".format(host, port)
-      case None =>
+      case _ =>
         sys.error("can't calculate base URL: no connector")
     }
 }
