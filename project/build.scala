@@ -79,7 +79,7 @@ object ScalatraBuild extends Build {
       description := "Scalatra authentication module",
       LsKeys.tags in LsKeys.lsync += "auth"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCommands)
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 
   lazy val scalatraFileupload = Project(
