@@ -14,4 +14,10 @@ package object swagger {
     val Description = Symbol("swagger.description")
     val AllSymbols = Set(Summary, Notes, Nickname, ResponseClass, Parameters, Errors, Endpoint, Allows, Operation)
   }
+
+  object annotations {
+    import scala.annotation.meta.getter
+
+    type ApiProperty = com.wordnik.swagger.annotations.ApiProperty @getter
+  }
 }
