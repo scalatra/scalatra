@@ -8,12 +8,24 @@ import collection.JavaConverters._
 package object reflect {
 
   private[reflect] class Memo[A, R] {
-    private[this] val cache = new ConcurrentHashMap[A, R]().asScala
-    def apply(x: A, f: A => R): R = cache.getOrElseUpdate(x, f(x))
+    private[this] val cache =  new ConcurrentHashMap[A, R](1500, 1, 1)
+    def apply(x: A, f: A => R): R = {
+      if (cache.containsKey(x))
+        cache.get(x)
+      else {
+        val v = f(x)
+        replace(x, v)
+      }
+    }
+
+    def replace(x: A, v: R):R = {
+      cache.put(x, v)
+      v
+    }
   }
 
   trait ParameterNameReader {
-    def lookupParameterNames(constructor: JConstructor[_]): Traversable[String]
+    def lookupParameterNames(constructor: JConstructor[_]): Seq[String]
   }
   private[reflect] val ConstructorDefault = "init$default"
   private[reflect] val ModuleFieldName = "MODULE$"

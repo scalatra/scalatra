@@ -204,7 +204,6 @@ private[swagger] object SwaggerSerializers {
       case x: ModelField => {
           val c = ("description" -> x.description) ~
           ("defaultValue" -> x.defaultValue) ~
-          ("enum" -> x.enum) ~
           ("required" -> x.required)
         c merge serializeDataType("type", x.`type`)
       }
@@ -247,6 +246,8 @@ object ParamType extends Enumeration {
 
   /** A parameter carried in an HTTP header. **/
   val Header = Value("header")
+
+  val File = Value("file")
 }
 
 object DataType {
@@ -378,7 +379,6 @@ case class ModelField(name: String,
                       description: String,
                       `type`: DataType.DataType,
                       defaultValue: Option[String] = None,
-                      enum: List[String] = Nil,
                       required: Boolean = true)
 
 object ModelField {

@@ -8,7 +8,6 @@ import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 
 object ScalatraBuild extends Build {
   import Dependencies._
-  import Resolvers._
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
@@ -18,8 +17,7 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6", "-Xlint:deprecation"),
     manifestSetting,
-    publishSetting,
-    resolvers ++= Seq(sonatypeNexusSnapshots),
+    resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
   ) ++ mavenCentralFrouFrou
@@ -53,6 +51,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(
         servletApi % "provided;test",
+        slf4jApi,
         grizzledSlf4j(sv),
         rl,
         jUniversalChardet,
@@ -107,7 +106,6 @@ object ScalatraBuild extends Build {
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <+= scalaVersion(scalate),
-      resolvers ++= Seq(sonatypeNexusSnapshots),
       description := "Scalate integration with Scalatra",
       LsKeys.tags in LsKeys.lsync ++= Seq("templating", "scalate", "ssp", "jade", "mustache", "scaml", "haml")
     )
@@ -232,7 +230,6 @@ object ScalatraBuild extends Build {
    id = "scalatra-example",
    base = file("example"),
    settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
-     resolvers ++= Seq(sonatypeNexusSnapshots),
      libraryDependencies += servletApi % "container;test",
      libraryDependencies += jettyWebsocket % "container;test",
      libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
@@ -250,14 +247,14 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)
-    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.11"
-    lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.0.11" artifacts(Artifact("atmosphere-jquery", "war", "war"))
-    lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.beta1"
+    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.12"
+    lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.0.12" artifacts(Artifact("atmosphere-jquery", "war", "war"))
+    lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.RC1"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
     lazy val commonsLang3               =  "org.apache.commons"      %  "commons-lang3"      % "3.1"
-    lazy val grizzledSlf4j: MM     = sv => "org.clapper"             %% "grizzled-slf4j"     % grizzledSlf4jVersion(sv)
+    lazy val grizzledSlf4j: MM     = sv => "org.clapper"             % "grizzled-slf4j"      % grizzledSlf4jVersion(sv) cross crossMapped("2.9.3" -> "2.9.2")
     lazy val guice                      =  "com.google.inject"       %  "guice"              % "3.0"
     lazy val httpclient                 =  "org.apache.httpcomponents" % "httpclient"        % httpcomponentsVersion
     lazy val httpmime                   =  "org.apache.httpcomponents" % "httpmime"          % httpcomponentsVersion
@@ -267,23 +264,24 @@ object ScalatraBuild extends Build {
     lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
     lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.2"
-    lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.1"
+    lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.2"
     lazy val json4sCore                 =  "org.json4s"              %% "json4s-core"        % json4sVersion
     lazy val json4sExt                  =  "org.json4s"              %% "json4s-ext"         % json4sVersion
     lazy val json4sJackson              =  "org.json4s"              %% "json4s-jackson"     % json4sVersion
     lazy val json4sNative               =  "org.json4s"              %% "json4s-native"      % json4sVersion
     lazy val junit                      =  "junit"                   %  "junit"              % "4.11"
     lazy val jUniversalChardet          =  "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
-    lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.9"
+    lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.11"
     lazy val mimeUtil                   =  "eu.medsea.mimeutil"      % "mime-util"           % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
-    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.3"
+    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.4"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-M8"
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-RC1"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
-    lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.2"
+    lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
+    lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
     lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)
     lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross
@@ -293,11 +291,14 @@ object ScalatraBuild extends Build {
 
     type MM = String => ModuleID
 
-    private val akkaVersion: String => String = {
-      case "2.9.1"                      => "2.0.2"
-      case "2.9.2"                      => "2.0.5"
-      case _                            => "2.1.0"
-    }
+    def crossMapped(mappings: (String, String)*): CrossVersion =
+      CrossVersion.binaryMapped(Map(mappings: _*) orElse { case v => CrossVersion.binaryScalaVersion(v) })
+
+    def defaultOrMapped(default: String, alternatives: (String, String)*): String => String =
+      Map(alternatives: _*) orElse { case _ => default }
+
+    private val akkaVersion: String => String =
+      defaultOrMapped("2.1.2", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
 
     private val grizzledSlf4jVersion: String => String = {
       case sv if sv startsWith "2.9."   => "0.6.10"
@@ -306,9 +307,9 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.3"
 
-    private val jettyVersion = "8.1.8.v20121106"
+    private val jettyVersion = "8.1.10.v20130312"
 
-    private val json4sVersion = "3.1.0"
+    private val json4sVersion = "3.2.4"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"
@@ -325,28 +326,18 @@ object ScalatraBuild extends Build {
       case _                            => "1.6.1"
     }
 
-    private val scalatestVersion: String => String = {
-      case sv if sv startsWith "2.8."   => "1.8"
-      case _                            => "1.9.1"
-    }
+    private val scalatestVersion: String => String =
+      defaultOrMapped("1.9.1", "2.8.0" -> "1.8", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
 
-    private val specsCross = CrossVersion.binaryMapped {
-      case "2.8.2"                      => "2.8.1" // _2.8.2 published with bad checksum
-      case "2.9.2"                      => "2.9.1"
-      case "2.10.0"                     => "2.10"  // sbt bug?
-      case bin                          => bin
-    }
-    private val specsVersion: String => String = {
-      case sv if sv startsWith "2.8."   => "1.6.8"
-      case "2.9.0-1"                    => "1.6.8"
-      case _                            => "1.6.9"
-    }
+    private val specsCross = crossMapped("2.8.2" -> "2.8.1", "2.9.2" -> "2.9.1")
+    private val specsVersion: String => String =
+      defaultOrMapped("1.6.9", "2.9.0-1" -> "1.6.8", "2.8.0" -> "1.6.8", "2.8.1" -> "1.6.8", "2.8.2" -> "1.6.8")
 
     private val specs2Version: String => String = {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
-      case sv if sv startsWith "2.9."   => "1.12.3"
-      case _                            => "1.13"
+      case sv if sv startsWith "2.9."   => "1.12.4.1"
+      case _                            => "1.14"
     }
 
     private val swaggerCross = CrossVersion.binaryMapped {
@@ -354,13 +345,6 @@ object ScalatraBuild extends Build {
       case _                            => "2.10.0"
     }
     private val swaggerVersion = "1.2.0"
-  }
-
-  object Resolvers {
-    val sonatypeNexusSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-    val sonatypeNexusReleases = "Sonatype Nexus Releases" at "https://oss.sonatype.org/content/repositories/releases"
-    val sonatypeNexusStaging = "Sonatype Nexus Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-    val fuseSourceSnapshots = "FuseSource Snapshots" at "http://repo.fusesource.com/nexus/content/repositories/snapshots"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
@@ -377,13 +361,6 @@ object ScalatraBuild extends Build {
         "Implementation-Vendor-Id" -> vendor,
         "Implementation-Vendor" -> vendor
       )
-  }
-
-  lazy val publishSetting = publishTo <<= (version) { version: String =>
-    if (version.trim.endsWith("SNAPSHOT"))
-      Some(sonatypeNexusSnapshots)
-    else
-      Some(sonatypeNexusStaging)
   }
 
   // Things we care about primarily because Maven Central demands them

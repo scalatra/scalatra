@@ -12,7 +12,7 @@ class ScalatraSpecSpec extends ScalatraSpec { def is =
   // simple servlet for a sanity check
   addServlet(new HttpServlet {
     override def doGet(req: HttpServletRequest, res: HttpServletResponse) {
-      res.getWriter.write("Hello, world.");
+      res.getWriter.write("Hello, world.")
     }
   }, "/*")
 
