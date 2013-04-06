@@ -4,9 +4,10 @@
 * AsyncResult now uses an abstract val to force eager creation of the future
 * Fixes preflight request for CORS (no longer necessary to define an options route)
 * Fix redirecting from within an AsyncResult
+* Fallback to servlet context init parameters when looking up a key
 
 ### Atmosphere
-* Upgrade to atmosphere 1.0.11
+* Upgrade to atmosphere 1.0.12
 * Route params are now available inside the atmosphere route
 
 ### Commands
