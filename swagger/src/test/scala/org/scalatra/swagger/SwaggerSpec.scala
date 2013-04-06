@@ -12,6 +12,8 @@ import org.json4s.native.JsonParser
 import org.scalatra.json.{JValueResult, NativeJsonSupport}
 import scala.io.Source
 import java.net.ServerSocket
+import com.wordnik.swagger.annotations.ApiProperty
+import scala.annotation.meta.field
 
 class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   "Swagger integration should"                                  ^
@@ -53,7 +55,8 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
       val bo = JsonParser.parseOpt(body)
       bo must beSome[JValue] and
         verifyCommon(bo.get) and
-        operations.map(verifyOperation(bo.get, _)).reduce(_ and _)
+        operations.map(verifyOperation(bo.get, _)).reduce(_ and _) and
+        verifyPetModel(bo.get)
     }
   }
 
@@ -76,6 +79,15 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
       val m = verifyFields(op.get, exp.get, "httpMethod", "nickname", "responseClass", "summary", "parameters", "notes", "errorResponses")
       m setMessage (m.message + " of the operation " + name)
     }
+  }
+
+  def verifyPetModel(actualPetJson: JValue) = {
+    def petProperties(jv: JValue) = jv \ "models" \ "Pet" \ "properties"
+    val actualPetProps = petProperties(actualPetJson)
+    val expectedPetProps = petProperties(listOperationsJValue)
+
+    val m = verifyFields(actualPetProps, expectedPetProps, "category", "id", "name", "status", "tags", "urls")
+    m setMessage (m.message + " of the pet model")
   }
 
   def verifyFields(actual: JValue, expected: JValue, fields: String*): MatchResult[Any] = {
@@ -202,7 +214,8 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
 
 class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase 
 
-case class Pet(id: Long, category: Category, name: String, urls: List[String], tags: List[Tag], status: String)
+case class Pet(id: Long, category: Category, name: String, urls: List[String], tags: List[Tag],
+               @(ApiProperty @field)(value = "pet availability", allowableValues = "available,sold") status: String)
 case class Tag(id: Long, name: String)
 case class Category(id: Long, name: String)
 
