@@ -12,8 +12,7 @@ import org.json4s.native.JsonParser
 import org.scalatra.json.{JValueResult, NativeJsonSupport}
 import scala.io.Source
 import java.net.ServerSocket
-import com.wordnik.swagger.annotations.ApiProperty
-import scala.annotation.meta.field
+import org.scalatra.swagger.annotations.ApiProperty
 
 class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   "Swagger integration should"                                  ^
@@ -215,7 +214,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
 class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase 
 
 case class Pet(id: Long, category: Category, name: String, urls: List[String], tags: List[Tag],
-               @(ApiProperty @field)(value = "pet availability", allowableValues = "available,sold") status: String)
+               @ApiProperty(value = "pet availability", allowableValues = "available,sold") status: String)
 case class Tag(id: Long, name: String)
 case class Category(id: Long, name: String)
 

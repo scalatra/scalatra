@@ -1,17 +1,16 @@
 package org.scalatra.swagger
 
 import org.specs2.mutable.Specification
-import com.wordnik.swagger.annotations.ApiProperty
-import scala.annotation.meta.field
+import org.scalatra.swagger.annotations.ApiProperty
 import org.scalatra.swagger.AllowableValues.{AllowableRangeValues, AllowableValuesList}
 
 object ModelSpec {
 
-  case class WithDescription(@(ApiProperty @field)(value = "a description", allowableValues = "item1,item2")
+  case class WithDescription(@ApiProperty(value = "a description", allowableValues = "item1,item2")
                              id: String)
-  case class WithAllowableValues(@(ApiProperty @field)(allowableValues = "item1,item2")
+  case class WithAllowableValues(@ApiProperty(allowableValues = "item1,item2")
                              id: String)
-  case class WithAllowableRangeValues(@(ApiProperty @field)(allowableValues = "range[1,10]")
+  case class WithAllowableRangeValues(@ApiProperty(allowableValues = "range[1,10]")
                                  id: String)
 
   def swaggerProperties[T](implicit mf: Manifest[T]) = Swagger.modelToSwagger(mf.erasure).get.properties.get("id").get
