@@ -9,8 +9,10 @@ import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
 import java.util.Date
 import reflect.{ScalaType, PrimitiveDescriptor, ClassDescriptor, Reflector}
-import com.wordnik.swagger.core.ApiPropertiesReader
+import com.wordnik.swagger.core.{DocumentationAllowableValues, DocumentationAllowableRangeValues, DocumentationAllowableListValues, ApiPropertiesReader}
 import collection.JavaConverters._
+import org.scalatra.swagger.AllowableValues.AllowableValuesList
+import org.scalatra.swagger.AllowableValues.AllowableRangeValues
 
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
@@ -79,10 +81,23 @@ object Swagger {
       val name = docObj.getName
       val flds = docObj.getFields.asScala.filter(d => d.paramType != null)
 
-      val fields = for (field <- flds)
-        yield (field.name -> ModelField(field.name, field.notes, DataType(field.paramType)))
+      val fields = for (field <- flds) yield {
+        (field.name -> 
+          ModelField(field.name, 
+                     field.description, 
+                     DataType(field.paramType), 
+                     allowableValues = allowableValuesToString(field.allowableValues))) }
 
       Some(Model(name, name, fields.toMap))
+    }
+  }
+  private def allowableValuesToString(allowableValues: DocumentationAllowableValues) = {
+    import scala.collection.JavaConversions._
+
+    allowableValues match {
+      case list:DocumentationAllowableListValues => AllowableValuesList(list.getValues.toList)
+      case range:DocumentationAllowableRangeValues => AllowableRangeValues(Range(range.getMin.toInt, range.getMax.toInt))
+      case _ => AllowableValues.AnyValue
     }
   }
 }
@@ -204,7 +219,8 @@ private[swagger] object SwaggerSerializers {
       case x: ModelField => {
           val c = ("description" -> x.description) ~
           ("defaultValue" -> x.defaultValue) ~
-          ("required" -> x.required)
+          ("required" -> x.required) ~
+          ("allowableValues" -> Extraction.decompose(x.allowableValues))
         c merge serializeDataType("type", x.`type`)
       }
     }
@@ -379,6 +395,7 @@ case class ModelField(name: String,
                       description: String,
                       `type`: DataType.DataType,
                       defaultValue: Option[String] = None,
+                      allowableValues: AllowableValues = AllowableValues.AnyValue,
                       required: Boolean = true)
 
 object ModelField {

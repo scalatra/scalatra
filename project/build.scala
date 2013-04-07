@@ -267,6 +267,7 @@ object ScalatraBuild extends Build {
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
     lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.2"
     lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.2"
+//    lazy val json4sAst                  =  "org.json4s"              %% "json4s-ast"         % json4sVersion
     lazy val json4sCore                 =  "org.json4s"              %% "json4s-core"        % json4sVersion
     lazy val json4sExt                  =  "org.json4s"              %% "json4s-ext"         % json4sVersion
     lazy val json4sJackson              =  "org.json4s"              %% "json4s-jackson"     % json4sVersion
@@ -312,7 +313,7 @@ object ScalatraBuild extends Build {
 
     private val jettyVersion = "8.1.10.v20130312"
 
-    private val json4sVersion = "3.2.4"
+    private val json4sVersion = "3.2.3"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"
