@@ -170,45 +170,48 @@
             "properties": {
                 "category": {
                     "description": null,
-                    "enum": [],
-                    "name": "category",
                     "required": true,
                     "type": "Category"
                 },
                 "id": {
                     "description": null,
-                    "enum": [],
-                    "name": "id",
                     "required": true,
                     "type": "long"
                 },
                 "name": {
                     "description": null,
-                    "enum": [],
-                    "name": "name",
                     "required": true,
                     "type": "string"
                 },
                 "status": {
-                    "description": null,
-                    "enum": [],
-                    "name": "status",
+                    "description": "pet availability",
                     "required": true,
+                    "allowableValues": {
+                        "valueType": "LIST",
+                        "values": [
+                            "available",
+                            "sold"
+                        ]
+                    },
                     "type": "string"
                 },
                 "tags": {
                     "description": null,
-                    "enum": [],
-                    "name": "tags",
                     "required": true,
-                    "type": "List[Tag]"
+                    "type": "Array",
+                    "uniqueItems": false,
+                    "items": {
+                        "$ref": "Tag"
+                    }
                 },
                 "urls": {
                     "description": null,
-                    "enum": [],
-                    "name": "urls",
                     "required": true,
-                    "type": "List[string]"
+                    "type": "Array",
+                    "uniqueItems": false,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }
