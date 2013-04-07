@@ -15,7 +15,6 @@ class JettyServer(
   resourceBase: String = "src/main/webapp")
 {
   private[this] val server = new Server(socketAddress)
-  server.setHandler(context)
 
   val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
   context.setContextPath("/")

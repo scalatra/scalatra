@@ -78,7 +78,7 @@ object ScalatraBuild extends Build {
       description := "Scalatra authentication module",
       LsKeys.tags in LsKeys.lsync += "auth"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCommands)
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 
   lazy val scalatraFileupload = Project(
@@ -173,7 +173,9 @@ object ScalatraBuild extends Build {
         httpclient,
         httpmime,
         jodaTime % "provided",
-        jodaConvert % "provided"
+        jodaConvert % "provided",
+        scalatest(sv),
+        seleniumjava
       )),
       description := "The abstract Scalatra test framework"
     )
@@ -261,7 +263,7 @@ object ScalatraBuild extends Build {
     lazy val jerkson                    =  "io.backchat.jerkson"     %% "jerkson"            % "0.7.0"
     lazy val jettyServer                =  "org.eclipse.jetty"       %  "jetty-server"       % jettyVersion
     lazy val jettyServlet               =  "org.eclipse.jetty"       %  "jetty-servlet"      % jettyVersion
-    lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
+    lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %  "websocket-server"   % jettyVersion
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
     lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.2"
     lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.2"
@@ -279,6 +281,7 @@ object ScalatraBuild extends Build {
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-RC1"
+    lazy val seleniumjava               =  "org.seleniumhq.selenium" % "selenium-java"       % "2.31.0"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
@@ -327,7 +330,7 @@ object ScalatraBuild extends Build {
     }
 
     private val scalatestVersion: String => String =
-      defaultOrMapped("1.9.1", "2.8.0" -> "1.8", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
+      defaultOrMapped("2.0.M5b", "2.8.0" -> "1.8", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
 
     private val specsCross = crossMapped("2.8.2" -> "2.8.1", "2.9.2" -> "2.9.1")
     private val specsVersion: String => String =
