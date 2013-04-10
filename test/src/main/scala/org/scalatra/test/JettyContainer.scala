@@ -47,7 +47,7 @@ trait JettyContainer extends Container {
       case _ =>
     }
 
-    servletContextHandler.addServlet(holder, path)
+    servletContextHandler.addServlet(holder, if (path.endsWith("/*")) path else path + "/*")
 
   }
 
