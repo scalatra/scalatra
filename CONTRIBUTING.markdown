@@ -23,7 +23,7 @@ There is no change too little to be merged in.
 ### Working with Github
 
   1. If you are not a github user, check out [their help page](http://help.github.com/) on how to get started, register and go  to step 2
-  2. fork us as decribed [here](http://help.github.com/forking/) 
+  2. fork us as described [here](http://help.github.com/forking/) 
   3. hack hack hack
   4. push to your own forked repository
   5. send a [pull request](https://help.github.com/articles/using-pull-requests)
@@ -32,7 +32,7 @@ There is no change too little to be merged in.
 Do some good contributions and we'll give you a shiny commit bit!
 
 ## Documentation
-Good documentation is core to a succesfull and healthy ecosystem, the more we can have, the merrier. 
+Good documentation is core to a successful and healthy ecosystem, the more we can have, the merrier. 
 
 ### Scaladoc
 Scaladoc lives inside the scala source code, if you want to contribute scaladoc patches, do the same thing described above:
