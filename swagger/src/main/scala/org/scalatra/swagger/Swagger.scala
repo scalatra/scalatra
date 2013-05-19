@@ -417,6 +417,7 @@ trait SwaggerOperation {
   def nickname: Option[String]
   def parameters: List[Parameter]
   def errorResponses: List[Error]
+  def supportedContentTypes: List[String]
 }
 case class Operation(httpMethod: HttpMethod,
                      responseClass: String,
@@ -425,7 +426,8 @@ case class Operation(httpMethod: HttpMethod,
                      deprecated: Boolean = false,
                      nickname: Option[String] = None,
                      parameters: List[Parameter] = Nil,
-                     errorResponses: List[Error] = Nil) extends SwaggerOperation
+                     errorResponses: List[Error] = Nil,
+                     supportedContentTypes: List[String]) extends SwaggerOperation
 trait SwaggerEndpoint[T <: SwaggerOperation] {
   def path: String
   def description: String
