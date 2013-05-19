@@ -6,7 +6,7 @@ import xml.Node
 class FileUploadExample extends ScalatraServlet with FileUploadSupport with FlashMapSupport {
   configureMultipartHandling(MultipartConfig(maxFileSize = Some(3*1024*1024)))
 
-  def displayPage(content: Seq[Node]) = Template.page("File upload example", content, url(_))
+  def displayPage(content: Seq[Node]) = Template.page("File upload example", content, url(_, includeServletPath = false))
 
   error {
     case e: SizeConstraintExceededException =>
@@ -16,7 +16,7 @@ class FileUploadExample extends ScalatraServlet with FileUploadSupport with Flas
 
   get("/") {
     displayPage(
-      <form action={url("/upload")} method="post" enctype="multipart/form-data">
+      <form action={url("/upload", includeServletPath = false)} method="post" enctype="multipart/form-data">
        <p>File to upload: <input type="file" name="file" /></p>
        <p><input type="submit" value="Upload" /></p>
       </form>

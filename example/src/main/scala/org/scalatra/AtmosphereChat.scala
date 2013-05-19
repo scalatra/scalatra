@@ -15,7 +15,7 @@ class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with Atmosp
     Template.page(
       title = "Scalatra Atmosphere Chat",
       content = bodyHtml,
-      url = url(_),
+      url = url(_, includeServletPath = false),
       scripts = "/jquery/jquery.atmosphere.js" :: "/jquery/application.js" :: Nil,
       defaultScripts = "/jquery/jquery-1.9.0.js" :: "/assets/js/bootstrap.min.js" :: Nil
     )
