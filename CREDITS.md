@@ -32,6 +32,7 @@
 - [Ted Nyman](http://github.com/tnm)
 - [Șeyi Ogunyẹ́mi](http://www.micrypt.com)
 - [Stefan Ollinger](http://github.com/dozed)
+- [Adam Rosien](http://github.com/arosien)
 - [Erik Rozendaal](http://github.com/erikrozendaal)
 - [Kazuhiro Sera](http://github.com/seratch)
 - [Srirangan](http://srirangan.net)

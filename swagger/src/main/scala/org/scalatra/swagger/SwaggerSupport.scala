@@ -200,6 +200,7 @@ object SwaggerSupportSyntax {
     private[this] var _nickname: String = _
     private[this] var _parameters: List[Parameter] = Nil
     private[this] var _errorResponses: List[Error] = Nil
+    private[this] var _produces: List[String] = Nil
 
    def resultClass: String
 
@@ -227,6 +228,8 @@ object SwaggerSupportSyntax {
     def errors(errs: Error*): this.type = { _errorResponses :::= errs.toList; this }
     def error(err: Error): this.type = errors(err)
     def errorResponses: List[Error] = _errorResponses
+    def produces(values: String*): this.type = { _produces :::= values.toList; this}
+    def produces: List[String] = _produces
 
     def result: T
   }
@@ -241,7 +244,8 @@ object SwaggerSupportSyntax {
       deprecated,
       nickname,
       parameters,
-      errorResponses)
+      errorResponses,
+      produces)
   }
 }
 trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
@@ -250,6 +254,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def applicationName: Option[String] = None
   protected def applicationDescription: String
   protected def swaggerDefaultErrors: List[Error] = Nil
+  protected def swaggerDefaultProduces = List("application/json")
 
   private[this] def throwAFit =
     throw new IllegalStateException("I can't work out which servlet registration this is.")
@@ -457,11 +462,11 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
   protected def apiOperation[T: Manifest](nickname: String): OperationBuilder = {
     registerModel[T]()
-    new OperationBuilder(DataType[T].name).nickname(nickname).errors(swaggerDefaultErrors:_*)
+    new OperationBuilder(DataType[T].name).nickname(nickname).errors(swaggerDefaultErrors:_*).produces(swaggerDefaultProduces:_*)
   }
   protected def apiOperation(nickname: String, model: Model): OperationBuilder = {
     registerModel(model)
-    new OperationBuilder(model.id).nickname(nickname).errors(swaggerDefaultErrors:_*)
+    new OperationBuilder(model.id).nickname(nickname).errors(swaggerDefaultErrors:_*).produces(swaggerDefaultProduces:_*)
   }
 
   /**
@@ -493,6 +498,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
       val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
       val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
       val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
+      val produces = route.metadata.get(Symbols.Produces) map (_.asInstanceOf[List[String]]) getOrElse Nil
       Operation(
         httpMethod = method,
         responseClass = responseClass,
@@ -500,7 +506,8 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
         notes = notes,
         nickname = nick,
         parameters = theParams,
-        errorResponses = errors ::: swaggerDefaultErrors)
+        errorResponses = errors ::: swaggerDefaultErrors,
+        supportedContentTypes = produces ::: swaggerDefaultProduces)
     }
   }
 

@@ -1,0 +1,3 @@
+### Auth
+
+* Remove false dependency on scalatra-commands.
