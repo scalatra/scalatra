@@ -215,7 +215,7 @@ class BoundFieldDescriptor[S:DefaultValue, T](
     } else {
       val doValidation: Validator[T] = if (isRequired) {
         (x: FieldValidation[T]) => x flatMap { v =>
-          if (original.isDefined) v.success else ValidationError("%s is required." format(name.humanize), FieldName(name), ValidationFail).fail
+          if (original.isDefined) v.success else ValidationError("%s is required." format(name.underscore.humanize), FieldName(name), ValidationFail).fail
         }
       } else identity
       new ValidatedBoundFieldDescriptor((doValidation andThen defaultValidator)(value) map transformations, this)
