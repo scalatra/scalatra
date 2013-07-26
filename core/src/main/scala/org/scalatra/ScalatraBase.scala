@@ -648,7 +648,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   /**
    * Sends a redirect response and immediately halts the current action.
    */
-  def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     halt(Found(fullUrl(uri, includeServletPath = false)))
   }
 
