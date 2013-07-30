@@ -2,7 +2,6 @@ import sbt._
 import Keys._
 import scala.xml._
 import java.net.URL
-import com.github.siasia.WebPlugin.webSettings
 import ls.Plugin.LsKeys
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 
