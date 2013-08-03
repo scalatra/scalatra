@@ -21,9 +21,6 @@ import org.apache.commons.fileupload.{FileUploadException, FileUploadBase, FileI
    *
    * @note Once any handler with FileUploadSupport has accessed the request, the fileParams returned by FileUploadSupport will remain fixed for
    * the lifetime of the request. */
-@deprecated(message = "Deprecated in favor of Servlet 3.0 API's multipart features. " +
-                      "Please use org.scalatra.servlet.FileUploadSupport instead.",
-            since = "2.1.0")
 trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
