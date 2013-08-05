@@ -19,7 +19,7 @@ package object swagger {
   }
 
   object annotations {
-    import scala.annotation.target.field
+    import scala.annotation.meta.field
 
     type ApiProperty = org.scalatra.swagger.runtime.annotations.ApiProperty @field
     type XmlRootElement = XmlElement @field

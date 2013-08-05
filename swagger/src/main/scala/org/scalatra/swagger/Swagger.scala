@@ -84,19 +84,27 @@ object Swagger {
         case f: Field if f.getAnnotation(classOf[ApiProperty]) != null =>
           val annot = f.getAnnotation(classOf[ApiProperty])
           descr.properties.find(_.mangledName == f.getName) map { prop =>
+            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
+            val isOptional = ctorParam.flatMap(_.defaultValue)
             ModelField(
               f.getName,
               annot.value,
               DataType.fromScalaType(prop.returnType),
+              defaultValue = isOptional.map(_().toString),
               allowableValues = convertToAllowableValues(annot.allowableValues()),
-              required = annot.required && !prop.returnType.isOption)
+              required = annot.required && !prop.returnType.isOption && isOptional.isEmpty)
           }
 
         case f: Field =>
           descr.properties.find(_.mangledName == f.getName) map { prop =>
             val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-            val isOptional = ctorParam.isDefined && ctorParam.get.isOptional
-            ModelField(f.getName, null, DataType.fromScalaType(prop.returnType), required = !prop.returnType.isOption && !isOptional)
+            val isOptional = ctorParam.flatMap(_.defaultValue)
+            ModelField(
+              f.getName,
+              null,
+              DataType.fromScalaType(prop.returnType),
+              defaultValue = isOptional.map(_().toString),
+              required = !prop.returnType.isOption && isOptional.isEmpty)
           }
 
       }

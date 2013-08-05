@@ -6,7 +6,6 @@ import collection.JavaConverters._
 import reflect.{ManifestFactory, Reflector}
 import util.RicherString._
 import javax.servlet.{ Servlet, Filter }
-import com.wordnik.swagger.core.ApiPropertiesReader
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.control.Exception.allCatch
 

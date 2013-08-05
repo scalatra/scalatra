@@ -27,7 +27,7 @@ package object reflect {
   trait ParameterNameReader {
     def lookupParameterNames(constructor: JConstructor[_]): Seq[String]
   }
-  private[reflect] val ConstructorDefault = "init$default"
+  private[reflect] val ConstructorDefault = "$lessinit$greater$default"
   private[reflect] val ModuleFieldName = "MODULE$"
   private[reflect] val ClassLoaders = Vector(getClass.getClassLoader)
   private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
