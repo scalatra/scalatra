@@ -5,7 +5,7 @@
 
 # todo - make this dynamic
 declare -r sbt_release_version=0.12.4
-declare -r sbt_beta_version=0.13.0-RC1
+declare -r sbt_beta_version=0.13.0-RC4
 declare -r sbt_snapshot_version=0.13.0-SNAPSHOT
 
 declare sbt_jar sbt_dir sbt_create sbt_snapshot sbt_launch_dir
@@ -112,6 +112,18 @@ readarr () {
   done
 }
 
+init_default_option_file () {
+  local overriding_var=${!1}
+  local default_file=$2
+  if [[ ! -r "$default_file" && $overriding_var =~ ^@(.*)$ ]]; then
+    local envvar_file=${BASH_REMATCH[1]}
+    if [[ -r $envvar_file ]]; then
+      default_file=$envvar_file
+    fi
+  fi
+  echo $default_file
+}
+
 declare -r default_jvm_opts="-Dfile.encoding=UTF8 -XX:MaxPermSize=256m -Xms512m -Xmx1g -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"
 declare -r noshare_opts="-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"
 declare -r latest_28="2.8.2"
@@ -124,8 +136,8 @@ declare -r script_name="$(basename $script_path)"
 
 # some non-read-onlies set with defaults
 declare java_cmd=java
-declare sbt_opts_file=.sbtopts
-declare jvm_opts_file=.jvmopts
+declare sbt_opts_file=$(init_default_option_file SBT_OPTS .sbtopts)
+declare jvm_opts_file=$(init_default_option_file JVM_OPTS .jvmopts)
 
 # pull -J and -D options to give to java.
 declare -a residual_args
@@ -298,13 +310,17 @@ Usage: $script_name [options]
   # passing options to the jvm - note it does NOT use JAVA_OPTS due to pollution
   # The default set is used if JVM_OPTS is unset and no -jvm-opts file is found
   <default>        $default_jvm_opts
-  JVM_OPTS         environment variable holding jvm args
+  JVM_OPTS         environment variable holding either the jvm args directly, or
+                   the reference to a file containing jvm args if given path is prepended by '@' (e.g. '@/etc/jvmopts')
+                   Note: "@"-file is overridden by local '.jvmopts' or '-jvm-opts' argument.
   -jvm-opts <path> file containing jvm args (if not given, .jvmopts in project root is used if present)
   -Dkey=val        pass -Dkey=val directly to the jvm
   -J-X             pass option -X directly to the jvm (-J is stripped)
 
   # passing options to sbt, OR to this runner
-  SBT_OPTS         environment variable holding sbt args
+  SBT_OPTS         environment variable holding either the sbt args directly, or
+                   the reference to a file containing sbt args if given path is prepended by '@' (e.g. '@/etc/sbtopts')
+                   Note: "@"-file is overridden by local '.sbtopts' or '-sbt-opts' argument.
   -sbt-opts <path> file containing sbt args (if not given, .sbtopts in project root is used if present)
   -S-X             add -X to sbt's scalacOptions (-S is stripped)
 EOM
@@ -399,12 +415,21 @@ process_args ()
 # process the direct command line arguments
 process_args "$@"
 
+# skip #-styled comments
+readConfigFile() {
+  while read line; do echo ${line/\#*/} | grep -vE '^\s*$'; done < $1
+}
+
 # if there are file/environment sbt_opts, process again so we
 # can supply args to this runner
 if [[ -r "$sbt_opts_file" ]]; then
-  readarr extra_sbt_opts < "$sbt_opts_file"
-elif [[ -n "$SBT_OPTS" ]]; then
+  vlog "Using sbt options defined in file $sbt_opts_file"
+  readarr extra_sbt_opts < <(readConfigFile "$sbt_opts_file")
+elif [[ -n "$SBT_OPTS" && !($SBT_OPTS =~ ^@.*) ]]; then
+  vlog "Using sbt options defined in variable \$SBT_OPTS"
   extra_sbt_opts=( $SBT_OPTS )
+else
+  vlog "No extra sbt options have been defined"
 fi
 
 [[ -n $extra_sbt_opts ]] && process_args "${extra_sbt_opts[@]}"
@@ -465,10 +490,13 @@ else
 fi
 
 if [[ -r "$jvm_opts_file" ]]; then
-  readarr extra_jvm_opts < "$jvm_opts_file"
-elif [[ -n "$JVM_OPTS" ]]; then
+  vlog "Using jvm options defined in file $jvm_opts_file"
+  readarr extra_jvm_opts < <(readConfigFile "$jvm_opts_file")
+elif [[ -n "$JVM_OPTS" && !($JVM_OPTS =~ ^@.*) ]]; then
+  vlog "Using jvm options defined in \$JVM_OPTS variable"
   extra_jvm_opts=( $JVM_OPTS )
 else
+  vlog "Using default jvm options"
   extra_jvm_opts=( $default_jvm_opts )
 fi
 

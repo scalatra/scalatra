@@ -200,7 +200,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(json4sExt, swaggerCore, swaggerAnnotations),
+      libraryDependencies ++= Seq(json4sExt, logbackClassic % "provided"),
       description := "Scalatra integration with Swagger",
       LsKeys.tags in LsKeys.lsync ++= Seq("swagger", "docs")
     )
@@ -284,8 +284,8 @@ object ScalatraBuild extends Build {
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
     lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)
-    lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross
-    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross
+//    lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
+//    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
     lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
     lazy val testng                     =  "org.testng"              %  "testng"             % "6.8"
 
@@ -307,7 +307,7 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.3"
 
-    private val jettyVersion = "8.1.10.v20130312"
+    private val jettyVersion = "8.1.12.v20130726"
 
     private val json4sVersion = "3.2.4"
 
@@ -344,7 +344,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.9."   => "2.9.1"
       case _                            => "2.10.0"
     }
-    private val swaggerVersion = "1.2.0"
+    private val swaggerVersion = "1.2.5"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {

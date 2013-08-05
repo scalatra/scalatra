@@ -15,7 +15,7 @@ object ModelCollectionSpec {
 
   val taggedThingModels = Set(Swagger.modelToSwagger[Tag], Swagger.modelToSwagger[Name], Swagger.modelToSwagger[Sequence], Swagger.modelToSwagger[TaggedThing])
   val onlyPrimitivesModel = Swagger.modelToSwagger[OnlyPrimitives].get
-  val assetModel = Swagger.modelToSwagger(classOf[Asset]).get
+  val assetModel = Swagger.modelToSwagger(Reflector.scalaTypeOf[Asset]).get
 
   case class Things(id: Long, taggedThings: List[TaggedThing], visits: List[Date], created: Date)
   val thingsModels = taggedThingModels + Swagger.modelToSwagger[Things]
