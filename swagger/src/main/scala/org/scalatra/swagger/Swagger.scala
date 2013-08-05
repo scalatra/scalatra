@@ -9,10 +9,11 @@ import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
 import java.util.Date
 import reflect.{ScalaType, PrimitiveDescriptor, ClassDescriptor, Reflector}
-import com.wordnik.swagger.core.{DocumentationAllowableValues, DocumentationAllowableRangeValues, DocumentationAllowableListValues, ApiPropertiesReader}
 import collection.JavaConverters._
 import org.scalatra.swagger.AllowableValues.AllowableValuesList
 import org.scalatra.swagger.AllowableValues.AllowableRangeValues
+import java.lang.reflect.Field
+import org.scalatra.swagger.runtime.annotations.ApiProperty
 
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
@@ -54,10 +55,10 @@ object Swagger {
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
             val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
             val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
-            val topLevel = for {
+             val topLevel = for {
               tl <- (subModels + descriptor.erasure)
-              if !(tl.isCollection || tl.isOption || tl.isMap)
-              m <- modelToSwagger(tl.erasure)
+              if  !(tl.isCollection || tl.isOption || tl.isMap)
+              m <- modelToSwagger(tl)
             } yield m
 
             val nested = subModels.foldLeft((topLevel, known + descriptor.erasure)){ (acc, b) =>
@@ -71,30 +72,83 @@ object Swagger {
     }
   }
 
-  def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = {
-    modelToSwagger(mf.erasure)
-  }
-  def modelToSwagger(klass: Class[_]): Option[Model] = {
-    if (Reflector.isPrimitive(klass) || Reflector.isExcluded(klass)) None
+  def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
+  def modelToSwagger(klass:ScalaType): Option[Model] = {
+    if (Reflector.isPrimitive(klass.erasure) || Reflector.isExcluded(klass.erasure)) None
     else {
-      val docObj = ApiPropertiesReader.read(klass)
-      val name = docObj.getName
-      val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
-        yield (field.name -> ModelField(field.name, field.description, DataType(field.paramType),
-          allowableValues = allowableValuesToString(field.allowableValues)))
+      val name = klass.simpleName
 
-      Some(Model(name, name, fields.toMap))
+      val descr = Reflector.describe(klass).asInstanceOf[ClassDescriptor]
+
+      val fields = klass.erasure.getDeclaredFields.toList collect {
+        case f: Field if f.getAnnotation(classOf[ApiProperty]) != null =>
+          val annot = f.getAnnotation(classOf[ApiProperty])
+          descr.properties.find(_.mangledName == f.getName) map { prop =>
+            ModelField(
+              f.getName,
+              annot.value,
+              DataType.fromScalaType(prop.returnType),
+              allowableValues = convertToAllowableValues(annot.allowableValues()),
+              required = annot.required && !prop.returnType.isOption)
+          }
+
+        case f: Field =>
+          descr.properties.find(_.mangledName == f.getName) map { prop =>
+            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
+            val isOptional = ctorParam.isDefined && ctorParam.get.isOptional
+            ModelField(f.getName, null, DataType.fromScalaType(prop.returnType), required = !prop.returnType.isOption && !isOptional)
+          }
+
+      }
+
+      Some(Model(name, name, fields.flatten.map(a => a.name -> a).toMap))
     }
   }
-  private def allowableValuesToString(allowableValues: DocumentationAllowableValues) = {
-    import scala.collection.JavaConversions._
 
-    allowableValues match {
-      case list:DocumentationAllowableListValues => AllowableValuesList(list.getValues.toList)
-      case range:DocumentationAllowableRangeValues => AllowableRangeValues(Range(range.getMin.toInt, range.getMax.toInt))
-      case _ => AllowableValues.AnyValue
+  private def convertToAllowableValues(csvString: String, paramType: String = null): AllowableValues = {
+    if (csvString.toLowerCase.startsWith("range[")) {
+      val ranges = csvString.substring(6, csvString.length() - 1).split(",")
+      buildAllowableRangeValues(ranges, csvString)
+    } else if (csvString.toLowerCase.startsWith("rangeexclusive[")) {
+      val ranges = csvString.substring(15, csvString.length() - 1).split(",")
+      buildAllowableRangeValues(ranges, csvString)
+    } else {
+      if (csvString == null || csvString.length == 0) {
+        null
+      } else {
+        val params = csvString.split(",").toList
+        paramType match {
+          case null => AllowableValuesList(params)
+          case "string" => AllowableValuesList(params)
+        }
+      }
     }
   }
+
+  private def buildAllowableRangeValues(ranges: Array[String], inputStr: String): AllowableRangeValues = {
+    var min: java.lang.Float = 0
+    var max: java.lang.Float = 0
+    if (ranges.size < 2) {
+      throw new RuntimeException("Allowable values format " + inputStr + "is incorrect")
+    }
+    if (ranges(0).equalsIgnoreCase("Infinity")) {
+      min = Float.PositiveInfinity
+    } else if (ranges(0).equalsIgnoreCase("-Infinity")) {
+      min = Float.NegativeInfinity
+    } else {
+      min = ranges(0).toFloat
+    }
+    if (ranges(1).equalsIgnoreCase("Infinity")) {
+      max = Float.PositiveInfinity
+    } else if (ranges(1).equalsIgnoreCase("-Infinity")) {
+      max = Float.NegativeInfinity
+    } else {
+      max = ranges(1).toFloat
+    }
+    val allowableValues = AllowableRangeValues(Range(min.toInt, max.toInt))
+    allowableValues
+  }
+
 }
 
 /**
