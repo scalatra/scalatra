@@ -14,6 +14,7 @@ import org.scalatra.swagger.AllowableValues.AllowableValuesList
 import org.scalatra.swagger.AllowableValues.AllowableRangeValues
 import java.lang.reflect.Field
 import org.scalatra.swagger.runtime.annotations.ApiProperty
+import java.util.concurrent.ConcurrentHashMap
 
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
@@ -21,7 +22,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
   def apiVersion: String
   
   
-  private[swagger] var _docs = Map.empty[String, T]
+  private[swagger] val _docs = new ConcurrentHashMap[String, T]().asScala
 
   def docs = _docs.values
 
@@ -38,6 +39,9 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 }
 
 object Swagger {
+
+  val SpecVersion = "1.1"
+
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
     if (tpe.isMap) collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
@@ -170,7 +174,7 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) extends Swagge
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
     val endpoints: List[Endpoint] = s.endpoints(path) collect { case m: Endpoint => m }
-    _docs = _docs + (name -> Api(path, listingPath, description, endpoints, s.models.toMap))
+    _docs += name -> Api(path, listingPath, description, endpoints, s.models.toMap)
   }
 }
 
