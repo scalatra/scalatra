@@ -30,7 +30,7 @@ libraryDependencies += "org.scalatra" %% "scalatra" % "2.2.1"
 
 ### Development version
 
-The develop branch is published as `2.2.1-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
+The develop branch is published as `2.2.2-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
 
 ```scala
 resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
