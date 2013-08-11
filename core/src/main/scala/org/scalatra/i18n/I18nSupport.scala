@@ -41,8 +41,14 @@ trait I18nSupport {
 
   before() {
     request(LocaleKey) = resolveLocale
-    request(MessagesKey) = Messages(locale)
+    request(MessagesKey) = provideMessages
   }
+
+  /**
+   * Provides a new instance of Messages, override to provide own implementation
+   * @return
+   */
+  def provideMessages : Messages = Messages(locale)
 
   /*
   * Resolve Locale based on HTTP request parameter or Cookie
