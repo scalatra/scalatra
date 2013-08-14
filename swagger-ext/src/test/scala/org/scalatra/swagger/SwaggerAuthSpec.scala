@@ -155,21 +155,21 @@ class SwaggerAuthSpec extends MutableScalatraSpec {
   "SwaggerAuth" should {
     
     "only render accessible endpoints in resources index" in {
-    	get("/resources.json") {
+    	get("/api-docs.json") {
     	  status must_== 200
     	  apis(jsonBody).size must_== 1
     	}
     }
 
     "don't render inaccessible resource for non-admin user" in {
-      get("/resources.json", "api_token" -> "the_token") {
+      get("/api-docs.json", "api_token" -> "the_token") {
         status must_== 200
     	  apis(jsonBody).size must_== 1
     	}
     }
 
     "render all resources for admin user" in {
-      get("/resources.json", "api_token" -> "token1") {
+      get("/api-docs.json", "api_token" -> "token1") {
         status must_== 200
     	  apis(jsonBody).size must_== 2
     	}

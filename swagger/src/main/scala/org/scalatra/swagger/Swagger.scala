@@ -1,21 +1,16 @@
 package org.scalatra
 package swagger
 
-import java.util.{Date => JDate, Locale}
+import java.util.{Date => JDate}
 import org.json4s._
-import ext.{ JodaTimeSerializers, EnumNameSerializer }
 import org.joda.time._
 import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
-import java.util.Date
-import reflect.{ScalaType, PrimitiveDescriptor, ClassDescriptor, Reflector}
 import collection.JavaConverters._
-import org.scalatra.swagger.AllowableValues.AllowableValuesList
-import org.scalatra.swagger.AllowableValues.AllowableRangeValues
-import java.lang.reflect.Field
-import org.scalatra.swagger.runtime.annotations.ApiProperty
 import java.util.concurrent.ConcurrentHashMap
-
+import reflect._
+import java.lang.reflect.Field
+import org.scalatra.swagger.runtime.annotations.{ApiModel, ApiModelProperty}
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String 
@@ -34,13 +29,16 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
     /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String])
+  def register(name: String, basePath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase)
 
 }
 
 object Swagger {
 
-  val SpecVersion = "1.1"
+  val baseTypes = Set("byte", "boolean", "int", "long", "float", "double", "string", "date", "void", "Date", "DateTime", "DateTimeMidnight", "Duration", "FiniteDuration")
+  val containerTypes = Set("Array", "List", "Set")
+  val SpecVersion = "1.2"
+  val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
@@ -76,6 +74,16 @@ object Swagger {
     }
   }
 
+  /*
+  case class ModelProperty(`type`: DataType,
+                           position: Int = 0,
+                           required: Boolean = false,
+                           description: Option[String] = None,
+                           allowableValues: AllowableValues = AllowableValues.AnyValue,
+                           items: Option[ModelRef] = None)
+
+   */
+  import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
   def modelToSwagger(klass:ScalaType): Option[Model] = {
     if (Reflector.isPrimitive(klass.erasure) || Reflector.isExcluded(klass.erasure)) None
@@ -83,67 +91,61 @@ object Swagger {
       val name = klass.simpleName
 
       val descr = Reflector.describe(klass).asInstanceOf[ClassDescriptor]
+      val apiModel = Option(klass.erasure.getAnnotation(classOf[ApiModel]))
 
       val fields = klass.erasure.getDeclaredFields.toList collect {
-        case f: Field if f.getAnnotation(classOf[ApiProperty]) != null =>
-          val annot = f.getAnnotation(classOf[ApiProperty])
+        case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
+          val annot = f.getAnnotation(classOf[ApiModelProperty])
           descr.properties.find(_.mangledName == f.getName) map { prop =>
-            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-            val isOptional = ctorParam.flatMap(_.defaultValue)
-            ModelField(
-              f.getName,
-              annot.value,
+            f.getName -> ModelProperty(
               DataType.fromScalaType(prop.returnType),
-              defaultValue = isOptional map { fn =>
-                val r = fn()
-                if (r == null) r.asInstanceOf[String] else r.toString
-              },
-              allowableValues = convertToAllowableValues(annot.allowableValues()),
-              required = annot.required && !prop.returnType.isOption)
+              annot.position,
+              required = annot.required && !prop.returnType.isOption,
+              description = annot.value.blankOption,
+              allowableValues = convertToAllowableValues(annot.allowableValues()))
           }
 
         case f: Field =>
           descr.properties.find(_.mangledName == f.getName) map { prop =>
             val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
             val isOptional = ctorParam.flatMap(_.defaultValue)
-            ModelField(
-              f.getName,
-              null,
+            f.getName -> ModelProperty(
               DataType.fromScalaType(prop.returnType),
-              defaultValue = isOptional map { fn =>
-                val r = fn()
-                if (r == null) r.asInstanceOf[String] else r.toString
-              },
-              required = !prop.returnType.isOption)
+              ctorParam.map(_.argIndex).getOrElse(0),
+              required = !prop.returnType.isOption && isOptional.isEmpty,
+              description = null)
           }
 
       }
 
-      Some(Model(name, name, fields.flatten.map(a => a.name -> a).toMap))
+      apiModel map { am =>
+        Model(name, name, klass.fullName.blankOption, properties = fields.flatten, baseModel = am.parent.getName.blankOption, discriminator = am.discriminator.blankOption )
+      } orElse Some(Model(name, name, klass.fullName.blankOption, properties = fields.flatten))
     }
   }
 
   private def convertToAllowableValues(csvString: String, paramType: String = null): AllowableValues = {
     if (csvString.toLowerCase.startsWith("range[")) {
       val ranges = csvString.substring(6, csvString.length() - 1).split(",")
-      buildAllowableRangeValues(ranges, csvString)
+      buildAllowableRangeValues(ranges, csvString, inclusive = true)
     } else if (csvString.toLowerCase.startsWith("rangeexclusive[")) {
       val ranges = csvString.substring(15, csvString.length() - 1).split(",")
-      buildAllowableRangeValues(ranges, csvString)
+      buildAllowableRangeValues(ranges, csvString, inclusive = false)
     } else {
       if (csvString == null || csvString.length == 0) {
         null
       } else {
         val params = csvString.split(",").toList
+        implicit val format = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
         paramType match {
-          case null => AllowableValuesList(params)
-          case "string" => AllowableValuesList(params)
+          case null => AllowableValues.AllowableValuesList(params)
+          case "string" => AllowableValues.AllowableValuesList(params)
         }
       }
     }
   }
 
-  private def buildAllowableRangeValues(ranges: Array[String], inputStr: String): AllowableRangeValues = {
+  private def buildAllowableRangeValues(ranges: Array[String], inputStr: String, inclusive: Boolean = true): AllowableValues.AllowableRangeValues = {
     var min: java.lang.Float = 0
     var max: java.lang.Float = 0
     if (ranges.size < 2) {
@@ -163,7 +165,8 @@ object Swagger {
     } else {
       max = ranges(1).toFloat
     }
-    val allowableValues = AllowableRangeValues(Range(min.toInt, max.toInt))
+    val allowableValues =
+      AllowableValues.AllowableRangeValues(if (inclusive) Range.inclusive(min.toInt, max.toInt) else Range(min.toInt, max.toInt))
     allowableValues
   }
 
@@ -177,135 +180,64 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) extends Swagge
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
-    logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    val endpoints: List[Endpoint] = s.endpoints(path) collect { case m: Endpoint => m }
-    _docs += name -> Api(path, listingPath, description, endpoints, s.models.toMap)
+  def register(name: String, basePath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase) = {
+    logger.debug("registering swagger api with: { name: %s, basePath: %s, resourcePath: %s, description: %s, servlet: %s }" format (name, basePath, resourcePath, description, s.getClass))
+    val endpoints: List[Endpoint] = s.endpoints(resourcePath) collect { case m: Endpoint => m }
+    _docs += name -> Api(
+      apiVersion,
+      swaggerVersion,
+      basePath,
+      resourcePath,
+      description,
+      endpoints.flatMap(_.operations.flatMap(_.produces)).distinct,
+      endpoints.flatMap(_.operations.flatMap(_.consumes)).distinct,
+      endpoints.flatMap(_.operations.flatMap(_.protocols)).distinct,
+      endpoints,
+      s.models.toMap,
+      endpoints.flatMap(_.operations.flatMap(_.authorizations)).distinct,
+      0)
   }
 }
 
 trait SwaggerApi[T <: SwaggerEndpoint[_]] {
+
+  def apiVersion: String
+  def swaggerVersion: String
+  def basePath: String
   def resourcePath: String
-  def listingPath: Option[String]
-  def description: String
+  def description: Option[String]
+  def produces: List[String]
+  def consumes: List[String]
+  def protocols: List[String]
+  def authorizations: List[String]
+  def position: Int
   def apis: List[T]
   def models: Map[String, Model]
   
   def model(name: String) = models.get(name)
 }
 
-case class Api(resourcePath: String,
-               listingPath: Option[String],
-               description: String,
-               apis: List[Endpoint],
-               models: Map[String, Model]) extends SwaggerApi[Endpoint] {
-  def toJValue = Api.toJValue(this)
-}
+case class ResourceListing(
+  apiVersion: String,
+  swaggerVersion: String = Swagger.SpecVersion,
+  apis: List[ApiListingReference] = Nil,
+  authorizations: List[AuthorizationType] = Nil,
+  info: Option[ApiInfo] = None)
 
-object Api {
-  import SwaggerSerializers._
+case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
 
-  lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
-
-  private[swagger] implicit val formats = new DefaultFormats {
-    override val dateFormat = new DateFormat {
-      def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
-      def parse(s: String) = try {
-        Option(Iso8601Date.parseDateTime(s).toDate)
-      } catch {
-        case _ ⇒ None
-      }
-    }
-  } ++ Seq(
-    new EnumNameSerializer(ParamType),
-    new HttpMethodSerializer,
-    new ParameterSerializer,
-    new AllowableValuesSerializer,
-    new ModelFieldSerializer) ++ JodaTimeSerializers.all
-
-  def toJValue(doc: Any) = (Extraction.decompose(doc)(formats))
-
-
-}
-
-private[swagger] object SwaggerSerializers {
-  import JsonDSL._
-  class HttpMethodSerializer extends Serializer[HttpMethod] {
-    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), HttpMethod] = {
-      case (TypeInfo(_, _), json) ⇒ null
-    }
-    def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-      case x: HttpMethod ⇒ JString(x.toString)
-    }
-  }
-
-  private[this] val simpleTypeList: List[String] = List("string", "number", "int", "boolean", "object", "Array", "null", "any")
-  private[this] def listType(key: String, name: String, isUnique: Boolean): JValue = {
-    val default = (key -> "Array") ~ ("uniqueItems" -> isUnique)
-    val arrayType = name.substring(name.indexOf("[") + 1, name.indexOf("]"))
-    if (simpleTypeList.contains(arrayType))
-      default ~ ("items" -> (("type" -> arrayType): JValue))
-    else
-      default ~ ("items" -> (("$ref" -> arrayType): JValue))
-  }
-
-  private[this] def serializeDataType(key: String, dataType: DataType.DataType) = {
-    dataType.name match {
-      case n if n.toUpperCase(Locale.ENGLISH).startsWith("LIST[") => listType(key, n, isUnique = false)
-      case n if n.toUpperCase(Locale.ENGLISH).startsWith("SET[") => listType(key, n, isUnique = true)
-      case n => (key -> n): JValue
-    }
-  }
-
-
-  class ParameterSerializer extends Serializer[Parameter] {
-
-    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, _root_.org.json4s.JValue), Parameter] = {
-      case _ => null
-    }
-
-    def serialize(implicit format: Formats): PartialFunction[Any, _root_.org.json4s.JValue] = {
-      case x: Parameter =>
-        ("name" -> x.name) ~
-        ("description" -> x.description) ~
-        ("notes" -> x.notes) ~
-        ("defaultValue" -> x.defaultValue) ~
-        ("allowableValues" -> Extraction.decompose(x.allowableValues)) ~
-        ("required" -> x.required) ~
-        ("paramType" -> x.paramType.toString) ~
-        ("allowMultiple" -> x.allowMultiple) merge serializeDataType("dataType", x.dataType)
-    }
-  }
-
-  class ModelFieldSerializer extends Serializer[ModelField] {
-    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), ModelField] = {
-      case (TypeInfo(_, _), json) => null
-    }
-
-    def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-      case x: ModelField => {
-          val c = ("description" -> x.description) ~
-          ("defaultValue" -> x.defaultValue) ~
-          ("required" -> x.required) ~
-          ("allowableValues" -> Extraction.decompose(x.allowableValues))
-        c merge serializeDataType("type", x.`type`)
-      }
-    }
-  }
-
-
-  class AllowableValuesSerializer extends Serializer[AllowableValues] {
-    import AllowableValues._
-
-    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), AllowableValues] = {
-      case (TypeInfo(_, _), json) ⇒ null
-    }
-    def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
-      case AnyValue ⇒ JNothing
-      case AllowableValuesList(values)  ⇒ ("valueType" -> "LIST") ~ ("values" -> Extraction.decompose(values))
-      case AllowableRangeValues(range)  ⇒ ("valueType" -> "RANGE") ~ ("min" -> range.start) ~ ("max" -> range.end)
-    }
-  }
+case class Api(apiVersion: String,
+               swaggerVersion: String,
+               basePath: String,
+               resourcePath: String,
+               description: Option[String] = None,
+               produces: List[String] = Nil,
+               consumes: List[String] = Nil,
+               protocols: List[String] = Nil,
+               apis: List[Endpoint] = Nil,
+               models: Map[String, Model] = Map.empty,
+               authorizations: List[String] = Nil,
+               position: Int = 0) extends SwaggerApi[Endpoint] {
 }
 
 object ParamType extends Enumeration {
@@ -333,45 +265,61 @@ object ParamType extends Enumeration {
   val File = Value("file")
 }
 
+sealed trait DataType {
+  def name: String
+}
 object DataType {
-  case class DataType(name: String)
+
+  case class ValueDataType(name: String, format: Option[String] = None, qualifiedName: Option[String] = None) extends DataType
+  case class ContainerDataType(name: String, typeArg: Option[DataType] = None, uniqueItems: Boolean = false) extends DataType
 
   val Void = DataType("void")
   val String = DataType("string")
-  val Int = DataType("int")
-  val Long = DataType("long")
+  val Byte = DataType("string", Some("byte"))
+  val Int = DataType("integer", Some("int32"))
+  val Long = DataType("integer", Some("int64"))
+  val Float = DataType("number", Some("float"))
+  val Double = DataType("number", Some("double"))
   val Boolean = DataType("boolean")
+<<<<<<< HEAD
   val Date = DataType("Date")
   val Enum = DataType("enum")
   val List = DataType("List")
   val Map = DataType("Map")
   val Tuple = DataType("tuple")
+=======
+  val Date = DataType("string", Some("date"))
+  val DateTime = DataType("string", Some("date-time"))
+>>>>>>> refactors scalatra-swagger to use the spec 1.2 object model, specs pending
 
   object GenList {
-    def apply(): DataType = List
-    def apply(v: DataType): DataType = new DataType("List[%s]" format (v.name))
+    def apply(): DataType = ContainerDataType("List")
+    def apply(v: DataType): DataType = new ContainerDataType("List", Some(v))
   }
 
   object GenSet {
-    def apply(): DataType = DataType("Set")
-    def apply(v: DataType): DataType = new DataType("Set[%s]" format (v.name))
+    def apply(): DataType = ContainerDataType("Set", uniqueItems = true)
+    def apply(v: DataType): DataType = new ContainerDataType("Set", Some(v), uniqueItems = true)
   }
 
   object GenArray {
-    def apply(): DataType = DataType("Array")
-    def apply(v: DataType): DataType = new DataType("Array[%s]" format (v.name))
+    def apply(): DataType = ContainerDataType("Array")
+    def apply(v: DataType): DataType = new ContainerDataType("Array", Some(v))
   }
 
-  object GenMap {
-    def apply(): DataType = Map
-    def apply(k: DataType, v: DataType): DataType = new DataType("Map[%s, %s]" format(k.name, v.name))
-  }
-
-  def apply(name: String) = new DataType(name)
+//  object GenMap {
+//    def apply(): DataType = Map
+//    def apply(k: DataType, v: DataType): DataType = new DataType("Map[%s, %s]" format(k.name, v.name))
+//  }
+//
+  def apply(name: String, format: Option[String] = None, qualifiedName: Option[String] = None) =
+    new ValueDataType(name, format, qualifiedName)
   def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](mf)
 
   private[this] val StringTypes = Set[Class[_]](classOf[String],classOf[java.lang.String])
+  private[this] def isString(klass: Class[_]) = StringTypes contains klass
   private[this] val BoolTypes = Set[Class[_]](classOf[Boolean],classOf[java.lang.Boolean])
+  private[this] def isBool(klass: Class[_]) = BoolTypes contains klass
 
   private[swagger] def fromManifest[T](implicit mf: Manifest[T]): DataType = {
     fromScalaType(Reflector.scalaTypeOf[T])
@@ -379,22 +327,22 @@ object DataType {
   private[swagger] def fromClass(klass: Class[_]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
   private[swagger] def fromScalaType(st: ScalaType): DataType = {
     val klass = if (st.isOption && st.typeArgs.size > 0) st.typeArgs.head.erasure else st.erasure
-    if (classOf[Unit].isAssignableFrom(klass)) this.Void
-    else if (StringTypes.contains(klass)) this.String
-    else if (classOf[Byte].isAssignableFrom(klass) || classOf[java.lang.Byte].isAssignableFrom(klass)) DataType("byte")
-    else if (classOf[Long].isAssignableFrom(klass) || classOf[java.lang.Long].isAssignableFrom(klass)) DataType("long")
+    if (classOf[Unit].isAssignableFrom(klass) || classOf[Void].isAssignableFrom(klass)) this.Void
+    else if (isString(klass)) this.String
+    else if (classOf[Byte].isAssignableFrom(klass) || classOf[java.lang.Byte].isAssignableFrom(klass)) this.Byte
+    else if (classOf[Long].isAssignableFrom(klass) || classOf[java.lang.Long].isAssignableFrom(klass)) this.Long
     else if (isInt(klass)) this.Int
-    else if (classOf[Float].isAssignableFrom(klass) || classOf[java.lang.Float].isAssignableFrom(klass)) DataType("float")
-    else if (isDecimal(klass)) DataType("double")
+    else if (classOf[Float].isAssignableFrom(klass) || classOf[java.lang.Float].isAssignableFrom(klass)) this.Float
+    else if (isDecimal(klass)) this.Double
     else if (isDate(klass)) this.Date
-    else if (BoolTypes contains klass) this.Boolean
-    else if (classOf[java.lang.Enum[_]].isAssignableFrom(klass)) this.Enum
-    else if (isMap(klass)) {
-      if (st.typeArgs.size == 2) {
-        val (k :: v :: Nil) = st.typeArgs.toList
-        GenMap(fromScalaType(k), fromScalaType(v))
-      } else GenMap()
-    }
+    else if (isBool(klass)) this.Boolean
+//    else if (classOf[java.lang.Enum[_]].isAssignableFrom(klass)) this.Enum
+//    else if (isMap(klass)) {
+//      if (st.typeArgs.size == 2) {
+//        val (k :: v :: Nil) = st.typeArgs.toList
+//        GenMap(fromScalaType(k), fromScalaType(v))
+//      } else GenMap()
+//    }
     else if (classOf[scala.collection.Set[_]].isAssignableFrom(klass) || classOf[java.util.Set[_]].isAssignableFrom(klass)) {
       if (st.typeArgs.nonEmpty) GenSet(fromScalaType(st.typeArgs.head))
       else GenSet()
@@ -407,7 +355,7 @@ object DataType {
       if (st.typeArgs.nonEmpty) GenArray(fromScalaType(st.typeArgs.head))
       else GenArray()
     }
-    else new DataType(klass.getSimpleName())
+    else new ValueDataType(st.simpleName, qualifiedName = Option(st.fullName))
   }
 
   private[this] val IntTypes =
@@ -419,12 +367,12 @@ object DataType {
   private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[Date], classOf[DateTime], classOf[DateMidnight])
+    Set[Class[_]](classOf[JDate], classOf[DateTime], classOf[DateMidnight])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
-  
-  private[this] def isMap(klass: Class[_]) =
-    classOf[collection.Map[_, _]].isAssignableFrom(klass) ||
-    classOf[java.util.Map[_, _]].isAssignableFrom(klass)
+//
+//  private[this] def isMap(klass: Class[_]) =
+//    classOf[collection.Map[_, _]].isAssignableFrom(klass) ||
+//    classOf[java.util.Map[_, _]].isAssignableFrom(klass)
 
   private[this] def isCollection(klass: Class[_]) =
     classOf[collection.Traversable[_]].isAssignableFrom(klass) ||
@@ -432,84 +380,146 @@ object DataType {
 
 }
 
+case class ApiInfo(
+  title: String,
+  description: String,
+  termsOfServiceUrl: String,
+  contact: String,
+  license: String,
+  licenseUrl: String)
+
+
 trait AllowableValues
 
 object AllowableValues {
   case object AnyValue extends AllowableValues
-  case class AllowableValuesList[T](values: List[T]) extends AllowableValues
+  case class AllowableValuesList[T](values: List[T])(implicit format: JsonFormat[T]) extends AllowableValues {
+    def toJValue: JValue = JArray(values map format.write)
+  }
   case class AllowableRangeValues(values: Range) extends AllowableValues
 
   def apply(): AllowableValues = empty
-  def apply[T](values: T*): AllowableValues = apply(values.toList)
-  def apply[T](values: List[T]): AllowableValues = {
-    AllowableValuesList(values)
-  }
+  def apply[T](values: T*)(implicit format: JsonFormat[T]): AllowableValues = apply(values.toList)
+  def apply[T](values: List[T])(implicit format: JsonFormat[T]): AllowableValues = AllowableValuesList(values)
   def apply(values: Range): AllowableValues = AllowableRangeValues(values)
   def empty = AnyValue
 }
 
 case class Parameter(name: String,
-                     description: String,
-                     dataType: DataType.DataType,
+                     `type`: DataType,
+                     description: Option[String] = None,
                      notes: Option[String] = None,
                      paramType: ParamType.ParamType = ParamType.Query,
                      defaultValue: Option[String] = None,
                      allowableValues: AllowableValues = AllowableValues.AnyValue,
                      required: Boolean = true,
-                     allowMultiple: Boolean = false)
+                     allowMultiple: Boolean = false,
+                     paramAccess: Option[String] = None)
 
-case class ModelField(name: String,
-                      description: String,
-                      `type`: DataType.DataType,
-                      defaultValue: Option[String] = None,
-                      allowableValues: AllowableValues = AllowableValues.AnyValue,
-                      required: Boolean = true)
-
-object ModelField {
-  implicit def modelField2tuple(m: ModelField) = (m.name, m)
-}
+case class ModelProperty(`type`: DataType,
+                         position: Int = 0,
+                         required: Boolean = false,
+                         description: Option[String] = None,
+                         allowableValues: AllowableValues = AllowableValues.AnyValue,
+                         items: Option[ModelRef] = None)
 
 case class Model(id: String,
-                 description: String,
-                 properties: Map[String, ModelField]) {
+                 name: String,
+                 qualifiedName: Option[String] = None,
+                 description: Option[String] = None,
+                 properties: List[(String, ModelProperty)] = Nil,
+                 baseModel: Option[String] = None,
+                 discriminator: Option[String] = None) {
 
-  def setRequired(property: String, required: Boolean) =
-    copy(properties = (properties + (property -> properties(property).copy(required = required))))
+  def setRequired(property: String, required: Boolean): Model = {
+    val prop = properties.find(_._1 == property).get
+    copy(properties = (property -> prop._2.copy(required = required)) :: properties)
+  }
 }
 
-object Model {
-  implicit def model2tuple(m: Model) = (m.id, m)
+case class ModelRef(
+  `type`: String,
+  ref: Option[String] = None,
+  qualifiedType: Option[String] = None)
+
+case class LoginEndpoint(url: String)
+case class TokenRequestEndpoint(url: String, clientIdName: String, clientSecretName: String)
+case class TokenEndpoint(url: String, tokenName: String)
+
+
+trait AuthorizationType {
+  def `type`: String
+}
+case class OAuth(
+  scopes: List[String],
+  grantTypes: List[GrantType]) extends AuthorizationType {
+  override val `type` = "oauth2"
+}
+case class ApiKey(keyname: String, passAs: String = "header") extends AuthorizationType {
+  override val `type` = "apiKey"
+}
+
+trait GrantType {
+  def `type`: String
+}
+case class ImplicitGrant(
+  loginEndpoint: LoginEndpoint,
+  tokenName: String) extends GrantType {
+  def `type` = "implicit"
+}
+case class AuthorizationCodeGrant(
+  tokenRequestEndpoint: TokenRequestEndpoint,
+  tokenEndpoint: TokenEndpoint) extends GrantType {
+  def `type` = "authorization_code"
 }
 trait SwaggerOperation {
-  def httpMethod: HttpMethod
-  def responseClass: String
+  @deprecated("Swagger spec 1.2 renamed this to `method`.", "2.2.2")
+  def httpMethod: HttpMethod = method
+  def method: HttpMethod
+  def responseClass: DataType
   def summary: String
   def notes: Option[String]
   def deprecated: Boolean
   def nickname: Option[String]
+  def produces: List[String]
+  def consumes: List[String]
+  def protocols: List[String]
+  def authorizations: List[String]
   def parameters: List[Parameter]
-  def errorResponses: List[Error]
+  @deprecated("Swagger spec 1.2 renamed this to `responseMessages`.", "2.2.2")
+  def errorResponses: List[ResponseMessage[_]] = responseMessages
+  def responseMessages: List[ResponseMessage[_]]
   def supportedContentTypes: List[String]
+  def position: Int
 }
-case class Operation(httpMethod: HttpMethod,
-                     responseClass: String,
+case class Operation(method: HttpMethod,
+                     responseClass: DataType,
                      summary: String,
+                     position: Int,
                      notes: Option[String] = None,
                      deprecated: Boolean = false,
                      nickname: Option[String] = None,
                      parameters: List[Parameter] = Nil,
-                     errorResponses: List[Error] = Nil,
-                     supportedContentTypes: List[String]) extends SwaggerOperation
+                     responseMessages: List[ResponseMessage[_]] = Nil,
+                     supportedContentTypes: List[String] = Nil,
+                     consumes: List[String] = Nil,
+                     produces: List[String] = Nil,
+                     protocols: List[String] = Nil,
+                     authorizations: List[String] = Nil) extends SwaggerOperation
+
+
 trait SwaggerEndpoint[T <: SwaggerOperation] {
   def path: String
-  def description: String
-  def secured: Boolean
+  def description: Option[String]
   def operations: List[T]
 }
+
 case class Endpoint(path: String,
-                    description: String,
-                    secured: Boolean = false,
+                    description: Option[String] = None,
                     operations: List[Operation] = Nil) extends SwaggerEndpoint[Operation]
 
-case class Error(code: Int,
-                 reason: String)
+trait ResponseMessage[T] {
+  def code: Int
+  def message: T
+}
+case class StringResponseMessage(code: Int, message: String) extends ResponseMessage[String]

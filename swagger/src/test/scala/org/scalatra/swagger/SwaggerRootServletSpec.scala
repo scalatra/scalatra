@@ -40,7 +40,7 @@ class SwaggerRootServletSpec extends MutableScalatraSpec {
   }
 
 
-  def listResources = get("/api-docs/resources.json") {
+  def listResources = get("/api-docs/api-docs.json") {
     JsonParser.parseOpt(body) must beSome(listResourceJValue)
   }
 

@@ -11,6 +11,9 @@ import grizzled.slf4j.Logger
 import org.scalatra.json.JsonSupport
 import org.scalatra.auth.ScentrySupport
 import collection.mutable
+import com.wordnik.swagger.model.LoginEndpoint
+import com.wordnik.swagger.model.TokenRequestEndpoint
+import com.wordnik.swagger.model.TokenEndpoint
 
 class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String) extends SwaggerEngine[AuthApi[AnyRef]] {
   private[this] val logger = Logger[this.type]
@@ -56,7 +59,8 @@ case class AuthApi[TypeForUser <: AnyRef](resourcePath: String,
                listingPath: Option[String],
                description: String,
                apis: List[AuthEndpoint[TypeForUser]],
-               models: Map[String, Model]) extends SwaggerApi[AuthEndpoint[TypeForUser]] {
+               models: Map[String, Model],
+               info: Option[ApiInfo] = None) extends SwaggerApi[AuthEndpoint[TypeForUser]] {
   def toJValue[T >: TypeForUser <: TypeForUser](userOption: Option[T]) = AuthApi.toJValue(this, userOption)
 }
 
@@ -116,33 +120,39 @@ object AuthApi {
     def serialize(implicit format: Formats): PartialFunction[Any, _root_.org.json4s.JValue] = {
       case x: AuthOperation[T] if x.allows(userOption) =>        
         import Extraction.decompose
-        ("httpMethod" -> decompose(x.httpMethod)) ~
+        ("method" -> decompose(x.method)) ~
         ("responseClass" -> x.responseClass) ~
         ("summary" -> x.summary) ~
         ("notes" -> x.notes) ~
         ("deprecated" -> x.deprecated) ~
         ("nickname" -> x.nickname) ~
         ("parameters" -> x.parameters.map(decompose)) ~
-        ("errorResponses" -> x.errorResponses.map(decompose)) 
+        ("responseMessages" -> x.errorResponses.map(decompose))
       case x: AuthOperation[_] => JNothing
     }
   }
 }
 
 case class AuthEndpoint[TypeForUser <: AnyRef](path: String,
-												                    description: String,
-												                    secured: Boolean = false,
-												                    operations: List[AuthOperation[TypeForUser]] = Nil) extends SwaggerEndpoint[AuthOperation[TypeForUser]]
-case class AuthOperation[TypeForUser <: AnyRef](httpMethod: HttpMethod,
-												                     responseClass: String,
-												                     summary: String,
-												                     notes: Option[String] = None,
-												                     deprecated: Boolean = false,
-												                     nickname: Option[String] = None,
-												                     parameters: List[Parameter] = Nil,
-												                     errorResponses: List[Error] = Nil,
-												                     allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true,
-                                     supportedContentTypes: List[String] = Nil) extends SwaggerOperation
+                                               description: String,
+                                               secured: Boolean = false,
+                                               operations: List[AuthOperation[TypeForUser]] = Nil) extends SwaggerEndpoint[AuthOperation[TypeForUser]]
+
+case class AuthOperation[TypeForUser <: AnyRef](method: HttpMethod,
+                                                responseClass: String,
+                                                summary: String,
+                                                position: Int,
+                                                notes: Option[String] = None,
+                                                deprecated: Boolean = false,
+                                                nickname: Option[String] = None,
+                                                parameters: List[Parameter] = Nil,
+                                                responseMessages: List[ResponseMessage[_]] = Nil,
+                                                consumes: List[String] = Nil,
+                                                produces: List[String] = Nil,
+                                                protocols: List[String] = Nil,
+                                                authorizations: List[String] = Nil,
+												                        allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true,
+                                                supportedContentTypes: List[String] = Nil) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
   import AuthApi.AuthOperationBuilder

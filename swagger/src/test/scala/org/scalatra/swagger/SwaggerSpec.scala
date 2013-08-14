@@ -32,7 +32,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
    */
   override lazy val port: Int = { val s = new ServerSocket(0); try { s.getLocalPort } finally { s.close() } }//58468
 
-  val listResourceJValue = readJson("resources.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
+  val listResourceJValue = readJson("api-docs.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
 
   val listOperationsJValue = readJson("pet.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
 
@@ -43,7 +43,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   }
 
 
-  def listResources = get("/resources.json") {
+  def listResources = get("/api-docs.json") {
     JsonParser.parseOpt(body) must beSome(listResourceJValue)
   }
 

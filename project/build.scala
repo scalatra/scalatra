@@ -285,6 +285,7 @@ object ScalatraBuild extends Build {
 //    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
     lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
     lazy val testng                     =  "org.testng"              %  "testng"             % "6.8"
+    lazy val shapeless                  =  "com.chuusai"             %% "shapeless"          % "1.2.4"
 
     type MM = String => ModuleID
 
