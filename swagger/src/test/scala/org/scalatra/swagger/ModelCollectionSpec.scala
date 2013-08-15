@@ -22,6 +22,9 @@ object ModelCollectionSpec {
 
   case class MapThings(id: Long, taggedThings: Map[String, TaggedThing], visits: Map[String, Date], created: Date)
   val mapThingsModels = taggedThingModels + Swagger.modelToSwagger[MapThings]
+
+  case class Thing(id: Long, thing: Option[TaggedThing])
+  val thingModels = taggedThingModels + Swagger.modelToSwagger[Thing]
 }
 
 class ModelCollectionSpec extends Specification {
@@ -57,6 +60,7 @@ class ModelCollectionSpec extends Specification {
     "collect models when hiding in a map" in {
       val collected = Swagger.collectModels[MapThings](Set.empty)
       collected must haveTheSameElementsAs(mapThingsModels.flatten)
+
     }
 
     "collect models when provided as a list" in {
@@ -64,9 +68,14 @@ class ModelCollectionSpec extends Specification {
       collected.map(_.id) must_== Set(Swagger.modelToSwagger[Name].get).map(_.id)
     }
 
+    "collect models when hiding in an option" in {
+      val collected = Swagger.collectModels[Thing](Set.empty)
+      collected must haveTheSameElementsAs(thingModels.flatten)
+      collected.find(_.id == "Thing").map(_.properties("thing").`type`) must beSome(DataType[TaggedThing])
+    }
+
     "collect Asset model" in {
       val collected = Swagger.collectModels[Asset](Set.empty)
-      println("Collected " + collected.map(_.id))
       collected.head must_== assetModel
     }
   }
