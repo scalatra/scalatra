@@ -94,7 +94,10 @@ object Swagger {
               f.getName,
               annot.value,
               DataType.fromScalaType(prop.returnType),
-              defaultValue = isOptional.map(_().toString),
+              defaultValue = isOptional map { fn =>
+                val r = fn()
+                if (r == null) r.asInstanceOf[String] else r.toString
+              },
               allowableValues = convertToAllowableValues(annot.allowableValues()),
               required = annot.required && !prop.returnType.isOption && isOptional.isEmpty)
           }
@@ -107,7 +110,10 @@ object Swagger {
               f.getName,
               null,
               DataType.fromScalaType(prop.returnType),
-              defaultValue = isOptional.map(_().toString),
+              defaultValue = isOptional map { fn =>
+                val r = fn()
+                if (r == null) r.asInstanceOf[String] else r.toString
+              },
               required = !prop.returnType.isOption && isOptional.isEmpty)
           }
 
