@@ -59,10 +59,10 @@ object Swagger {
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
             val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
             val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
-             val topLevel = for {
-              tl <- (subModels + descriptor.erasure)
-              if  !(tl.isCollection || tl.isOption || tl.isMap)
-              m <- modelToSwagger(tl)
+            val topLevel = for {
+              tl <- subModels + descriptor.erasure
+              if  !(tl.isCollection || tl.isMap)
+              m <- modelToSwagger(if (tl.isOption) tl.typeArgs.head else tl)
             } yield m
 
             val nested = subModels.foldLeft((topLevel, known + descriptor.erasure)){ (acc, b) =>
@@ -372,7 +372,7 @@ object DataType {
   }
   private[swagger] def fromClass(klass: Class[_]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
   private[swagger] def fromScalaType(st: ScalaType): DataType = {
-    val klass = st.erasure
+    val klass = if (st.isOption && st.typeArgs.size > 0) st.typeArgs.head.erasure else st.erasure
     if (classOf[Unit].isAssignableFrom(klass)) this.Void
     else if (StringTypes.contains(klass)) this.String
     else if (classOf[Byte].isAssignableFrom(klass) || classOf[java.lang.Byte].isAssignableFrom(klass)) DataType("byte")

@@ -17,7 +17,7 @@ class ScalatraListener extends ServletContextListener {
 
   private[this] var servletContext: ServletContext = _
 
-  def contextInitialized(sce: ServletContextEvent) {
+  override def contextInitialized(sce: ServletContextEvent) {
     try {
       configureServletContext(sce)
       configureCycleClass(Thread.currentThread.getContextClassLoader)
