@@ -99,7 +99,7 @@ object Swagger {
                 if (r == null) r.asInstanceOf[String] else r.toString
               },
               allowableValues = convertToAllowableValues(annot.allowableValues()),
-              required = annot.required && !prop.returnType.isOption && isOptional.isEmpty)
+              required = annot.required && !prop.returnType.isOption)
           }
 
         case f: Field =>
@@ -114,7 +114,7 @@ object Swagger {
                 val r = fn()
                 if (r == null) r.asInstanceOf[String] else r.toString
               },
-              required = !prop.returnType.isOption && isOptional.isEmpty)
+              required = !prop.returnType.isOption)
           }
 
       }
