@@ -45,6 +45,16 @@ class ModelCollectionSpec extends Specification {
       Swagger.collectModels[Date](Set.empty) must beEmpty
     }
 
+    "not return Options" in {
+      Swagger.collectModels[Option[String]](Set.empty) must beEmpty
+      Swagger.collectModels[Option[OnlyPrimitives]](Set.empty) must_== Set(onlyPrimitivesModel)
+    }
+
+    "not return Lists" in {
+      Swagger.collectModels[List[String]](Set.empty) must beEmpty
+      Swagger.collectModels[List[OnlyPrimitives]](Set.empty) must_== Set(onlyPrimitivesModel)
+    }
+
     "only return the top level object for a case class with only primitives" in {
       Swagger.collectModels[OnlyPrimitives](Set.empty) must_== Set(onlyPrimitivesModel)
     }
@@ -78,5 +88,6 @@ class ModelCollectionSpec extends Specification {
       val collected = Swagger.collectModels[Asset](Set.empty)
       collected.head must_== assetModel
     }
+
   }
 }

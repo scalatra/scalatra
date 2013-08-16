@@ -61,8 +61,8 @@ object Swagger {
             val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
             val topLevel = for {
               tl <- subModels + descriptor.erasure
-              if  !(tl.isCollection || tl.isMap)
-              m <- modelToSwagger(if (tl.isOption) tl.typeArgs.head else tl)
+              if  !(tl.isCollection || tl.isMap || tl.isOption)
+              m <- modelToSwagger(tl)
             } yield m
 
             val nested = subModels.foldLeft((topLevel, known + descriptor.erasure)){ (acc, b) =>
