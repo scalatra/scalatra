@@ -4,11 +4,12 @@ package swagger
 import org.json4s._
 import JsonDSL._
 import json.JsonSupport
+import grizzled.slf4j.Logger
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
+trait SwaggerBaseBase extends Initializable with ScalatraBase  with DefaultSwaggerJsonFormats { self: JsonSupport[_] with CorsSupport =>
 
   protected type ApiType <: SwaggerApi[_]
 
@@ -26,10 +27,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   /**
    * Whether to include the format parameter in the index listing for swagger
-   * defaults to true, the format parameter will be present but is still optional.
+   * defaults to false, the format parameter will not be present but is still optional.
    * @return true if the format parameter should be included in the returned json
    */
-  protected def includeFormatParameter: Boolean = true
+  protected def includeFormatParameter: Boolean = false
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
@@ -51,8 +52,6 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
    * Returns the Swagger instance responsible for generating the resource and operation listings.
    */
   protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
-  
-
 
   protected def renderDoc(doc: ApiType): JValue = {
     docToJson(doc) merge
@@ -62,21 +61,37 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
   }
 
   protected def renderIndex(docs: List[ApiType]): JValue = {
-    ("basePath" -> fullUrl("/", includeServletPath = false)) ~
-      ("swaggerVersion" -> swagger.swaggerVersion) ~
+    val authorizations = {
+      swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
+        acc merge JObject(List(auth.`type` -> Formats.write(auth)))
+      }
+    }
+
+    val r =
       ("apiVersion" -> swagger.apiVersion) ~
+      ("swaggerVersion" -> swagger.swaggerVersion) ~
       ("apis" ->
         (docs.filter(_.apis.nonEmpty).toList map {
-          doc => (("path" -> ((url(doc.resourcePath)) + (if (includeFormatParameter) ".{format}" else ""))) ~
-                 ("description" -> doc.description))
-        }))
+          doc =>
+            ("path" -> (url(doc.resourcePath, includeServletPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
+            ("description" -> doc.description)
+        })) ~
+      ("authorizations" -> authorizations) ~
+      ("info" -> Option(swagger.apiInfo).map(Formats.write(_)))
+
+    println("Rendering index:\n" + docs + "\n as json:\n" + jackson.prettyJson(r))
+    r
   }
 
 }
 
-trait SwaggerBase extends SwaggerBaseBase with DefaultSwaggerJsonFormats { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
+trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   type ApiType = Api
-
-  protected def docToJson(doc: Api): JValue = Formats.write(doc)
+  implicit protected def jsonFormats: Formats = DefaultFormats
+  protected def docToJson(doc: Api): JValue = {
+    val r = Formats.write(doc)
+    println("Serializing api: " + doc + "\n" + r)
+    r
+  }
   protected implicit def swagger: SwaggerEngine[ApiType]
 }

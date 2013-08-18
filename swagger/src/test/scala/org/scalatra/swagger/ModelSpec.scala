@@ -4,6 +4,7 @@ import org.specs2.mutable.Specification
 import org.scalatra.swagger.annotations._
 import org.scalatra.swagger.AllowableValues.{AllowableRangeValues, AllowableValuesList}
 import org.scalatra.swagger.reflect.Reflector
+import org.json4s.{DefaultWriters, DefaultReaders, DefaultJsonFormats}
 
 object ModelSpec {
 
@@ -23,24 +24,26 @@ object ModelSpec {
 
   def swaggerProperties[T](implicit mf: Manifest[T]) = swaggerProperty[T]("id")
   def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) =
-    Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties(name)
+    Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties.find(_._1 == name).get._2
 
 }
 
 class ModelSpec extends Specification {
   import ModelSpec._
 
+
+
   "Model to Swagger" should {
 
     "convert a populated description property of an ApiProperty annotation" in {
-      swaggerProperties[WithDescription].description must_== "a description"
+      swaggerProperties[WithDescription].description must beSome("a description")
     }
 
     "convert a populated allowable values property of an ApiProperty annotation" in {
-      swaggerProperties[WithAllowableValues].allowableValues must_== AllowableValuesList(List("item1", "item2"))
+      swaggerProperties[WithAllowableValues].allowableValues must_== AllowableValuesList(List("item1", "item2"))(DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter))
     }
     "convert a populated allowable values property of an ApiProperty annotation when it is a range" in {
-      swaggerProperties[WithAllowableRangeValues].allowableValues must_== AllowableRangeValues(Range(1, 10))
+      swaggerProperties[WithAllowableRangeValues].allowableValues must_== AllowableRangeValues(Range.inclusive(1, 10))
     }
     "convert a required=false annotation of a model field" in {
       swaggerProperty[WithRequiredFalse]("name").required must beFalse

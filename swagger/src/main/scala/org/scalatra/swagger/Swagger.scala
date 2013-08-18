@@ -15,7 +15,9 @@ import org.scalatra.swagger.runtime.annotations.{ApiModel, ApiModelProperty}
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String 
   def apiVersion: String
-  
+  def apiInfo: ApiInfo
+  def authorizations: List[AuthorizationType]
+  def addAuthorization(auth: AuthorizationType)
   
   private[swagger] val _docs = new ConcurrentHashMap[String, T]().asScala
 
@@ -29,7 +31,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
     /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, basePath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase)
+  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase)
 
 }
 
@@ -56,7 +58,7 @@ object Swagger {
           case descriptor: ClassDescriptor =>
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
             val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
-            val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
+            val subModels = (ctorModels.map(_.argType) ++ propModels.map(_.returnType)).toSet
             val topLevel = for {
               tl <- subModels + descriptor.erasure
               if  !(tl.isCollection || tl.isMap || tl.isOption)
@@ -74,15 +76,6 @@ object Swagger {
     }
   }
 
-  /*
-  case class ModelProperty(`type`: DataType,
-                           position: Int = 0,
-                           required: Boolean = false,
-                           description: Option[String] = None,
-                           allowableValues: AllowableValues = AllowableValues.AnyValue,
-                           items: Option[ModelRef] = None)
-
-   */
   import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
   def modelToSwagger(klass:ScalaType): Option[Model] = {
@@ -175,18 +168,21 @@ object Swagger {
 /**
  * An instance of this class is used to hold the API documentation.
  */
-class Swagger(val swaggerVersion: String, val apiVersion: String) extends SwaggerEngine[Api] {
+class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[Api] {
   private[this] val logger = Logger[this.type]
+  private[this] var _authorizations = List.empty[AuthorizationType]
+  def authorizations = _authorizations
+  def addAuthorization(auth: AuthorizationType) { _authorizations ::= auth }
+
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, basePath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase) = {
-    logger.debug("registering swagger api with: { name: %s, basePath: %s, resourcePath: %s, description: %s, servlet: %s }" format (name, basePath, resourcePath, description, s.getClass))
+  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase) = {
+    logger.debug("registering swagger api with: { name: %s, resourcePath: %s, description: %s, servlet: %s }" format (name, resourcePath, description, s.getClass))
     val endpoints: List[Endpoint] = s.endpoints(resourcePath) collect { case m: Endpoint => m }
     _docs += name -> Api(
       apiVersion,
       swaggerVersion,
-      basePath,
       resourcePath,
       description,
       endpoints.flatMap(_.operations.flatMap(_.produces)).distinct,
@@ -203,7 +199,6 @@ trait SwaggerApi[T <: SwaggerEndpoint[_]] {
 
   def apiVersion: String
   def swaggerVersion: String
-  def basePath: String
   def resourcePath: String
   def description: Option[String]
   def produces: List[String]
@@ -228,7 +223,6 @@ case class ApiListingReference(path: String, description: Option[String] = None,
 
 case class Api(apiVersion: String,
                swaggerVersion: String,
-               basePath: String,
                resourcePath: String,
                description: Option[String] = None,
                produces: List[String] = Nil,
@@ -355,7 +349,10 @@ object DataType {
       if (st.typeArgs.nonEmpty) GenArray(fromScalaType(st.typeArgs.head))
       else GenArray()
     }
-    else new ValueDataType(st.simpleName, qualifiedName = Option(st.fullName))
+    else {
+      val stt = if (st.isOption) st.typeArgs.head else st
+      new ValueDataType(stt.simpleName, qualifiedName = Option(stt.fullName))
+    }
   }
 
   private[this] val IntTypes =
@@ -473,7 +470,7 @@ case class AuthorizationCodeGrant(
   def `type` = "authorization_code"
 }
 trait SwaggerOperation {
-  @deprecated("Swagger spec 1.2 renamed this to `method`.", "2.2.2")
+  @deprecated("Swagger spec 1.2 renamed `httpMethod` to `method`.", "2.2.2")
   def httpMethod: HttpMethod = method
   def method: HttpMethod
   def responseClass: DataType
@@ -486,7 +483,7 @@ trait SwaggerOperation {
   def protocols: List[String]
   def authorizations: List[String]
   def parameters: List[Parameter]
-  @deprecated("Swagger spec 1.2 renamed this to `responseMessages`.", "2.2.2")
+  @deprecated("Swagger spec 1.2 renamed `errorResponses` to `responseMessages`.", "2.2.2")
   def errorResponses: List[ResponseMessage[_]] = responseMessages
   def responseMessages: List[ResponseMessage[_]]
   def supportedContentTypes: List[String]

@@ -22,8 +22,8 @@ trait SwaggerJsonFormats {
   implicit def ApiInfoJsonFormats: JsonFormat[ApiInfo]
   implicit def GrantTypeJsonFormats: JsonFormat[GrantType]
   implicit def AuthorizationTypeJsonFormats: JsonFormat[AuthorizationType]
-  implicit def ApiListingReferenceJsonFormat: JsonFormat[ApiListingReference]
-  implicit def ResourceListingJsonFormat: JsonFormat[ResourceListing]
+//  implicit def ApiListingReferenceJsonFormat: JsonFormat[ApiListingReference]
+//  implicit def ResourceListingJsonFormat: JsonFormat[ResourceListing]
 }
 trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
 
@@ -301,7 +301,6 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
     def write(x: Api): JValue = {
       ("apiVersion" -> x.apiVersion) ~
       ("swaggerVersion" -> x.swaggerVersion) ~
-      ("basePath" -> x.basePath) ~
       ("resourcePath" -> x.resourcePath) ~
       ("produces" -> (x.produces match {
         case Nil => JNothing
@@ -333,7 +332,6 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
       Api(
         (json \ "apiVersion").getAsOrElse(""),
         (json \ "swaggerVersion").getAsOrElse(""),
-        (json \ "basePath").getAsOrElse(""),
         (json \ "resourcePath").getAsOrElse(""),
         (json \ "description").getAs[String].flatMap(_.blankOption),
         (json \ "produces").getAsOrElse(List.empty[String]),
@@ -364,20 +362,6 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
         (value \ "contact").as[String],
         (value \ "license").as[String],
         (value \ "licenseUrl").as[String]
-      )
-  }
-
-  implicit val ApiListingReferenceJsonFormat: JsonFormat[ApiListingReference] = new JsonFormat[ApiListingReference] {
-    def write(obj: ApiListingReference): JValue =
-      ("path" -> obj.path) ~
-      ("description" -> obj.description) ~
-      ("position" -> obj.position)
-
-    def read(value: JValue): ApiListingReference =
-      ApiListingReference(
-        (value \ "path").as[String],
-        (value \ "description").getAs[String].flatMap(_.blankOption),
-        (value \ "position").getAsOrElse(0)
       )
   }
 
@@ -441,24 +425,24 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
       case _ => throw new MappingException("Couldn't map " + value + " to an authorization type")
     }
   }
-
-  implicit val ResourceListingJsonFormat: JsonFormat[ResourceListing] = new JsonFormat[ResourceListing] {
-    def write(obj: ResourceListing): JValue =
-      ("apiVersion" -> obj.apiVersion) ~
-      ("swaggerVersion" -> obj.swaggerVersion) ~
-      ("apis" -> Formats.write(obj.apis)) ~
-      ("authorizations" -> Formats.write(obj.authorizations)) ~
-      ("info" -> Formats.write(obj.info))
-
-    def read(value: JValue): ResourceListing =
-      ResourceListing(
-        (value \ "apiVersion").as[String],
-        (value \ "swaggerVersion").as[String],
-        (value \ "apis").as[List[ApiListingReference]],
-        (value \ "authorizations").as[List[AuthorizationType]],
-        (value \ "info").getAs[ApiInfo]
-      )
-  }
+//
+//  implicit val ResourceListingJsonFormat: JsonFormat[ResourceListing] = new JsonFormat[ResourceListing] {
+//    def write(obj: ResourceListing): JValue =
+//      ("apiVersion" -> obj.apiVersion) ~
+//      ("swaggerVersion" -> obj.swaggerVersion) ~
+//      ("apis" -> Formats.write(obj.apis)) ~
+//      ("authorizations" -> Formats.write(obj.authorizations)) ~
+//      ("info" -> Formats.write(obj.info))
+//
+//    def read(value: JValue): ResourceListing =
+//      ResourceListing(
+//        (value \ "apiVersion").as[String],
+//        (value \ "swaggerVersion").as[String],
+//        (value \ "apis").as[List[ApiListingReference]],
+//        (value \ "authorizations").as[List[AuthorizationType]],
+//        (value \ "info").getAs[ApiInfo]
+//      )
+//  }
 
 }
 

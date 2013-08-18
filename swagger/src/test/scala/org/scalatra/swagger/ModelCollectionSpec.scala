@@ -81,7 +81,7 @@ class ModelCollectionSpec extends Specification {
     "collect models when hiding in an option" in {
       val collected = Swagger.collectModels[Thing](Set.empty)
       collected must haveTheSameElementsAs(thingModels.flatten)
-      collected.find(_.id == "Thing").map(_.properties("thing").`type`) must beSome(DataType[TaggedThing])
+      collected.find(_.id == "Thing").flatMap(_.properties.find(_._1 == "thing").map(_._2.`type`)) must beSome(DataType[TaggedThing])
     }
 
     "collect Asset model" in {

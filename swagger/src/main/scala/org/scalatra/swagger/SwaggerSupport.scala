@@ -284,7 +284,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def applicationName: Option[String] = None
   protected def applicationDescription: String
   @deprecated("Swagger spec 1.2 renamed this to swaggerDefaultMessages, please use that one", "2.2.2")
-  protected def swaggerDefaultErrors: List[ResponseMessage[_]] = swaggerDefaultErrors
+  protected def swaggerDefaultErrors: List[ResponseMessage[_]] = swaggerDefaultMessages
   protected def swaggerDefaultMessages: List[ResponseMessage[_]] = Nil
   def swaggerDefaultProduces = List("application/json")
   def swaggerDefaultConsumes = List("application/json")
@@ -308,7 +308,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 //      }
 //    }
 
-    swagger.register(name, fullUrl("/", includeServletPath = false), thePath, applicationDescription.blankOption, this)
+    swagger.register(name, thePath, applicationDescription.blankOption, this)
   }
 //
 //  private[this] def inferListingPath() = {

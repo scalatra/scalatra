@@ -3,7 +3,6 @@ package swagger
 
 import test.specs2.ScalatraSpec
 import org.specs2._
-import execute.Result
 import matcher.{MatchResult, JsonMatchers}
 import org.json4s._
 import jackson.JsonMethods
@@ -12,27 +11,49 @@ import org.json4s.native.JsonParser
 import org.scalatra.json.{JValueResult, NativeJsonSupport}
 import scala.io.Source
 import java.net.ServerSocket
-import org.scalatra.swagger.annotations.ApiProperty
+import org.scalatra.swagger.annotations.ApiModelProperty
+import scala.collection.mutable
+import org.joda.time.DateTime
 
 class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   "Swagger integration should"                                  ^
     "list resources"                       ! listResources       ^
-    "list operations"                      ! listOperations     ^
+//    "list operations"                      ! listOperations     ^
   end
-
-  val swagger = new Swagger("1.1", "1")
+  val apiInfo = ApiInfo(
+      title = "Swagger Sample App",
+      description = "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
+      termsOfServiceUrl = "http://helloreverb.com/terms/",
+      contact = "apiteam@wordnik.com",
+      license = "Apache 2.0",
+      licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html"
+    )
+  val swagger = new Swagger("1.2", "1.0.0", apiInfo)
+  swagger.addAuthorization(ApiKey("apiKey"))
+  swagger.addAuthorization(OAuth(
+    List("PUBLIC"),
+    List(
+      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
+      AuthorizationCodeGrant(
+        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
+        TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
+    )
+  ))
   val testServlet = new SwaggerTestServlet(swagger)
 
   addServlet(testServlet, "/pet/*")
-  addServlet(new SwaggerResourcesServlet(swagger), "/*")
+  addServlet(new StoreApi(swagger), "/store/*")
+  addServlet(new UserApi(swagger), "/user/*")
+  addServlet(new SwaggerResourcesServlet(swagger), "/api-docs/*")
   implicit val formats = DefaultFormats
+
 
   /**
    * Sets the port to listen on.  0 means listen on any available port.
    */
   override lazy val port: Int = { val s = new ServerSocket(0); try { s.getLocalPort } finally { s.close() } }//58468
 
-  val listResourceJValue = readJson("api-docs.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
+  val listResourceJValue = readJson("api-docs.json")// merge (("basePath" -> ("http://localhost:" + port)):JValue)
 
   val listOperationsJValue = readJson("pet.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
 
@@ -43,8 +64,53 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   }
 
 
-  def listResources = get("/api-docs.json") {
-    JsonParser.parseOpt(body) must beSome(listResourceJValue)
+  def listResources = get("/api-docs") {
+    val bd = JsonParser.parseOpt(body)
+    bd must beSome[JValue] and {
+      val j = bd.get
+      (j \ "apiVersion" must_== listResourceJValue \ "apiVersion") and
+      (j \ "swaggerVersion" must_== listResourceJValue \ "swaggerVersion") and
+      verifyInfo(j \ "info") and
+      verifyApis(j \ "apis") and
+      verifyAuthorizations(j \ "authorizations")
+
+    }
+  }
+
+  def verifyApis(j: JValue) = {
+    val JArray(apis)  = j
+    val expectations = mutable.HashMap("/pet" -> "Operations about pets", "/store" -> "Operations about store", "/user" -> "Operations about user")
+    apis map { api =>
+      val JString(path) = api \ "path"
+      val desc = expectations(path)
+      expectations -= path
+      JString(desc) must_== api \ "description"
+    } reduce (_ and _) and (expectations must beEmpty)
+  }
+
+  def verifyAuthorizations(j: JValue) = {
+    val auth = listResourceJValue \ "authorizations"
+    j \ "oauth2" \ "type" must_== auth \ "oauth2" \ "type" and
+    (j \ "oauth2" \ "scopes" must_== auth \ "oauth2" \ "scopes") and
+    (j \ "oauth2" \ "grantTypes" \ "implicit" \ "loginEndpoint" must_== auth \ "oauth2" \ "grantTypes" \ "implicit" \ "loginEndpoint") and
+    (j \ "oauth2" \ "grantTypes" \ "implicit" \ "tokenName" must_== auth \ "oauth2" \ "grantTypes" \ "implicit" \ "tokenName") and
+    (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "url" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "url") and
+    (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientIdName" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientIdName") and
+    (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientSecretName" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientSecretName") and
+    (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "url" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "url") and
+    (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "tokenName" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "tokenName") and
+    (j \ "apiKey" \ "type" must_== auth \ "apiKey" \ "type") and
+    (j \ "apiKey" \ "passAs" must_== auth \ "apiKey" \ "passAs")
+  }
+
+  def verifyInfo(j: JValue) = {
+    val info = listResourceJValue \ "info"
+    (j \ "title" must_== info \ "title") and
+    (j \ "description" must_== info \ "description") and
+    (j \ "termsOfServiceUrl" must_== info \ "termsOfServiceUrl") and
+    (j \ "contact" must_== info \ "contact") and
+    (j \ "license" must_== info \ "license") and
+    (j \ "licenseUrl" must_== info \ "licenseUrl")
   }
 
   val operations = "allPets" :: "updatePet" :: "addPet" :: "findByTags" :: "findPetsByStatus" :: "findById" :: Nil
@@ -135,11 +201,12 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   }
 }
 
-class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet with NativeJsonSupport with JValueResult with SwaggerSupport {
+class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
 
   protected val applicationDescription = "Operations about pets"
   override protected val applicationName = Some("pet")
   protected implicit val jsonFormats: Formats = DefaultFormats
+  implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
   val data = new PetData
 
@@ -160,7 +227,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
     (apiOperation[Pet]("findById")
       summary "Find by ID"
       notes "Returns a pet when ID < 10. ID > 10 or nonintegers will simulate API error conditions"
-      errors (Error(400, "Invalid ID supplied"), Error(404, "Pet not found"))
+      responseMessages (StringResponseMessage(400, "Invalid ID supplied"), StringResponseMessage(404, "Pet not found"))
       parameter pathParam[String]("id").description("ID of pet that needs to be fetched"))
 
   get("/:id", operation(getPet)) {
@@ -170,7 +237,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
   val createPet =
     (apiOperation[Unit]("addPet")
       summary "Add a new pet to the store"
-      error Error(400, "Invalid pet data supplied")
+      responseMessage StringResponseMessage(400, "Invalid pet data supplied")
       parameter bodyParam[Pet].description("Pet object that needs to be added to the store"))
 
   post("/", operation(createPet)) {
@@ -180,7 +247,7 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
   val updatePet =
     (apiOperation[Unit]("updatePet")
       summary "Update an existing pet"
-      error Error(404, "Pet not found")
+      responseMessage StringResponseMessage(404, "Pet not found")
       parameter bodyParam[Pet].description("Pet object that needs to be updated in the store"))
 
   put("/", operation(updatePet)) {
@@ -211,10 +278,48 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
   }
 }
 
-class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase 
+class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
+  protected val applicationDescription = "Operations about store"
+  override protected val applicationName = Some("store")
+  protected implicit val jsonFormats: Formats = DefaultFormats
+  implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
+  val getOrderOperation = apiOperation[Order]("getOrderById")
+  get("/order/:orderId", operation(getOrderOperation)) {
+    ""
+  }
+
+  val deleteOrderOperation = apiOperation[Unit]("deleteOrder")
+  delete("/order/:orderId", operation(deleteOrderOperation)) {
+    NoContent()
+  }
+
+  val placeOrderOperation = apiOperation[Unit]("placeOrder")
+  post("/order", operation(placeOrderOperation)) {
+    ""
+  }
+
+}
+
+
+class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
+  protected val applicationDescription = "Operations about user"
+  override protected val applicationName = Some("user")
+  protected implicit val jsonFormats: Formats = DefaultFormats
+  implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+
+  val createUserOperation = apiOperation[User]("createUser")
+  post("/", operation(createUserOperation)) {
+    ""
+  }
+}
+
+class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase
+
+case class Order(id: Long, status: String, petId: Long, quantity: Int, shipDate: DateTime)
+case class User(id: Long, username: String, password: String, email: String, firstName: String, lastName: String, phone: String, userStatus: Int)
 case class Pet(id: Long, category: Category, name: String, urls: List[String], tags: List[Tag],
-               @ApiProperty(value = "pet availability", allowableValues = "available,sold") status: String)
+               @ApiModelProperty(value = "pet availability", allowableValues = "available,sold") status: String)
 case class Tag(id: Long, name: String)
 case class Category(id: Long, name: String)
 
