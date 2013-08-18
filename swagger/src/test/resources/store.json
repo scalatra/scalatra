@@ -15,7 +15,7 @@
           "method": "GET",
           "summary": "Find purchase order by ID",
           "notes": "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors",
-          "type": "Order",
+          "$ref": "Order",
           "nickname": "getOrderById",
           "produces": [
             "application/json",
@@ -45,7 +45,7 @@
         {
           "method": "DELETE",
           "summary": "Delete purchase order by ID",
-          "notes": "For valid response try integer IDs with value < 1000.  Anything above 1000 or nonintegers will generate API errors",
+          "notes": "For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors",
           "type": "void",
           "nickname": "deleteOrder",
           "parameters": [
@@ -84,9 +84,8 @@
             {
               "name": "body",
               "description": "order placed for purchasing the pet",
-              "required": true,
-              "allowMultiple": false,
-              "type": "Order",
+              "required": true
+              "$ref": "Order",
               "paramType": "body"
             }
           ],
@@ -109,8 +108,8 @@
           "format": "int64"
         },
         "status": {
-          "type": "string",
           "description": "Order Status",
+          "type": "string",
           "enum": [
             "placed",
             "approved",

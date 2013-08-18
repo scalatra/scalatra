@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApiModelProperty {
     /** Provide a human readable synopsis of this property */
-    String value() default "";
+    String description() default "";
 
     /**
     * If the values that can be set are restricted, they can be set here. In the form of a comma separated list
@@ -29,12 +29,6 @@ public @interface ApiModelProperty {
 
     /** long description of the property */
     String notes() default "";
-
-    /**
-    * The dataType. See the documentation for the supported datatypes. If the data type is a custom object, set
-    * it's name, or nothing. In case of an enum use 'string' and allowableValues for the enum constants.
-    */
-    String dataType() default "";
 
     /**
     * Whether or not the property is required, defaults to false.

@@ -3,7 +3,7 @@ package swagger
 
 import test.specs2.ScalatraSpec
 import org.specs2._
-import matcher.{MatchResult, JsonMatchers}
+import org.specs2.matcher.{ThrownExpectations, MatchResult, JsonMatchers}
 import org.json4s._
 import jackson.JsonMethods
 import JsonDSL._
@@ -11,14 +11,16 @@ import org.json4s.native.JsonParser
 import org.scalatra.json.{JValueResult, NativeJsonSupport}
 import scala.io.Source
 import java.net.ServerSocket
-import org.scalatra.swagger.annotations.ApiModelProperty
+import org.scalatra.swagger.annotations._
 import scala.collection.mutable
 import org.joda.time.DateTime
 
 class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
-  "Swagger integration should"                                  ^
+  "Swagger integration should"                                   ^
     "list resources"                       ! listResources       ^
-//    "list operations"                      ! listOperations     ^
+    "list pet operations"                  ! listPetOperations   ^
+    "list store operations"                ! listStoreOperations ^
+    "list user operations"                 ! listUserOperations  ^
   end
   val apiInfo = ApiInfo(
       title = "Swagger Sample App",
@@ -55,7 +57,9 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
 
   val listResourceJValue = readJson("api-docs.json")// merge (("basePath" -> ("http://localhost:" + port)):JValue)
 
-  val listOperationsJValue = readJson("pet.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
+  val petOperationsJValue = readJson("pet.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
+  val storeOperationsJValue = readJson("store.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
+  val userOperationsJValue = readJson("user.json") merge (("basePath" -> ("http://localhost:" + port)):JValue)
 
   private def readJson(file: String) = {
     val f = if ( file startsWith "/" ) file else "/"+file
@@ -113,35 +117,59 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
     (j \ "licenseUrl" must_== info \ "licenseUrl")
   }
 
-  val operations = "allPets" :: "updatePet" :: "addPet" :: "findByTags" :: "findPetsByStatus" :: "findById" :: Nil
+  val petOperations = "updatePet" :: "addPet" :: "deletePet" :: "findPetsByTags" :: "findPetsByStatus" :: "getPetById" :: Nil
+  val storeOperations = "placeOrder" :: "deleteOrder" :: "getOrderById" :: Nil
 //  val operations = "allPets" :: Nil
-  def listOperations = {
-    get("/pet.json") {
+  def listPetOperations = {
+    get("/api-docs/pet") {
       val bo = JsonParser.parseOpt(body)
       bo must beSome[JValue] and
-        verifyCommon(bo.get) and
-        operations.map(verifyOperation(bo.get, _)).reduce(_ and _) and
+        verifyCommon(bo.get, petOperationsJValue, List("/pet/{petId}", "/pet/findByTags", "/pet/findByStatus", "/pet/")) and
+        petOperations.map(verifyOperation(bo.get, petOperationsJValue, _)).reduce(_ and _) and
         verifyPetModel(bo.get)
     }
   }
 
-  def verifyCommon(jv: JValue): MatchResult[Any] = {
-    (jv \ "apiVersion" must_== listOperationsJValue \ "apiVersion") and
-    (jv \ "swaggerVersion" must_== listOperationsJValue \ "swaggerVersion") and
-    (jv \ "basePath" must_== listOperationsJValue \ "basePath") and
-    (jv \ "description" must_== listOperationsJValue \ "description") and
-    (jv \ "resourcePath" must_== listOperationsJValue \ "resourcePath") and {
-      val ja = jv \ "apis" \ "path" \\ classOf[JString]
-      (ja.size must_== 4) and
-        (ja must haveTheSameElementsAs(List("/pet/{id}", "/pet/findByTags", "/pet/findByStatus", "/pet/")))
+  def listStoreOperations = {
+    get("/api-docs/store") {
+      val bo = JsonParser.parseOpt(body)
+      bo must beSome[JValue] and
+        verifyCommon(bo.get, storeOperationsJValue, List("/store/order/{orderId}", "/store/order")) and
+        storeOperations.map(verifyOperation(bo.get, storeOperationsJValue, _)).reduce(_ and _) and
+        verifyStoreModel(bo.get)
     }
   }
 
-  def verifyOperation(jv: JValue, name: String) = {
-    val op = findOperation(jv, name)
-    val exp = findOperation(listOperationsJValue, name)
-    (op must beSome[JValue]).setMessage("Couldn't find extractOperation: " + name) and {
-      val m = verifyFields(op.get, exp.get, "httpMethod", "nickname", "responseClass", "summary", "parameters", "notes", "errorResponses")
+  def listUserOperations = {
+    pending
+//    get("/api-docs/pet") {
+//      val bo = JsonParser.parseOpt(body)
+//      bo must beSome[JValue] and
+//        verifyCommon(bo.get) and
+//        operations.map(verifyOperation(bo.get, _)).reduce(_ and _) and
+//        verifyPetModel(bo.get)
+//    }
+  }
+
+  def verifyCommon(actual: JValue, expected: JValue, operationPaths: List[String]): MatchResult[Any] = {
+    (actual \ "apiVersion" must_== expected \ "apiVersion") and
+    (actual \ "swaggerVersion" must_== expected \ "swaggerVersion") and
+    (actual \ "basePath" must_== expected \ "basePath") and
+    (actual \ "description" must_== expected \ "description") and
+    (actual \ "consumes" must_== expected \ "consumes") and
+    (actual \ "produces" must_== expected \ "produces") and
+    (actual \ "resourcePath" must_== expected \ "resourcePath") and {
+      val ja = actual \ "apis" \ "path" \\ classOf[JString]
+      (ja must haveSize(operationPaths.size)) and
+        (ja must haveTheSameElementsAs(operationPaths))
+    }
+  }
+
+  def verifyOperation(actual: JValue, expected: JValue, name: String) = {
+    val op = findOperation(actual, name)
+    val exp = findOperation(expected, name)
+    (op must beSome[JValue]).setMessage("Couldn't find operation: " + name) and {
+      val m = verifyFields(op.get, exp.get, "method", "nickname", "type", "$ref", "items", "summary", "parameters", "notes", "responseMessages", "consumes", "produces", "protocols", "authorizations")
       m setMessage (m.message + " of the operation " + name)
     }
   }
@@ -149,26 +177,39 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
   def verifyPetModel(actualPetJson: JValue) = {
     def petProperties(jv: JValue) = jv \ "models" \ "Pet" \ "properties"
     val actualPetProps = petProperties(actualPetJson)
-    val expectedPetProps = petProperties(listOperationsJValue)
+    val expectedPetProps = petProperties(petOperationsJValue)
 
     val m = verifyFields(actualPetProps, expectedPetProps, "category", "id", "name", "status", "tags", "urls")
     m setMessage (m.message + " of the pet model")
   }
 
+  def verifyStoreModel(actualStoreJson: JValue) = {
+    def petProperties(jv: JValue) = jv \ "models" \ "Order" \ "properties"
+    val actualOrderProps = petProperties(actualStoreJson)
+    val expectedOrderProps = petProperties(storeOperationsJValue)
+
+    val m = verifyFields(actualOrderProps, expectedOrderProps, "id", "status", "petId", "quantity", "shipDate")
+    m setMessage (m.message + " of the order model")
+  }
+
   def verifyFields(actual: JValue, expected: JValue, fields: String*): MatchResult[Any] = {
     def verifyField(act: JValue, exp: JValue, fn: String): MatchResult[Any] = {
       fn match {
-        case "errorResponses" =>
-          val JArray(af) = act \ fn
+        case "responseMessages" =>
+          val af = act \ fn match {
+            case JArray(res) => res
+            case _ => Nil
+          }
           val JArray(ef) = exp \ fn
           val r = af map { v =>
             val mm = verifyFields(
               v,
               ef find (_ \ "code" == v \ "code") getOrElse JNothing,
-              "code", "reason")
-            mm setMessage (mm.message + " in error responses collection")
+              "code", "message")
+            mm setMessage (mm.message + " in response messages collection")
           }
-          if (r.nonEmpty) r reduce (_ and _) else 1.must_==(1)
+          def countsmatch = (af.size must_== ef.size).setMessage("The count for the responseMessages is different")
+          if (r.nonEmpty) { countsmatch and (r reduce (_ and _)) } else countsmatch
         case "parameters" =>
           val JArray(af) = act \ fn
           val JArray(ef) = exp \ fn
@@ -176,8 +217,8 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
             val mm = verifyFields(
               v,
               ef find (_ \ "name" == v \ "name") get,
-              "allowableValues", "dataType", "paramType", "allowMultiple", "defaultValue", "description", "name", "required")
-            mm setMessage (mm.message + " for parameter " + ( v \ "name" ).extractOrElse("N/A"))
+              "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess")
+            mm setMessage (mm.message + " in parameter " + ( v \ "name" ).extractOrElse("N/A"))
           }
 
           if (r.nonEmpty) r reduce (_ and _) else 1.must_==(1)
@@ -187,7 +228,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
       }
     }
 
-    (fields map (verifyField(actual, expected, _)) reduce (_ and _))
+    fields map (verifyField(actual, expected, _)) reduce (_ and _)
   }
 
   def findOperation(jv: JValue, name: String) = {
@@ -208,36 +249,43 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
+
+  protected override val swaggerProduces: List[String] = "application/json" :: "application/xml" :: "text/plain" :: "text/html" :: Nil
+
+  protected override val swaggerConsumes: List[String] = Nil
+
   val data = new PetData
 
   get("/undocumented") {
     BadRequest("This should not show up")
   }
-
-  val rootOperation =
-    (apiOperation[List[Pet]]("allPets")
-      summary "Show all pets"
-      notes "shows all the pets in the data store")
-
-  get("/", operation(rootOperation)) {
-    data.pets
-  }
+//
+//  val rootOperation =
+//    (apiOperation[List[Pet]]("allPets")
+//      summary "Show all pets"
+//      notes "shows all the pets in the data store")
+//
+//  get("/", operation(rootOperation)) {
+//    data.pets
+//  }
 
   val getPet =
-    (apiOperation[Pet]("findById")
-      summary "Find by ID"
-      notes "Returns a pet when ID < 10. ID > 10 or nonintegers will simulate API error conditions"
+    (apiOperation[Pet]("getPetById")
+      summary "Find pet by ID"
+      notes "Returns a pet based on ID"
       responseMessages (StringResponseMessage(400, "Invalid ID supplied"), StringResponseMessage(404, "Pet not found"))
-      parameter pathParam[String]("id").description("ID of pet that needs to be fetched"))
+      parameter pathParam[String]("petId").description("ID of pet that needs to be fetched")
+      produces ("application/json", "application/xml")
+      authorizations ("oauth2"))
 
-  get("/:id", operation(getPet)) {
+  get("/:petId", operation(getPet)) {
     data.getPetbyId(params.getAs[Long]("petId").getOrElse(0))
   }
 
   val createPet =
     (apiOperation[Unit]("addPet")
       summary "Add a new pet to the store"
-      responseMessage StringResponseMessage(400, "Invalid pet data supplied")
+      responseMessage StringResponseMessage(405, "Invalid input")
       parameter bodyParam[Pet].description("Pet object that needs to be added to the store"))
 
   post("/", operation(createPet)) {
@@ -247,18 +295,32 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
   val updatePet =
     (apiOperation[Unit]("updatePet")
       summary "Update an existing pet"
+      responseMessage StringResponseMessage(400, "Invalid ID supplied")
       responseMessage StringResponseMessage(404, "Pet not found")
+      responseMessage StringResponseMessage(405, "Validation exception")
       parameter bodyParam[Pet].description("Pet object that needs to be updated in the store"))
 
   put("/", operation(updatePet)) {
     ApiResponse(ApiResponseType.OK, "pet updated")
   }
 
+  val deletePet =
+    (apiOperation[Unit]("deletePet")
+      summary "Deletes a pet"
+      responseMessage StringResponseMessage(400, "Invalid pet value")
+      parameter pathParam[String]("petId").description("Pet id to delete"))
+
+  delete("/:petId", operation(deletePet)) {
+    ApiResponse(ApiResponseType.OK, "pet deleted")
+  }
+
   val findByStatus =
-    (apiOperation[List[Pet]]("findPetsByStatus")
+    (apiOperation[List[Pet]]("findPetsByStatus").deprecate
       summary "Finds Pets by status"
       notes "Multiple status values can be provided with comma separated strings"
-      parameter (queryParam[String]("status").required
+      produces ("application/json", "application/xml")
+      responseMessage StringResponseMessage(400, "Invalid status value")
+      parameter (queryParam[String]("status").required.multiValued
                   description "Status values that need to be considered for filter"
                   defaultValue "available"
                   allowableValues ("available", "pending", "sold")))
@@ -268,10 +330,12 @@ class SwaggerTestServlet(protected val swagger:Swagger) extends ScalatraServlet 
   }
 
   val findByTags =
-      (apiOperation[List[Pet]]("findByTags")
+      (apiOperation[List[Pet]]("findPetsByTags").deprecate
         summary "Finds Pets by tags"
         notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
-        parameter queryParam[String]("tags").description("Tags to filter by"))
+        produces ("application/json", "application/xml")
+        responseMessage StringResponseMessage(400, "Invalid tag value")
+        parameter queryParam[String]("tags").description("Tags to filter by").multiValued)
 
   get("/findByTags", operation(findByTags)) {
     data.findPetsByTags(params("tags"))
@@ -283,18 +347,43 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   override protected val applicationName = Some("store")
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+  protected override val swaggerProduces: List[String] = "application/json" :: "application/xml" :: Nil
 
-  val getOrderOperation = apiOperation[Order]("getOrderById")
+  protected override val swaggerConsumes: List[String] = Nil
+
+  val getOrderOperation =
+    (apiOperation[Order]("getOrderById")
+      summary "Find purchase order by ID"
+      notes "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
+      produces ("application/json", "application/xml")
+      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required
+      responseMessages (
+        StringResponseMessage(400, "Invalid ID supplied"),
+        StringResponseMessage(404, "Order not found")
+      ))
+
   get("/order/:orderId", operation(getOrderOperation)) {
     ""
   }
 
-  val deleteOrderOperation = apiOperation[Unit]("deleteOrder")
+  val deleteOrderOperation =
+    (apiOperation[Unit]("deleteOrder")
+      summary "Delete purchase order by ID"
+      notes "For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors"
+      responseMessages (
+        StringResponseMessage(400, "Invalid ID supplied"),
+        StringResponseMessage(404, "Order not found")
+      ))
+
   delete("/order/:orderId", operation(deleteOrderOperation)) {
     NoContent()
   }
 
-  val placeOrderOperation = apiOperation[Unit]("placeOrder")
+  val placeOrderOperation =
+    (apiOperation[Unit]("placeOrder")
+      summary "Place an order for a pet"
+      responseMessage StringResponseMessage(400, "Invalid order")
+      parameter bodyParam[Order].description("order placed for purchasing the pet"))
   post("/order", operation(placeOrderOperation)) {
     ""
   }
@@ -316,10 +405,10 @@ class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSuppo
 
 class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase
 
-case class Order(id: Long, status: String, petId: Long, quantity: Int, shipDate: DateTime)
+case class Order(id: Long, @ApiModelProperty(description = "Order Status", allowableValues = "placed,approved,delivered") status: String, petId: Long, quantity: Int, shipDate: DateTime)
 case class User(id: Long, username: String, password: String, email: String, firstName: String, lastName: String, phone: String, userStatus: Int)
-case class Pet(id: Long, category: Category, name: String, urls: List[String], tags: List[Tag],
-               @ApiModelProperty(value = "pet availability", allowableValues = "available,sold") status: String)
+case class Pet(id: Long, category: Category, name: String, photoUrls: List[String], tags: List[Tag],
+               @ApiModelProperty(description = "pet status in the store", allowableValues = "available,pending,sold") status: String)
 case class Tag(id: Long, name: String)
 case class Category(id: Long, name: String)
 

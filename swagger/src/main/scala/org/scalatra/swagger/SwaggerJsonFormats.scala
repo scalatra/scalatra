@@ -65,7 +65,7 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
       case DataType.ContainerDataType("Set", _, _) =>
         ("type" -> "array") ~ ("uniqueItems" -> true)
       case DataType.ValueDataType(name, _, qualifiedName) =>
-        ("type" -> name) ~ ("qualifiedType" -> qualifiedName)
+        ("$ref" -> name) //~ ("qualifiedType" -> qualifiedName)
     }
 
     private[this] def str(jv: JValue) = jv.getAs[String].flatMap(_.blankOption)
@@ -134,12 +134,13 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
 
   implicit val ModelPropertyJsonFormats: JsonFormat[ModelProperty] = new JsonFormat[ModelProperty] {
     def write(x: ModelProperty): JValue = {
-      val json =
-        ("description" -> x.description) ~
-        ("position" -> x.position) ~
-        ("items" -> Formats.write(x.items)) ~
-        ("required" -> x.required)
-      json merge Formats.write(x.`type`) merge Formats.write(x.allowableValues)
+      val json: JValue =
+        ("description" -> x.description) // ~
+//        ("position" -> x.position) ~
+//        ("items" -> Formats.write(x.items)) ~
+//        ("required" -> x.required)
+//      json merge
+        json merge Formats.write(x.`type`) merge Formats.write(x.allowableValues)
     }
 
     def read(json: JValue): ModelProperty = {
@@ -212,7 +213,6 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
         ("description" -> x.description) ~
         ("defaultValue" -> x.defaultValue) ~
         ("required" -> x.required) ~
-        ("allowMultiple" -> x.allowMultiple) ~
         ("paramType" -> x.paramType.toString) ~
         ("paramAccess" -> x.paramAccess)
 
@@ -241,7 +241,6 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
           case JBool(value) => value
           case _ => false
         },
-        (json \ "allowMultiple").getAsOrElse(false),
         (json \ "paramAccess").getAs[String].flatMap(_.blankOption)
      )
     }
@@ -252,17 +251,22 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
       val json = ("method" -> Formats.write(obj.method)) ~
                 ("summary" -> obj.summary) ~
                 ("position" -> obj.position) ~
-                ("notes" -> obj.notes) ~
+                ("notes" -> obj.notes.flatMap(_.blankOption).getOrElse("")) ~
                 ("deprecated" -> obj.deprecated) ~
                 ("nickname" -> obj.nickname) ~
                 ("parameters" -> Formats.write(obj.parameters)) ~
-                ("responseMessages" -> Formats.write(obj.responseMessages)) ~
-                ("supportedContentTypes" -> obj.supportedContentTypes) ~
-                ("consumes" -> obj.consumes) ~
-                ("produces" -> obj.produces) ~
-                ("protocols" -> obj.protocols) ~
-                ("authorizations" -> obj.authorizations)
-      json merge Formats.write(obj.responseClass)
+                ("responseMessages" -> (if (obj.responseMessages.nonEmpty) Some(Formats.write(obj.responseMessages)) else None))
+
+      val consumes = dontAddOnEmpty("consumes", obj.consumes)_
+      val produces = dontAddOnEmpty("produces", obj.produces)_
+      val protocols = dontAddOnEmpty("protocols", obj.protocols)_
+      val authorizations = dontAddOnEmpty("authorizations", obj.authorizations)_
+      val r = (consumes andThen produces andThen authorizations andThen protocols)(json)
+      r merge Formats.write(obj.responseClass)
+    }
+
+    private[this] def dontAddOnEmpty(key: String, value: List[String])(json: JValue) = {
+      if (value.nonEmpty) json merge JObject(List(key -> JArray(value map (JString(_))))) else json
     }
 
     def read(value: JValue): Operation =
@@ -276,7 +280,7 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
         (value \ "nickname").getAs[String].flatMap(_.blankOption),
         (value \ "parameters").as[List[Parameter]],
         (value \ "responseMessages").as[List[ResponseMessage[_]]],
-        (value \ "supportedContentTypes").as[List[String]],
+//        (value \ "supportedContentTypes").as[List[String]],
         (value \ "consumes").as[List[String]],
         (value \ "produces").as[List[String]],
         (value \ "protocols").as[List[String]],
@@ -419,30 +423,12 @@ trait DefaultSwaggerJsonFormats extends SwaggerJsonFormats {
 
     def read(value: JValue): AuthorizationType = value \ "type" match {
       case JString("apiKey") =>
-        ApiKey((value \ "keyname").as[String], (value \ "passAs").as[String])
+        ApiKey((value \ "keyname").getAs[String].flatMap(_.blankOption).getOrElse("apiKey"), (value \ "passAs").as[String])
       case JString("oauth2") =>
         OAuth((value \ "scopes").as[List[String]], (value \ "grantTypes").as[List[GrantType]])
       case _ => throw new MappingException("Couldn't map " + value + " to an authorization type")
     }
   }
-//
-//  implicit val ResourceListingJsonFormat: JsonFormat[ResourceListing] = new JsonFormat[ResourceListing] {
-//    def write(obj: ResourceListing): JValue =
-//      ("apiVersion" -> obj.apiVersion) ~
-//      ("swaggerVersion" -> obj.swaggerVersion) ~
-//      ("apis" -> Formats.write(obj.apis)) ~
-//      ("authorizations" -> Formats.write(obj.authorizations)) ~
-//      ("info" -> Formats.write(obj.info))
-//
-//    def read(value: JValue): ResourceListing =
-//      ResourceListing(
-//        (value \ "apiVersion").as[String],
-//        (value \ "swaggerVersion").as[String],
-//        (value \ "apis").as[List[ApiListingReference]],
-//        (value \ "authorizations").as[List[AuthorizationType]],
-//        (value \ "info").getAs[ApiInfo]
-//      )
-//  }
 
 }
 

@@ -13,16 +13,33 @@ package object swagger {
     val Operation = Symbol("swagger.extractOperation")
     val Description = Symbol("swagger.description")
     val Produces = Symbol("swagger.produces")
-    val AllSymbols = Set(Summary, Notes, Nickname, ResponseClass, Parameters, Errors, Endpoint, Allows, Operation)
+    val Consumes = Symbol("swagger.consumes")
+    val AllSymbols = Set(
+      Summary,
+      Notes,
+      Nickname,
+      ResponseClass,
+      Parameters,
+      Errors,
+      Endpoint,
+      Allows,
+      Operation,
+      Description,
+      Consumes,
+      Produces)
   }
 
   object annotations {
     import scala.annotation.target.field
 
+    @deprecated("because of swagger spec 1.2 this got renamed to ApiModelProperty", "2.2.2")
     type ApiProperty = org.scalatra.swagger.runtime.annotations.ApiModelProperty @field
+
     type ApiModelProperty = org.scalatra.swagger.runtime.annotations.ApiModelProperty @field
+
     type ApiModel = org.scalatra.swagger.runtime.annotations.ApiModel
     type XmlRootElement = javax.xml.bind.annotation.XmlRootElement
+
     type ApiEnum = org.scalatra.swagger.runtime.annotations.ApiEnum
     @deprecated("In swagger spec 1.2 this was replaced with org.scalatra.swagger.ResponseMessage", "2.2.2")
     type Error = org.scalatra.swagger.ResponseMessage[String]

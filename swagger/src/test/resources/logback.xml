@@ -9,6 +9,10 @@
   </appender>
 
   <logger name="org.scalatra.swagger" level="DEBUG" />
+  <logger name="org.scalatra.swagger.SwaggerTestServlet" level="INFO" />
+  <logger name="org.scalatra.swagger.StoreApi" level="INFO" />
+  <logger name="org.scalatra.swagger.UserApi" level="INFO" />
+  <logger name="org.scalatra.swagger.SwaggerResourcesServlet" level="INFO" />
   <root level="ERROR">
     <appender-ref ref="STDOUT" />
   </root>

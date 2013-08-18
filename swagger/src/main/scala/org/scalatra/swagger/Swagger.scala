@@ -31,13 +31,14 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
     /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase)
+  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String])
 
 }
 
 object Swagger {
 
-  val baseTypes = Set("byte", "boolean", "int", "long", "float", "double", "string", "date", "void", "Date", "DateTime", "DateTimeMidnight", "Duration", "FiniteDuration")
+  val baseTypes = Set("byte", "boolean", "int", "long", "float", "double", "string", "date", "void", "Date", "DateTime", "DateMidnight", "Duration", "FiniteDuration", "Chronology")
+  val excludes: Set[java.lang.reflect.Type] = Set(classOf[java.util.TimeZone] ,classOf[java.util.Date], classOf[DateTime], classOf[DateMidnight], classOf[ReadableInstant], classOf[Chronology], classOf[DateTimeZone])
   val containerTypes = Set("Array", "List", "Set")
   val SpecVersion = "1.2"
   val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
@@ -79,7 +80,7 @@ object Swagger {
   import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
   def modelToSwagger(klass:ScalaType): Option[Model] = {
-    if (Reflector.isPrimitive(klass.erasure) || Reflector.isExcluded(klass.erasure)) None
+    if (Reflector.isPrimitive(klass.erasure) || Reflector.isExcluded(klass.erasure, excludes.toSeq)) None
     else {
       val name = klass.simpleName
 
@@ -89,24 +90,27 @@ object Swagger {
       val fields = klass.erasure.getDeclaredFields.toList collect {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
           val annot = f.getAnnotation(classOf[ApiModelProperty])
+
           descr.properties.find(_.mangledName == f.getName) map { prop =>
-            f.getName -> ModelProperty(
+            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
+            val mp = ModelProperty(
               DataType.fromScalaType(prop.returnType),
-              annot.position,
+              if (annot.position() > 0) annot.position() else ctorParam.map(_.argIndex).getOrElse(annot.position),
               required = annot.required && !prop.returnType.isOption,
-              description = annot.value.blankOption,
+              description = annot.description().blankOption,
               allowableValues = convertToAllowableValues(annot.allowableValues()))
+            prop.name -> mp
           }
 
         case f: Field =>
           descr.properties.find(_.mangledName == f.getName) map { prop =>
             val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
             val isOptional = ctorParam.flatMap(_.defaultValue)
-            f.getName -> ModelProperty(
+            prop.name -> ModelProperty(
               DataType.fromScalaType(prop.returnType),
               ctorParam.map(_.argIndex).getOrElse(0),
               required = !prop.returnType.isOption && isOptional.isEmpty,
-              description = null)
+              description = None)
           }
 
       }
@@ -177,7 +181,7 @@ class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: A
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase) = {
+  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]) = {
     logger.debug("registering swagger api with: { name: %s, resourcePath: %s, description: %s, servlet: %s }" format (name, resourcePath, description, s.getClass))
     val endpoints: List[Endpoint] = s.endpoints(resourcePath) collect { case m: Endpoint => m }
     _docs += name -> Api(
@@ -185,12 +189,12 @@ class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: A
       swaggerVersion,
       resourcePath,
       description,
-      endpoints.flatMap(_.operations.flatMap(_.produces)).distinct,
-      endpoints.flatMap(_.operations.flatMap(_.consumes)).distinct,
-      endpoints.flatMap(_.operations.flatMap(_.protocols)).distinct,
+      (produces ::: endpoints.flatMap(_.operations.flatMap(_.produces))).distinct,
+      (consumes ::: endpoints.flatMap(_.operations.flatMap(_.consumes))).distinct,
+      (protocols ::: endpoints.flatMap(_.operations.flatMap(_.protocols))).distinct,
       endpoints,
       s.models.toMap,
-      endpoints.flatMap(_.operations.flatMap(_.authorizations)).distinct,
+      (authorizations ::: endpoints.flatMap(_.operations.flatMap(_.authorizations))).distinct,
       0)
   }
 }
@@ -329,6 +333,7 @@ object DataType {
     else if (classOf[Float].isAssignableFrom(klass) || classOf[java.lang.Float].isAssignableFrom(klass)) this.Float
     else if (isDecimal(klass)) this.Double
     else if (isDate(klass)) this.Date
+    else if (isDateTime(klass)) this.DateTime
     else if (isBool(klass)) this.Boolean
 //    else if (classOf[java.lang.Enum[_]].isAssignableFrom(klass)) this.Enum
 //    else if (isMap(klass)) {
@@ -364,8 +369,11 @@ object DataType {
   private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[JDate], classOf[DateTime], classOf[DateMidnight])
+    Set[Class[_]](classOf[DateMidnight])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
+  private[this] val DateTimeTypes =
+    Set[Class[_]](classOf[JDate], classOf[DateTime])
+  private[this] def isDateTime(klass: Class[_]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
 //
 //  private[this] def isMap(klass: Class[_]) =
 //    classOf[collection.Map[_, _]].isAssignableFrom(klass) ||
@@ -410,7 +418,7 @@ case class Parameter(name: String,
                      defaultValue: Option[String] = None,
                      allowableValues: AllowableValues = AllowableValues.AnyValue,
                      required: Boolean = true,
-                     allowMultiple: Boolean = false,
+//                     allowMultiple: Boolean = false,
                      paramAccess: Option[String] = None)
 
 case class ModelProperty(`type`: DataType,
@@ -486,7 +494,7 @@ trait SwaggerOperation {
   @deprecated("Swagger spec 1.2 renamed `errorResponses` to `responseMessages`.", "2.2.2")
   def errorResponses: List[ResponseMessage[_]] = responseMessages
   def responseMessages: List[ResponseMessage[_]]
-  def supportedContentTypes: List[String]
+//  def supportedContentTypes: List[String]
   def position: Int
 }
 case class Operation(method: HttpMethod,
@@ -498,7 +506,7 @@ case class Operation(method: HttpMethod,
                      nickname: Option[String] = None,
                      parameters: List[Parameter] = Nil,
                      responseMessages: List[ResponseMessage[_]] = Nil,
-                     supportedContentTypes: List[String] = Nil,
+//                     supportedContentTypes: List[String] = Nil,
                      consumes: List[String] = Nil,
                      produces: List[String] = Nil,
                      protocols: List[String] = Nil,

@@ -8,7 +8,7 @@ import util.RicherString._
 import javax.servlet.{ Servlet, Filter }
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.control.Exception.allCatch
-import org.scalatra.swagger.DataType.ValueDataType
+import org.scalatra.swagger.DataType.{ContainerDataType, ValueDataType}
 import org.json4s.JsonFormat
 
 trait SwaggerSupportBase {
@@ -132,16 +132,18 @@ object SwaggerSupportSyntax {
 
   private val SingleValued = Set(ParamType.Body, ParamType.Path)
   trait SwaggerParameterBuilder {
+    private[this] var _dataType: DataType = _
     private[this] var _name: String = _
     private[this] var _description: Option[String] = None
     private[this] var _notes: Option[String] = None
     private[this] var _paramType: ParamType.ParamType = ParamType.Query
     private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
     protected[this] var _required: Option[Boolean] = None
-    private[this] var _allowMultiple: Boolean = false
+//    private[this] var _allowMultiple: Boolean = false
     private[this] var _paramAccess: Option[String] = None
 
-    def dataType: DataType
+    def dataType: DataType = _dataType
+    def dataType(dataType: DataType): this.type = { _dataType = dataType; this}
     def name(name: String): this.type = { _name = name; this }
     def description(description: String): this.type = { _description = description.blankOption; this }
     def description(description: Option[String]): this.type = { _description = description.flatMap(_.blankOption); this }
@@ -176,18 +178,31 @@ object SwaggerSupportSyntax {
     def paramType: ParamType.ParamType = _paramType
     def paramAccess = _paramAccess
     def allowableValues: AllowableValues = _allowableValues
-    def isRequired: Boolean = paramType == ParamType.Path || _required.isEmpty || _required.get
-    def multiValued: this.type = { _allowMultiple = true; this }
-    def singleValued: this.type = { _allowMultiple = false; this }
+    def isRequired: Boolean = paramType == ParamType.Path || _required.forall(identity)
 
 
-    def allowsMultiple: Boolean = !SwaggerSupportSyntax.SingleValued.contains(paramType) && _allowMultiple
+    def multiValued: this.type = {
+      dataType match {
+        case dt: ValueDataType => dataType(ContainerDataType("List", Some(dt), uniqueItems = false))
+        case _ => this
+      }
+    }
+    def singleValued: this.type = {
+      dataType match {
+        case ContainerDataType(_, Some(dataType), _) => this.dataType(dataType)
+        case _ => this
+      }
+    }
+
+
+//    def allowsMultiple: Boolean = !SwaggerSupportSyntax.SingleValued.contains(paramType) && _allowMultiple
 
     def result =
-      Parameter(name, dataType, description, notes, paramType, defaultValue, allowableValues, isRequired, allowsMultiple)
+      Parameter(name, dataType, description, notes, paramType, defaultValue, allowableValues, isRequired)
   }
 
-  class ParameterBuilder[T:Manifest](val dataType: DataType) extends SwaggerParameterBuilder {
+  class ParameterBuilder[T:Manifest](initialDataType: DataType) extends SwaggerParameterBuilder {
+    dataType(initialDataType)
     private[this] var _defaultValue: Option[String] = None
     override def defaultValue = _defaultValue
     def defaultValue(value: T): this.type = {
@@ -197,7 +212,9 @@ object SwaggerSupportSyntax {
     }
   }
 
-  class ModelParameterBuilder(val dataType: DataType) extends SwaggerParameterBuilder
+  class ModelParameterBuilder(val initialDataType: DataType) extends SwaggerParameterBuilder {
+    dataType(initialDataType)
+  }
 
   trait SwaggerOperationBuilder[T <: SwaggerOperation] {
 
@@ -230,6 +247,7 @@ object SwaggerSupportSyntax {
       this
     }
     def deprecated: Boolean = _deprecated
+    def deprecate: this.type = { _deprecated = true; this }
     def nickname(value: String): this.type = { _nickname = value; this }
     def nickName(value: String): this.type = nickname(value)
     def nickname: Option[String] = _nickname.blankOption
@@ -245,7 +263,7 @@ object SwaggerSupportSyntax {
     def consumes(values: String*): this.type = { _consumes :::= values.toList; this }
     def protocols: List[String] = _protocols
     def protocols(values: String*): this.type = { _protocols :::= values.toList; this }
-    def authorizations: List[String] = _protocols
+    def authorizations: List[String] = _authorizations
     def authorizations(values: String*): this.type = { _authorizations :::= values.toList; this }
     def position(value: Int): this.type = { _position = value; this }
     def position: Int = _position
@@ -286,8 +304,10 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   @deprecated("Swagger spec 1.2 renamed this to swaggerDefaultMessages, please use that one", "2.2.2")
   protected def swaggerDefaultErrors: List[ResponseMessage[_]] = swaggerDefaultMessages
   protected def swaggerDefaultMessages: List[ResponseMessage[_]] = Nil
-  def swaggerDefaultProduces = List("application/json")
-  def swaggerDefaultConsumes = List("application/json")
+  protected def swaggerProduces: List[String] = List("application/json")
+  protected def swaggerConsumes: List[String] = List("application/json")
+  protected def swaggerProtocols: List[String] = List("http")
+  protected def swaggerAuthorizations: List[String] = Nil
 
   private[this] def throwAFit =
     throw new IllegalStateException("I can't work out which servlet registration this is.")
@@ -308,7 +328,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 //      }
 //    }
 
-    swagger.register(name, thePath, applicationDescription.blankOption, this)
+    swagger.register(name, thePath, applicationDescription.blankOption, this, swaggerConsumes, swaggerProduces, swaggerProtocols, swaggerAuthorizations)
   }
 //
 //  private[this] def inferListingPath() = {
@@ -488,21 +508,13 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
   protected def apiOperation[T: Manifest](nickname: String): OperationBuilder = {
     registerModel[T]()
-    val messages = (swaggerDefaultErrors ::: swaggerDefaultMessages).distinct
     (new OperationBuilder(DataType[T])
-      nickname nickname
-      responseMessages(messages:_*)
-      produces(swaggerDefaultProduces:_*)
-      consumes(swaggerDefaultConsumes:_*))
+      nickname nickname)
   }
   protected def apiOperation(nickname: String, model: Model): OperationBuilder = {
     registerModel(model)
-    val messages = (swaggerDefaultErrors ::: swaggerDefaultMessages).distinct
     (new OperationBuilder(ValueDataType(model.id))
-      nickname nickname
-      responseMessages(messages:_*)
-      produces(swaggerDefaultProduces:_*)
-      consumes(swaggerDefaultConsumes:_*))
+      nickname nickname)
   }
 
   /**
@@ -534,6 +546,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
       val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
       val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
       val produces = route.metadata.get(Symbols.Produces) map (_.asInstanceOf[List[String]]) getOrElse Nil
+      val consumes = route.metadata.get(Symbols.Consumes) map (_.asInstanceOf[List[String]]) getOrElse Nil
       Operation(
         method = method,
         responseClass = responseClass,
@@ -543,7 +556,8 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
         nickname = nick,
         parameters = theParams,
         responseMessages = (errors ::: swaggerDefaultMessages ::: swaggerDefaultErrors).distinct,
-        supportedContentTypes = produces ::: swaggerDefaultProduces)
+        produces = produces,
+        consumes = consumes)
     }
   }
 
