@@ -341,7 +341,7 @@ object DataType {
   val Int = DataType("int")
   val Long = DataType("long")
   val Boolean = DataType("boolean")
-  val Date = DataType("date")
+  val Date = DataType("Date")
   val Enum = DataType("enum")
   val List = DataType("List")
   val Map = DataType("Map")
@@ -419,7 +419,7 @@ object DataType {
   private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[Date], classOf[DateTime])
+    Set[Class[_]](classOf[Date], classOf[DateTime], classOf[DateMidnight])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
   
   private[this] def isMap(klass: Class[_]) =

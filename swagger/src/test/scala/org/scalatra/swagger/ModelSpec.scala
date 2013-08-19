@@ -51,8 +51,8 @@ class ModelSpec extends Specification {
     "convert an option to a required false" in {
       swaggerProperty[WithOption]("name").required must beFalse
     }
-    "convert an default value to a required false" in {
-      swaggerProperty[WithDefaultValue]("name").required must beFalse
+    "convert an default value to a required true" in {
+      swaggerProperty[WithDefaultValue]("name").required must beTrue
     }
     "convert an non-option to a required false" in {
       swaggerProperty[WithRequiredValue]("name").required must beTrue
