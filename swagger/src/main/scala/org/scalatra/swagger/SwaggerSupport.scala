@@ -156,11 +156,11 @@ object SwaggerSupportSyntax {
     def fromQuery: this.type = paramType(ParamType.Query)
     def fromHeader: this.type = paramType(ParamType.Header)
 
-    def allowableValues[V](values: V*)(implicit format: JsonFormat[V]): this.type = {
+    def allowableValues[V](values: V*): this.type = {
       _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values:_*)
       this
     }
-    def allowableValues[V](values: List[V])(implicit format: JsonFormat[V]): this.type = {
+    def allowableValues[V](values: List[V]): this.type = {
       _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values)
       this
     }
