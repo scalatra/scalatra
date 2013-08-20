@@ -146,7 +146,9 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
   protected def userManifest: Manifest[TypeForUser]
+  protected implicit def jsonFormats: Formats = SwaggerAuthSerializers.authFormats(userOption)(userManifest)
 
+  protected def docToJson(doc: ApiType): JValue = Extraction.decompose(doc)
   before() {
     scentry.authenticate()    
   }
@@ -175,7 +177,7 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
     ("apis" ->
       (docs.filter(s => s.apis.nonEmpty && s.apis.exists(_.operations.exists(_.allows(userOption)))).toList map {
         doc =>
-          ("path" -> (url(doc.resourcePath, includeServletPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
+          ("path" -> (url(doc.resourcePath, includeServletPath = false, includeContextPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
           ("description" -> doc.description)
       })) ~
     ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>

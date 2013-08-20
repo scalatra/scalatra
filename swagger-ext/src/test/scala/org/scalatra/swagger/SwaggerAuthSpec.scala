@@ -77,11 +77,7 @@ object SwaggerAuthSpec {
     }
 
     protected val userManifest = manifest[User]
-    protected implicit val jsonFormats: Formats = SwaggerSerializers.formats
 
-    protected def docToJson(doc: ApiType): JValue = {
-      Extraction.decompose(doc)(SwaggerAuthSerializers.authFormats(userOption)(userManifest))
-    }
   }
   
   class PetsApi(implicit protected val swagger: SwaggerWithAuth) extends AuthenticatedBase with NativeJsonSupport with SwaggerAuthSupport[User] {

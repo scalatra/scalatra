@@ -76,7 +76,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     ("apis" ->
       (docs.filter(_.apis.nonEmpty).toList map {
         doc =>
-          ("path" -> (url(doc.resourcePath, includeServletPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
+          ("path" -> (url(doc.resourcePath, includeServletPath = false, includeContextPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
           ("description" -> doc.description)
       })) ~
     ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
