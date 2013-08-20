@@ -107,7 +107,6 @@ object Swagger {
         case f: Field =>
           descr.properties.find(_.mangledName == f.getName) map { prop =>
             val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-            val isOptional = ctorParam.flatMap(_.defaultValue)
             prop.name -> ModelProperty(
               DataType.fromScalaType(prop.returnType),
               ctorParam.map(_.argIndex).getOrElse(0),
