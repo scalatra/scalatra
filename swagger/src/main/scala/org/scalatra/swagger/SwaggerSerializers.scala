@@ -137,7 +137,7 @@ object SwaggerSerializers {
         items = None)
   }, {
     case x: ModelProperty =>
-      val json: JValue = ("description" -> x.description) ~ ("position" -> x.position)
+      val json: JValue = ("description" -> x.description)// ~ ("position" -> x.position)
       (json merge Extraction.decompose(x.`type`)) merge Extraction.decompose(x.allowableValues)
   }))
 

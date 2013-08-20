@@ -145,7 +145,7 @@ object SwaggerAuthSerializers {
 trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
-
+  protected def userManifest: Manifest[TypeForUser]
 
   before() {
     scentry.authenticate()    
@@ -167,6 +167,21 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
       if (docs.isEmpty) halt(NotFound())
       renderIndex(docs.asInstanceOf[List[ApiType]])
     }
+  }
+
+  protected override def renderIndex(docs: List[ApiType]): JValue = {
+    ("apiVersion" -> swagger.apiVersion) ~
+    ("swaggerVersion" -> swagger.swaggerVersion) ~
+    ("apis" ->
+      (docs.filter(s => s.apis.nonEmpty && s.apis.exists(_.operations.exists(_.allows(userOption)))).toList map {
+        doc =>
+          ("path" -> (url(doc.resourcePath, includeServletPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
+          ("description" -> doc.description)
+      })) ~
+    ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
+      acc merge JObject(List(auth.`type` -> Extraction.decompose(auth)(SwaggerAuthSerializers.authFormats(userOption)(userManifest))))
+    }) ~
+    ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)(SwaggerAuthSerializers.authFormats(userOption)(userManifest))))
   }
 
 }

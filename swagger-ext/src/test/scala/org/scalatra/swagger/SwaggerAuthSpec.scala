@@ -79,7 +79,9 @@ object SwaggerAuthSpec {
     protected val userManifest = manifest[User]
     protected implicit val jsonFormats: Formats = SwaggerSerializers.formats
 
-    protected def docToJson(doc: ApiType): JValue = Extraction.decompose(doc)(SwaggerAuthSerializers.authFormats(userOption)(userManifest))
+    protected def docToJson(doc: ApiType): JValue = {
+      Extraction.decompose(doc)(SwaggerAuthSerializers.authFormats(userOption)(userManifest))
+    }
   }
   
   class PetsApi(implicit protected val swagger: SwaggerWithAuth) extends AuthenticatedBase with NativeJsonSupport with SwaggerAuthSupport[User] {
@@ -89,15 +91,15 @@ object SwaggerAuthSpec {
     protected val applicationDescription = "The pets api"
     override protected val applicationName = Some("pets")
     
-    private def allowsTom(u: Option[User]) = {
-      u.map(_.login) == Some("tom") 
+    private val allowsTom = (u: Option[User]) => {
+      u.map(_.login) == Some("tom")
     }
     
-    private def allowsAuthenticated(u: Option[User]) = {
+    private val allowsAuthenticated = (u: Option[User]) => {
       u.isDefined
     }
     
-    private def noJohn(u: Option[User]) = {
+    private val noJohn = (u: Option[User]) => {
       val uu = u.map(_.login)
       uu.isDefined && uu != Some("john")
     }
@@ -158,7 +160,7 @@ class SwaggerAuthSpec extends MutableScalatraSpec {
   
   
   private def apis(jv: JValue): List[String] = jv \ "apis" \ "path" \\ classOf[JString]
-  private def endpoints(jv: JValue): List[String] = jv \ "apis" \ "operations" \ "httpMethod" \\ classOf[JString]
+  private def endpoints(jv: JValue): List[String] = jv \ "apis" \ "operations" \ "method" \\ classOf[JString]
   private def jsonBody = {
     val b = body
 //    println("json body")
@@ -227,7 +229,7 @@ class SwaggerAuthSpec extends MutableScalatraSpec {
 
     "return 404 for non-admin user when requesting admin.json" in {
       get("/api-docs/admin.json", "api_token" -> "token2") {
-    	  status must_== 404 
+    	  status must_== 404
     	}
     }
     
