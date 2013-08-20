@@ -30,37 +30,36 @@ class DataTypeSpec extends Specification {
     }
 
     "return correct Byte datatype" in {
-      DataType[java.lang.Byte] must_== DataType("byte")
-      DataType[Byte] must_== DataType("byte")
+      DataType[java.lang.Byte] must_== DataType.Byte
+      DataType[Byte] must_== DataType.Byte
     }
 
     "return a correct Decimal datatype" in {
-      val dd = DataType("double")
-      DataType[java.lang.Double] must_== dd
-      DataType[Double] must_== dd
-      DataType[BigDecimal] must_== dd
-      DataType[java.math.BigDecimal] must_== dd
+      DataType[java.lang.Double] must_== DataType.Double
+      DataType[Double] must_== DataType.Double
+      DataType[BigDecimal] must_== DataType.Double
+      DataType[java.math.BigDecimal] must_== DataType.Double
     }
 
     "return a correct Decimal datatype" in {
-      val dd = DataType("float")
-      DataType[java.lang.Float] must_== dd
-      DataType[Float] must_== dd
+      DataType[java.lang.Float] must_== DataType.Float
+      DataType[Float] must_== DataType.Float
     }
 
     "return a correct Date datatype" in {
-      DataType[java.util.Date] must_== DataType.Date
-      DataType[org.joda.time.DateTime] must_== DataType.Date
+      DataType[java.util.Date] must_== DataType.DateTime
+      DataType[org.joda.time.DateTime] must_== DataType.DateTime
+      DataType[org.joda.time.DateMidnight] must_== DataType.Date
     }
 
     "return a correct Boolean datatype" in {
       DataType[Boolean] must_== DataType.Boolean
       DataType[java.lang.Boolean] must_== DataType.Boolean
     }
-
-    "return a correct Map datatype" in {
-      DataType[Map[String, String]] must_== DataType.GenMap(DataType.String, DataType.String)
-    }
+//
+//    "return a correct Map datatype" in {
+//      DataType[Map[String, String]] must_== DataType.GenMap(DataType.String, DataType.String)
+//    }
 
     "return a correct Collection datatype" in {
       DataType[Traversable[String]] must_== DataType.GenArray(DataType.String)
@@ -78,7 +77,7 @@ class DataTypeSpec extends Specification {
     }
 
     "return a correct model datatype" in {
-      DataType[Person] must_== DataType("Person")
+      DataType[Person] must_== DataType("Person", qualifiedName = Some(classOf[Person].getName))
     }
 
   }

@@ -4,18 +4,19 @@ import org.specs2.mutable.Specification
 import org.scalatra.swagger.annotations._
 import org.scalatra.swagger.AllowableValues.{AllowableRangeValues, AllowableValuesList}
 import org.scalatra.swagger.reflect.Reflector
+import org.json4s.{DefaultWriters, DefaultReaders, DefaultJsonFormats}
 
 object ModelSpec {
 
-  case class WithDescription(@ApiProperty(value = "a description", allowableValues = "item1,item2")
+  case class WithDescription(@ApiModelProperty(description = "a description", allowableValues = "item1,item2")
                              id: String)
-  case class WithAllowableValues(@ApiProperty(allowableValues = "item1,item2")
+  case class WithAllowableValues(@ApiModelProperty(allowableValues = "item1,item2")
                              id: String)
-  case class WithAllowableRangeValues(@ApiProperty(allowableValues = "range[1,10]")
+  case class WithAllowableRangeValues(@ApiModelProperty(allowableValues = "range[1,10]")
                                  id: String)
 
-  case class WithRequiredFalse(id: String, @ApiProperty(required = false) name: String)
-  case class WithRequiredTrue(id: String, @ApiProperty(required = true) name: String)
+  case class WithRequiredFalse(id: String, @ApiModelProperty(required = false) name: String)
+  case class WithRequiredTrue(id: String, @ApiModelProperty(required = true) name: String)
 
   case class WithOption(id: String, name: Option[String])
   case class WithDefaultValue(id: String, name: String = "April")
@@ -23,24 +24,26 @@ object ModelSpec {
 
   def swaggerProperties[T](implicit mf: Manifest[T]) = swaggerProperty[T]("id")
   def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) =
-    Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties(name)
+    Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties.find(_._1 == name).get._2
 
 }
 
 class ModelSpec extends Specification {
   import ModelSpec._
 
+
+
   "Model to Swagger" should {
 
     "convert a populated description property of an ApiProperty annotation" in {
-      swaggerProperties[WithDescription].description must_== "a description"
+      swaggerProperties[WithDescription].description must beSome("a description")
     }
 
     "convert a populated allowable values property of an ApiProperty annotation" in {
       swaggerProperties[WithAllowableValues].allowableValues must_== AllowableValuesList(List("item1", "item2"))
     }
     "convert a populated allowable values property of an ApiProperty annotation when it is a range" in {
-      swaggerProperties[WithAllowableRangeValues].allowableValues must_== AllowableRangeValues(Range(1, 10))
+      swaggerProperties[WithAllowableRangeValues].allowableValues must_== AllowableRangeValues(Range.inclusive(1, 10))
     }
     "convert a required=false annotation of a model field" in {
       swaggerProperty[WithRequiredFalse]("name").required must beFalse

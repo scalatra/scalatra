@@ -7,13 +7,6 @@ import collection.JavaConverters._
 import java.util.Date
 import java.sql.Timestamp
 import collection.mutable.ArrayBuffer
-import org.scalatra.swagger.reflect.SingletonDescriptor
-import org.scalatra.swagger.reflect.ClassDescriptor
-import scala.Some
-import org.scalatra.swagger.reflect.ConstructorParamDescriptor
-import org.scalatra.swagger.reflect.PrimitiveDescriptor
-import org.scalatra.swagger.reflect.PropertyDescriptor
-import org.scalatra.swagger.reflect.ConstructorDescriptor
 
 object Reflector {
 

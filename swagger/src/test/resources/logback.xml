@@ -1,0 +1,19 @@
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>[%4level] [%d{HH:mm:ss.SSS}] [%thread] %logger{4} %X{akkaSource}: %m%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.scalatra.swagger" level="DEBUG" />
+  <logger name="org.scalatra.swagger.SwaggerTestServlet" level="INFO" />
+  <logger name="org.scalatra.swagger.StoreApi" level="INFO" />
+  <logger name="org.scalatra.swagger.UserApi" level="INFO" />
+  <logger name="org.scalatra.swagger.SwaggerResourcesServlet" level="INFO" />
+  <root level="ERROR">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>

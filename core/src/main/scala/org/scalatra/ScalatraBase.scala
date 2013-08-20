@@ -590,7 +590,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * @return the path plus the query string, if any.  The path is run through
    *         `response.encodeURL` to add any necessary session tracking parameters.
    */
-  def url(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true, absolutize: Boolean = true)(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+  def url(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true, absolutize: Boolean = true, withSessionId: Boolean = true)(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
 
     val newPath = path match {
       case x if x.startsWith("/") && includeContextPath && includeServletPath =>
@@ -610,7 +610,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       case (key, value) => key.urlEncode + "=" + value.toString.urlEncode
     }
     val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
-    addSessionId(newPath + queryString)
+    if (withSessionId) addSessionId(newPath + queryString) else newPath + queryString
   }
 
   private[this] def ensureContextPathsStripped(path: String)(implicit request: HttpServletRequest) =
@@ -664,10 +664,10 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    *
    * @return the full URL
    */
-  def fullUrl(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+  def fullUrl(path: String, params: Iterable[(String, Any)] = Iterable.empty, includeContextPath: Boolean = true, includeServletPath: Boolean = true, withSessionId: Boolean = true)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     if (path.startsWith("http")) path
     else {
-      val p = url(path, params, includeContextPath, includeServletPath)
+      val p = url(path, params, includeContextPath, includeServletPath, withSessionId)
       buildBaseUrl + ensureSlash(p)
     }
   }

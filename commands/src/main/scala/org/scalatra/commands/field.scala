@@ -8,6 +8,7 @@ import syntax.validation._
 import syntax.std.option._
 import mojolly.inflector.InflectorImports._
 import org.scalatra.util.RicherString._
+import org.json4s.JsonFormat
 
 object DefVal {
   def apply[T:Manifest](prov: => T) = new DefVal(prov)
@@ -105,7 +106,7 @@ class BasicFieldDescriptor[T](
       valueSource: ValueSource.Value = valueSource,
       allowableValues: List[T] = allowableValues,
       displayName: Option[String] = displayName): FieldDescriptor[T] = {
-    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName)(valueManifest) 
+    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName)(valueManifest)
   }
 
   def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], df: DefaultValue[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
@@ -129,7 +130,8 @@ class BasicFieldDescriptor[T](
   
   def sourcedFrom(valueSource: ValueSource.Value): FieldDescriptor[T] = copy(valueSource = valueSource)
 
-  def allowableValues(vals: T*): FieldDescriptor[T] = copy(allowableValues = vals.toList).validateWith(BindingValidators.oneOf("%%s must be one of %s.", vals))
+  def allowableValues(vals: T*): FieldDescriptor[T] =
+    copy(allowableValues = vals.toList).validateWith(BindingValidators.oneOf("%%s must be one of %s.", vals))
 
   def displayName(name: String): FieldDescriptor[T] = copy(displayName = name.blankOption)
 }
@@ -228,7 +230,8 @@ class BoundFieldDescriptor[S:DefaultValue, T](
   
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
 
-  def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] = copy(field = field.allowableValues(vals:_*))
+  def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] =
+    copy(field = field.allowableValues(vals:_*))
 
   def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
 }
