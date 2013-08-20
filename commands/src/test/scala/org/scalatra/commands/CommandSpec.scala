@@ -10,6 +10,7 @@ import org.specs2.mock.Mockito
 import util.MultiMap
 import java.util
 import org.scalatra.util
+import org.json4s.{DefaultWriters, DefaultReaders, DefaultJsonFormats}
 
 //import org.scalatra.validation.ValidationSupport
 
@@ -37,6 +38,7 @@ trait WithBinding extends Command with TypeConverterFactories with BindingTempla
 class WithBindingFromParams extends WithBinding
 
 class MixAndMatchCommand extends ParamsOnlyCommand {
+
   import ValueSource._
   val name: Field[String] = asString("name").notBlank
   val age: Field[Int] = "age"
@@ -67,6 +69,7 @@ class CommandSpec extends Specification {
 
   import org.scalatra.util.ParamsValueReaderProperties._
   import BindingSyntax._
+
 //  implicit val formats: Formats = DefaultFormats
   "The 'Command' trait" should {
 

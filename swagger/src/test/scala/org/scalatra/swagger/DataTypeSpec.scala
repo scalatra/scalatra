@@ -47,8 +47,9 @@ class DataTypeSpec extends Specification {
     }
 
     "return a correct Date datatype" in {
-      DataType[java.util.Date] must_== DataType.Date
-      DataType[org.joda.time.DateTime] must_== DataType.Date
+      DataType[java.util.Date] must_== DataType.DateTime
+      DataType[org.joda.time.DateTime] must_== DataType.DateTime
+      DataType[org.joda.time.DateMidnight] must_== DataType.Date
     }
 
     "return a correct Boolean datatype" in {

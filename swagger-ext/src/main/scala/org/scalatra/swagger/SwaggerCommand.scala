@@ -7,6 +7,7 @@ import scalaz._
 import Scalaz._
 import swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
 import swagger.SwaggerCommandSupport.CommandOperationBuilder
+import org.scalatra.swagger.AllowableValues.AllowableValuesList
 
 object SwaggerCommandSupport {
   
@@ -24,13 +25,13 @@ object SwaggerCommandSupport {
   private[this] def createParameterList[T <: Command](obj: T)(implicit mf: Manifest[T]): List[Parameter] = {
     mf.erasure.getMethods().foldLeft(List.empty[Parameter]) { (lst, fld) =>
       if (fld.getReturnType().isAssignableFrom(classOf[Field[_]]) && fld.getParameterTypes().isEmpty) {
-        val f = fld.invoke(obj).asInstanceOf[Field[_]]
+        val f = fld.invoke(obj).asInstanceOf[Field[Any]]
         // remove if statement below to include header params in description again
         if (f.valueSource == ValueSource.Header) lst else {
           Parameter(
               f.displayName | f.name,
-              f.description,
               DataType(f.binding.valueManifest),
+              f.description.blankOption,
               f.notes.blankOption,
               paramtypeMapping(f.valueSource),
               if (f.isRequired) None else f.defaultValue.toString.blankOption,
@@ -47,19 +48,21 @@ object SwaggerCommandSupport {
       val model = modelFromCommand(obj, fields)
       val bodyParam = 
           Parameter(
-              "body", 
-              model.description, 
-              DataType(model.id), 
-              None, 
+              "body",
+              DataType(model.id),
+              model.description,
+              None,
               ParamType.Body, 
-              None) 
+              None)
       (bodyParam :: parameters, Some(model)) 
     } else (parameters, None)
   }
 
   private[this] def modelFromCommand[T <: Command](cmd: T, fields: List[Parameter]) = {
-    val modelFields = fields.map(f => f.name -> ModelField(f.name, f.description, f.dataType, f.defaultValue, required = f.required))
-    Model(cmd.commandName, cmd.commandDescription, Map(modelFields:_*))
+    val modelFields = fields.zipWithIndex map {
+      case (f, idx) => f.name -> ModelProperty(f.`type`, idx, required = f.required, allowableValues = f.allowableValues)
+    }
+    Model(cmd.commandName, cmd.commandName, None, cmd.commandDescription.blankOption, modelFields)
   }
 
   class CommandOperationBuilder[B <: SwaggerOperationBuilder[_]](registerModel: Model => Unit, underlying: B) {
@@ -100,7 +103,7 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
     SwaggerCommandSupport.parametersFromCommand(cmd) match {
       case (parameters, None) => parameters
       case (parameters, Some(model)) =>
-        _models += model
+        _models += model.id -> model
         parameters
     }
   }

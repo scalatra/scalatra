@@ -9,11 +9,11 @@ import grizzled.slf4j.Logger
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBaseBase extends Initializable with ScalatraBase  with DefaultSwaggerJsonFormats { self: JsonSupport[_] with CorsSupport =>
+trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
 
   protected type ApiType <: SwaggerApi[_]
 
-
+  protected implicit def jsonFormats: Formats
   protected def docToJson(doc: ApiType): JValue
 
   implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
@@ -82,9 +82,9 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase  with DefaultSwagg
           ("description" -> doc.description)
       })) ~
     ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
-      acc merge JObject(List(auth.`type` -> Formats.write(auth)))
+      acc merge JObject(List(auth.`type` -> Extraction.decompose(auth)))
     }) ~
-    ("info" -> Option(swagger.apiInfo).map(Formats.write(_)))
+    ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)))
   }
 
   error {
@@ -97,7 +97,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase  with DefaultSwagg
 
 trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   type ApiType = Api
-  implicit protected def jsonFormats: Formats = DefaultFormats
-  protected def docToJson(doc: Api): JValue = Formats.write(doc)
+  implicit protected def jsonFormats: Formats = SwaggerSerializers.defaultFormats
+  protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)
   protected implicit def swagger: SwaggerEngine[ApiType]
 }

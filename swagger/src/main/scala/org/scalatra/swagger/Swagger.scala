@@ -16,10 +16,12 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String 
   def apiVersion: String
   def apiInfo: ApiInfo
-  def authorizations: List[AuthorizationType]
-  def addAuthorization(auth: AuthorizationType)
-  
+
   private[swagger] val _docs = new ConcurrentHashMap[String, T]().asScala
+
+  private[this] var _authorizations = List.empty[AuthorizationType]
+  def authorizations = _authorizations
+  def addAuthorization(auth: AuthorizationType) { _authorizations ::= auth }
 
   def docs = _docs.values
 
@@ -174,9 +176,7 @@ object Swagger {
  */
 class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[Api] {
   private[this] val logger = Logger[this.type]
-  private[this] var _authorizations = List.empty[AuthorizationType]
-  def authorizations = _authorizations
-  def addAuthorization(auth: AuthorizationType) { _authorizations ::= auth }
+
 
   /**
    * Registers the documentation for an API with the given path.
@@ -398,14 +398,12 @@ trait AllowableValues
 
 object AllowableValues {
   case object AnyValue extends AllowableValues
-  case class AllowableValuesList[T](values: List[T])(implicit format: JsonFormat[T]) extends AllowableValues {
-    def toJValue: JValue = JArray(values map format.write)
-  }
+  case class AllowableValuesList[T](values: List[T]) extends AllowableValues
   case class AllowableRangeValues(values: Range) extends AllowableValues
 
   def apply(): AllowableValues = empty
-  def apply[T](values: T*)(implicit format: JsonFormat[T]): AllowableValues = apply(values.toList)
-  def apply[T](values: List[T])(implicit format: JsonFormat[T]): AllowableValues = AllowableValuesList(values)
+  def apply[T](values: T*): AllowableValues = apply(values.toList)
+  def apply[T](values: List[T]): AllowableValues = AllowableValuesList(values)
   def apply(values: Range): AllowableValues = AllowableRangeValues(values)
   def empty = AnyValue
 }
