@@ -111,7 +111,7 @@ object Swagger {
             prop.name -> ModelProperty(
               DataType.fromScalaType(prop.returnType),
               ctorParam.map(_.argIndex).getOrElse(0),
-              required = !prop.returnType.isOption && isOptional.isEmpty,
+              required = !prop.returnType.isOption,
               description = None)
           }
 
@@ -279,16 +279,8 @@ object DataType {
   val Float = DataType("number", Some("float"))
   val Double = DataType("number", Some("double"))
   val Boolean = DataType("boolean")
-<<<<<<< HEAD
-  val Date = DataType("Date")
-  val Enum = DataType("enum")
-  val List = DataType("List")
-  val Map = DataType("Map")
-  val Tuple = DataType("tuple")
-=======
   val Date = DataType("string", Some("date"))
   val DateTime = DataType("string", Some("date-time"))
->>>>>>> refactors scalatra-swagger to use the spec 1.2 object model, specs pending
 
   object GenList {
     def apply(): DataType = ContainerDataType("List")
