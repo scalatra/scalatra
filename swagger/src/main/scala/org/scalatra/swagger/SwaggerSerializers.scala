@@ -27,7 +27,7 @@ object SwaggerSerializers {
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
 
-  private[swagger] implicit val formats: Formats = new DefaultFormats {
+  private[swagger] val formats: Formats = new DefaultFormats {
     override val dateFormat = new DateFormat {
       def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
       def parse(s: String) = try {
@@ -48,7 +48,7 @@ object SwaggerSerializers {
     new GrantTypeSerializer,
     new AuthorizationTypeSerializer)
 
-  private[swagger] implicit val defaultFormats: Formats =
+  private[swagger] val defaultFormats: Formats =
     formats ++ Seq(new OperationSerializer, new EndpointSerializer, new ApiSerializer)
 
   class HttpMethodSerializer extends CustomSerializer[HttpMethod](implicit formats => ({
