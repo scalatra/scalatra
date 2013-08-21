@@ -15,7 +15,7 @@
           "method": "GET",
           "summary": "Find purchase order by ID",
           "notes": "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors",
-          "$ref": "Order",
+          "type": "Order",
           "nickname": "getOrderById",
           "produces": [
             "application/json",
@@ -85,7 +85,7 @@
               "name": "body",
               "description": "order placed for purchasing the pet",
               "required": true
-              "$ref": "Order",
+              "type": "Order",
               "paramType": "body"
             }
           ],

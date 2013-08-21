@@ -39,7 +39,6 @@ object SwaggerSerializers {
   } ++ JodaTimeSerializers.all ++ Seq(
     new EnumNameSerializer(ParamType),
     new HttpMethodSerializer,
-    new DataTypeSerializer,
     new AllowableValuesSerializer,
     new ModelPropertySerializer,
     new ModelSerializer,
@@ -57,29 +56,7 @@ object SwaggerSerializers {
       case method: HttpMethod => JString(method.toString)
     }))
 
-  class DataTypeSerializer extends CustomSerializer[DataType](implicit formats => ({
-    case value: JObject =>
-      def karmaIsABitch = throw new MappingException("Couldn't determine the type for this data type from " + value)
-      val t = str(value \ "format") orElse str(value \ "type") orElse str(value \ "$ref") getOrElse karmaIsABitch
-      if (isSimpleType(t)) {
-        if (t == "array") {
-          val items = value \ "items" match {
-            case JNothing => None
-            case jv => Some(Extraction.extract[DataType](jv))
-          }
-          value \ "uniqueItems" match {
-            case JBool(true) =>
-              items map (DataType.GenSet(_)) getOrElse DataType.GenSet()
-            case _ =>
-              items map (DataType.GenList(_)) getOrElse DataType.GenList()
-          }
-        } else {
-          DataType((value \ "type").as[String], format = str(value \ "format"))
-        }
-      } else {
-        DataType(t, qualifiedName = str(value \ "qualifiedType"))
-      }
-  }, {
+  def writeDataType(dataType: DataType, key: String = "type")(implicit formats: Formats): JValue = dataType match {
     case DataType.ValueDataType(name, Some(format), _) =>
       ("type" -> name) ~ ("format" -> format)
     case DataType.ValueDataType("string", format, _) =>
@@ -89,16 +66,39 @@ object SwaggerSerializers {
     case DataType.ValueDataType("void", format, _) =>
       ("type" -> "void") ~ ("format" -> format)
     case DataType.ContainerDataType("List" | "Array", Some(dt), _) =>
-      ("type" -> "array") ~ ("items" -> Extraction.decompose(dt))
+      ("type" -> "array") ~ ("items" -> writeDataType(dt, "$ref"))
     case DataType.ContainerDataType("List" | "Array", _, _) =>
       ("type" -> "array") ~ ("format" -> None)
     case DataType.ContainerDataType("Set", Some(dt), _) =>
-      ("type" -> "array") ~ ("items" -> Extraction.decompose(dt)) ~ ("uniqueItems" -> true)
+      ("type" -> "array") ~ ("items" -> writeDataType(dt, "$ref")) ~ ("uniqueItems" -> true)
     case DataType.ContainerDataType("Set", _, _) =>
       ("type" -> "array") ~ ("uniqueItems" -> true)
     case DataType.ValueDataType(name, _, qualifiedName) =>
-      ("$ref" -> name): JValue //~ ("qualifiedType" -> qualifiedName)
-  }))
+      (key -> name): JValue //~ ("qualifiedType" -> qualifiedName)
+  }
+
+  def readDataType(value: JValue)(implicit formats: Formats): DataType = {
+    def karmaIsABitch = throw new MappingException("Couldn't determine the type for this data type from " + value)
+    val t = str(value \ "format") orElse str(value \ "type") orElse str(value \ "$ref") getOrElse karmaIsABitch
+    if (isSimpleType(t)) {
+      if (t == "array") {
+        val items = value \ "items" match {
+          case JNothing => None
+          case jv => Some(Extraction.extract[DataType](jv))
+        }
+        value \ "uniqueItems" match {
+          case JBool(true) =>
+            items map (DataType.GenSet(_)) getOrElse DataType.GenSet()
+          case _ =>
+            items map (DataType.GenList(_)) getOrElse DataType.GenList()
+        }
+      } else {
+        DataType((value \ "type").as[String], format = str(value \ "format"))
+      }
+    } else {
+      DataType(t, qualifiedName = str(value \ "qualifiedType"))
+    }
+  }
 
   class AllowableValuesSerializer extends CustomSerializer[AllowableValues](implicit formats => ({
     case value @ JObject(flds) if flds.exists(_._1 == "enum") =>
@@ -125,7 +125,7 @@ object SwaggerSerializers {
   class ModelPropertySerializer extends CustomSerializer[ModelProperty](implicit formats => ({
     case json: JObject =>
       ModelProperty(
-        `type` = json.extract[DataType],
+        `type` = readDataType(json),
         position = (json \ "position").getAsOrElse(0),
         json \ "required" match {
           case JString(s) => s.toCheckboxBool
@@ -138,7 +138,7 @@ object SwaggerSerializers {
   }, {
     case x: ModelProperty =>
       val json: JValue = ("description" -> x.description)// ~ ("position" -> x.position)
-      (json merge Extraction.decompose(x.`type`)) merge Extraction.decompose(x.allowableValues)
+      (json merge writeDataType(x.`type`, "$ref")) merge Extraction.decompose(x.allowableValues)
   }))
 
   class ModelSerializer extends CustomSerializer[Model](implicit formats => ({
@@ -182,7 +182,7 @@ object SwaggerSerializers {
 
   class ParameterSerializer extends CustomSerializer[Parameter](implicit formats => ({
     case json: JObject =>
-      val t = json.extract[DataType]
+      val t = readDataType(json)
       Parameter(
         (json \ "name").getAsOrElse(""),
         t,
@@ -215,14 +215,14 @@ object SwaggerSerializers {
         ("paramType" -> x.paramType.toString) ~
         ("paramAccess" -> x.paramAccess)
 
-      (output merge Extraction.decompose(x.`type`)) merge Extraction.decompose(x.allowableValues)
+      (output merge writeDataType(x.`type`)) merge Extraction.decompose(x.allowableValues)
   }))
 
   class OperationSerializer extends CustomSerializer[Operation](implicit formats => ({
     case value =>
       Operation(
         (value \ "method").extract[HttpMethod],
-        value.extract[DataType],
+        readDataType(value),
         (value \ "summary").extract[String],
         (value \ "position").extract[Int],
         (value \ "notes").extractOpt[String].flatMap(_.blankOption),
@@ -252,7 +252,7 @@ object SwaggerSerializers {
       val protocols = dontAddOnEmpty("protocols", obj.protocols)_
       val authorizations = dontAddOnEmpty("authorizations", obj.authorizations)_
       val r = (consumes andThen produces andThen authorizations andThen protocols)(json)
-      r merge Extraction.decompose(obj.responseClass)
+      r merge writeDataType(obj.responseClass)
   }))
 
   class EndpointSerializer extends CustomSerializer[Endpoint](implicit formats => ({
