@@ -17,7 +17,7 @@
           "method": "GET",
           "summary": "Find pet by ID",
           "notes": "Returns a pet based on ID",
-          "$ref": "Pet",
+          "type": "Pet",
           "nickname": "getPetById",
           "produces": [
             "application/json",
@@ -84,7 +84,7 @@
               "name": "body",
               "description": "Pet object that needs to be added to the store",
               "required": true,
-              "$ref": "Pet",
+              "type": "Pet",
               "paramType": "body"
             }
           ],
@@ -106,7 +106,7 @@
               "name": "body",
               "description": "Pet object that needs to be updated in the store",
               "required": true,
-              "$ref": "Pet",
+              "type": "Pet",
               "paramType": "body"
             }
           ],

@@ -39,7 +39,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
 import org.scalatra.util.RicherString._
 
 object SwaggerAuthSerializers {
-  import SwaggerSerializers.dontAddOnEmpty
+  import SwaggerSerializers.{ dontAddOnEmpty, writeDataType, readDataType }
 
   def authFormats[T <: AnyRef](userOption: Option[T])(implicit mf: Manifest[T]): Formats = SwaggerSerializers.formats ++ Seq(
     new AuthOperationSerializer[T](userOption),
@@ -51,7 +51,7 @@ object SwaggerAuthSerializers {
     case value =>
       AuthOperation[T](
         (value \ "method").extract[HttpMethod],
-        value.extract[DataType],
+        readDataType(value),
         (value \ "summary").extract[String],
         (value \ "position").extract[Int],
         (value \ "notes").extractOpt[String].flatMap(_.blankOption),
@@ -80,7 +80,7 @@ object SwaggerAuthSerializers {
       val protocols = dontAddOnEmpty("protocols", obj.protocols)_
       val authorizations = dontAddOnEmpty("authorizations", obj.authorizations)_
       val r = (consumes andThen produces andThen authorizations andThen protocols)(json)
-      r merge Extraction.decompose(obj.responseClass)
+      r merge writeDataType(obj.responseClass)
     case obj: AuthOperation[_] => JNothing
   }))
   class AuthEndpointSerializer[T <: AnyRef:Manifest] extends CustomSerializer[AuthEndpoint[T]](implicit formats => ({
