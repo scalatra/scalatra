@@ -1,6 +1,7 @@
 publishTo in ThisBuild <<= (version) { version: String =>
+  val artifactory = "https://ci.aws.wordnik.com/artifactory/m2-"
   if (version.trim.endsWith("SNAPSHOT"))
-    Some(Opts.resolver.sonatypeSnapshots)
+    Some("snapshots" at artifactory + "snapshots")
   else
-    Some(Opts.resolver.sonatypeStaging)
+    Some("releases"  at artifactory + "releases")
 }

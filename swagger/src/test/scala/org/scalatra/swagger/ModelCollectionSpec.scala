@@ -25,6 +25,9 @@ object ModelCollectionSpec {
 
   case class Thing(id: Long, thing: Option[TaggedThing])
   val thingModels = taggedThingModels + Swagger.modelToSwagger[Thing]
+
+  case class OptionListThing(id: Long, things: Option[List[TaggedThing]])
+  val optionThingModels = taggedThingModels + Swagger.modelToSwagger[OptionListThing]
 }
 
 class ModelCollectionSpec extends Specification {
@@ -76,6 +79,13 @@ class ModelCollectionSpec extends Specification {
     "collect models when provided as a list" in {
       val collected = Swagger.collectModels[List[Name]](Set.empty)
       collected.map(_.id) must_== Set(Swagger.modelToSwagger[Name].get).map(_.id)
+    }
+
+    "collect models when provided as a list inside an option" in {
+      val collected = Swagger.collectModels[OptionListThing](Set.empty)
+      val r = collected.find(_.id == "OptionListThing")
+      r.flatMap(_.properties.find(_._1 == "things").map(_._2.`type`)) must beSome(DataType[List[TaggedThing]])
+      r.flatMap(_.properties.find(_._1 == "things").map(_._2.required)) must beSome(false)
     }
 
     "collect models when hiding in an option" in {

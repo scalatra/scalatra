@@ -81,6 +81,19 @@ object Swagger {
 
   import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
+
+  private[this] def toModelProperty(descr: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "")(prop: PropertyDescriptor) = {
+    val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
+//    if (descr.simpleName == "Pet") println("converting property: " + prop)
+    val mp = ModelProperty(
+      DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
+      if (position.isDefined && position.forall(_ > 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
+      required = required && !prop.returnType.isOption,
+      description = description.flatMap(_.blankOption),
+      allowableValues = convertToAllowableValues(allowableValues))
+//    if (descr.simpleName == "Pet") println("The property is: " + mp)
+    prop.name -> mp
+  }
   def modelToSwagger(klass:ScalaType): Option[Model] = {
     if (Reflector.isPrimitive(klass.erasure) || Reflector.isExcluded(klass.erasure, excludes.toSeq)) None
     else {
@@ -92,33 +105,20 @@ object Swagger {
       val fields = klass.erasure.getDeclaredFields.toList collect {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
           val annot = f.getAnnotation(classOf[ApiModelProperty])
-
-          descr.properties.find(_.mangledName == f.getName) map { prop =>
-            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-            val mp = ModelProperty(
-              DataType.fromScalaType(prop.returnType),
-              if (annot.position() > 0) annot.position() else ctorParam.map(_.argIndex).getOrElse(annot.position),
-              required = annot.required && !prop.returnType.isOption,
-              description = annot.description().blankOption,
-              allowableValues = convertToAllowableValues(annot.allowableValues()))
-            prop.name -> mp
-          }
+          val asModelProperty = toModelProperty(descr, Some(annot.position()), annot.required(), annot.description().blankOption, annot.allowableValues())_
+          descr.properties.find(_.mangledName == f.getName) map asModelProperty
 
         case f: Field =>
-          descr.properties.find(_.mangledName == f.getName) map { prop =>
-            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-            prop.name -> ModelProperty(
-              DataType.fromScalaType(prop.returnType),
-              ctorParam.map(_.argIndex).getOrElse(0),
-              required = !prop.returnType.isOption,
-              description = None)
-          }
+          val asModelProperty = toModelProperty(descr)_
+          descr.properties.find(_.mangledName == f.getName) map asModelProperty
 
       }
 
-      apiModel map { am =>
+      val result = apiModel map { am =>
         Model(name, name, klass.fullName.blankOption, properties = fields.flatten, baseModel = am.parent.getName.blankOption, discriminator = am.discriminator.blankOption )
       } orElse Some(Model(name, name, klass.fullName.blankOption, properties = fields.flatten))
+//      if (descr.simpleName == "Pet") println("The collected fields:\n" + result)
+      result
     }
   }
 
@@ -130,8 +130,8 @@ object Swagger {
       val ranges = csvString.substring(15, csvString.length() - 1).split(",")
       buildAllowableRangeValues(ranges, csvString, inclusive = false)
     } else {
-      if (csvString == null || csvString.length == 0) {
-        null
+      if (csvString.isBlank) {
+        AllowableValues.AnyValue
       } else {
         val params = csvString.split(",").toList
         implicit val format = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)

@@ -176,6 +176,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
 
   def verifyPetModel(actualPetJson: JValue) = {
     def petProperties(jv: JValue) = jv \ "models" \ "Pet" \ "properties"
+//    println("pet model " + jackson.prettyJson(actualPetJson))
     val actualPetProps = petProperties(actualPetJson)
     val expectedPetProps = petProperties(petOperationsJValue)
 

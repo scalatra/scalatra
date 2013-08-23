@@ -84,7 +84,7 @@ object SwaggerSerializers {
       if (t == "array") {
         val items = value \ "items" match {
           case JNothing => None
-          case jv => Some(Extraction.extract[DataType](jv))
+          case jv => Some(readDataType(jv))
         }
         value \ "uniqueItems" match {
           case JBool(true) =>
@@ -137,7 +137,7 @@ object SwaggerSerializers {
         items = None)
   }, {
     case x: ModelProperty =>
-      val json: JValue = ("description" -> x.description)// ~ ("position" -> x.position)
+      val json: JValue = ("description" -> x.description) // ~ ("position" -> x.position)
       (json merge writeDataType(x.`type`, "$ref")) merge Extraction.decompose(x.allowableValues)
   }))
 
@@ -169,7 +169,7 @@ object SwaggerSerializers {
       ("required" -> required) ~
       ("extends" -> x.baseModel.filter(s => s.nonBlank && !s.trim.equalsIgnoreCase("VOID"))) ~
       ("discriminator" -> x.discriminator) ~
-      ("properties" -> (x.properties map { case (k, v) => k -> Extraction.decompose(v)}))
+      ("properties" -> (x.properties map { case (k, v) => k -> Extraction.decompose(v) }))
   }))
 
   class ResponseMessageSerializer extends CustomSerializer[ResponseMessage[_]](implicit formats => ({
@@ -230,7 +230,6 @@ object SwaggerSerializers {
         (value \ "nickname").extractOpt[String].flatMap(_.blankOption),
         (value \ "parameters").extract[List[Parameter]],
         (value \ "responseMessages").extract[List[ResponseMessage[_]]],
-//        (value \ "supportedContentTypes").as[List[String]],
         (value \ "consumes").extract[List[String]],
         (value \ "produces").extract[List[String]],
         (value \ "protocols").extract[List[String]],

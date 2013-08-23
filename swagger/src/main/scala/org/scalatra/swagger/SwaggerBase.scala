@@ -62,7 +62,9 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     val produces = dontAddOnEmpty("produces", doc.produces)_
     val protocols = dontAddOnEmpty("protocols", doc.protocols)_
     val authorizations = dontAddOnEmpty("authorizations", doc.authorizations)_
-    (consumes andThen produces andThen protocols andThen authorizations)(json)
+    val jsonDoc = (consumes andThen produces andThen protocols andThen authorizations)(json)
+//    println("The rendered json doc:\n" + jackson.prettyJson(jsonDoc))
+    jsonDoc
   }
 
   private[this] def dontAddOnEmpty(key: String, value: List[String])(json: JValue) = {

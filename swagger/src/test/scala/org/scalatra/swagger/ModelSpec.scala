@@ -21,6 +21,7 @@ object ModelSpec {
   case class WithOption(id: String, name: Option[String])
   case class WithDefaultValue(id: String, name: String = "April")
   case class WithRequiredValue(id: String, name: String)
+  case class WithOptionList(id: String, flags: Option[List[String]])
 
   def swaggerProperties[T](implicit mf: Manifest[T]) = swaggerProperty[T]("id")
   def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) =
@@ -59,6 +60,10 @@ class ModelSpec extends Specification {
     }
     "convert an non-option to a required false" in {
       swaggerProperty[WithRequiredValue]("name").required must beTrue
+    }
+    "conver an option list to a required false list of things" in {
+      swaggerProperty[WithOptionList]("flags").required must beFalse
+      swaggerProperty[WithOptionList]("flags").`type` must_== DataType[List[String]]
     }
 
   }
