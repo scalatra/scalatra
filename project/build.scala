@@ -294,8 +294,8 @@ object ScalatraBuild extends Build {
 //    lazy val jerkson                    =  "io.backchat.jerkson"     %% "jerkson"            % "0.7.0"
     lazy val jettyServer                =  "org.eclipse.jetty"       %  "jetty-server"       % jettyVersion
     lazy val jettyServlet               =  "org.eclipse.jetty"       %  "jetty-servlet"      % jettyVersion
-    lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
-//    lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %"websocket-server" % jettyVersion
+//    lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
+    lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %"websocket-server" % jettyVersion
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
     lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.4"
     lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.3"
@@ -348,7 +348,7 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.5"
 
-    private val jettyVersion = "8.1.12.v20130726"
+    private val jettyVersion = "9.0.5.v20130815"
 
     private val json4sVersion = "3.2.5"
 
