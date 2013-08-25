@@ -10,6 +10,7 @@ import org.apache.http.entity.mime.{FormBodyPart, MultipartEntity, HttpMultipart
 import org.apache.http.entity.mime.content.{ContentBody, FileBody, StringBody}
 import util.DynamicVariable
 import org.apache.http.client.CookieStore
+import scala.io.Codec
 
 case class HttpComponentsClientResponse(res: HttpResponse) extends ClientResponse {
   lazy val bodyBytes: Array[Byte] = {
@@ -149,7 +150,7 @@ trait HttpComponentsClient extends Client {
         val multipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE)
         params.foreach {
           case (name, value) =>
-            multipartEntity.addPart(new FormBodyPart(name, new StringBody(value)))
+            multipartEntity.addPart(new FormBodyPart(name, new StringBody(value))
         }
 
         files.foreach {

@@ -5,10 +5,10 @@ resolvers ++= Seq(
   "coda" at "http://repo.codahale.com"
 )
 
-addSbtPlugin("org.scalatra.sbt" % "scalatra-sbt" % "0.2.0")
+addSbtPlugin("org.scalatra.sbt" % "scalatra-sbt" % "0.3.2")
 
-addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.2")
+addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.3")
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.2.0")
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.1")
 
 

@@ -241,7 +241,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
                       "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
                       "Content-Type: text/plain\r\n" +
                       "\r\n" +
-                      "föo\r\n\r\n" +
+                      "föo\r\n" +
                       "--{boundary}--\r\n").replace("{boundary}", boundary).getBytes("ISO-8859-1")
 
       post("/params", headers = multipartHeaders, body = reqBody) {

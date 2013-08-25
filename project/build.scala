@@ -10,7 +10,7 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.10.0"),
+    crossScalaVersions := Seq("2.10.2"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
@@ -257,13 +257,14 @@ object ScalatraBuild extends Build {
     lazy val guice                      =  "com.google.inject"       %  "guice"              % "3.0"
     lazy val httpclient                 =  "org.apache.httpcomponents" % "httpclient"        % httpcomponentsVersion
     lazy val httpmime                   =  "org.apache.httpcomponents" % "httpmime"          % httpcomponentsVersion
-    lazy val jerkson                    =  "io.backchat.jerkson"     %% "jerkson"            % "0.7.0"
+//    lazy val jerkson                    =  "io.backchat.jerkson"     %% "jerkson"            % "0.7.0"
     lazy val jettyServer                =  "org.eclipse.jetty"       %  "jetty-server"       % jettyVersion
     lazy val jettyServlet               =  "org.eclipse.jetty"       %  "jetty-servlet"      % jettyVersion
     lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
+//    lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %"websocket-server" % jettyVersion
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
-    lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.2"
-    lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.2"
+    lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.4"
+    lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.3"
 //    lazy val json4sAst                  =  "org.json4s"              %% "json4s-ast"         % json4sVersion
     lazy val json4sCore                 =  "org.json4s"              %% "json4s-core"        % json4sVersion
     lazy val json4sExt                  =  "org.json4s"              %% "json4s-ext"         % json4sVersion
@@ -271,14 +272,14 @@ object ScalatraBuild extends Build {
     lazy val json4sNative               =  "org.json4s"              %% "json4s-native"      % json4sVersion
     lazy val junit                      =  "junit"                   %  "junit"              % "4.11"
     lazy val jUniversalChardet          =  "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
-    lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.11"
+    lazy val logbackClassic             =  "ch.qos.logback"          %  "logback-classic"    % "1.0.13"
     lazy val mimeUtil                   =  "eu.medsea.mimeutil"      % "mime-util"           % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
-    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.4"
+    lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.8"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-RC1"
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.2"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
@@ -296,17 +297,17 @@ object ScalatraBuild extends Build {
       CrossVersion.binaryMapped(Map(mappings: _*) orElse { case v => CrossVersion.binaryScalaVersion(v) })
 
     def defaultOrMapped(default: String, alternatives: (String, String)*): String => String =
-      Map(alternatives: _*) orElse { case _ => default }
+      Map(alternatives: _*).withDefaultValue(default)
 
     private val akkaVersion: String => String =
-      defaultOrMapped("2.1.2", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
+      defaultOrMapped("2.2.0", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
 
     private val grizzledSlf4jVersion: String => String = {
       case sv if sv startsWith "2.9."   => "0.6.10"
       case _                            => "1.0.1"
     }
 
-    private val httpcomponentsVersion = "4.2.3"
+    private val httpcomponentsVersion = "4.2.5"
 
     private val jettyVersion = "8.1.12.v20130726"
 
@@ -341,11 +342,6 @@ object ScalatraBuild extends Build {
       case _                            => "1.14"
     }
 
-    private val swaggerCross = CrossVersion.binaryMapped {
-      case sv if sv startsWith "2.9."   => "2.9.1"
-      case _                            => "2.10.0"
-    }
-    private val swaggerVersion = "1.2.5"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {

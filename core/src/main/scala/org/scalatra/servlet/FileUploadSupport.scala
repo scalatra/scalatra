@@ -3,10 +3,12 @@ package org.scalatra.servlet
 import scala.collection.JavaConverters._
 import java.util.{HashMap => JHashMap, Map => JMap}
 import org.scalatra.ScalatraBase
-import org.scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView, using, io}
+import org.scalatra.util._
 import java.io.{ File, FileOutputStream }
 import javax.servlet.http._
-import javax.servlet.MultipartConfigElement
+import org.scalatra.util.RicherString._
+import scala.io.Codec
+import org.scalatra.util.io
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
   * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
@@ -221,8 +223,8 @@ case class FileItem(part: Part) {
   val size = part.getSize
   val fieldName = part.getName
   val name = Util.partAttribute(part, "content-disposition", "filename")
-  val contentType: Option[String] = Option(part.getContentType)
-  val charset: Option[String] = Option(Util.partAttribute(part, "content-type", "charset"))
+  val contentType: Option[String] = part.getContentType.blankOption
+  val charset: Option[String] = Util.partAttribute(part, "content-type", "charset").blankOption
 
   def getName = name
 
