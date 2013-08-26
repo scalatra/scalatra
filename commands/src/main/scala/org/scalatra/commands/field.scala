@@ -313,7 +313,7 @@ object BindingValidators {
     def greaterThanOrEqualTo(min: T, messageFormat: String = "%%s must be greater than or equal to %s"): FieldDescriptor[T] =
       b.validateWith(BindingValidators.greaterThanOrEqualTo(min, messageFormat))
 
-    def lessThanOrEqualTo(max: T, messageFormat: String = "%%s must be greater than or equal to %s"): FieldDescriptor[T] =
+    def lessThanOrEqualTo(max: T, messageFormat: String = "%%s must be less than or equal to %s"): FieldDescriptor[T] =
       b.validateWith(BindingValidators.lessThanOrEqualTo(max, messageFormat))
 
   }
