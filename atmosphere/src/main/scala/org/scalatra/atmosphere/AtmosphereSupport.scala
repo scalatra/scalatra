@@ -31,6 +31,9 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   private[this] val logger = Logger[this.type]
 
   private[this] val _defaultWireformat = new JacksonSimpleWireformat
+
+  protected var scalatraBroadcasterClass: Class[_<:ScalatraBroadcaster] = classOf[DefaultScalatraBroadcaster]
+
   implicit protected def wireFormat: WireFormat = _defaultWireformat
 
   implicit def json2JsonMessage(json: JValue): OutboundMessage = JsonMessage(json)
@@ -141,7 +144,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   } yield matched).headOption
 
   private[this] def configureBroadcasterFactory() {
-    val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig)
+    val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig, scalatraBroadcasterClass)
     atmosphereFramework.setBroadcasterFactory(factory)
     atmosphereFramework.setDefaultBroadcasterClassName(classOf[ScalatraBroadcaster].getName)
   }
