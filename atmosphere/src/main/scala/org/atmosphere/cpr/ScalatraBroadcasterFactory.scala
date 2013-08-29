@@ -7,14 +7,14 @@ import collection.mutable
 import java.util.concurrent.ConcurrentHashMap
 import org.atmosphere.di.InjectorProvider
 import java.util.UUID
-import org.scalatra.atmosphere.{WireFormat, ScalatraBroadcaster}
+import org.scalatra.atmosphere.{DefaultScalatraBroadcaster, WireFormat, ScalatraBroadcaster}
 import collection.JavaConverters._
 import scala.collection.concurrent.{Map => ConcurrentMap}
 
 object ScalatraBroadcasterFactory {
 
 }
-class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
+class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBroadcaster] = classOf[DefaultScalatraBroadcaster])(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   BroadcasterFactory.setBroadcasterFactory(this, cfg)
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
@@ -23,7 +23,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig)(implicit wireFormat: Wir
   private def createBroadcaster(c: Class[_<:Broadcaster], id: Any): Broadcaster = {
     try {
       val b: Broadcaster = if (classOf[ScalatraBroadcaster].isAssignableFrom(c)) {
-        new ScalatraBroadcaster(id.toString, cfg)
+        bc.getConstructor(classOf[String], classOf[AtmosphereConfig], classOf[WireFormat], classOf[ActorSystem]).newInstance(id.toString, cfg, wireFormat, system).asInstanceOf[Broadcaster]
       } else {
         c.getConstructor(classOf[String], classOf[AtmosphereConfig]).newInstance(id.toString, cfg)
 
