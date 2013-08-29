@@ -94,7 +94,7 @@ object ScalatraBuild extends Build {
     base = file("atmosphere"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
-      libraryDependencies ++= Seq(atmosphereRuntime, atmosphereClient % "test", jettyWebsocket % "test"),
+      libraryDependencies ++= Seq(atmosphereRuntime, atmosphereRedis, atmosphereClient % "test", jettyWebsocket % "test"),
       description := "Atmosphere integration for scalatra",
       LsKeys.tags in LsKeys.lsync ++= Seq("atmosphere", "comet", "sse", "websocket")
     )
@@ -249,6 +249,7 @@ object ScalatraBuild extends Build {
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.12"
     lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.0.12" artifacts(Artifact("atmosphere-jquery", "war", "war"))
     lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.RC1"
+    lazy val atmosphereRedis            =  "org.atmosphere"          % "atmosphere-redis"    % "1.0.12"
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
