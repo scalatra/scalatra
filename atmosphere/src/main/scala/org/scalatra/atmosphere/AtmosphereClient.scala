@@ -45,24 +45,11 @@ object AtmosphereClient {
  * Subclasses may define their own ClientFilter logic in addition to the
  * stock ClientFilters already defined, in order to segment message delivery.
  */
-trait AtmosphereClient {
+trait AtmosphereClient extends AtmosphereClientFilter {
 
   @volatile private[atmosphere] var resource: AtmosphereResource = _
   private[this] val internalLogger = Logger[AtmosphereClient]
   private[this] def broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
-
-  /**
-   * Deliver the message to everyone except the current user.
-   */
-  final protected def SkipSelf: ClientFilter = _.uuid != uuid
-  final protected def Others: ClientFilter = SkipSelf
-
-  /**
-   * Deliver the message only to the current user.
-   */
-  final protected def OnlySelf: ClientFilter = _.uuid == uuid
-
-  final protected def Me: ClientFilter = OnlySelf
 
   /**
    * Deliver the message to all connected users.
@@ -73,12 +60,6 @@ trait AtmosphereClient {
     val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
     if (u.endsWith("/")) u + "*" else u + "/*"
   }
-
-  /**
-   * A unique identifier for a given connection. Can be used for filtering
-   * purposes.
-   */
-  final def uuid: String = resource.uuid()
 
   /**
    * Receive an inbound message. 
