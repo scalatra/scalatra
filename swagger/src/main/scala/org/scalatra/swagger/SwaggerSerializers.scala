@@ -137,7 +137,7 @@ object SwaggerSerializers {
         items = None)
   }, {
     case x: ModelProperty =>
-      val json: JValue = ("description" -> x.description) // ~ ("position" -> x.position)
+      val json: JValue = ("description" -> x.description) ~ ("position" -> x.position)
       (json merge writeDataType(x.`type`, "$ref")) merge Extraction.decompose(x.allowableValues)
   }))
 
@@ -169,7 +169,7 @@ object SwaggerSerializers {
       ("required" -> required) ~
       ("extends" -> x.baseModel.filter(s => s.nonBlank && !s.trim.equalsIgnoreCase("VOID"))) ~
       ("discriminator" -> x.discriminator) ~
-      ("properties" -> (x.properties map { case (k, v) => k -> Extraction.decompose(v) }))
+      ("properties" -> (x.properties.sortBy{ case (_,p) ⇒ p.position} map { case (k, v) => k -> Extraction.decompose(v) }))
   }))
 
   class ResponseMessageSerializer extends CustomSerializer[ResponseMessage[_]](implicit formats => ({

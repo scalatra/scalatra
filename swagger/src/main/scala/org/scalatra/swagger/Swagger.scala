@@ -87,7 +87,7 @@ object Swagger {
 //    if (descr.simpleName == "Pet") println("converting property: " + prop)
     val mp = ModelProperty(
       DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
-      if (position.isDefined && position.forall(_ > 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
+      if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
       required = required && !prop.returnType.isOption,
       description = description.flatMap(_.blankOption),
       allowableValues = convertToAllowableValues(allowableValues))
@@ -417,6 +417,7 @@ case class ModelProperty(`type`: DataType,
                          allowableValues: AllowableValues = AllowableValues.AnyValue,
                          items: Option[ModelRef] = None)
 
+
 case class Model(id: String,
                  name: String,
                  qualifiedName: Option[String] = None,
@@ -430,6 +431,7 @@ case class Model(id: String,
     copy(properties = (property -> prop._2.copy(required = required)) :: properties)
   }
 }
+
 
 case class ModelRef(
   `type`: String,

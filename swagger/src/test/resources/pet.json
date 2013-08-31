@@ -231,19 +231,23 @@
       ],
       "properties": {
         "id": {
+	  "position" : 3,
           "type": "integer",
           "format": "int64"
         },
         "tags": {
+	  "position" : 4,
           "type": "array",
           "items": {
             "$ref": "Tag"
           }
         },
         "name": {
+	  "position" : 2
           "type": "string"
         },
         "status": {
+	  "position" : 5
           "type": "string",
           "description": "pet status in the store",
           "enum": [
@@ -253,9 +257,11 @@
           ]
         },
         "category": {
+	  "position" : 1
           "$ref": "Category"
         },
         "photoUrls": {
+	  "position" : 6
           "type": "array",
           "items": {
             "type": "string"
