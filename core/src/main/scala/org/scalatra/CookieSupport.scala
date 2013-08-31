@@ -2,9 +2,9 @@ package org.scalatra
 
 import collection._
 import java.util.{Calendar, TimeZone, Date, Locale}
+import java.text.SimpleDateFormat
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
 import servlet.ServletApiImplicits
-import util.DateUtil
 import util.RicherString._
 
 case class CookieOptions(
@@ -23,7 +23,7 @@ object Cookie {
   def currentTimeMillis_=(ct: Long) = _currentTimeMillis = Some(ct)
   def freezeTime() = _currentTimeMillis = Some(System.currentTimeMillis())
   def unfreezeTime() = _currentTimeMillis = None
-  def formatExpires(date: Date) = DateUtil.formatDate(date, "EEE, dd MMM yyyy HH:mm:ss zzz")
+  def formatExpires(date: Date) = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH).format(date)
 }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
   import Cookie._
