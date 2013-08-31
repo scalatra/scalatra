@@ -139,7 +139,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
   }
 
   private def fileItemToString(item: FileItem): String = {
-    val charset = item.charset.getOrElse(defaultCharacterEncoding)
+    val charset = item.charset getOrElse defaultCharacterEncoding
     new String(item.get(), charset)
   }
 

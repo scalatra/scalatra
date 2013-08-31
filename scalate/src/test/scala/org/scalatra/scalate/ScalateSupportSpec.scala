@@ -30,7 +30,10 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
     "implicitly bind multiParams"                                 ! e21^
     "set templateAttributes when creating a render context"       ! e22^
     "render to a string instead of response"                      ! e23^
-    "set status to 500 when rendering 500.scaml"                  ! e24
+    "set status to 500 when rendering 500.scaml"                  ! e24^
+    end
+
+
 
   addServlet(new ScalatraServlet with ScalateSupport
     with ScalateUrlGeneratorSupport with FlashMapSupport {
@@ -228,7 +231,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
   def e23 = get("/render-to-string") {
     val hdr = header("X-Template-Output")
-    hdr must_== "<div>SSP template</div>"
+    hdr must_== "<div>SSP template</div>\n"
   }
 
   def e24 = get("/barf") {
