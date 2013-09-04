@@ -408,7 +408,8 @@ case class Parameter(name: String,
                      allowableValues: AllowableValues = AllowableValues.AnyValue,
                      required: Boolean = true,
 //                     allowMultiple: Boolean = false,
-                     paramAccess: Option[String] = None)
+                     paramAccess: Option[String] = None,
+                     position: Int = 0)
 
 case class ModelProperty(`type`: DataType,
                          position: Int = 0,

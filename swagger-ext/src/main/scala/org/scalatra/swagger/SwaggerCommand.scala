@@ -36,7 +36,8 @@ object SwaggerCommandSupport {
               paramtypeMapping(f.valueSource),
               if (f.isRequired) None else f.defaultValue.toString.blankOption,
               if (f.allowableValues.nonEmpty) AllowableValues(f.allowableValues) else AllowableValues.AnyValue,
-              required = f.isRequired) :: lst
+              required = f.isRequired,
+              position = f.position) :: lst
         }
       } else lst
     }
@@ -59,8 +60,8 @@ object SwaggerCommandSupport {
   }
 
   private[this] def modelFromCommand[T <: Command](cmd: T, fields: List[Parameter]) = {
-    val modelFields = fields.zipWithIndex map {
-      case (f, idx) => f.name -> ModelProperty(f.`type`, idx, required = f.required, allowableValues = f.allowableValues)
+    val modelFields = fields map { f =>
+      f.name -> ModelProperty(f.`type`, f.position, required = f.required, allowableValues = f.allowableValues)
     }
     Model(cmd.commandName, cmd.commandName, None, cmd.commandDescription.blankOption, modelFields)
   }
