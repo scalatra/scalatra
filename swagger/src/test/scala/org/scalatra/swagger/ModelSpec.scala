@@ -23,6 +23,11 @@ object ModelSpec {
   case class WithRequiredValue(id: String, name: String)
   case class WithOptionList(id: String, flags: Option[List[String]])
 
+  case class PositionNotSpecified(b2Field: Int, aField: Int, bField: Int)
+  case class PositionSpecified(@ApiModelProperty(position = 0) b2Field: Int, @ApiModelProperty(position = 1) aField: Option[Int], @ApiModelProperty(position = 2) bField: String)
+  case class PositionPartiallySpecified(b2Field: Int, aField: String, @ApiModelProperty(position = 0) bField: String)
+
+
   def swaggerProperties[T](implicit mf: Manifest[T]) = swaggerProperty[T]("id")
   def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) =
     Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties.find(_._1 == name).get._2
@@ -61,9 +66,27 @@ class ModelSpec extends Specification {
     "convert an non-option to a required false" in {
       swaggerProperty[WithRequiredValue]("name").required must beTrue
     }
-    "conver an option list to a required false list of things" in {
+    "convert an option list to a required false list of things" in {
       swaggerProperty[WithOptionList]("flags").required must beFalse
       swaggerProperty[WithOptionList]("flags").`type` must_== DataType[List[String]]
+    }
+
+    "assign position to unspecified fields by alphabetical order" in {
+      swaggerProperty[PositionNotSpecified]("b2Field").position must_== 1
+      swaggerProperty[PositionNotSpecified]("aField").position must_== 0
+      swaggerProperty[PositionNotSpecified]("bField").position must_== 2
+    }
+
+    "respect fully specified position annotations" in {
+      swaggerProperty[PositionSpecified]("b2Field").position must_== 0
+      swaggerProperty[PositionSpecified]("aField").position must_== 1
+      swaggerProperty[PositionSpecified]("bField").position must_== 2
+    }
+
+    "respect position annotations and alphabetize the rest" in {
+      swaggerProperty[PositionPartiallySpecified]("b2Field").position must_== 2
+      swaggerProperty[PositionPartiallySpecified]("aField").position must_== 1
+      swaggerProperty[PositionPartiallySpecified]("bField").position must_== 0
     }
 
   }
