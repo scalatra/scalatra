@@ -31,11 +31,11 @@ public @interface ApiModelProperty {
     String notes() default "";
 
     /**
-    * Whether or not the property is required, defaults to false.
+    * Whether or not the property is required, defaults to true.
     *
     * @return true if required, false otherwise
     */
-    boolean required() default false;
+    boolean required() default true;
 
     /**
     * allows explicitly ordering the property in the model.  Since reflection has no guarantee on
