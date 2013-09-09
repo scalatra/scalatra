@@ -410,7 +410,6 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   post("/order", operation(placeOrderOperation)) {
     ""
   }
-
 }
 
 
