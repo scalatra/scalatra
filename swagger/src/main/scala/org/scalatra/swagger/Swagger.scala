@@ -87,7 +87,7 @@ object Swagger {
 //    if (descr.simpleName == "Pet") println("converting property: " + prop)
     val mp = ModelProperty(
       DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
-      position.filter(_ >= 0).getOrElse(-1),
+      if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
       required = required && !prop.returnType.isOption,
       description = description.flatMap(_.blankOption),
       allowableValues = convertToAllowableValues(allowableValues))
@@ -114,19 +114,9 @@ object Swagger {
 
       }
 
-      val fieldsBySpecifiedPosition = fields.flatten.partition(_._2.position >= 0)
-
-      val fieldsWithSpecifiedPosition = fieldsBySpecifiedPosition._1
-      val fieldsWithoutSpecifiedPosition = fieldsBySpecifiedPosition._2
-
-      val sortedFieldsWithoutPosition = fieldsWithoutSpecifiedPosition.sortBy(_._1.head).zipWithIndex
-                                        .collect{case (field, index) => (field._1, field._2.copy(position = index + fieldsWithSpecifiedPosition.length))}
-
-      val positionedFields = fieldsWithSpecifiedPosition ++ sortedFieldsWithoutPosition
-
       val result = apiModel map { am =>
-        Model(name, name, klass.fullName.blankOption, properties = positionedFields, baseModel = am.parent.getName.blankOption, discriminator = am.discriminator.blankOption )
-      } orElse Some(Model(name, name, klass.fullName.blankOption, properties = positionedFields))
+        Model(name, name, klass.fullName.blankOption, properties = fields.flatten, baseModel = am.parent.getName.blankOption, discriminator = am.discriminator.blankOption )
+      } orElse Some(Model(name, name, klass.fullName.blankOption, properties = fields.flatten))
 //      if (descr.simpleName == "Pet") println("The collected fields:\n" + result)
       result
     }
