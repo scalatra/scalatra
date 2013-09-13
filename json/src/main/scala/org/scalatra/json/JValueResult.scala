@@ -20,6 +20,11 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
   private[this] def renderToJson: RenderPipeline = {
     case JNull | JNothing =>
     case a: JValue => super.renderPipeline(a)
+    case a: Any if jsonFormats.customSerializer.isDefinedAt(a) =>
+      jsonFormats.customSerializer.lift(a) match {
+        case Some(jv: JValue) => jv
+        case None => super.renderPipeline(a)
+      }
     case status: Int => super.renderPipeline(status)
     case bytes: Array[Byte] => super.renderPipeline(bytes)
     case is: java.io.InputStream => super.renderPipeline(is)
