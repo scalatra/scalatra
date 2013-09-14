@@ -77,6 +77,11 @@ class JValueResultSpec extends MutableScalatraSpec {
       List(new Bottle("rum"), NamedThing())
     }
 
+    get("/map") {
+      contentType = formats("json")
+      Map("rum" -> new Bottle("rum"), "thing" -> NamedThing())
+    }
+
     error {
       case t: Throwable =>
         t.printStackTrace()
@@ -147,6 +152,11 @@ class JValueResultSpec extends MutableScalatraSpec {
       }
     }
 
+    "render a map" in {
+      get("/map") {
+        parse(body) must_== JObject(List(JField("rum", bottleRum), JField("thing", jValue)))
+      }
+    }
   }
 
 }
