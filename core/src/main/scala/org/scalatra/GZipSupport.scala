@@ -6,6 +6,7 @@ import javax.servlet.ServletOutputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponseWrapper
+import util.RicherString._
 
 /**
  * Scalatra handler for gzipped responses.
@@ -44,7 +45,7 @@ trait GZipSupport extends Handler {
    * Returns true if Accept-Encoding contains gzip.
    */
   private[this] def isGzip(implicit request: HttpServletRequest): Boolean = {
-    import util.RicherString._
-    request.header("Accept-Encoding").flatMap(_.blankOption.map(_.toUpperCase)) == Some("GZIP")
+    Option(request.getHeader("Accept-Encoding")).getOrElse("")
+      .toUpperCase.contains("GZIP")
   }
 }
