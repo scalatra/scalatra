@@ -22,6 +22,10 @@ class StatusCodeHandlerTest extends ScalatraFunSuite {
       status = 500
     }
 
+    get("/halt401") {
+      halt(401)
+    }
+
     trap(400 to 402) {
       status = 200
       "400s"
@@ -80,6 +84,13 @@ class StatusCodeHandlerTest extends ScalatraFunSuite {
 
     get("/child/400") {
       status should equal (200)
+      body should equal("400s")
+    }
+  }
+
+  test("traps status codes when halted") {
+    get("/base/halt401") {
+      status should equal(200)
       body should equal("400s")
     }
   }
