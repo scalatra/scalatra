@@ -26,6 +26,10 @@ class StatusCodeHandlerTest extends ScalatraFunSuite {
       halt(401)
     }
 
+    get("/traphalt") {
+      halt(418, "I'm a teapot")
+    }
+
     trap(400 to 402) {
       status = 200
       "400s"
@@ -33,6 +37,10 @@ class StatusCodeHandlerTest extends ScalatraFunSuite {
     
     trap(500) {
       "internal error"
+    }
+
+    trap(418) {
+      halt(404, "404")
     }
   }
 
@@ -92,6 +100,13 @@ class StatusCodeHandlerTest extends ScalatraFunSuite {
     get("/base/halt401") {
       status should equal(200)
       body should equal("400s")
+    }
+  }
+
+  test("halts from trap handler") {
+    get("/base/traphalt") {
+      status should equal(404)
+      body should equal("404")
     }
   }
 }
