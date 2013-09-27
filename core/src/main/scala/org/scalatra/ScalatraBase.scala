@@ -188,7 +188,18 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
 
   private[this] def cradleHalt(body: => Any, error: Throwable => Any) = {
     try { body } catch {
-      case e: HaltException => renderHaltException(e)
+      case e: HaltException => {
+        try {
+          handleStatusCode(extractStatusCode(e)) match {
+            case Some(result) => renderResponse(result)
+            case _            => renderHaltException(e)
+          }
+        } catch {
+          case e: HaltException => renderHaltException(e)
+          case e: Throwable     => error(e)
+        }
+      }
+      
       case e: Throwable => error(e)
     }
   }
@@ -494,6 +505,11 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
         renderUncaughtException(e)
         runCallbacks(Failure(e))
     }
+  }
+
+  protected def extractStatusCode(e: HaltException) = e match {
+    case HaltException(Some(status), _, _, _) => status
+    case _                                    => response.status.code
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
