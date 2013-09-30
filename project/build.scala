@@ -15,7 +15,11 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xcheckinit", "-encoding", "utf8"),
     javacOptions ++= Seq("-target", "1.6", "-source", "1.6", "-Xlint:deprecation"),
     manifestSetting,
-    resolvers ++= Seq(Opts.resolver.sonatypeSnapshots, Opts.resolver.sonatypeReleases),
+    resolvers ++= Seq(
+      Opts.resolver.sonatypeSnapshots, 
+      Opts.resolver.sonatypeReleases,
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+    ),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
   ) ++ mavenCentralFrouFrou
@@ -58,8 +62,7 @@ object ScalatraBuild extends Build {
         jodaConvert
       )),
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
-      description := "The core Scalatra framework",
-      resolvers += "Akka Repo" at "http://repo.akka.io/repository"
+      description := "The core Scalatra framework"
     )
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
