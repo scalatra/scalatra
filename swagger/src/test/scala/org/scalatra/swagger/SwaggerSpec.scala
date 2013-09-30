@@ -21,6 +21,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
     "list pet operations"                  ! listPetOperations   ^
     "list store operations"                ! listStoreOperations ^
     "list user operations"                 ! listUserOperations  ^
+    "list model elements in order"         ! checkModelOrder     ^
   end
   val apiInfo = ApiInfo(
       title = "Swagger Sample App",
@@ -81,6 +82,25 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
     }
   }
 
+  def parseInt(i: String): Option[Int] = 
+    try {
+      Some(Integer.parseInt(i))
+    } catch {
+      case _:Throwable ⇒ None
+    }
+   
+  val propOrder = "category" :: "name" :: "id" :: "tags" :: "status" :: "photoUrls" :: Nil
+  def checkModelOrder = {
+    get("/api-docs/pet") {
+      val bd = JsonParser.parseOpt(body)
+      bd must beSome[JValue] and {
+        val j = bd.get
+        val props = (j \ "models" \ "Pet" \ "properties").asInstanceOf[JObject].values.map { case (x,y) ⇒ x → y.asInstanceOf[Map[String,BigInt]].get("position").flatMap(x ⇒ parseInt(x.toString)).getOrElse(0) }.toList sortBy (_._2) map (_._1)
+        props must_== propOrder
+      }
+    }
+  }
+
   def verifyApis(j: JValue) = {
     val JArray(apis)  = j
     val expectations = mutable.HashMap("/pet" -> "Operations about pets", "/store" -> "Operations about store", "/user" -> "Operations about user")
@@ -129,6 +149,8 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
         verifyPetModel(bo.get)
     }
   }
+
+
 
   def listStoreOperations = {
     get("/api-docs/store") {
@@ -388,7 +410,6 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   post("/order", operation(placeOrderOperation)) {
     ""
   }
-
 }
 
 
@@ -406,10 +427,19 @@ class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSuppo
 
 class SwaggerResourcesServlet(val swagger: Swagger) extends ScalatraServlet with NativeSwaggerBase
 
-case class Order(id: Long, @ApiModelProperty(description = "Order Status", allowableValues = "placed,approved,delivered") status: String, petId: Long, quantity: Int, shipDate: DateTime)
+case class Order(@ApiModelProperty(position=1) id: Long, 
+                 @ApiModelProperty(position=2, description = "Order Status", allowableValues = "placed,approved,delivered") status: String,
+                 @ApiModelProperty(position=3) petId: Long,
+                 @ApiModelProperty(position=4) quantity: Int,
+                 @ApiModelProperty(position=5) shipDate: DateTime)
 case class User(id: Long, username: String, password: String, email: String, firstName: String, lastName: String, phone: String, userStatus: Int)
-case class Pet(id: Long, category: Category, name: String, photoUrls: List[String], tags: List[Tag],
-               @ApiModelProperty(description = "pet status in the store", allowableValues = "available,pending,sold") status: String)
+case class Pet(@ApiModelProperty(position=3)id: Long, 
+               @ApiModelProperty(position=1)category: Category, 
+               @ApiModelProperty(position=2)name: String, 
+               @ApiModelProperty(position=6)photoUrls: List[String], 
+               @ApiModelProperty(position=4)tags: List[Tag],
+               @ApiModelProperty(position=5, description = "pet status in the store", allowableValues = "available,pending,sold") status: String)
+
 case class Tag(id: Long, name: String)
 case class Category(id: Long, name: String)
 

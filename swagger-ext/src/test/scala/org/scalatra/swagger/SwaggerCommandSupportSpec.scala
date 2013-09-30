@@ -9,7 +9,7 @@ import scala.Some
 object SwaggerCommandSupportSpec  {
   implicit val stringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
   class SimpleCommand extends ParamsOnlyCommand {
-    val name: Field[String] = asString("name").notBlank
+    val name: Field[String] = asString("name").notBlank.position(1)
     val age: Field[Int] = bind[Int]("age").optional
   }
   
@@ -18,7 +18,7 @@ object SwaggerCommandSupportSpec  {
 
     import ValueSource._
     
-    val name: Field[String] = asString("name").notBlank
+    val name: Field[String] = asString("name").notBlank.position(1)
     val age: Field[Int] = bind[Int]("age").withDefaultValue(0)
     val token: Field[String] = (
         asString("API-TOKEN").notBlank

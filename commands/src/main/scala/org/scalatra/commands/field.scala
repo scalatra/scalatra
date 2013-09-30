@@ -43,6 +43,9 @@ trait FieldDescriptor[T] {
   def allowableValues(vals: T*): FieldDescriptor[T]
   def displayName: Option[String]
   def displayName(name: String): FieldDescriptor[T]
+
+  def position: Int
+  def position(pos: Int): FieldDescriptor[T]
   
   private[commands] def defVal: DefVal[T]
   def defaultValue: T = defVal.value
@@ -84,7 +87,8 @@ class BasicFieldDescriptor[T](
     private[commands] val defVal: DefVal[T],
     val valueSource: ValueSource.Value = ValueSource.Body,
     val allowableValues: List[T] = Nil,
-    val displayName: Option[String] = None)(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
+    val displayName: Option[String] = None,
+    val position: Int = 0)(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
 
   val value: FieldValidation[T] = defaultValue.success
 
@@ -105,8 +109,9 @@ class BasicFieldDescriptor[T](
       defVal: DefVal[T] = defVal,
       valueSource: ValueSource.Value = valueSource,
       allowableValues: List[T] = allowableValues,
-      displayName: Option[String] = displayName): FieldDescriptor[T] = {
-    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName)(valueManifest)
+      displayName: Option[String] = displayName,
+      position: Int = position): FieldDescriptor[T] = {
+    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName, position)(valueManifest)
   }
 
   def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], df: DefaultValue[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
@@ -134,6 +139,8 @@ class BasicFieldDescriptor[T](
     copy(allowableValues = vals.toList).validateWith(BindingValidators.oneOf("%%s must be one of %s.", vals))
 
   def displayName(name: String): FieldDescriptor[T] = copy(displayName = name.blankOption)
+
+  def position(pos: Int): FieldDescriptor[T] = copy(position = pos)
 }
 
 
@@ -163,6 +170,8 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def allowableValues(vals: T*): DataboundFieldDescriptor[S, T]
   def displayName: Option[String] = field.displayName
   def displayName(name: String): DataboundFieldDescriptor[S, T]
+  def position: Int = field.position
+  def position(pos: Int): DataboundFieldDescriptor[S, T]
   
 }
 
@@ -234,6 +243,7 @@ class BoundFieldDescriptor[S:DefaultValue, T](
     copy(field = field.allowableValues(vals:_*))
 
   def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
+  def position(pos: Int): DataboundFieldDescriptor[S, T] = copy(field = field.position(pos))
 }
 
 class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val field: DataboundFieldDescriptor[S, T]) extends ValidatedFieldDescriptor[S, T] {
@@ -278,6 +288,8 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] = copy(field = field.allowableValues(vals:_*))
   
   def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
+
+  def position(pos: Int): DataboundFieldDescriptor[S, T] = copy(field = field.position(pos))
 }
 
 import scala.util.matching.Regex
@@ -446,4 +458,5 @@ class Field[A:Manifest](descr: FieldDescriptor[A], command: Command) {
   def valueSource: ValueSource.Value = descr.valueSource
   def allowableValues = descr.allowableValues
   def displayName: Option[String] = descr.displayName
+  def position: Int = descr.position
 }

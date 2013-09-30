@@ -13,6 +13,7 @@ import org.scalatra.json.JsonSupport
 import org.scalatra.auth.ScentrySupport
 import collection.mutable
 import org.scalatra.swagger.DataType.ValueDataType
+import org.scalatra.util.NotNothing
 
 class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[AuthApi[AnyRef]] {
   private[this] val logger = Logger[this.type]
@@ -306,7 +307,7 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
   protected implicit def operationBuilder2operation(bldr: AuthApi.SwaggerAuthOperationBuilder[TypeForUser]): AuthOperation[TypeForUser] =
     bldr.result
 
-  protected def apiOperation[T](nickname: String)(implicit mf: Manifest[T]): AuthOperationBuilder[TypeForUser] = {
+  protected def apiOperation[T:Manifest:NotNothing](nickname: String): AuthOperationBuilder[TypeForUser] = {
     registerModel[T]()
     new AuthOperationBuilder[TypeForUser](DataType[T]).nickname(nickname).errors(swaggerDefaultErrors:_*)
   }

@@ -10,6 +10,7 @@ import scala.util.parsing.combinator.RegexParsers
 import scala.util.control.Exception.allCatch
 import org.scalatra.swagger.DataType.{ContainerDataType, ValueDataType}
 import org.json4s.JsonFormat
+import org.scalatra.util.NotNothing
 
 trait SwaggerSupportBase {
   /**
@@ -216,7 +217,7 @@ object SwaggerSupportSyntax {
     dataType(initialDataType)
   }
 
-  trait SwaggerOperationBuilder[T <: SwaggerOperation] {
+  abstract class SwaggerOperationBuilder[T <: SwaggerOperation] {
 
     private[this] var _summary: String = ""
     private[this] var _notes: String = ""
@@ -393,7 +394,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
    * non-primitive classes and adds those to the swagger defintion
    * @tparam T the class of the model to register
    */
-  protected def registerModel[T:Manifest]() {
+  protected def registerModel[T:Manifest:NotNothing]() {
     Swagger.collectModels[T](_models.values.toSet) map registerModel
   }
 
@@ -431,7 +432,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
 
   import SwaggerSupportSyntax._
-  protected def apiOperation[T: Manifest](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
+  protected def apiOperation[T: Manifest:NotNothing](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
   private[this] def swaggerParam[T: Manifest](
@@ -458,16 +459,16 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
     new ModelParameterBuilder(DataType(model.id)).description(model.description).name(name)
   }
 
-  protected def bodyParam[T: Manifest]: ParameterBuilder[T] = bodyParam[T]("body")
+  protected def bodyParam[T: Manifest:NotNothing]: ParameterBuilder[T] = bodyParam[T]("body")
   protected def bodyParam(model: Model): ModelParameterBuilder = bodyParam("body", model)
-  protected def bodyParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromBody
+  protected def bodyParam[T: Manifest:NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromBody
   protected def bodyParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromBody
-  protected def queryParam[T: Manifest](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true)
+  protected def queryParam[T: Manifest:NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true)
   protected def queryParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model)
-  protected def headerParam[T: Manifest](name: String): ParameterBuilder[T] =
+  protected def headerParam[T: Manifest:NotNothing](name: String): ParameterBuilder[T] =
     swaggerParam[T](name, allowsCollection = false).fromHeader
   protected def headerParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromHeader
-  protected def pathParam[T: Manifest](name: String): ParameterBuilder[T] =
+  protected def pathParam[T: Manifest:NotNothing](name: String): ParameterBuilder[T] =
     swaggerParam[T](name, allowsCollection = false, allowsOption = false).fromPath
   protected def pathParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromPath
 
@@ -506,7 +507,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   import SwaggerSupportSyntax._
 
   protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
-  protected def apiOperation[T: Manifest](nickname: String): OperationBuilder = {
+  protected def apiOperation[T: Manifest:NotNothing](nickname: String): OperationBuilder = {
     registerModel[T]()
     (new OperationBuilder(DataType[T])
       nickname nickname)

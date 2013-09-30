@@ -104,10 +104,12 @@
       "id": "Order",
       "properties": {
         "id": {
+	  "position": 1,
           "type": "integer",
           "format": "int64"
         },
         "status": {
+	  "position": 2,
           "description": "Order Status",
           "type": "string",
           "enum": [
@@ -117,14 +119,17 @@
           ]
         },
         "petId": {
+	  "position": 3,
           "type": "integer",
           "format": "int64"
         },
         "quantity": {
+	  "position": 4,
           "type": "integer",
           "format": "int32"
         },
         "shipDate": {
+	  "position": 5,
           "type": "string",
           "format": "date-time"
         }

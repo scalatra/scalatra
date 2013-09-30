@@ -118,12 +118,12 @@ trait ScalateSupport extends ScalatraKernel {
   protected def isScalateErrorPageEnabled = true
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    try {
+//    try {
       super.handle(req, res)
-    }
-    catch {
-      case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
-    }
+//    }
+//    catch {
+//      case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
+//    }
   }
 
 
