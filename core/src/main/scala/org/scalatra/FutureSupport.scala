@@ -50,7 +50,7 @@ trait FutureSupport extends AsyncSupport {
 
   private[this] def handleFuture(future: Future[_], timeout: Duration) {
     val gotResponseAlready = new AtomicBoolean(false)
-    val context = request.startAsync()
+    val context = request.startAsync(request, response)
     if (timeout.isFinite())
       context.setTimeout(timeout.toMillis)
     else
