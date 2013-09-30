@@ -1,5 +1,7 @@
 package org.scalatra
 
+import _root_.akka.actor.ActorSystem
+import _root_.akka.dispatch.{ExecutionContext, Future}
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
@@ -11,8 +13,15 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 /**
  * Test servlet using GZipSupport.
  */
-class GZipSupportTestServlet extends ScalatraServlet with GZipSupportAppBase
-trait GZipSupportAppBase extends ScalatraBase with GZipSupport {
+class GZipSupportTestServlet extends ScalatraServlet with GZipSupportAppBase {
+  val system = ActorSystem()
+  implicit protected def executor: ExecutionContext = system.dispatcher
+  override protected def shutdown() {
+    system.shutdown()
+    super.shutdown()
+  }
+}
+trait GZipSupportAppBase extends ScalatraBase with GZipSupport with FutureSupport {
 
   get("/") {
     Helper.body
@@ -20,6 +29,10 @@ trait GZipSupportAppBase extends ScalatraBase with GZipSupport {
 
   post("/") {
     Helper.body
+  }
+
+  get("/async") {
+    Future(Helper.body)
   }
 }
 
@@ -61,6 +74,14 @@ abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
         assert(contentEncoding == null || !contentEncoding.contains("gzip"))
         body should equal(Helper.body);
       }
+    }
+  }
+
+  test("should return async response gzipped") {
+    get("/async", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
+      header("Content-Encoding") should include("gzip")
+      val uncompressed = Helper.uncompress(response.bodyBytes)
+      uncompressed should equal(Helper.body);
     }
   }
 }

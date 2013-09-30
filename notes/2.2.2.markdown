@@ -1,3 +1,6 @@
-### Auth
+### Core
+* Respect servlet wrappers in AsyncSupport. (Fixes GZipSupport with async
+  result).
 
+### Auth
 * Remove false dependency on scalatra-commands.
