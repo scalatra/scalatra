@@ -2,16 +2,31 @@ package org.scalatra
 package json
 
 import test.specs2.MutableScalatraSpec
+
 import org.json4s._
 import org.json4s.jackson.JsonMethods.parse
 
 case class NamedThing(name: String = "tom")
+
+class Bottle(val of: String)
+
+class BottleSerializer extends CustomSerializer[Bottle](implicit formats => ({
+  case json: JValue =>
+    val b = for {
+      of <- (json \ "of").extractOpt[String]
+    } yield (new Bottle(of))
+    b.get
+}, {
+  case a: Bottle => JObject(JField("of", JString(a.of)))
+})) {}
+
 class JValueResultSpec extends MutableScalatraSpec {
 
   val jValue = JObject(JField("name", JString("tom")) :: Nil)
+
   addServlet(new ScalatraServlet with JacksonJsonSupport {
 
-    implicit protected def jsonFormats: Formats = DefaultFormats
+    implicit protected def jsonFormats: Formats = DefaultFormats + new BottleSerializer
 
     notFound {
       status = 404
@@ -45,6 +60,26 @@ class JValueResultSpec extends MutableScalatraSpec {
     }
     get("/empty-halt") {
       halt(400, null)
+    }
+
+    get("/class") {
+      contentType = formats("json")
+      new Bottle("rum")
+    }
+
+    get("/class-list") {
+      contentType = formats("json")
+      List(new Bottle("rum"), new Bottle("soda"))
+    }
+
+    get("/mixed-list") {
+      contentType = formats("json")
+      List(new Bottle("rum"), NamedThing())
+    }
+
+    get("/map") {
+      contentType = formats("json")
+      Map("rum" -> new Bottle("rum"), "thing" -> NamedThing())
     }
 
     error {
@@ -93,6 +128,33 @@ class JValueResultSpec extends MutableScalatraSpec {
       get("/halted-not-found") {
         status must_== 404
         body must_== "the custom not found"
+      }
+    }
+
+    val bottleRum = JObject(JField("of", JString("rum")))
+    val bottleSoda = JObject(JField("of", JString("soda")))
+
+    "render a class" in {
+      get("/class") {
+        parse(body) must_== bottleRum
+      }
+    }
+
+    "render a class list" in {
+      get("/class-list") {
+        parse(body) must_== JArray(List(bottleRum, bottleSoda))
+      }
+    }
+
+    "render a mixed list" in {
+      get("/mixed-list") {
+        parse(body) must_== JArray(List(bottleRum, jValue))
+      }
+    }
+
+    "render a map" in {
+      get("/map") {
+        parse(body) must_== JObject(List(JField("rum", bottleRum), JField("thing", jValue)))
       }
     }
   }

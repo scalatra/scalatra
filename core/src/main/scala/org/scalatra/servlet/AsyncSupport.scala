@@ -24,13 +24,11 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
   }
 
   protected def withinAsyncContext(context: javax.servlet.AsyncContext)(thunk: => Any) {
-    if (context.hasOriginalRequestAndResponse) {
-      withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
-        withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
-          thunk
-        }
+    withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
+      withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
+        thunk
       }
-    } else thunk
+    }
   }
 
   /**
