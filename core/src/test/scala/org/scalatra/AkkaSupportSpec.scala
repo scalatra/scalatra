@@ -28,6 +28,18 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     "redirected"
   }
 
+  get("/future") {
+    Future({
+      "future"
+    })
+  }
+
+  get("/future/future") {
+    Future({ "in the " }) map ((s: String) =>
+      Future({ s + "future"})
+    )
+  }
+
   asyncGet("/working") {
     "the-working-reply"
   }
@@ -103,6 +115,18 @@ class AkkaSupportSpec extends MutableScalatraSpec {
       get("/redirect") {
         status must_== 302
         response.header("Location") must_== (baseUrl + "/redirected")
+      }
+    }
+
+    "render the result of a future" in {
+      get("/future") {
+        body mustEqual "future"
+      }
+    }
+
+    "render the result of a future returning a future" in {
+      get("/future/future") {
+        body mustEqual "in the future"
       }
     }
   }
