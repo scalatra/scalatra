@@ -6,12 +6,24 @@ import scala.concurrent.duration._
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.cpr.AtmosphereResource
 import scala.util.control.Exception._
-import java.util.concurrent.Executors
 
 package object atmosphere {
 
   type AtmoReceive = PartialFunction[InboundMessage, Unit]
-  type ClientFilter = AtmosphereClient => Boolean
+
+  abstract class ClientFilter(val uuid: String) extends Function[AtmosphereClient, Boolean]
+
+  class Everyone extends ClientFilter(null) {
+    def apply(v1: AtmosphereClient): Boolean = true
+  }
+
+  class OnlySelf(uuid: String) extends ClientFilter(uuid) {
+    def apply(v1: AtmosphereClient): Boolean = v1.uuid == uuid
+  }
+
+  class SkipSelf(uuid: String) extends ClientFilter(uuid) {
+    def apply(v1: AtmosphereClient): Boolean = v1.uuid != uuid
+  }
 
   val AtmosphereClientKey = "org.scalatra.atmosphere.AtmosphereClientConnection"
   val AtmosphereRouteKey = "org.scalatra.atmosphere.AtmosphereRoute"

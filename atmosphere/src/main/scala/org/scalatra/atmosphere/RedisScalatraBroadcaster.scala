@@ -5,11 +5,52 @@ import org.atmosphere.cpr._
 import java.util.concurrent.ConcurrentLinkedQueue
 import org.atmosphere.plugin.redis.RedisBroadcaster
 
+import scala.concurrent.{Future, ExecutionContext}
+import collection.JavaConverters._
+import grizzled.slf4j.Logger
+
+import org.json4s.ShortTypeHints
+import org.json4s.jackson.Serialization
+import org.json4s.jackson.Serialization.{read, write}
+import org.atmosphere.cpr.DefaultBroadcaster.Entry
+
 
 final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
-                                      (implicit wireFormat: WireFormat, system: ActorSystem)
+                                      (implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
   extends RedisBroadcaster(id, config) with ScalatraBroadcaster {
+
+  private[this] val logger: Logger = Logger[RedisScalatraBroadcaster]
   protected var _resources: ConcurrentLinkedQueue[AtmosphereResource] = resources
   protected var _wireFormat: WireFormat = wireFormat
-  protected implicit var _actorSystem: ActorSystem = system
+  implicit val formats = Serialization.formats(ShortTypeHints(List(classOf[Everyone], classOf[OnlySelf], classOf[SkipSelf])))
+
+  override def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)
+                                     (implicit executionContext: ExecutionContext): Future[T] = {
+//    logger.info("Sending %s to %s".format(msg, selectedResources.map(_.uuid)))
+    val actualMessage = write(msg)
+
+    val wrappedMessage = new Message(actualMessage, clientFilter)
+    val wrappedMessageString = write(wrappedMessage)
+    val wrappedMessageOutMessage = _wireFormat.parseOutMessage(wrappedMessageString)
+
+    broadcast(_wireFormat.render(wrappedMessageOutMessage)).map(_ => msg)
+  }
+
+  override protected def broadcastReceivedMessage(message: AnyRef) {
+    try {
+      val messageString = message.asInstanceOf[String]
+      val redisMessage = read[Message](messageString)
+      val embeddedMsg = redisMessage.msg
+      val clientFilter = redisMessage.clientFilter
+      val newMsg = filter(embeddedMsg)
+
+      val selectedResources = _resources.asScala map (_.client) filter clientFilter
+      val selectedSet = selectedResources.map(_.resource).toSet.asJava
+      push(new Entry(newMsg, selectedSet, new BroadcasterFuture[Any](newMsg, this), embeddedMsg))
+    } catch {
+      case t: Throwable => logger.error("failed to push message: " + message, t)
+    }
+  }
 }
+
+class Message(val msg: String, val clientFilter: ClientFilter)

@@ -2,7 +2,6 @@ package org.scalatra
 package atmosphere
 
 import org.atmosphere.cpr._
-import org.json4s._
 import org.scalatra.util.RicherString._
 import grizzled.slf4j.Logger
 import concurrent.ExecutionContext
@@ -25,11 +24,11 @@ object AtmosphereClient {
     else None
   }
 
-  def broadcast(path: String, message: OutboundMessage, filter: ClientFilter = _ => true)(implicit executionContext: ExecutionContext) = {
+  def broadcast(path: String, message: OutboundMessage, filter: ClientFilter = new Everyone)(implicit executionContext: ExecutionContext) = {
     lookup(path) foreach { _.broadcast(message, filter) }
   }
 
-  def broadcastAll(message: OutboundMessage, filter: ClientFilter = _ => true)(implicit executionContext: ExecutionContext) = {
+  def broadcastAll(message: OutboundMessage, filter: ClientFilter = new Everyone)(implicit executionContext: ExecutionContext) = {
     lookupAll() foreach {
       _ broadcast (message, filter)
     }
@@ -45,16 +44,11 @@ object AtmosphereClient {
  * Subclasses may define their own ClientFilter logic in addition to the
  * stock ClientFilters already defined, in order to segment message delivery.
  */
-trait AtmosphereClient extends AtmosphereClientFilter {
+trait AtmosphereClient extends AtmosphereClientFilters {
 
   @volatile private[atmosphere] var resource: AtmosphereResource = _
   private[this] val internalLogger = Logger[AtmosphereClient]
   private[this] def broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
-
-  /**
-   * Deliver the message to all connected users.
-   */
-  final protected val Everyone: ClientFilter = _ => true
 
   protected def requestUri = {
     val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
@@ -62,7 +56,13 @@ trait AtmosphereClient extends AtmosphereClientFilter {
   }
 
   /**
-   * Receive an inbound message. 
+   * A unique identifier for a given connection. Can be used for filtering
+   * purposes.
+   */
+  final def uuid: String = resource.uuid()
+
+  /**
+   * Receive an inbound message.
    */
   def receive: AtmoReceive
 
