@@ -26,7 +26,7 @@ final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
 
   override def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)
                                               (implicit executionContext: ExecutionContext): Future[T] = {
-    logger.info("Resource [%s] Sending %s".format(clientFilter.uuid, msg))
+    logger.info("Resource [%s] sending message to [%s] with contents:  [%s]".format(clientFilter.uuid, clientFilter, msg))
     // Casting to ProtocolMessage because when writing the message everything gets wrapped by a 'content' element.
     // This seems to be because the actual message is a ProtocolMessage which defines a 'content' method.
     val protocolMsg = msg.asInstanceOf[ProtocolMessage[Object]]
