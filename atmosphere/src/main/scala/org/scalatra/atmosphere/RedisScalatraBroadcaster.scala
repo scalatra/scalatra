@@ -16,7 +16,7 @@ import org.atmosphere.cpr.DefaultBroadcaster.Entry
 
 
 final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
-                                      (implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
+                                    (implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
   extends RedisBroadcaster(id, config) with ScalatraBroadcaster {
 
   private[this] val logger: Logger = Logger[RedisScalatraBroadcaster]
@@ -25,15 +25,17 @@ final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
   implicit val formats = Serialization.formats(ShortTypeHints(List(classOf[Everyone], classOf[OnlySelf], classOf[SkipSelf])))
 
   override def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)
-                                     (implicit executionContext: ExecutionContext): Future[T] = {
-//    logger.info("Sending %s to %s".format(msg, selectedResources.map(_.uuid)))
-    val actualMessage = write(msg)
-
+                                              (implicit executionContext: ExecutionContext): Future[T] = {
+    logger.info("Resource [%s] Sending %s".format(clientFilter.uuid, msg))
+    // Casting to ProtocolMessage because when writing the message everything gets wrapped by a 'content' element.
+    // This seems to be because the actual message is a ProtocolMessage which defines a 'content' method.
+    val protocolMsg = msg.asInstanceOf[ProtocolMessage[Object]]
+    val content = protocolMsg.content
+    val actualMessage = write(content)
     val wrappedMessage = new Message(actualMessage, clientFilter)
     val wrappedMessageString = write(wrappedMessage)
-    val wrappedMessageOutMessage = _wireFormat.parseOutMessage(wrappedMessageString)
 
-    broadcast(_wireFormat.render(wrappedMessageOutMessage)).map(_ => msg)
+    broadcast(wrappedMessageString).map(_ => msg)
   }
 
   override protected def broadcastReceivedMessage(message: AnyRef) {
