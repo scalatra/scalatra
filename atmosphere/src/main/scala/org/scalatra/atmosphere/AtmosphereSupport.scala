@@ -26,7 +26,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import servlet.ScalatraAsyncSupport
 import java.util
 
-trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 
@@ -128,7 +128,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       if (atmoRoute.isDefined) {
         request(AtmosphereRouteKey) = atmoRoute.get
         request.getSession(true) // force session creation
-        if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER).isEmpty)
+        if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER_WRAPPER).isEmpty)
           atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
       } else {
         super.handle(request, response)

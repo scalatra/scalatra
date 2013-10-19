@@ -1,9 +1,7 @@
 package org.atmosphere.cpr
 
-import org.json4s.Formats
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
-import collection.mutable
 import java.util.concurrent.ConcurrentHashMap
 import org.atmosphere.di.InjectorProvider
 import java.util.UUID
@@ -12,21 +10,20 @@ import collection.JavaConverters._
 import scala.collection.concurrent.{Map => ConcurrentMap}
 
 object ScalatraBroadcasterFactory {
-
 }
+
 class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBroadcaster] = classOf[DefaultScalatraBroadcaster])(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   BroadcasterFactory.setBroadcasterFactory(this, cfg)
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
   private[this] val store: ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
 
-  private def createBroadcaster(c: Class[_<:Broadcaster], id: Any): Broadcaster = {
+  private def createBroadcaster[T <: Broadcaster](c: Class[T], id: Any): T = {
     try {
-      val b: Broadcaster = if (classOf[ScalatraBroadcaster].isAssignableFrom(c)) {
-        bc.getConstructor(classOf[String], classOf[AtmosphereConfig], classOf[WireFormat], classOf[ActorSystem]).newInstance(id.toString, cfg, wireFormat, system).asInstanceOf[Broadcaster]
+      val b: T = if (classOf[ScalatraBroadcaster].isAssignableFrom(c)) {
+        bc.getConstructor(classOf[String], classOf[AtmosphereConfig], classOf[WireFormat], classOf[ActorSystem]).newInstance(id.toString, cfg, wireFormat, system).asInstanceOf[T]
       } else {
         c.getConstructor(classOf[String], classOf[AtmosphereConfig]).newInstance(id.toString, cfg)
-
       }
       InjectorProvider.getInjector.inject(b)
 
@@ -44,6 +41,7 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBro
       case ex: Exception => throw new DefaultBroadcasterFactory.BroadcasterCreationException(ex)
     }
   }
+
   def add(b: Broadcaster, id: Any): Boolean = store.put(id, b).isEmpty
 
   def destroy() {
@@ -67,13 +65,13 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBro
 
   def get(): Broadcaster = lookup(UUID.randomUUID().toString)
 
-  def get(c: Class[_ <: Broadcaster], id: Any): Broadcaster = lookup(c, id)
-
   def get(id: Any): Broadcaster = lookup(id, createIfNull = true)
 
-  def lookup(c: Class[_ <: Broadcaster], id: Any): Broadcaster = lookup(c, id, false)
+  def get[T <: Broadcaster](c: Class[T], id: Any): T = lookup(c, id)
 
-  def lookup(c: Class[_ <: Broadcaster], id: Any, createIfNull: Boolean): Broadcaster = {
+  def lookup[T <: Broadcaster](c: Class[T], id: scala.Any): T = lookup(c, id, false)
+
+  def lookup[T <: Broadcaster](c: Class[T], id: scala.Any, createIfNull: Boolean): T = {
     val bOpt = store get id
     if (bOpt.isDefined && !c.isAssignableFrom(bOpt.get.getClass)) {
       val msg = "Invalid lookup class " + c.getName + ". Cached class is: " + bOpt.get.getClass.getName
@@ -92,12 +90,17 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBro
       }
 
     }
-    store.get(id).orNull
+    store.get(id) match {
+      case Some(b) => b.asInstanceOf[T]
+      case None => null.asInstanceOf[T]
+    }
   }
 
-  def lookup(id: Any): Broadcaster = lookup(id, createIfNull = false)
+  def lookup[T <: Broadcaster](id: scala.Any): T = lookup(id, createIfNull = false)
 
-  def lookup(id: Any, createIfNull: Boolean): Broadcaster = lookup(classOf[ScalatraBroadcaster], id, createIfNull)
+  def lookup[T <: Broadcaster](id: scala.Any, createIfNull: Boolean): T = {
+    lookup(classOf[ScalatraBroadcaster], id, createIfNull).asInstanceOf[T]
+  }
 
   def lookupAll(): java.util.Collection[Broadcaster] = {
     store.values.toList.asJavaCollection
