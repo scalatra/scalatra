@@ -6,7 +6,7 @@ import org.json4s._
 
 class NativeJsonSupportServlet extends ScalatraServlet with NativeJsonSupport {
 
-  protected implicit lazy val jsonFormats: Formats = DefaultFormats
+  protected implicit val jsonFormats: Formats = DefaultFormats
 
   post("/json") {
     parsedBody match {
@@ -47,7 +47,7 @@ class NativeJsonRequestBodySpec extends MutableScalatraSpec {
 
 class JacksonSupportServlet extends ScalatraServlet with JacksonJsonSupport {
 
-  protected implicit lazy val jsonFormats: Formats = DefaultFormats
+  protected implicit val jsonFormats: Formats = DefaultFormats
 
   post("/json") {
     contentType = "text/plain"
