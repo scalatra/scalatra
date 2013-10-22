@@ -13,9 +13,10 @@ import javax.servlet.FilterConfig
 import org.fusesource.scalate.TemplateEngine
 import i18n.Messages
 import java.io.PrintWriter
+import servlet.ServletBase
 
 trait ScalateI18nSupport extends ScalateSupport with I18nSupport {
-  this: ScalatraServlet =>
+  this: ServletBase =>
 
   /*
    * Binding done here seems to work all the time. 
