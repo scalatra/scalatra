@@ -343,6 +343,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
       case sv if sv startsWith "2.9."   => "1.12.4.1"
+      case sv if sv startsWith "2.10."  => "2.2.3"
       case _                            => "1.14"
     }
 
