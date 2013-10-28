@@ -15,7 +15,6 @@ import i18n.Messages
 import java.io.PrintWriter
 
 trait ScalateI18nSupport extends ScalateSupport with I18nSupport {
-  this: ScalatraServlet =>
 
   /*
    * Binding done here seems to work all the time. 

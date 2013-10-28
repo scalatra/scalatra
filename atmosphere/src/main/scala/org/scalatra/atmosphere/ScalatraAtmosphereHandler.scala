@@ -50,6 +50,8 @@ object ScalatraAtmosphereHandler {
     def onThrowable(event: AtmosphereResourceEvent) {
       client(event.getResource) foreach (_.receive.lift(Error(Option(event.throwable()))))
     }
+
+    def onClose(event: AtmosphereResourceEvent) {}
   }
 }
 
@@ -194,6 +196,4 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
       case _ =>
     }
   }
-
-  def destroy() {}
 }
