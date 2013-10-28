@@ -4,6 +4,3 @@
 
 ### Auth
 * Remove false dependency on scalatra-commands.
-
-### Specs2
-* Upgrade to Specs2 2.2.3 (Scala 2.10 build only).
