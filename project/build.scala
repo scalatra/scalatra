@@ -232,7 +232,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-spring",
     base = file("spring"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies += spring,
+      libraryDependencies += springWeb,
       description := "Scalatra integration with Spring Framework",
       LsKeys.tags in LsKeys.lsync ++= Seq("spring")
     )
@@ -298,7 +298,7 @@ object ScalatraBuild extends Build {
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.2"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
-    lazy val spring                     =  "org.springframework"     % "spring-context"      % "3.2.4.RELEASE"
+    lazy val springWeb                  =  "org.springframework"     % "spring-web"      % "3.2.4.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
