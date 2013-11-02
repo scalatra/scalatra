@@ -17,7 +17,7 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
 
   private[this] def isJValueResponse = responseFormat == "json" || responseFormat == "xml"
 
-  private[this] val customSerializer = jsonFormats.customSerializer
+  private[this] def customSerializer = jsonFormats.customSerializer
 
   private[this] def renderToJson: RenderPipeline = {
     case JNull | JNothing =>

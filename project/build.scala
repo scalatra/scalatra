@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
-      scalatraCommon, scalatraSwaggerExt)
+      scalatraCommon, scalatraSwaggerExt, scalatraSpring)
   )
 
   lazy val scalatraCommon = Project(
@@ -97,7 +97,7 @@ object ScalatraBuild extends Build {
     base = file("atmosphere"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
-      libraryDependencies ++= Seq(atmosphereRuntime, atmosphereRedis, atmosphereClient % "test", jettyWebsocket % "test"),
+      libraryDependencies ++= Seq(atmosphereRuntime, atmosphereRedis, atmosphereCompatJbossweb, atmosphereCompatTomcat, atmosphereCompatTomcat7, atmosphereClient % "test", jettyWebsocket % "test"),
       description := "Atmosphere integration for scalatra",
       LsKeys.tags in LsKeys.lsync ++= Seq("atmosphere", "comet", "sse", "websocket")
     )
@@ -228,6 +228,16 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraSpring = Project(
+    id = "scalatra-spring",
+    base = file("spring"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies += springWeb,
+      description := "Scalatra integration with Spring Framework",
+      LsKeys.tags in LsKeys.lsync ++= Seq("spring")
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
  lazy val scalatraExample = Project(
    id = "scalatra-example",
    base = file("example"),
@@ -249,10 +259,13 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)
-    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % "1.0.12"
-    lazy val atmosphereJQuery           =  "org.atmosphere"          % "atmosphere-jquery"   % "1.0.12" artifacts(Artifact("atmosphere-jquery", "war", "war"))
-    lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.0.0.RC1"
-    lazy val atmosphereRedis            =  "org.atmosphere"          % "atmosphere-redis"    % "1.0.12"
+    lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % atmosphereVersion
+    lazy val atmosphereJQuery           =  "org.atmosphere.client"   % "jquery"              % atmosphereVersion artifacts(Artifact("jquery", "war", "war"))
+    lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.1.0"
+    lazy val atmosphereRedis            =  "org.atmosphere"          % "atmosphere-redis"    % "2.0.0"
+    lazy val atmosphereCompatJbossweb   =  "org.atmosphere"          % "atmosphere-compat-jbossweb" % atmosphereCompatVersion
+    lazy val atmosphereCompatTomcat     =  "org.atmosphere"          % "atmosphere-compat-tomcat"   % atmosphereCompatVersion
+    lazy val atmosphereCompatTomcat7    =  "org.atmosphere"          % "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
@@ -285,6 +298,7 @@ object ScalatraBuild extends Build {
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.2"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
+    lazy val springWeb                  =  "org.springframework"     % "spring-web"      % "3.2.4.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
@@ -310,6 +324,10 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.9."   => "0.6.10"
       case _                            => "1.0.1"
     }
+
+    private val atmosphereVersion = "2.0.3"
+
+    private val atmosphereCompatVersion = "2.0.0"
 
     private val httpcomponentsVersion = "4.2.5"
 
