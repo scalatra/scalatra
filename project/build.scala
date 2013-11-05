@@ -37,7 +37,7 @@ object ScalatraBuild extends Build {
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
-      scalatraCommon, scalatraSwaggerExt)
+      scalatraCommon, scalatraSwaggerExt, scalatraSpring)
   )
 
   lazy val scalatraCommon = Project(
@@ -228,6 +228,16 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraSpring = Project(
+    id = "scalatra-spring",
+    base = file("spring"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies += springWeb,
+      description := "Scalatra integration with Spring Framework",
+      LsKeys.tags in LsKeys.lsync ++= Seq("spring")
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
  lazy val scalatraExample = Project(
    id = "scalatra-example",
    base = file("example"),
@@ -288,6 +298,7 @@ object ScalatraBuild extends Build {
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.2"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
+    lazy val springWeb                  =  "org.springframework"     % "spring-web"      % "3.2.4.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
