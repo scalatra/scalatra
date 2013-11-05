@@ -63,7 +63,7 @@ object ScalatraBuild extends Build {
         jodaConvert,
         akkaActor(sv) % "test"
       )),
-      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
+      libraryDependencies <++= scalaVersion(sv => Seq(akkaTestkit(sv) % "test")),
       description := "The core Scalatra framework"
     )
   ) dependsOn(
