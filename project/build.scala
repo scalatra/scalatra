@@ -313,7 +313,7 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.2"
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.4"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val springWeb                  =  "org.springframework"     % "spring-web"      % "3.2.4.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
