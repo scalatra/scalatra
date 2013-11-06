@@ -161,7 +161,6 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
     new AuthOperationBuilder[TypeForUser](DataType[T].name).nickname(nickname).errors(swaggerDefaultErrors:_*)
   }
 
-
   protected def apiOperation(nickname: String, model: Model): AuthOperationBuilder[TypeForUser] = {
     registerModel(model)
     new AuthOperationBuilder[TypeForUser](model.id).nickname(nickname).errors(swaggerDefaultErrors:_*)

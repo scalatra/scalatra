@@ -153,9 +153,9 @@ trait ApiFormats extends ScalatraBase {
 
   override protected def contentTypeInferrer: ContentTypeInferrer = inferFromFormats orElse super.contentTypeInferrer
 
-  protected def acceptedFormats(accepted: Symbol*) = {
-    val conditions = if (accepted.isEmpty) defaultAcceptedFormats else accepted.toList
-    conditions.isEmpty || (conditions filter { s => formats.get(s.name).isDefined } contains contentType)
+  protected def acceptedFormats(accepted: Symbol*): Boolean = {
+    val conditions = if (accepted.isEmpty) defaultAcceptedFormats.map(_.name) else accepted.map(_.name).toList
+    conditions.isEmpty || (conditions filter { s => formats.get(s).isDefined } contains contentType)
   }
 
   private def getFormat(implicit request: HttpServletRequest) =

@@ -1,12 +1,9 @@
 package org.scalatra.scalate
 
+import _root_.akka.dispatch.{Future, ExecutionContext}
 import org.scalatra._
-import _root_.akka.actor.ActorSystem
-import _root_.akka.dispatch.{ExecutionContext, Future}
-import test.specs2.{MutableScalatraSpec, ScalatraSpec}
+import test.specs2.MutableScalatraSpec
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import _root_.akka.util.duration._
-import org.specs2.time.NoTimeConversions
 import java.util.concurrent.{ExecutorService, ThreadFactory, Executors}
 import org.specs2.specification.{Step, Fragments}
 
@@ -94,12 +91,14 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
     }
 
     get("/bindings/*") {
-      new AsyncResult { val is = Future {
+    new AsyncResult { val is =
+      Future {
       flash.now("message") = "flash works"
       session("message") = "session works"
       jade(requestPath)
-} }
     }
+    }
+  }
 
     get("/bindings/params/:foo") {
       new AsyncResult { val is = Future { jade("/bindings/params") } }
@@ -110,11 +109,13 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
     }
 
     get("/template-attributes") {
-      new AsyncResult { val is = Future {
+    new AsyncResult { val is =
+      Future {
       templateAttributes("foo") = "from attributes"
       scaml("params")
-} }
     }
+    }
+  }
 
     get("/render-to-string") {
       new AsyncResult { val is = Future { response.setHeader("X-Template-Output", layoutTemplate("simple")) } }

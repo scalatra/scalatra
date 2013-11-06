@@ -112,6 +112,5 @@ class ScalatraRenderContext(
   def url(
     route: Route,
     params: Map[String, String],
-    splats: Iterable[String]
-  ): String = UrlGenerator.url(route, params, splats)(request)
+    splats: Iterable[String]): String = UrlGenerator.url(route, params, splats)(request)
 }

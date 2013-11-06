@@ -50,13 +50,13 @@ abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
       get("/", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
         header("Content-Encoding") should include("gzip")
         val uncompressed = Helper.uncompress(response.bodyBytes)
-        uncompressed should equal(Helper.body);
+        uncompressed should equal(Helper.body)
       }
       
       post("/", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
         header("Content-Encoding") should include("gzip")
         val uncompressed = Helper.uncompress(response.bodyBytes)
-        uncompressed should equal(Helper.body);
+        uncompressed should equal(Helper.body)
       }
     }
   }
@@ -66,13 +66,13 @@ abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
       get("/") {
         val contentEncoding = response.getHeader("Content-Encoding")
         assert(contentEncoding == null || !contentEncoding.contains("gzip"))
-        body should equal(Helper.body);
+        body should equal(Helper.body)
       }
       
       post("/") {
         val contentEncoding = response.getHeader("Content-Encoding")
         assert(contentEncoding == null || !contentEncoding.contains("gzip"))
-        body should equal(Helper.body);
+        body should equal(Helper.body)
       }
     }
   }
@@ -96,7 +96,7 @@ private object Helper {
    * Uncompresses an array to a string with gzip.
    */
   def uncompress(bytes: Array[Byte]): String = {
-    return convertStreamToString(new GZIPInputStream(new ByteArrayInputStream(bytes)))
+    convertStreamToString(new GZIPInputStream(new ByteArrayInputStream(bytes)))
   }
   
   /**
@@ -104,7 +104,7 @@ private object Helper {
    */
   private def convertStreamToString(is: InputStream): String = {
     val scanner = new java.util.Scanner(is, "UTF-8").useDelimiter("\\A")
-    if (scanner.hasNext()) {
+    if (scanner.hasNext) {
       scanner.next()
     } else {
       ""

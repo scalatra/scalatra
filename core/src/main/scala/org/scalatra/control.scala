@@ -42,6 +42,6 @@ private[scalatra] case class HaltException(
     reason: Option[String],
     headers: Map[String, String],
     body: Any)
-  extends ControlThrowable
+  extends Throwable
 
 private[scalatra] class PassException extends ControlThrowable

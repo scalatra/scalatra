@@ -64,7 +64,6 @@ object ScalatraBase {
 
   def runRenderCallbacks(data: Either[Throwable, Any])(implicit request: HttpServletRequest) = renderCallbacks.reverse foreach (_(data))
 
-
   import collection.JavaConverters._
 
   def getServletRegistration(app: ScalatraBase) = {

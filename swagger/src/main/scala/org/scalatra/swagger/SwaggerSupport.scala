@@ -472,6 +472,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
       val nm = if (name startsWith "/") name.substring(1) else name
       new Endpoint(pth + nm, desc, false, (entries.toList map (_.value)) )
     } sortBy (_.path)
+
   }
 
 

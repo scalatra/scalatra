@@ -1,12 +1,18 @@
 package org.scalatra
 
-import scala.actors.{Actor, TIMEOUT}
+import _root_.akka.actor.{Actor, Props, ActorRef, ActorSystem}
+import _root_.akka.dispatch.Await
+import _root_.akka.pattern.ask
+import _root_.akka.util.Timeout
+import _root_.akka.util.duration._
 import scala.xml.Text
 import test.scalatest.ScalatraFunSuite
 import org.scalatra.util.RicherString._
 import java.nio.charset.Charset
+import org.scalatest.BeforeAndAfterAll
+import org.eclipse.jetty.servlet.ServletHolder
 
-class ContentTypeTestServlet extends ScalatraServlet {
+class ContentTypeTestServlet(system: ActorSystem) extends ScalatraServlet {
   get("/json") {
     contentType = "application/json; charset=utf-8"
     """{msg: "test"}"""
@@ -38,32 +44,27 @@ class ContentTypeTestServlet extends ScalatraServlet {
     Text("test")
   }
 
-  import Actor._
-  val conductor = actor {
-    loop {
-      reactWithin(10000) {
+  implicit val timeout: Timeout = 5 seconds
+
+  val conductor = system.actorOf(Props(new Actor {
+
+    var firstSender: ActorRef = _
+
+    def receive = {
         case 1 =>
-          val firstSender = sender
-          reactWithin(10000) {
-            case 2 =>
-              firstSender ! 1
-            case 'exit =>
-              exit()
-            case TIMEOUT =>
-              firstSender ! "timed out"
+        firstSender = sender
+        context.become(secondReceive)
             }
-        case 'exit =>
-          exit()
-        case TIMEOUT =>
-          sender ! "timed out"
+
+    def secondReceive: Receive = {
+      case 2 => firstSender ! 1
       }
-    }
-  }
+  }))
 
   get("/concurrent/1") {
     contentType = "1"
     // Wait for second request to complete
-    (conductor !! 1)()
+    conductor ? 1
 
     200
   }
@@ -81,14 +82,17 @@ class ContentTypeTestServlet extends ScalatraServlet {
   post("/echo") {
     params("echo")
   }
-
-  override def init () { conductor.start() }
-  override def destroy() { conductor ! 'exit }
 }
 
-class ContentTypeTest extends ScalatraFunSuite {
-  val servletHolder = addServlet(classOf[ContentTypeTestServlet], "/*")
+class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
+  val system = ActorSystem()
+  implicit val timeout: Timeout = 5 seconds
+
+  override def afterAll = system.shutdown()
+
+  val servletHolder = new ServletHolder(new ContentTypeTestServlet(system))
   servletHolder.setInitOrder(1) // force load on startup
+  servletContextHandler.addServlet(servletHolder, "/*")
 
   test("content-type test") {
     get("/json") {
@@ -133,24 +137,18 @@ class ContentTypeTest extends ScalatraFunSuite {
 
 
   test("contentType is threadsafe") {
-    import Actor._
-
-    def doRequest = actor {
-      loop {
-        react {
+    class RequestActor extends Actor {
+      def receive = {
           case i: Int =>
             val res = get("/concurrent/"+i) { response }
             sender ! (i, res.mediaType)
-            exit()
         }
       }
-    }
 
-    val futures = for (i <- 1 to 2) yield { doRequest !! i }
+    val futures = for (i <- 1 to 2) yield { system.actorOf(Props(new RequestActor)) ? i }
     for (future <- futures) {
-      val result = future() match {
-        case (i, mediaType) => mediaType should be (Some(i.toString))
-      }
+      val (i: Int, mediaType: Option[String]) = Await.result(future.mapTo[(Int, Option[String])], 5 seconds)
+      mediaType should be (Some(i.toString))
     }
   }
 

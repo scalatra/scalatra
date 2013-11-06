@@ -4,7 +4,7 @@ import scalaz._
 import syntax.validation._
 import akka.dispatch.{Promise, ExecutionContext, Future}
 import org.scalatra.validation._
-import grizzled.slf4j
+import grizzled.slf4j.Logger
 import scala.util.control.Exception.allCatch
 import mojolly.inflector.InflectorImports._
 import annotation.implicitNotFound
@@ -45,8 +45,7 @@ abstract class CommandExecutor[T <: Command, S](handler: T => S) {
 }
 
 abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]) extends CommandExecutor[T, ModelValidation[S]](handle) {
-
-  @transient private[this] val logger = slf4j.Logger(getClass)
+  @transient private[this] val logger = Logger(getClass)
 
   def execute(cmd: T): ModelValidation[S] = {
     logger.debug("Executing ["+cmd.getClass.getName+"].\n"+cmd)
@@ -99,7 +98,7 @@ class BlockingCommandExecutor[T <: Command, S](handle: T => ModelValidation[S]) 
 class BlockingModelExecutor[T <: Command <% S, S](handle: S => ModelValidation[S]) extends BlockingExecutor[T, S](handle(_))
 
 abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidation[S]])(implicit executionContext: ExecutionContext) extends CommandExecutor[T, Future[ModelValidation[S]]](handle) {
-  @transient private[this] val logger = slf4j.Logger(getClass)
+  @transient private[this] val logger = Logger(getClass)
   def execute(cmd: T): Future[ModelValidation[S]] = {
     logger.debug("Executing ["+cmd.getClass.getName+"].\n"+cmd)
     if (cmd.isValid) {

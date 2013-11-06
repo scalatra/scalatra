@@ -27,6 +27,7 @@ package object scalatra
 
   val MultiParamsKey = "org.scalatra.MultiParams"
   
+
   @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraBase if you don't.", "2.1.0")
   type ScalatraKernel = servlet.ServletBase
 

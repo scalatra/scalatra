@@ -68,7 +68,8 @@ object ScalatraBuild extends Build {
         jUniversalChardet,
         mimeUtil,
         jodaTime,
-        jodaConvert
+        jodaConvert,
+        akkaActor(sv) % "test"
       )),
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
       description := "The core Scalatra framework"
@@ -137,7 +138,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5"
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5" cross CrossVersion.binary
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=
@@ -275,6 +276,7 @@ object ScalatraBuild extends Build {
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
     lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.2"
     lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.2"
+//    lazy val json4sAst                  =  "org.json4s"              %% "json4s-ast"         % json4sVersion
     lazy val json4sCore                 =  "org.json4s"              %% "json4s-core"        % json4sVersion
     lazy val json4sExt                  =  "org.json4s"              %% "json4s-ext"         % json4sVersion
     lazy val json4sJackson              =  "org.json4s"              %% "json4s-jackson"     % json4sVersion
@@ -352,7 +354,7 @@ object ScalatraBuild extends Build {
 
     private val swaggerCross = CrossVersion.binaryMapped {
       case sv if sv startsWith "2.9."   => "2.9.1"
-      case _                            => "2.10"
+      case _                            => "2.10.0"
     }
     private val swaggerVersion = "1.2.5"
   }

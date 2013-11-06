@@ -15,11 +15,18 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
 
   override protected def renderPipeline: RenderPipeline = renderToJson orElse super.renderPipeline
 
+  private[this] def isJValueResponse = responseFormat == "json" || responseFormat == "xml"
 
+  private[this] def customSerializer = jsonFormats.customSerializer
 
   private[this] def renderToJson: RenderPipeline = {
     case JNull | JNothing =>
     case a: JValue => super.renderPipeline(a)
+    case a: Any if isJValueResponse && customSerializer.isDefinedAt(a) =>
+      customSerializer.lift(a) match {
+        case Some(jv: JValue) => jv
+        case None => super.renderPipeline(a)
+      }
     case status: Int => super.renderPipeline(status)
     case bytes: Array[Byte] => super.renderPipeline(bytes)
     case is: java.io.InputStream => super.renderPipeline(is)
@@ -35,8 +42,8 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
       response.writer.write(x.toString)
     case x: NodeSeq ⇒
       response.writer.write(x.toString)
-    case p: Product if responseFormat == "json" || responseFormat == "xml" => Extraction.decompose(p)
-    case p: Traversable[_] if responseFormat == "json" || responseFormat == "xml" => Extraction.decompose(p)
+    case p: Product if isJValueResponse => Extraction.decompose(p)
+    case p: TraversableOnce[_] if isJValueResponse => Extraction.decompose(p)
   }
 
 }

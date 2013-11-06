@@ -135,7 +135,8 @@ trait FlashMapSupport extends Handler {
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     withRequest(req) {
       val f = flash
-      val isOutermost = !req.contains(LockKey)
+      val isOutermost = !request.contains(LockKey)
+
       ScalatraBase onCompleted { _ =>
         /*
          * http://github.com/scalatra/scalatra/issues/41
@@ -156,6 +157,8 @@ trait FlashMapSupport extends Handler {
           f.flag()
         }
       }
+
+
       super.handle(req, res)
     }
   }

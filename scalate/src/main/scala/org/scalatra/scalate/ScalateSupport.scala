@@ -75,17 +75,6 @@ trait ScalateSupport extends ScalatraKernel {
    */
   trait ScalatraTemplateEngine {
     this: TemplateEngine =>
-//    /**
-//     * Returns a ServletRenderContext constructed from the current
-//     * request and response.
-//     */
-//    override def createRenderContext(uri: String, out: PrintWriter) = {
-//      val ctx = ScalateSupport.this.createRenderContext(out = out)
-//      ScalateSupport.this.templateAttributes foreach {
-//        case (name, value) => ctx.setAttribute(name, Some(value))
-//      }
-//      ctx
-//    }
 
     /**
      * Delegates to the ScalatraKernel's isDevelopmentMode flag.
@@ -138,14 +127,14 @@ trait ScalateSupport extends ScalatraKernel {
   }
 
 
-  override protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  override protected[scalatra] def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     if (isScalateErrorPageEnabled) renderScalateErrorPage(request, response, e)
     else super.renderUncaughtException(e)
   }
 
   // Hack: Have to pass it the request and response, because we're outside the
   // scope of the super handler.
-  private def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
+  private[this] def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
     resp.setStatus(500)
     resp.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")

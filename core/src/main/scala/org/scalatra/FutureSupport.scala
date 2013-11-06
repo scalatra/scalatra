@@ -4,7 +4,7 @@ import _root_.akka.util.duration._
 import _root_.akka.util.{Timeout, Duration}
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.servlet.{ServletContext, AsyncEvent, AsyncListener}
-import servlet.{AsyncSupport}
+import servlet.AsyncSupport
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import _root_.akka.dispatch.{ExecutionContext, Future}
 
@@ -17,7 +17,7 @@ abstract class AsyncResult(implicit override val scalatraContext: ScalatraContex
   implicit val response: HttpServletResponse = scalatraContext.response
   val servletContext: ServletContext = scalatraContext.servletContext
 
-  // this is a duration because durations have a concept of infinity unlike timeouts
+  // This is a Duration instead of a timeout because a duration has the concept of infinity
   implicit def timeout: Duration = 30 seconds
   val is: Future[_]
 }
@@ -31,7 +31,7 @@ trait FutureSupport extends AsyncSupport {
   // Still thinking of the best way to specify this before making it public.
   // In the meantime, this gives us enough control for our test.
   // IPC: it may not be perfect but I need to be able to configure this timeout in an application
-  // this is a duration because durations have a concept of infinity unlike timeouts
+  // This is a Duration instead of a timeout because a duration has the concept of infinity
   @deprecated("Override the `timeout` method on a `org.scalatra.AsyncResult` instead.", "2.2")
   protected def asyncTimeout: Duration = 30 seconds
 
@@ -48,7 +48,7 @@ trait FutureSupport extends AsyncSupport {
     }
   }
 
-  private[this] def handleFuture(future: Future[_], timeout: Duration) {
+  private[this] def handleFuture(f: Future[_], timeout: Duration) {
     val gotResponseAlready = new AtomicBoolean(false)
     val context = request.startAsync(request, response)
     if (timeout.isFinite())
@@ -71,7 +71,7 @@ trait FutureSupport extends AsyncSupport {
       def onStartAsync(event: AsyncEvent) {}
     })
 
-    future onComplete {
+    f onComplete {
       case a ⇒ {
         withinAsyncContext(context) {
           if (gotResponseAlready.compareAndSet(false, true)) {

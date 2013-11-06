@@ -68,7 +68,7 @@ abstract class ScalatraServlet
   def requestPath(implicit request: HttpServletRequest) = ScalatraServlet.requestPath(request)
 
   protected def routeBasePath(implicit request: HttpServletRequest) = {
-    require(config != null, "routeBasePath requires the servlet to be initialize")
+    require(config != null, "routeBasePath requires the servlet to be initialized")
     require(request != null, "routeBasePath requires an active request to determine the servlet path")
 
     servletContext.getContextPath + request.getServletPath
