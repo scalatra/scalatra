@@ -16,7 +16,8 @@ trait ScalatraBroadcaster extends Broadcaster {
   protected var _wireFormat: WireFormat
   protected implicit var _actorSystem: ActorSystem
 
-  def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)(implicit executionContext: ExecutionContext): Future[T] = {
+  def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)
+                                     (implicit executionContext: ExecutionContext): Future[T] = {
     val selectedResources = _resources.asScala map (_.client) filter clientFilter
     logger.info("Sending %s to %s".format(msg, selectedResources.map(_.uuid)))
     broadcast(_wireFormat.render(msg), selectedResources.map(_.resource).toSet.asJava).map(_ => msg)
