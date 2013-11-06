@@ -4,8 +4,10 @@ import scala.xml._
 import java.net.URL
 import ls.Plugin.LsKeys
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
+import com.typesafe.tools.mima.core._
+import com.typesafe.tools.mima.core.ProblemFilters._
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
+import com.typesafe.tools.mima.plugin.MimaKeys.{binaryIssueFilters, previousArtifact}
 
 object ScalatraBuild extends Build {
   import Dependencies._
@@ -73,7 +75,12 @@ object ScalatraBuild extends Build {
         akkaActor(sv) % "test"
       )),
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
-      description := "The core Scalatra framework"
+      description := "The core Scalatra framework",
+      binaryIssueFilters ++= Seq(
+        exclude[MissingTypesProblem]("org.scalatra.HaltException"),
+        exclude[MissingTypesProblem]("org.scalatra.PassException"),
+        exclude[MissingMethodProblem]("org.scalatra.i18n.I18nSupport.provideMessages")
+      )
     )
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
