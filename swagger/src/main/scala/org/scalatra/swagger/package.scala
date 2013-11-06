@@ -1,7 +1,5 @@
 package org.scalatra
 
-import javax.xml.bind.annotation.XmlElement
-
 package object swagger {
   object Symbols {
     val Summary = Symbol("swagger.summary")
@@ -19,9 +17,8 @@ package object swagger {
   }
 
   object annotations {
-    import scala.annotation.target.field
+    import scala.annotation.target.getter
 
-    type ApiProperty = org.scalatra.swagger.runtime.annotations.ApiProperty @field
-    type XmlRootElement = XmlElement @field
+    type ApiProperty = com.wordnik.swagger.annotations.ApiProperty @getter
   }
 }

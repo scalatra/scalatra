@@ -6,6 +6,7 @@ import collection.JavaConverters._
 import reflect.{ManifestFactory, Reflector}
 import util.RicherString._
 import javax.servlet.{ Servlet, Filter }
+import com.wordnik.swagger.core.ApiPropertiesReader
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.control.Exception.allCatch
 
@@ -322,8 +323,14 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   }
 
   @deprecated("This implicit conversion will be removed in the future", "2.2")
-  implicit protected def modelToSwagger(cls: Class[_]): (String, Model) =
-    Swagger.modelToSwagger(Reflector.scalaTypeOf(cls)).get // TODO: the use of .get is pretty dangerous, but it's deprecated
+  implicit protected def modelToSwagger(cls: Class[_]): (String, Model) = {
+    val docObj = ApiPropertiesReader.read(cls)
+    val name = docObj.getName
+    val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
+      yield (field.name -> ModelField(field.name, field.notes, DataType(field.paramType)))
+
+    Model(name, name, fields.toMap)
+  }
 
   private[swagger] val _models: mutable.Map[String, Model] = mutable.Map.empty
 

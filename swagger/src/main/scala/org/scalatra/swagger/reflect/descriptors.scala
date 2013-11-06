@@ -170,11 +170,10 @@ class ScalaType(private val manifest: Manifest[_]) extends Equals {
 case class PropertyDescriptor(name: String, mangledName: String, returnType: ScalaType, field: Field) extends Descriptor {
   def set(receiver: Any, value: Any) = field.set(receiver, value)
   def get(receiver: AnyRef) = field.get(receiver)
-
   def isPrimitive = returnType.isPrimitive
 }
 case class ConstructorParamDescriptor(name: String, mangledName: String, argIndex: Int, argType: ScalaType, defaultValue: Option[() => Any]) extends Descriptor {
-  lazy val isOptional = defaultValue.isDefined || isOption
+  lazy val isOptional = defaultValue.isDefined || classOf[Option[_]].isAssignableFrom(argType.erasure)
   def isPrimitive = argType.isPrimitive
   def isMap = argType.isMap
   def isCollection = argType.isCollection
