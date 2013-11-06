@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.lang.{Integer => JInteger}
-import scala.util.control.ControlThrowable
+import scala.util.control.{NoStackTrace, ControlThrowable}
 
 /**
  * A collection of methods that affect the control flow of routes.
@@ -42,6 +42,6 @@ private[scalatra] case class HaltException(
     reason: Option[String],
     headers: Map[String, String],
     body: Any)
-  extends Throwable
+  extends Throwable with NoStackTrace
 
-private[scalatra] class PassException extends ControlThrowable
+private[scalatra] class PassException extends Throwable with NoStackTrace
