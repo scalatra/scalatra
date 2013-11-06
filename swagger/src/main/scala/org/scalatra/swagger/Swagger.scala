@@ -9,12 +9,10 @@ import format.ISODateTimeFormat
 import grizzled.slf4j.Logger
 import java.util.Date
 import reflect.{ScalaType, PrimitiveDescriptor, ClassDescriptor, Reflector}
+import com.wordnik.swagger.core.{DocumentationAllowableValues, DocumentationAllowableRangeValues, DocumentationAllowableListValues, ApiPropertiesReader}
 import collection.JavaConverters._
 import org.scalatra.swagger.AllowableValues.AllowableValuesList
 import org.scalatra.swagger.AllowableValues.AllowableRangeValues
-import java.lang.reflect.Field
-import org.scalatra.swagger.runtime.annotations.ApiProperty
-import java.util.concurrent.ConcurrentHashMap
 
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
@@ -22,7 +20,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
   def apiVersion: String
   
   
-  private[swagger] val _docs = new ConcurrentHashMap[String, T]().asScala
+  private[swagger] var _docs = Map.empty[String, T]
 
   def docs = _docs.values
 
@@ -39,9 +37,6 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 }
 
 object Swagger {
-
-  val SpecVersion = "1.1"
-
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
     if (tpe.isMap) collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
@@ -60,9 +55,9 @@ object Swagger {
             val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
             val subModels = Set((ctorModels.map(_.argType) ++ propModels.map(_.returnType)):_*)
             val topLevel = for {
-              tl <- subModels + descriptor.erasure
-              if  !(tl.isCollection || tl.isMap || tl.isOption)
-              m <- modelToSwagger(tl)
+              tl <- (subModels + descriptor.erasure)
+              if !(tl.isCollection || tl.isOption || tl.isMap)
+              m <- modelToSwagger(tl.erasure)
             } yield m
 
             val nested = subModels.foldLeft((topLevel, known + descriptor.erasure)){ (acc, b) =>
@@ -76,97 +71,30 @@ object Swagger {
     }
   }
 
-  def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
-  def modelToSwagger(klass:ScalaType): Option[Model] = {
-    if (Reflector.isPrimitive(klass.erasure) || Reflector.isExcluded(klass.erasure)) None
+  def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = {
+    modelToSwagger(mf.erasure)
+  }
+  def modelToSwagger(klass: Class[_]): Option[Model] = {
+    if (Reflector.isPrimitive(klass) || Reflector.isExcluded(klass)) None
     else {
-      val name = klass.simpleName
+      val docObj = ApiPropertiesReader.read(klass)
+      val name = docObj.getName
+      val fields = for (field <- docObj.getFields.asScala.filter(d => d.paramType != null))
+        yield (field.name -> ModelField(field.name, field.description, DataType(field.paramType),
+          allowableValues = allowableValuesToString(field.allowableValues)))
 
-      val descr = Reflector.describe(klass).asInstanceOf[ClassDescriptor]
-
-      val fields = klass.erasure.getDeclaredFields.toList collect {
-        case f: Field if f.getAnnotation(classOf[ApiProperty]) != null =>
-          val annot = f.getAnnotation(classOf[ApiProperty])
-          descr.properties.find(_.mangledName == f.getName) map { prop =>
-            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-            val isOptional = ctorParam.flatMap(_.defaultValue)
-            ModelField(
-              f.getName,
-              annot.value,
-              DataType.fromScalaType(prop.returnType),
-              defaultValue = isOptional map { fn =>
-                val r = fn()
-                if (r == null) r.asInstanceOf[String] else r.toString
-              },
-              allowableValues = convertToAllowableValues(annot.allowableValues()),
-              required = annot.required && !prop.returnType.isOption)
-          }
-
-        case f: Field =>
-          descr.properties.find(_.mangledName == f.getName) map { prop =>
-            val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-            val isOptional = ctorParam.flatMap(_.defaultValue)
-            ModelField(
-              f.getName,
-              null,
-              DataType.fromScalaType(prop.returnType),
-              defaultValue = isOptional map { fn =>
-                val r = fn()
-                if (r == null) r.asInstanceOf[String] else r.toString
-              },
-              required = !prop.returnType.isOption)
-          }
-
-      }
-
-      Some(Model(name, name, fields.flatten.map(a => a.name -> a).toMap))
+      Some(Model(name, name, fields.toMap))
     }
   }
+  private def allowableValuesToString(allowableValues: DocumentationAllowableValues) = {
+    import scala.collection.JavaConversions._
 
-  private def convertToAllowableValues(csvString: String, paramType: String = null): AllowableValues = {
-    if (csvString.toLowerCase.startsWith("range[")) {
-      val ranges = csvString.substring(6, csvString.length() - 1).split(",")
-      buildAllowableRangeValues(ranges, csvString)
-    } else if (csvString.toLowerCase.startsWith("rangeexclusive[")) {
-      val ranges = csvString.substring(15, csvString.length() - 1).split(",")
-      buildAllowableRangeValues(ranges, csvString)
-    } else {
-      if (csvString == null || csvString.length == 0) {
-        null
-      } else {
-        val params = csvString.split(",").toList
-        paramType match {
-          case null => AllowableValuesList(params)
-          case "string" => AllowableValuesList(params)
-        }
-      }
+    allowableValues match {
+      case list:DocumentationAllowableListValues => AllowableValuesList(list.getValues.toList)
+      case range:DocumentationAllowableRangeValues => AllowableRangeValues(Range(range.getMin.toInt, range.getMax.toInt))
+      case _ => AllowableValues.AnyValue
     }
   }
-
-  private def buildAllowableRangeValues(ranges: Array[String], inputStr: String): AllowableRangeValues = {
-    var min: java.lang.Float = 0
-    var max: java.lang.Float = 0
-    if (ranges.size < 2) {
-      throw new RuntimeException("Allowable values format " + inputStr + "is incorrect")
-    }
-    if (ranges(0).equalsIgnoreCase("Infinity")) {
-      min = Float.PositiveInfinity
-    } else if (ranges(0).equalsIgnoreCase("-Infinity")) {
-      min = Float.NegativeInfinity
-    } else {
-      min = ranges(0).toFloat
-    }
-    if (ranges(1).equalsIgnoreCase("Infinity")) {
-      max = Float.PositiveInfinity
-    } else if (ranges(1).equalsIgnoreCase("-Infinity")) {
-      max = Float.NegativeInfinity
-    } else {
-      max = ranges(1).toFloat
-    }
-    val allowableValues = AllowableRangeValues(Range(min.toInt, max.toInt))
-    allowableValues
-  }
-
 }
 
 /**
@@ -180,7 +108,7 @@ class Swagger(val swaggerVersion: String, val apiVersion: String) extends Swagge
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
     val endpoints: List[Endpoint] = s.endpoints(path) collect { case m: Endpoint => m }
-    _docs += name -> Api(path, listingPath, description, endpoints, s.models.toMap)
+    _docs = _docs + (name -> Api(path, listingPath, description, endpoints, s.models.toMap))
   }
 }
 
@@ -341,7 +269,7 @@ object DataType {
   val Int = DataType("int")
   val Long = DataType("long")
   val Boolean = DataType("boolean")
-  val Date = DataType("Date")
+  val Date = DataType("date")
   val Enum = DataType("enum")
   val List = DataType("List")
   val Map = DataType("Map")
@@ -378,7 +306,7 @@ object DataType {
   }
   private[swagger] def fromClass(klass: Class[_]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
   private[swagger] def fromScalaType(st: ScalaType): DataType = {
-    val klass = if (st.isOption && st.typeArgs.size > 0) st.typeArgs.head.erasure else st.erasure
+    val klass = st.erasure
     if (classOf[Unit].isAssignableFrom(klass)) this.Void
     else if (StringTypes.contains(klass)) this.String
     else if (classOf[Byte].isAssignableFrom(klass) || classOf[java.lang.Byte].isAssignableFrom(klass)) DataType("byte")
@@ -419,7 +347,7 @@ object DataType {
   private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[Date], classOf[DateTime], classOf[DateMidnight])
+    Set[Class[_]](classOf[Date], classOf[DateTime])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
   
   private[this] def isMap(klass: Class[_]) =
