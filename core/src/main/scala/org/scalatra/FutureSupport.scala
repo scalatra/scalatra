@@ -1,7 +1,6 @@
 package org.scalatra
 
 import scala.concurrent.duration._
-import _root_.akka.util.Timeout
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.servlet.{ServletContext, AsyncEvent, AsyncListener}
 import servlet.AsyncSupport
@@ -9,9 +8,6 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-object AsyncResult {
-  val DefaultTimeout = Timeout(30 seconds)
-}
 abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext  {
 
   implicit val request: HttpServletRequest = scalatraContext.request

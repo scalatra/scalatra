@@ -4,11 +4,15 @@ import scala.xml._
 import java.net.URL
 import ls.Plugin.LsKeys
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
+import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+import com.typesafe.tools.mima.plugin.MimaKeys.previousArtifact
 
 object ScalatraBuild extends Build {
   import Dependencies._
 
-  lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
+  lazy val scalatraSettings = Defaults.defaultSettings ++ 
+    mimaDefaultSettings ++
+    ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
     crossScalaVersions := Seq("2.10.2"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
@@ -22,7 +26,11 @@ object ScalatraBuild extends Build {
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
     ),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
-    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
+    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/")),
+    previousArtifact <<= (name, scalaVersion) { (name, sv) =>
+      val cross = CrossVersion.crossName(name, CrossVersion.binaryScalaVersion(sv))
+      Some("org.scalatra" % cross % "2.2.1")
+    }
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
@@ -31,7 +39,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      LsKeys.skipWrite := true
+      LsKeys.skipWrite := true,
+      previousArtifact := None
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
@@ -63,7 +72,7 @@ object ScalatraBuild extends Build {
         jodaConvert,
         akkaActor(sv) % "test"
       )),
-      libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
+      libraryDependencies <++= scalaVersion(sv => Seq(akkaTestkit(sv) % "test")),
       description := "The core Scalatra framework"
     )
   ) dependsOn(
@@ -248,7 +257,8 @@ object ScalatraBuild extends Build {
      libraryDependencies += json4sJackson,
      libraryDependencies += atmosphereJQuery,
      description := "Scalatra example project",
-     LsKeys.skipWrite := true
+     LsKeys.skipWrite := true,
+     previousArtifact := None
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
