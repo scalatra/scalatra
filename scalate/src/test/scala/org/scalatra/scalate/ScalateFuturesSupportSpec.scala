@@ -2,10 +2,8 @@ package org.scalatra.scalate
 
 import org.scalatra._
 import scala.concurrent.{ExecutionContext, Future}
-import test.specs2.{MutableScalatraSpec, ScalatraSpec}
+import test.specs2.MutableScalatraSpec
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import scala.concurrent.duration._
-import org.specs2.time.NoTimeConversions
 import java.util.concurrent.{ExecutorService, ThreadFactory, Executors}
 import org.specs2.specification.{Step, Fragments}
 
