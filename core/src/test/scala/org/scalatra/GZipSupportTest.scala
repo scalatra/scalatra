@@ -39,7 +39,7 @@ class GZipSupportServletTest extends GZipSupportTest {
 abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
 
 
-  test("should return response gzipped") {
+  test("should return response gzipped if accept-encoding includes gzip") {
     session {
       get("/", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
         header("Content-Encoding") should include("gzip")
@@ -47,7 +47,7 @@ abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
         uncompressed should equal(Helper.body)
       }
       
-      post("/", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
+      post("/", Seq.empty, Map("Accept-Encoding" -> "gzip, deflate, sdch")) {
         header("Content-Encoding") should include("gzip")
         val uncompressed = Helper.uncompress(response.bodyBytes)
         uncompressed should equal(Helper.body)
@@ -55,7 +55,7 @@ abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
     }
   }
   
-  test("should not return response gzipped") {
+  test("should not return response gzipped if accept-encoding does not include gzip") {
     session {
       get("/") {
         val contentEncoding = response.getHeader("Content-Encoding")
