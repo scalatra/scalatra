@@ -11,4 +11,4 @@ addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.2")
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.2.0")
 
-
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.5")

@@ -19,7 +19,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String) extend
    */
   def register(name: String, path: String, description: String, s: SwaggerSupportSyntax with SwaggerSupportBase, listingPath: Option[String] = None) = {
     logger.debug("registering swagger api with: { name: %s, path: %s, description: %s, servlet: %s, listingPath: %s }" format (name, path, description, s.getClass, listingPath))
-    _docs += name -> AuthApi(path, listingPath, description, s.endpoints(path).map(_.asInstanceOf[AuthEndpoint[AnyRef]]), s.models.toMap)
+    _docs = _docs + (name -> AuthApi(path, listingPath, description, s.endpoints(path).map(_.asInstanceOf[AuthEndpoint[AnyRef]]), s.models.toMap))
   }
 }
 

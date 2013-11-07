@@ -4,11 +4,17 @@ import scala.xml._
 import java.net.URL
 import ls.Plugin.LsKeys
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
+import com.typesafe.tools.mima.core._
+import com.typesafe.tools.mima.core.ProblemFilters._
+import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
+import com.typesafe.tools.mima.plugin.MimaKeys.{binaryIssueFilters, previousArtifact}
 
 object ScalatraBuild extends Build {
   import Dependencies._
 
-  lazy val scalatraSettings = Defaults.defaultSettings ++ ls.Plugin.lsSettings ++ Seq(
+  lazy val scalatraSettings = Defaults.defaultSettings ++ 
+    mimaDefaultSettings ++
+    ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
     crossScalaVersions := Seq("2.10.3","2.10.2","2.10.1","2.10.0"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
@@ -22,7 +28,11 @@ object ScalatraBuild extends Build {
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
     ),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
-    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/"))
+    (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/")),
+    previousArtifact <<= (name, scalaVersion) { (name, sv) =>
+      val cross = CrossVersion.crossName(name, CrossVersion.binaryScalaVersion(sv))
+      Some("org.scalatra" % cross % "2.2.1")
+    }
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
@@ -31,7 +41,8 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      LsKeys.skipWrite := true
+      LsKeys.skipWrite := true,
+      previousArtifact := None
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
@@ -64,7 +75,12 @@ object ScalatraBuild extends Build {
         akkaActor(sv) % "test"
       )),
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
-      description := "The core Scalatra framework"
+      description := "The core Scalatra framework",
+      binaryIssueFilters ++= Seq(
+        exclude[MissingTypesProblem]("org.scalatra.HaltException"),
+        exclude[MissingTypesProblem]("org.scalatra.PassException"),
+        exclude[MissingMethodProblem]("org.scalatra.i18n.I18nSupport.provideMessages")
+      )
     )
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
@@ -203,7 +219,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(json4sExt, logbackClassic % "provided"),
+      libraryDependencies ++= Seq(json4sExt, swaggerCore, swaggerAnnotations),
       description := "Scalatra integration with Swagger",
       LsKeys.tags in LsKeys.lsync ++= Seq("swagger", "docs")
     )
@@ -238,7 +254,8 @@ object ScalatraBuild extends Build {
      libraryDependencies += json4sJackson,
      libraryDependencies += atmosphereJQuery,
      description := "Scalatra example project",
-     LsKeys.skipWrite := true
+     LsKeys.skipWrite := true,
+     previousArtifact := None
    )
  ) dependsOn(
    scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
@@ -281,14 +298,14 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.0-RC1"
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.4"
     lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
     lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)
-//    lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
-//    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
+    lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross
+    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross
     lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
     lazy val testng                     =  "org.testng"              %  "testng"             % "6.8"
 
@@ -310,9 +327,9 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.3"
 
-    private val jettyVersion = "8.1.12.v20130726"
+    private val jettyVersion = "8.1.10.v20130312"
 
-    private val json4sVersion = "3.2.5"
+    private val json4sVersion = "3.2.4"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"
@@ -347,7 +364,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.9."   => "2.9.1"
       case _                            => "2.10.0"
     }
-    private val swaggerVersion = "1.2.5"
+    private val swaggerVersion = "1.2.0"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {

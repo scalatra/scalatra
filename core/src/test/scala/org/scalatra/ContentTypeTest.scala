@@ -1,7 +1,6 @@
 package org.scalatra
 
-import _root_.akka.actor._
-import _root_.akka.actor.Actor
+import _root_.akka.actor.{Actor, Props, ActorRef, ActorSystem}
 import _root_.akka.pattern.ask
 import _root_.akka.util.Timeout
 import scala.xml.Text
@@ -9,9 +8,9 @@ import test.scalatest.ScalatraFunSuite
 import org.scalatra.util.RicherString._
 import java.nio.charset.Charset
 import scala.concurrent.duration._
-import org.eclipse.jetty.servlet.ServletHolder
 import concurrent.Await
 import org.scalatest.BeforeAndAfterAll
+import org.eclipse.jetty.servlet.ServletHolder
 
 class ContentTypeTestServlet(system: ActorSystem) extends ScalatraServlet {
   get("/json") {
@@ -52,14 +51,14 @@ class ContentTypeTestServlet(system: ActorSystem) extends ScalatraServlet {
     var firstSender: ActorRef = _
 
     def receive = {
-      case 1 =>
+        case 1 =>
         firstSender = sender
         context.become(secondReceive)
-    }
+            }
 
     def secondReceive: Receive = {
       case 2 => firstSender ! 1
-    }
+      }
   }))
 
   get("/concurrent/1") {
@@ -140,11 +139,11 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
   test("contentType is threadsafe") {
     class RequestActor extends Actor {
       def receive = {
-        case i: Int =>
-          val res = get("/concurrent/"+i) { response }
-          sender ! (i, res.mediaType)
+          case i: Int =>
+            val res = get("/concurrent/"+i) { response }
+            sender ! (i, res.mediaType)
+        }
       }
-    }
 
     val futures = for (i <- 1 to 2) yield { system.actorOf(Props(new RequestActor)) ? i }
     for (future <- futures) {
