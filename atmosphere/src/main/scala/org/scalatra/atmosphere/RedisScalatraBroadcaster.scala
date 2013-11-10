@@ -12,7 +12,6 @@ import grizzled.slf4j.Logger
 import org.json4s.ShortTypeHints
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{read, write}
-import org.atmosphere.cpr.DefaultBroadcaster.Entry
 
 
 final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
@@ -46,9 +45,11 @@ final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
       val clientFilter = redisMessage.clientFilter
       val newMsg = filter(embeddedMsg)
 
-      val selectedResources = _resources.asScala map (_.client) filter clientFilter
-      val selectedSet = selectedResources.map(_.resource).toSet.asJava
-      push(new Entry(newMsg, selectedSet, new BroadcasterFuture[Any](newMsg, this), embeddedMsg))
+      if (newMsg != null) {
+        val selectedResources = _resources.asScala map (_.client) filter clientFilter
+        val selectedSet = selectedResources.map(_.resource).toSet.asJava
+        push(new Entry(newMsg, selectedSet, new BroadcasterFuture[Any](newMsg), embeddedMsg))
+      }
     } catch {
       case t: Throwable => logger.error("failed to push message: " + message, t)
     }
@@ -56,3 +57,4 @@ final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
 }
 
 class Message(val msg: String, val clientFilter: ClientFilter)
+
