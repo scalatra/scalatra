@@ -145,7 +145,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] def configureBroadcasterFactory() {
     val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig, scalatraBroadcasterClass)
-    atmosphereFramework.setDefaultBroadcasterClassName(classOf[ScalatraBroadcaster].getName)
+    atmosphereFramework.setDefaultBroadcasterClassName(scalatraBroadcasterClass.getName)
     atmosphereFramework.setBroadcasterFactory(factory)
   }
 
