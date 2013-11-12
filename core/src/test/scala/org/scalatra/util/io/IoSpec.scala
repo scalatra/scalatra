@@ -4,9 +4,9 @@ package io
 import scala.io.Source
 import java.io._
 import org.scalatest.WordSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
-class IoSpec extends WordSpec with ShouldMatchers {
+class IoSpec extends WordSpec with Matchers {
   "copy" should {
    "copy an input stream smaller than the buffer size to the output stream" in {
       testCopy(100, 256)

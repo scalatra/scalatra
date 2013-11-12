@@ -1,13 +1,13 @@
 package org.scalatra
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import org.scalatest.Matchers
+import org.scalatest.{Matchers, BeforeAndAfterEach, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 
 @RunWith(classOf[JUnitRunner])
-class FlashMapTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
+class FlashMapTest extends FunSuite with Matchers with BeforeAndAfterEach {
   var flash: FlashMap = _
 
   override def beforeEach = flash = new FlashMap()

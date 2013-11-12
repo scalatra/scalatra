@@ -56,7 +56,7 @@ class SwaggerCommandSupportSpec extends MutableScalatraSpec {
       model must beSome[Model]
       model.get.id must_== "SimpleCommand"
       model.get.description must beEmpty
-      model.get.properties must haveTheSameElementsAs(List("age" -> ModelProperty(DataType.Int, required = false), "name" -> ModelProperty(DataType.String, 1, required = true)))
+      model.get.properties must containTheSameElementsAs(List("age" -> ModelProperty(DataType.Int, required = false), "name" -> ModelProperty(DataType.String, 1, required = true)))
     }
     
     "generate a model and parameters for a full command" in {
@@ -76,7 +76,7 @@ class SwaggerCommandSupportSpec extends MutableScalatraSpec {
       model must beSome[Model]
       model.get.id must_== "FullCommand"
       model.get.description must beEmpty
-      model.get.properties must haveTheSameElementsAs(List("age" -> ModelProperty(DataType.Int, required = false), "name" -> ModelProperty(DataType.String, 1, required = true)))
+      model.get.properties must containTheSameElementsAs(List("age" -> ModelProperty(DataType.Int, required = false), "name" -> ModelProperty(DataType.String, 1, required = true)))
     }
   }
   

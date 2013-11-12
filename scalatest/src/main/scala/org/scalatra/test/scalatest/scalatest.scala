@@ -3,7 +3,6 @@ package scalatest
 
 import org.junit.runner.RunWith
 import org.scalatest._
-import org.scalatest.matchers.{MustMatchers, ShouldMatchers}
 import org.scalatest.junit.{JUnitSuite, JUnit3Suite, JUnitRunner}
 import org.scalatest.testng.TestNGSuite
 
@@ -12,7 +11,7 @@ import org.scalatest.testng.TestNGSuite
  * Provides Scalatra test support to ScalaTest suites.  The servlet tester
  * is started before the first test in the suite and stopped after the last.
  */
-trait ScalatraSuite extends Suite with ScalatraTests with BeforeAndAfterAll with MustMatchers with ShouldMatchers {
+trait ScalatraSuite extends Suite with ScalatraTests with BeforeAndAfterAll with Matchers {
   override protected def beforeAll(): Unit = start()
   override protected def afterAll(): Unit = stop()
 }

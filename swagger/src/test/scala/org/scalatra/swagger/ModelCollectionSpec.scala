@@ -63,16 +63,16 @@ class ModelCollectionSpec extends Specification {
     }
 
     "collect all the models in a nested structure" in {
-      Swagger.collectModels[TaggedThing](Set.empty) must haveTheSameElementsAs(taggedThingModels.flatten)
+      Swagger.collectModels[TaggedThing](Set.empty) must containTheSameElementsAs(taggedThingModels.flatten.toSeq)
     }
 
     "collect models when hiding in a list" in {
       val collected = Swagger.collectModels[Things](Set.empty)
-      collected.map(_.id) must haveTheSameElementsAs(thingsModels.flatten.map(_.id))
+      collected.map(_.id) must containTheSameElementsAs(thingsModels.flatten.map(_.id).toSeq)
     }
     "collect models when hiding in a map" in {
       val collected = Swagger.collectModels[MapThings](Set.empty)
-      collected must haveTheSameElementsAs(mapThingsModels.flatten)
+      collected must containTheSameElementsAs(mapThingsModels.flatten.toSeq)
 
     }
 
@@ -90,7 +90,7 @@ class ModelCollectionSpec extends Specification {
 
     "collect models when hiding in an option" in {
       val collected = Swagger.collectModels[Thing](Set.empty)
-      collected must haveTheSameElementsAs(thingModels.flatten)
+      collected must containTheSameElementsAs(thingModels.flatten.toSeq)
       collected.find(_.id == "Thing").flatMap(_.properties.find(_._1 == "thing").map(_._2.`type`)) must beSome(DataType[TaggedThing])
     }
 

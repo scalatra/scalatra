@@ -183,7 +183,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers { def is = sequential ^
     (actual \ "resourcePath" must_== expected \ "resourcePath") and {
       val ja = actual \ "apis" \ "path" \\ classOf[JString]
       (ja must haveSize(operationPaths.size)) and
-        (ja must haveTheSameElementsAs(operationPaths))
+        (ja must containTheSameElementsAs(operationPaths))
     }
   }
 

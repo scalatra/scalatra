@@ -5,7 +5,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
 import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatest.matchers._
+import org.scalatest._
 import javax.servlet.ServletConfig
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
@@ -36,7 +36,7 @@ trait GZipSupportAppBase extends ScalatraBase with GZipSupport with FutureSuppor
 class GZipSupportServletTest extends GZipSupportTest {
   mount(classOf[GZipSupportTestServlet], "/*")
 }
-abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
+abstract class GZipSupportTest extends ScalatraFunSuite with Matchers {
 
 
   test("should return response gzipped if accept-encoding includes gzip") {
@@ -59,13 +59,13 @@ abstract class GZipSupportTest extends ScalatraFunSuite with ShouldMatchers {
     session {
       get("/") {
         val contentEncoding = response.getHeader("Content-Encoding")
-        assert(contentEncoding == null || !contentEncoding.contains("gzip"))
+        contentEncoding should be (null)
         body should equal(Helper.body)
       }
       
       post("/") {
         val contentEncoding = response.getHeader("Content-Encoding")
-        assert(contentEncoding == null || !contentEncoding.contains("gzip"))
+        contentEncoding should be (null)
         body should equal(Helper.body)
       }
     }

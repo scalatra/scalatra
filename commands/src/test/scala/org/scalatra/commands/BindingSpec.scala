@@ -304,8 +304,8 @@ class BindingSpec extends Specification {
     "have a validation for non empty collection" in {
       val field = newBinding[Seq[String]].notEmpty
       field.validator must not(beEmpty)
-      field.validator.get.apply(Seq("hello").success).isSuccess must beTrue
-      field.validator.get.apply(Seq.empty[String].success).isSuccess must beFalse
+      field.validator.get.apply(Success(Seq("hello"))).isSuccess must beTrue
+      field.validator.get.apply(Success(Seq.empty[String])).isSuccess must beFalse
     }
 
     "allow chaining validations" in {

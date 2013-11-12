@@ -86,12 +86,12 @@ class ParamsExtensionSpec extends Specification {
 
     "return Empty list if some conversion is invalid" in {
       val multiParams: MultiMap = Map("invalids" -> List("1", "a", "2"))
-      multiParams.getAs[Int]("invalids") must beSome(List(1, 2))
+      multiParams.getAs[Int]("invalids") must_== Some(List(1, 2))
     }
 
     "return Empty list if all conversions are invalid" in {
       val multiParams: MultiMap = Map("invalids" -> List("a", "b"))
-      multiParams.getAs[Int]("invalids") must beSome(List.empty[Int])
+      multiParams.getAs[Int]("invalids") must_== Some(Nil)
     }
 
     "add a getAs[Date] method" in {

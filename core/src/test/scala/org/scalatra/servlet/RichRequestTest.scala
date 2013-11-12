@@ -7,9 +7,9 @@ import javax.servlet.http.HttpServletRequest
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
-class RichRequestTest extends FunSuite with ShouldMatchers {
+class RichRequestTest extends FunSuite with Matchers {
   implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
 
   test("decodes body according to the character encoding") {

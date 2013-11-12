@@ -16,7 +16,7 @@ object ScalatraBuild extends Build {
     mimaDefaultSettings ++
     ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.10.2"),
+    crossScalaVersions := Seq("2.10.3"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
@@ -368,7 +368,7 @@ object ScalatraBuild extends Build {
     }
 
     private val scalatestVersion: String => String =
-      defaultOrMapped("1.9.1", "2.8.0" -> "1.8", "2.8.1" -> "1.8", "2.8.2" -> "1.8")
+      defaultOrMapped("2.0")
 
     private val specsCross = crossMapped("2.8.2" -> "2.8.1", "2.9.2" -> "2.9.1")
     private val specsVersion: String => String =
@@ -378,7 +378,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
       case sv if sv startsWith "2.9."   => "1.12.4.1"
-      case _                            => "1.14"
+      case _                            => "2.3.3"
     }
 
   }

@@ -1,12 +1,11 @@
 package org.scalatra.util
 
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 
 @RunWith(classOf[JUnitRunner])
-class NotEmptyTest extends FunSuite with ShouldMatchers {
+class NotEmptyTest extends FunSuite with Matchers {
   test("extracts None from null") {
     NotEmpty.unapply(null:String) should equal (None)
   }

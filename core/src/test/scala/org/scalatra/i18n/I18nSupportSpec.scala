@@ -28,36 +28,36 @@ class I18nSupportSpec extends ScalatraWordSpec {
     "handle locale change via HTTP param and set it to cookie" in {
       session {
         get("/name", I18nSupport.LocaleKey -> "id_ID") { // Bug in Java6: id_ID is changed to in_ID by java.util.Locale
-          body must equal("Nama")
+          body should equal("Nama")
         }
         get("/getcookie") {
-          body must equal("id_ID")
+          body should equal("id_ID")
         }
         get("/age") {
-          body must equal("Umur")
+          body should equal("Umur")
         }
       }
     }
     "handle locale change via Accept-Language header as the last option" in {
       session {
         get("/name", Map.empty[String, String], Map("Accept-Language" -> "en-AU,de;q=0.8,en-US;q=0.6,en;q=0.4")) {
-          body must equal("Name en_AU")
+          body should equal("Name en_AU")
         }
         get("/getcookie") {
-          body must equal("None")
+          body should equal("None")
         }
       }
     }
     "prefer locale change via HTTP param over Accept-Language header" in {
       session {
         get("/name", Map(I18nSupport.LocaleKey -> "id_ID"), Map("Accept-Language" -> "en-AU,de;q=0.8,en-US;q=0.6,en;q=0.4")) {
-          body must equal("Nama")
+          body should equal("Nama")
         }
         get("/getcookie") {
-          body must equal("id_ID")
+          body should equal("id_ID")
         }
         get("/age") {
-          body must equal("Umur")
+          body should equal("Umur")
         }
       }
     }
@@ -66,27 +66,27 @@ class I18nSupportSpec extends ScalatraWordSpec {
         // Set the initial cookie
         post("/setcookie", I18nSupport.LocaleKey -> "en_US") {}
         get("/getcookie") {
-          body must equal("en_US")
+          body should equal("en_US")
         }
         get("/name") {
-          body must equal("Name")
+          body should equal("Name")
         }
 
         // Set the locale in HTTP param
         get("/name", Map(I18nSupport.LocaleKey -> "id_ID"), Map("Accept-Language" -> "en-AU,de;q=0.8,en-US;q=0.6,en;q=0.4")) {
-          body must equal("Nama")
+          body should equal("Nama")
         }
         get("/getcookie") {
-          body must equal("id_ID")
+          body should equal("id_ID")
         }
         get("/age") {
-          body must equal("Umur")
+          body should equal("Umur")
         }
       }
     }
     "fallback unknown locale to default locale" in {
       get("/name", Map(I18nSupport.LocaleKey -> "xyz")) {
-        body must equal("Name")
+        body should equal("Name")
       }
     }
   }
