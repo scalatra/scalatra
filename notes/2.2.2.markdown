@@ -1,6 +1,14 @@
 ### Core
 * Respect servlet wrappers in AsyncSupport. (Fixes GZipSupport with async
   result).
+* Unroll nested futures and async results. [#321](https://github.com/scalatra/scalatra/issues/321)
 
 ### Auth
 * Remove false dependency on scalatra-commands.
+
+### Jetty
+* Fix uninitalized value error.
+
+### Scalate
+* Normalize Scalate template path [#335](https://github.com/scalatra/scalatra/issues/335)
+

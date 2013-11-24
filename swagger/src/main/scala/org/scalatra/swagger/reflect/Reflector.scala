@@ -3,7 +3,6 @@ package org.scalatra.swagger.reflect
 import java.{util => jutil}
 import java.lang.reflect._
 import scala.util.control.Exception._
-import collection.JavaConverters._
 import java.util.Date
 import java.sql.Timestamp
 import collection.mutable.ArrayBuffer

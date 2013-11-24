@@ -14,13 +14,12 @@ class JettyServer(
   socketAddress: InetSocketAddress = new InetSocketAddress(8080),
   resourceBase: String = "src/main/webapp")
 {
-  private[this] val server = new Server(socketAddress)
-  server.setHandler(context)
-
   val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
   context.setContextPath("/")
   context.addEventListener(new ScalatraListener)
   context.setResourceBase(resourceBase)
+
+  val server = new Server(socketAddress)
   server.setHandler(context)
 
   def start(): this.type = {

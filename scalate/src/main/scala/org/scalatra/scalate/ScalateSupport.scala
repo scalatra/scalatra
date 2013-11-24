@@ -243,7 +243,7 @@ trait ScalateSupport extends ScalatraKernel {
     val finder = new TemplateFinder(templateEngine) {
       override lazy val extensions = extensionSet
     }
-    finder.findTemplate("/"+path) orElse
+    finder.findTemplate(("/"+path).replaceAll("//", "/")) orElse
       finder.findTemplate("/%s/%s".format(path, defaultIndexName))
   }
 
