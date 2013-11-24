@@ -1,0 +1,45 @@
+### Core
+* Support for Scala 2.9.x dropped.
+* Change FutureSupport.timeout from a Timeout to a Duration.
+* Add a timeout to AsyncResult.
+* Run callbacks before render in renderResponseBody.
+* Redirect returns Nothing, not unit.
+* Allow calling halt from trap handler.
+* Remove Akka dependency.  Only scala.concurrent is needed.
+
+### Atmosphere
+* Make ScalatraBroadcaster a trait for custom broadcasters.
+* Add RedisScalatraBroadcaster.
+* Support ClientFilter with Redis Atmosphere plugin.
+
+### Commands
+* Ensure ordering of properties on body parameters from a command by
+  adding a position method.
+
+### I18n
+* Provide a way to implement custom Messages resolver.
+
+### JSON
+* Support custom serializers in JValueResult.
+* Check if response is JSON or XML in renderJson.
+
+### Scalate
+* Don't always render the Scalate Error page.
+
+### Spring
+* New support module for Spring.
+
+### Swagger
+* Add naive exclusion based on simple class name and known model ID.
+* Add apiOperation and parameter methods that use a swagger model 
+  declaration directly.
+* Fix detection of default value.
+* Fix Option data type on models.
+* Fix NPE when the model property has a default value of null.
+* Use 1.2 spec.
+* Fix URL generation when a context path is set.
+* Fix serialization of data type for operations and parameters.
+* Fix `Option[List[_]]` reflection.
+* Output position in Swager spec so model properties have a stable order.
+* Annotated properties are required by default.
+* Force compilation error for apiOperation without type param.
