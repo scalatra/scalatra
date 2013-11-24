@@ -8,3 +8,7 @@
 
 ### Jetty
 * Fix uninitalized value error.
+
+### Scalate
+* Normalize Scalate template path [#335](https://github.com/scalatra/scalatra/issues/335)
+
