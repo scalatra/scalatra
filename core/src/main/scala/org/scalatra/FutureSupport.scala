@@ -71,26 +71,33 @@ trait FutureSupport extends AsyncSupport {
       def onStartAsync(event: AsyncEvent) {}
     })
 
-    f onComplete {
-      case a ⇒ {
-        withinAsyncContext(context) {
-          if (gotResponseAlready.compareAndSet(false, true)) {
-            try {
-              a.right.map(renderResponse(_)).left.map {
-                case e: HaltException ⇒
-                  renderHaltException(e)
-                case e ⇒
-                  try {
-                    renderResponse(errorHandler(e))
-                  } catch {
-                    case e: Throwable =>
-                      ScalatraBase.runCallbacks(Left(e))
-                      renderUncaughtException(e)
-                      ScalatraBase.runRenderCallbacks(Left(e))
-                  }
+    renderFutureResult(f)
+
+    def renderFutureResult(f: Future[_]) {
+      f onComplete {
+        // Loop until we have a non-future result
+        case Right(f2: Future[_]) => renderFutureResult(f2)
+        case Right(r: AsyncResult) => renderFutureResult(r.is)
+        case a ⇒ {
+          withinAsyncContext(context) {
+            if (gotResponseAlready.compareAndSet(false, true)) {
+              try {
+                a.right.map(renderResponse(_)).left.map {
+                  case e: HaltException ⇒
+                    renderHaltException(e)
+                  case e ⇒
+                    try {
+                      renderResponse(errorHandler(e))
+                    } catch {
+                      case e: Throwable =>
+                        ScalatraBase.runCallbacks(Left(e))
+                        renderUncaughtException(e)
+                        ScalatraBase.runRenderCallbacks(Left(e))
+                    }
+                }
+              } finally {
+                context.complete()
               }
-            } finally {
-              context.complete()
             }
           }
         }
