@@ -1,14 +1,37 @@
 ### Core
+* Fix mount/addServlet for paths not ending in `/*`
+* HaltException and PassExceptions are no longer control throwables.
 * Respect servlet wrappers in AsyncSupport. (Fixes GZipSupport with async
   result).
 * Unroll nested futures and async results. [#321](https://github.com/scalatra/scalatra/issues/321)
+* Allow Accept-Encoding header to be a list.
+
+### Atmosphere
+* Fix atmosphere disconnect handling.
 
 ### Auth
 * Remove false dependency on scalatra-commands.
 
+### Commands
+* Properly humanize camel cased names.
+* Add a better validation error serializer.
+
 ### Jetty
 * Fix uninitalized value error.
 
+### Json
+* Ensure JSONP callbacks are fully written to the output stream.
+* Fix JValue result for files.
+
 ### Scalate
 * Normalize Scalate template path [#335](https://github.com/scalatra/scalatra/issues/335)
+* Support for i18n support in a ScalatraFilter.
 
+### Specs2
+* Fix Specs2 base trait infrastructure
+
+### Swagger
+* Modify scalatra-swagger api docs generation to better support apiproperty
+  annotation.
+* Add ability to document API operations that support multiple content type
+  responses.
