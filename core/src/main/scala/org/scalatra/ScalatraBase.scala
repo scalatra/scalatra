@@ -106,6 +106,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   override def handle(request: HttpServletRequest, response: HttpServletResponse) {
     //    val realMultiParams = request.multiParameters
     request(CookieSupport.SweetCookiesKey) = new SweetCookies(request.cookies, response)
+    response.characterEncoding = Some(defaultCharacterEncoding)
 
     withRequestResponse(request, response) {
       //      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
@@ -437,14 +438,8 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
         case (name, value) => response.addHeader(name, value)
       }
       actionResult.body
-    case x => {
-      response.contentType.foreach { ct =>
-        if(ct.indexOf(";charset=") < 0){
-          response.characterEncoding = Some(defaultCharacterEncoding)
-        }
-      }
+    case x =>
       response.writer.print(x.toString)
-    }
   }
 
   /**
