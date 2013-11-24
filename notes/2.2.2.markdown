@@ -5,3 +5,6 @@
 
 ### Auth
 * Remove false dependency on scalatra-commands.
+
+### Jetty
+* Fix uninitalized value error.
