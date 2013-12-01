@@ -254,23 +254,25 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
- lazy val scalatraExample = Project(
-   id = "scalatra-example",
-   base = file("example"),
-   settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
-     libraryDependencies += servletApi % "container;test",
-     libraryDependencies += jettyWebsocket % "container;test",
-     libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
-     libraryDependencies += json4sJackson,
-     libraryDependencies += atmosphereJQuery,
-     description := "Scalatra example project",
-     LsKeys.skipWrite := true,
-     previousArtifact := None
-   )
- ) dependsOn(
-   scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
- )
+  lazy val scalatraExample = Project(
+     id = "scalatra-example",
+     base = file("example"),
+     settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
+       libraryDependencies += servletApi % "container;test;provided",
+       libraryDependencies += jettyWebsocket % "container;test;provided",
+       libraryDependencies += jettyServer % "container;test;provided",
+       libraryDependencies += jettyPlus % "container;test",
+       libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
+       libraryDependencies += json4sJackson,
+       libraryDependencies += atmosphereJQuery,
+       description := "Scalatra example project",
+       LsKeys.skipWrite := true,
+       previousArtifact := None
+     )
+  ) dependsOn(
+     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
+     scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
+  )
 
   object Dependencies {
     // Sort by artifact ID.
@@ -284,22 +286,20 @@ object ScalatraBuild extends Build {
     lazy val atmosphereCompatTomcat     =  "org.atmosphere"          % "atmosphere-compat-tomcat"   % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat7    =  "org.atmosphere"          % "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
-    lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
+    lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.3"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
     lazy val commonsLang3               =  "org.apache.commons"      %  "commons-lang3"      % "3.1"
     lazy val grizzledSlf4j: MM     = sv => "org.clapper"             % "grizzled-slf4j"      % grizzledSlf4jVersion(sv) cross crossMapped("2.9.3" -> "2.9.2")
     lazy val guice                      =  "com.google.inject"       %  "guice"              % "3.0"
     lazy val httpclient                 =  "org.apache.httpcomponents" % "httpclient"        % httpcomponentsVersion
     lazy val httpmime                   =  "org.apache.httpcomponents" % "httpmime"          % httpcomponentsVersion
-//    lazy val jerkson                    =  "io.backchat.jerkson"     %% "jerkson"            % "0.7.0"
     lazy val jettyServer                =  "org.eclipse.jetty"       %  "jetty-server"       % jettyVersion
+    lazy val jettyPlus                  =  "org.eclipse.jetty"       %  "jetty-plus"         % jettyVersion
     lazy val jettyServlet               =  "org.eclipse.jetty"       %  "jetty-servlet"      % jettyVersion
-    lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
-//    lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %"websocket-server" % jettyVersion
+    lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %"websocket-server" % jettyVersion
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
     lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.4"
     lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.3"
-//    lazy val json4sAst                  =  "org.json4s"              %% "json4s-ast"         % json4sVersion
     lazy val json4sCore                 =  "org.json4s"              %% "json4s-core"        % json4sVersion
     lazy val json4sExt                  =  "org.json4s"              %% "json4s-ext"         % json4sVersion
     lazy val json4sJackson              =  "org.json4s"              %% "json4s-jackson"     % json4sVersion
@@ -314,7 +314,7 @@ object ScalatraBuild extends Build {
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.4"
-    lazy val servletApi                 =  "org.eclipse.jetty.orbit" % "javax.servlet"       % "3.0.0.v201112011016" artifacts (Artifact("javax.servlet", "jar", "jar"))
+    lazy val servletApi                 =  "javax.servlet"           % "javax.servlet-api"   % "3.1.0"
     lazy val springWeb                  =  "org.springframework"     % "spring-web"      % "3.2.4.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.5"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.5"
@@ -348,9 +348,9 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.5"
 
-    private val jettyVersion = "8.1.12.v20130726"
+    private val jettyVersion = "9.1.0.v20131115"
 
-    private val json4sVersion = "3.2.5"
+    private val json4sVersion = "3.2.6"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"

@@ -93,13 +93,13 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
 
     "infer contentType for String" in {
       get("/ok") {
-        response.getContentType mustEqual "text/plain;charset=UTF-8"
+        response.getContentType mustEqual "text/plain; charset=UTF-8"
       }
     }
 
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
-        response.getContentType mustEqual "text/plain;charset=UTF-8"
+        response.getContentType mustEqual "text/plain; charset=UTF-8"
       }
     }
 

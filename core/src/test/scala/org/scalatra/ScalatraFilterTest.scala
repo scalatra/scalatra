@@ -99,11 +99,12 @@ class ScalatraFilterTest extends ScalatraFunSuite {
   filterHolder.setInitParameter("cat-who-is-biting-me", "Pete")
 
   // See SRV.11.2 of Servlet 2.5 spec for the gory details of servlet mappings
+  override def skipDefaultServlet = true
   addServlet(classOf[ScalatraFilterTestPathMappedServlet], "/path-mapped/*")
   addServlet(classOf[ScalatraFilterTestExtensionMappedServlet], "*.do")
-  addServlet(classOf[ScalatraFilterTestDefaultServlet], "/")
   addServlet(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/filtered")
   addServlet(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/unfiltered")
+  addServlet(classOf[ScalatraFilterTestDefaultServlet], "/")
 
   test("should filter matching request to path-mapped servlet") {
     get("/path-mapped/filtered") {

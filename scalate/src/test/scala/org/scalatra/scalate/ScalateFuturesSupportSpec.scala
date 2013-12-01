@@ -220,7 +220,7 @@ class ScalateFuturesSupportSpec extends MutableScalatraSpec {
   }
 
   def e12 = get("/ssp-template") {
-    body must_== "<div>SSP template</div>\n"
+    body must_== "<div>SSP template</div>"
   }
 
   def e13 = get("/ssp-params") {

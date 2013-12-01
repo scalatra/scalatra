@@ -178,8 +178,11 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
         rendered = false
       }, e => {
         runCallbacks(Failure(e))
-        renderUncaughtException(e)
-        runRenderCallbacks(Failure(e))
+        try {
+          renderUncaughtException(e)
+        } finally {
+          runRenderCallbacks(Failure(e))
+        }
       })
     })
 
@@ -395,8 +398,11 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     } catch {
       case e: Throwable =>
         runCallbacks(Failure(e))
-        renderUncaughtException(e)
-        runCallbacks(Failure(e))
+        try {
+          renderUncaughtException(e)
+        } finally {
+          runRenderCallbacks(Failure(e))
+        }
     }
   }
 

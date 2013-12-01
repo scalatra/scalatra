@@ -19,6 +19,7 @@ trait JettyContainer extends Container {
   import JettyContainer._
 
   def servletContextHandler: ServletContextHandler
+  def skipDefaultServlet: Boolean = false
 
   def mount(klass: Class[_], path: String) = klass match {
     case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
@@ -66,9 +67,11 @@ trait JettyContainer extends Container {
   def addFilter(filter: Class[_ <: Filter], path: String, dispatches: util.EnumSet[DispatcherType]): FilterHolder =
     servletContextHandler.addFilter(filter, path, dispatches)
 
+
+
   // Add a default servlet.  If there is no underlying servlet, then
   // filters just return 404.
-  servletContextHandler.addServlet(new ServletHolder("default", classOf[DefaultServlet]), "/")
+  if (!skipDefaultServlet) servletContextHandler.addServlet(new ServletHolder("default", classOf[DefaultServlet]), "/")
 
   protected def ensureSessionIsSerializable() {
     servletContextHandler.getSessionHandler.addEventListener(SessionSerializingListener)

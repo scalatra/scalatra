@@ -1,6 +1,7 @@
 package org.scalatra.test
 
 import org.eclipse.jetty.server.{Connector, Server}
+import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.servlet.ServletContextHandler
 
 trait EmbeddedJettyContainer extends JettyContainer {
@@ -15,7 +16,7 @@ trait EmbeddedJettyContainer extends JettyContainer {
    * @return Some port if Jetty is currently listening, or None if it is not.
    */
   def localPort: Option[Int] = server.getConnectors collectFirst  {
-    case x: Connector => x.getLocalPort
+    case x: ServerConnector => x.getLocalPort
   }
 
   def contextPath = "/"
@@ -38,7 +39,7 @@ trait EmbeddedJettyContainer extends JettyContainer {
 
   def baseUrl: String =
     server.getConnectors collectFirst {
-      case conn: Connector =>
+      case conn: ServerConnector =>
         val host = Option(conn.getHost) getOrElse "localhost"
         val port = conn.getLocalPort
         require(port > 0, "The detected local port is < 1, that's not allowed")
