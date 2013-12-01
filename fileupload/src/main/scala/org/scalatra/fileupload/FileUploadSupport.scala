@@ -142,7 +142,7 @@ trait FileUploadSupport extends ServletBase {
   protected val _fileParams = new collection.Map[String, FileItem] {
     def get(key: String) = fileMultiParams.get(key) flatMap { _.headOption }
     override def size = fileMultiParams.size
-    override def iterator = fileMultiParams map { case(k, v) => (k, v.head) } iterator
+    override def iterator = (fileMultiParams map { case(k, v) => (k, v.head) }).iterator
     override def -(key: String) = Map() ++ this - key
     override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
   }

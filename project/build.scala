@@ -44,7 +44,7 @@ object ScalatraBuild extends Build {
       LsKeys.skipWrite := true,
       previousArtifact := None
     ),
-    aggregate = Seq(scalatraCore, scalatraAuth, /*scalatraFileupload,*/ scalatraCommands,
+    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
@@ -286,23 +286,20 @@ object ScalatraBuild extends Build {
     lazy val atmosphereCompatTomcat     =  "org.atmosphere"          % "atmosphere-compat-tomcat"   % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat7    =  "org.atmosphere"          % "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
     lazy val base64                     =  "net.iharder"             %  "base64"             % "2.3.8"
-    lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.2.2"
+    lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.3"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
     lazy val commonsLang3               =  "org.apache.commons"      %  "commons-lang3"      % "3.1"
     lazy val grizzledSlf4j: MM     = sv => "org.clapper"             % "grizzled-slf4j"      % grizzledSlf4jVersion(sv) cross crossMapped("2.9.3" -> "2.9.2")
     lazy val guice                      =  "com.google.inject"       %  "guice"              % "3.0"
     lazy val httpclient                 =  "org.apache.httpcomponents" % "httpclient"        % httpcomponentsVersion
     lazy val httpmime                   =  "org.apache.httpcomponents" % "httpmime"          % httpcomponentsVersion
-//    lazy val jerkson                    =  "io.backchat.jerkson"     %% "jerkson"            % "0.7.0"
     lazy val jettyServer                =  "org.eclipse.jetty"       %  "jetty-server"       % jettyVersion
     lazy val jettyPlus                  =  "org.eclipse.jetty"       %  "jetty-plus"         % jettyVersion
     lazy val jettyServlet               =  "org.eclipse.jetty"       %  "jetty-servlet"      % jettyVersion
-//    lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
     lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %"websocket-server" % jettyVersion
     lazy val jettyWebapp                =  "org.eclipse.jetty"       %  "jetty-webapp"       % jettyVersion
     lazy val jodaConvert                =  "org.joda"                %  "joda-convert"       % "1.4"
     lazy val jodaTime                   =  "joda-time"               %  "joda-time"          % "2.3"
-//    lazy val json4sAst                  =  "org.json4s"              %% "json4s-ast"         % json4sVersion
     lazy val json4sCore                 =  "org.json4s"              %% "json4s-core"        % json4sVersion
     lazy val json4sExt                  =  "org.json4s"              %% "json4s-ext"         % json4sVersion
     lazy val json4sJackson              =  "org.json4s"              %% "json4s-jackson"     % json4sVersion
