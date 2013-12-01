@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import java.io.ByteArrayInputStream
-import javax.servlet.ServletInputStream
+import javax.servlet.{ReadListener, ServletInputStream}
 import javax.servlet.http.HttpServletRequest
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
@@ -33,4 +33,10 @@ class RichRequestTest extends FunSuite with Matchers {
 private[scalatra] class FakeServletInputStream(data: Array[Byte]) extends ServletInputStream {
   private[this] val backend = new ByteArrayInputStream(data)
   def read = backend.read
+
+  def setReadListener(readListener: ReadListener) {}
+
+  def isFinished: Boolean = true
+
+  def isReady: Boolean = true
 }

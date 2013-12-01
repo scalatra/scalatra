@@ -7,30 +7,30 @@ import org.fusesource.scalate.layout.DefaultLayoutStrategy
 
 class ScalateSupportSpec extends ScalatraSpec { def is =
   "ScalateSupport should"                                         ^
-    "render uncaught errors with 500.scaml"                       ! e1^
-    "not throw a NullPointerException for trivial requests"       ! e2^
-    "render a simple template"                                    ! e3^
-    "render a simple template with params"                        ! e4^
-    "looks for layouts in /WEB-INF/layouts"                       ! e5^
-    "generate a url from a template"                              ! e6^
-    "generate a url with params from a template"                  ! e7^
-    "render a simple template via jade method"                    ! e8^
-    "render a simple template with params via jade method"        ! e9^
-    "render a simple template via scaml method"                   ! e10^
-    "render a simple template with params via scaml method"       ! e11^
-    "render a simple template via ssp method"                     ! e12^
-    "render a simple template with params via ssp method"         ! e13^
-    "render a simple template via mustache method"                ! e14^
-    "render a simple template with params via mustache method"    ! e15^
-    "looks for templates in legacy /WEB-INF/scalate/templates"    ! e16^
-    "looks for index page if no template found"                   ! e17^
-    "implicitly bind flash"                                       ! e18^
-    "implicitly bind session"                                     ! e19^
-    "implicitly bind params"                                      ! e20^
-    "implicitly bind multiParams"                                 ! e21^
-    "set templateAttributes when creating a render context"       ! e22^
-    "render to a string instead of response"                      ! e23^
-    "set status to 500 when rendering 500.scaml"                  ! e24^
+    "render uncaught errors with 500.scaml"                       ! e1^ br ^
+    "not throw a NullPointerException for trivial requests"       ! e2^br ^
+    "render a simple template"                                    ! e3^br ^
+    "render a simple template with params"                        ! e4^br ^
+    "looks for layouts in /WEB-INF/layouts"                       ! e5^br ^
+    "generate a url from a template"                              ! e6^br ^
+    "generate a url with params from a template"                  ! e7^br ^
+    "render a simple template via jade method"                    ! e8^br ^
+    "render a simple template with params via jade method"        ! e9^br ^
+    "render a simple template via scaml method"                   ! e10^br ^
+    "render a simple template with params via scaml method"       ! e11^br ^
+    "render a simple template via ssp method"                     ! e12^br ^
+    "render a simple template with params via ssp method"         ! e13^br ^
+    "render a simple template via mustache method"                ! e14^br ^
+    "render a simple template with params via mustache method"    ! e15^br ^
+    "looks for templates in legacy /WEB-INF/scalate/templates"    ! e16^br ^
+    "looks for index page if no template found"                   ! e17^br ^
+    "implicitly bind flash"                                       ! e18^br ^
+    "implicitly bind session"                                     ! e19^br ^
+    "implicitly bind params"                                      ! e20^br ^
+    "implicitly bind multiParams"                                 ! e21^br ^
+    "set templateAttributes when creating a render context"       ! e22^br ^
+    "render to a string instead of response"                      ! e23^br ^
+    "set status to 500 when rendering 500.scaml"                  ! e24^br ^
     end
 
 
@@ -186,7 +186,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
   }
 
   def e12 = get("/ssp-template") {
-    body must_== "<div>SSP template</div>\n"
+    body must_== "<div>SSP template</div>"
   }
 
   def e13 = get("/ssp-params") {
@@ -231,7 +231,7 @@ class ScalateSupportSpec extends ScalatraSpec { def is =
 
   def e23 = get("/render-to-string") {
     val hdr = header("X-Template-Output")
-    hdr must_== "<div>SSP template</div>\n"
+    hdr must_== "<div>SSP template</div>"
   }
 
   def e24 = get("/barf") {

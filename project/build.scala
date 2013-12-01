@@ -44,10 +44,10 @@ object ScalatraBuild extends Build {
       LsKeys.skipWrite := true,
       previousArtifact := None
     ),
-    aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
+    aggregate = Seq(scalatraCore, scalatraAuth, /*scalatraFileupload,*/ scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
-      scalatraExample, scalatraSwagger, scalatraJetty,
+      scalatraExample, scalatraSwagger, /*scalatraJetty,*/
       scalatraCommon, scalatraSwaggerExt, scalatraSpring)
   )
 
@@ -254,23 +254,25 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
- lazy val scalatraExample = Project(
-   id = "scalatra-example",
-   base = file("example"),
-   settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
-     libraryDependencies += servletApi % "container;test",
-     libraryDependencies += jettyWebsocket % "container;test",
-     libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
-     libraryDependencies += json4sJackson,
-     libraryDependencies += atmosphereJQuery,
-     description := "Scalatra example project",
-     LsKeys.skipWrite := true,
-     previousArtifact := None
-   )
- ) dependsOn(
-   scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
- )
+  lazy val scalatraExample = Project(
+     id = "scalatra-example",
+     base = file("example"),
+     settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
+       libraryDependencies += servletApi % "container;test;provided",
+       libraryDependencies += jettyWebsocket % "container;test;provided",
+       libraryDependencies += jettyServer % "container;test;provided",
+       libraryDependencies += jettyPlus % "container;test",
+       libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
+       libraryDependencies += json4sJackson,
+       libraryDependencies += atmosphereJQuery,
+       description := "Scalatra example project",
+       LsKeys.skipWrite := true,
+       previousArtifact := None
+     )
+  ) dependsOn(
+     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
+     scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
+  )
 
   object Dependencies {
     // Sort by artifact ID.
@@ -293,6 +295,7 @@ object ScalatraBuild extends Build {
     lazy val httpmime                   =  "org.apache.httpcomponents" % "httpmime"          % httpcomponentsVersion
 //    lazy val jerkson                    =  "io.backchat.jerkson"     %% "jerkson"            % "0.7.0"
     lazy val jettyServer                =  "org.eclipse.jetty"       %  "jetty-server"       % jettyVersion
+    lazy val jettyPlus                  =  "org.eclipse.jetty"       %  "jetty-plus"         % jettyVersion
     lazy val jettyServlet               =  "org.eclipse.jetty"       %  "jetty-servlet"      % jettyVersion
 //    lazy val jettyWebsocket             =  "org.eclipse.jetty"       %  "jetty-websocket"    % jettyVersion
     lazy val jettyWebsocket             =  "org.eclipse.jetty.websocket" %"websocket-server" % jettyVersion
@@ -348,9 +351,9 @@ object ScalatraBuild extends Build {
 
     private val httpcomponentsVersion = "4.2.5"
 
-    private val jettyVersion = "9.0.5.v20130815"
+    private val jettyVersion = "9.1.0.v20131115"
 
-    private val json4sVersion = "3.2.5"
+    private val json4sVersion = "3.2.6"
 
     private val scalateArtifact: String => String = {
       case sv if sv startsWith "2.8."   => "scalate-core"
