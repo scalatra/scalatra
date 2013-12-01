@@ -2,7 +2,7 @@ package org.scalatra
 
 import java.io.PrintWriter
 import java.util.zip.GZIPOutputStream
-import javax.servlet.ServletOutputStream
+import javax.servlet.{WriteListener, ServletOutputStream}
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponseWrapper
@@ -18,12 +18,17 @@ trait GZipSupport extends Handler {
       if (isGzip) {
         val gzos = new GZIPOutputStream(res.getOutputStream)
         val w = new PrintWriter(gzos)
-        val gzsos = new ServletOutputStream { def write(b: Int) { gzos.write(b) } }
+        val gzsos = new ServletOutputStream {
+          def write(b: Int) { gzos.write(b) }
+          def setWriteListener(writeListener: WriteListener) {res.getOutputStream.setWriteListener(writeListener) }
+          def isReady: Boolean = res.getOutputStream.isReady
+        }
 
         val response = new HttpServletResponseWrapper(res) {
           override def getOutputStream: ServletOutputStream = gzsos
           override def getWriter: PrintWriter = w
           override def setContentLength(i: Int) = {} // ignoring content length as it won't be the same when gzipped
+
         }
 
         ScalatraBase onCompleted { _ => response.addHeader("Content-Encoding", "gzip") }
