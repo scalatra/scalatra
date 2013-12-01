@@ -1,4 +1,0 @@
-### Core
-
-* (2.10 only): Sever hard Akka dependency. Integration is through 
-  scala.concurrent. 

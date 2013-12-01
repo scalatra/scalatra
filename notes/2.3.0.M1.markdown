@@ -1,5 +1,7 @@
 ### Core
 * Support for Scala 2.9.x dropped.
+* Sever hard Akka dependency. Integration is through 
+  scala.concurrent. 
 * Change FutureSupport.timeout from a Timeout to a Duration.
 * Add a timeout to AsyncResult.
 * Run callbacks before render in renderResponseBody.
@@ -36,7 +38,7 @@
 * Fix detection of default value.
 * Fix Option data type on models.
 * Fix NPE when the model property has a default value of null.
-* Use 1.2 spec.
+* *BREAKING* Use 1.2 spec.
 * Fix URL generation when a context path is set.
 * Fix serialization of data type for operations and parameters.
 * Fix `Option[List[_]]` reflection.
