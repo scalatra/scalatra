@@ -10,7 +10,7 @@ import org.apache.commons.fileupload.FileUploadBase
 class FileUploadSupportTestServlet extends ScalatraServlet with FileUploadSupport {
 post("""/multipart.*""".r) {
     multiParams.get("string") foreach { ps: Seq[String] => response.setHeader("string", ps.mkString(";")) }
-    fileParams.get("file") foreach { fi => response.setHeader("file", new String(fi.get.map(_.toChar)).trim) }
+    fileParams.get("file") foreach { fi => response.setHeader("file", new String(fi.get).trim) }
     fileParams.get("file-none") foreach { fi => response.setHeader("file-none", new String(fi.get).trim) }
     fileParams.get("file-two[]") foreach { fi => response.setHeader("file-two", new String(fi.get).trim) }
     fileMultiParams.get("file-two[]") foreach { fis =>
