@@ -60,7 +60,7 @@ object ScalatraBase {
     request.getOrElse(RenderCallbacks, List.empty[Try[Any] => Unit]).asInstanceOf[List[Try[Any] => Unit]]
 
   def addRenderCallback(callback: Try[Any] => Unit)(implicit request: HttpServletRequest) {
-    request(RenderCallbacks) = callback :: callbacks
+    request(RenderCallbacks) = callback :: renderCallbacks
   }
 
   def runRenderCallbacks(data: Try[Any])(implicit request: HttpServletRequest) = renderCallbacks.reverse foreach (_(data))

@@ -6,8 +6,6 @@ import java.io.InputStream
 import java.util.zip.GZIPInputStream
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatest._
-import javax.servlet.ServletConfig
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 /**
  * Test servlet using GZipSupport.
@@ -42,13 +40,13 @@ abstract class GZipSupportTest extends ScalatraFunSuite with Matchers {
   test("should return response gzipped if accept-encoding includes gzip") {
     session {
       get("/", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
-        header("Content-Encoding") should include("gzip")
+        response.headers("Content-Encoding") should equal(List("gzip"))
         val uncompressed = Helper.uncompress(response.bodyBytes)
         uncompressed should equal(Helper.body)
       }
       
       post("/", Seq.empty, Map("Accept-Encoding" -> "gzip, deflate, sdch")) {
-        header("Content-Encoding") should include("gzip")
+        response.headers("Content-Encoding") should equal(List("gzip"))
         val uncompressed = Helper.uncompress(response.bodyBytes)
         uncompressed should equal(Helper.body)
       }
@@ -73,9 +71,9 @@ abstract class GZipSupportTest extends ScalatraFunSuite with Matchers {
 
   test("should return async response gzipped") {
     get("/async", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
-      header("Content-Encoding") should include("gzip")
+      response.headers("Content-Encoding") should equal(List("gzip"))
       val uncompressed = Helper.uncompress(response.bodyBytes)
-      uncompressed should equal(Helper.body);
+      uncompressed should equal(Helper.body)
     }
   }
 }
