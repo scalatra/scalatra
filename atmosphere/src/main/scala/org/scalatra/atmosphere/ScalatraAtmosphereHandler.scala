@@ -77,13 +77,14 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
         client = session(org.scalatra.atmosphere.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
         handleIncomingMessage(req, client)
       case (_, true) =>
-        if (isNew) {
-          createClient(route.get, session, resource).receive.lift(Connected)
-        }
+        val cl = if (isNew) {
+          createClient(route.get, session, resource)
+        } else null
 
         addEventListener(resource)
         resumeIfNeeded(resource)
         configureBroadcaster(resource)
+        if (isNew && cl != null) cl.receive.lift(Connected)
         resource.suspend
       case _ =>
         val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
