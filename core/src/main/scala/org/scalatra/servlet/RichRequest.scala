@@ -75,8 +75,14 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * the query string or posted form data.
    */
   def multiParameters: MultiParams = {
-    r.getParameterMap.asScala.toMap
-      .transform { (k, v) => v: Seq[String] }
+    // At the very least in jetty 8 we see problems under load related to this
+    if (r.getQueryString.nonBlank && r.getParameterMap.isEmpty) {
+      val qs = rl.MapQueryString.parseString(r.getQueryString)
+      val bd = if (!HttpMethod(r.getMethod).isSafe && r.getHeader("Content-Type").equalsIgnoreCase("APPLICATION/X-WWW-FORM-URLENCODED")) {
+        rl.MapQueryString.parseString(body)
+      } else Map.empty
+      qs ++ bd
+    } else r.getParameterMap.asScala.toMap.transform { (k, v) => v: Seq[String] }
   }
 
   object parameters extends MultiMapHeadView[String, String] {
