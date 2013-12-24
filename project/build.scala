@@ -342,7 +342,7 @@ object ScalatraBuild extends Build {
       case _                            => "1.0.1"
     }
 
-    private val atmosphereVersion = "2.0.3"
+    private val atmosphereVersion = "2.0.5"
 
     private val atmosphereCompatVersion = "2.0.0"
 
