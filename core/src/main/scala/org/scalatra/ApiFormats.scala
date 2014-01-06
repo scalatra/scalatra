@@ -36,7 +36,7 @@ trait ApiFormats extends ScalatraBase {
    */
   val formats: mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String](Map(
     "atom" -> "application/atom+xml",
-    "css" -> "text/stylesheet",
+    "css" -> "text/css",
     "flv" -> "video/x-flv",
     "html" -> "text/html",
     "html5" -> "text/html",
@@ -73,7 +73,7 @@ trait ApiFormats extends ScalatraBase {
     "text/html" -> "html",
     "text/javascript" -> "json",
     "text/plain" -> "txt",
-    "text/stylesheet" -> "css",
+    "text/css" -> "css",
     "video/x-flv" -> "flv"
   ).asJava).asScala
 
