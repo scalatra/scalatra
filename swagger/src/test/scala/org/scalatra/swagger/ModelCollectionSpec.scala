@@ -11,7 +11,7 @@ object ModelCollectionSpec {
   case class Name(value: String)
   case class Sequence(value: Long)
   case class TaggedThing(id: Long, tag: Tag, created: Date)
-  case class Asset(name: String, filename: String, id: Option[Int])
+  case class Asset(name: String, filename: String, id: Option[Int], relatedAsset: Asset)
 
   val taggedThingModels = Set(Swagger.modelToSwagger[Tag], Swagger.modelToSwagger[Name], Swagger.modelToSwagger[Sequence], Swagger.modelToSwagger[TaggedThing])
   val onlyPrimitivesModel = Swagger.modelToSwagger[OnlyPrimitives].get
