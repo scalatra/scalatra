@@ -62,20 +62,20 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
    * 
    * @param name the name of the handler
    */
-  def mount(handler: Handler, urlPattern: String, name: String) {
+  def mount(handler: Handler, urlPattern: String, name: String, loadOnStartup: Int = 1) {
     val pathMap = pathMapping(urlPattern)
 
     handler match {
-      case servlet: HttpServlet => mountServlet(servlet, pathMap, name)
+      case servlet: HttpServlet => mountServlet(servlet, pathMap, name, loadOnStartup)
       case filter: Filter => mountFilter(filter, pathMap, name)
       case _ => sys.error("Don't know how to mount this service to a servletContext: " + handler.getClass)
     }
   }
 
-  def mount(handler: Handler, urlPattern: String): Unit =
-    mount(handler, urlPattern, handler.getClass.getName)
+  def mount(handler: Handler, urlPattern: String, loadOnStartup: Int = 1): Unit =
+    mount(handler, urlPattern, handler.getClass.getName, loadOnStartup)
 
-  def mount[T](handlerClass: Class[T], urlPattern: String, name: String) {
+  def mount[T](handlerClass: Class[T], urlPattern: String, name: String, loadOnStartup: Int = 1) {
     val pathMap = urlPattern match {
       case s if s.endsWith("/*") => s
       case s if s.endsWith("/") => s + "*"
@@ -83,7 +83,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     }
 
     if (classOf[HttpServlet].isAssignableFrom(handlerClass)) {
-      mountServlet(handlerClass.asInstanceOf[Class[HttpServlet]], pathMap, name)
+      mountServlet(handlerClass.asInstanceOf[Class[HttpServlet]], pathMap, name, loadOnStartup)
     } else if (classOf[Filter].isAssignableFrom(handlerClass)) {
       mountFilter(handlerClass.asInstanceOf[Class[Filter]], pathMap, name)
     } else {
@@ -91,10 +91,10 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     }
   }
 
-  def mount[T](handlerClass: Class[T], urlPattern: String): Unit =
-    mount(handlerClass, urlPattern, handlerClass.getName)
+  def mount[T](handlerClass: Class[T], urlPattern: String, loadOnStartup: Int = 1): Unit =
+    mount(handlerClass, urlPattern, handlerClass.getName, loadOnStartup)
 
-  private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String) {
+  private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String, loadOnStartup: Int = 1) {
     val reg = Option(sc.getServletRegistration(name)) getOrElse {
       val r = sc.addServlet(name, servlet)
       servlet match {
@@ -104,14 +104,24 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
       }
       if (servlet.isInstanceOf[ScalatraAsyncSupport])
         r.setAsyncSupported(true)
+      r.setLoadOnStartup(loadOnStartup)
       r
     }
 
     reg.addMapping(urlPattern)
   }
 
-  private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String) {
-    val reg = Option(sc.getServletRegistration(name)) getOrElse sc.addServlet(name, servletClass)
+  private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String, loadOnStartup: Int = 1) {
+    val reg = Option(sc.getServletRegistration(name)) getOrElse {
+      val r = sc.addServlet(name, servletClass)
+      // since we only have a Class[_] here, we can't access the MultipartConfig value
+      // if (classOf[HasMultipartConfig].isAssignableFrom(servletClass))
+      if (classOf[ScalatraAsyncSupport].isAssignableFrom(servletClass)) {
+        r.setAsyncSupported(true)
+      }
+      r.setLoadOnStartup(loadOnStartup)
+      r
+    }
     reg.addMapping(urlPattern)
   }
 
@@ -129,6 +139,15 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     // in an abstract fashion, so we'll dispatch on everything.
     val dispatchers = jutil.EnumSet.allOf(classOf[DispatcherType])
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
+  }
+
+  /**
+   * A free form string representing the environment.
+   * `org.scalatra.Environment` is looked up as a system property, and if
+   * absent, as an init parameter.  The default value is `DEVELOPMENT`.
+   */
+  def environment: String = {
+    sys.props.get(EnvironmentKey) orElse initParameters.get(EnvironmentKey) getOrElse ("DEVELOPMENT")
   }
 
   object initParameters extends mutable.Map[String, String] {

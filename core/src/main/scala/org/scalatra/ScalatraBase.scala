@@ -708,14 +708,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       servletContext.initParameters.get(name)
     }
 
-  /**
-   * A free form string representing the environment.
-   * `org.scalatra.Environment` is looked up as a system property, and if
-   * absent, and init parameter.  The default value is `development`.
-   */
-  def environment: String = {
-    sys.props.getOrElse(EnvironmentKey, initParameter(EnvironmentKey).getOrElse("DEVELOPMENT"))
-  }
+  def environment: String = servletContext.environment
 
   /**
    * A boolean flag representing whether the kernel is in development mode.
