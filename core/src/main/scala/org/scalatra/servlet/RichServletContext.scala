@@ -141,6 +141,15 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
 
+  /**
+   * A free form string representing the environment.
+   * `org.scalatra.Environment` is looked up as a system property, and if
+   * absent, as an init parameter.  The default value is `DEVELOPMENT`.
+   */
+  def environment: String = {
+    sys.props.get(EnvironmentKey) orElse initParameters.get(EnvironmentKey) getOrElse ("DEVELOPMENT")
+  }
+
   object initParameters extends mutable.Map[String, String] {
     def get(key: String): Option[String] = Option(sc.getInitParameter(key))
 
