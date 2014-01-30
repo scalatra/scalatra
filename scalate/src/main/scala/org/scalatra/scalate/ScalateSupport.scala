@@ -127,7 +127,7 @@ trait ScalateSupport extends ScalatraKernel {
   }
 
 
-  override protected[scalatra] def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  override protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     if (isScalateErrorPageEnabled) renderScalateErrorPage(request, response, e)
     else super.renderUncaughtException(e)
   }
