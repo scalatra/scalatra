@@ -1,0 +1,4 @@
+### Core
+* Stack trace of uncaught exceptions only renders in development mode by
+  default.  Hook `renderUncaughtException` is now protected.
+* Render unhandled exceptions from failed Futures.
