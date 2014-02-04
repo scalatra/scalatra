@@ -207,7 +207,13 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     }
   }
 
-  private[scalatra] def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) { throw e }
+  protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+    status = 500
+    if (isDevelopmentMode) {
+      contentType = "text/plain"
+      e.printStackTrace(response.getWriter)
+    }
+  }
 
   protected def isAsyncExecutable(result: Any) = false
 

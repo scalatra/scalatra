@@ -36,8 +36,16 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     Thread.sleep((asyncTimeout plus 1.second).toMillis)
   }
 
+  class FailException extends RuntimeException
+
   asyncGet("/fail") {
-    throw new RuntimeException
+    throw new FailException
+  }
+
+  class FailHarderException extends RuntimeException
+
+  asyncGet("/fail-harder") {
+    throw new FailHarderException
   }
 
   asyncGet("/halt") {
@@ -53,7 +61,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
   error {
-    case e => "caught"
+    case e: FailException => "caught"
   }
 
   override def destroy() {
@@ -84,6 +92,12 @@ class AkkaSupportSpec extends MutableScalatraSpec {
     "handle an async exception" in {
       get("/fail") {
         body must contain("caught")
+      }
+    }
+
+    "return 500 for an unhandled async exception" in {
+      get("/fail-harder") {
+        status must_== 500
       }
     }
 
