@@ -1,4 +1,4 @@
-## Scalatra [![Build Status](http://jenkins.backchat.io/job/scalatra-2.2.x_2.10/badge/icon)](http://jenkins.backchat.io/job/scalatra-2.2.x_2.10/)
+## Scalatra [![Build Status](http://jenkins.backchat.io/buildStatus/icon?job=scalatra_2.3.x_2.10)](http://jenkins.backchat.io/job/scalatra_2.3.x_2.10/)
 
 Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for
 [Scala](http://www.scala-lang.org/).
