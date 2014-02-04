@@ -31,7 +31,7 @@ object ScalatraBuild extends Build {
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/")),
     previousArtifact <<= (name, scalaVersion) { (name, sv) =>
       val cross = CrossVersion.crossName(name, CrossVersion.binaryScalaVersion(sv))
-      Some("org.scalatra" % cross % "2.2.1")
+      Some("org.scalatra" % cross % "2.2.2")
     }
   ) ++ mavenCentralFrouFrou
 

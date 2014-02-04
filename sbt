@@ -4,11 +4,11 @@
 # Author: Paul Phillips <paulp@typesafe.com>
 
 # todo - make this dynamic
-declare -r sbt_release_version=0.12.4
-declare -r sbt_beta_version=0.13.0-RC4
-declare -r sbt_snapshot_version=0.13.0-SNAPSHOT
+declare -r sbt_release_version=0.13.1
+declare -r sbt_unreleased_version=0.13.2-SNAPSHOT # -sbt-dev doesn't work at present
+declare -r buildProps=project/build.properties
 
-declare sbt_jar sbt_dir sbt_create sbt_snapshot sbt_launch_dir
+declare sbt_jar sbt_dir sbt_create sbt_launch_dir
 declare scala_version java_home sbt_explicit_version
 declare verbose debug quiet noshare batch trace_level log_level
 declare sbt_saved_stty
@@ -27,29 +27,25 @@ for arg in "$@"; do
   esac
 done
 
+# spaces are possible, e.g. sbt.version = 0.13.0
 build_props_sbt () {
-  if [[ -r project/build.properties ]]; then
-    versionLine=$(grep ^sbt.version project/build.properties | tr -d '\r')
-    versionString=${versionLine##sbt.version=}
-    echo "$versionString"
-  fi
+  [[ -r $buildProps ]] && \
+    grep ^sbt\.version $buildProps | tr '=' ' ' | awk '{ print $2; }'
 }
 
 update_build_props_sbt () {
   local ver="$1"
-  local old=$(build_props_sbt)
+  local old="$(build_props_sbt)"
 
-  if [[ $ver == $old ]]; then
-    return
-  elif [[ -r project/build.properties ]]; then
-    perl -pi -e "s/^sbt\.version=.*\$/sbt.version=${ver}/" project/build.properties
-    grep -q '^sbt.version=' project/build.properties || echo "sbt.version=${ver}" >> project/build.properties
+  [[ -r $buildProps ]] && [[ $ver != "$old" ]] && {
+    perl -pi -e "s/^sbt\.version\b.*\$/sbt.version=${ver}/" $buildProps
+    grep -q '^sbt.version[ =]' $buildProps || printf "\nsbt.version=%s\n" "$ver" >> $buildProps
 
     echoerr !!!
-    echoerr !!! Updated file project/build.properties setting sbt.version to: $ver
-    echoerr !!! Previous value was: $old
+    echoerr !!! Updated file $buildProps setting sbt.version to: "$ver"
+    echoerr !!! Previous value was: "$old"
     echoerr !!!
-  fi
+  }
 }
 
 sbt_version () {
@@ -58,9 +54,9 @@ sbt_version () {
   else
     local v=$(build_props_sbt)
     if [[ -n $v ]]; then
-      echo $v
+      echo "$v"
     else
-      echo $sbt_release_version
+      echo "$sbt_release_version"
     fi
   fi
 }
@@ -89,7 +85,7 @@ get_script_path () {
   if [[ "${target:0:1}" == "/" ]]; then
     echo "$target"
   else
-    echo "$(dirname $path)/$target"
+    echo "${path%/*}/$target"
   fi
 }
 
@@ -99,11 +95,9 @@ die() {
 }
 
 make_url () {
-  groupid="$1"
-  category="$2"
-  version="$3"
+  version="$1"
 
-  echo "http://typesafe.artifactoryonline.com/typesafe/ivy-$category/$groupid/sbt-launch/$version/sbt-launch.jar"
+  echo "$sbt_launch_repo/org.scala-sbt/sbt-launch/$version/sbt-launch.jar"
 }
 
 readarr () {
@@ -124,20 +118,23 @@ init_default_option_file () {
   echo $default_file
 }
 
-declare -r default_jvm_opts="-Dfile.encoding=UTF8 -XX:MaxPermSize=256m -Xms512m -Xmx1g -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"
+declare -r cms_opts="-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"
+declare -r jit_opts="-XX:ReservedCodeCacheSize=256m -XX:+TieredCompilation"
+declare -r default_jvm_opts="-Dfile.encoding=UTF8 -XX:MaxPermSize=384m -Xms512m -Xmx1536m -Xss2m $jit_opts $cms_opts"
 declare -r noshare_opts="-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"
 declare -r latest_28="2.8.2"
 declare -r latest_29="2.9.3"
-declare -r latest_210="2.10.0"
+declare -r latest_210="2.10.3"
+declare -r latest_211="2.11.0-M5"
 
 declare -r script_path=$(get_script_path "$BASH_SOURCE")
-declare -r script_dir="$(dirname $script_path)"
-declare -r script_name="$(basename $script_path)"
+declare -r script_name="${script_path##*/}"
 
 # some non-read-onlies set with defaults
 declare java_cmd=java
 declare sbt_opts_file=$(init_default_option_file SBT_OPTS .sbtopts)
 declare jvm_opts_file=$(init_default_option_file JVM_OPTS .jvmopts)
+declare sbt_launch_repo="http://typesafe.artifactoryonline.com/typesafe/ivy-releases"
 
 # pull -J and -D options to give to java.
 declare -a residual_args
@@ -154,13 +151,13 @@ declare -a extra_jvm_opts extra_sbt_opts
 # directory to store sbt launchers
 declare sbt_launch_dir="$HOME/.sbt/launchers"
 [[ -d "$sbt_launch_dir" ]] || mkdir -p "$sbt_launch_dir"
-[[ -w "$sbt_launch_dir" ]] || sbt_launch_dir="$(mktemp -d -t sbt_extras_launchers)"
+[[ -w "$sbt_launch_dir" ]] || sbt_launch_dir="$(mktemp -d -t sbt_extras_launchers.XXXXXX)"
 
 build_props_scala () {
-  if [[ -r project/build.properties ]]; then
-    versionLine=$(grep ^build.scala.versions project/build.properties)
+  if [[ -r $buildProps ]]; then
+    versionLine=$(grep ^build.scala.versions $buildProps)
     versionString=${versionLine##build.scala.versions=}
-    echo ${versionString%% .*}
+    echo "${versionString%% .*}"
   fi
 }
 
@@ -180,59 +177,15 @@ execRunner () {
   }
 
   if [[ -n $batch ]]; then
-    # the only effective way I've found to avoid sbt hanging when backgrounded.
-    exec 0<&-
-    ( "$@" & )
-    # I'm sure there's some way to get our hands on the pid and wait for it
-    # but it exceeds my present level of ambition.
-  else
-    { "$@"; }
+    exec </dev/null
   fi
-}
-
-sbt_groupid () {
-  case $(sbt_version) in
-        0.7.*) echo org.scala-tools.sbt ;;
-       0.10.*) echo org.scala-tools.sbt ;;
-    0.11.[12]) echo org.scala-tools.sbt ;;
-            *) echo org.scala-sbt ;;
-  esac
-}
-
-sbt_artifactory_list () {
-  local version0=$(sbt_version)
-  local version=${version0%-SNAPSHOT}
-  local url="http://typesafe.artifactoryonline.com/typesafe/ivy-snapshots/$(sbt_groupid)/sbt-launch/"
-  dlog "Looking for snapshot list at: $url "
-
-  curl -s --list-only "$url" | \
-    grep -F $version | \
-    perl -e 'print reverse <>' | \
-    perl -pe 's#^<a href="([^"/]+).*#$1#;'
-}
-
-make_release_url () {
-  make_url $(sbt_groupid) releases $(sbt_version)
-}
-
-# argument is e.g. 0.13.0-SNAPSHOT
-# finds the actual version (with the build id) at artifactory
-make_snapshot_url () {
-  for ver in $(sbt_artifactory_list); do
-    local url=$(make_url $(sbt_groupid) snapshots $ver)
-    dlog "Testing $url"
-    curl -s --head "$url" >/dev/null
-    dlog "curl returned: $?"
-    echo "$url"
-    return
-  done
+  exec "$@"
 }
 
 jar_url () {
-  case $(sbt_version) in
-             0.7.*) echo "http://simple-build-tool.googlecode.com/files/sbt-launch-0.7.7.jar" ;;
-        *-SNAPSHOT) make_snapshot_url ;;
-                 *) make_release_url ;;
+  case $1 in
+    0.13.*) make_url "$1" ;;
+         *) make_url "$sbt_release_version" ;;
   esac
 }
 
@@ -247,11 +200,11 @@ download_url () {
   local url="$1"
   local jar="$2"
 
-  echo "Downloading sbt launcher $(sbt_version):"
+  echo "Downloading sbt launcher for $(sbt_version):"
   echo "  From  $url"
   echo "    To  $jar"
 
-  mkdir -p $(dirname "$jar") && {
+  mkdir -p "${jar%/*}" && {
     if which curl >/dev/null; then
       curl --fail --silent "$url" --output "$jar"
     elif which wget >/dev/null; then
@@ -261,8 +214,9 @@ download_url () {
 }
 
 acquire_sbt_jar () {
-  sbt_url="$(jar_url)"
-  sbt_jar="$(jar_file $(sbt_version))"
+  for_sbt_version="$(sbt_version)"
+  sbt_url="$(jar_url "$for_sbt_version")"
+  sbt_jar="$(jar_file "$for_sbt_version")"
 
   [[ -r "$sbt_jar" ]] || download_url "$sbt_url" "$sbt_jar"
 }
@@ -287,19 +241,19 @@ Usage: $script_name [options]
   -batch             Disable interactive mode
   -prompt <expr>     Set the sbt prompt; in expr, 's' is the State and 'e' is Extracted
 
-  # sbt version (default: from project/build.properties if present, else latest release)
+  # sbt version (default: from $buildProps if present, else latest release)
   !!! The only way to accomplish this pre-0.12.0 if there is a build.properties file which
   !!! contains an sbt.version property is to update the file on disk.  That's what this does.
   -sbt-version  <version>   use the specified version of sbt (default: $sbt_release_version)
   -sbt-jar      <path>      use the specified jar as the sbt launcher
-  -sbt-beta                 use a beta version of sbt (currently: $sbt_beta_version)
-  -sbt-snapshot             use a snapshot version of sbt (currently: $sbt_snapshot_version)
   -sbt-launch-dir <path>    directory to hold sbt launchers (default: $sbt_launch_dir)
+  -sbt-launch-repo <url>    repo url for downloading sbt launcher jar (default: $sbt_launch_repo)
 
   # scala version (default: as chosen by sbt)
   -28                       use $latest_28
   -29                       use $latest_29
   -210                      use $latest_210
+  -211                      use $latest_211
   -scala-home <path>        use the scala build at the specified directory
   -scala-version <version>  use the specified version of scala
   -binary-version <version> use the specified scala version when searching for dependencies
@@ -343,17 +297,15 @@ addResidual () {
   residual_args=( "${residual_args[@]}" "$1" )
 }
 addResolver () {
-  addSbt "set resolvers in ThisBuild += $1"
+  addSbt "set resolvers += $1"
 }
 addDebugger () {
   addJava "-Xdebug"
   addJava "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=$1"
 }
 setScalaVersion () {
-  addSbt "set scalaVersion in ThisBuild := \"$1\""
-  if [[ "$1" == *SNAPSHOT* ]]; then
-    addResolver Opts.resolver.sonatypeSnapshots
-  fi
+  [[ "$1" == *-SNAPSHOT ]] && addResolver 'Resolver.sonatypeRepo("snapshots")'
+  addSbt "++ $1"
 }
 
 process_args ()
@@ -382,16 +334,16 @@ process_args ()
        -sbt-dir) require_arg path "$1" "$2" && sbt_dir="$2" && shift 2 ;;
      -debug-inc) addJava "-Dxsbt.inc.debug=true" && shift ;;
        -offline) addSbt "set offline := true" && shift ;;
-     -jvm-debug) require_arg port "$1" "$2" && addDebugger $2 && shift 2 ;;
+     -jvm-debug) require_arg port "$1" "$2" && addDebugger "$2" && shift 2 ;;
          -batch) batch=true && shift ;;
         -prompt) require_arg "expr" "$1" "$2" && addSbt "set shellPrompt in ThisBuild := (s => { val e = Project.extract(s) ; $2 })" && shift 2 ;;
 
     -sbt-create) sbt_create=true && shift ;;
-  -sbt-snapshot) sbt_explicit_version=$sbt_snapshot_version && shift ;;
-      -sbt-beta) sbt_explicit_version=$sbt_beta_version && shift ;;
        -sbt-jar) require_arg path "$1" "$2" && sbt_jar="$2" && shift 2 ;;
    -sbt-version) require_arg version "$1" "$2" && sbt_explicit_version="$2" && shift 2 ;;
+       -sbt-dev) sbt_explicit_version="$sbt_unreleased_version" && shift ;;
 -sbt-launch-dir) require_arg path "$1" "$2" && sbt_launch_dir="$2" && shift 2 ;;
+-sbt-launch-repo) require_arg path "$1" "$2" && sbt_launch_repo="$2" && shift 2 ;;
  -scala-version) require_arg version "$1" "$2" && setScalaVersion "$2" && shift 2 ;;
 -binary-version) require_arg version "$1" "$2" && addSbt "set scalaBinaryVersion in ThisBuild := \"$2\"" && shift 2 ;;
     -scala-home) require_arg path "$1" "$2" && addSbt "set every scalaHome := Some(file(\"$2\"))" && shift 2 ;;
@@ -402,22 +354,22 @@ process_args ()
             -D*) addJava "$1" && shift ;;
             -J*) addJava "${1:2}" && shift ;;
             -S*) addScalac "${1:2}" && shift ;;
-            -28) addSbt "++ $latest_28" && shift ;;
-            -29) addSbt "++ $latest_29" && shift ;;
-           -210) addSbt "++ $latest_210" && shift ;;
+            -28) setScalaVersion $latest_28 && shift ;;
+            -29) setScalaVersion $latest_29 && shift ;;
+           -210) setScalaVersion $latest_210 && shift ;;
+           -211) setScalaVersion $latest_211 && shift ;;
 
               *) addResidual "$1" && shift ;;
     esac
   done
 }
 
-
 # process the direct command line arguments
 process_args "$@"
 
 # skip #-styled comments
 readConfigFile() {
-  while read line; do echo ${line/\#*/} | grep -vE '^\s*$'; done < $1
+  while read line; do echo "${line/\#.*/}"; done < "$1"
 }
 
 # if there are file/environment sbt_opts, process again so we
@@ -425,7 +377,7 @@ readConfigFile() {
 if [[ -r "$sbt_opts_file" ]]; then
   vlog "Using sbt options defined in file $sbt_opts_file"
   readarr extra_sbt_opts < <(readConfigFile "$sbt_opts_file")
-elif [[ -n "$SBT_OPTS" && !($SBT_OPTS =~ ^@.*) ]]; then
+elif [[ -n "$SBT_OPTS" && ! ($SBT_OPTS =~ ^@.*) ]]; then
   vlog "Using sbt options defined in variable \$SBT_OPTS"
   extra_sbt_opts=( $SBT_OPTS )
 else
@@ -449,14 +401,17 @@ setTraceLevel() {
 # set scalacOptions if we were given any -S opts
 [[ ${#scalac_args[@]} -eq 0 ]] || addSbt "set scalacOptions in ThisBuild += \"${scalac_args[@]}\""
 
-# Update build.properties no disk to set explicit version - sbt gives us no choice
+# Update build.properties on disk to set explicit version - sbt gives us no choice
 [[ -n "$sbt_explicit_version" ]] && update_build_props_sbt "$sbt_explicit_version"
 vlog "Detected sbt version $(sbt_version)"
 
 [[ -n "$scala_version" ]] && echoerr "Overriding scala version to $scala_version"
 
 # no args - alert them there's stuff in here
-(( $argumentCount > 0 )) || vlog "Starting $script_name: invoke with -help for other options"
+(( argumentCount > 0 )) || {
+  vlog "Starting $script_name: invoke with -help for other options"
+  residual_args=( shell )
+}
 
 # verify this is an sbt dir or -create was given
 [[ -r ./build.sbt || -d ./project || -n "$sbt_create" ]] || {
@@ -480,28 +435,27 @@ EOM
 }
 
 if [[ -n $noshare ]]; then
-  addJava "$noshare_opts"
+  for opt in ${noshare_opts}; do
+    addJava "$opt"
+  done
 else
   [[ -n "$sbt_dir" ]] || {
     sbt_dir=~/.sbt/$(sbt_version)
     vlog "Using $sbt_dir as sbt dir, -sbt-dir to override."
   }
-  addJava "-Dsbt.global.base=$sbt_dir"
+  # addJava "-Dsbt.global.base=$sbt_dir"
 fi
 
 if [[ -r "$jvm_opts_file" ]]; then
   vlog "Using jvm options defined in file $jvm_opts_file"
   readarr extra_jvm_opts < <(readConfigFile "$jvm_opts_file")
-elif [[ -n "$JVM_OPTS" && !($JVM_OPTS =~ ^@.*) ]]; then
+elif [[ -n "$JVM_OPTS" && ! ($JVM_OPTS =~ ^@.*) ]]; then
   vlog "Using jvm options defined in \$JVM_OPTS variable"
   extra_jvm_opts=( $JVM_OPTS )
 else
   vlog "Using default jvm options"
   extra_jvm_opts=( $default_jvm_opts )
 fi
-
-# since sbt 0.7 doesn't understand iflast
-[[ ${#residual_args[@]} -eq 0 ]] && [[ -z "$batch" ]] && residual_args=( "shell" )
 
 # traceLevel is 0.12+
 [[ -n $trace_level ]] && setTraceLevel
