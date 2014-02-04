@@ -696,7 +696,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     if (path.startsWith("http")) path
     else {
       val p = url(path, params, includeContextPath, includeServletPath, withSessionId)
-      buildBaseUrl + ensureSlash(p)
+      if (p.startsWith("http")) p else buildBaseUrl + ensureSlash(p)
     }
   }
 
