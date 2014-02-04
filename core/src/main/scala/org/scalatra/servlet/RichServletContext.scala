@@ -55,14 +55,30 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
    * Filter.
    *
    * @param handler the handler to mount
-   * 
+   *
    * @param urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
    * not already, as path-mapping is the most natural fit for Scalatra.
    * If you don't want path mapping, use the native Servlet API.
-   * 
+   *
    * @param name the name of the handler
    */
-  def mount(handler: Handler, urlPattern: String, name: String, loadOnStartup: Int = 1) {
+  def mount(handler: Handler, urlPattern: String, name: String) {
+    mount(handler, urlPattern, name, 1)
+  }
+
+  /**
+   * Mounts a handler to the servlet context.  Must be an HttpServlet or a
+   * Filter.
+   *
+   * @param handler the handler to mount
+   *
+   * @param urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
+   * not already, as path-mapping is the most natural fit for Scalatra.
+   * If you don't want path mapping, use the native Servlet API.
+   *
+   * @param name the name of the handler
+   */
+  def mount(handler: Handler, urlPattern: String, name: String, loadOnStartup: Int) {
     val pathMap = pathMapping(urlPattern)
 
     handler match {
@@ -72,7 +88,8 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     }
   }
 
-  def mount(handler: Handler, urlPattern: String, loadOnStartup: Int = 1): Unit =
+  def mount(handler: Handler, urlPattern: String): Unit = mount(handler, urlPattern, 1)
+  def mount(handler: Handler, urlPattern: String, loadOnStartup: Int): Unit =
     mount(handler, urlPattern, handler.getClass.getName, loadOnStartup)
 
   def mount[T](handlerClass: Class[T], urlPattern: String, name: String, loadOnStartup: Int = 1) {
@@ -91,10 +108,11 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     }
   }
 
-  def mount[T](handlerClass: Class[T], urlPattern: String, loadOnStartup: Int = 1): Unit =
+  def mount[T](handlerClass: Class[T], urlPattern: String): Unit = mount[T](handlerClass, urlPattern, 1)
+  def mount[T](handlerClass: Class[T], urlPattern: String, loadOnStartup: Int): Unit =
     mount(handlerClass, urlPattern, handlerClass.getName, loadOnStartup)
 
-  private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String, loadOnStartup: Int = 1) {
+  private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String, loadOnStartup: Int) {
     val reg = Option(sc.getServletRegistration(name)) getOrElse {
       val r = sc.addServlet(name, servlet)
       servlet match {
@@ -111,7 +129,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     reg.addMapping(urlPattern)
   }
 
-  private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String, loadOnStartup: Int = 1) {
+  private def mountServlet(servletClass: Class[HttpServlet], urlPattern: String, name: String, loadOnStartup: Int) {
     val reg = Option(sc.getServletRegistration(name)) getOrElse {
       val r = sc.addServlet(name, servletClass)
       // since we only have a Class[_] here, we can't access the MultipartConfig value

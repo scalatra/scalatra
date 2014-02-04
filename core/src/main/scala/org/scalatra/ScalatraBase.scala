@@ -736,7 +736,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       servletContext.initParameters.get(name)
     }
 
-  def environment: String = servletContext.environment
+  def environment: String = sys.props.get(EnvironmentKey) orElse initParameter(EnvironmentKey) getOrElse "DEVELOPMENT"
 
   /**
    * A boolean flag representing whether the kernel is in development mode.

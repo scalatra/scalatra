@@ -25,7 +25,7 @@ class EnvironmentFilterSpec extends ScalatraSpec { def is =
   val devFilterHolder = addFilter(classOf[EnvironmentFilter], "/dev/*")
 
   val prodFilterHolder = addFilter(classOf[EnvironmentFilter], "/prod/*")
-  prodFilterHolder.setInitParameter("org.scalatra.environment", "production")
+  prodFilterHolder.setInitParameter(EnvironmentKey, "production")
 
   def env(environment: String, expected: String) =
     get("/%s/environment".format(environment)) {
