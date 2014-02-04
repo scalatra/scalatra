@@ -47,8 +47,8 @@ object AtmosphereClient {
 trait AtmosphereClient extends AtmosphereClientFilters {
 
   @volatile private[atmosphere] var resource: AtmosphereResource = _
-  private[this] val internalLogger = Logger[AtmosphereClient]
-  private[this] def broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
+  @transient private[this] val internalLogger = Logger[AtmosphereClient]
+  @transient private[this] def broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
 
   protected def requestUri = {
     val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"

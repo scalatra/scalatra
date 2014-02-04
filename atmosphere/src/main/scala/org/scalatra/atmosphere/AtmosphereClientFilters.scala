@@ -4,7 +4,7 @@ package org.scalatra.atmosphere
 /**
 * Useful filters to limit who receives broadcasts.
 */
-trait AtmosphereClientFilters {
+trait AtmosphereClientFilters extends Serializable {
 
   /**
    * A unique identifier for a given connection. Can be used for filtering
