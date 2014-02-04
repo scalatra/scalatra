@@ -93,7 +93,7 @@ trait ApiFormats extends ScalatraBase {
   def defaultAcceptedFormats: List[Symbol] = List.empty
 
   def responseFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
-    response.contentType flatMap ( ctt => ctt.split(";").headOption map mimeTypes) getOrElse format
+    response.contentType flatMap ( ctt => ctt.split(";").headOption flatMap mimeTypes.get) getOrElse format
   }
 
   /**
