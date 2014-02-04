@@ -280,7 +280,7 @@ object ScalatraBuild extends Build {
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % atmosphereVersion
     lazy val atmosphereJQuery           =  "org.atmosphere.client"   % "jquery"              % atmosphereVersion artifacts(Artifact("jquery", "war", "war"))
-    lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.1.0"
+    lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.2.0"
     lazy val atmosphereRedis            =  "org.atmosphere"          % "atmosphere-redis"    % "2.0.0"
     lazy val atmosphereCompatJbossweb   =  "org.atmosphere"          % "atmosphere-compat-jbossweb" % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat     =  "org.atmosphere"          % "atmosphere-compat-tomcat"   % atmosphereCompatVersion
@@ -342,9 +342,9 @@ object ScalatraBuild extends Build {
       case _                            => "1.0.1"
     }
 
-    private val atmosphereVersion = "2.0.5"
+    private val atmosphereVersion = "2.0.7"
 
-    private val atmosphereCompatVersion = "2.0.0"
+    private val atmosphereCompatVersion = "2.0.1"
 
     private val httpcomponentsVersion = "4.2.5"
 
