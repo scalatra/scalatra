@@ -43,8 +43,8 @@ class ScalatraListener extends ServletContextListener {
       Option(servletContext.getInitParameter(LifeCycleKey)).flatMap(_.blankOption) getOrElse DefaultLifeCycle
     logger info ("The cycle class name from the config: " + (if (cycleClassName == null) "null" else cycleClassName))
 
-    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName, true, classLoader) } catch { case _: Throwable => null }
-    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle, true, classLoader) } catch { case _: Throwable => null }
+    val lifeCycleClass: Class[_] = try { Class.forName(cycleClassName, true, classLoader) } catch { case _: ClassNotFoundException => null; case t: Throwable => throw t }
+    def oldLifeCycleClass: Class[_] = try { Class.forName(OldDefaultLifeCycle, true, classLoader) } catch { case _: ClassNotFoundException => null; case t: Throwable => throw t }
     val cycleClass: Class[_] = if (lifeCycleClass != null) lifeCycleClass else oldLifeCycleClass
 
     assert(cycleClass != null, "No lifecycle class found!")
