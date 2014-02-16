@@ -318,27 +318,9 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
       val p = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
       if (p.startsWith("/")) p else "/" + p
     }
-//    val listingPath = {
-//      val inferred = inferListingPath()
-//      inferred map { lp =>
-//        val p = if (lp.endsWith("/*")) lp.dropRight(2) else lp
-//        val sp = applicationName getOrElse  (if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath)
-//        val ssp = if (sp.startsWith("/")) sp else "/" + sp
-//        val lpp = if (p.startsWith("/")) p else "/" + p
-//        if (lpp == "/") ssp else lpp + ssp
-//      }
-//    }
 
     swagger.register(name, thePath, applicationDescription.blankOption, this, swaggerConsumes, swaggerProduces, swaggerProtocols, swaggerAuthorizations)
   }
-//
-//  private[this] def inferListingPath() = {
-//    val registrations = servletContext.getServletRegistrations.values().asScala.toList
-//    registrations find { reg =>
-//      val klass = Class.forName(reg.getClassName)
-//      classOf[SwaggerBaseBase].isAssignableFrom(klass)
-//    } flatMap (_.getMappings.asScala.headOption)
-//  }
 
   /**
    * Initializes the kernel.  Used to provide context that is unavailable
@@ -475,7 +457,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
 
 
-  protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
+  protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { (route: Route) ⇒
     route.copy(metadata = route.metadata + (s -> v))
   }
   implicit def dataType2string(dt: DataType) = dt.name

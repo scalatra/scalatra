@@ -112,6 +112,8 @@ final class RailsRouteMatcher(pattern: String)
   def reverse(params: Map[String, String], splats: List[String]): String =
     generator(Builder("", params)).get
 
+  override def toString: String = pattern
+
   case class Builder(path: String, params: Map[String, String]) {
 
     def addStatic(text: String): Builder = copy(path = path + text)
@@ -130,6 +132,8 @@ final class RailsRouteMatcher(pattern: String)
       val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
       path + queryString
     }
+
+
   }
 
   object BuilderGeneratorParser extends RegexParsers {

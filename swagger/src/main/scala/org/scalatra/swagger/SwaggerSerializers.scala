@@ -9,6 +9,39 @@ import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
 import java.util.{Date => JDate}
 import org.json4s.ext.{EnumNameSerializer, JodaTimeSerializers}
+import org.scalatra.swagger.Parameter
+import org.scalatra.swagger.OAuth
+import org.scalatra.swagger.TokenEndpoint
+import scala.Some
+import org.scalatra.swagger.AuthorizationCodeGrant
+import org.scalatra.swagger.StringResponseMessage
+import org.scalatra.swagger.LoginEndpoint
+import org.scalatra.swagger.TokenRequestEndpoint
+import org.scalatra.swagger.ApiKey
+import org.scalatra.swagger.Endpoint
+import org.scalatra.swagger.Operation
+import org.scalatra.swagger.ImplicitGrant
+import org.scalatra.swagger.Model
+import org.scalatra.swagger.Api
+import org.scalatra.swagger.ModelProperty
+import java.lang.reflect.Type
+import java.text.SimpleDateFormat
+import org.scalatra.swagger.Parameter
+import org.scalatra.swagger.OAuth
+import org.scalatra.swagger.TokenEndpoint
+import scala.Some
+import org.scalatra.swagger.AuthorizationCodeGrant
+import org.scalatra.swagger.StringResponseMessage
+import org.scalatra.swagger.LoginEndpoint
+import org.scalatra.swagger.TokenRequestEndpoint
+import org.scalatra.swagger.ApiKey
+import org.scalatra.swagger.Endpoint
+import org.scalatra.swagger.Operation
+import org.scalatra.swagger.ImplicitGrant
+import org.scalatra.swagger.Model
+import org.scalatra.swagger.Api
+import org.scalatra.swagger.ModelProperty
+import org.json4s.MappingException
 
 object SwaggerSerializers {
   import AllowableValues._
@@ -27,7 +60,112 @@ object SwaggerSerializers {
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
 
-  private[swagger] val formats: Formats = new DefaultFormats {
+  object SwaggerFormats {
+    val serializers = JodaTimeSerializers.all ++ Seq(
+                new EnumNameSerializer(ParamType),
+                new HttpMethodSerializer,
+                new AllowableValuesSerializer,
+                new ModelPropertySerializer,
+                new ModelSerializer,
+                new ResponseMessageSerializer,
+                new ParameterSerializer,
+                new GrantTypeSerializer)
+  }
+  trait SwaggerFormats extends DefaultFormats {
+    private[this] val self = this
+    def withAuthorizationTypeSerializer(serializer: Serializer[AuthorizationType]): SwaggerFormats = new SwaggerFormats {
+      override val customSerializers: List[Serializer[_]] = serializer :: SwaggerFormats.serializers
+    }
+
+    override def +[A](newSerializer: FieldSerializer[A])(implicit mf: Manifest[A]): SwaggerFormats = new SwaggerFormats {
+      override val dateFormat: DateFormat = self.dateFormat
+      override val typeHintFieldName: String = self.typeHintFieldName
+      override val parameterNameReader: org.json4s.reflect.ParameterNameReader = self.parameterNameReader
+      override val typeHints: TypeHints = self.typeHints
+      override val customSerializers: List[Serializer[_]] = self.customSerializers
+      override val fieldSerializers: List[(Class[_], FieldSerializer[_])] =
+        (mf.erasure -> newSerializer) :: self.fieldSerializers
+      override val wantsBigDecimal: Boolean = self.wantsBigDecimal
+      override val primitives: Set[Type] = self.primitives
+      override val companions: List[(Class[_], AnyRef)] = self.companions
+      override val strict: Boolean = self.strict
+    }
+
+    override def +(extraHints: TypeHints): SwaggerFormats = new SwaggerFormats {
+      override val dateFormat: DateFormat = self.dateFormat
+      override val typeHintFieldName: String = self.typeHintFieldName
+      override val parameterNameReader: org.json4s.reflect.ParameterNameReader = self.parameterNameReader
+      override val typeHints: TypeHints = self.typeHints + extraHints
+      override val customSerializers: List[Serializer[_]] = self.customSerializers
+      override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
+      override val wantsBigDecimal: Boolean = self.wantsBigDecimal
+      override val primitives: Set[Type] = self.primitives
+      override val companions: List[(Class[_], AnyRef)] = self.companions
+      override val strict: Boolean = self.strict
+    }
+
+    override def withCompanions(comps: (Class[_], AnyRef)*): SwaggerFormats = new SwaggerFormats {
+      override val dateFormat: DateFormat = self.dateFormat
+      override val typeHintFieldName: String = self.typeHintFieldName
+      override val parameterNameReader: org.json4s.reflect.ParameterNameReader = self.parameterNameReader
+      override val typeHints: TypeHints = self.typeHints
+      override val customSerializers: List[Serializer[_]] = self.customSerializers
+      override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
+      override val wantsBigDecimal: Boolean = self.wantsBigDecimal
+      override val primitives: Set[Type] = self.primitives
+      override val companions: List[(Class[_], AnyRef)] = comps.toList ::: self.companions
+      override val strict: Boolean = self.strict
+    }
+
+    override def withDouble: SwaggerFormats = new SwaggerFormats {
+      override val dateFormat: DateFormat = self.dateFormat
+      override val typeHintFieldName: String = self.typeHintFieldName
+      override val parameterNameReader: org.json4s.reflect.ParameterNameReader = self.parameterNameReader
+      override val typeHints: TypeHints = self.typeHints
+      override val customSerializers: List[Serializer[_]] = self.customSerializers
+      override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
+      override val wantsBigDecimal: Boolean = false
+      override val primitives: Set[Type] = self.primitives
+      override val companions: List[(Class[_], AnyRef)] = self.companions
+      override val strict: Boolean = self.strict
+    }
+
+    override def withBigDecimal: SwaggerFormats =  new SwaggerFormats {
+      override val dateFormat: DateFormat = self.dateFormat
+      override val typeHintFieldName: String = self.typeHintFieldName
+      override val parameterNameReader: org.json4s.reflect.ParameterNameReader = self.parameterNameReader
+      override val typeHints: TypeHints = self.typeHints
+      override val customSerializers: List[Serializer[_]] = self.customSerializers
+      override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
+      override val wantsBigDecimal: Boolean = true
+      override val primitives: Set[Type] = self.primitives
+      override val companions: List[(Class[_], AnyRef)] = self.companions
+      override val strict: Boolean = self.strict
+    }
+
+    override def withHints(hints: TypeHints): SwaggerFormats =  new SwaggerFormats {
+      override val dateFormat: DateFormat = self.dateFormat
+      override val typeHintFieldName: String = self.typeHintFieldName
+      override val parameterNameReader: org.json4s.reflect.ParameterNameReader = self.parameterNameReader
+      override val typeHints: TypeHints = hints
+      override val customSerializers: List[Serializer[_]] = self.customSerializers
+      override val fieldSerializers: List[(Class[_], FieldSerializer[_])] = self.fieldSerializers
+      override val wantsBigDecimal: Boolean = self.wantsBigDecimal
+      override val primitives: Set[Type] = self.primitives
+      override val companions: List[(Class[_], AnyRef)] = self.companions
+      override val strict: Boolean = self.strict
+    }
+
+    override def lossless: SwaggerFormats = new SwaggerFormats {
+      override protected def dateFormatter: SimpleDateFormat = DefaultFormats.losslessDate()
+    }
+
+    override val customSerializers: List[Serializer[_]] = new AuthorizationTypeSerializer :: SwaggerFormats.serializers
+    override def ++(newSerializers: Traversable[Serializer[_]]): SwaggerFormats = newSerializers.foldLeft(this)(_ + _)
+    override def +(newSerializer: Serializer[_]): SwaggerFormats = new SwaggerFormats {
+      override val customSerializers: List[Serializer[_]] = newSerializer :: SwaggerFormats.this.customSerializers
+    }
+
     override val dateFormat = new DateFormat {
       def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
       def parse(s: String) = try {
@@ -36,18 +174,12 @@ object SwaggerSerializers {
         case _: Throwable ⇒ None
       }
     }
-  } ++ JodaTimeSerializers.all ++ Seq(
-    new EnumNameSerializer(ParamType),
-    new HttpMethodSerializer,
-    new AllowableValuesSerializer,
-    new ModelPropertySerializer,
-    new ModelSerializer,
-    new ResponseMessageSerializer,
-    new ParameterSerializer,
-    new GrantTypeSerializer,
-    new AuthorizationTypeSerializer)
+  }
 
-  private[swagger] val defaultFormats: Formats =
+
+  private[swagger] val formats: SwaggerFormats = new SwaggerFormats {}
+
+  val defaultFormats: SwaggerFormats =
     formats ++ Seq(new OperationSerializer, new EndpointSerializer, new ApiSerializer)
 
   class HttpMethodSerializer extends CustomSerializer[HttpMethod](implicit formats => ({

@@ -30,13 +30,15 @@ trait JettyContainer extends Container {
       throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
   }
 
-  def mount(servlet: HttpServlet, path: String) = addServlet(servlet, path)
+  def mount(servlet: HttpServlet, path: String) { addServlet(servlet, path) }
+  def mount(servlet: HttpServlet, path: String, name: String) { addServlet(servlet, path, name) }
 
   def mount(app: Filter, path: String, dispatches: EnumSet[DispatcherType] = DefaultDispatcherTypes) =
     addFilter(app, path, dispatches)
 
-  def addServlet(servlet: HttpServlet, path: String) = {
-    val holder = new ServletHolder(servlet)
+  def addServlet(servlet: HttpServlet, path: String) { addServlet(servlet, path, servlet.getClass.getName) }
+  def addServlet(servlet: HttpServlet, path: String, name: String){
+    val holder = new ServletHolder(name, servlet)
 
     servlet match {
       case s: HasMultipartConfig => {

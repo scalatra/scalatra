@@ -34,8 +34,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    get("/:doc(.:format)") {
-      swagger.doc(params("doc")) match {
+    get("""/([^.]+)*(?:\.(\w+))?""".r) {
+      val doc :: fmt :: Nil = multiParams("captures").toList
+      if (fmt != null) format = fmt
+      swagger.doc(doc) match {
         case Some(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
         case _         ⇒ halt(404)
       }

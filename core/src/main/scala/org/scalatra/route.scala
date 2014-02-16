@@ -57,7 +57,7 @@ object Route {
     transformers.foldLeft(route){ (route, transformer) => transformer(route) }
   }
 
-  def appendMatcher(matcher: RouteMatcher): RouteTransformer = { route =>
+  def appendMatcher(matcher: RouteMatcher): RouteTransformer = { (route: Route) =>
     route.copy(routeMatchers = route.routeMatchers :+ matcher)
   }
 }

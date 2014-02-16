@@ -14,6 +14,7 @@ import org.scalatra.auth.ScentrySupport
 import collection.mutable
 import org.scalatra.swagger.DataType.ValueDataType
 import org.scalatra.util.NotNothing
+import org.scalatra.swagger.SwaggerSerializers.SwaggerFormats
 
 class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[AuthApi[AnyRef]] {
   private[this] val logger = Logger[this.type]
@@ -42,7 +43,7 @@ import org.scalatra.util.RicherString._
 object SwaggerAuthSerializers {
   import SwaggerSerializers.{ dontAddOnEmpty, writeDataType, readDataType }
 
-  def authFormats[T <: AnyRef](userOption: Option[T])(implicit mf: Manifest[T]): Formats = SwaggerSerializers.formats ++ Seq(
+  def authFormats[T <: AnyRef](userOption: Option[T])(implicit mf: Manifest[T]): SwaggerFormats = SwaggerSerializers.formats ++ Seq(
     new AuthOperationSerializer[T](userOption),
     new AuthEndpointSerializer[T],
     new AuthApiSerializer[T]
@@ -233,46 +234,7 @@ object AuthApi {
       allows
     )
   }
-//
-//  private[this] def formats[T <: AnyRef](userOption: Option[T]) = new DefaultFormats {
-//    override val dateFormat = new DateFormat {
-//      def format(d: JDate) = new DateTime(d).toString(Iso8601Date)
-//      def parse(s: String) = try {
-//        Option(Iso8601Date.parseDateTime(s).toDate)
-//      } catch {
-//        case _ ⇒ None
-//      }
-//    }
-//  } ++ Seq(
-//    new EnumNameSerializer(ParamType),
-//    new HttpMethodSerializer,
-//    new ParameterSerializer,
-//    new AllowableValuesSerializer,
-//    new ModelFieldSerializer,
-//    new AuthOperationSerializer(userOption)) ++ JodaTimeSerializers.all
-//
-//  def toJValue[T <: AnyRef](doc: Any, uOpt: Option[T]) = Extraction.decompose(doc)(formats(uOpt))
-//
-//  class AuthOperationSerializer[T <: AnyRef](userOption: Option[T]) extends Serializer[AuthOperation[T]] {
-//
-//    def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, _root_.org.json4s.JValue), AuthOperation[T]] = {
-//      case _ => null
-//    }
-//
-//    def serialize(implicit format: Formats): PartialFunction[Any, _root_.org.json4s.JValue] = {
-//      case x: AuthOperation[T] if x.allows(userOption) =>
-//        import Extraction.decompose
-//        ("method" -> decompose(x.method)) ~
-//        ("responseClass" -> x.responseClass) ~
-//        ("summary" -> x.summary) ~
-//        ("notes" -> x.notes) ~
-//        ("deprecated" -> x.deprecated) ~
-//        ("nickname" -> x.nickname) ~
-//        ("parameters" -> x.parameters.map(decompose)) ~
-//        ("responseMessages" -> x.errorResponses.map(decompose))
-//      case x: AuthOperation[_] => JNothing
-//    }
-//  }
+
 }
 
 

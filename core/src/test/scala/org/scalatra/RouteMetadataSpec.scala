@@ -25,7 +25,7 @@ class RouteMetadataSpec extends MutableScalatraSpec {
 }
 
 object RouteMetadataSpec {
-  def meta(key: Symbol, value: String): RouteTransformer = { route => 
+  def meta(key: Symbol, value: String): RouteTransformer = { (route: Route) =>
     route.copy(metadata = route.metadata + (key -> value))
   }
 

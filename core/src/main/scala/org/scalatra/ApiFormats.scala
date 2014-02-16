@@ -167,7 +167,7 @@ trait ApiFormats extends ScalatraBase {
     val originalParams = multiParams
     val routeParams: Map[String, Seq[String]] = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
       case (key, values) =>
-        key -> values.map(UriDecoder.secondStep(_))
+        key -> values.map(s => if (s.nonBlank) UriDecoder.secondStep(s) else s)
     }
     if (routeParams.contains("format")) request(FormatKey) = routeParams.apply("format").head
     request(MultiParamsKey) = originalParams ++ routeParams

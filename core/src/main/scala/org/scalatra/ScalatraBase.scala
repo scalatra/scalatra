@@ -348,7 +348,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   protected def setMultiparams[S](matchedRoute: Option[MatchedRoute], originalParams: MultiParams)(implicit request: HttpServletRequest) {
     val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
       case (key, values) =>
-        key -> values.map(UriDecoder.secondStep(_))
+        key -> values.map(s => if (s.nonBlank) UriDecoder.secondStep(s) else s)
     }
     request(MultiParamsKey) = originalParams ++ routeParams
   }

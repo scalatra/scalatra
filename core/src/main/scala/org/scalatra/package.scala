@@ -9,7 +9,14 @@ package object scalatra
 {
   import util.MultiMap
 
-  type RouteTransformer = (Route => Route)
+  object RouteTransformer {
+    implicit def fn2transformer(fn: Route => Route) = new RouteTransformer {
+      override def apply(route: Route): Route = fn(route)
+    }
+  }
+  trait RouteTransformer {
+    def apply(route: Route): Route
+  }
 
   type MultiParams = MultiMap
 
