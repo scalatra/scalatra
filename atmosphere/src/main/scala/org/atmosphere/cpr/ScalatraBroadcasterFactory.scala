@@ -3,11 +3,11 @@ package org.atmosphere.cpr
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
-import org.atmosphere.di.InjectorProvider
 import java.util.UUID
 import org.scalatra.atmosphere.{DefaultScalatraBroadcaster, WireFormat, ScalatraBroadcaster}
 import collection.JavaConverters._
 import scala.collection.concurrent.{Map => ConcurrentMap}
+import java.net.URI
 
 object ScalatraBroadcasterFactory {
 }
@@ -21,14 +21,15 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBro
   private def createBroadcaster[T <: Broadcaster](c: Class[T], id: Any): T = {
     try {
       val b: T = if (classOf[ScalatraBroadcaster].isAssignableFrom(c)) {
-        bc.getConstructor(classOf[String], classOf[AtmosphereConfig], classOf[WireFormat], classOf[ActorSystem]).newInstance(id.toString, cfg, wireFormat, system).asInstanceOf[T]
+        bc.getConstructor(classOf[WireFormat], classOf[ActorSystem]).newInstance(wireFormat, system).asInstanceOf[T]
       } else {
-        c.getConstructor(classOf[String], classOf[AtmosphereConfig]).newInstance(id.toString, cfg)
+        cfg.framework().newClassInstance(c, c)
       }
-      InjectorProvider.getInjector.inject(b)
+      b.initialize(id.toString, URI.create("http://127.0.0.1"), cfg)
+      b.setSuspendPolicy(-1, Broadcaster.POLICY.FIFO)
 
       if (b.getBroadcasterConfig == null) {
-        b.setBroadcasterConfig(new BroadcasterConfig(cfg.framework().broadcasterFilters, cfg, "scalatra-broadcaster-factory"))
+        b.setBroadcasterConfig(new BroadcasterConfig(cfg.framework().broadcasterFilters, cfg, id.toString).init())
       }
 
       b.setBroadcasterLifeCyclePolicy(BroadcasterLifeCyclePolicy.NEVER)

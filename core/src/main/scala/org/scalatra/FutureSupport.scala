@@ -48,27 +48,7 @@ trait FutureSupport extends AsyncSupport {
   private[this] def handleFuture(f: Future[_], timeout: Duration) {
     val gotResponseAlready = new AtomicBoolean(false)
     val context = request.startAsync(request, response)
-    if (timeout.isFinite())
-      context.setTimeout(timeout.toMillis)
-    else
-      context.setTimeout(-1)
-    context addListener (new AsyncListener {
-
-      def onTimeout(event: AsyncEvent) {
-        onAsyncEvent(event) {
-          if (gotResponseAlready.compareAndSet(false, true)) {
-            renderHaltException(HaltException(Some(504), None, Map.empty, "Gateway timeout"))
-            event.getAsyncContext.complete()
-          }
-        }
-      }
-
-      def onComplete(event: AsyncEvent) {}
-      def onError(event: AsyncEvent) {}
-      def onStartAsync(event: AsyncEvent) {}
-    })
-
-    renderFutureResult(f)
+    if (timeout.isFinite()) context.setTimeout(timeout.toMillis) else context.setTimeout(-1)
 
     def renderFutureResult(f: Future[_]) {
       f onComplete {
@@ -102,6 +82,39 @@ trait FutureSupport extends AsyncSupport {
         }
       }
     }
+
+    context addListener new AsyncListener {
+      def onTimeout(event: AsyncEvent) {
+        onAsyncEvent(event) {
+          if (gotResponseAlready.compareAndSet(false, true)) {
+            renderHaltException(HaltException(Some(504), None, Map.empty, "Gateway timeout"))
+            event.getAsyncContext.complete()
+          }
+        }
+      }
+      def onComplete(event: AsyncEvent) {}
+      def onError(event: AsyncEvent) {
+        onAsyncEvent(event) {
+          if (gotResponseAlready.compareAndSet(false, true)) {
+            event.getThrowable match {
+              case e: HaltException => renderHaltException(e)
+              case e =>
+                try {
+                  renderResponse(errorHandler(e))
+                } catch {
+                  case e: Throwable =>
+                    ScalatraBase.runCallbacks(Failure(e))
+                    renderUncaughtException(e)
+                    ScalatraBase.runRenderCallbacks(Failure(e))
+                }
+            }
+          }
+        }
+      }
+      def onStartAsync(event: AsyncEvent) {}
+    }
+
+    renderFutureResult(f)
   }
 }
 

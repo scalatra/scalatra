@@ -14,9 +14,8 @@ import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{read, write}
 
 
-final class RedisScalatraBroadcaster(id: String, config: AtmosphereConfig)
-                                    (implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
-  extends RedisBroadcaster(id, config) with ScalatraBroadcaster {
+final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
+  extends RedisBroadcaster with ScalatraBroadcaster {
 
   private[this] val logger: Logger = Logger[RedisScalatraBroadcaster]
   protected var _resources: ConcurrentLinkedQueue[AtmosphereResource] = resources

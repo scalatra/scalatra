@@ -5,7 +5,6 @@ import json.JsonSupport
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig, ServletException}
 import org.apache.catalina.CometProcessor
 import org.jboss.servlet.http.HttpEventServlet
-import org.atmosphere.di.ServletContextProvider
 import java.io.IOException
 import org.atmosphere.container.Tomcat7CometSupport
 import org.atmosphere.container.TomcatCometSupport
@@ -26,7 +25,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import servlet.ScalatraAsyncSupport
 import java.util
 
-trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with ServletContextProvider with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 

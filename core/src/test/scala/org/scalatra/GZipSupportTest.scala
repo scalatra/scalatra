@@ -6,6 +6,7 @@ import java.io.InputStream
 import java.util.zip.GZIPInputStream
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatest._
+import org.apache.http.impl.client.{HttpClientBuilder, CloseableHttpClient}
 
 /**
  * Test servlet using GZipSupport.
@@ -13,7 +14,7 @@ import org.scalatest._
 class GZipSupportTestServlet extends ScalatraServlet with GZipSupportAppBase {
   implicit protected def executor: ExecutionContext = ExecutionContext.global
 }
-trait GZipSupportAppBase extends ScalatraBase with GZipSupport with FutureSupport {
+trait GZipSupportAppBase extends ScalatraBase with FutureSupport with GZipSupport {
 
   get("/") {
     Helper.body
@@ -37,12 +38,13 @@ class GZipSupportServletTest extends GZipSupportTest {
 abstract class GZipSupportTest extends ScalatraFunSuite with Matchers {
 
 
+
   test("should return response gzipped if accept-encoding includes gzip") {
     session {
       get("/", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
-        response.headers("Content-Encoding") should equal(List("gzip"))
         val uncompressed = Helper.uncompress(response.bodyBytes)
         uncompressed should equal(Helper.body)
+        response.getHeader("Content-Encoding") should equal("gzip")
       }
       
       post("/", Seq.empty, Map("Accept-Encoding" -> "gzip, deflate, sdch")) {
@@ -60,7 +62,7 @@ abstract class GZipSupportTest extends ScalatraFunSuite with Matchers {
         contentEncoding should be (null)
         body should equal(Helper.body)
       }
-      
+
       post("/") {
         val contentEncoding = response.getHeader("Content-Encoding")
         contentEncoding should be (null)
@@ -71,10 +73,17 @@ abstract class GZipSupportTest extends ScalatraFunSuite with Matchers {
 
   test("should return async response gzipped") {
     get("/async", Seq.empty, Map("Accept-Encoding" -> "gzip")) {
-      response.headers("Content-Encoding") should equal(List("gzip"))
+      response.getHeader("Content-Encoding") should equal("gzip")
       val uncompressed = Helper.uncompress(response.bodyBytes)
       uncompressed should equal(Helper.body)
     }
+  }
+
+  override protected def createClient: CloseableHttpClient = {
+    val builder = HttpClientBuilder.create()
+    builder.disableRedirectHandling()
+    builder.disableContentCompression()
+    builder.build()
   }
 }
 

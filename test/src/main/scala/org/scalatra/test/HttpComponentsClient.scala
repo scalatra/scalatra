@@ -1,6 +1,6 @@
 package org.scalatra.test
 
-import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
+import org.apache.http.impl.client.{HttpClientBuilder, BasicCookieStore, DefaultHttpClient}
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods._
 import org.apache.http.entity.ByteArrayEntity
@@ -9,8 +9,9 @@ import org.apache.http.client.params.{CookiePolicy, ClientPNames}
 import org.apache.http.entity.mime.{FormBodyPart, MultipartEntity, HttpMultipartMode}
 import org.apache.http.entity.mime.content.{ContentBody, FileBody, StringBody}
 import util.DynamicVariable
-import org.apache.http.client.CookieStore
+import org.apache.http.client.{RedirectStrategy, CookieStore}
 import scala.io.Codec
+import org.apache.http.client.config.RequestConfig
 
 case class HttpComponentsClientResponse(res: HttpResponse) extends ClientResponse {
   lazy val bodyBytes: Array[Byte] = {
@@ -90,15 +91,12 @@ trait HttpComponentsClient extends Client {
   }
 
   protected def createClient = {
-    val client = new DefaultHttpClient()
-    client.getParams.setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false)
-    client.getParams.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
-
+    val builder = HttpClientBuilder.create()
+    builder.disableRedirectHandling()
     if (_cookieStore.value != null) {
-      client.setCookieStore(_cookieStore.value)
+      builder.setDefaultCookieStore(_cookieStore.value)
     }
-
-    client
+    builder.build()
   }
 
   private def attachHeaders(req: HttpRequestBase, headers: Map[String, String]) {
@@ -106,7 +104,7 @@ trait HttpComponentsClient extends Client {
   }
 
   private def createMethod(method: String, url: String) = {
-    method match {
+    val req = method match {
       case "GET"     => new HttpGet(url)
       case "HEAD"    => new HttpHead(url)
       case "OPTIONS" => new HttpOptions(url)
@@ -116,6 +114,10 @@ trait HttpComponentsClient extends Client {
       case "PUT"   => new HttpPut(url)
       case "PATCH" => new HttpPatch(url)
     }
+
+    req.setConfig(RequestConfig.custom().setCookieSpec("compatibility").build())
+
+    req
   }
 
   private def attachBody(req: HttpRequestBase, body: Array[Byte]) {
