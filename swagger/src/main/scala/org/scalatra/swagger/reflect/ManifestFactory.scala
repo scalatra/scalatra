@@ -49,9 +49,11 @@ private[swagger] object ManifestFactory {
     }
   }
 
-  def manifestOf(st: ScalaType): Manifest[_] = {
-    val typeArgs = st.typeArgs map manifestOf
-    manifestOf(st.erasure, typeArgs)
+  def manifestOf(st: ScalaType): Manifest[_] = st match {
+    case t: ManifestScalaType => t.manifest
+    case _ =>
+      val typeArgs = st.typeArgs map manifestOf
+      manifestOf(st.erasure, typeArgs)
   }
 
   private def fromClass(clazz: Class[_]): Manifest[_] = clazz match {

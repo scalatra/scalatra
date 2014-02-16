@@ -59,7 +59,7 @@ object Swagger {
         val descr = Reflector.describe(tpe)
         descr match {
           case descriptor: ClassDescriptor =>
-            val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive)
+            val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive).toVector
             val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
             val subModels = (ctorModels.map(_.argType) ++ propModels.map(_.returnType)).toSet -- known
             val topLevel = for {
@@ -94,7 +94,7 @@ object Swagger {
 //    if (descr.simpleName == "Pet") println("The property is: " + mp)
     prop.name -> mp
   }
-  def modelToSwagger(klass:ScalaType): Option[Model] = {
+  def modelToSwagger(klass: ScalaType): Option[Model] = {
     if (Reflector.isPrimitive(klass.erasure) || Reflector.isExcluded(klass.erasure, excludes.toSeq)) None
     else {
       val name = klass.simpleName
