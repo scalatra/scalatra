@@ -1,3 +1,4 @@
+import com.typesafe.sbt.pgp.PgpKeys
 import sbt._
 import Keys._
 import scala.xml._
@@ -479,7 +480,7 @@ object ScalatraBuild extends Build {
     )}
   )
 
-  lazy val doNotPublish = Seq(publish := {}, publishLocal := {})
+  lazy val doNotPublish = Seq(publish := {}, publishLocal := {}, PgpKeys.publishSigned := {}, PgpKeys.publishLocalSigned := {})
 
 
 }
