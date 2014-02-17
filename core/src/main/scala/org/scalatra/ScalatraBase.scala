@@ -538,6 +538,8 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
 
   def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
 
+  def head(transformers: RouteTransformer*)(action: => Any) = addRoute(Head, transformers, action)
+
   def patch(transformers: RouteTransformer*)(action: => Any) = addRoute(Patch, transformers, action)
 
   /**

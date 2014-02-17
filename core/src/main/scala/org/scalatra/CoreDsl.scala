@@ -105,6 +105,11 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
   def options(transformers: RouteTransformer*)(block: => Any): Route
 
   /**
+   * @see head
+   */
+  def head(transformers: RouteTransformer*)(block: => Any): Route
+
+  /**
    * @see patch
    */
   def patch(transformers: RouteTransformer*)(block: => Any): Route
