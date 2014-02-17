@@ -9,6 +9,7 @@ import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import org.fusesource.scalate.support.TemplateFinder
+import java.util.concurrent.atomic.AtomicReference
 
 object ScalateSupport {
   val DefaultLayouts = Seq(
@@ -24,6 +25,13 @@ object ScalateSupport {
   }
 
   private val TemplateAttributesKey = "org.scalatra.scalate.ScalateSupport.TemplateAttributes"
+
+  private val templateEngineInstance: AtomicReference[TemplateEngine] = new AtomicReference[TemplateEngine](null)
+
+  def scalateTemplateEngine(init: => TemplateEngine): TemplateEngine = {
+    templateEngineInstance.compareAndSet(null, init)
+    templateEngineInstance.get()
+  }
 }
 
 /**
@@ -58,13 +66,13 @@ trait ScalateSupport extends ScalatraKernel {
   protected def createTemplateEngine(config: ConfigT): TemplateEngine =
     config match {
       case servletConfig: ServletConfig =>
-        new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine
+        ScalateSupport.scalateTemplateEngine(new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine)
       case filterConfig: FilterConfig =>
-        new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine
+        ScalateSupport.scalateTemplateEngine(new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine)
       case _ =>
         // Don't know how to convert your Config to something that
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
-        new TemplateEngine with ScalatraTemplateEngine
+        ScalateSupport.scalateTemplateEngine(new TemplateEngine with ScalatraTemplateEngine)
     }
 
   /**
