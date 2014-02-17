@@ -9,39 +9,8 @@ import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
 import java.util.{Date => JDate}
 import org.json4s.ext.{EnumNameSerializer, JodaTimeSerializers}
-import org.scalatra.swagger.Parameter
-import org.scalatra.swagger.OAuth
-import org.scalatra.swagger.TokenEndpoint
-import scala.Some
-import org.scalatra.swagger.AuthorizationCodeGrant
-import org.scalatra.swagger.StringResponseMessage
-import org.scalatra.swagger.LoginEndpoint
-import org.scalatra.swagger.TokenRequestEndpoint
-import org.scalatra.swagger.ApiKey
-import org.scalatra.swagger.Endpoint
-import org.scalatra.swagger.Operation
-import org.scalatra.swagger.ImplicitGrant
-import org.scalatra.swagger.Model
-import org.scalatra.swagger.Api
-import org.scalatra.swagger.ModelProperty
 import java.lang.reflect.Type
 import java.text.SimpleDateFormat
-import org.scalatra.swagger.Parameter
-import org.scalatra.swagger.OAuth
-import org.scalatra.swagger.TokenEndpoint
-import scala.Some
-import org.scalatra.swagger.AuthorizationCodeGrant
-import org.scalatra.swagger.StringResponseMessage
-import org.scalatra.swagger.LoginEndpoint
-import org.scalatra.swagger.TokenRequestEndpoint
-import org.scalatra.swagger.ApiKey
-import org.scalatra.swagger.Endpoint
-import org.scalatra.swagger.Operation
-import org.scalatra.swagger.ImplicitGrant
-import org.scalatra.swagger.Model
-import org.scalatra.swagger.Api
-import org.scalatra.swagger.ModelProperty
-import org.json4s.MappingException
 
 object SwaggerSerializers {
   import AllowableValues._
@@ -77,14 +46,14 @@ object SwaggerSerializers {
       override val customSerializers: List[Serializer[_]] = serializer :: SwaggerFormats.serializers
     }
 
-    override def +[A](newSerializer: FieldSerializer[A])(implicit mf: Manifest[A]): SwaggerFormats = new SwaggerFormats {
+    override def +[A](newSerializer: FieldSerializer[A]): SwaggerFormats = new SwaggerFormats {
       override val dateFormat: DateFormat = self.dateFormat
       override val typeHintFieldName: String = self.typeHintFieldName
       override val parameterNameReader: org.json4s.reflect.ParameterNameReader = self.parameterNameReader
       override val typeHints: TypeHints = self.typeHints
       override val customSerializers: List[Serializer[_]] = self.customSerializers
       override val fieldSerializers: List[(Class[_], FieldSerializer[_])] =
-        (mf.erasure -> newSerializer) :: self.fieldSerializers
+        (newSerializer.mf.runtimeClass -> newSerializer) :: self.fieldSerializers
       override val wantsBigDecimal: Boolean = self.wantsBigDecimal
       override val primitives: Set[Type] = self.primitives
       override val companions: List[(Class[_], AnyRef)] = self.companions

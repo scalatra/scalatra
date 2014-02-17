@@ -8,27 +8,27 @@ object ManifestScalaType {
 
   def apply[T](mf: Manifest[T]): ScalaType = {
     /* optimization */
-    if (mf.erasure == classOf[Int] || mf.erasure == classOf[java.lang.Integer]) ManifestScalaType.IntType
-    else if (mf.erasure == classOf[Long] || mf.erasure == classOf[java.lang.Long]) ManifestScalaType.LongType
-    else if (mf.erasure == classOf[Byte] || mf.erasure == classOf[java.lang.Byte]) ManifestScalaType.ByteType
-    else if (mf.erasure == classOf[Short] || mf.erasure == classOf[java.lang.Short]) ManifestScalaType.ShortType
-    else if (mf.erasure == classOf[Float] || mf.erasure == classOf[java.lang.Float]) ManifestScalaType.FloatType
-    else if (mf.erasure == classOf[Double] || mf.erasure == classOf[java.lang.Double]) ManifestScalaType.DoubleType
-    else if (mf.erasure == classOf[BigInt] || mf.erasure == classOf[java.math.BigInteger]) ManifestScalaType.BigIntType
-    else if (mf.erasure == classOf[BigDecimal] || mf.erasure == classOf[java.math.BigDecimal]) ManifestScalaType.BigDecimalType
-    else if (mf.erasure == classOf[Boolean] || mf.erasure == classOf[java.lang.Boolean]) ManifestScalaType.BooleanType
-    else if (mf.erasure == classOf[String] || mf.erasure == classOf[java.lang.String]) ManifestScalaType.StringType
-    else if (mf.erasure == classOf[java.util.Date]) ManifestScalaType.DateType
-    else if (mf.erasure == classOf[java.sql.Timestamp]) ManifestScalaType.TimestampType
-    else if (mf.erasure == classOf[Symbol]) ManifestScalaType.SymbolType
-    else if (mf.erasure == classOf[Number]) ManifestScalaType.NumberType
+    if (mf.runtimeClass == classOf[Int] || mf.runtimeClass == classOf[java.lang.Integer]) ManifestScalaType.IntType
+    else if (mf.runtimeClass == classOf[Long] || mf.runtimeClass == classOf[java.lang.Long]) ManifestScalaType.LongType
+    else if (mf.runtimeClass == classOf[Byte] || mf.runtimeClass == classOf[java.lang.Byte]) ManifestScalaType.ByteType
+    else if (mf.runtimeClass == classOf[Short] || mf.runtimeClass == classOf[java.lang.Short]) ManifestScalaType.ShortType
+    else if (mf.runtimeClass == classOf[Float] || mf.runtimeClass == classOf[java.lang.Float]) ManifestScalaType.FloatType
+    else if (mf.runtimeClass == classOf[Double] || mf.runtimeClass == classOf[java.lang.Double]) ManifestScalaType.DoubleType
+    else if (mf.runtimeClass == classOf[BigInt] || mf.runtimeClass == classOf[java.math.BigInteger]) ManifestScalaType.BigIntType
+    else if (mf.runtimeClass == classOf[BigDecimal] || mf.runtimeClass == classOf[java.math.BigDecimal]) ManifestScalaType.BigDecimalType
+    else if (mf.runtimeClass == classOf[Boolean] || mf.runtimeClass == classOf[java.lang.Boolean]) ManifestScalaType.BooleanType
+    else if (mf.runtimeClass == classOf[String] || mf.runtimeClass == classOf[java.lang.String]) ManifestScalaType.StringType
+    else if (mf.runtimeClass == classOf[java.util.Date]) ManifestScalaType.DateType
+    else if (mf.runtimeClass == classOf[java.sql.Timestamp]) ManifestScalaType.TimestampType
+    else if (mf.runtimeClass == classOf[Symbol]) ManifestScalaType.SymbolType
+    else if (mf.runtimeClass == classOf[Number]) ManifestScalaType.NumberType
     /* end optimization */
     else {
       if (mf.typeArguments.isEmpty) types(mf, new ManifestScalaType(_))
       else new ManifestScalaType(mf)
-//      if (!mf.erasure.isArray) types(mf, new ScalaType(_))
+//      if (!mf.runtimeClass.isArray) types(mf, new ScalaType(_))
 //      else {
-//        val nmf = ManifestFactory.manifestOf(mf.erasure, List(ManifestFactory.manifestOf(mf.erasure.getComponentType)))
+//        val nmf = ManifestFactory.manifestOf(mf.runtimeClass, List(ManifestFactory.manifestOf(mf.runtimeClass.getComponentType)))
 //        types(nmf, new ScalaType(_))
 //      }
 //      new ScalaType(mf)
@@ -93,7 +93,7 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
 
   import ManifestScalaType.{ types, CopiedManifestScalaType }
   private[this] val self = this
-  val erasure: Class[_] = manifest.erasure
+  val erasure: Class[_] = manifest.runtimeClass
 
 //  private[this] var _typeArgs: Seq[ScalaType] = null
 //  def typeArgs: Seq[ScalaType] = {

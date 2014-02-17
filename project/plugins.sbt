@@ -5,7 +5,7 @@ resolvers ++= Seq(
   "coda" at "http://repo.codahale.com"
 )
 
-addSbtPlugin("org.scalatra.sbt" % "scalatra-sbt" % "0.3.3")
+addSbtPlugin("org.scalatra.sbt" % "scalatra-sbt" % "0.3.4")
 
 addSbtPlugin("me.lessis" % "ls-sbt" % "0.1.3")
 
