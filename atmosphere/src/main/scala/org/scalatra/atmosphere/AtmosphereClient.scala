@@ -19,7 +19,7 @@ object AtmosphereClient {
     val norm = if (!pth.endsWith("/*")) {
       if (!pth.endsWith("/")) pth + "/*" else "*"
     } else pth
-    val res = BroadcasterFactory.getDefault.lookup(norm)
+    val res: Broadcaster = BroadcasterFactory.getDefault.lookup(norm)
     if (res.isInstanceOf[ScalatraBroadcaster]) Option(res).map(_.asInstanceOf[ScalatraBroadcaster])
     else None
   }
