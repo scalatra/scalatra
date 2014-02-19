@@ -156,6 +156,7 @@ object SwaggerSupportSyntax {
     def fromPath: this.type = paramType(ParamType.Path)
     def fromQuery: this.type = paramType(ParamType.Query)
     def fromHeader: this.type = paramType(ParamType.Header)
+    def fromForm: this.type = paramType(ParamType.Form)
 
     def allowableValues[V](values: V*): this.type = {
       _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values:_*)
@@ -447,6 +448,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def bodyParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromBody
   protected def queryParam[T: Manifest:NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true)
   protected def queryParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model)
+  protected def formParam[T: Manifest:NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true).fromForm
+  protected def formParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromForm
   protected def headerParam[T: Manifest:NotNothing](name: String): ParameterBuilder[T] =
     swaggerParam[T](name, allowsCollection = false).fromHeader
   protected def headerParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromHeader

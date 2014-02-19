@@ -260,6 +260,8 @@ object ParamType extends Enumeration {
   val Header = Value("header")
 
   val File = Value("file")
+
+  val Form = Value("form")
 }
 
 sealed trait DataType {
