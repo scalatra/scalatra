@@ -4,15 +4,14 @@ import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
-import org.scalatra.atmosphere.{DefaultScalatraBroadcaster, WireFormat, ScalatraBroadcaster}
+import org.scalatra.atmosphere.{WireFormat, ScalatraBroadcaster}
 import collection.JavaConverters._
 import scala.collection.concurrent.{Map => ConcurrentMap}
-import java.net.URI
 
 object ScalatraBroadcasterFactory {
 }
 
-class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBroadcaster] = classOf[DefaultScalatraBroadcaster])(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
+class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bCfg: BroadcasterConf)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   BroadcasterFactory.setBroadcasterFactory(this, cfg)
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
@@ -21,11 +20,12 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bc: Class[_<:ScalatraBro
   private def createBroadcaster[T <: Broadcaster](c: Class[T], id: Any): T = {
     try {
       val b: T = if (classOf[ScalatraBroadcaster].isAssignableFrom(c)) {
-        bc.getConstructor(classOf[WireFormat], classOf[ActorSystem]).newInstance(wireFormat, system).asInstanceOf[T]
+        bCfg.broadcasterClass.getConstructor(classOf[WireFormat], classOf[ActorSystem]).newInstance(wireFormat, system).asInstanceOf[T]
       } else {
         cfg.framework().newClassInstance(c, c)
       }
-      b.initialize(id.toString, URI.create("http://127.0.0.1"), cfg)
+      b.initialize(id.toString, bCfg.uri, cfg)
+      bCfg.extraSetup(b)
       b.setSuspendPolicy(-1, Broadcaster.POLICY.FIFO)
 
       if (b.getBroadcasterConfig == null) {
