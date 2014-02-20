@@ -31,7 +31,12 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] val _defaultWireformat = new JacksonSimpleWireformat
 
-  protected var scalatraBroadcasterClass: Class[_<:ScalatraBroadcaster] = classOf[DefaultScalatraBroadcaster]
+  /**
+   * Override this to use another ScalaBroadcaster like RedisScalatraBroadcaster
+   *
+   * Example: RedisScalatraBroadcasterConfig(URI.create("redis://127.0.0.1"), Some("password"))
+   */
+  protected val broadcasterConfig: BroadcasterConf = ScalatraBroadcasterConfig(classOf[DefaultScalatraBroadcaster])
 
   implicit protected def wireFormat: WireFormat = _defaultWireformat
 
@@ -143,8 +148,10 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   } yield matched).headOption
 
   private[this] def configureBroadcasterFactory() {
-    val factory = new ScalatraBroadcasterFactory(atmosphereFramework.getAtmosphereConfig, scalatraBroadcasterClass)
-    atmosphereFramework.setDefaultBroadcasterClassName(scalatraBroadcasterClass.getName)
+    val factory = new ScalatraBroadcasterFactory(
+      atmosphereFramework.getAtmosphereConfig,
+      broadcasterConfig)
+    atmosphereFramework.setDefaultBroadcasterClassName(broadcasterConfig.broadcasterClass.getName)
     atmosphereFramework.setBroadcasterFactory(factory)
   }
 
