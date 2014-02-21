@@ -31,7 +31,7 @@ sealed case class ScalatraBroadcasterConfig(broadcasterClass: Class[_<:ScalatraB
  * @param auth An Option[String] if the Redis Server requires a password. Defaults to None
  */
 sealed case class RedisScalatraBroadcasterConfig(uri: URI = URI.create("redis://127.0.0.1:6379"), auth: Option[String] = None) extends BroadcasterConf {
-  final val broadcasterClass = classOf[RedisScalatraBroadcaster]
-  final val extraSetup = { b: Broadcaster =>
+  final def broadcasterClass = classOf[RedisScalatraBroadcaster]
+  final def extraSetup = { b: Broadcaster =>
     auth.foreach(b.asInstanceOf[RedisScalatraBroadcaster].setAuth(_)) }
 }
