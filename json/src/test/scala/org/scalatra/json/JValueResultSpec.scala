@@ -4,6 +4,7 @@ package json
 import test.specs2.MutableScalatraSpec
 
 import org.json4s._
+import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods.parse
 
 case class NamedThing(name: String = "tom")
@@ -12,15 +13,19 @@ class Bottle(val of: String)
 
 class BottleSerializer extends CustomSerializer[Bottle](implicit formats => ({
   case json: JValue =>
-    val b = for {
-      of <- (json \ "of").extractOpt[String]
-    } yield (new Bottle(of))
-    b.get
+    val of = (json \ "of").extract[String]
+    new Bottle(of)
 }, {
   case a: Bottle => JObject(JField("of", JString(a.of)))
-})) {}
+}))
 
 class JValueResultSpec extends MutableScalatraSpec {
+
+  implicit def createJValueWriter[T <% JValue] = {
+    new Writer[T] {
+      override def write(obj: T): JValue = obj
+    }
+  }
 
   val jValue = JObject(JField("name", JString("tom")) :: Nil)
 
@@ -131,8 +136,8 @@ class JValueResultSpec extends MutableScalatraSpec {
       }
     }
 
-    val bottleRum = JObject(JField("of", JString("rum")))
-    val bottleSoda = JObject(JField("of", JString("soda")))
+    val bottleRum = ("of", "rum").asJValue
+    val bottleSoda = ("of", "soda").asJValue
 
     "render a class" in {
       get("/class") {
@@ -142,19 +147,19 @@ class JValueResultSpec extends MutableScalatraSpec {
 
     "render a class list" in {
       get("/class-list") {
-        parse(body) must_== JArray(List(bottleRum, bottleSoda))
+        parse(body) must_== List(bottleRum, bottleSoda).asJValue
       }
     }
 
     "render a mixed list" in {
       get("/mixed-list") {
-        parse(body) must_== JArray(List(bottleRum, jValue))
+        parse(body) must_== List(bottleRum, jValue).asJValue
       }
     }
 
     "render a map" in {
       get("/map") {
-        parse(body) must_== JObject(List(JField("rum", bottleRum), JField("thing", jValue)))
+        parse(body) must_== ("rum", bottleRum) ~ ("thing", jValue)
       }
     }
   }
