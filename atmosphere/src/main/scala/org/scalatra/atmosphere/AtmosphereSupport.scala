@@ -140,7 +140,10 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
   }
 
-  private[this] def atmosphereRoutes = routes.methodRoutes(Get).filter(_.metadata.contains('Atmosphere))
+  private[this] def noGetRoute = sys.error("You are using the AtmosphereSupport without defining any Get route," +
+     "you should get rid of it.")
+
+  private[this] def atmosphereRoutes = routes.methodRoutes.getOrElse(Get, noGetRoute).filter(_.metadata.contains('Atmosphere))
 
   private[this] def atmosphereRoute(req: HttpServletRequest) = (for {
     route <- atmosphereRoutes.toStream
