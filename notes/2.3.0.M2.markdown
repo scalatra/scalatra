@@ -1,7 +1,17 @@
 ### Core
+* Updates to servlet 3.1
+* *Breaking*: Require java 7
 * Stack trace of uncaught exceptions only renders in development mode by
   default.  Hook `renderUncaughtException` is now protected.
 * Render unhandled exceptions from failed Futures.
+* Fix #342: Verify that gzip Content-Encoding header gets added only once
+* Fix #349: Fix css mime type detection
+* Fix #351: Fix ScalatraServlet.requestPath for encoded unicode URI
+* Added support for loadOnStartup when mounting servlets
+* Moved function to retrieve environment to RichServletContext
+* Fix #277: Only catch `ClassNotFoutnException` in `ScalatraBootstrap`
+* Fix #319: responseFormat crashes with unrecognized MIME type
+* Fix #296: Check for http again when generating a full url
 * *Breaking*: if you have custom route transformer hooks the function now needs a param type
   Before:
   <pre>
@@ -16,3 +26,25 @@
       route.copy(metadata = route.metadata + (s -> v))
     }
   </pre>
+
+### Scalatra JSON
+* Update json4s to 3.2.7
+
+### Scalatra Scalate
+* Fix #336: Only use a single scalate template engine
+
+### Scalatra Swagger
+* Add a form param to swagger support
+* Fix swagger to support application names that have a '/' in them
+* Fix #354: Don't stackoverflow in swagger with a self-referencing model
+
+### Scalatra Atmosphere
+* Fix Atmosphere: raise the connected event a little bit later to avoid a race
+* Scalatra broadcaster logs at trace level instead of info level
+* Update to atmosphere 2.1
+* Fix #271: Make atmoshpere client Serializable
+* Make connection string for `RedisScalatraBroadcaster` configurable
+* improve error message when no Get route is defined while using AtmosphereSupport
+
+
+
