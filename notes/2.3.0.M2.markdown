@@ -12,19 +12,19 @@
 * Fix #277: Only catch `ClassNotFoutnException` in `ScalatraBootstrap`
 * Fix #319: responseFormat crashes with unrecognized MIME type
 * Fix #296: Check for http again when generating a full url
-* *Breaking*: if you have custom route transformer hooks the function now needs a param type
+* *Breaking*: if you have custom route transformer hooks the function now needs a param type  
   Before:
   <pre>
-    protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
-      route.copy(metadata = route.metadata + (s -> v))
-    }
+  protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { route ⇒
+    route.copy(metadata = route.metadata + (s -> v))
+  }
   </pre>
 
   Now:
   <pre>
-    protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { (route: Route) ⇒
-      route.copy(metadata = route.metadata + (s -> v))
-    }
+  protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { (route: Route) ⇒
+    route.copy(metadata = route.metadata + (s -> v))
+  }
   </pre>
 
 ### Scalatra JSON
