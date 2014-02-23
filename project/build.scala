@@ -65,6 +65,7 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => Seq(
+        macroParadise,
         servletApi % "provided;test",
         slf4jApi,
         grizzledSlf4j(sv),
@@ -75,6 +76,7 @@ object ScalatraBuild extends Build {
         jodaConvert,
         akkaActor(sv) % "test"
       )),
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full),
       libraryDependencies <++= scalaVersion(sv => Seq(akkaTestkit(sv) % "test")),
       description := "The core Scalatra framework",
       binaryIssueFilters ++= Seq(
@@ -312,6 +314,7 @@ object ScalatraBuild extends Build {
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
     lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.9"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
+    lazy val macroParadise              = "org.scalamacros"          % "quasiquotes"         % "2.0.0-M3"           cross CrossVersion.full
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.5"

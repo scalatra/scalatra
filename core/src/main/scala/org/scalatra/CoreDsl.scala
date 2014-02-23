@@ -84,6 +84,8 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    */
   def get(transformers: RouteTransformer*)(block: => Any): Route
 
+  request
+
   /**
    * @see get
    */
