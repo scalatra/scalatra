@@ -1,4 +1,4 @@
-package org.scalatra.servlet
-
-// Marker trait
-trait ScalatraAsyncSupport
+//package org.scalatra.servlet
+//
+//// Marker trait
+//trait ScalatraAsyncSupport

@@ -80,15 +80,15 @@ abstract class ScalatraServlet
    *
    * This action can be overridden by a notFound block.
    */
-  protected var doNotFound: Action = () => {
-    serveStaticResource() getOrElse resourceNotFound()
+  protected var doNotFound: Action = (request: HttpServletRequest, response: HttpServletResponse) => {
+    serveStaticResource(request, response) getOrElse resourceNotFound(request, response)
   }
 
   /**
    * Attempts to find a static resource matching the request path.  Override
    * to return None to stop this.
    */
-  protected def serveStaticResource(): Option[Any] =
+  protected def serveStaticResource(request: HttpServletRequest, response: HttpServletResponse): Option[Any] =
     servletContext.resource(request) map { _ =>
       servletContext.getNamedDispatcher("default").forward(request, response)
     }
@@ -97,7 +97,7 @@ abstract class ScalatraServlet
    * Called by default notFound if no routes matched and no static resource
    * could be found.
    */
-  protected def resourceNotFound(): Any = {
+  protected def resourceNotFound(request: HttpServletRequest, response: HttpServletResponse): Any = {
     response.setStatus(404)
     if (isDevelopmentMode) {
       val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
