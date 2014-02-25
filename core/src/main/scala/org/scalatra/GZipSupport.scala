@@ -14,27 +14,25 @@ import java.nio.charset.Charset
 trait GZipSupport extends Handler {
   self: ScalatraBase =>
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    withRequestResponse(req, res) {
-      if (isGzip) {
-        val gzos = new GZIPOutputStream(res.getOutputStream)
-        val w = new PrintWriter(gzos)
-        val r = response
+  abstract override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
 
-        ScalatraBase onRenderedCompleted { _ =>
-          w.flush()
-          w.close()
-        }
+    if (isGzip(req)) {
+      val gzos = new GZIPOutputStream(resp.getOutputStream)
+      val w = new PrintWriter(gzos)
 
-        val gzsos = new GZipServletOutputStream(gzos, r.getOutputStream)
-        val wrapped = new WrappedGZipResponse(r, gzsos, w)
-        ScalatraBase.onCompleted { _ =>
-          wrapped.addHeader("Content-Encoding", "gzip")
-        }
-        super.handle(req, wrapped)
-      } else {
-        super.handle(req, res)
-      }
+      ScalatraBase.onRenderedCompleted(req, { _ =>
+        w.flush()
+        w.close()
+      })
+
+      val gzsos = new GZipServletOutputStream(gzos, resp.getOutputStream)
+      val wrapped = new WrappedGZipResponse(resp, gzsos, w)
+      ScalatraBase.onCompleted(req, { _ =>
+        wrapped.addHeader("Content-Encoding", "gzip")
+      })
+      super.handle(req, wrapped)
+    } else {
+      super.handle(req, resp)
     }
   }
 

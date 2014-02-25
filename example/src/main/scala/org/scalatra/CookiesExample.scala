@@ -11,4 +11,11 @@ class CookiesExample extends ScalatraServlet {
       Hi, you have been on this page {previous} times already
     </p>
   }
+
+  get("/foo") {
+    val a = request
+    val b = response
+
+    "This is the foo route"
+  }
 }

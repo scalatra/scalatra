@@ -77,9 +77,9 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
 class SweetCookies(private[this] val reqCookies: Map[String, String], private[this] val response: HttpServletResponse) extends ServletApiImplicits {
   private[this] lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
-  def get(key: String) = cookies.get(key)
+  def get(key: String): Option[String] = cookies.get(key)
 
-  def apply(key: String) = cookies.get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
+  def apply(key: String): String = cookies.get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
 
   def update(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
     cookies += name -> value
@@ -119,7 +119,7 @@ trait CookieContext { self: ScalatraContext =>
   import CookieSupport._
   implicit def cookieOptions: CookieOptions = servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]
 
-  def cookies = request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]
+  def cookies(implicit request: HttpServletRequest) = request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]
 
 }
 @deprecated("You can remove this mixin, it's included in core by default", "2.2")

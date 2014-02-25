@@ -1,7 +1,7 @@
 package org.scalatra
 package test
 
-import servlet.{ScalatraAsyncSupport, HasMultipartConfig}
+import servlet.{HasMultipartConfig}
 import javax.servlet.{ServletConfig, DispatcherType, Filter}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.util.EnumSet
@@ -45,8 +45,6 @@ trait JettyContainer extends Container {
         holder.getRegistration.setMultipartConfig(
           s.multipartConfig.toMultipartConfigElement)
       }
-      case s: ScalatraAsyncSupport =>
-        holder.getRegistration.setAsyncSupported(true)
       case _ =>
     }
 

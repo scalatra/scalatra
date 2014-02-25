@@ -12,9 +12,7 @@ object I18nSupport {
   val MessagesKey = "messages"
 }
 
-trait I18nSupport {
-
-  this: ScalatraBase =>
+trait I18nSupport { this: ScalatraBase =>
 
   import I18nSupport._
 
@@ -39,9 +37,9 @@ trait I18nSupport {
   }
 
 
-  before() {
-    request(LocaleKey) = resolveLocale
-    request(MessagesKey) = provideMessages(locale)
+  before() { (request, _) =>
+    request(LocaleKey) = resolveLocale(request)
+    request(MessagesKey) = provideMessages(locale(request))
   }
 
   /**
@@ -55,7 +53,7 @@ trait I18nSupport {
   /*
   * Resolve Locale based on HTTP request parameter or Cookie
   */
-  private def resolveLocale: Locale = {
+  private def resolveLocale(implicit request: HttpServletRequest): Locale = {
     resolveHttpLocale getOrElse defaultLocale
   }
 
@@ -70,7 +68,7 @@ trait I18nSupport {
    * Locale strings are transformed to [[java.util.Locale]]
    *
    */
-  private def resolveHttpLocale: Option[Locale] = {
+  private def resolveHttpLocale(implicit request: HttpServletRequest): Option[Locale] = {
     (params.get(LocaleKey) match {
       case Some(localeValue) =>
         cookies.set(LocaleKey, localeValue)
@@ -85,7 +83,7 @@ trait I18nSupport {
    * 
    * @return first preferred found locale or None
    */
-  private def resolveHttpLocaleFromUserAgent: Option[Locale] = {
+  private def resolveHttpLocaleFromUserAgent(implicit request: HttpServletRequest): Option[Locale] = {
 
     request.headers.get("Accept-Language") map { s =>
       val locales = s.split(",").map(s => {

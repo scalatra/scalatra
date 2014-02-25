@@ -133,41 +133,39 @@ trait FlashMapSupport extends Handler {
   import FlashMapSupport._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-    withRequest(req) {
-      val f = flash
-      val isOutermost = !request.contains(LockKey)
+    val f = flash(req)
+    val isOutermost = !req.contains(LockKey)
 
-      ScalatraBase onCompleted { _ =>
-        /*
-         * http://github.com/scalatra/scalatra/issues/41
-         * http://github.com/scalatra/scalatra/issues/57
-         *
-         * Only the outermost FlashMapSupport sweeps it at the end.
-         * This deals with both nested filters and redirects to other servlets.
-         */
-        if (isOutermost) {
-          f.sweep()
-        }
-        flashMapSetSession(f)
-      }
-
+    ScalatraBase.onCompleted(req, { _ =>
+      /*
+       * http://github.com/scalatra/scalatra/issues/41
+       * http://github.com/scalatra/scalatra/issues/57
+       *
+       * Only the outermost FlashMapSupport sweeps it at the end.
+       * This deals with both nested filters and redirects to other servlets.
+       */
       if (isOutermost) {
-        req(LockKey) = "locked"
-        if (sweepUnusedFlashEntries(req)) {
-          f.flag()
-        }
+        f.sweep()
       }
+      flashMapSetSession(f)(req)
+    })
 
-
-      super.handle(req, res)
+    if (isOutermost) {
+      req(LockKey) = "locked"
+      if (sweepUnusedFlashEntries(req)) {
+        f.flag()
+      }
     }
+
+
+    super.handle(req, res)
   }
 
   /**
    * Override to implement custom session retriever, or sanity checks if session is still active
    * @param f
    */
-  def flashMapSetSession(f: FlashMap) {
+  def flashMapSetSession(f: FlashMap)(implicit req: HttpServletRequest) {
     try {
       // Save flashMap to Session after (a session could stop existing during a request, so catch exception)
       session(SessionKey) = f
@@ -178,7 +176,7 @@ trait FlashMapSupport extends Handler {
 
   private[this] def getFlash(req: HttpServletRequest): FlashMap =
     req.get(SessionKey).map(_.asInstanceOf[FlashMap]).getOrElse {
-      val map = session.get(SessionKey).map {
+      val map = session(req).get(SessionKey).map {
         _.asInstanceOf[FlashMap]
       }.getOrElse(new FlashMap)
 

@@ -120,7 +120,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
           r.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
         case _ =>
       }
-      if (servlet.isInstanceOf[ScalatraAsyncSupport])
+      if (servlet.isInstanceOf[FutureSupport])
         r.setAsyncSupported(true)
       r.setLoadOnStartup(loadOnStartup)
       r
@@ -134,7 +134,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
       val r = sc.addServlet(name, servletClass)
       // since we only have a Class[_] here, we can't access the MultipartConfig value
       // if (classOf[HasMultipartConfig].isAssignableFrom(servletClass))
-      if (classOf[ScalatraAsyncSupport].isAssignableFrom(servletClass)) {
+      if (classOf[FutureSupport].isAssignableFrom(servletClass)) {
         r.setAsyncSupported(true)
       }
       r.setLoadOnStartup(loadOnStartup)

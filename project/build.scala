@@ -273,8 +273,12 @@ object ScalatraBuild extends Build {
        previousArtifact := None
      )
   ) dependsOn(
-     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-     scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
+     scalatraCore % "compile;test->test;provided->provided",
+     //scalatraScalate,
+     //scalatraAuth,
+     //scalatraFileupload,
+     scalatraJetty
+     //scalatraCommands, scalatraAtmosphere
   )
 
   object Dependencies {

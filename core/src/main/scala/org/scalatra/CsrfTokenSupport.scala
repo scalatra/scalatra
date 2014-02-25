@@ -30,18 +30,17 @@ object CsrfTokenSupport {
 }
 
 /**
- * Provides cross-site request forgery protection.
- *
- * Adds a before filter.  If a request is determined to be forged, the
- * `handleForgery()` hook is invoked.  Otherwise, a token for the next
- * request is prepared with `prepareCsrfToken`.
- */
+* Provides cross-site request forgery protection.
+*
+* Adds a before filter.  If a request is determined to be forged, the
+* `handleForgery()` hook is invoked.  Otherwise, a token for the next
+* request is prepared with `prepareCsrfToken`.
+*/
 trait CsrfTokenSupport { this: ScalatraBase =>
 
-
-
-  before(isForged) { handleForgery() }
-  before() { prepareCsrfToken() }
+  // TODO: can these be merged?
+  before() { (req, _) => if (isForged(req)) handleForgery() }
+  before() { (req, _) => prepareCsrfToken(req) }
 
   /**
    * Tests whether a request with a unsafe method is a potential cross-site
@@ -51,7 +50,7 @@ trait CsrfTokenSupport { this: ScalatraBase =>
    * CONNECT, PATCH) and the request parameter at `csrfKey` does not match
    * the session key of the same name.
    */
-  protected def isForged: Boolean =
+  protected def isForged(implicit request: HttpServletRequest): Boolean =
     !request.requestMethod.isSafe &&
       session.get(csrfKey) != params.get(csrfKey) &&
       !CsrfTokenSupport.HeaderNames.map(request.headers.get).contains(session.get(csrfKey))
@@ -68,12 +67,12 @@ trait CsrfTokenSupport { this: ScalatraBase =>
    * Prepares a CSRF token.  The default implementation uses `GenerateId`
    * and stores it on the session.
    */
-  protected def prepareCsrfToken() = {
-    session.getOrElseUpdate(csrfKey, GenerateId())
+  protected def prepareCsrfToken(req: HttpServletRequest) = {
+    session(req).getOrElseUpdate(csrfKey, GenerateId())
   }
 
-  @deprecated("Use prepareCsrfToken()", "2.0.0")
-  protected def prepareCSRFToken() = prepareCsrfToken()
+//  @deprecated("Use prepareCsrfToken()", "2.0.0")
+//  protected def prepareCSRFToken() = prepareCsrfToken()
 
   /**
    * The key used to store the token on the session, as well as the parameter
@@ -104,11 +103,11 @@ trait XsrfTokenSupport { this: ScalatraBase =>
   def xsrfToken(implicit request: HttpServletRequest): String =
     request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
-  def xsrfGuard(only: RouteTransformer*) {
-    before((only.toSeq ++ Seq[RouteTransformer](isForged)):_*) { handleForgery() }
+  def xsrfGuard(only: RouteTransformer*)(implicit req: HttpServletRequest) {
+    before((only.toSeq ++ Seq[RouteTransformer](isForged(req))):_*) { (_, _) => handleForgery() }
   }
 
-  before() { prepareXsrfToken() }
+  before() { (req, _) => prepareXsrfToken(req) }
 
   /**
    * Tests whether a request with a unsafe method is a potential cross-site
@@ -118,7 +117,7 @@ trait XsrfTokenSupport { this: ScalatraBase =>
    * CONNECT, PATCH) and the request parameter at `xsrfKey` does not match
    * the session key of the same name.
    */
-  protected def isForged: Boolean =
+  protected def isForged(implicit request: HttpServletRequest): Boolean =
     !request.requestMethod.isSafe &&
       session.get(xsrfKey) != params.get(xsrfKey) &&
       !HeaderNames.map(request.headers.get).contains(session.get(xsrfKey))
@@ -135,7 +134,7 @@ trait XsrfTokenSupport { this: ScalatraBase =>
    * Prepares a XSRF token.  The default implementation uses `GenerateId`
    * and stores it on the session.
    */
-  protected def prepareXsrfToken() = {
+  protected def prepareXsrfToken(implicit request: HttpServletRequest) = {
     session.getOrElseUpdate(xsrfKey, GenerateId())
     val cookieOpt = cookies.get(CookieKey)
     if (cookieOpt.isEmpty || cookieOpt != session.get(xsrfKey)) cookies += CookieKey -> xsrfToken

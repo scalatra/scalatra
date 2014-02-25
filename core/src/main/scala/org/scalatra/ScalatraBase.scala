@@ -168,7 +168,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
       }
     }
 
-    cradleHalt(req, resp, runActions, e => {
+    cradleHalt(req, resp, result = runActions, e => {
       cradleHalt(req, resp, {
         result = errorHandler(e)
         rendered = false
@@ -188,7 +188,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
   private[this] def cradleHalt(req: HttpServletRequest,
                                resp: HttpServletResponse,
                                body: => Any,
-                               error: Throwable => Any) = {
+                               error: Throwable => Any): Any = {
     try { body } catch {
       case e: HaltException => {
         try {
@@ -296,20 +296,20 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
    * and an `Allow` header containing a comma-delimited list of the allowed
    * methods.
    */
-  protected var doMethodNotAllowed: (( HttpServletResponse, Set[HttpMethod]) => Any) = { (resp, allow) =>
+  protected var doMethodNotAllowed: ((HttpServletRequest, HttpServletResponse, Set[HttpMethod]) => Any) = { (_, resp, allow) =>
     implicit val rs = resp
     status = 405
     resp.headers("Allow") = allow.mkString(", ")
   }
 
-  def methodNotAllowed(f: (HttpServletResponse, Set[HttpMethod]) => Any) {
+  def methodNotAllowed(f: (HttpServletRequest, HttpServletResponse, Set[HttpMethod]) => Any) {
     doMethodNotAllowed = f
   }
 
   private[this] def matchOtherMethods(req: HttpServletRequest, resp: HttpServletResponse): Option[Any] = {
     val allow = routes.matchingMethodsExcept(req.requestMethod, requestPath(req))
     if (allow.isEmpty) None else liftAction(req, resp, {(req: HttpServletRequest, response: HttpServletResponse) =>
-      doMethodNotAllowed(resp, allow)
+      doMethodNotAllowed(req, resp, allow)
     })
   }
 
@@ -554,7 +554,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
    *
    * @see org.scalatra.ScalatraKernel#removeRoute
    */
-  protected def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: Action): Route = {
+  def addRoute(method: HttpMethod, transformers: Seq[RouteTransformer], action: Action): Route = {
     val route = Route(transformers, action, (req: HttpServletRequest) => routeBasePath(req))
     routes.prependRoute(method, route)
     route

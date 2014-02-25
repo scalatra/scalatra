@@ -12,8 +12,8 @@ abstract class AsyncResult(implicit sc: ScalatraContext) extends ScalatraContext
 
   override protected def scalatraContext(implicit req: HttpServletRequest, resp: HttpServletResponse) = sc
 
-  implicit val request: HttpServletRequest = sc.request
-  implicit val response: HttpServletResponse = sc.response
+//  implicit val request: HttpServletRequest = sc.request
+//  implicit val response: HttpServletResponse = sc.response
   val servletContext: ServletContext = sc.servletContext
 
   // This is a Duration instead of a timeout because a duration has the concept of infinity
