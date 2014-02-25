@@ -79,7 +79,7 @@ object ScalatraBase {
  * The base implementation of the Scalatra DSL.  Intended to be portable
  * to all supported backends.
  */
-trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions with SessionSupport with CookieSupport {
+trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImplicits with ScalatraParamsImplicits with DefaultImplicitConversions with SessionSupport with Handler {
   @deprecated("Use servletContext instead", "2.1.0")
   def applicationContext: ServletContext = servletContext
 
@@ -288,7 +288,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
    */
   protected var doNotFound: Action
 
-  def notFound(fun: Action) { doNotFound = fun }
+  def notFoundAction(fun: Action) { doNotFound = fun }
 
   /**
    * Called if no route matches the current request method, but routes
@@ -357,7 +357,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
    */
   protected def renderResponse(req: HttpServletRequest, resp: HttpServletResponse, actionResult: Any) {
     if (contentType(resp) == null)
-      contentTypeInferrer.lift(actionResult) foreach {
+      contentTypeInferrer(req, resp).lift(actionResult) foreach {
         contentType_=(_)(resp)
       }
 
@@ -372,7 +372,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
    * $ - "application/octet-stream" for a byte array
    * $ - "text/html" for any other result
    */
-  protected def contentTypeInferrer: ContentTypeInferrer = {
+  protected def contentTypeInferrer(implicit req: HttpServletRequest, resp: HttpServletResponse): ContentTypeInferrer = {
     case s: String => "text/plain"
     case bytes: Array[Byte] => MimeTypes(bytes)
     case is: java.io.InputStream => MimeTypes(is)
@@ -380,7 +380,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with Initializable with 
     case actionResult: ActionResult =>
       actionResult.headers.find {
         case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
-      }.getOrElse(("Content-Type", contentTypeInferrer(actionResult.body)))._2
+      }.getOrElse(("Content-Type", contentTypeInferrer(req, resp)(actionResult.body)))._2
 
     case _ => "text/html"
   }

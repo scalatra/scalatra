@@ -44,21 +44,21 @@ trait ScalatraContext extends ServletApiImplicits with SessionSupport with Cooki
    */
   def status_=(code: Int)(implicit response: HttpServletResponse) { response.status = ResponseStatus(code) }
 
-//  /**
-//   * Explicitly sets the request-scoped format.  This takes precedence over
-//   * whatever was inferred from the request.
-//   */
-//  def format_=(formatValue: Symbol)(implicit request: HttpServletRequest) {
-//    request(ApiFormats.FormatKey) = formatValue.name
-//  }
-//  TODO: fix this
-//  /**
-//   * Explicitly sets the request-scoped format.  This takes precedence over
-//   * whatever was inferred from the request.
-//   */
-//  def format_=(formatValue: String)(implicit request: HttpServletRequest) {
-//    request(ApiFormats.FormatKey) = formatValue
-//  }
+  /**
+   * Explicitly sets the request-scoped format.  This takes precedence over
+   * whatever was inferred from the request.
+   */
+  def format_=(formatValue: Symbol)(implicit request: HttpServletRequest) {
+    request(ApiFormats.FormatKey) = formatValue.name
+  }
+
+  /**
+   * Explicitly sets the request-scoped format.  This takes precedence over
+   * whatever was inferred from the request.
+   */
+  def format_=(formatValue: String)(implicit request: HttpServletRequest) {
+    request(ApiFormats.FormatKey) = formatValue
+  }
 
   protected[this] implicit def scalatraContext(implicit request: HttpServletRequest,
                                                response: HttpServletResponse): ScalatraContext  =

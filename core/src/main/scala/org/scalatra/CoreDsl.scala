@@ -27,7 +27,7 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    * Defines a block to run if no matching routes are found, or if all
    * matching routes pass.
    */
-  def notFound(block: Action): Unit
+  def notFoundAction(block: Action): Unit
 
   /**
    * Defines a block to run if matching routes are found only for other
