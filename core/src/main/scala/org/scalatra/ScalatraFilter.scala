@@ -4,7 +4,6 @@ import servlet.ServletBase
 import scala.util.DynamicVariable
 import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import javax.servlet._
-import org.scalatra.macros.MacroDSL
 
 /**
  * An implementation of the Scalatra DSL in a filter.  You may prefer a filter
@@ -22,7 +21,7 @@ import org.scalatra.macros.MacroDSL
  *
  * @see ScalatraServlet
  */
-trait ScalatraFilter extends Filter with ServletBase with CoreDsl with MacroDSL {
+trait ScalatraFilter extends Filter with ServletBase with CoreDsl {
   private[this] val _filterChain = new DynamicVariable[FilterChain](null)
   protected def filterChain = _filterChain.value
 

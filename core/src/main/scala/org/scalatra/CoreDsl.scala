@@ -4,10 +4,26 @@ import javax.servlet.ServletContext
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import servlet.ServletApiImplicits
 
+
+
 /**
 * The core Scalatra DSL.
 */
 trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiImplicits {
+
+  import scala.reflect.internal.annotations.compileTimeOnly
+  import org.scalatra.macros.DSLMacros._
+  import scala.language.experimental.macros
+
+  @compileTimeOnly("Http Request cannot be called outside of a http method builder")
+  implicit def request: HttpServletRequest = sys.error("Shouldn't get here.")
+
+  @compileTimeOnly("Http Response cannot be called outside of a http method builder")
+  implicit def response: HttpServletResponse = sys.error("Shouldn't get here.")
+
+  def addRoute(method: HttpMethod,
+               transformers: Seq[RouteTransformer],
+               action: (HttpServletRequest, HttpServletResponse) => Any): Route
 
   /**
    * Adds a filter to run before the route.  The filter only runs if each
@@ -28,6 +44,8 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    * matching routes pass.
    */
   def notFoundAction(block: Action): Unit
+
+  def notFound(block: Any): Unit = macro notFoundImpl
 
   /**
    * Defines a block to run if matching routes are found only for other
@@ -82,37 +100,38 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    * }}}
    *
    */
-//  def get(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def post(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def put(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def delete(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def options(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see head
-//   */
-//  def head(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see patch
-//   */
-//  def patch(transformers: RouteTransformer*)(block: => Any): Route
+  def get(transformers: RouteTransformer*)(block: => Any): Route = macro getImpl
+
+  /**
+   * @see get
+   */
+  def post(transformers: RouteTransformer*)(block: => Any): Route = macro postImpl
+
+  /**
+   * @see get
+   */
+  def put(transformers: RouteTransformer*)(block: => Any): Route = macro putImpl
+
+  /**
+   * @see get
+   */
+  def delete(transformers: RouteTransformer*)(block: => Any): Route = macro deleteImpl
+
+  /**
+   * @see get
+   */
+  def options(transformers: RouteTransformer*)(block: => Any): Route = macro optionsImpl
+
+  /**
+   * @see head
+   */
+  def head(transformers: RouteTransformer*)(block: => Any): Route = macro headImpl
+
+  /**
+   * @see patch
+   */
+  def patch(transformers: RouteTransformer*)(block: => Any): Route = macro patchImpl
+
 
   /**
    * Error handler for HTTP response status code range. You can intercept every response code previously
@@ -123,12 +142,13 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    *   }
    }* }}}
    }}*/
-//  def trap(codes: Range)(block: => Any): Unit
-//
-//  /**
-//   * @see error
-//   */
-//  def trap(code: Int)(block: => Any) {
-//    trap(Range(code, code+1))(block)
-//  }
+  def trapAction(codes: Range)(block: Action): Unit
+
+  //  /**
+  //   * @see error
+  //   */
+  def trap(codes: Range)(block: Any): Unit = macro trapRangeImpl
+
+  def trap(code: Int)(block: Any): Unit = macro trapImpl
+
 }

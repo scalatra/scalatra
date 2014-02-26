@@ -531,9 +531,9 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
 //
 //  def delete(transformers: RouteTransformer*)(action: => Any) = addRoute(Delete, transformers, action)
 //
-//  def trap(codes: Range)(block: => Any) {
-//    addStatusRoute(codes, block)
-//  }
+  def trapAction(codes: Range)(block: Action) {
+    addStatusRoute(codes, block)
+  }
 //
 //  def options(transformers: RouteTransformer*)(action: => Any) = addRoute(Options, transformers, action)
 //

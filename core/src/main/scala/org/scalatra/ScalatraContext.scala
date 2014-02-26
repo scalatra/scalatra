@@ -14,8 +14,7 @@ object ScalatraContext {
 
 trait ScalatraContext extends ServletApiImplicits with SessionSupport with CookieContext {
   import ScalatraContext.StableValuesContext
-//  def request: HttpServletRequest
-//  def response: HttpServletResponse
+
   def servletContext: ServletContext
 
   /**

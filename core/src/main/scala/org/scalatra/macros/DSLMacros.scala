@@ -12,7 +12,7 @@ import scala.reflect.internal.annotations.compileTimeOnly
  */
 object DSLMacros {
 
-  type DSLContext = Context { type PrefixType = MacroDSL }
+  type DSLContext = Context { type PrefixType = CoreDsl }
 
   private def actionBuilder(c: DSLContext)(funname: c.TermName, block: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
@@ -102,58 +102,30 @@ object DSLMacros {
     }
   }
 
+  def trapRangeImpl(c: DSLContext)(codes: c.Expr[Range])(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val actionName = newTermName("trapAction")
+    val action = actionBuilder(c)(actionName, block)
+
+    reify {
+      c.prefix.splice.trapAction(codes.splice){
+        action.splice
+        c.Expr[Action](Ident(actionName)).splice
+      }
+    }
+  }
+
+  def trapImpl(c: DSLContext)(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rangeExpr = reify {
+      val c = code.splice
+      Range(c, c+1)
+    }
+
+    trapRangeImpl(c)(rangeExpr)(block)
+  }
+
 }
 
-trait MacroDSL {
-
-  import DSLMacros._
-
-  @compileTimeOnly("Http Request cannot be called outside of a http method builder")
-  implicit def request: HttpServletRequest = sys.error("Shouldn't get here.")
-
-  @compileTimeOnly("Http Response cannot be called outside of a http method builder")
-  implicit def response: HttpServletResponse = sys.error("Shouldn't get here.")
-
-  def addRoute(method: HttpMethod,
-               transformers: Seq[RouteTransformer],
-               action: (HttpServletRequest, HttpServletResponse) => Any): Route
-
-  final def get(transformers: RouteTransformer*)(block: Any): Route = macro getImpl
-
-  /**
-   * @see get
-   */
-  final def post(transformers: RouteTransformer*)(block: Any): Route = macro postImpl
-
-  /**
-   * @see get
-   */
-  def put(transformers: RouteTransformer*)(block: Any): Route = macro putImpl
-
-  /**
-   * @see get
-   */
-  def delete(transformers: RouteTransformer*)(block: Any): Route = macro deleteImpl
-
-  /**
-   * @see get
-   */
-  def options(transformers: RouteTransformer*)(block: Any): Route = macro optionsImpl
-
-  /**
-   * @see head
-   */
-  def head(transformers: RouteTransformer*)(block: Any): Route = macro headImpl
-
-  /**
-   * @see patch
-   */
-  def patch(transformers: RouteTransformer*)(block: Any): Route = macro patchImpl
-
-
-  //////////////// Non-Http method helpers /////////////////////////////////////
-
-  def notFound(block: Any): Unit = macro notFoundImpl
-
-  def notFoundAction(block: Action): Unit
-}

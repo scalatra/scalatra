@@ -5,7 +5,6 @@ import javax.servlet._
 import javax.servlet.http._
 import org.scalatra.util.RicherString._
 import scala.util.control.Exception.catching
-import org.scalatra.macros.MacroDSL
 
 object ScalatraServlet {
 
@@ -50,7 +49,7 @@ object ScalatraServlet {
 abstract class ScalatraServlet
   extends HttpServlet
   with ServletBase
-  with MacroDSL
+  with CoreDsl
   with Initializable {
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
     handle(request, response)
