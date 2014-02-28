@@ -14,7 +14,7 @@ object DSLMacros {
 
   type DSLContext = Context { type PrefixType = CoreDsl }
 
-  private def actionBuilder(c: DSLContext)(funname: c.TermName, block: c.Expr[Any]): c.Expr[Route] = {
+  private def actionBuilder(c: DSLContext)(block: c.Expr[Any]): c.Expr[Action] = {
     import c.universe._
 
     val reqName = newTermName("request")
@@ -30,10 +30,11 @@ object DSLMacros {
 
     val newBlock = c.resetAllAttrs(transformer.transform(block.tree))
 
-    val defexpr = c.Expr[Route](q"""def $funname($reqName: ${c.weakTypeOf[HttpServletRequest]},
-                                 $respName: ${c.weakTypeOf[HttpServletResponse]}): Any = ${newBlock}""")
-
-    defexpr
+    reify {
+      { (request: HttpServletRequest, response: HttpServletResponse) =>
+        c.Expr[Any](newBlock).splice
+      }
+    }
   }
 
   def routeBuilder(c: DSLContext)(method: c.Expr[HttpMethod],
@@ -43,14 +44,11 @@ object DSLMacros {
 
     val texpr = c.Expr[Seq[RouteTransformer]](q"Seq(..$transformers)")
 
-    val funName = newTermName(c.fresh("routeAction"))
-    val actionName = c.Expr[Action](Ident(funName))
-
-    val action = actionBuilder(c)(funName, block)
+    val action = actionBuilder(c)(block)
 
     val result = reify {
-      action.splice
-      c.prefix.splice.addRoute(method.splice, texpr.splice, actionName.splice)
+
+      c.prefix.splice.addRoute(method.splice, texpr.splice, action.splice)
     }
 
 //    println("-------------------------------------------------\n" +
@@ -90,14 +88,13 @@ object DSLMacros {
 
   def notFoundImpl(c: DSLContext)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
-    //def notFound(fun: Any) { doNotFound = fun }
-    val actionName = newTermName("notFoundAction")
-    val action = actionBuilder(c)(actionName, block)
+
+    val action = actionBuilder(c)(block)
 
     reify {
       c.prefix.splice.notFoundAction {
         action.splice
-        c.Expr[Action](Ident(actionName)).splice
+        //c.Expr[Action](Ident(actionName)).splice
       }
     }
   }
@@ -105,13 +102,12 @@ object DSLMacros {
   def trapRangeImpl(c: DSLContext)(codes: c.Expr[Range])(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
-    val actionName = newTermName("trapAction")
-    val action = actionBuilder(c)(actionName, block)
+    val action = actionBuilder(c)(block)
 
     reify {
       c.prefix.splice.trapAction(codes.splice){
         action.splice
-        c.Expr[Action](Ident(actionName)).splice
+        //c.Expr[Action](Ident(actionName)).splice
       }
     }
   }

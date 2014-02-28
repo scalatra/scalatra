@@ -13,7 +13,7 @@ class CookiesExample extends ScalatraServlet {
   }
 
   get("/foo") {
-    val a = request
+    val a = request.changeSessionId()
     val b = response
 
     "This is the foo route"
