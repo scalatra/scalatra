@@ -274,11 +274,11 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
     }
 
 
-  def before(transformers: RouteTransformer*)(fun: Action) {
+  def beforeAction(transformers: RouteTransformer*)(fun: Action) {
     routes.appendBeforeFilter(Route(transformers, fun))
   }
 
-  def after(transformers: RouteTransformer*)(fun: Action) {
+  def afterAction(transformers: RouteTransformer*)(fun: Action) {
     routes.appendAfterFilter(Route(transformers, fun))
   }
 

@@ -47,7 +47,6 @@ object DSLMacros {
     val action = actionBuilder(c)(block)
 
     val result = reify {
-
       c.prefix.splice.addRoute(method.splice, texpr.splice, action.splice)
     }
 
@@ -57,6 +56,40 @@ object DSLMacros {
 
     result
   }
+
+  def beforeImpl(c: DSLContext)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val routeExpr = actionBuilder(c)(block)
+    val texpr = c.Expr[Seq[RouteTransformer]](q"Seq(..$transformers)")
+
+    reify {
+      c.prefix.splice.beforeAction(texpr.splice:_*)(routeExpr.splice)
+    }
+  }
+
+  def afterImpl(c: DSLContext)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val routeExpr = actionBuilder(c)(block)
+    val texpr = c.Expr[Seq[RouteTransformer]](q"Seq(..$transformers)")
+
+    reify {
+      c.prefix.splice.afterAction(texpr.splice:_*)(routeExpr.splice)
+    }
+  }
+
+//  def errorImpl(c: DSLContext)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+//    import c.universe._
+//
+//    val routeExpr = actionBuilder(c)(block)
+//    val texpr = c.Expr[Seq[RouteTransformer]](q"Seq(..$transformers)")
+//
+//    reify {
+//      c.prefix.splice.error(texpr.splice:_*)(routeExpr.splice)
+//    }
+//  }
+
 
   def getImpl(c: DSLContext)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     routeBuilder(c)(c.universe.reify(Get), transformers, block)

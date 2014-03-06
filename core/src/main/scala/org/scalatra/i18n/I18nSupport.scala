@@ -37,7 +37,7 @@ trait I18nSupport { this: ScalatraBase =>
   }
 
 
-  before() { (request, _) =>
+  beforeAction() { (request, _) =>
     request(LocaleKey) = resolveLocale(request)
     request(MessagesKey) = provideMessages(locale(request))
   }

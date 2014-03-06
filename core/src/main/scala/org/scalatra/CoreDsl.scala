@@ -30,14 +30,18 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def before(transformers: RouteTransformer*)(fun: Action): Unit
+  def beforeAction(transformers: RouteTransformer*)(fun: Action): Unit
+
+  def before(transformers: RouteTransformer*)(block: Any): Unit = macro beforeImpl
 
   /**
    * Adds a filter to run after the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def after(transformers: RouteTransformer*)(fun: Action): Unit
+  def afterAction(transformers: RouteTransformer*)(fun: Action): Unit
+
+  def after(transformers: RouteTransformer*)(block: Any): Unit = macro afterImpl
 
   /**
    * Defines a block to run if no matching routes are found, or if all

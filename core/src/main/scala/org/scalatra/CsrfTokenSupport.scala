@@ -39,8 +39,8 @@ object CsrfTokenSupport {
 trait CsrfTokenSupport { this: ScalatraBase =>
 
   // TODO: can these be merged?
-  before() { (req, _) => if (isForged(req)) handleForgery() }
-  before() { (req, _) => prepareCsrfToken(req) }
+  beforeAction() { (req, _) => if (isForged(req)) handleForgery() }
+  beforeAction() { (req, _) => prepareCsrfToken(req) }
 
   /**
    * Tests whether a request with a unsafe method is a potential cross-site
@@ -104,10 +104,10 @@ trait XsrfTokenSupport { this: ScalatraBase =>
     request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
   def xsrfGuard(only: RouteTransformer*)(implicit req: HttpServletRequest) {
-    before((only.toSeq ++ Seq[RouteTransformer](isForged(req))):_*) { (_, _) => handleForgery() }
+    beforeAction((only.toSeq ++ Seq[RouteTransformer](isForged(req))):_*) { (_, _) => handleForgery() }
   }
 
-  before() { (req, _) => prepareXsrfToken(req) }
+  beforeAction() { (req, _) => prepareXsrfToken(req) }
 
   /**
    * Tests whether a request with a unsafe method is a potential cross-site
