@@ -1,7 +1,6 @@
 package org.scalatra
 
 import org.specs2.mutable.Specification
-import org.scalatra.macros.MacroDSL
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 /**
@@ -12,8 +11,8 @@ class DSLMacrosSpec extends Specification {
 
   implicit def string2RouteMatcher(path: String): RouteMatcher = new SinatraRouteMatcher(path)
 
-  val route = new MacroDSL {
-    def addRoute(method: HttpMethod,
+  val route = new ScalatraServlet {
+    override def addRoute(method: HttpMethod,
                            transformers: Seq[RouteTransformer],
                            action: (HttpServletRequest, HttpServletResponse) => Any): Route = null
 

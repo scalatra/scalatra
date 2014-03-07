@@ -7,6 +7,7 @@ import java.io.{Writer, StringWriter, PrintWriter}
 import org.json4s._
 import org.json4s.Xml._
 import text.Document
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
@@ -35,37 +36,43 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
   protected def transformResponseBody(body: JValue) = body
 
-  override protected def renderPipeline = ({
-    case jv: JValue if responseFormat == "xml" =>
-      contentType = formats("xml")
-      writeJsonAsXml(transformResponseBody(jv), response.writer)
+  override protected def renderPipeline(req: HttpServletRequest, resp: HttpServletResponse, body: Any): Any = {
+    implicit val rq = req
+    implicit val rs = resp
+    body match {
+      case jv: JValue if responseFormat == "xml" =>
+        contentType = formats("xml")
+        writeJsonAsXml(resp, transformResponseBody(jv), resp.writer)
 
-    case jv: JValue =>
-      // JSON is always UTF-8
-      response.characterEncoding = Some(Codec.UTF8.name)
-      val writer = response.writer
+      case jv: JValue =>
+        // JSON is always UTF-8
+        resp.characterEncoding = Some(Codec.UTF8.name)
+        val writer = resp.writer
 
-      val jsonpCallback = for {
-        paramName <- jsonpCallbackParameterNames
-        callback <- params.get(paramName)
-      } yield callback
+        val jsonpCallback = for {
+          paramName <- jsonpCallbackParameterNames
+          callback <- params.get(paramName)
+        } yield callback
 
-      jsonpCallback match {
-        case some :: _ =>
-          // JSONP is not JSON, but JavaScript.
-          contentType = formats("js")
-          // Status must always be 200 on JSONP, since it's loaded in a <script> tag.
-          status = 200
-          writer.write("%s(%s);".format(some, compact(render(transformResponseBody(jv)))))
-        case _ =>
-          contentType = formats("json")
-          if(jsonVulnerabilityGuard) writer.write(VulnerabilityPrelude)
-          writeJson(transformResponseBody(jv), writer)
-          ()
-      }
-  }: RenderPipeline) orElse super.renderPipeline
+        jsonpCallback match {
+          case some :: _ =>
+            // JSONP is not JSON, but JavaScript.
+            contentType = formats("js")
+            // Status must always be 200 on JSONP, since it's loaded in a <script> tag.
+            status = 200
+            writer.write("%s(%s);".format(some, compact(render(transformResponseBody(jv)))))
+          case _ =>
+            contentType = formats("json")
+            if(jsonVulnerabilityGuard) writer.write(VulnerabilityPrelude)
+            writeJson(transformResponseBody(jv), writer)
+            ()
+        }
 
-  protected def writeJsonAsXml(json: JValue, writer: Writer) {
+      case _ => super.renderPipeline(req, resp, body)
+    }
+  }
+
+  protected def writeJsonAsXml(response: HttpServletResponse, json: JValue, writer: Writer) {
     XML.write(response.writer, xmlRootNode.copy(child = toXml(json)), response.characterEncoding.get, xmlDecl = true, doctype = null)
   }
 

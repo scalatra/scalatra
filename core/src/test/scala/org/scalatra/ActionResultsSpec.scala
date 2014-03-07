@@ -10,7 +10,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
 
 
-trait ActionResultTestBase  { self: ScalatraBase =>
+trait ActionResultTestBase  { self: ScalatraServlet =>
   error {
     case e => BadRequest("something went wrong")
   }

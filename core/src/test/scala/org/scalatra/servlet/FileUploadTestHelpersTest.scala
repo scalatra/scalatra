@@ -4,12 +4,12 @@ import scala.collection.JavaConversions._
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatra.ScalatraServlet
 import java.io.File
-import javax.servlet.http.HttpServlet
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpServlet}
 import org.eclipse.jetty.servlet.ServletHolder
 import javax.servlet.MultipartConfigElement
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
-  def handleRequest() {
+  def handleRequest(implicit request: HttpServletRequest, response: HttpServletResponse) {
     response.setHeader("Request-Method", request.getMethod)
     params.foreach(p => response.setHeader("Param-" + p._1, p._2))
 
@@ -25,25 +25,25 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
   }
 
   post("/") {
-    handleRequest()
+    handleRequest
 
     "OK"
   }
 
   post("/no-files") {
-    handleRequest()
+    handleRequest
 
     "/no-files"
   }
 
   post("/no-files-or-params") {
-    handleRequest()
+    handleRequest
 
     "/no-files-or-params"
   }
 
   put("/") {
-    handleRequest()
+    handleRequest
 
     "OK"
   }

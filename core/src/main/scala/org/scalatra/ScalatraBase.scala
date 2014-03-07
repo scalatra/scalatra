@@ -412,7 +412,7 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
   }
 
   /**
-   * The render pipeline is a partial function of Any => Any.  It is
+   * The render pipeline is a function of (HttpServletRequest, HttpServletResponse, Any) => Any.  It is
    * called recursively until it returns ().  () indicates that the
    * response has been rendered.
    */

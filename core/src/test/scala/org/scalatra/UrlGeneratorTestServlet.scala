@@ -10,7 +10,8 @@ class UrlGeneratorTestServlet extends ScalatraServlet
 
   val multipleNameds = get("/foo/:bar/and/:rebar") { }
 
-  val booleanTest = get(params.getOrElse("booleanTest", "false") == "true") { }
+  // TODO: this cannot be implemented
+//  val booleanTest = get(params.getOrElse("booleanTest", "false") == "true") { }
 
   val optional = get("/optional/?:foo?/?:bar?") { }
 
@@ -28,7 +29,8 @@ class UrlGeneratorTestServlet extends ScalatraServlet
 
   val literalDotInPath = get("/literal.dot.in.path") { }
 
-  val stringAndBoolean = get("/conditional", params.getOrElse("condition", "false") == "true") { }
+  // TODO: this cannot be implemented
+//  val stringAndBoolean = get("/conditional", params.getOrElse("condition", "false") == "true") { }
 
   val regex1 = get("""^\/fo(.*)/ba(.*)""".r) { }
 

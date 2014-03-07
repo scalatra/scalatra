@@ -29,7 +29,7 @@ package object scalatra
 
   type ContentTypeInferrer = PartialFunction[Any, String]
 
-//  type RenderPipeline = PartialFunction[Any, Any]
+  type RenderPipeline = (HttpServletRequest, HttpServletResponse, Any) => Any
 
   val EnvironmentKey = "org.scalatra.environment"
 

@@ -6,7 +6,7 @@ import javax.servlet.ServletConfig
 
 
 class AfterTestServlet extends ScalatraServlet with AfterTestAppBase
-trait AfterTestAppBase extends ScalatraBase {
+trait AfterTestAppBase { this: ScalatraServlet =>
 
   after() {
     response.setStatus(204)

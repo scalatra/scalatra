@@ -5,7 +5,7 @@ import java.io.{InputStreamReader, InputStream}
 import org.json4s._
 import Xml._
 import text.Document
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 object JsonSupport {
 
@@ -52,22 +52,21 @@ trait JsonSupport[T] extends JsonOutput[T] {
   }
   protected def transformRequestBody(body: JValue) = body
 
-
-  override protected def invoke(matchedRoute: MatchedRoute) = {
-    withRouteMultiParams(Some(matchedRoute)) {
-      val mt = request.contentType map {
+  override protected def invoke(req: HttpServletRequest, resp: HttpServletResponse, matchedRoute: MatchedRoute) = {
+    withRouteMultiParams(req, Some(matchedRoute)) {
+      val mt = req.contentType map {
         _.split(";").head
       } getOrElse "application/x-www-form-urlencoded"
       val fmt = mimeTypes get mt getOrElse "html"
-      if (shouldParseBody(fmt)) {
-        request(ParsedBodyKey) = parseRequestBody(fmt).asInstanceOf[AnyRef]
+      if (shouldParseBody(fmt, req)) {
+        req(ParsedBodyKey) = parseRequestBody(fmt)(req).asInstanceOf[AnyRef]
       }
-      super.invoke(matchedRoute)
+      super.invoke(req, resp, matchedRoute)
     }
   }
 
-  private def shouldParseBody(fmt: String)(implicit request: HttpServletRequest) =
-    (fmt == "json" || fmt == "xml") && parsedBody == JNothing
+  private def shouldParseBody(fmt: String, req: HttpServletRequest) =
+    (fmt == "json" || fmt == "xml") && parsedBody(req) == JNothing
 
   def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
     val fmt = format

@@ -14,7 +14,7 @@ import org.apache.http.impl.client.{HttpClientBuilder, CloseableHttpClient}
 class GZipSupportTestServlet extends ScalatraServlet with GZipSupportAppBase {
   implicit protected def executor: ExecutionContext = ExecutionContext.global
 }
-trait GZipSupportAppBase extends ScalatraBase with FutureSupport with GZipSupport {
+trait GZipSupportAppBase extends FutureSupport with GZipSupport { this: ScalatraServlet =>
 
   get("/") {
     Helper.body

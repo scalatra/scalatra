@@ -12,9 +12,10 @@ class RouteTestServlet extends ScalatraServlet {
     "matched simple string route"
   }
 
-  get(params.getOrElse("booleanTest", "false") == "true") {
-    "matched boolean route"
-  }
+  // TODO: Cannot implement with macros
+//  get(params.getOrElse("booleanTest", "false") == "true") {
+//    "matched boolean route"
+//  }
 
   get("/optional/?:foo?/?:bar?") {
     (for (key <- List("foo", "bar") if params.isDefinedAt(key)) yield key + "=" + params(key)).mkString(";")
@@ -64,9 +65,10 @@ class RouteTestServlet extends ScalatraServlet {
     "false"
   }
 
-  get("/conditional", params.getOrElse("condition", "false") == "true") {
-    "true"
-  }
+  // TODO: Cannot implement in this manner
+//  get("/conditional", params.getOrElse("condition", "false") == "true") {
+//    "true"
+//  }
 
   get("""^\/fo(.*)/ba(.*)""".r) {
     multiParams.getOrElse("captures", Seq.empty) mkString (":")
@@ -79,10 +81,10 @@ class RouteTestServlet extends ScalatraServlet {
   get("""/reg(ular)?-ex(pression)?""".r) {
     "regex: false"
   }
-
-  get("""/reg(ular)?-ex(pression)?""".r, params.getOrElse("condition", "false") == "true") {
-    "regex: true"
-  }
+  // TODO: Cannot implement in this manner
+//  get("""/reg(ular)?-ex(pression)?""".r, params.getOrElse("condition", "false") == "true") {
+//    "regex: true"
+//  }
 
   post() {
     "I match any post!"
