@@ -6,16 +6,17 @@ package org.scalatra
 import test.scalatest.ScalatraFunSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 class RouteTestServlet extends ScalatraServlet {
   get("/foo") {
     "matched simple string route"
   }
 
-  // TODO: Cannot implement with macros
-//  get(params.getOrElse("booleanTest", "false") == "true") {
-//    "matched boolean route"
-//  }
+
+  get(params.getOrElse("booleanTest", "false") == "true") {
+    "matched boolean route"
+  }
 
   get("/optional/?:foo?/?:bar?") {
     (for (key <- List("foo", "bar") if params.isDefinedAt(key)) yield key + "=" + params(key)).mkString(";")
@@ -65,10 +66,10 @@ class RouteTestServlet extends ScalatraServlet {
     "false"
   }
 
-  // TODO: Cannot implement in this manner
-//  get("/conditional", params.getOrElse("condition", "false") == "true") {
-//    "true"
-//  }
+
+  get("/conditional", params.getOrElse("condition", "false") == "true") {
+    "true"
+  }
 
   get("""^\/fo(.*)/ba(.*)""".r) {
     multiParams.getOrElse("captures", Seq.empty) mkString (":")
@@ -81,10 +82,10 @@ class RouteTestServlet extends ScalatraServlet {
   get("""/reg(ular)?-ex(pression)?""".r) {
     "regex: false"
   }
-  // TODO: Cannot implement in this manner
-//  get("""/reg(ular)?-ex(pression)?""".r, params.getOrElse("condition", "false") == "true") {
-//    "regex: true"
-//  }
+
+  get("""/reg(ular)?-ex(pression)?""".r, params.getOrElse("condition", "false") == "true") {
+    "regex: true"
+  }
 
   post() {
     "I match any post!"
@@ -95,7 +96,8 @@ class RouteTestServlet extends ScalatraServlet {
   }
 
   get("/fail", false, new RouteMatcher {
-    def apply(requestPath: String) = { throw new RuntimeException("shouldn't execute"); None }
+    def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) = {
+      throw new RuntimeException("shouldn't execute"); None }
   }) {
     "shouldn't return"
   }

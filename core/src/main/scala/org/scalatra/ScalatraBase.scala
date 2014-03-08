@@ -224,7 +224,7 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
   protected def runFilters(req: HttpServletRequest, resp: HttpServletResponse, filters: Traversable[Route]) {
     for {
       route <- filters
-      matchedRoute <- route(requestPath(req))
+      matchedRoute <- route(requestPath(req), req, resp)
     } invoke(req, resp, matchedRoute)
   }
 
@@ -235,7 +235,7 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
   protected def runRoutes(req: HttpServletRequest, resp: HttpServletResponse, routes: Traversable[Route]) = {
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
-      matchedRoute <- route.apply(requestPath(req))
+      matchedRoute <- route.apply(requestPath(req), req, resp)
       saved = saveMatchedRoute(req, matchedRoute)
       actionResult <- invoke(req, resp, saved)
     } yield actionResult
@@ -307,7 +307,7 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
   }
 
   private[this] def matchOtherMethods(req: HttpServletRequest, resp: HttpServletResponse): Option[Any] = {
-    val allow = routes.matchingMethodsExcept(req.requestMethod, requestPath(req))
+    val allow = routes.matchingMethodsExcept(req.requestMethod, requestPath(req), req, resp)
     if (allow.isEmpty) None else liftAction(req, resp, {(req: HttpServletRequest, response: HttpServletResponse) =>
       doMethodNotAllowed(req, resp, allow)
     })
@@ -316,7 +316,7 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
   private[this] def handleStatusCode(req: HttpServletRequest, resp: HttpServletResponse, status: Int): Option[Any] =
     for {
       handler <- routes(status)
-      matchedHandler <- handler(requestPath(req))
+      matchedHandler <- handler(requestPath(req), req, resp)
       handlerResult <- invoke(req, resp, matchedHandler)
     } yield handlerResult
 
@@ -480,18 +480,18 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
   protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
     new RegexRouteMatcher(regex)
 
-  /**
-   * Converts a boolean expression to a route matcher.
-   *
-   * @param block a block that evaluates to a boolean
-   *
-   * @return a route matcher based on `block`.  The route matcher should
-   *         return `Some` if the block is true and `None` if the block is false.
-   *
-   * @see [[org.scalatra.BooleanBlockRouteMatcher]]
-   */
-  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
-    new BooleanBlockRouteMatcher(block)
+//  /**
+//   * Converts a boolean expression to a route matcher.
+//   *
+//   * @param block a block that evaluates to a boolean
+//   *
+//   * @return a route matcher based on `block`.  The route matcher should
+//   *         return `Some` if the block is true and `None` if the block is false.
+//   *
+//   * @see [[org.scalatra.BooleanBlockRouteMatcher]]
+//   */
+//  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
+//    new BooleanBlockRouteMatcher(block)
 
   protected def renderHaltException(req: HttpServletRequest, resp: HttpServletResponse, e: HaltException) {
     try {

@@ -14,7 +14,7 @@ object DSLMacros {
 
   type DSLContext = Context { type PrefixType = CoreDsl }
 
-  private def actionBuilder(c: DSLContext)(block: c.Expr[Any]): c.Expr[Action] = {
+  private def reqRespRewriter(c: DSLContext)(block: c.Expr[Any]): c.Tree = {
     import c.universe._
 
     val reqName = newTermName("request")
@@ -28,7 +28,13 @@ object DSLMacros {
       }
     }
 
-    val newBlock = c.resetAllAttrs(transformer.transform(block.tree))
+    c.resetAllAttrs(transformer.transform(block.tree))
+  }
+
+  private def actionBuilder(c: DSLContext)(block: c.Expr[Any]): c.Expr[Action] = {
+    import c.universe._
+
+    val newBlock = reqRespRewriter(c)(block)
 
     reify {
       { (request: HttpServletRequest, response: HttpServletResponse) =>
@@ -156,5 +162,17 @@ object DSLMacros {
     trapRangeImpl(c)(rangeExpr)(block)
   }
 
+  def booleanBlock2RouteMatcherImpl(c: DSLContext)(block: c.Expr[Boolean]): c.Expr[RouteMatcher] =  {
+
+    import c.universe._
+
+    val newBlock = reqRespRewriter(c)(block)
+
+    reify {
+      new BooleanBlockRouteMatcher({ (request: HttpServletRequest, response: HttpServletResponse) =>
+        c.Expr[Boolean](newBlock).splice
+      })
+    }
+  }
 }
 

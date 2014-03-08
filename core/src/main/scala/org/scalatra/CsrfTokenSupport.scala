@@ -103,8 +103,9 @@ trait XsrfTokenSupport { this: ScalatraBase =>
   def xsrfToken(implicit request: HttpServletRequest): String =
     request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
-  def xsrfGuard(only: RouteTransformer*)(implicit req: HttpServletRequest) {
-    beforeAction((only.toSeq ++ Seq[RouteTransformer](isForged(req))):_*) { (_, _) => handleForgery() }
+  def xsrfGuard(only: RouteTransformer*) {
+    val guard = new BooleanBlockRouteMatcher((req, _ ) => isForged(req))
+    beforeAction((only.toSeq ++ Seq[RouteTransformer](guard)):_*) { (_, _) => handleForgery() }
   }
 
   beforeAction() { (req, _) => prepareXsrfToken(req) }

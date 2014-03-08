@@ -32,10 +32,9 @@ class RouteIsReversibleTest extends ScalatraFunSuite {
     mixNamedAndSplat.isReversible should equal (true)
   }
 
-  // TODO: cannot be implemented
-//  test("Urls can be generated from a string and a boolean block") {
-//    stringAndBoolean.isReversible should equal (true)
-//  }
+  test("Urls can be generated from a string and a boolean block") {
+    stringAndBoolean.isReversible should equal (true)
+  }
 
   test("Urls can be generated from a string and a custom matcher") {
     stringAndCustomMatcher.isReversible should equal (true)
@@ -45,10 +44,9 @@ class RouteIsReversibleTest extends ScalatraFunSuite {
     anyPost.isReversible should equal (false)
   }
 
-  // TODO: cannot be implemented
-//  test("Urls can not be generated from only a boolean block") {
-//    booleanTest.isReversible should equal (false)
-//  }
+  test("Urls can not be generated from only a boolean block") {
+    booleanTest.isReversible should equal (false)
+  }
 
   test("Urls can not be generated from a regex") {
     regex1.isReversible should equal (false)

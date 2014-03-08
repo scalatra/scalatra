@@ -2,7 +2,7 @@ package org.scalatra
 
 import util.MultiMap
 import javax.activation.MimetypesFileTypeMap
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 /**
  * A route is a set of matchers and an action.  A route is considered to match
@@ -24,11 +24,11 @@ case class Route(
    * None is returned.  If there are no route matchers, some empty map is
    * returned.
    */
-  def apply(requestPath: String): Option[MatchedRoute] = {
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse): Option[MatchedRoute] = {
     routeMatchers.foldLeft(Option(MultiMap())) {
       (acc: Option[MultiParams], routeMatcher: RouteMatcher) => for {
         routeParams <- acc
-        matcherParams <- routeMatcher(requestPath)
+        matcherParams <- routeMatcher(requestPath, req, resp)
       } yield routeParams ++ matcherParams
     } map { routeParams => MatchedRoute(action, routeParams) }
   }

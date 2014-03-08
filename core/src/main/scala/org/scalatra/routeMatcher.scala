@@ -4,13 +4,14 @@ import scala.util.matching.Regex
 import scala.util.parsing.combinator._
 import util.MultiMap
 import util.RicherString._
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
 /**
  * A route matcher is evaluated in the context it was created and returns a
  * a (possibly empty) multi-map of parameters if the route is deemed to match.
  */
 trait RouteMatcher extends RouteTransformer {
-  def apply(requestPath: String): Option[MultiParams]
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse): Option[MultiParams]
 
   def apply(route: Route): Route = Route.appendMatcher(this)(route)
 }
@@ -37,7 +38,8 @@ final class SinatraRouteMatcher(pattern: String)
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
-  def apply(requestPath: String) = SinatraPathPatternParser(pattern)(requestPath)
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) =
+          SinatraPathPatternParser(pattern)(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
     generator(Builder("", params, splats)).get
@@ -107,7 +109,8 @@ final class RailsRouteMatcher(pattern: String)
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
-  def apply(requestPath: String) = RailsPathPatternParser(pattern)(requestPath)
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) =
+          RailsPathPatternParser(pattern)(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
     generator(Builder("", params)).get
@@ -176,7 +179,7 @@ final class RailsRouteMatcher(pattern: String)
 final class PathPatternRouteMatcher(pattern: PathPattern)
   extends RouteMatcher {
 
-  def apply(requestPath: String) = pattern(requestPath)
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) = pattern(requestPath)
 
   override def toString = pattern.regex.toString
 }
@@ -194,10 +197,12 @@ final class RegexRouteMatcher(regex: Regex)
    * @return If the regex matches the request path, returns a list of all
    * captured groups in a "captures" variable.  Otherwise, returns None.
    */
-  def apply(requestPath: String) = regex.findFirstMatchIn(requestPath) map { _.subgroups match {
-    case Nil => MultiMap()
-    case xs => Map("captures" -> xs)
-  }}
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) = {
+    regex.findFirstMatchIn(requestPath) map { _.subgroups match {
+      case Nil => MultiMap()
+      case xs => Map("captures" -> xs)
+    }}
+  }
 
   override def toString = regex.toString
 }
@@ -205,20 +210,22 @@ final class RegexRouteMatcher(regex: Regex)
 /**
  * A route matcher on a boolean condition.  Does not extract any route parameters.
  */
-final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
+final class BooleanBlockRouteMatcher(block:(HttpServletRequest, HttpServletResponse) => Boolean) extends RouteMatcher {
   /**
    * Evaluates the block.
    *
    * @return Some empty map if the block evaluates to true, or else None.
    */
-  def apply(requestPath: String) = if (block) Some(MultiMap()) else None
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) =
+          if (block(req, resp)) Some(MultiMap()) else None
 
   override def toString = "[Boolean Guard]"
 }
 
 final class StatusCodeRouteMatcher(codes: Range, responseStatus: => Int)  extends RouteMatcher {
 
-  def apply(requestPath: String) = if(codes.contains(responseStatus)) Some(MultiMap()) else None
+  def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) =
+          if(codes.contains(responseStatus)) Some(MultiMap()) else None
 
   override def toString = codes.toString()
 }

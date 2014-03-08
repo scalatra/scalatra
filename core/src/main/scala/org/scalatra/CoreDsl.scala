@@ -155,4 +155,16 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
 
   def trap(code: Int)(block: Any): Unit = macro trapImpl
 
+  /**
+   * Converts a boolean expression to a route matcher.
+   *
+   * @param block a block that evaluates to a boolean
+   *
+   * @return a route matcher based on `block`.  The route matcher should
+   *         return `Some` if the block is true and `None` if the block is false.
+   *
+   * @see [[org.scalatra.BooleanBlockRouteMatcher]]
+   */
+  protected implicit def booleanBlock2RouteMatcher(block: Boolean): RouteMatcher = macro booleanBlock2RouteMatcherImpl
+
 }
