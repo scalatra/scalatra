@@ -28,7 +28,7 @@ object DSLMacros {
       }
     }
 
-    c.resetAllAttrs(transformer.transform(block.tree))
+    c.resetLocalAttrs(transformer.transform(block.tree))
   }
 
   private def actionBuilder(c: DSLContext)(block: c.Expr[Any]): c.Expr[Action] = {

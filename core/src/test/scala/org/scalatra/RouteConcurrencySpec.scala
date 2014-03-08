@@ -1,24 +1,29 @@
 package org.scalatra
 
-import scala.concurrent.ops._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 import test.scalatest.ScalatraWordSpec
 
 class RouteConcurrencyServlet extends ScalatraServlet {
+
+  private def await[T](f: Future[T]): T = Await.result(f, Duration.Inf)
+
   for {
     i <- 0 until 250
-    x = future { get(false) { "/"} }
-  } x()
+    x = Future { get(false) { "/"} }
+  } await(x)
 
   val postRoutes = for {
     i <- 0 until 250
-    x = future { post(false) { "/"} }
-  } yield x()
+    x = Future { post(false) { "/"} }
+  } yield await(x)
 
   for {
     route <- postRoutes.take(250)
-    x = future { post(false) {}; post(false) {}} // add some more routes while we're removing
-    y = future { removeRoute("POST", route) }
-  } (x(), y())
+    x = Future { post(false) {}; post(false) {}} // add some more routes while we're removing
+    y = Future { removeRoute("POST", route) }
+  } (await(x), await(y))
 
   get("/count/:method") {
     routes(HttpMethod(params("method"))).size.toString
