@@ -170,7 +170,7 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
 
     cradleHalt(req, resp, result = runActions, e => {
       cradleHalt(req, resp, {
-        result = errorHandler(e)
+        result = errorHandler(req, resp)(e)
         rendered = false
       }, e => {
         runCallbacks(req, Failure(e))
@@ -324,12 +324,15 @@ trait ScalatraBase extends ScalatraContext with Initializable with ServletApiImp
    * The error handler function, called if an exception is thrown during
    * before filters or the routes.
    */
-  protected var errorHandler: ErrorHandler = {
+  protected var errorHandler: ErrorHandlerAction = (_, _) => {
     case t => throw t
   }
 
-  def error(handler: ErrorHandler) {
-    errorHandler = handler orElse errorHandler
+  def errorAction(handler: ErrorHandlerAction) {
+    errorHandler = {
+      val old = errorHandler   // Need to do this to avoid making a recursive call and thus a stack overflow
+      (req, resp) => handler(req, resp) orElse old(req, resp)
+    }
   }
 
   protected def withRouteMultiParams[S](req: HttpServletRequest, matchedRoute: Option[MatchedRoute])(thunk: => S): S = {

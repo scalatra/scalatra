@@ -69,7 +69,9 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    * rendered like a standard response.  It is the error handler's
    * responsibility to set any appropriate status code.
    */
-  def error(handler: ErrorHandler): Unit
+  def error(handler: ErrorHandler): Unit = macro errorImpl
+
+  def errorAction(handler: ErrorHandlerAction): Unit
 
   /**
    * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]

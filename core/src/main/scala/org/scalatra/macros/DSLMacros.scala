@@ -87,16 +87,15 @@ object DSLMacros {
     }
   }
 
-//  def errorImpl(c: DSLContext)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
-//    import c.universe._
-//
-//    val routeExpr = actionBuilder(c)(block)
-//    val texpr = c.Expr[Seq[RouteTransformer]](q"Seq(..$transformers)")
-//
-//    reify {
-//      c.prefix.splice.error(texpr.splice:_*)(routeExpr.splice)
-//    }
-//  }
+  def errorImpl(c: DSLContext)(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rewriteTree = reqRespRewriter(c)(handler)
+
+    reify {
+      c.prefix.splice.errorAction( (request, response) => c.Expr[ErrorHandler](rewriteTree).splice )
+    }
+  }
 
 
   def getImpl(c: DSLContext)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {

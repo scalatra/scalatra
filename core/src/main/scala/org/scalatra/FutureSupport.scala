@@ -65,7 +65,7 @@ trait FutureSupport extends ScalatraBase {
               case Failure(e: HaltException) ⇒ renderHaltException(req, resp, e)
               case Failure(e) ⇒
                 try {
-                  renderResponse(req, resp, errorHandler(e))
+                  renderResponse(req, resp, errorHandler(req, resp)(e))
                 } catch {
                   case e: Throwable =>
                     ScalatraBase.runCallbacks(req, Failure(e))
@@ -95,7 +95,7 @@ trait FutureSupport extends ScalatraBase {
             case e: HaltException => renderHaltException(req, resp, e)
             case e =>
               try {
-                renderResponse(req, resp, errorHandler(e))
+                renderResponse(req, resp, errorHandler(req, resp)(e))
               } catch {
                 case e: Throwable =>
                   ScalatraBase.runCallbacks(req, Failure(e))

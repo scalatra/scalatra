@@ -27,6 +27,8 @@ package object scalatra
 
   type ErrorHandler = PartialFunction[Throwable, Any]
 
+  type ErrorHandlerAction = (HttpServletRequest, HttpServletResponse) => ErrorHandler
+
   type ContentTypeInferrer = PartialFunction[Any, String]
 
   type RenderPipeline = (HttpServletRequest, HttpServletResponse, Any) => Any
