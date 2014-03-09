@@ -8,12 +8,11 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
+// TODO: this might be unnecessary now except for the timeout
 abstract class AsyncResult(implicit sc: ScalatraContext) extends ScalatraContext  {
 
   override protected def scalatraContext(implicit req: HttpServletRequest, resp: HttpServletResponse) = sc
 
-//  implicit val request: HttpServletRequest = sc.request
-//  implicit val response: HttpServletResponse = sc.response
   val servletContext: ServletContext = sc.servletContext
 
   // This is a Duration instead of a timeout because a duration has the concept of infinity
@@ -25,7 +24,9 @@ trait FutureSupport extends ScalatraBase {
 
   implicit protected def executor: ExecutionContext
 
-//  override def asynchronously(f: ⇒ Any): Action = () ⇒ Future(f)
+  // TODO: perhaps this should just be removed
+  @deprecated("Use Future('block') instead", "2.4")
+  def asynchronously(f: ⇒ Any): Action = (_, _) ⇒ Future(f)
 
   // Still thinking of the best way to specify this before making it public.
   // In the meantime, this gives us enough control for our test.
@@ -58,49 +59,11 @@ trait FutureSupport extends ScalatraBase {
         case Success(f2: Future[_]) => renderFutureResult(f2)
         case Success(r: AsyncResult) => renderFutureResult(r.is)
         case t ⇒ {
-//          withinAsyncContext(context) {
-            if (gotResponseAlready.compareAndSet(false, true)) {
-              try {
-                t map { result ⇒
-                  renderResponse(req, resp, result)
-                } recover {
-                  case e: HaltException ⇒
-                    renderHaltException(req, resp, e)
-                  case e ⇒
-                    try {
-                      renderResponse(req, resp, errorHandler(e))
-                    } catch {
-                      case e: Throwable =>
-                        ScalatraBase.runCallbacks(req, Failure(e))
-                        renderUncaughtException(req, resp, e)
-                        ScalatraBase.runRenderCallbacks(req, Failure(e))
-                    }
-                }
-              } finally {
-                context.complete()
-              }
-            }
-//          }
-        }
-      }
-    }
-
-    context addListener new AsyncListener {
-      def onTimeout(event: AsyncEvent) {
-//        onAsyncEvent(event) {
           if (gotResponseAlready.compareAndSet(false, true)) {
-            renderHaltException(req, resp, HaltException(Some(504), None, Map.empty, "Gateway timeout"))
-            event.getAsyncContext.complete()
-          }
-//        }
-      }
-      def onComplete(event: AsyncEvent) {}
-      def onError(event: AsyncEvent) {
-//        onAsyncEvent(event) {
-          if (gotResponseAlready.compareAndSet(false, true)) {
-            event.getThrowable match {
-              case e: HaltException => renderHaltException(req, resp, e)
-              case e =>
+          try t match {
+              case Success(result) ⇒  renderResponse(req, resp, result)
+              case Failure(e: HaltException) ⇒ renderHaltException(req, resp, e)
+              case Failure(e) ⇒
                 try {
                   renderResponse(req, resp, errorHandler(e))
                 } catch {
@@ -110,8 +73,37 @@ trait FutureSupport extends ScalatraBase {
                     ScalatraBase.runRenderCallbacks(req, Failure(e))
                 }
             }
+            finally {
+              context.complete()
+            }
           }
-//        }
+        }
+      }
+    }
+
+    context addListener new AsyncListener {
+      def onTimeout(event: AsyncEvent) {
+        if (gotResponseAlready.compareAndSet(false, true)) {
+          renderHaltException(req, resp, HaltException(Some(504), None, Map.empty, "Gateway timeout"))
+          event.getAsyncContext.complete()
+        }
+      }
+      def onComplete(event: AsyncEvent) {}
+      def onError(event: AsyncEvent) {
+        if (gotResponseAlready.compareAndSet(false, true)) {
+          event.getThrowable match {
+            case e: HaltException => renderHaltException(req, resp, e)
+            case e =>
+              try {
+                renderResponse(req, resp, errorHandler(e))
+              } catch {
+                case e: Throwable =>
+                  ScalatraBase.runCallbacks(req, Failure(e))
+                  renderUncaughtException(req, resp, e)
+                  ScalatraBase.runRenderCallbacks(req, Failure(e))
+              }
+          }
+        }
       }
       def onStartAsync(event: AsyncEvent) {}
     }

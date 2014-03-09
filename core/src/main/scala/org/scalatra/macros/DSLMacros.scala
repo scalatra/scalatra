@@ -22,8 +22,8 @@ object DSLMacros {
 
     val transformer = new Transformer {
       override def transform(tree: Tree): Tree = tree match {
-        case q"$a.this.request" => Ident(reqName)
-        case q"$a.this.response" => Ident(respName)
+        case q"$a.this.request" if tree.tpe =:= c.weakTypeOf[HttpServletRequest] => Ident(reqName)
+        case q"$a.this.response" if tree.tpe =:= c.weakTypeOf[HttpServletResponse] => Ident(respName)
         case t => super.transform(t)
       }
     }
@@ -49,6 +49,8 @@ object DSLMacros {
     import c.universe._
 
     val texpr = c.Expr[Seq[RouteTransformer]](q"Seq(..$transformers)")
+
+//    println("Before: \n" + block.tree)
 
     val action = actionBuilder(c)(block)
 
