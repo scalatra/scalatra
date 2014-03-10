@@ -20,8 +20,11 @@ object AtmosphereClient {
       if (!pth.endsWith("/")) pth + "/*" else "*"
     } else pth
     val res: Broadcaster = BroadcasterFactory.getDefault.lookup(norm)
-    if (res.isInstanceOf[ScalatraBroadcaster]) Option(res).map(_.asInstanceOf[ScalatraBroadcaster])
-    else None
+    if( res != null && res.isInstanceOf[ScalatraBroadcaster]) {
+      Some(res.asInstanceOf[ScalatraBroadcaster])
+    } else {
+      None
+    }
   }
 
   def broadcast(path: String, message: OutboundMessage, filter: ClientFilter = new Everyone)(implicit executionContext: ExecutionContext) = {
