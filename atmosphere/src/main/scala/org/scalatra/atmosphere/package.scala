@@ -6,10 +6,13 @@ import scala.concurrent.duration._
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.cpr.AtmosphereResource
 import scala.util.control.Exception._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 package object atmosphere {
 
   type AtmoReceive = PartialFunction[InboundMessage, Unit]
+
+  type AtmoAction = (HttpServletRequest, HttpServletResponse) => AtmosphereClient
 
   abstract class ClientFilter(val uuid: String) extends Function[AtmosphereClient, Boolean]
 

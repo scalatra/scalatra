@@ -14,7 +14,7 @@ object DSLMacros {
 
   type DSLContext = Context { type PrefixType = CoreDsl }
 
-  private def reqRespRewriter(c: DSLContext)(block: c.Expr[Any]): c.Tree = {
+  private[scalatra] def reqRespRewriter(c: Context)(block: c.Expr[Any]): c.Tree = {
     import c.universe._
 
     val reqName = newTermName("request")

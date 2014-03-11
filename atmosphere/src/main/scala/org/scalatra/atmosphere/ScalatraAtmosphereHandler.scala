@@ -7,7 +7,7 @@ import org.scalatra.servlet.ServletApiImplicits._
 import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
-import javax.servlet.http.{HttpServletRequest, HttpSession}
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
 import grizzled.slf4j.Logger
@@ -95,7 +95,8 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
   private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
     withRouteMultiParams(route, resource.getRequest) {
-      val client = clientForRoute(route)
+      val client = clientForRoute(route, resource.getRequest,  resource.getResponse)
+
       session(org.scalatra.atmosphere.AtmosphereClientKey) = client
       client.resource = resource
       client
@@ -103,14 +104,14 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   }
   private[this] def createClient(route: MatchedRoute, resource: AtmosphereResource) = {
     withRouteMultiParams(route, resource.getRequest) {
-      val client = clientForRoute(route)
+      val client = clientForRoute(route, resource.getRequest, resource.getResponse)
       client.resource = resource
       client
     }
   }
 
-  private[this] def clientForRoute(route: MatchedRoute): AtmosphereClient = {
-    liftAction(route.action) getOrElse {
+  private[this] def clientForRoute(route: MatchedRoute, req: HttpServletRequest, resp: HttpServletResponse): AtmosphereClient = {
+    liftAction(route.action, req, resp) getOrElse {
       throw new ScalatraException("An atmosphere route should return an atmosphere client")
     }
   }
@@ -179,8 +180,8 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     request(MultiParamsKey) = originalParams ++ routeParams
   }
 
-  private[this] def liftAction(action: org.scalatra.Action) = try {
-    action() match {
+  private[this] def liftAction(action: org.scalatra.Action, req: HttpServletRequest, resp: HttpServletResponse) = try {
+    action(req, resp) match {
       case cl: AtmosphereClient => Some(cl)
       case _ => None
     }

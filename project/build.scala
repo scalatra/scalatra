@@ -115,6 +115,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-atmosphere",
     base = file("atmosphere"),
     settings = scalatraSettings ++ Seq(
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M3" cross CrossVersion.full),
       libraryDependencies <++= scalaVersion(sv => Seq(akkaActor(sv), akkaTestkit(sv) % "test")),
       libraryDependencies ++= Seq(atmosphereRuntime, atmosphereRedis, atmosphereCompatJbossweb, atmosphereCompatTomcat, atmosphereCompatTomcat7, atmosphereClient % "test", jettyWebsocket % "test"),
       description := "Atmosphere integration for scalatra",
@@ -277,8 +278,9 @@ object ScalatraBuild extends Build {
      scalatraScalate,
      scalatraAuth,
      //scalatraFileupload,
-     scalatraJetty
-     //scalatraCommands, scalatraAtmosphere
+     scalatraJetty,
+     //scalatraCommands, 
+     scalatraAtmosphere
   )
 
   object Dependencies {

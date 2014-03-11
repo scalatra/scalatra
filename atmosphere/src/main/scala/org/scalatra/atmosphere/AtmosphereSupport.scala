@@ -1,6 +1,8 @@
 package org.scalatra
 package atmosphere
 
+
+
 import json.JsonSupport
 import javax.servlet.{ServletContext, ServletConfig, FilterConfig, ServletException}
 import org.apache.catalina.CometProcessor
@@ -13,7 +15,7 @@ import org.atmosphere.container.JBossWebCometSupport
 import org.atmosphere.cpr._
 import collection.JavaConverters._
 import org.json4s._
-import org.atmosphere.cache.{UUIDBroadcasterCache, HeaderBroadcasterCache}
+import org.atmosphere.cache.{UUIDBroadcasterCache}
 import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import grizzled.slf4j.Logger
@@ -22,10 +24,9 @@ import scala.util.control.Exception.allCatch
 import org.atmosphere.client.TrackMessageSizeInterceptor
 import org.atmosphere.interceptor.SessionCreationInterceptor
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import servlet.ScalatraAsyncSupport
 import java.util
 
-trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with FutureSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 
@@ -127,16 +128,14 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    * `executeRoutes()`.
    */
   abstract override def handle(request: HttpServletRequest, response: HttpServletResponse) {
-    withRequestResponse(request, response) {
-      val atmoRoute = atmosphereRoute(request)
-      if (atmoRoute.isDefined) {
-        request(AtmosphereRouteKey) = atmoRoute.get
-        request.getSession(true) // force session creation
-        if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER_WRAPPER).isEmpty)
-          atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
-      } else {
-        super.handle(request, response)
-      }
+    val atmoRoute = atmosphereRoute(request, response)
+    if (atmoRoute.isDefined) {
+      request(AtmosphereRouteKey) = atmoRoute.get
+      request.getSession(true) // force session creation
+      if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER_WRAPPER).isEmpty)
+        atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
+    } else {
+      super.handle(request, response)
     }
   }
 
@@ -145,9 +144,9 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   private[this] def atmosphereRoutes = routes.methodRoutes.getOrElse(Get, noGetRoute).filter(_.metadata.contains('Atmosphere))
 
-  private[this] def atmosphereRoute(req: HttpServletRequest) = (for {
+  private[this] def atmosphereRoute(req: HttpServletRequest, resp: HttpServletResponse) = (for {
     route <- atmosphereRoutes.toStream
-    matched <- route(requestPath)
+    matched <- route(requestPath(req), req, resp)
   } yield matched).headOption
 
   private[this] def configureBroadcasterFactory() {
@@ -167,11 +166,16 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     route.copy(metadata = route.metadata + ('Atmosphere -> 'Atmosphere))
   }
 
-  def atmosphere(transformers: RouteTransformer*)(block: => AtmosphereClient) = {
+  def atmosphereAction(transformers: RouteTransformer*)(block: AtmoAction): Route = {
     val newTransformers = transformers :+ Atmosphere
-    get(newTransformers:_*)(block)
-    post(newTransformers:_*){()}
+    addRoute(Get, newTransformers, block)
+    addRoute(Post, newTransformers, (_, _) => ())
   }
+
+  import org.scalatra.atmosphere.macros.AtmosphereMacros.atmosphereImpl
+  import scala.language.experimental.macros
+
+  def atmosphere(transformers: RouteTransformer*)(block: AtmosphereClient): Route = macro atmosphereImpl
 
   /**
    * Hack to support Tomcat AIO like other WebServer. This method is invoked
