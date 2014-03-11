@@ -274,7 +274,7 @@ object ScalatraBuild extends Build {
      )
   ) dependsOn(
      scalatraCore % "compile;test->test;provided->provided",
-     //scalatraScalate,
+     scalatraScalate,
      //scalatraAuth,
      //scalatraFileupload,
      scalatraJetty
