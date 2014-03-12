@@ -6,6 +6,7 @@ import org.json4s._
 import Xml._
 import text.Document
 import javax.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 
 object JsonSupport {
 
@@ -16,6 +17,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
 
   import JsonSupport._
 
+  private[this] val logger = LoggerFactory.getLogger(getClass)
 
   private[this] val _defaultCacheRequestBody = true
   protected def cacheRequestBodyAsString: Boolean = _defaultCacheRequestBody
@@ -37,7 +39,10 @@ trait JsonSupport[T] extends JsonOutput[T] {
       transformRequestBody(bd)
     } else JNothing
   } catch {
-    case _: Throwable ⇒ JNothing
+    case t: Throwable ⇒ {
+      logger.error(s"Parsing the request body failed, because:", t)
+      JNothing
+    }
   }
 
   protected def readJsonFromBody(bd: String): JValue
@@ -66,7 +71,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
     }
   }
 
-  private def shouldParseBody(fmt: String)(implicit request: HttpServletRequest) =
+  protected def shouldParseBody(fmt: String)(implicit request: HttpServletRequest) =
     (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
   def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
