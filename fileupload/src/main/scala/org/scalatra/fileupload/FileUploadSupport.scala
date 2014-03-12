@@ -137,18 +137,16 @@ trait FileUploadSupport extends ServletBase {
    */
   protected def fileItemFactory: FileItemFactory = new DiskFileItemFactory
 
-  protected def fileMultiParams: FileMultiParams = extractMultipartParams(request).fileParams
+  protected def fileMultiParams(implicit req: HttpServletRequest): FileMultiParams = extractMultipartParams(req).fileParams
 
-  protected val _fileParams = new collection.Map[String, FileItem] {
-    def get(key: String) = fileMultiParams.get(key) flatMap { _.headOption }
-    override def size = fileMultiParams.size
-    override def iterator = (fileMultiParams map { case(k, v) => (k, v.head) }).iterator
+  /** @return a Map, keyed on the names of multipart file upload parameters, of all multipart files submitted with the request */
+  def fileParams(implicit req: HttpServletRequest) = new collection.Map[String, FileItem] {
+    def get(key: String) = fileMultiParams(req).get(key) flatMap { _.headOption }
+    override def size = fileMultiParams(req).size
+    override def iterator = (fileMultiParams(req) map { case(k, v) => (k, v.head) }).iterator
     override def -(key: String) = Map() ++ this - key
     override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
   }
-
-  /** @return a Map, keyed on the names of multipart file upload parameters, of all multipart files submitted with the request */
-  def fileParams = _fileParams
 }
 
 object FileUploadSupport {

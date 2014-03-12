@@ -8,7 +8,7 @@ import collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
 import grizzled.slf4j.Logger
 import scala.collection.concurrent.{ Map => ConcurrentMap }
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import scala.concurrent.{Future, ExecutionContext}
 
 
@@ -59,7 +59,8 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
 
   private class CommandRouteMatcher[T <: CommandType ](implicit mf: Manifest[T]) extends RouteMatcher {
 
-    override def apply(requestPath: String) = if (command[T].isValid) Some(MultiMap()) else None
+    override def apply(requestPath: String, req: HttpServletRequest, resp: HttpServletResponse) =
+      if (command[T](req, implicitly[Manifest[T]]).isValid) Some(MultiMap()) else None
   }
 
   /**
