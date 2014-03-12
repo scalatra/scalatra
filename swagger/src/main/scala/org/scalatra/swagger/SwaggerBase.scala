@@ -5,6 +5,7 @@ import org.json4s._
 import JsonDSL._
 import json.JsonSupport
 import grizzled.slf4j.Logger
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
@@ -34,20 +35,20 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    get("""/([^.]+)*(?:\.(\w+))?""".r) {
-      val doc :: fmt :: Nil = multiParams("captures").toList
-      if (fmt != null) format = fmt
+    addRoute(Get, Seq("""/([^.]+)*(?:\.(\w+))?""".r), (req, resp) => {
+      val doc :: fmt :: Nil = multiParams("captures")(req).toList
+      if (fmt != null) format_=(fmt)(req)
       swagger.doc(doc) match {
-        case Some(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+        case Some(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType], req, resp)
         case _         ⇒ halt(404)
       }
-    }
+    })
 
-    get("/("+indexRoute+"(.:format))") {
-      renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
-    }
+    addRoute(Get, Seq("/("+indexRoute+"(.:format))"), (req, resp) => {
+      renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])(req, resp)
+    })
 
-    options("/("+indexRoute+"(.:format))") {}
+    addRoute(Options, Seq("/("+indexRoute+"(.:format))") , (_, _) => ())
   }
 
   /**
@@ -55,9 +56,9 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
    */
   protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
 
-  protected def renderDoc(doc: ApiType): JValue = {
+  protected def renderDoc(doc: ApiType, req: HttpServletRequest, resp: HttpServletResponse): JValue = {
     val json = docToJson(doc) merge
-      ("basePath" -> fullUrl("/", includeServletPath = false)) ~
+      ("basePath" -> fullUrl("/", includeServletPath = false)(req, resp)) ~
       ("swaggerVersion" -> swagger.swaggerVersion) ~
       ("apiVersion" -> swagger.apiVersion)
     val consumes = dontAddOnEmpty("consumes", doc.consumes)_
@@ -74,7 +75,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     json merge v
   }
 
-  protected def renderIndex(docs: List[ApiType]): JValue = {
+  protected def renderIndex(docs: List[ApiType])(implicit req: HttpServletRequest, resp: HttpServletResponse): JValue = {
     ("apiVersion" -> swagger.apiVersion) ~
     ("swaggerVersion" -> swagger.swaggerVersion) ~
     ("apis" ->
@@ -89,11 +90,11 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)))
   }
 
-  error {
+  errorAction( (_, _) => {
     case t: Throwable =>
       t.printStackTrace()
       throw t
-  }
+  })
 
 }
 
