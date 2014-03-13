@@ -15,6 +15,7 @@ import collection.mutable
 import org.scalatra.swagger.DataType.ValueDataType
 import org.scalatra.util.NotNothing
 import org.scalatra.swagger.SwaggerSerializers.SwaggerFormats
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[AuthApi[AnyRef]] {
   private[this] val logger = Logger[this.type]
@@ -148,32 +149,41 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
   protected def userManifest: Manifest[TypeForUser]
-  protected implicit def jsonFormats: Formats = SwaggerAuthSerializers.authFormats(userOption)(userManifest)
+  protected def jsonFormats: Formats // Unimplicit this
 
-  protected def docToJson(doc: ApiType): JValue = Extraction.decompose(doc)
-  before() {
-    scentry.authenticate()    
+  private implicit def myJsonFormats(implicit req: HttpServletRequest, resp: HttpServletResponse) =
+    SwaggerAuthSerializers.authFormats(userOption)(userManifest)
+
+  protected def docToJson(doc: ApiType)(implicit req: HttpServletRequest, resp: HttpServletResponse): JValue =
+            Extraction.decompose(doc)
+
+  beforeAction() { (req, resp) =>
+    scentry(req, resp).authenticate()(req, resp)
   }
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
 
-    get("/:doc(.:format)") {
+    addRoute(Get, Seq("/:doc(.:format)"), (req, resp) => {
+      implicit def _req = req
+      implicit def _resp = resp
       def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
       swagger.doc(params("doc")) match {
-        case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
+        case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType], req, resp)
         case _         ⇒ NotFound()
       }
-    }
+    })
 
-    get("/"+indexRoute+"(.:format)") {
+    addRoute(Get, Seq("/"+indexRoute+"(.:format)"), (req, resp) => {
+      implicit def _req = req
+      implicit def _resp = resp
       val docs = swagger.docs.filter(_.apis.exists(_.operations.exists(_.allows(userOption)))).toList
       if (docs.isEmpty) halt(NotFound())
       renderIndex(docs.asInstanceOf[List[ApiType]])
-    }
+    })
   }
 
-  protected override def renderIndex(docs: List[ApiType]): JValue = {
+  protected override def renderIndex(docs: List[ApiType])(implicit req: HttpServletRequest, resp: HttpServletResponse): JValue = {
     ("apiVersion" -> swagger.apiVersion) ~
     ("swaggerVersion" -> swagger.swaggerVersion) ~
     ("apis" ->

@@ -15,7 +15,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
   protected type ApiType <: SwaggerApi[_]
 
   protected implicit def jsonFormats: Formats
-  protected def docToJson(doc: ApiType): JValue
+  protected def docToJson(doc: ApiType)(implicit req: HttpServletRequest, resp: HttpServletResponse): JValue
 
   implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
 
@@ -57,7 +57,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
   protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
 
   protected def renderDoc(doc: ApiType, req: HttpServletRequest, resp: HttpServletResponse): JValue = {
-    val json = docToJson(doc) merge
+    val json = docToJson(doc)(req, resp) merge
       ("basePath" -> fullUrl("/", includeServletPath = false)(req, resp)) ~
       ("swaggerVersion" -> swagger.swaggerVersion) ~
       ("apiVersion" -> swagger.apiVersion)
@@ -101,6 +101,8 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   type ApiType = Api
   implicit protected def jsonFormats: Formats = SwaggerSerializers.defaultFormats
-  protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)
+  protected def docToJson(doc: Api)(implicit req: HttpServletRequest, resp: HttpServletResponse): JValue =
+            Extraction.decompose(doc)
+
   protected implicit def swagger: SwaggerEngine[ApiType]
 }

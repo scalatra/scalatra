@@ -30,7 +30,7 @@ object SwaggerAuthSpec {
   
   class HeaderOrQueryToken(protected val app: ScalatraBase) extends ScentryStrategy[User] {
     override def name = "header_or_query_token"
-    private def token(implicit request: HttpServletRequest) = (app.request.header("API-TOKEN") orElse app.params.get("api_token")).flatMap(_.blankOption)
+    private def token(implicit request: HttpServletRequest) = (request.header("API-TOKEN") orElse app.params.get("api_token")).flatMap(_.blankOption)
     override def isValid(implicit request: HttpServletRequest) = token.isDefined
     def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
       token match {
@@ -52,11 +52,11 @@ object SwaggerAuthSpec {
     protected val toSession: PartialFunction[User, String] = {
       case u: User => u.login
     }
-    override def configureScentry = {
+    override def configureScentry(req: HttpServletRequest, resp: HttpServletResponse) = {
 //      scentry.store = new CookieAuthStore(this)
     }
-    override def registerAuthStrategies = {
-      scentry.register(new HeaderOrQueryToken(this))
+    override def registerAuthStrategies(req: HttpServletRequest, resp: HttpServletResponse) = {
+      scentry(req, resp).register(new HeaderOrQueryToken(this))
     }
     
     error {
@@ -72,9 +72,12 @@ object SwaggerAuthSpec {
   				with SwaggerAuthBase[User] {
 
 
+
     error {
       case t: Throwable => t.printStackTrace()
     }
+
+    protected def jsonFormats: Formats = DefaultFormats
 
     protected val userManifest = manifest[User]
 
