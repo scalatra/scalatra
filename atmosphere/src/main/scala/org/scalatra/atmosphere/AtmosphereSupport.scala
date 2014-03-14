@@ -97,11 +97,16 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
   }
 
+  /** Servlets that want to track atmosphere message size should override this.
+    * @see [[TrackMessageSizeInterceptor]]
+    */
+  protected def trackMessageSize : Boolean = false
+
   protected def configureInterceptors(cfg: ServletConfig) = {
     atmosphereFramework.interceptor(new SessionCreationInterceptor)
     if (cfg.getInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT).isBlank)
       cfg.getServletContext.setInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT, "true")
-    if (cfg.getInitParameter(TrackMessageSize).blankOption.map(_.toCheckboxBool).getOrElse(false))
+    if (trackMessageSize || cfg.getInitParameter(TrackMessageSize).blankOption.map(_.toCheckboxBool).getOrElse(false))
       atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
   }
 
