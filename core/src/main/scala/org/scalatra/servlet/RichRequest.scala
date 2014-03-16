@@ -176,7 +176,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
     cachedBody getOrElse {
       val encoding = r.getCharacterEncoding
       val enc = if(encoding == null || encoding.trim.length == 0) {
-        "ISO-8859-1"
+        if (contentType.exists(_ equalsIgnoreCase "application/json")) "UTF-8"  else "ISO-8859-1"
       } else encoding
       val body = Source.fromInputStream(r.getInputStream, enc).mkString
       update(cachedBodyKey, body)

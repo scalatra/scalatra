@@ -7,7 +7,8 @@ import java.io.{InputStreamReader, InputStream, Writer}
 
 
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
-  protected def readJsonFromStream(stream: InputStream): JValue = native.JsonParser.parse(new InputStreamReader(stream))
+  protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue =
+    native.JsonParser.parse(new InputStreamReader(stream, charset))
 
   protected def readJsonFromBody(bd: String): JValue = native.JsonParser.parse(bd)
 }

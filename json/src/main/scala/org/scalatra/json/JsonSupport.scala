@@ -27,7 +27,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
       val bd  = {
         if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readJsonFromBody getOrElse JNothing
         else if (cacheRequestBodyAsString) readJsonFromBody(request.body)
-        else readJsonFromStream(request.inputStream)
+        else readJsonFromStreamWithCharset(request.inputStream, request.characterEncoding getOrElse defaultCharacterEncoding)
       }
       transformRequestBody(bd)
     } else if (format == "xml") {
@@ -46,7 +46,8 @@ trait JsonSupport[T] extends JsonOutput[T] {
   }
 
   protected def readJsonFromBody(bd: String): JValue
-  protected def readJsonFromStream(stream: InputStream): JValue
+  protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue
+  protected def readJsonFromStream(stream: InputStream): JValue = readJsonFromStreamWithCharset(stream, defaultCharacterEncoding)
   protected def readXmlFromBody(bd: String): JValue = {
     val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.loadString(bd))
     jv
@@ -75,6 +76,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
     (fmt == "json" || fmt == "xml") && parsedBody == JNothing
 
   def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
+
     val fmt = format
     var bd: JValue = JNothing
     if (fmt == "json" || fmt == "xml") {

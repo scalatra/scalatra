@@ -5,7 +5,8 @@ import java.io.{Writer, InputStreamReader, InputStream}
 import org.json4s._
 
 trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with JValueResult {
-  protected def readJsonFromStream(stream: InputStream): JValue = mapper.readValue(stream, classOf[JValue])
+  protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue =
+    mapper.readValue(new InputStreamReader(stream, charset), classOf[JValue])
 
   protected def readJsonFromBody(bd: String): JValue = mapper.readValue(bd, classOf[JValue])
 }
