@@ -28,7 +28,8 @@
   </pre>
 
 ### Scalatra JSON
-* Update json4s to 3.2.7
+* Update json4s to 3.2.8
+* Use the character encoding from the request to read the json input stream.
 
 ### Scalatra Scalate
 * Fix #336: Only use a single scalate template engine
@@ -45,6 +46,8 @@
 * Fix #271: Make atmoshpere client Serializable
 * Make connection string for `RedisScalatraBroadcaster` configurable
 * improve error message when no Get route is defined while using AtmosphereSupport
+* Fix NPE in AtmosphereClient when looking up an unknown broadcaster
+* simplify TrackMessageSizeInterceptor configuration
 
 
 
