@@ -5,7 +5,7 @@ import org.scalatest.matchers.MustMatchers
 
 class RailsLikeUrlGeneratorTest extends FunSuite with Matchers {
 
-  def url(path: String, params: Pair[String, String]*): String =
+  def url(path: String, params: Tuple2[String, String]*): String =
     url(path, params.toMap)
 
   def url(path: String, splat: String, moreSplats: String*): String =
