@@ -279,8 +279,8 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
     // Sort by artifact ID.
-    lazy val parserCombinators          = "org.scala-lang.modules" % "scala-parser-combinators_2.11.0-RC3" % "1.0.1"
-    lazy val xml                        = "org.scala-lang.modules" % "scala-xml_2.11.0-RC3" % "1.0.1"
+    lazy val parserCombinators          = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
+    lazy val xml                        = "org.scala-lang.modules" %% "scala-xml" % "1.0.1"
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)  cross crossMapped("2.11.0-RC4" -> "2.10")
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)  cross crossMapped("2.11.0-RC4" -> "2.10")
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % atmosphereVersion
