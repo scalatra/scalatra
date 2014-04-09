@@ -279,8 +279,8 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
     // Sort by artifact ID.
-    lazy val parserCombinators          = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1"
-    lazy val xml                        = "org.scala-lang.modules" %% "scala-xml" % "1.0.1"
+    lazy val parserCombinators          = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.1" cross crossMapped("2.11.0-RC4" -> "2.11.0-RC3") // TODO for ScalaTest 2.11.0-RC3
+    lazy val xml                        = "org.scala-lang.modules" %% "scala-xml" % "1.0.1"                cross crossMapped("2.11.0-RC4" -> "2.11.0-RC3") // TODO for ScalaTest 2.11.0-RC3
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)  cross crossMapped("2.11.0-RC4" -> "2.10")
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)  cross crossMapped("2.11.0-RC4" -> "2.10")
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % atmosphereVersion
@@ -317,7 +317,7 @@ object ScalatraBuild extends Build {
     lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.9"  cross crossMapped("2.11.0-RC4" -> "2.10")
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
-    lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)  cross crossMapped("2.11.0-RC4" -> "2.10")
+    lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)  cross crossMapped("2.11.0-RC4" -> "2.11.0-RC3")
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.5"  cross crossMapped("2.11.0-RC4" -> "2.10")
     lazy val servletApi                 =  "javax.servlet"           % "javax.servlet-api"   % "3.1.0"
     lazy val springWeb                  =  "org.springframework"     % "spring-web"          % "4.0.1.RELEASE"
@@ -374,7 +374,7 @@ object ScalatraBuild extends Build {
     }
 
     private val scalatestVersion: String => String =
-      defaultOrMapped("2.0")
+      defaultOrMapped("2.1.2")
 
     private val specsCross = crossMapped("2.8.2" -> "2.8.1", "2.9.2" -> "2.9.1")
     private val specsVersion: String => String =
