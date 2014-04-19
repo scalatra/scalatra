@@ -318,13 +318,13 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.5"  cross crossMapped("2.11" -> "2.10")
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.6"  //cross crossMapped("2.11" -> "2.10")
     lazy val servletApi                 =  "javax.servlet"           % "javax.servlet-api"   % "3.1.0"
     lazy val springWeb                  =  "org.springframework"     % "spring-web"          % "4.0.1.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.6"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.6"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv)     cross specsCross
-    lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)  cross crossMapped("2.11" -> "2.10")
+    lazy val specs2: MM            = sv => "org.specs2"              %% "specs2"             % specs2Version(sv)
 //    lazy val swaggerAnnotations         =  "com.wordnik"             % "swagger-annotations" % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
 //    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
     lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
@@ -383,7 +383,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
       case sv if sv startsWith "2.9."   => "1.12.4.1"
-      case _                            => "2.3.8"
+      case _                            => "2.3.11"
     }
 
   }
