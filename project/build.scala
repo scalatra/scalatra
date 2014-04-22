@@ -17,13 +17,8 @@ object ScalatraBuild extends Build {
     mimaDefaultSettings ++
     ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-<<<<<<< HEAD
     crossScalaVersions := Seq("2.10.4", "2.11.0"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.last },
-=======
-    crossScalaVersions := Seq("2.11.0"),
-    scalaVersion <<= (crossScalaVersions) { versions => versions.head },
->>>>>>> Update dependency for Scala 2.11.0
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
     javacOptions ++= Seq("-target", "1.7", "-source", "1.7", "-Xlint:deprecation"),
@@ -389,11 +384,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
       case sv if sv startsWith "2.9."   => "1.12.4.1"
-<<<<<<< HEAD
       case _                            => "2.3.12"
-=======
-      case _                            => "2.3.11"
->>>>>>> Upgrade Specs2 and Scalaz
     }
 
   }
