@@ -49,7 +49,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
     registerAuthStrategies
   }
 
-  protected def configureScentry = {
+  protected def configureScentry() = {
 
   }
 
@@ -57,7 +57,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
    * Override this method to register authentication strategies specific to this servlet.
    *     registerAuthStrategy('UserPassword, app => new UserPasswordStrategy(app))
    */
-  protected def registerAuthStrategies = {
+  protected def registerAuthStrategies() = {
 
   }
 
