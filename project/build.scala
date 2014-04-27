@@ -26,7 +26,8 @@ object ScalatraBuild extends Build {
     resolvers ++= Seq(
       Opts.resolver.sonatypeSnapshots, 
       Opts.resolver.sonatypeReleases,
-      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "Bitray grizzed-slf4j" at "http://dl.bintray.com/bmc/maven/"
     ),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/")),
@@ -294,7 +295,7 @@ object ScalatraBuild extends Build {
     lazy val commonsFileupload          =  "commons-fileupload"      %  "commons-fileupload" % "1.3.1"
     lazy val commonsIo                  =  "commons-io"              %  "commons-io"         % "2.4"
     lazy val commonsLang3               =  "org.apache.commons"      %  "commons-lang3"      % "3.2.1"
-    lazy val grizzledSlf4j: MM     = sv => "org.clapper"             % "grizzled-slf4j"      % grizzledSlf4jVersion(sv) cross crossMapped("2.9.3" -> "2.9.2", "2.11" -> "2.10")
+    lazy val grizzledSlf4j: MM     = sv => "org.clapper"             % "grizzled-slf4j"      % grizzledSlf4jVersion(sv) cross crossMapped("2.9.3" -> "2.9.2")
     lazy val guice                      =  "com.google.inject"       %  "guice"              % "3.0"
     lazy val httpclient                 =  "org.apache.httpcomponents" % "httpclient"        % httpcomponentsVersion
     lazy val httpmime                   =  "org.apache.httpcomponents" % "httpmime"          % httpcomponentsVersion
@@ -343,7 +344,7 @@ object ScalatraBuild extends Build {
 
     private val grizzledSlf4jVersion: String => String = {
       case sv if sv startsWith "2.9."   => "0.6.10"
-      case _                            => "1.0.1"
+      case _                            => "1.0.2"
     }
 
     private val atmosphereVersion = "2.1.0"
