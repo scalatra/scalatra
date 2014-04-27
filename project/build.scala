@@ -150,7 +150,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
         "commons-validator"       % "commons-validator"  % "1.4.0",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5"  cross crossMapped("2.11" -> "2.10")
+        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5"
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=
@@ -319,7 +319,7 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.6"  //cross crossMapped("2.11" -> "2.10")
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.6"
     lazy val servletApi                 =  "javax.servlet"           % "javax.servlet-api"   % "3.1.0"
     lazy val springWeb                  =  "org.springframework"     % "spring-web"          % "4.0.1.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.6"
