@@ -281,8 +281,8 @@ object ScalatraBuild extends Build {
     // Sort by artifact ID.
     lazy val parserCombinators          = "org.scala-lang.modules"   %% "scala-parser-combinators" % "1.0.1"
     lazy val xml                        = "org.scala-lang.modules"   %% "scala-xml" % "1.0.1"
-    lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)  cross crossMapped("2.11" -> "2.10")
-    lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)  cross crossMapped("2.11" -> "2.10")
+    lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)
+    lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % atmosphereVersion
     lazy val atmosphereJQuery           =  "org.atmosphere.client"   % "jquery"              % "2.1.4" artifacts(Artifact("jquery", "war", "war"))
     lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.3.0"
@@ -339,7 +339,7 @@ object ScalatraBuild extends Build {
       Map(alternatives: _*).withDefaultValue(default)
 
     private val akkaVersion: String => String =
-      defaultOrMapped("2.2.3", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
+      defaultOrMapped("2.3.2", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
 
     private val grizzledSlf4jVersion: String => String = {
       case sv if sv startsWith "2.9."   => "0.6.10"
