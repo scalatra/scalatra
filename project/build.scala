@@ -27,7 +27,7 @@ object ScalatraBuild extends Build {
       Opts.resolver.sonatypeSnapshots, 
       Opts.resolver.sonatypeReleases,
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-      "Bitray grizzed-slf4j" at "http://dl.bintray.com/bmc/maven/"
+      "Bintray grizzed-slf4j" at "http://dl.bintray.com/bmc/maven/"
     ),
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/")),
