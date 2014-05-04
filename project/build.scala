@@ -317,7 +317,7 @@ object ScalatraBuild extends Build {
     lazy val mockitoAll                 =  "org.mockito"             %  "mockito-all"        % "1.9.5"
     lazy val rl                         =  "org.scalatra.rl"         %% "rl"                 % "0.4.10"
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
-    lazy val scalate: MM           = sv => "org.fusesource.scalate"  %  scalateArtifact(sv)  % scalateVersion(sv)
+    lazy val scalate: MM           = sv => "org.scalatra.scalate"    %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.6"
     lazy val servletApi                 =  "javax.servlet"           % "javax.servlet-api"   % "3.1.0"
@@ -362,7 +362,7 @@ object ScalatraBuild extends Build {
       case "2.9.0-1"                    => "scalate-core"
       case sv if sv startsWith "2.9."   => "scalate-core_2.9"
       case sv if sv startsWith "2.10."  => "scalate-core_2.10"
-      case sv if sv startsWith "2.11."  => "scalate-core_2.10"
+      case sv if sv startsWith "2.11."  => "scalate-core_2.11"
     }
     private val scalateVersion: String => String = {
       case "2.8.1"                      => "1.5.2-scala_2.8.1"
@@ -370,7 +370,7 @@ object ScalatraBuild extends Build {
       case "2.9.0-1"                    => "1.5.1"
       case "2.9.1"                      => "1.6.1"
       case "2.9.2"                      => "1.6.1"
-      case _                            => "1.6.1"
+      case _                            => "1.7.0"
     }
 
     private val scalatestVersion: String => String =
