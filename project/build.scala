@@ -2,8 +2,7 @@ import sbt._
 import Keys._
 import scala.xml._
 import java.net.URL
-import com.github.siasia.WebPlugin.webSettings
-import posterous.Publish._
+import com.earldouglas.xsbtwebplugin.WebPlugin.webSettings
 
 object ScalatraBuild extends Build {
   import Dependencies._
@@ -12,24 +11,21 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings = Defaults.defaultSettings ++ Seq(
     organization := "org.scalatra",
     version := "2.0.4",
-    crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.8.2", "2.8.1"),
-    scalaVersion <<= (crossScalaVersions) { versions => versions.head },
+    scalaVersion := "2.10.4",
     scalacOptions ++= Seq("-unchecked", "-deprecation"),
     manifestSetting,
     publishSetting,
-    resolvers ++= Seq(ScalaToolsSnapshots, sonatypeNexusSnapshots)
+    resolvers ++= Seq(sonatypeNexusSnapshots)
   ) ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
     base = file("."),
-    settings = scalatraSettings ++ Unidoc.settings ++ doNotPublish ++ Seq(
-      description := "A tiny, Sinatra-like web framework for Scala",
-      Unidoc.unidocExclude := Seq("scalatra-example"),
-      (name in Posterous) := "scalatra"
+    settings = scalatraSettings ++ doNotPublish ++ Seq(
+      description := "A tiny, Sinatra-like web framework for Scala"
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
-      scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
+      scalatraScalate, scalatraSocketio, scalatraLiftJson,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
       scalatraExample, scalatraJetty8Tests)
   )
@@ -65,7 +61,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalate",
     base = file("scalate"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(scalate),
+      libraryDependencies += scalate,
       description := "Scalate integration with Scalatra"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -88,20 +84,11 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
-  lazy val scalatraAntiXml = Project(
-    id = "scalatra-anti-xml",
-    base = file("anti-xml"),
-    settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(antiXml),
-      description := "Anti-XML support for Scalatra"
-    )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
   lazy val scalatraTest = Project(
     id = "scalatra-test",
     base = file("test"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(testJettyServlet, mockitoAll, commonsLang3, specs2(sv) % "test")),
+      libraryDependencies ++= Seq(testJettyServlet, mockitoAll, commonsLang3, specs2 % "test"),
       description := "The abstract Scalatra test framework"
     )
   )
@@ -110,7 +97,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-scalatest",
     base = file("scalatest"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(scalatest(sv), junit, testng)),
+      libraryDependencies ++= Seq(scalatest, junit, testng),
       description := "ScalaTest support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
@@ -119,11 +106,11 @@ object ScalatraBuild extends Build {
     id = "scalatra-specs",
     base = file("specs"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(specs),
-      description := "Specs support for the Scalatra test framework", 
+      libraryDependencies += specs,
+      description := "Specs support for the Scalatra test framework"
       // The one in Maven Central has a bad checksum for 2.8.2.  
       // Try ScalaTools first.
-      resolvers ~= { rs => ScalaToolsReleases +: rs }
+      //resolvers ~= { rs => ScalaToolsReleases +: rs }
     )
   ) dependsOn(scalatraTest)
 
@@ -131,7 +118,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-specs2",
     base = file("specs2"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <+= scalaVersion(specs2),
+      libraryDependencies += specs2,
       description := "Specs2 support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest)
@@ -158,9 +145,6 @@ object ScalatraBuild extends Build {
   ) dependsOn(scalatraSpecs2 % "test->compile")
 
   object Dependencies {
-    def antiXml(scalaVersion: String) = {
-      "com.codecommit" %% "anti-xml" % "0.2"
-    }
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
@@ -178,47 +162,19 @@ object ScalatraBuild extends Build {
 
     val junit = "junit" % "junit" % "4.10"
 
-    private def liftDep(name: String) = "net.liftweb" %% name % "2.4"
-    val liftJson = liftDep("lift-json")
-    val liftTestkit = liftDep("lift-testkit") % "test"
+    private def liftDep(name: String) = "net.liftweb" % name % "2.5"
+    val liftJson = liftDep("lift-json_2.10")
+    val liftTestkit = liftDep("lift-testkit_2.10") % "test"
 
     val mockitoAll = "org.mockito" % "mockito-all" % "1.8.5"
 
-    def scalate(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        // 1.5.3-scala_2.8.2 fails on 2.8.1 loading
-        // scala/tools/nsc/interactive/Global$
-        case "2.8.1" => "1.5.2-scala_2.8.1"
-        case x if x startsWith "2.8." => "1.5.3-scala_2.8.2"
-        case _ => "1.5.3"
-      }
-      "org.fusesource.scalate" % "scalate-core" % libVersion
-    }
+    val scalate = "org.fusesource.scalate" %% "scalate-core" % "1.6.1"
 
-    def scalatest(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5.1"
-        case _ => "1.6.1"
-      }
-      "org.scalatest" %% "scalatest" % libVersion
-    }
+    val scalatest = "org.scalatest" % "scalatest_2.10" % "1.9.1"
 
-    def specs(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case "2.9.1" => "1.6.9"
-        case _ => "1.6.8"
-      }
-      "org.scala-tools.testing" %% "specs" % libVersion
-    }
+    val specs = "org.scala-tools.testing" % "specs_2.10" % "1.6.9"
 
-    def specs2(scalaVersion: String) = {
-      val libVersion = scalaVersion match {
-        case x if x startsWith "2.8." => "1.5"
-        case "2.9.0" => "1.5" // https://github.com/etorreborre/specs2/issues/33
-        case _ => "1.6.1"
-      }
-      "org.specs2" %% "specs2" % libVersion
-    }
+    val specs2 = "org.specs2" % "specs2_2.10" % "2.3.11"
 
     val servletApi = "javax.servlet" % "servlet-api" % "2.5" % "provided"
     val servletApi_3_0 = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
