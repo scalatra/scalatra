@@ -7,6 +7,7 @@ import Xml._
 import text.Document
 import javax.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
+import util.RicherString._
 
 object JsonSupport {
 
@@ -49,12 +50,17 @@ trait JsonSupport[T] extends JsonOutput[T] {
   protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue
   protected def readJsonFromStream(stream: InputStream): JValue = readJsonFromStreamWithCharset(stream, defaultCharacterEncoding)
   protected def readXmlFromBody(bd: String): JValue = {
-    val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.loadString(bd))
-    jv
+    if (bd.nonBlank) {
+      val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.loadString(bd))
+      jv
+    } else JNothing
   }
   protected def readXmlFromStream(stream: InputStream): JValue = {
-    val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.load(stream))
-    jv
+    val rdr = new InputStreamReader(stream)
+    if (rdr.ready()) {
+      val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.load(rdr))
+      jv
+    } else JNothing
   }
   protected def transformRequestBody(body: JValue) = body
 
@@ -76,7 +82,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
     (fmt == "json" || fmt == "xml") && !request.requestMethod.isSafe && parsedBody == JNothing
 
   def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
-    val fmt = format
+    val fmt = responseFormat
     var bd: JValue = JNothing
     if (fmt == "json" || fmt == "xml") {
       bd = parseRequestBody(fmt)
