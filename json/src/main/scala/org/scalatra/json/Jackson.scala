@@ -26,6 +26,6 @@ trait JacksonJsonValueReaderProperty extends JsonValueReaderProperty[JValue] { s
 
 trait JacksonJsonOutput extends JsonOutput[JValue] with jackson.JsonMethods {
   protected def writeJson(json: JValue, writer: Writer) {
-    mapper.writeValue(writer, json)
+    if (json != JNothing) mapper.writeValue(writer, json)
   }
 }

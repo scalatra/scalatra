@@ -27,7 +27,7 @@ trait NativeJsonValueReaderProperty extends JsonValueReaderProperty[Document] { 
 
 trait NativeJsonOutput extends JsonOutput[Document] with native.JsonMethods {
   protected def writeJson(json: JValue, writer: Writer) {
-    native.Printer.compact(render(json), writer)
+    if (json != JNothing) native.Printer.compact(render(json), writer)
   }
 }
 

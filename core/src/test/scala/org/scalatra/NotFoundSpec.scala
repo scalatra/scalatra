@@ -2,25 +2,24 @@ package org.scalatra
 
 import test.specs2.ScalatraSpec
 
-class NotFoundSpec extends ScalatraSpec { def is =
-  "The notFound block"                          ^
-    "should run when no route matches"          ! customNotFound^
-    "should not result in a 404 if the block doesn't" ! customNotFoundStatus^
-    "in ScalatraServlet"                        ^
-      "should send a 404"                       ! servletNotFoundSends404 ^
-                                                bt^
-    "in ScalatraFilter"                         ^
-      "should invoke the chain"                 ! filterNotFoundInvokesChain^
-                                                end^
-  "The methodNotAllowed block"                  ^
-    "should run when a route matches other methods" ! customMethodNotAllowed^
-    "should support pass"                       ! passFromNotAllowed^
-    "by default"                                ^
-      "should send a 405"                       ! defaultMethodNotAllowedSends405^
-      "should set the allow header"             ! allowHeader^
-      "HEAD should be implied by GET"           ! getImpliesHead^
-    "should pass in a filter by default"        ! methodNotAllowedFilterPass^
-                                                end
+class NotFoundSpec extends ScalatraSpec { def is = s2"""
+  The notFound block
+    should run when no route matches $customNotFound
+    should not result in a 404 if the block doesn't $customNotFoundStatus
+    in ScalatraServlet
+      should send a 404 $servletNotFoundSends404
+    in ScalatraFilter
+      should invoke the chain $filterNotFoundInvokesChain
+
+  The methodNotAllowed block
+    should run when a route matches other methods $customMethodNotAllowed
+    should support pass $passFromNotAllowed
+    by default
+      should send a 405 $defaultMethodNotAllowedSends405
+      should set the allow header $allowHeader
+    HEAD should be implied by GET
+      should pass in a filter by default $methodNotAllowedFilterPass
+  """
 
   addFilter(new ScalatraFilter {
     post("/filtered/get") { "wrong method" }
@@ -35,6 +34,10 @@ class NotFoundSpec extends ScalatraSpec { def is =
     get("/get") { "foo" }
     post("/no-get") { "foo" }
     put("/no-get") { "foo" }
+
+    error {
+      case t: Throwable => t.printStackTrace()
+    }
   }, "/default/*")
 
   addServlet(new ScalatraServlet {
