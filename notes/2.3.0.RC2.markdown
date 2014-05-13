@@ -1,0 +1,11 @@
+### Scalatra Core
+* Don't log an async context completed exception unless it's real
+* Mount an async filter with setAsyncSupport(true) [#385]
+
+### Scalatra Auth
+* Update scentrysupport to avoid compiler warnings
+
+### Scalatra JSON
+
+* Don't try to read empty bodies
+* Don't eagerly try to parse the body of a safe request
