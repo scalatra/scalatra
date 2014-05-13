@@ -4,13 +4,22 @@ package json
 import text.Document
 import org.json4s._
 import java.io.{InputStreamReader, InputStream, Writer}
-
+import util.RicherString._
 
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
-  protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue =
-    native.JsonParser.parse(new InputStreamReader(stream, charset))
+  protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue = {
+    val rdr = new InputStreamReader(stream, charset)
+    if (rdr.ready()) native.JsonParser.parse(rdr)
+    else {
+      rdr.close()
+      JNothing
+    }
+  }
 
-  protected def readJsonFromBody(bd: String): JValue = native.JsonParser.parse(bd)
+  protected def readJsonFromBody(bd: String): JValue = {
+    if (bd.nonBlank) native.JsonParser.parse(bd)
+    else JNothing
+  }
 }
 
 trait NativeJsonValueReaderProperty extends JsonValueReaderProperty[Document] { self: native.JsonMethods => }
