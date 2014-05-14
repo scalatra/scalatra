@@ -7,7 +7,6 @@ import Xml._
 import javax.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import util.RicherString._
-import java.util.Locale
 
 object JsonSupport {
 
