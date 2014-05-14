@@ -1,11 +1,30 @@
 ### Scalatra Core
+
 * Don't log an async context completed exception unless it's real
 * Mount an async filter with setAsyncSupport(true) [#385]
+* Update rl to 0.4.10
+
+### Scalatra Test
+
+* Update httpcomponents client.
+* Update scalatest dependency
+* Update specs2 dependency
 
 ### Scalatra Auth
+
 * Update scentrysupport to avoid compiler warnings
 
 ### Scalatra JSON
 
 * Don't try to read empty bodies
 * Don't eagerly try to parse the body of a safe request
+
+### Scalatra Atmosphere
+
+* Update to atmosphere 2.1.4
+* Update atmosphere wasync to 1.3.2
+* Update atmosphere-redis to 2.1.1
+
+### Scalatra Jetty
+
+* Update to jetty 9.1.5.v20140505

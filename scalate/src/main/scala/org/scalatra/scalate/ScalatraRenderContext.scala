@@ -35,14 +35,12 @@ class ScalatraRenderContext(
   def multiParams: MultiParams = kernel.multiParams(request)
 
   def format: String = kernel match {
-    case af: ApiFormats => af.format(request)
+    case af: ApiFormats => af.format(request, response)
     case _ => ""
   }
 
-  def responseFormat: String = kernel match {
-    case af: ApiFormats => af.responseFormat(request, response)
-    case _ => ""
-  }
+  @deprecated("`format` now means the same as `responseFormat`, `responseFormat` will be removed eventually", "2.3")
+  def responseFormat: String = format
 
   def fileMultiParams: FileMultiParams = kernel match {
     case fu: FileUploadSupport => fu.fileMultiParams(request)

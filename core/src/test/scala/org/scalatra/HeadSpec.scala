@@ -3,11 +3,11 @@ package org.scalatra
 import test.specs2.ScalatraSpec
 
 class HeadSpec extends ScalatraSpec { def is =
-  "A HEAD request should"                              ^
-    "return no body"                                   ! noBody^
-    "preserve headers"                                 ! preserveHeaders^
-                                                       end
-
+s"""
+A HEAD request should"
+  return no body $noBody
+  preserve headers $preserveHeaders
+"""
   val servletHolder = addServlet(classOf[HeadSpecServlet], "/*")
 
   def noBody = head("/") { response.body must_== "" }

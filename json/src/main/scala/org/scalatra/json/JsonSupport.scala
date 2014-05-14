@@ -4,10 +4,10 @@ package json
 import java.io.{InputStreamReader, InputStream}
 import org.json4s._
 import Xml._
-import text.Document
 import javax.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import util.RicherString._
+import java.util.Locale
 
 object JsonSupport {
 
@@ -67,9 +67,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
 
   override protected def invoke(matchedRoute: MatchedRoute) = {
     withRouteMultiParams(Some(matchedRoute)) {
-      val mt = request.contentType map {
-        _.split(";").head
-      } getOrElse "application/x-www-form-urlencoded"
+      val mt = request.contentType.fold("application/x-www-form-urlencoded")(_.split(";").head)
       val fmt = mimeTypes get mt getOrElse "html"
       if (shouldParseBody(fmt)) {
         request(ParsedBodyKey) = parseRequestBody(fmt).asInstanceOf[AnyRef]
@@ -81,13 +79,13 @@ trait JsonSupport[T] extends JsonOutput[T] {
   protected def shouldParseBody(fmt: String)(implicit request: HttpServletRequest) =
     (fmt == "json" || fmt == "xml") && !request.requestMethod.isSafe && parsedBody == JNothing
 
-  def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).map(_.asInstanceOf[JValue]) getOrElse {
-    val fmt = responseFormat
+  def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).fold({
+    val fmt = requestFormat
     var bd: JValue = JNothing
     if (fmt == "json" || fmt == "xml") {
       bd = parseRequestBody(fmt)
       request(ParsedBodyKey) = bd.asInstanceOf[AnyRef]
     }
     bd
-  }
+  })(_.asInstanceOf[JValue])
 }
