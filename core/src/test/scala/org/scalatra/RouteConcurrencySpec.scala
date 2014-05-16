@@ -1,6 +1,7 @@
 package org.scalatra
 
 import scala.concurrent._
+import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import test.scalatest.ScalatraWordSpec
 
@@ -15,11 +16,12 @@ class RouteConcurrencyServlet extends ScalatraServlet {
     x = Future { post(false) { "/"} }
   } yield x
 
-  for {
+  val b = for {
     route <- postRoutes.take(250)
     x = Future { post(false) {}; post(false) {}} // add some more routes while we're removing
     y = Future { route.foreach { route => removeRoute("POST", route) }}
-  } (x, y)
+  } yield (x, y)
+  Await.result(Future.sequence(b map (kv => kv._1.flatMap(_ => kv._2))), 1 second)
 
   get("/count/:method") {
     routes(HttpMethod(params("method"))).size.toString
