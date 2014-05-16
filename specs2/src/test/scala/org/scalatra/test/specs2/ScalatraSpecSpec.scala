@@ -5,8 +5,10 @@ package specs2
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 
 class ScalatraSpecSpec extends ScalatraSpec { def is =
-  "get / should"                               ^
-    "return 'Hello, world.'"                   ! e1
+s2"""
+get / should
+  return 'Hello, world.' $e1
+"""
 
   // scalatra-specs2 does not depend on Scalatra, so we'll create our own
   // simple servlet for a sanity check
