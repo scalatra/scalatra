@@ -65,7 +65,6 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => {
-
         val defau = Seq(servletApi % "provided;test",
           slf4jApi,
           grizzledSlf4j(sv),
