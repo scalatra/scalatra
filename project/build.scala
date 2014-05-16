@@ -18,7 +18,7 @@ object ScalatraBuild extends Build {
     ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
     crossScalaVersions := Seq("2.10.4", "2.11.0"),
-    scalaVersion <<= (crossScalaVersions) { versions => versions.last },
+    scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
     javacOptions ++= Seq("-target", "1.7", "-source", "1.7", "-Xlint:deprecation"),
@@ -222,7 +222,10 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(parserCombinators, json4sExt, logbackClassic % "provided"),
+      libraryDependencies <++= (scalaVersion) { sv =>
+        val com = Seq(json4sExt, logbackClassic % "provided")
+        if (sv.startsWith("2.10")) com else  parserCombinators +: com
+      },
       description := "Scalatra integration with Swagger",
       LsKeys.tags in LsKeys.lsync ++= Seq("swagger", "docs")
     )
