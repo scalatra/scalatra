@@ -1,0 +1,10 @@
+### Scalatra Core
+
+* *Scala 2.11 support*
+* Add a requestFormat property to ApiFormats
+
+### Scalatra JSON
+
+* Upgrade json4s to 3.2.10
+* Correctly detect if an incoming request is json or not
+
