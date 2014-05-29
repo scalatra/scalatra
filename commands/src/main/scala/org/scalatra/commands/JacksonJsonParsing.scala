@@ -2,7 +2,6 @@ package org.scalatra
 package commands
 
 import json.{JacksonJsonValueReaderProperty, JacksonJsonSupport}
-import grizzled.slf4j.Logger
 import javax.servlet.http.HttpServletRequest
 
 trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderProperty { self: JacksonJsonSupport with CommandSupport =>
@@ -10,7 +9,12 @@ trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderPrope
 
 
   override protected def bindCommand[T <: CommandType](newCommand: T)(implicit request: HttpServletRequest, mf: Manifest[T]): T = {
-    format match {
+    val requestFormat = request.contentType match {
+      case Some(contentType) => mimeTypes.getOrElse(contentType, format)
+      case None => format
+    }
+
+    requestFormat match {
       case "json" | "xml" => newCommand.bindTo(parsedBody(request), multiParams(request), request.headers)
       case _ => newCommand.bindTo(params(request), multiParams(request), request.headers)
     }
