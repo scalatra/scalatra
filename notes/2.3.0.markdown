@@ -1,0 +1,2 @@
+### Scalatra Atmosphere
+* Don't kill httpsession on atmosphere disconnect.

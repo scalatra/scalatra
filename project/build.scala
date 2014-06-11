@@ -17,7 +17,7 @@ object ScalatraBuild extends Build {
     mimaDefaultSettings ++
     ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.10.4", "2.11.0"),
+    crossScalaVersions := Seq("2.11.1", "2.10.4"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
@@ -34,7 +34,7 @@ object ScalatraBuild extends Build {
       val cross = CrossVersion.crossName(name, CrossVersion.binaryScalaVersion(sv))
       Some("org.scalatra" % cross % "2.2.2")
     }
-  ) ++ mavenCentralFrouFrou
+  ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ mavenCentralFrouFrou
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
@@ -283,13 +283,13 @@ object ScalatraBuild extends Build {
   object Dependencies {
     // Sort by artifact ID.
     lazy val parserCombinators          = "org.scala-lang.modules"   %% "scala-parser-combinators" % "1.0.1"
-    lazy val xml                        = "org.scala-lang.modules"   %% "scala-xml" % "1.0.1"
+    lazy val xml                        = "org.scala-lang.modules"   %% "scala-xml" % "1.0.2"
     lazy val akkaActor: MM         = sv => "com.typesafe.akka"       %%  "akka-actor"         % akkaVersion(sv)
     lazy val akkaTestkit: MM       = sv => "com.typesafe.akka"       %%  "akka-testkit"       % akkaVersion(sv)
     lazy val atmosphereRuntime          =  "org.atmosphere"          % "atmosphere-runtime"  % atmosphereVersion
-    lazy val atmosphereJQuery           =  "org.atmosphere.client"   % "jquery"              % "2.2.0" artifacts(Artifact("jquery", "war", "war"))
+    lazy val atmosphereJQuery           =  "org.atmosphere.client"   % "jquery"              % "2.2.1" artifacts(Artifact("jquery", "war", "war"))
     lazy val atmosphereClient           =  "org.atmosphere"          % "wasync"              % "1.3.2"
-    lazy val atmosphereRedis            =  "org.atmosphere"          % "atmosphere-redis"    % "2.1.1"
+    lazy val atmosphereRedis            =  "org.atmosphere"          % "atmosphere-redis"    % "2.1.2"
     lazy val atmosphereCompatJbossweb   =  "org.atmosphere"          % "atmosphere-compat-jbossweb" % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat     =  "org.atmosphere"          % "atmosphere-compat-tomcat"   % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat7    =  "org.atmosphere"          % "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
@@ -323,7 +323,7 @@ object ScalatraBuild extends Build {
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
     lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.6"
     lazy val servletApi                 =  "javax.servlet"           % "javax.servlet-api"   % "3.1.0"
-    lazy val springWeb                  =  "org.springframework"     % "spring-web"          % "4.0.4.RELEASE"
+    lazy val springWeb                  =  "org.springframework"     % "spring-web"          % "4.0.5.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.7"
     lazy val slf4jSimple                =  "org.slf4j"               % "slf4j-simple"        % "1.7.7"
     lazy val specs: MM             = sv => "org.scala-tools.testing" %  "specs"              % specsVersion(sv) cross specsCross
@@ -342,20 +342,20 @@ object ScalatraBuild extends Build {
       Map(alternatives: _*).withDefaultValue(default)
 
     private val akkaVersion: String => String =
-      defaultOrMapped("2.3.2", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
+      defaultOrMapped("2.3.3", "2.9.3" -> "2.0.5", "2.9.2" -> "2.0.5", "2.9.1" -> "2.0.2")
 
     private val grizzledSlf4jVersion: String => String = {
       case sv if sv startsWith "2.9."   => "0.6.10"
       case _                            => "1.0.2"
     }
 
-    private val atmosphereVersion = "2.1.4"
+    private val atmosphereVersion = "2.1.5"
 
     private val atmosphereCompatVersion = "2.0.1"
 
-    private val httpcomponentsVersion = "4.3.3"
+    private val httpcomponentsVersion = "4.3.4"
 
-    private val jettyVersion = "9.1.5.v20140505"
+    private val jettyVersion = "9.2.1.v20140609"
 
     private val json4sVersion = "3.2.10"
 
@@ -376,7 +376,7 @@ object ScalatraBuild extends Build {
     }
 
     private val scalatestVersion: String => String =
-      defaultOrMapped("2.1.6")
+      defaultOrMapped("2.2.0")
 
     private val specsCross = crossMapped("2.8.2" -> "2.8.1", "2.9.2" -> "2.9.1")
     private val specsVersion: String => String =
