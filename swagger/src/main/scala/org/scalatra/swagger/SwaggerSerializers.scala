@@ -344,7 +344,7 @@ object SwaggerSerializers {
                 ("notes" -> obj.notes.flatMap(_.blankOption).getOrElse("")) ~
                 ("deprecated" -> obj.deprecated) ~
                 ("nickname" -> obj.nickname) ~
-                ("parameters" -> Extraction.decompose(obj.parameters)) ~
+                ("parameters" -> Extraction.decompose(obj.parameters.sortBy(_.position))) ~
                 ("responseMessages" -> (if (obj.responseMessages.nonEmpty) Some(Extraction.decompose(obj.responseMessages)) else None))
 
       val consumes = dontAddOnEmpty("consumes", obj.consumes)_
