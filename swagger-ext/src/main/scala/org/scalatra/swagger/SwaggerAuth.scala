@@ -21,9 +21,9 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]) {
+  def register(listingPath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]) {
     val endpoints: List[AuthEndpoint[AnyRef]] = s.endpoints(resourcePath) collect { case m: AuthEndpoint[AnyRef] => m }
-    _docs += name -> AuthApi(
+    _docs += listingPath -> AuthApi(
           apiVersion,
           swaggerVersion,
           resourcePath,
