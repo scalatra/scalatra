@@ -314,13 +314,14 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   private[this] def throwAFit =
     throw new IllegalStateException("I can't work out which servlet registration this is.")
 
-  private[this] def registerInSwagger(name: String, servPath: String) = {
-    val thePath = {
+  private[this] def registerInSwagger(servPath: String) = {
+    val resourcePath = {
       val p = if (servPath.endsWith("/*")) servPath.dropRight(2) else servPath
       if (p.startsWith("/")) p else "/" + p
     }
+    val listingPath = resourcePath.drop(1) // drop the leading slash
 
-    swagger.register(name, thePath, applicationDescription.blankOption, this, swaggerConsumes, swaggerProduces, swaggerProtocols, swaggerAuthorizations)
+    swagger.register(listingPath, resourcePath, applicationDescription.blankOption, this, swaggerConsumes, swaggerProduces, swaggerProtocols, swaggerAuthorizations)
   }
 
   /**
@@ -339,14 +340,14 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
           val registration = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
           registration.getServletNameMappings.asScala foreach { name =>
             Option(servletContext.getServletRegistration(name)) foreach { reg =>
-              reg.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse reg.getName, _))
+              reg.getMappings.asScala foreach registerInSwagger
             }
           }
 
         case _: Servlet =>
           val registration = ScalatraBase.getServletRegistration(this) getOrElse throwAFit
 //          println("Registering for mappings: " + registration.getMappings().asScala.mkString("[", ", ", "]"))
-          registration.getMappings.asScala foreach (registerInSwagger(applicationName getOrElse registration.getName, _))
+          registration.getMappings.asScala foreach registerInSwagger
 
         case _ => throw new RuntimeException("The swagger support only works for servlets or filters at this time.")
       }

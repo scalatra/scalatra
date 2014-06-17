@@ -33,7 +33,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
     /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String])
+  def register(listingPath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String])
 
 }
 
@@ -180,10 +180,10 @@ class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: A
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(name: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]) = {
-    logger.debug("registering swagger api with: { name: %s, resourcePath: %s, description: %s, servlet: %s }" format (name, resourcePath, description, s.getClass))
+  def register(listingPath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]) = {
+    logger.debug(s"registering swagger api with: { listingPath: $listingPath, resourcePath: $resourcePath, description: $resourcePath, servlet: ${s.getClass} }")
     val endpoints: List[Endpoint] = s.endpoints(resourcePath) collect { case m: Endpoint => m }
-    _docs += name -> Api(
+    _docs += listingPath -> Api(
       apiVersion,
       swaggerVersion,
       resourcePath,
