@@ -301,6 +301,7 @@ object SwaggerSupportSyntax {
 trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
   protected implicit def swagger: SwaggerEngine[_]
 
+  @deprecated("This field is no longer used, due to changes in Swagger spec 1.2")
   protected def applicationName: Option[String] = None
   protected def applicationDescription: String
   @deprecated("Swagger spec 1.2 renamed this to swaggerDefaultMessages, please use that one", "2.2.2")
