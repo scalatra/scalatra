@@ -1,8 +1,5 @@
 ## Scalatra [![Build Status](http://jenkins.backchat.io/buildStatus/icon?job=scalatra_2.3.x)](http://jenkins.backchat.io/job/scalatra_2.3.x/)
 
-### SCALATRA DOMAIN IS IN TROUBLE ###
-SCALATRA DOMAIN IS IN TROUBLE, YOU CAN FIND THE SITE AT [http://scalatra.helloreverb.com/](http://scalatra.helloreverb.com/)
-
 Scalatra is a tiny, [Sinatra](http://www.sinatrarb.com/)-like web framework for
 [Scala](http://www.scala-lang.org/).
 
