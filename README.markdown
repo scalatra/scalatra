@@ -23,20 +23,20 @@ Once you've done that, take a look at the [Scalatra Guides](http://www.scalatra.
 
 ## Latest version
 
-The latest version of Scalatra is `2.2.2`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
+The latest version of Scalatra is `2.3.0`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.2.2"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.3.0"
 ```
 
 ### Development version
 
-The develop branch is published as `2.3.0-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
+The 2.3.x branch is published as `2.3.1-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
 
 ```scala
 resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.3.0-SNAPSHOT"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.3.1-SNAPSHOT"
 ```
 
 ## Community
