@@ -79,7 +79,13 @@ class ApiFormatsSpec extends MutableScalatraSpec {
           body must_== "html"
         }
       }
-    }
 
+      "(#406) when there are multiple formats with malformed priority the parser should ignore the broken priority " in {
+        get("/hello", headers = Map("Accept" -> "application/json; q=, application/xml; q=, text/plain, */*")) {
+          response.getContentType must startWith("text/plain")
+          body must_== "txt"
+        }
+      }
+    }
   }
 }

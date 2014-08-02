@@ -117,14 +117,18 @@ trait ApiFormats extends ScalatraBase {
   }
 
   private def parseAcceptHeader(implicit request: HttpServletRequest): List[String] = {
+    def isValidQPair (a:Array[String]) = {
+      val validRange = Range.Double.inclusive(0, 1, 0.1)
+      a.length == 2 && a(0) == "q" && validRange.contains(a(1).toDouble)
+    }
+
     request.headers.get("Accept") map { s =>
       val fmts = s.split(",").map(_.trim)
       val accepted = fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
         val parts = f.split(";").map(_.trim)
         val i = if (parts.size > 1) {
-          val pars = parts(1).split("=").map(_.trim).grouped(2).map(a => a(0) -> a(1)).toSeq
-          val a = Map(pars: _*)
-          (a.get("q").fold(1.0)(_.toDouble) * 10).ceil.toInt
+          val pars = parts(1).split("=").map(_.trim).grouped(2).find(isValidQPair).getOrElse(Array("q", "0"))
+          (pars(1).toDouble * 10).ceil.toInt
         } else 10
         acc + (i -> (parts(0) :: acc.get(i).getOrElse(List.empty)))
       }
