@@ -76,7 +76,7 @@ class ApiFormatsSpec extends MutableScalatraSpec {
       "when there is a content type which contains the default format, it should match" in {
         get("/hello", headers = Map("Content-Type" -> "application/xml,application/xhtml+xml,text/html")) {
           response.getContentType must startWith("text/html")
-          body must_== "html"
+          body must startWith("html")
         }
       }
 

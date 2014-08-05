@@ -105,7 +105,7 @@ abstract class JsonSupportTestBase extends ScalatraFunSuite {
   test("JSONP callback test with callback name specified") {
     get("/p/jsonp", "callback" -> "function") {
       response.mediaType should equal (Some("text/javascript"))
-      response.body should equal ("""function({"k1":"v1","k2":"v2"});""")
+      response.body should equal ("""/**/function({"k1":"v1","k2":"v2"});""")
     }
   }
 
@@ -119,7 +119,7 @@ abstract class JsonSupportTestBase extends ScalatraFunSuite {
   test("JSONP callback test with callback name specified and guard enabled") {
     get("/p/jsonp", "callback" -> "function") {
       response.mediaType should equal (Some("text/javascript"))
-      response.body should equal ("""function({"k1":"v1","k2":"v2"});""")
+      response.body should equal ("""/**/function({"k1":"v1","k2":"v2"});""")
     }
   }
 

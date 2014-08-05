@@ -10,6 +10,7 @@ import text.Document
 
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
+  val RosettaPrelude = "/**/"
 }
 
 
@@ -29,7 +30,13 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
    * Whether or not to apply the jsonVulnerabilityGuard when rendering json.
    * @see http://haacked.com/archive/2008/11/20/anatomy-of-a-subtle-json-vulnerability.aspx
    */
-  protected lazy val jsonVulnerabilityGuard = false
+  protected def jsonVulnerabilityGuard = false
+
+  /**
+   * Whether or not to apply the rosetta flash guard when rendering jsonp callbacks.
+   * @see http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
+   */
+  protected def rosettaFlashGuard = true
 
   protected lazy val xmlRootNode = <resp></resp>
 
@@ -56,7 +63,8 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
           contentType = formats("js")
           // Status must always be 200 on JSONP, since it's loaded in a <script> tag.
           status = 200
-          writer.write("/**/%s(%s);".format(some, compact(render(transformResponseBody(jv)))))
+          if (rosettaFlashGuard) writer.write("/**/")
+          writer.write("%s(%s);".format(some, compact(render(transformResponseBody(jv)))))
         case _ =>
           contentType = formats("json")
           if(jsonVulnerabilityGuard) writer.write(VulnerabilityPrelude)
