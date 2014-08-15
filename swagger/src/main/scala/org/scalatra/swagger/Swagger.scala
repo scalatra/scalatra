@@ -1,7 +1,6 @@
 package org.scalatra
 package swagger
 
-import java.util
 import java.util.{Date => JDate}
 import org.json4s._
 import org.joda.time._
@@ -24,13 +23,13 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
   def authorizations = _authorizations
   def addAuthorization(auth: AuthorizationType) { _authorizations ::= auth }
 
-
-  private val _properties = new util.HashMap[String, Any]().asScala
-  _properties += ("baseUrl.includeContextPath" -> true)
-  _properties += ("baseUrl.includeServletPath" -> false)
-  def properties = _properties
-
   def docs = _docs.values
+
+  /**
+   * Configurations used by UrlGenerator when creating baseUrl.
+   */
+  def baseUrlIncludeContextPath = true
+  def baseUrlIncludeServletPath = false
 
   /**
    * Returns the documentation for the given path.

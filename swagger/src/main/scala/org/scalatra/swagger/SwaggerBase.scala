@@ -15,6 +15,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
   protected implicit def jsonFormats: Formats
   protected def docToJson(doc: ApiType): JValue
 
+
   implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
 
   /**
@@ -56,7 +57,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   protected def renderDoc(doc: ApiType): JValue = {
     val json = docToJson(doc) merge
-      ("basePath" -> fullUrl("/", includeContextPath = swagger.properties("baseUrl.includeContextPath").asInstanceOf[Boolean], includeServletPath = swagger.properties("baseUrl.includeServletPath").asInstanceOf[Boolean])) ~
+      ("basePath" -> fullUrl("/", includeContextPath = swagger.baseUrlIncludeContextPath, includeServletPath = swagger.baseUrlIncludeServletPath)) ~
       ("swaggerVersion" -> swagger.swaggerVersion) ~
       ("apiVersion" -> swagger.apiVersion)
     val consumes = dontAddOnEmpty("consumes", doc.consumes)_
