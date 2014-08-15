@@ -1,10 +1,9 @@
 package org.scalatra
 package swagger
 
+import org.json4s.JsonDSL._
 import org.json4s._
-import JsonDSL._
-import json.JsonSupport
-import grizzled.slf4j.Logger
+import org.scalatra.json.JsonSupport
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
@@ -15,6 +14,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   protected implicit def jsonFormats: Formats
   protected def docToJson(doc: ApiType): JValue
+
 
   implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
 
@@ -57,7 +57,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   protected def renderDoc(doc: ApiType): JValue = {
     val json = docToJson(doc) merge
-      ("basePath" -> fullUrl("/", includeServletPath = false)) ~
+      ("basePath" -> fullUrl("/", includeContextPath = swagger.baseUrlIncludeContextPath, includeServletPath = swagger.baseUrlIncludeServletPath)) ~
       ("swaggerVersion" -> swagger.swaggerVersion) ~
       ("apiVersion" -> swagger.apiVersion)
     val consumes = dontAddOnEmpty("consumes", doc.consumes)_

@@ -26,6 +26,12 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
   def docs = _docs.values
 
   /**
+   * Configurations used by UrlGenerator when creating baseUrl.
+   */
+  def baseUrlIncludeContextPath = true
+  def baseUrlIncludeServletPath = false
+
+  /**
    * Returns the documentation for the given path.
    */
   def doc(path: String): Option[T] = _docs.get(path)
