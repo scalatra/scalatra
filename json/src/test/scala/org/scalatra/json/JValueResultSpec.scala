@@ -141,7 +141,7 @@ class JValueResultSpec extends MutableScalatraSpec {
 
     "render a Unit result" in {
       get("/unit") {
-        body must_== "printed\n"
+        body must_== "printed" + System.lineSeparator
       }
     }
 

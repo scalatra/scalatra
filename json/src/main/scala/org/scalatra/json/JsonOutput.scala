@@ -36,7 +36,7 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
   protected def transformResponseBody(body: JValue) = body
 
   override protected def renderPipeline = ({
-    case jv: JValue if responseFormat == "xml" =>
+    case jv: JValue if format == "xml" =>
       contentType = formats("xml")
       writeJsonAsXml(transformResponseBody(jv), response.writer)
 
@@ -66,7 +66,13 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
   }: RenderPipeline) orElse super.renderPipeline
 
   protected def writeJsonAsXml(json: JValue, writer: Writer) {
-    XML.write(response.writer, xmlRootNode.copy(child = toXml(json)), response.characterEncoding.get, xmlDecl = true, doctype = null)
+    if (json != JNothing)
+      XML.write(
+        response.writer,
+        xmlRootNode.copy(child = toXml(json)),
+        response.characterEncoding.get,
+        xmlDecl = true,
+        doctype = null)
   }
 
   protected def writeJson(json: JValue, writer: Writer)

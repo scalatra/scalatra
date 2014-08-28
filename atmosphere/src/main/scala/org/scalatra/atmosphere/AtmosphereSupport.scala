@@ -96,11 +96,16 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
   }
 
+  /** Servlets that want to track atmosphere message size should override this.
+    * @see [[TrackMessageSizeInterceptor]]
+    */
+  protected def trackMessageSize : Boolean = false
+
   protected def configureInterceptors(cfg: ServletConfig) = {
     atmosphereFramework.interceptor(new SessionCreationInterceptor)
     if (cfg.getInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT).isBlank)
       cfg.getServletContext.setInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT, "true")
-    if (cfg.getInitParameter(TrackMessageSize).blankOption.map(_.toCheckboxBool).getOrElse(false))
+    if (trackMessageSize || cfg.getInitParameter(TrackMessageSize).blankOption.map(_.toCheckboxBool).getOrElse(false))
       atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
   }
 
@@ -140,7 +145,10 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
   }
 
-  private[this] def atmosphereRoutes = routes.methodRoutes(Get).filter(_.metadata.contains('Atmosphere))
+  private[this] def noGetRoute = sys.error("You are using the AtmosphereSupport without defining any Get route," +
+     "you should get rid of it.")
+
+  private[this] def atmosphereRoutes = routes.methodRoutes.getOrElse(Get, noGetRoute).filter(_.metadata.contains('Atmosphere))
 
   private[this] def atmosphereRoute(req: HttpServletRequest) = (for {
     route <- atmosphereRoutes.toStream

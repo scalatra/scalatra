@@ -92,9 +92,8 @@ trait ApiFormats extends ScalatraBase {
    */
   def defaultAcceptedFormats: List[Symbol] = List.empty
 
-  def responseFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
-    response.contentType flatMap ( ctt => ctt.split(";").headOption flatMap mimeTypes.get) getOrElse format
-  }
+  @deprecated("`format` now means the same as `responseFormat`, `responseFormat` will be removed eventually", "2.3")
+  def responseFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String = format
 
   /**
    * The list of media types accepted by the current request.  Parsed from the
@@ -102,30 +101,34 @@ trait ApiFormats extends ScalatraBase {
    */
   def acceptHeader(implicit request: HttpServletRequest): List[String] = parseAcceptHeader
 
-  private[this] def getFromParams(implicit request: HttpServletRequest) = {
+  private[this] def getFromParams(implicit request: HttpServletRequest): Option[String] = {
     params.get("format").find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
   }
 
-  private[this] def getFromAcceptHeader(implicit request: HttpServletRequest) = {
-    val hdrs = request.contentType map { contentType =>
-      (acceptHeader ::: List(contentType)).distinct 
-    } getOrElse acceptHeader
+  private[this] def getFromAcceptHeader(implicit request: HttpServletRequest): Option[String] = {
+    val hdrs = request.contentType.fold(acceptHeader)( contentType =>
+      (acceptHeader ::: List(contentType)).distinct
+    )
     formatForMimeTypes(hdrs: _*)
   }
 
-  private def parseAcceptHeader(implicit request: HttpServletRequest) = {
+  private[this] def getFromResponseHeader(implicit response: HttpServletResponse): Option[String] = {
+    response.contentType flatMap ( ctt => ctt.split(";").headOption flatMap mimeTypes.get)
+  }
+
+  private def parseAcceptHeader(implicit request: HttpServletRequest): List[String] = {
     request.headers.get("Accept") map { s =>
       val fmts = s.split(",").map(_.trim)
-      val accepted = (fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
+      val accepted = fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
         val parts = f.split(";").map(_.trim)
         val i = if (parts.size > 1) {
           val pars = parts(1).split("=").map(_.trim).grouped(2).map(a => a(0) -> a(1)).toSeq
-          val a = Map(pars:_*)
-          (a.get("q").map(_.toDouble).getOrElse(1.0) * 10).ceil.toInt
+          val a = Map(pars: _*)
+          (a.get("q").fold(1.0)(_.toDouble) * 10).ceil.toInt
         } else 10
         acc + (i -> (parts(0) :: acc.get(i).getOrElse(List.empty)))
-      })
-      (accepted.toList sortWith ((kv1, kv2) => kv1._1 > kv2._1) flatMap (_._2.reverse) toList)
+      }
+      accepted.toList.sortWith((kv1, kv2) => kv1._1 > kv2._1).flatMap(_._2.reverse)
     } getOrElse Nil
   }
 
@@ -148,7 +151,7 @@ trait ApiFormats extends ScalatraBase {
    * one.
    */
   protected def inferFromFormats: ContentTypeInferrer = {
-    case _ if responseFormat.nonBlank => formats.get(responseFormat) getOrElse "application/octet-stream"
+    case _ if format.nonBlank => formats.get(format) getOrElse "application/octet-stream"
   }
 
   override protected def contentTypeInferrer: ContentTypeInferrer = inferFromFormats orElse super.contentTypeInferrer
@@ -158,8 +161,8 @@ trait ApiFormats extends ScalatraBase {
     conditions.isEmpty || (conditions filter { s => formats.get(s).isDefined } contains contentType)
   }
 
-  private def getFormat(implicit request: HttpServletRequest) =
-    getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
+  private def getFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String =
+    getFromResponseHeader orElse getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
 
   import ApiFormats.FormatKey
 
@@ -179,7 +182,8 @@ trait ApiFormats extends ScalatraBase {
   }
 
 
-
+  def requestFormat(implicit request: HttpServletRequest): String =
+    request.contentType flatMap ( t => t.split(";").headOption flatMap mimeTypes.get) getOrElse format
 
   /**
    * Returns the request-scoped format.  If not explicitly set, the format is:
@@ -188,12 +192,12 @@ trait ApiFormats extends ScalatraBase {
    * $ - the format from the `Content-Type` header, as looked up in `mimeTypes`
    * $ - the default format
    */
-  def format(implicit request: HttpServletRequest) = {
-    request.get(FormatKey).map(_.asInstanceOf[String]) getOrElse {
+  def format(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+    request.get(FormatKey).fold({
       val fmt = getFormat
       request(FormatKey) = fmt
       fmt
-    }
+    })(_.asInstanceOf[String])
   }
 
 

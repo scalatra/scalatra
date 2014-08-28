@@ -56,8 +56,9 @@ trait FutureSupport extends AsyncSupport {
         case Success(f2: Future[_]) => renderFutureResult(f2)
         case Success(r: AsyncResult) => renderFutureResult(r.is)
         case t ⇒ {
-          withinAsyncContext(context) {
-            if (gotResponseAlready.compareAndSet(false, true)) {
+
+          if (gotResponseAlready.compareAndSet(false, true)) {
+            withinAsyncContext(context) {
               try {
                 t map { result ⇒
                   renderResponse(result)

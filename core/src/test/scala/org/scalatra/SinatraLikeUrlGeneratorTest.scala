@@ -5,7 +5,7 @@ import org.scalatest.matchers.MustMatchers
 
 class SinatraLikeUrlGeneratorTest extends FunSuite with Matchers {
 
-  def url(path: String, params: Pair[String, String]*): String =
+  def url(path: String, params: Tuple2[String, String]*): String =
     url(path, params.toMap)
 
   def url(path: String, splat: String, moreSplats: String*): String =
@@ -31,9 +31,9 @@ class SinatraLikeUrlGeneratorTest extends FunSuite with Matchers {
   }
 
   test("Missing parameter produces an exception") {
-    evaluating {
+    the [Exception] thrownBy {
       url("/:bar/:baz", "bar" -> "moonless")
-    } should produce [Exception]
+    }
   }
 
   test("Optional parameters can be provided") {
@@ -71,8 +71,8 @@ class SinatraLikeUrlGeneratorTest extends FunSuite with Matchers {
   }
 
   test("Unexpected splat parameters trigger an exception") {
-    evaluating {
+    the [Exception] thrownBy {
       url("/foo/*", "black", "coffee")
-    } should produce [Exception]
+    }
   }
 }

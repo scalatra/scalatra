@@ -144,7 +144,12 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
   }
 
   private def mountFilter(filter: Filter, urlPattern: String, name: String) {
-    val reg = Option(sc.getFilterRegistration(name)) getOrElse sc.addFilter(name, filter)
+    val reg = Option(sc.getFilterRegistration(name)) getOrElse {
+      val r = sc.addFilter(name, filter)
+      if (filter.isInstanceOf[ScalatraAsyncSupport])
+        r.setAsyncSupported(true)
+      r
+    }
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
     val dispatchers = jutil.EnumSet.allOf(classOf[DispatcherType])
@@ -152,7 +157,13 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
   }
 
   private def mountFilter(filterClass: Class[Filter], urlPattern: String, name: String) {
-    val reg = Option(sc.getFilterRegistration(name)) getOrElse sc.addFilter(name, filterClass)
+    val reg = Option(sc.getFilterRegistration(name)) getOrElse {
+      val r = sc.addFilter(name, filterClass)
+      if (classOf[ScalatraAsyncSupport].isAssignableFrom(filterClass)) {
+        r.setAsyncSupported(true)
+      }
+      r
+    }
     // We don't have an elegant way of threading this all the way through
     // in an abstract fashion, so we'll dispatch on everything.
     val dispatchers = jutil.EnumSet.allOf(classOf[DispatcherType])
