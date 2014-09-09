@@ -321,7 +321,7 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection           =  "org.scalaj"              %% "scalaj-collection"  % "1.2"
     lazy val scalate: MM           = sv => "org.scalatra.scalate"    %  scalateArtifact(sv)  % scalateVersion(sv)
     lazy val scalatest: MM         = sv => "org.scalatest"           %% "scalatest"          % scalatestVersion(sv)
-    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.0.6"
+    lazy val scalaz                     =  "org.scalaz"              %% "scalaz-core"        % "7.1.0"
     lazy val servletApi                 =  "javax.servlet"           % "javax.servlet-api"   % "3.1.0"
     lazy val springWeb                  =  "org.springframework"     % "spring-web"          % "4.0.5.RELEASE"
     lazy val slf4jApi                   =  "org.slf4j"               % "slf4j-api"           % "1.7.7"
@@ -386,7 +386,7 @@ object ScalatraBuild extends Build {
       case sv if sv startsWith "2.8."   => "1.5"
       case "2.9.0-1"                    => "1.8.2"
       case sv if sv startsWith "2.9."   => "1.12.4.1"
-      case _                            => "2.3.12"
+      case _                            => "2.4.2"
     }
 
   }
