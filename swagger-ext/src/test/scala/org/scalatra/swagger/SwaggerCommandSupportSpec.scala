@@ -1,22 +1,21 @@
 package org.scalatra
 package swagger
 
-import org.scalatra.commands._
 import org.json4s._
-import test.specs2.MutableScalatraSpec
-import scala.Some
+import org.scalatra.commands._
+import org.scalatra.test.specs2.MutableScalatraSpec
 
 object SwaggerCommandSupportSpec  {
   implicit val stringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
   class SimpleCommand extends ParamsOnlyCommand {
     val name: Field[String] = asString("name").notBlank.position(1)
-    val age: Field[Int] = bind[Int]("age").optional
+    val age: Field[Int] = bind[Int]("age").optional(0)
   }
   
   class FullCommand extends JsonCommand {
     protected implicit val jsonFormats: Formats = DefaultFormats
 
-    import ValueSource._
+    import org.scalatra.commands.ValueSource._
     
     val name: Field[String] = asString("name").notBlank.position(1)
     val age: Field[Int] = bind[Int]("age").withDefaultValue(0)
@@ -30,7 +29,7 @@ object SwaggerCommandSupportSpec  {
     val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
   }
 
-  class CommandSupportServlet(protected implicit val swagger: Swagger) extends ScalatraServlet with ParamsOnlyCommandSupport with SwaggerSupport with SwaggerCommandSupport {
+  class CommandSupportServlet()(protected implicit val swagger: Swagger) extends ScalatraServlet with ParamsOnlyCommandSupport with SwaggerSupport with SwaggerCommandSupport {
 
     val allOperation = apiOperation[Unit]("all").parametersFromCommand[SimpleCommand]
     val newOperation = apiOperation[Unit]("new").parametersFromCommand(new SimpleCommand)
@@ -45,10 +44,12 @@ object SwaggerCommandSupportSpec  {
 }
 class SwaggerCommandSupportSpec extends MutableScalatraSpec {
 
-  import SwaggerCommandSupportSpec._
+  import org.scalatra.swagger.SwaggerCommandSupportSpec._
   implicit val swagger = new Swagger("1.2", "1.0.0", SwaggerAuthSpec.apiInfo)
   addServlet(new CommandSupportServlet, "/")
 
+  // Parameter(limit,ValueDataType(integer,Some(int32),None),Some(the max number of items to return),None,query,Some(Some(20)),AnyValue,false,None,0))
+  // Parameter(limit,ValueDataType(integer,Some(int32),None),Some(the max number of items to return),None,query,Some(20),AnyValue,false,None,0)
   "SwaggerCommandSupport" should {
     "generate a model and parameters for a simple command" in {
       val (parameters, model) = SwaggerCommandSupport.parametersFromCommand(new SimpleCommand)

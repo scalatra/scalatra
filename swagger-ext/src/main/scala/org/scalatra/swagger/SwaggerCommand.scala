@@ -2,12 +2,11 @@ package org.scalatra
 package swagger
 
 import org.scalatra.commands._
+import org.scalatra.swagger.SwaggerCommandSupport.CommandOperationBuilder
+import org.scalatra.swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
 import org.scalatra.util.RicherString._
-import scalaz._
-import Scalaz._
-import swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
-import swagger.SwaggerCommandSupport.CommandOperationBuilder
-import org.scalatra.swagger.AllowableValues.AllowableValuesList
+
+import scalaz.Scalaz._
 
 object SwaggerCommandSupport {
   
@@ -34,7 +33,7 @@ object SwaggerCommandSupport {
               f.description.blankOption,
               f.notes.blankOption,
               paramtypeMapping(f.valueSource),
-              if (f.isRequired) None else f.defaultValue.toString.blankOption,
+              if (f.isRequired) None else f.defaultValue.flatMap(_.toString.blankOption),
               if (f.allowableValues.nonEmpty) AllowableValues(f.allowableValues) else AllowableValues.AnyValue,
               required = f.isRequired,
               position = f.position) :: lst
