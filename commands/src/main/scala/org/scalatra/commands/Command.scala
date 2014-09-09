@@ -82,10 +82,15 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   implicit def autoBind[T:Manifest:TypeConverterFactory](fieldName: String): Field[T] =
     bind[T](FieldDescriptor[T](fieldName))
 
-  implicit def bind[T:Manifest:TypeConverterFactory](field: FieldDescriptor[T]): FieldDescriptor[T] = {
-    val b = Binding(field)
+  implicit def bind[T](field: FieldDescriptor[T])(implicit mf:Manifest[T], conv:TypeConverterFactory[T]): FieldDescriptor[T] = {
+    val f: FieldDescriptor[T] =
+      if (mf.runtimeClass.isAssignableFrom(classOf[Option[_]])) {
+        // Yay! not one but 2 casts in the same line
+        field.asInstanceOf[FieldDescriptor[Option[_]]].withDefaultValue(None).asInstanceOf[FieldDescriptor[T]]
+      } else field
+    val b = Binding(f)
     bindings += b.name -> b
-    field
+    f
   }
 
   def typeConverterBuilder[I](tc: CommandTypeConverterFactory[_]): PartialFunction[ValueReader[_, _], TypeConverter[I, _]] = {
