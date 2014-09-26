@@ -4,6 +4,8 @@ package commands
 import org.scalatra.util._
 import org.scalatra.util.conversion._
 
+import scala.reflect.ClassTag
+
 /**
 * Trait that identifies a ''Command object'', i.e. a Scala class instance which fields are bound to external parameters
 * taken from Scalatra' __params__ object.
@@ -75,14 +77,14 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   }
 
 
-  implicit def binding2field[T:Manifest:TypeConverterFactory](field: FieldDescriptor[T]): Field[T] = {
+  implicit def binding2field[T:ClassTag:TypeConverterFactory](field: FieldDescriptor[T]): Field[T] = {
     new Field(bind(field), this)
   }
 
-  implicit def autoBind[T:Manifest:TypeConverterFactory](fieldName: String): Field[T] =
+  implicit def autoBind[T:ClassTag:TypeConverterFactory](fieldName: String): Field[T] =
     bind[T](FieldDescriptor[T](fieldName))
 
-  implicit def bind[T](field: FieldDescriptor[T])(implicit mf:Manifest[T], conv:TypeConverterFactory[T]): FieldDescriptor[T] = {
+  implicit def bind[T](field: FieldDescriptor[T])(implicit mf:ClassTag[T], conv:TypeConverterFactory[T]): FieldDescriptor[T] = {
     val f: FieldDescriptor[T] =
       if (mf.runtimeClass.isAssignableFrom(classOf[Option[_]])) {
         // Yay! not one but 2 casts in the same line
@@ -117,23 +119,23 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   def bindTo[S, I](
             data: S,
             params: MultiParams = MultiMap.empty,
-            headers: Map[String, String] = Map.empty)(implicit r: S => ValueReader[S, I], mi: Manifest[I], multiParams: MultiParams => ValueReader[MultiParams, Seq[String]]): this.type = {
+            headers: Map[String, String] = Map.empty)(implicit r: S => ValueReader[S, I], ct: ClassTag[I], multiParams: MultiParams => ValueReader[MultiParams, Seq[String]]): this.type = {
     doBeforeBindingActions()
 
     bindings = bindings map { case (name, b) =>
       val tcf = b.typeConverterFactory
       val cv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(data).asInstanceOf[TypeConverter[I, b.T]]
-      val fieldBinding = Binding(b.field, cv, b.typeConverterFactory)(mi, b.valueManifest)
+      val fieldBinding = Binding(b.field, cv, b.typeConverterFactory)(ct, b.valueClassTag)
       
       val result = b.field.valueSource match {
         case ValueSource.Body => fieldBinding(data.read(name).right.map(_ map (_.asInstanceOf[fieldBinding.S])))
         case ValueSource.Header => 
           val tc: TypeConverter[String, _] = tcf.resolveStringParams
-          val headersBinding = Binding(b.field, tc.asInstanceOf[TypeConverter[String, b.T]], tcf)(manifest[String], b.valueManifest)
+          val headersBinding = Binding(b.field, tc.asInstanceOf[TypeConverter[String, b.T]], tcf)(scala.reflect.classTag[String], b.valueClassTag)
           headersBinding(Right(headers.get(name).map(_.asInstanceOf[headersBinding.S])))
         case ValueSource.Path | ValueSource.Query =>
           val pv = typeConverterBuilder(tcf.asInstanceOf[CommandTypeConverterFactory[_]])(params).asInstanceOf[TypeConverter[Seq[String], b.T]]
-          val paramsBinding = Binding(b.field, pv, b.typeConverterFactory)(manifest[Seq[String]], b.valueManifest)
+          val paramsBinding = Binding(b.field, pv, b.typeConverterFactory)(scala.reflect.classTag[Seq[String]], b.valueClassTag)
           paramsBinding(params.read(name).right.map(_ map (_.asInstanceOf[paramsBinding.S])))
       }
       
@@ -151,7 +153,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
 
   private def doAfterBindingActions() = postBindingActions.foreach(_.apply())
 
-  override def toString: String = "%s(bindings: [%s])".format(getClass.getName, bindings.mkString(", "))
+  override def toString: String = s"${getClass.getName}(bindings: [${bindings.mkString(", ")}])"
 
   private type ExecutorView[S] = (this.type => S) => CommandExecutor[this.type, S]
   def apply[S](handler: this.type => S)(implicit executor: ExecutorView[S]) = handler.execute(this)

@@ -3,12 +3,14 @@ package commands
 
 import validation._
 import util.conversion._
+import scala.reflect.ClassTag
 import scalaz._
 import syntax.validation._
 import syntax.std.option._
 import mojolly.inflector.InflectorImports._
 import org.scalatra.util.RicherString._
 import org.json4s.JsonFormat
+import scalaz.Validation.FlatMap._
 
 object DefVal {
   def apply[T](prov: => T) = new DefVal(prov)
@@ -24,7 +26,7 @@ object ValueSource extends Enumeration {
 }
 
 object FieldDescriptor {
-  def apply[T](name: String)(implicit mf: Manifest[T]): FieldDescriptor[T] =
+  def apply[T](name: String)(implicit ct: ClassTag[T]): FieldDescriptor[T] =
     new BasicFieldDescriptor[T](name, transformations = identity)
 }
 trait FieldDescriptor[T] {
@@ -36,7 +38,7 @@ trait FieldDescriptor[T] {
   def notes(note: String): FieldDescriptor[T]
   def description: String 
   def description(desc: String): FieldDescriptor[T]
-  def valueManifest: Manifest[T]
+  def valueClassTag: ClassTag[T]
   def valueSource: ValueSource.Value
   def sourcedFrom(valueSource: ValueSource.Value): FieldDescriptor[T]
   def allowableValues: List[T]
@@ -60,11 +62,11 @@ trait FieldDescriptor[T] {
   def required: FieldDescriptor[T]
   def optional(default: => T): FieldDescriptor[T]
 
-  override def toString() = "FieldDescriptor(name: %s)".format(name)
+  override def toString = s"FieldDescriptor(name: $name)"
 
   def validateWith(validators: BindingValidator[T]*): FieldDescriptor[T]
 
-  def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T]
+  def apply[S](original: Either[String, Option[S]])(implicit ct: ClassTag[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T]
 
   override def hashCode() = 41 + 41 * name.hashCode()
 
@@ -82,7 +84,7 @@ trait FieldDescriptor[T] {
 class BasicFieldDescriptor[T](
     val name: String, 
     val validator: Option[Validator[T]] = None, 
-    private[commands] val transformations: T => T = identity _,
+    private[commands] val transformations: T => T = identity,
     private[commands] var isRequired: Boolean = false,
     val description: String = "",
     val notes: String = "",
@@ -91,9 +93,9 @@ class BasicFieldDescriptor[T](
     val allowableValues: List[T] = Nil,
     val displayName: Option[String] = None,
     val position: Int = 0,
-    val requiredError: String = "%s is required.")(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
+    val requiredError: String = "%s is required.")(implicit val valueClassTag: ClassTag[T]) extends FieldDescriptor[T] {
 
-  private[this] def requiredValidationFailure: FieldValidation[T] = ValidationError(requiredError.format(name), FieldName(name)).fail
+  private[this] def requiredValidationFailure: FieldValidation[T] = ValidationError(requiredError.format(name), FieldName(name)).failure
 
   def value: FieldValidation[T] = defaultValue.fold(requiredValidationFailure)(_.success)
 
@@ -117,12 +119,12 @@ class BasicFieldDescriptor[T](
       displayName: Option[String] = displayName,
       position: Int = position,
       requiredError: String = requiredError): FieldDescriptor[T] = {
-    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName, position, requiredError)(valueManifest)
+    new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName, position, requiredError)(valueClassTag)
   }
 
-  def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
+  def apply[S](original: Either[String, Option[S]])(implicit ms: ClassTag[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
     val conv = original.fold(
-      e => ValidationError(e).fail,
+      e => ValidationError(e).failure,
       o => (o.flatMap(convert(_)) orElse defaultValue).fold(requiredValidationFailure)(_.success)
     )
     val o = original.fold(_ => None, identity)
@@ -157,10 +159,10 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def field: FieldDescriptor[T]
   def original: Option[S]
   def transform(endo: T => T): DataboundFieldDescriptor[S, T]
-  def apply[V](original: Either[String, Option[V]])(implicit mv: Manifest[V], convert: TypeConverter[V, T]): DataboundFieldDescriptor[V, T] =
+  def apply[V](original: Either[String, Option[V]])(implicit ct: ClassTag[V], convert: TypeConverter[V, T]): DataboundFieldDescriptor[V, T] =
     this.asInstanceOf[DataboundFieldDescriptor[V, T]]
 
-  override def toString() = "FieldDescriptor(name: %s, original: %s, value: %s)".format(name, original, value)
+  override def toString = s"FieldDescriptor(name: $name, original: $original, value: $value)"
   def validate: ValidatedFieldDescriptor[S, T]
   def validateWith(bindingValidators: BindingValidator[T]*): DataboundFieldDescriptor[S, T]
   def required: DataboundFieldDescriptor[S, T]
@@ -172,7 +174,7 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def description(desc: String): DataboundFieldDescriptor[S, T] 
   def notes = field.notes
   def notes(note: String): DataboundFieldDescriptor[S, T]
-  def valueManifest = field.valueManifest
+  def valueClassTag = field.valueClassTag
   private[commands] def defVal: Option[DefVal[T]] = field.defVal
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] 
   def valueSource: ValueSource.Value = field.valueSource
@@ -210,7 +212,7 @@ class BoundFieldDescriptor[S, T](
     case o: BoundFieldDescriptor[T, S] => field.equals(o.field)
     case _ => false
   }
-  override def toString() = "BoundFieldDescriptor(name: %s, original: %s, converted: %s)".format(name, original, value)
+  override def toString = s"BoundFieldDescriptor(name: $name, original: $original, converted: $value)"
 
   def validateWith(bindingValidators: BindingValidator[T]*): DataboundFieldDescriptor[S, T] = {
     val nwFld = field.validateWith(bindingValidators:_*)
@@ -240,7 +242,7 @@ class BoundFieldDescriptor[S, T](
     } else {
       val doValidation: Validator[T] = if (isRequired) {
         (x: FieldValidation[T]) => x flatMap { v =>
-          if (original.isDefined) v.success else ValidationError("%s is required." format name.underscore.humanize, FieldName(name), ValidationFail).fail
+          if (original.isDefined) v.success else ValidationError(s"${name.underscore.humanize} is required.", FieldName(name), ValidationFail).failure
         }
       } else identity
       new ValidatedBoundFieldDescriptor((doValidation andThen defaultValidator)(value) map transformations, this)
@@ -270,7 +272,7 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
     case o: ValidatedBoundFieldDescriptor[S, T] => field.equals(o.field)
     case _ => false
   }
-  override def toString() = "BoundFieldDescriptor(name: %s, original: %s, converted: %s)".format(name, original, value)
+  override def toString = s"BoundFieldDescriptor(name: $name, original: $original, converted: $value)"
 
   def validateWith(bindingValidators: BindingValidator[T]*): DataboundFieldDescriptor[S, T] = {
     copy(field = field.validateWith(bindingValidators:_*))
@@ -453,7 +455,7 @@ object BindingValidators {
     oneOf(messageFormat, enum.values.map(_.toString).toSeq)
 }
 
-class Field[A:Manifest](descr: FieldDescriptor[A], command: Command) {
+class Field[A:ClassTag](descr: FieldDescriptor[A], command: Command) {
 
   val name = descr.name
   def validation: FieldValidation[A] = binding.field.value.asInstanceOf[FieldValidation[A]]
