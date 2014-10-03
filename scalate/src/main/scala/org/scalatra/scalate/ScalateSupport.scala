@@ -9,7 +9,8 @@ import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
 import org.fusesource.scalate.support.TemplateFinder
-import java.util.concurrent.atomic.AtomicReference
+import collection.concurrent.{Map=>CMap, TrieMap}
+import language.reflectiveCalls
 
 object ScalateSupport {
   val DefaultLayouts = Seq(
@@ -26,11 +27,14 @@ object ScalateSupport {
 
   private val TemplateAttributesKey = "org.scalatra.scalate.ScalateSupport.TemplateAttributes"
 
-  private val templateEngineInstance: AtomicReference[TemplateEngine] = new AtomicReference[TemplateEngine](null)
+  private val templateEngineInstances: CMap[String, TemplateEngine] = new TrieMap[String, TemplateEngine]
 
-  def scalateTemplateEngine(init: => TemplateEngine): TemplateEngine = {
-    templateEngineInstance.compareAndSet(null, init)
-    templateEngineInstance.get()
+  def scalateTemplateEngine(ctx: String, init: => TemplateEngine): TemplateEngine = {
+    templateEngineInstances.get(ctx).getOrElse {
+      val engine = init
+      engine.workingDirectory = new java.io.File(engine.workingDirectory, ctx)
+      templateEngineInstances.putIfAbsent(ctx, engine).getOrElse(engine)
+    }
   }
 }
 
@@ -63,17 +67,22 @@ trait ScalateSupport extends ScalatraKernel {
    * override this unless you have created a ScalatraKernel extension outside
    * an HttpServlet or Filter.
    */
-  protected def createTemplateEngine(config: ConfigT): TemplateEngine =
+  protected def createTemplateEngine(config: ConfigT): TemplateEngine = {
+    val ctx = config.getServletContext.getContextPath match {
+      case "" => "ROOT"
+      case path => path.substring(1)
+    }
     config match {
       case servletConfig: ServletConfig =>
-        ScalateSupport.scalateTemplateEngine(new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine)
+        ScalateSupport.scalateTemplateEngine(ctx, new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine)
       case filterConfig: FilterConfig =>
-        ScalateSupport.scalateTemplateEngine(new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine)
+        ScalateSupport.scalateTemplateEngine(ctx, new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine)
       case _ =>
         // Don't know how to convert your Config to something that
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
-        ScalateSupport.scalateTemplateEngine(new TemplateEngine with ScalatraTemplateEngine)
+        ScalateSupport.scalateTemplateEngine(ctx, new TemplateEngine with ScalatraTemplateEngine)
     }
+  }
 
   /**
    * A TemplateEngine integrated with Scalatra.
