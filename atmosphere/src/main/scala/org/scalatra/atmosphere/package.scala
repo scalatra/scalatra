@@ -11,20 +11,20 @@ package object atmosphere {
 
   type AtmoReceive = PartialFunction[InboundMessage, Unit]
 
-  abstract class ClientFilter(val uuid: String) extends Function[AtmosphereClient, Boolean]
+  abstract class ClientFilter(val uuid: String) extends Function[AtmosphereResource, Boolean]
 
   class Everyone extends ClientFilter(null) {
-    def apply(v1: AtmosphereClient): Boolean = true
+    def apply(v1: AtmosphereResource): Boolean = true
     override def toString(): String = "Everyone"
   }
 
   class OnlySelf(uuid: String) extends ClientFilter(uuid) {
-    def apply(v1: AtmosphereClient): Boolean = v1.uuid == uuid
+    def apply(v1: AtmosphereResource): Boolean = v1.uuid == uuid
     override def toString(): String = "OnlySelf"
   }
 
   class SkipSelf(uuid: String) extends ClientFilter(uuid) {
-    def apply(v1: AtmosphereClient): Boolean = v1.uuid != uuid
+    def apply(v1: AtmosphereResource): Boolean = v1.uuid != uuid
     override def toString(): String = "Others"
   }
 
