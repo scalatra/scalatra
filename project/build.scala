@@ -13,11 +13,11 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{binaryIssueFilters, previousArti
 object ScalatraBuild extends Build {
   import Dependencies._
 
-  lazy val scalatraSettings = Defaults.defaultSettings ++ 
+  lazy val scalatraSettings =
     mimaDefaultSettings ++
     ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.11.1", "2.10.4"),
+    crossScalaVersions := Seq("2.11.3", "2.10.4"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
@@ -31,7 +31,7 @@ object ScalatraBuild extends Build {
     (LsKeys.tags in LsKeys.lsync) := Seq("web", "sinatra", "scalatra", "akka"),
     (LsKeys.docsUrl in LsKeys.lsync) := Some(new URL("http://www.scalatra.org/guides/")),
     previousArtifact <<= (name, scalaVersion) { (name, sv) =>
-      val cross = CrossVersion.crossName(name, CrossVersion.binaryScalaVersion(sv))
+      val cross = name + "_" + CrossVersion.binaryScalaVersion(sv)
       Some("org.scalatra" % cross % "2.2.2")
     }
   ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ mavenCentralFrouFrou
