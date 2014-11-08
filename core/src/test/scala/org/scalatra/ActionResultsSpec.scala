@@ -10,7 +10,8 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
 
 
-trait ActionResultTestBase  { self: ScalatraBase =>
+trait ActionResultTestBase {
+  self: ScalatraBase =>
   error {
     case e => BadRequest("something went wrong")
   }
@@ -63,6 +64,21 @@ trait ActionResultTestBase  { self: ScalatraBase =>
   get("/input-stream") {
     contentType = "image/png"
     getClass.getResourceAsStream("/org/scalatra/servlet/smiley.png")
+  }
+
+  get("/defaults-to-call-by-value") {
+    var state = "open"
+    // close over mutable state
+    def x: String = {
+      state
+    }
+
+    val res = Ok(x)
+
+    // modify state
+    state = "closed"
+
+    res
   }
 }
 
@@ -192,6 +208,14 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
     "set a custom reason on status line" in {
       get("/custom-reason") {
         response.getReason mustEqual "Bad Bad Bad"
+      }
+    }
+  }
+
+  "returning ActionResult"  should {
+    "defaults to call by value" in {
+      get("/defaults-to-call-by-value") {
+        body mustEqual "open"
       }
     }
   }
