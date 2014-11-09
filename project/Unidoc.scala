@@ -3,6 +3,7 @@
 import sbt._
 import sbt.Keys._
 import sbt.Project.Initialize
+import scala.language.postfixOps
 
 object Unidoc extends Plugin {
   val unidocDirectory = SettingKey[File]("unidoc-directory")
@@ -14,7 +15,7 @@ object Unidoc extends Plugin {
   val unidoc = TaskKey[File]("unidoc", "Create unified scaladoc for all aggregates")
 
   val unidocSettings = Seq(
-    unidocDirectory <<= crossTarget / "unidoc",
+    unidocDirectory <<= crossTarget { _ / "unidoc" }, 
     unidocExclude := Seq.empty,
     unidocAllSources <<= (thisProjectRef, buildStructure, unidocExclude) flatMap allSources,
     unidocSources <<= unidocAllSources map { _.flatten },
@@ -23,17 +24,17 @@ object Unidoc extends Plugin {
     unidoc <<= unidocTask
   )
 
-  def allSources(projectRef: ProjectRef, structure: Load.BuildStructure, exclude: Seq[String]): Task[Seq[Seq[File]]] = {
+  def allSources(projectRef: ProjectRef, structure: BuildStructure, exclude: Seq[String]): Task[Seq[Seq[File]]] = {
     val projects = aggregated(projectRef, structure, exclude)
     projects flatMap { sources in Compile in LocalProject(_) get structure.data } join
   }
 
-  def allClasspaths(projectRef: ProjectRef, structure: Load.BuildStructure, exclude: Seq[String]): Task[Seq[Classpath]] = {
+  def allClasspaths(projectRef: ProjectRef, structure: BuildStructure, exclude: Seq[String]): Task[Seq[Classpath]] = {
     val projects = aggregated(projectRef, structure, exclude)
     projects flatMap { dependencyClasspath in Compile in LocalProject(_) get structure.data } join
   }
 
-  def aggregated(projectRef: ProjectRef, structure: Load.BuildStructure, exclude: Seq[String]): Seq[String] = {
+  def aggregated(projectRef: ProjectRef, structure: BuildStructure, exclude: Seq[String]): Seq[String] = {
     val aggregate = Project.getProject(projectRef, structure).toSeq.flatMap(_.aggregate)
     aggregate flatMap { ref =>
       if (exclude contains ref.project) Seq.empty
@@ -41,11 +42,10 @@ object Unidoc extends Plugin {
     }
   }
 
-  def unidocTask: Initialize[Task[File]] = {
-    (compilers, cacheDirectory, unidocSources, unidocClasspath, unidocDirectory, scalacOptions in doc, streams) map {
-      (compilers, cache, sources, classpath, target, options, s) => {
-        val scaladoc = new Scaladoc(100, compilers.scalac)
-        scaladoc.cached(cache / "unidoc", "main", sources, classpath, target, options, s.log)
+  def unidocTask: Def.Initialize[Task[File]] = {
+    (compilers, unidocSources, unidocDirectory, scalacOptions in doc, streams) map {
+      (compilers, sources, target, options, s) => {
+        Doc.scaladoc("Scalatra", s.cacheDirectory, compilers.scalac, options)
         target
       }
     }
