@@ -1,9 +1,4 @@
-## Scalatra Core
+## Botched release! 
 
-* Removes the DefaultValue type class
-
-## Scalatra Commands
-
-* Updates to Scalaz-7.1.
-* **BREAKING** Removes the default value for types, instead a field is now started in an invalid state.
-* **BREAKING** field.optional now is an alias for field.withDefaultValue(theDefault)
+* Didn't include some changes already in 2.4.x.
+* You should use 2.4.0.M2 instead.
