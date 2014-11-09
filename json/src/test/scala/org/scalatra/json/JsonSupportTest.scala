@@ -40,6 +40,11 @@ class JsonSupportTestServlet extends ScalatraServlet with NativeJsonSupport {
       ("k2" -> "v2")
   }
 
+  get("/json-in-action-result") {
+    import org.json4s.JsonDSL._
+    BadRequest(("k1" -> "v1") ~ ("k2" -> "v2"))
+  }
+
   get("/json-result") {
     import org.json4s.JsonDSL._
     JsonResult(("k1" -> "v1"))
@@ -77,6 +82,14 @@ abstract class JsonSupportTestBase extends ScalatraFunSuite {
 
   test("JSON support test") {
     get("/json") {
+      response.mediaType should equal (Some("application/json"))
+      response.body should equal ("""{"k1":"v1","k2":"v2"}""")
+    }
+  }
+
+  test("JSON in ActionResult test") {
+    get("/json-in-action-result") {
+      response.status should equal (400)
       response.mediaType should equal (Some("application/json"))
       response.body should equal ("""{"k1":"v1","k2":"v2"}""")
     }
