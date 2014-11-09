@@ -1,0 +1,8 @@
+## Scalatra Core
+
+* Removes the DefaultValue type class
+
+## Scalatra Commands
+
+* **BREAKING** Removes the default value for types, instead a field is now started in an invalid state.
+* **BREAKING** field.optional now is an alias for field.withDefaultValue(theDefault)

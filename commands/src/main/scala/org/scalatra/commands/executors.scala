@@ -127,7 +127,7 @@ abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidatio
         case Failure(e) ⇒ e
       }
       def failures = if (f.size == 1) "failure" else "failures"
-      logger.debug(s"Command [${cmd.getClass.getName}] executed with ${f.size} ${failures}.\n${f.toList}")
+      logger.debug(s"Command [${cmd.getClass.getName}] executed with ${f.size} $failures.\n${f.toList}")
       Future.successful(NonEmptyList(f.head, f.tail: _*).fail)
     }
   }

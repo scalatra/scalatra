@@ -1,27 +1,24 @@
 package org.scalatra
 package commands
 
-import org.specs2.mutable.Specification
-import json.JsonSupport
-import scalaz._
-import Scalaz._
 import javax.servlet.http.HttpServletRequest
+
+import org.scalatra.util.MultiMap
 import org.specs2.mock.Mockito
-import util.MultiMap
-import java.util
-import org.scalatra.util
-import org.json4s.{DefaultWriters, DefaultReaders, DefaultJsonFormats}
+import org.specs2.mutable.Specification
+
+import scalaz.Scalaz._
 
 //import org.scalatra.validation.ValidationSupport
 
 trait BindingTemplate { self: Command with TypeConverterFactories =>
 
 
-  val upperCaseName: Field[String] = bind[String]("name").transform(_.toUpperCase).optional
+  val upperCaseName: Field[String] = bind[String]("name").transform(_.toUpperCase).optional("")
 
-  val lowerCaseSurname: Field[String] = asString("surname").transform(_.toLowerCase).optional
+  val lowerCaseSurname: Field[String] = asString("surname").transform(_.toLowerCase).optional("")
 
-  val age: Field[Int] = asType[Int]("age").optional // explicit
+  val age: Field[Int] = asType[Int]("age").optional(-1) // explicit
 
   val cap: Field[Int] = "cap" // implicit
 
@@ -39,7 +36,7 @@ class WithBindingFromParams extends WithBinding
 
 class MixAndMatchCommand extends ParamsOnlyCommand {
 
-  import ValueSource._
+  import org.scalatra.commands.ValueSource._
   val name: Field[String] = asString("name").notBlank
   val age: Field[Int] = "age"
   val token: Field[String] = (
@@ -68,7 +65,6 @@ class CommandWithRequiredValuesValidation extends ParamsOnlyCommand {
 class CommandSpec extends Specification {
 
   import org.scalatra.util.ParamsValueReaderProperties._
-  import BindingSyntax._
 
 //  implicit val formats: Formats = DefaultFormats
   "The 'Command' trait" should {
@@ -78,7 +74,7 @@ class CommandSpec extends Specification {
       form.a must_== form.upperCaseName
     }
 
-    "have unprocessed binding values set to 'None'" in {
+    "have unprocessed binding values set to an error" in {
       val form = new WithBindingFromParams
       form.a.validation must_== "".success
       form.lower.validation must_== "".success
@@ -123,7 +119,7 @@ class CommandSpec extends Specification {
     }
 
     "provide pluggable actions processed 'BEFORE' binding " in {
-      import System._
+      import java.lang.System._
 
       trait PreBindAction extends WithBinding {
 
@@ -177,8 +173,6 @@ class CommandSpec extends Specification {
   }
 }
 
-import org.scalatra.test.specs2._
-
 
 class CommandSample extends ParamsOnlyCommand {
   var bound = false
@@ -204,8 +198,6 @@ class CommandSupportSpec extends Specification with Mockito {
     }
 
     "look into request for existent command objects with commandOption[T]" in {
-
-      import collection.mutable._
 
       implicit val mockRequest = smartMock[HttpServletRequest]
       val page = new ScalatraPage
