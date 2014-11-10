@@ -40,6 +40,20 @@ class JsonSupportTestServlet extends ScalatraServlet with NativeJsonSupport {
       ("k2" -> "v2")
   }
 
+  get("/json-in-action-result") {
+    import org.json4s.JsonDSL._
+    BadRequest(("k1" -> "v1") ~ ("k2" -> "v2"))
+  }
+
+  get("/json-result") {
+    import org.json4s.JsonDSL._
+    JsonResult(("k1" -> "v1"))
+  }
+
+  get("/json-result-in-action-result") {
+    import org.json4s.JsonDSL._
+    BadRequest(JsonResult(("error" -> "message")))
+  }
 
   get("/nulls") {
     JNull
@@ -70,6 +84,29 @@ abstract class JsonSupportTestBase extends ScalatraFunSuite {
     get("/json") {
       response.mediaType should equal (Some("application/json"))
       response.body should equal ("""{"k1":"v1","k2":"v2"}""")
+    }
+  }
+
+  test("JSON in ActionResult test") {
+    get("/json-in-action-result") {
+      response.status should equal (400)
+      response.mediaType should equal (Some("application/json"))
+      response.body should equal ("""{"k1":"v1","k2":"v2"}""")
+    }
+  }
+
+  test("JsonResult test") {
+    get("/json-result") {
+      response.mediaType should equal (Some("application/json"))
+      response.body should equal ("""{"k1":"v1"}""")
+    }
+  }
+
+  test("JsonResult in ActionResult test") {
+    get("/json-result-in-action-result") {
+      response.mediaType should equal (Some("application/json"))
+      response.body should equal ("""{"error":"message"}""")
+      response.status should equal (400)
     }
   }
 
