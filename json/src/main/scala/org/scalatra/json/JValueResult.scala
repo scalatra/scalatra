@@ -2,13 +2,12 @@ package org.scalatra
 package json
 
 import org.json4s._
-import util._
-import io._
-import org.scalatra.ActionResult
-import java.io.{FileInputStream, File}
-import org.scalatra.ActionResult
-import xml.{Node, NodeSeq}
+import java.io.File
+import xml.NodeSeq
 
+/**
+ * Responsible for passing a JValue further in the render pipeline.
+ */
 trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
 
   implicit protected def jsonFormats: Formats
