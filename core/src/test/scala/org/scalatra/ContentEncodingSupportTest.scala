@@ -35,7 +35,7 @@ class DeflateSupportServletTest extends ContentEncodingSupportTest(ContentEncodi
 }
 
 /** Test suite for `gzip`. */
-class ContentEncodingSupportServletTest extends ContentEncodingSupportTest(ContentEncoding.GZip) {
+class GZipSupportServletTest extends ContentEncodingSupportTest(ContentEncoding.GZip) {
   mount(classOf[ContentEncodingSupportTestServlet], "/*")
 }
 
