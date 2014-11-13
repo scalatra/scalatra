@@ -9,13 +9,13 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
- * Test servlet using GZipSupport.
+ * Test servlet using ContentEncodingSupport.
  */
 class ContentEncodingSupportTestServlet extends ScalatraServlet with ContentEncodingSupportAppBase {
   implicit protected def executor: ExecutionContext = ExecutionContext.global
 }
 
-trait ContentEncodingSupportAppBase extends ScalatraBase with FutureSupport with GZipSupport {
+trait ContentEncodingSupportAppBase extends ScalatraBase with FutureSupport with ContentEncodingSupport {
   get("/") {
     Helper.body
   }
@@ -35,7 +35,7 @@ class DeflateSupportServletTest extends ContentEncodingSupportTest(ContentEncodi
 }
 
 /** Test suite for `gzip`. */
-class GZipSupportServletTest extends ContentEncodingSupportTest(ContentEncoding.GZip) {
+class ContentEncodingSupportServletTest extends ContentEncodingSupportTest(ContentEncoding.GZip) {
   mount(classOf[ContentEncodingSupportTestServlet], "/*")
 }
 
