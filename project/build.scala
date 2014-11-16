@@ -15,7 +15,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings =
     mimaDefaultSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.11.2", "2.10.4"), // TODO 2.11.4 (https://issues.scala-lang.org/browse/SI-8899)
+    crossScalaVersions := Seq("2.11.4", "2.10.4")
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
