@@ -4,7 +4,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 /**
  * Scalatra handler for gzipped responses.
  */
-trait GZipSupport extends Handler {
+trait ContentEncodingSupport extends Handler {
   self: ScalatraBase =>
 
   /** Encodes the response if necessary. */

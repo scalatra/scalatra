@@ -18,6 +18,9 @@ package object scalatra
     def apply(route: Route): Route
   }
 
+  @deprecated("Use ContentEncodingSupport, GZipSupport will be removed eventually", "2.4")
+  type GZipSupport = ContentEncodingSupport
+
   type MultiParams = MultiMap
 
   type Params = MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
