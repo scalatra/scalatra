@@ -29,7 +29,7 @@ trait JsonSupportServlet[T] extends ScalatraBase with JsonSupport[T] {
 }
 
 trait JsonRequestSpec extends MutableScalatraSpec {
-  "The JacksonSupport" should {
+  "The JsonSupport" should {
 
     "parse the json body of a request" in {
       val rbody = """{"name": "hello world"}"""
@@ -59,7 +59,7 @@ trait JsonRequestSpec extends MutableScalatraSpec {
 }
 
 trait BigDecimalJsonRequestSpec extends MutableScalatraSpec {
-  "The JacksonSupport" should {
+  "The JsonSupport" should {
 
     "parse number as bigdecimal" in {
       val rbody = """{"number":3.14159265358979323846}"""
