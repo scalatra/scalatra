@@ -9,7 +9,7 @@ import util.RicherString._
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
   protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue = {
     val rdr = new InputStreamReader(stream, charset)
-    if (rdr.ready()) native.JsonParser.parse(rdr)
+    if (rdr.ready()) native.JsonParser.parse(rdr, jsonFormats.wantsBigDecimal)
     else {
       rdr.close()
       JNothing
@@ -17,7 +17,7 @@ trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with
   }
 
   protected def readJsonFromBody(bd: String): JValue = {
-    if (bd.nonBlank) native.JsonParser.parse(bd)
+    if (bd.nonBlank) native.JsonParser.parse(bd, jsonFormats.wantsBigDecimal)
     else JNothing
   }
 }
