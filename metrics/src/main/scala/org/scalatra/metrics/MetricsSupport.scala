@@ -8,7 +8,7 @@ import org.scalatra.ScalatraBase
 trait MetricsSupport extends nl.grons.metrics.scala.InstrumentedBuilder {
   self: ScalatraBase ⇒
 
-  val metricsRegistry = Metrics.metricRegistry
+  def metricsRegistry = Metrics.metricRegistry
 
   def metricName(name: String) = MetricName(name)
 
