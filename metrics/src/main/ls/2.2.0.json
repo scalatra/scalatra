@@ -1,0 +1,21 @@
+{
+  "organization" : "org.scalatra",
+  "name" : "scalatra-metrics",
+  "version" : "2.2.0",
+  "description" : "Scalatra Metrics module",
+  "site" : "http://www.scalatra.org/",
+  "tags" : [ "web", "sinatra", "scalatra", "metrics"],
+  "docs" : "http://www.scalatra.org/guides/",
+  "resolvers" : [ "https://oss.sonatype.org/content/repositories/releases" ],
+  "dependencies" : [ {
+                       "organization" : "nl.grons",
+                       "name" : "metrics-scala",
+                       "version" : "3.3.0_a2.3"
+                     } ],
+  "scalas" : [ "2.10.0" ],
+  "licenses" : [ {
+                   "name" : "BSD",
+                   "url" : "http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"
+                 } ],
+  "sbt" : false
+}

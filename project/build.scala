@@ -250,6 +250,15 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraMetrics = Project(
+    id = "scalatra-metrics",
+    base = file("metrics"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies += metricsScala,
+      description := "Scalatra integration with Metrics"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
   lazy val scalatraExample = Project(
      id = "scalatra-example",
      base = file("example"),
@@ -321,6 +330,7 @@ object ScalatraBuild extends Build {
 //    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
     lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
     lazy val testng                     =  "org.testng"              %  "testng"             % "6.8.8"
+    lazy val metricsScala               =  "nl.grons"                %% "metrics-scala"      % "3.3.0_a2.3"
 
     type MM = String => ModuleID
 
