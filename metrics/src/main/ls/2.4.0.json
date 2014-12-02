@@ -1,7 +1,7 @@
 {
   "organization" : "org.scalatra",
   "name" : "scalatra-metrics",
-  "version" : "2.2.0",
+  "version" : "2.4.0",
   "description" : "Scalatra Metrics module",
   "site" : "http://www.scalatra.org/",
   "tags" : [ "web", "sinatra", "scalatra", "metrics"],
