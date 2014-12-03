@@ -5,10 +5,8 @@ import com.codahale.metrics._
 import nl.grons.metrics.scala._
 import org.scalatra.ScalatraBase
 
-trait MetricsSupport extends nl.grons.metrics.scala.InstrumentedBuilder {
-  self: ScalatraBase ⇒
-
-  def metricsRegistry = Metrics.metricRegistry
+trait MetricsSupport extends nl.grons.metrics.scala.InstrumentedBuilder with MetricsBootstrap {
+  implicit def metricRegistry: MetricRegistry
 
   def metricName(name: String) = MetricName(name)
 
