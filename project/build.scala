@@ -49,7 +49,8 @@ object ScalatraBuild extends Build {
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
-      scalatraCommon, scalatraSwaggerExt, scalatraSpring)
+      scalatraCommon, scalatraSwaggerExt, scalatraSpring,
+      scalatraMetrics)
   )
 
   lazy val scalatraCommon = Project(
@@ -250,6 +251,15 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraMetrics = Project(
+    id = "scalatra-metrics",
+    base = file("metrics"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(metricsScala, metricsServlets),
+      description := "Scalatra integration with Metrics"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
   lazy val scalatraExample = Project(
      id = "scalatra-example",
      base = file("example"),
@@ -321,6 +331,8 @@ object ScalatraBuild extends Build {
 //    lazy val swaggerCore                =  "com.wordnik"             % "swagger-core"        % swaggerVersion       cross swaggerCross exclude("log4j", "log4j") exclude("org.slf4j", "slf4j-log4j12")
     lazy val testJettyServlet           =  "org.eclipse.jetty"       %  "test-jetty-servlet" % jettyVersion
     lazy val testng                     =  "org.testng"              %  "testng"             % "6.8.8"
+    lazy val metricsScala               =  "nl.grons"                %% "metrics-scala"      % "3.3.0_a2.3"
+    lazy val metricsServlets            =  "io.dropwizard.metrics"   % "metrics-servlets"    % "3.1.0"
 
     type MM = String => ModuleID
 
