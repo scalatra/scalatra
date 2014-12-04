@@ -71,7 +71,7 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
   }
 
   get("/layout-strategy") {
-    new AsyncResult { val is = Future { templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts.sortWith(_<_) mkString ";" } }
+    new AsyncResult { val is = Future { templateEngine.layoutStrategy.asInstanceOf[DefaultLayoutStrategy].defaultLayouts mkString ";" } }
   }
 
   val urlGeneration = get("/url-generation") {
@@ -181,14 +181,18 @@ class ScalateFuturesSupportSpec extends MutableScalatraSpec {
   // verify that it's looking in the right place.
   def e5 = get("/layout-strategy") {
     body must_== (List(
-      "/WEB-INF/layouts/default.jade",
+      "/WEB-INF/templates/layouts/default.mustache",
+      "/WEB-INF/templates/layouts/default.ssp",
+      "/WEB-INF/templates/layouts/default.scaml",
+      "/WEB-INF/templates/layouts/default.jade",
       "/WEB-INF/layouts/default.mustache",
-      "/WEB-INF/layouts/default.scaml",
       "/WEB-INF/layouts/default.ssp",
-      "/WEB-INF/scalate/layouts/default.jade",
+      "/WEB-INF/layouts/default.scaml",
+      "/WEB-INF/layouts/default.jade",
       "/WEB-INF/scalate/layouts/default.mustache",
+      "/WEB-INF/scalate/layouts/default.ssp",
       "/WEB-INF/scalate/layouts/default.scaml",
-      "/WEB-INF/scalate/layouts/default.ssp"
+      "/WEB-INF/scalate/layouts/default.jade"
     ) mkString ";")
   }
 
