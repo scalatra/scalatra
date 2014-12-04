@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 object ScalateSupport {
   val DefaultLayouts = Seq(
+    "/WEB-INF/templates/layouts/default",
     "/WEB-INF/layouts/default",
     "/WEB-INF/scalate/layouts/default"
   )
@@ -78,8 +79,8 @@ trait ScalateSupport extends ScalatraKernel {
   /**
    * A TemplateEngine integrated with Scalatra.
    *
-   * A ScalatraTemplateEngine looks for layouts in `/WEB-INF/layouts` before
-   * searching the default `/WEB-INF/scalate/layouts`.
+   * A ScalatraTemplateEngine looks for layouts in `/WEB-INF/templates/layouts` before
+   * searching in `/WEB-INF/layouts` and `/WEB-INF/scalate/layouts`.
    */
   trait ScalatraTemplateEngine {
     this: TemplateEngine =>
@@ -167,11 +168,16 @@ trait ScalateSupport extends ScalatraKernel {
    * constant.
    *
    * Defaults to:
-   * - `/WEB-INF/views` (recommended)
+   * - `/WEB-INF/templates/views` (recommended)
+   * - `/WEB-INF/views` (used by previous Scalatra quickstarts)
    * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
    */
   protected def defaultTemplatePath: List[String] =
-    List("/WEB-INF/views", "/WEB-INF/scalate/templates")
+    List(
+      "/WEB-INF/templates/views",
+      "/WEB-INF/views",
+      "/WEB-INF/scalate/templates"
+    )
 
   /**
    * The default path to search for templates.  Left as a def so it can be
@@ -179,7 +185,8 @@ trait ScalateSupport extends ScalatraKernel {
    * constant.
    *
    * Defaults to:
-   * - `/WEB-INF/views` (recommended)
+   * - `/WEB-INF/templates/views` (recommended)
+   * - `/WEB-INF/views` (used by previous Scalatra quickstarts)
    * - `/WEB-INF/scalate/templates` (used by previous Scalatra quickstarts)
    */
   protected def defaultLayoutPath: Option[String] = None
