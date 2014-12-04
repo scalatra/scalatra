@@ -255,7 +255,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-metrics",
     base = file("metrics"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(metricsScala, metricsServlets),
+      libraryDependencies ++= Seq(metricsScala, metricsServlets, metricsServlet),
       description := "Scalatra integration with Metrics"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -333,6 +333,7 @@ object ScalatraBuild extends Build {
     lazy val testng                     =  "org.testng"              %  "testng"             % "6.8.8"
     lazy val metricsScala               =  "nl.grons"                %% "metrics-scala"      % "3.3.0_a2.3"
     lazy val metricsServlets            =  "io.dropwizard.metrics"   % "metrics-servlets"    % "3.1.0"
+    lazy val metricsServlet             =  "io.dropwizard.metrics"   % "metrics-servlet"      % "3.1.0"
 
     type MM = String => ModuleID
 
