@@ -80,7 +80,7 @@ class BindingSpec extends Specification {
 
       val builder = Binding(FieldDescriptor[String]("login"))
       val conv = implicitly[TypeConverter[String, String]].asInstanceOf[TypeConverter[String, builder.T]]
-      val container = Binding(builder.field, conv, implicitly[TypeConverterFactory[String]])(manifest[String], builder.valueManifest)
+      val container = Binding(builder.field, conv, implicitly[TypeConverterFactory[String]])(manifest[String], builder.valueClassTag)
       container(Right(Some("joske".asInstanceOf[container.S]))).validation must_== "joske".success
     }
 

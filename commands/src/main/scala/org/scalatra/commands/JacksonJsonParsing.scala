@@ -4,11 +4,13 @@ package commands
 import json.{JacksonJsonValueReaderProperty, JacksonJsonSupport}
 import javax.servlet.http.HttpServletRequest
 
+import scala.reflect.ClassTag
+
 trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderProperty { self: JacksonJsonSupport with CommandSupport =>
   type CommandType = JsonCommand
 
 
-  override protected def bindCommand[T <: CommandType](newCommand: T)(implicit request: HttpServletRequest, mf: Manifest[T]): T = {
+  override protected def bindCommand[T <: CommandType](newCommand: T)(implicit request: HttpServletRequest, ct: ClassTag[T]): T = {
     val requestFormat = request.contentType match {
       case Some(contentType) => mimeTypes.getOrElse(contentType, format)
       case None => format

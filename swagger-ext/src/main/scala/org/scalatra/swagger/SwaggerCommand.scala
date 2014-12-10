@@ -29,7 +29,7 @@ object SwaggerCommandSupport {
         if (f.valueSource == ValueSource.Header) lst else {
           Parameter(
               f.displayName | f.name,
-              DataType(f.binding.valueManifest),
+              DataType(f.binding.valueClassTag),
               f.description.blankOption,
               f.notes.blankOption,
               paramtypeMapping(f.valueSource),
