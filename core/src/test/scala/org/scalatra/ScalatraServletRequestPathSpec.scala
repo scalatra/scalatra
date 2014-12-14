@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatest.matchers.MustMatchers
 import org.scalatest._
 
 class ScalatraServletRequestPathSpec extends WordSpec with MustMatchers {

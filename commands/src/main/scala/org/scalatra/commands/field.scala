@@ -4,6 +4,7 @@ package commands
 import validation._
 import util.conversion._
 import scalaz._
+import scalaz.Validation.FlatMap._
 import syntax.validation._
 import syntax.std.option._
 import mojolly.inflector.InflectorImports._
@@ -93,7 +94,7 @@ class BasicFieldDescriptor[T](
     val position: Int = 0,
     val requiredError: String = "%s is required.")(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
 
-  private[this] def requiredValidationFailure: FieldValidation[T] = ValidationError(requiredError.format(name), FieldName(name)).fail
+  private[this] def requiredValidationFailure: FieldValidation[T] = ValidationError(requiredError.format(name), FieldName(name)).failure
 
   def value: FieldValidation[T] = defaultValue.fold(requiredValidationFailure)(_.success)
 
@@ -122,7 +123,7 @@ class BasicFieldDescriptor[T](
 
   def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
     val conv = original.fold(
-      e => ValidationError(e).fail,
+      e => ValidationError(e).failure,
       o => (o.flatMap(convert(_)) orElse defaultValue).fold(requiredValidationFailure)(_.success)
     )
     val o = original.fold(_ => None, identity)
@@ -240,7 +241,7 @@ class BoundFieldDescriptor[S, T](
     } else {
       val doValidation: Validator[T] = if (isRequired) {
         (x: FieldValidation[T]) => x flatMap { v =>
-          if (original.isDefined) v.success else ValidationError("%s is required." format name.underscore.humanize, FieldName(name), ValidationFail).fail
+          if (original.isDefined) v.success else ValidationError("%s is required." format name.underscore.humanize, FieldName(name), ValidationFail).failure
         }
       } else identity
       new ValidatedBoundFieldDescriptor((doValidation andThen defaultValidator)(value) map transformations, this)
@@ -383,7 +384,7 @@ object BindingValidators {
   }
 
   import org.scalatra.validation.Validation
-
+  import scalaz.Validation.FlatMap._
 
   def validate[TValue](validate: TValue => Boolean, messageFormat: String = "%s is invalid."): BindingValidator[TValue] = (s: String) => {
     _ flatMap Validators.validate(s, messageFormat = messageFormat, validate = validate).validate
