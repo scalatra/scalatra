@@ -4,6 +4,7 @@ import Keys._
 import scala.xml._
 import java.net.URL
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
+import com.typesafe.sbt.SbtScalariform.scalariformSettings
 import com.typesafe.tools.mima.core._
 import com.typesafe.tools.mima.core.ProblemFilters._
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
@@ -36,7 +37,7 @@ object ScalatraBuild extends Build {
       val cross = name + "_" + CrossVersion.binaryScalaVersion(sv)
       Some("org.scalatra" % cross % "2.3.0")
     }
-  ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ mavenCentralFrouFrou
+  ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ mavenCentralFrouFrou ++ scalariformSettings
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
