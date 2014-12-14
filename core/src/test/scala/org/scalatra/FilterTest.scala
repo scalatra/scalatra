@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.scalatest.BeforeAndAfterEach
 import test.scalatest.ScalatraFunSuite
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 
 class ScalatraExpectedFilterException extends RuntimeException
 class FilterTestServlet extends ScalatraServlet {
@@ -101,8 +101,8 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
   }
 
   test("before is called exactly once per request to a filter") {
-    get("/before-counter") { header("filterBeforeCount") should equal ("1") }
-    get("/before-counter") { header("filterBeforeCount") should equal ("2") }
+    get("/before-counter") { header("filterBeforeCount") should equal("1") }
+    get("/before-counter") { header("filterBeforeCount") should equal("2") }
   }
 
   test("before is called when route is not found") {
@@ -111,19 +111,19 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
     }
     get("/before-counter") {
       // Should now be 2.  1 for the last request, and one for this
-      body should equal ("2")
+      body should equal("2")
     }
   }
 
   test("before can see query parameters") {
     get("/", "before" -> "foo") {
-      body should equal ("foo")
+      body should equal("foo")
     }
   }
 
   test("supports multiple before and after filters") {
     get("/multiple-filters/") {
-      body should equal ("one\ntwo\nthree\nfour\nfive\n")
+      body should equal("one\ntwo\nthree\nfour\nfive\n")
     }
   }
 
@@ -138,13 +138,13 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
     }
     get("/after-counter") {
       // Should now be 2.  1 for the last request, and one for this
-      body should equal ("2")
+      body should equal("2")
     }
   }
 
   test("after can see query parameters") {
     get("/", "after" -> "foo") {
-      body should equal ("foo")
+      body should equal("foo")
     }
   }
 

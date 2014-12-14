@@ -6,7 +6,7 @@ import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
 import scala.collection.concurrent
 import collection.mutable
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 
 object ApiFormats {
   /**
@@ -106,18 +106,18 @@ trait ApiFormats extends ScalatraBase {
   }
 
   private[this] def getFromAcceptHeader(implicit request: HttpServletRequest): Option[String] = {
-    val hdrs = request.contentType.fold(acceptHeader)( contentType =>
+    val hdrs = request.contentType.fold(acceptHeader)(contentType =>
       (acceptHeader ::: List(contentType)).distinct
     )
     formatForMimeTypes(hdrs: _*)
   }
 
   private[this] def getFromResponseHeader(implicit response: HttpServletResponse): Option[String] = {
-    response.contentType flatMap ( ctt => ctt.split(";").headOption flatMap mimeTypes.get)
+    response.contentType flatMap (ctt => ctt.split(";").headOption flatMap mimeTypes.get)
   }
 
   private def parseAcceptHeader(implicit request: HttpServletRequest): List[String] = {
-    def isValidQPair (a:Array[String]) = {
+    def isValidQPair(a: Array[String]) = {
       val validRange = Range.Double.inclusive(0, 1, 0.1)
       a.length == 2 && a(0) == "q" && validRange.contains(a(1).toDouble)
     }
@@ -185,9 +185,8 @@ trait ApiFormats extends ScalatraBase {
     }
   }
 
-
   def requestFormat(implicit request: HttpServletRequest): String =
-    request.contentType flatMap ( t => t.split(";").headOption flatMap mimeTypes.get) getOrElse format
+    request.contentType flatMap (t => t.split(";").headOption flatMap mimeTypes.get) getOrElse format
 
   /**
    * Returns the request-scoped format.  If not explicitly set, the format is:
@@ -203,6 +202,5 @@ trait ApiFormats extends ScalatraBase {
       fmt
     })(_.asInstanceOf[String])
   }
-
 
 }

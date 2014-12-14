@@ -1,7 +1,7 @@
 package org.scalatra.servlet
 
 import scala.collection.JavaConverters._
-import java.util.{HashMap => JHashMap, Map => JMap}
+import java.util.{ HashMap => JHashMap, Map => JMap }
 import org.scalatra.ScalatraBase
 import org.scalatra.util._
 import java.io.{ File, FileOutputStream }
@@ -10,54 +10,55 @@ import org.scalatra.util.RicherString._
 import scala.io.Codec
 import org.scalatra.util.io
 
-/** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
-  * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
-  * submitted as part of a multipart HTTP request.  Commonly this is used for
-  * retrieving uploaded files.
-  *
-  * Once the trait has been mixed into your handler, you need to enable multipart
-  * configuration in your ''web.xml'' or by using `@MultipartConfig` annotation. To
-  * configure in ''web.xml'' add `<multipart-config />` to your `<servlet>` element. If you
-  * prefer annotations instead, place `@MultipartConfig` to your handler. Both ways
-  * provide some further configuration options, such as specifying the max total request size
-  * and max size for invidual files in the request. You might want to set these to prevent
-  * users from uploading too large files.
-  *
-  * When the configuration has been done, you can access any files using
-  * `fileParams("myFile")` where ''myFile'' is the name
-  * of the parameter used to upload the file being retrieved. If you are
-  * expecting multiple files with the same name, you can use
-  * `fileMultiParams("files[]")` to access them all.
-  *
-  * To handle any errors that are caused by multipart handling, you need
-  * to configure an error handler to your handler class:
-  *
-  * {{{
-  * import org.scalatra.servlet.SizeLimitExceededException
-  * import org.scalatra.servlet.FileUploadSupport
-  *
-  * @MultipartConfig(maxFileSize=1024*1024)
-  * class FileEaterServlet extends ScalatraServlet with FileUploadSupport {
-  *   error {
-  *     case e: SizeConstrainttExceededException => "Oh, too much! Can't take it all."
-  *     case e: IOException                      => "Server denied me my meal, thanks anyway."
-  *   }
-  *
-  *   post("/eatfile") {
-  *     "Thanks! You just provided me " + fileParams("lunch").size + " bytes for a lunch."
-  *   }
-  * }
-  * }}}
-  *
-  }}* @note Once any handler with FileUploadSupport has accessed the request, the
-  *       fileParams returned by FileUploadSupport will remain fixed for the
-  *       lifetime of the request.
-  *
-  * @note Will not work on Jetty versions prior to 8.1.3.  See
-  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=376324.  The old
-  * scalatra-fileupload module still works for earlier versions
-  * of Jetty.
-  */
+/**
+ * FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]
+ * or [[org.scalatra.ScalatraServlet]] to provide easy access to data
+ * submitted as part of a multipart HTTP request.  Commonly this is used for
+ * retrieving uploaded files.
+ *
+ * Once the trait has been mixed into your handler, you need to enable multipart
+ * configuration in your ''web.xml'' or by using `@MultipartConfig` annotation. To
+ * configure in ''web.xml'' add `<multipart-config />` to your `<servlet>` element. If you
+ * prefer annotations instead, place `@MultipartConfig` to your handler. Both ways
+ * provide some further configuration options, such as specifying the max total request size
+ * and max size for invidual files in the request. You might want to set these to prevent
+ * users from uploading too large files.
+ *
+ * When the configuration has been done, you can access any files using
+ * `fileParams("myFile")` where ''myFile'' is the name
+ * of the parameter used to upload the file being retrieved. If you are
+ * expecting multiple files with the same name, you can use
+ * `fileMultiParams("files[]")` to access them all.
+ *
+ * To handle any errors that are caused by multipart handling, you need
+ * to configure an error handler to your handler class:
+ *
+ * {{{
+ * import org.scalatra.servlet.SizeLimitExceededException
+ * import org.scalatra.servlet.FileUploadSupport
+ *
+ * @MultipartConfig(maxFileSize=1024*1024)
+ * class FileEaterServlet extends ScalatraServlet with FileUploadSupport {
+ *   error {
+ *     case e: SizeConstrainttExceededException => "Oh, too much! Can't take it all."
+ *     case e: IOException                      => "Server denied me my meal, thanks anyway."
+ *   }
+ *
+ *   post("/eatfile") {
+ *     "Thanks! You just provided me " + fileParams("lunch").size + " bytes for a lunch."
+ *   }
+ * }
+ * }}}
+ *
+ * }}* @note Once any handler with FileUploadSupport has accessed the request, the
+ *       fileParams returned by FileUploadSupport will remain fixed for the
+ *       lifetime of the request.
+ *
+ * @note Will not work on Jetty versions prior to 8.1.3.  See
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=376324.  The old
+ * scalatra-fileupload module still works for earlier versions
+ * of Jetty.
+ */
 trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   import FileUploadSupport._
@@ -114,13 +115,13 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
             if (!(item.isFormField)) {
               BodyParams(params.fileParams + ((
                 item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]())
-                )), params.formParams)
+              )), params.formParams)
             } else {
               BodyParams(params.fileParams, params.formParams + (
                 (item.getFieldName, fileItemToString(item) ::
                   params.formParams.getOrElse(item.getFieldName, List[String]())
-                  )
-                ))
+                )
+              ))
             }
         }
 
@@ -139,7 +140,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
   }
 
   private def fileItemToString(item: FileItem): String = {
-//    val charset = item.charset getOrElse defaultCharacterEncoding
+    //    val charset = item.charset getOrElse defaultCharacterEncoding
     new String(item.get().map(_.toChar))
   }
 
@@ -255,8 +256,8 @@ case class FileItem(part: Part) {
 
 object Util {
   def partAttribute(part: Part,
-                    headerName: String, attributeName: String,
-                    defaultValue: String = null) = Option(part.getHeader(headerName)) match {
+    headerName: String, attributeName: String,
+    defaultValue: String = null) = Option(part.getHeader(headerName)) match {
     case Some(value) => {
       value.split(";").find(_.trim().startsWith(attributeName)) match {
         case Some(attributeValue) => attributeValue.substring(attributeValue.indexOf('=') + 1).trim().replace("\"", "")

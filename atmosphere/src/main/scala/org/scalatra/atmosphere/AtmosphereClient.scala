@@ -20,7 +20,7 @@ object AtmosphereClient {
       if (!pth.endsWith("/")) pth + "/*" else "*"
     } else pth
     val res: Broadcaster = BroadcasterFactory.getDefault.lookup(norm)
-    if( res != null && res.isInstanceOf[ScalatraBroadcaster]) {
+    if (res != null && res.isInstanceOf[ScalatraBroadcaster]) {
       Some(res.asInstanceOf[ScalatraBroadcaster])
     } else {
       None
@@ -39,8 +39,8 @@ object AtmosphereClient {
 }
 
 /**
- * Provides a handle for a single Atmosphere connection. 
- * 
+ * Provides a handle for a single Atmosphere connection.
+ *
  * Each browser or other device which connects to an `atmosphere` route is
  * assigned its own AtmosphereClient, with a uuid. This is a good bet for
  * subclassing if you need to implement your own message distribution logic.

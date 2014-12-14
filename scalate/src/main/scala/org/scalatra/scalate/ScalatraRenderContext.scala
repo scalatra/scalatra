@@ -1,10 +1,10 @@
 package org.scalatra
 package scalate
 
-import servlet.{FileItem, FileUploadSupport, FileMultiParams, ServletBase}
+import servlet.{ FileItem, FileUploadSupport, FileMultiParams, ServletBase }
 
 import java.io.PrintWriter
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpSession}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest, HttpSession }
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.ServletRenderContext
 import javax.servlet.ServletContext
@@ -81,7 +81,7 @@ class ScalatraRenderContext(
    * @throws IllegalStateException if the route's base path cannot be
    * determined.  This may occur outside of an HTTP request's lifecycle.
    */
-  def url(route: Route, params: (String, String)*): String = UrlGenerator.url(route, params:_*)(request)
+  def url(route: Route, params: (String, String)*): String = UrlGenerator.url(route, params: _*)(request)
 
   /**
    * Calculate a URL for a reversible route and some splats.
@@ -94,7 +94,7 @@ class ScalatraRenderContext(
    * @throws IllegalStateException if the route's base path cannot be
    * determined.  This may occur outside of an HTTP request's lifecycle.
    */
-  def url(route: Route, splat: String, moreSplats: String*): String = UrlGenerator.url(route, splat, moreSplats:_*)(request)
+  def url(route: Route, splat: String, moreSplats: String*): String = UrlGenerator.url(route, splat, moreSplats: _*)(request)
 
   /**
    * Calculate a URL for a reversible route, some params, and some splats.

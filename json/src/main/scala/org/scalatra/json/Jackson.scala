@@ -1,7 +1,7 @@
 package org.scalatra
 package json
 
-import java.io.{Writer, InputStreamReader, InputStream}
+import java.io.{ Writer, InputStreamReader, InputStream }
 import com.fasterxml.jackson.databind.DeserializationFeature
 import org.json4s._
 import util.RicherString._
@@ -26,7 +26,6 @@ trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with
 }
 
 trait JacksonJsonValueReaderProperty extends JsonValueReaderProperty[JValue] { self: jackson.JsonMethods => }
-
 
 trait JacksonJsonOutput extends JsonOutput[JValue] with jackson.JsonMethods {
   protected def writeJson(json: JValue, writer: Writer) {

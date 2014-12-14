@@ -34,7 +34,7 @@ class StatusCodeHandlerTest extends ScalatraFunSuite {
       status = 200
       "400s"
     }
-    
+
     trap(500) {
       "internal error"
     }
@@ -87,11 +87,11 @@ class StatusCodeHandlerTest extends ScalatraFunSuite {
   test("status handlers are composable") {
     get("/child/500_2") {
       body should equal("child error")
-      status should equal (303)
+      status should equal(303)
     }
 
     get("/child/400") {
-      status should equal (200)
+      status should equal(200)
       body should equal("400s")
     }
   }

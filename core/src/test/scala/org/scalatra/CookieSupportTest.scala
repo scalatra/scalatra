@@ -61,7 +61,7 @@ class CookieSupportTest extends ScalatraFunSuite {
   test("POST /setcookie with a value should return the value") {
     post("/foo/setcookie", "cookieval" -> "The value") {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
-      cookie.getValue should be ("The value")
+      cookie.getValue should be("The value")
     }
   }
 
@@ -81,27 +81,27 @@ class CookieSupportTest extends ScalatraFunSuite {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
 
       // Allow some slop, since it's a new call to currentTimeMillis
-      cookie.getMaxAge.toInt should be (oneWeek +- 10000)
+      cookie.getMaxAge.toInt should be(oneWeek +- 10000)
     }
   }
 
   test("POST /set-http-only-cookie should set the HttpOnly flag of the cookie") {
     post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
-      response.getHeader("Set-Cookie") should include ("HttpOnly")
+      response.getHeader("Set-Cookie") should include("HttpOnly")
     }
   }
 
   test("cookie path defaults to context path") {
     post("/foo/setcookie", "cookieval" -> "whatever") {
-      response.getHeader("Set-Cookie") should include (";Path=/foo")
+      response.getHeader("Set-Cookie") should include(";Path=/foo")
     }
   }
 
   test("cookie path defaults to context path when using a maplike setter") {
     post("/foo/maplikeset", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
-      hdr should startWith ("""somecookie=whatever;""")
-      hdr should include (";Path=/foo")
+      hdr should startWith("""somecookie=whatever;""")
+      hdr should include(";Path=/foo")
     }
   }
 
@@ -114,7 +114,7 @@ class CookieSupportTest extends ScalatraFunSuite {
       }
       get("/foo/getcookie") {
         body should equal("The value")
-        header("X-Another-Cookie") should equal ("Another Cookie")
+        header("X-Another-Cookie") should equal("Another Cookie")
       }
     }
   }
@@ -122,7 +122,7 @@ class CookieSupportTest extends ScalatraFunSuite {
   test("respects the HttpOnly option") {
     post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
-      hdr should include (";HttpOnly")
+      hdr should include(";HttpOnly")
     }
   }
 
@@ -130,7 +130,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/remove-cookie") {
       val hdr = response.getHeader("Set-Cookie")
       // Jetty turns Max-Age into Expires
-      hdr should include (";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+      hdr should include(";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
     }
   }
 
@@ -138,8 +138,8 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/remove-cookie-with-path") {
       val hdr = response.getHeader("Set-Cookie")
       // Jetty turns Max-Age into Expires
-      hdr should include (";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
-      hdr should include (";Path=/bar")
+      hdr should include(";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+      hdr should include(";Path=/bar")
     }
   }
 
@@ -147,7 +147,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     session {
       post("/foo/setcookie") {}
       post("/foo/remove-cookie") {
-        header("Somecookie-Is-Defined") should be ("false")
+        header("Somecookie-Is-Defined") should be("false")
       }
     }
   }
@@ -160,7 +160,7 @@ class CookieSupportRootContextTest extends ScalatraFunSuite {
   test("cookie path defaults to '/' in root context") {
     post("/setcookie", "cookieval" -> "whatever") {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
-      cookie.getPath should be ("/")
+      cookie.getPath should be("/")
     }
   }
 }

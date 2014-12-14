@@ -5,7 +5,7 @@ case class ActionResult(status: ResponseStatus, body: Any, headers: Map[String, 
 private object Helpers {
   def responseStatus(status: Int, reason: String) = reason match {
     case "" | null => ResponseStatus(status)
-    case _  => new ResponseStatus(status, reason) 
+    case _ => new ResponseStatus(status, reason)
   }
 }
 
@@ -67,17 +67,17 @@ object MultipleChoices {
 }
 
 object MovedPermanently {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") = 
+  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
     ActionResult(responseStatus(301, reason), Unit, Map("Location" -> location) ++ headers)
 }
 
 object Found {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") = 
+  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
     ActionResult(responseStatus(302, reason), Unit, Map("Location" -> location) ++ headers)
 }
 
 object SeeOther {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") = 
+  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
     ActionResult(responseStatus(303, reason), Unit, Map("Location" -> location) ++ headers)
 }
 
@@ -87,17 +87,17 @@ object NotModified {
 }
 
 object UseProxy {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") = 
+  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
     ActionResult(responseStatus(305, reason), Unit, Map("Location" -> location) ++ headers)
 }
 
 object TemporaryRedirect {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") = 
+  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
     ActionResult(responseStatus(307, reason), Unit, Map("Location" -> location) ++ headers)
 }
 
 object PermanentRedirect {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") = 
+  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
     ActionResult(responseStatus(308, reason), Unit, Map("Location" -> location) ++ headers)
 }
 

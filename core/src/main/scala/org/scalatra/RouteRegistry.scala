@@ -2,7 +2,7 @@ package org.scalatra
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.collection.concurrent.{Map => ConcurrentMap}
+import scala.collection.concurrent.{ Map => ConcurrentMap }
 import java.util.concurrent.ConcurrentHashMap
 
 class RouteRegistry {

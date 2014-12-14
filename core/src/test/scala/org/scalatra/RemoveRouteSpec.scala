@@ -21,11 +21,11 @@ class RemoveRouteSpec extends ScalatraWordSpec {
     "not run" when {
       "it has been removed" in {
         get("/foo") {
-          body should equal ("foo")
+          body should equal("foo")
         }
         post("/remove") {}
         get("/foo") {
-          body should equal ("not found")
+          body should equal("not found")
         }
       }
     }

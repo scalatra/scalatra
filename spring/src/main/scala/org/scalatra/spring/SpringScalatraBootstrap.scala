@@ -6,7 +6,7 @@ import org.scalatra.ScalatraServlet
 import javax.servlet.ServletContext
 import javax.annotation.PostConstruct
 import org.springframework.stereotype.Component
-import org.springframework.context.{ApplicationContext, ApplicationContextAware}
+import org.springframework.context.{ ApplicationContext, ApplicationContextAware }
 import org.springframework.web.context.ServletContextAware
 
 /** @author Stephen Samuel */

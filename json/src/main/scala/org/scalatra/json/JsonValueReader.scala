@@ -7,7 +7,7 @@ import org.json4s._
 import scala.util.control.Exception.allCatch
 
 class JsonValueReader(val data: JValue)(implicit formats: Formats) extends ValueReader[JValue, JValue] {
-//  type I = T
+  //  type I = T
 
   private val separator = new {
     val beginning = "."
@@ -45,6 +45,4 @@ trait JsonValueReaderProperty[T] { self: JsonMethods[T] =>
   implicit protected def jsonFormats: Formats
   protected implicit def jsonValueReader(d: JValue): JsonValueReader = new JsonValueReader(d)
 }
-
-
 

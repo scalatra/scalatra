@@ -5,25 +5,23 @@ import org.atmosphere.cpr._
 import java.util.concurrent.ConcurrentLinkedQueue
 import org.atmosphere.plugin.redis.RedisBroadcaster
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{ Future, ExecutionContext }
 import collection.JavaConverters._
 import grizzled.slf4j.Logger
 
 import org.json4s.ShortTypeHints
 import org.json4s.jackson.Serialization
-import org.json4s.jackson.Serialization.{read, write}
-
+import org.json4s.jackson.Serialization.{ read, write }
 
 final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
-  extends RedisBroadcaster with ScalatraBroadcaster {
+    extends RedisBroadcaster with ScalatraBroadcaster {
 
   private[this] val logger: Logger = Logger[RedisScalatraBroadcaster]
   protected var _resources: ConcurrentLinkedQueue[AtmosphereResource] = resources
   protected var _wireFormat: WireFormat = wireFormat
   implicit val formats = Serialization.formats(ShortTypeHints(List(classOf[Everyone], classOf[OnlySelf], classOf[SkipSelf])))
 
-  override def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)
-                                              (implicit executionContext: ExecutionContext): Future[T] = {
+  override def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)(implicit executionContext: ExecutionContext): Future[T] = {
     logger.info("Resource [%s] sending message to [%s] with contents:  [%s]".format(clientFilter.uuid, clientFilter, msg))
     // Casting to ProtocolMessage because when writing the message everything gets wrapped by a 'content' element.
     // This seems to be because the actual message is a ProtocolMessage which defines a 'content' method.

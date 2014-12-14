@@ -1,7 +1,7 @@
 package org.scalatra
 
 import scala.util.DynamicVariable
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 trait RequestResponseScope {
   /**
@@ -14,7 +14,6 @@ trait RequestResponseScope {
    */
   implicit def response: HttpServletResponse
 
-
   protected def withRequestResponse[A](request: HttpServletRequest, response: HttpServletResponse)(f: => A): A
 
   /**
@@ -23,7 +22,6 @@ trait RequestResponseScope {
    */
   protected def withRequest[A](request: HttpServletRequest)(f: => A): A
 
-
   /**
    * Executes the block with the given response bound to the `response`
    * method.
@@ -31,7 +29,6 @@ trait RequestResponseScope {
   protected def withResponse[A](response: HttpServletResponse)(f: => A): A
 
 }
-
 
 /**
  * The Scalatra DSL requires a dynamically scoped request and response.

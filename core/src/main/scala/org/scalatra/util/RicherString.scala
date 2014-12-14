@@ -26,8 +26,8 @@ class RicherString(orig: String) {
 
   def /(path: String) = (orig.endsWith("/"), path.startsWith("/")) match {
     case (true, false) | (false, true) ⇒ orig + path
-    case (false, false)                ⇒ orig + "/" + path
-    case (true, true)                  ⇒ orig + path substring 1
+    case (false, false) ⇒ orig + "/" + path
+    case (true, true) ⇒ orig + path substring 1
   }
 
   def regexEscape = Pattern.quote(orig)

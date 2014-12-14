@@ -10,9 +10,9 @@ class ScalateUrlGeneratorSupportTest extends Specification {
 
     val cat: String = "meea"
 
-    val simpleString = get("/foo") { }
+    val simpleString = get("/foo") {}
 
-    val singleNamed = get("/foo/:bar") { }
+    val singleNamed = get("/foo/:bar") {}
   }
 
   "Routes extracted from the servlet" should {

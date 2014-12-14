@@ -1,10 +1,10 @@
 package org.scalatra.spring
 
-import org.scalatest.{FunSuite, OneInstancePerTest}
-import javax.servlet.{ServletRegistration, ServletContext}
+import org.scalatest.{ FunSuite, OneInstancePerTest }
+import javax.servlet.{ ServletRegistration, ServletContext }
 import org.scalatest.mock.MockitoSugar
 import org.springframework.context.ApplicationContext
-import org.mockito.{Matchers, Mockito}
+import org.mockito.{ Matchers, Mockito }
 import org.scalatra.ScalatraServlet
 import java.util
 import javax.servlet.http.HttpServlet
@@ -41,6 +41,4 @@ class SpringScalatraBootstrapTest extends FunSuite with OneInstancePerTest with 
 
 @Path("customer")
 class CustomerResource extends ScalatraServlet
-
-
 

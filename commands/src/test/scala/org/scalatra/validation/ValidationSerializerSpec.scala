@@ -4,7 +4,6 @@ package validation
 import org.specs2.mutable.Specification
 import org.json4s._
 
-
 class ValidationSerializerSpec extends Specification {
 
   implicit val formats: Formats =

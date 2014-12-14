@@ -1,9 +1,9 @@
 package org.scalatra
 
 import util.MutableMapWithIndifferentAccess
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import collection.JavaConverters._
-import java.util.concurrent.{ConcurrentSkipListSet, ConcurrentHashMap}
+import java.util.concurrent.{ ConcurrentSkipListSet, ConcurrentHashMap }
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
@@ -98,7 +98,7 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
    * }}}
    */
   object now {
-    def update(key: String, value: Any) =  {
+    def update(key: String, value: Any) = {
       flagged += key
       m += key -> value
     }
@@ -106,8 +106,8 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
 }
 
 object FlashMapSupport {
-  val SessionKey = FlashMapSupport.getClass.getName+".flashMap"
-  val LockKey = FlashMapSupport.getClass.getName+".lock"
+  val SessionKey = FlashMapSupport.getClass.getName + ".flashMap"
+  val LockKey = FlashMapSupport.getClass.getName + ".lock"
   val FlashMapKey = "org.scalatra.FlashMap"
 }
 
@@ -157,7 +157,6 @@ trait FlashMapSupport extends Handler {
           f.flag()
         }
       }
-
 
       super.handle(req, res)
     }

@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import java.io.ByteArrayInputStream
-import javax.servlet.{ReadListener, ServletInputStream}
+import javax.servlet.{ ReadListener, ServletInputStream }
 import javax.servlet.http.HttpServletRequest
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
@@ -19,7 +19,7 @@ class RichRequestTest extends FunSuite with Matchers {
 
     val request = createStubRequest(content, encoding)
 
-    request.body should equal (message)
+    request.body should equal(message)
   }
 
   def createStubRequest(content: Array[Byte], encoding: String): HttpServletRequest = {

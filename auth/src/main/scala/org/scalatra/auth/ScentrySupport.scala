@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import util.RicherString._
 
 trait ScentryConfig {
@@ -35,7 +35,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
   private def readStrategiesFromConfig(config: ConfigT) =
     _strategiesFromConfig = {
       config.context.getInitParameter("scentry.strategies").blankOption map (s ⇒ (s split ";").toList) getOrElse Nil
-  }
+    }
 
   private def registerStrategiesFromConfig = _strategiesFromConfig foreach { strategyClassName ⇒
     val strategy = Class.forName(strategyClassName).newInstance.asInstanceOf[ScentryStrategy[UserType]]

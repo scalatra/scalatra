@@ -5,7 +5,7 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 import org.scalatra.ScalatraServlet
 import java.io.File
 import org.eclipse.jetty.servlet.ServletHolder
-import javax.servlet.{MultipartConfigElement, ServletException}
+import javax.servlet.{ MultipartConfigElement, ServletException }
 import javax.servlet.http.HttpServlet
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
@@ -95,7 +95,7 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
   configureMultipartHandling(MultipartConfig(
     maxFileSize = Some(1024),
-    fileSizeThreshold = Some(1024*1024*1024)
+    fileSizeThreshold = Some(1024 * 1024 * 1024)
   ))
 
   error {
@@ -119,7 +119,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
     val files = Map(
-      "text"   -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
+      "text" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
       "binary" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
     )
 
@@ -237,12 +237,12 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
 
     "use default charset (UTF-8) for decoding form params if not excplicitly set to something else" in {
       val boundary = "XyXyXy"
-      val reqBody  = ("--{boundary}\r\n" +
-                      "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
-                      "Content-Type: text/plain\r\n" +
-                      "\r\n" +
-                      "föo\r\n" +
-                      "--{boundary}--\r\n").replace("{boundary}", boundary).getBytes("UTF-8")
+      val reqBody = ("--{boundary}\r\n" +
+        "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
+        "Content-Type: text/plain\r\n" +
+        "\r\n" +
+        "föo\r\n" +
+        "--{boundary}--\r\n").replace("{boundary}", boundary).getBytes("UTF-8")
 
       post("/params", headers = multipartHeaders, body = reqBody) {
         header("utf8-string") must_== "föo"
@@ -251,11 +251,11 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
 
     "use the charset specified in Content-Type header of a part for decoding form params" in {
       val reqBody = ("--XyXyXy\r\n" +
-                     "Content-Disposition: form-data; name=\"latin1-string\"\r\n" +
-                     "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
-                     "\r\n" +
-                     "äöööölfldflfldfdföödfödfödfåååååå\r\n" +
-                     "--XyXyXy--").getBytes("ISO-8859-1")
+        "Content-Disposition: form-data; name=\"latin1-string\"\r\n" +
+        "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+        "\r\n" +
+        "äöööölfldflfldfdföödfödfödfåååååå\r\n" +
+        "--XyXyXy--").getBytes("ISO-8859-1")
 
       post("/params", headers = multipartHeaders, body = reqBody) {
         header("latin1-string") must_== "äöööölfldflfldfdföödfödfödfåååååå"
@@ -263,12 +263,11 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     }
   }
 
-
   "POST with multipart/form-data and maxFileSize set" should {
     "handle IllegalStateException by wrapping it as SizeConstraintExceededException handled by error handler" in {
       post("/max-size/upload", Map(), Map("file" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))) {
         (status mustEqual 413) and
-        (body mustEqual "too much!")
+          (body mustEqual "too much!")
       }
     }
 
@@ -283,7 +282,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     "not be affected by FileUploadSupport handling" in {
       post("/regular", Map("param1" -> "one", "param2" -> "two")) {
         (header("param1") must_== "one") and
-        (header("param2") must_== "two")
+          (header("param2") must_== "two")
       }
     }
   }

@@ -9,5 +9,5 @@ package org.scalatra.test
  * to match domains, paths, or max-ages; the request sends a Cookie header
  * to match whatever Set-Cookie call it received on the previous response.
  */
-trait ScalatraTests extends EmbeddedJettyContainer with HttpComponentsClient { }
+trait ScalatraTests extends EmbeddedJettyContainer with HttpComponentsClient {}
 

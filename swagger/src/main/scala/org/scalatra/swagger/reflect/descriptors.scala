@@ -1,6 +1,6 @@
 package org.scalatra.swagger.reflect
 
-import java.lang.reflect.{Field, TypeVariable}
+import java.lang.reflect.{ Field, TypeVariable }
 
 sealed trait Descriptor
 object ManifestScalaType {
@@ -26,12 +26,12 @@ object ManifestScalaType {
     else {
       if (mf.typeArguments.isEmpty) types(mf, new ManifestScalaType(_))
       else new ManifestScalaType(mf)
-//      if (!mf.runtimeClass.isArray) types(mf, new ScalaType(_))
-//      else {
-//        val nmf = ManifestFactory.manifestOf(mf.runtimeClass, List(ManifestFactory.manifestOf(mf.runtimeClass.getComponentType)))
-//        types(nmf, new ScalaType(_))
-//      }
-//      new ScalaType(mf)
+      //      if (!mf.runtimeClass.isArray) types(mf, new ScalaType(_))
+      //      else {
+      //        val nmf = ManifestFactory.manifestOf(mf.runtimeClass, List(ManifestFactory.manifestOf(mf.runtimeClass.getComponentType)))
+      //        types(nmf, new ScalaType(_))
+      //      }
+      //      new ScalaType(mf)
     }
   }
 
@@ -59,9 +59,9 @@ object ManifestScalaType {
     override val isPrimitive = true
   }
   private class CopiedManifestScalaType(
-                    mf: Manifest[_],
-                    private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
-                    override val isPrimitive: Boolean) extends ManifestScalaType(mf) {
+      mf: Manifest[_],
+      private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
+      override val isPrimitive: Boolean) extends ManifestScalaType(mf) {
     override def typeVars = {
       if (_typeVars == null)
         _typeVars = Map.empty[TypeVariable[_], ScalaType] ++
@@ -95,14 +95,14 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
   private[this] val self = this
   val erasure: Class[_] = manifest.runtimeClass
 
-//  private[this] var _typeArgs: Seq[ScalaType] = null
-//  def typeArgs: Seq[ScalaType] = {
-//    if (_typeArgs == null)
-//      _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
-//        if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-//      )
-//    _typeArgs
-//  }
+  //  private[this] var _typeArgs: Seq[ScalaType] = null
+  //  def typeArgs: Seq[ScalaType] = {
+  //    if (_typeArgs == null)
+  //      _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
+  //        if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
+  //      )
+  //    _typeArgs
+  //  }
 
   val typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
@@ -115,7 +115,6 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
         erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ManifestScalaType(_)))
     _typeVars
   }
-
 
   val isArray: Boolean = erasure.isArray
 
@@ -211,9 +210,9 @@ case class SingletonDescriptor(simpleName: String, fullName: String, erasure: Sc
 
 trait ObjectDescriptor extends Descriptor
 case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaType, companion: Option[SingletonDescriptor], constructors: Seq[ConstructorDescriptor], properties: Seq[PropertyDescriptor]) extends ObjectDescriptor {
-//    def bestConstructor(argNames: Seq[String]): Option[ConstructorDescriptor] = {
-//      constructors.sortBy(-_.params.size)
-//    }
+  //    def bestConstructor(argNames: Seq[String]): Option[ConstructorDescriptor] = {
+  //      constructors.sortBy(-_.params.size)
+  //    }
   lazy val mostComprehensive: Seq[ConstructorParamDescriptor] = if (constructors.isEmpty) Seq.empty else constructors.sortBy(-_.params.size).head.params
 }
 case class PrimitiveDescriptor(simpleName: String, fullName: String, erasure: ScalaType) extends ObjectDescriptor {

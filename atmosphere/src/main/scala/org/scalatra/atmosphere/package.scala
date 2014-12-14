@@ -61,5 +61,5 @@ package object atmosphere {
     }
   }
 
-//  private[atmoshpere] val atmoScheduler = Executors.newScheduledThreadPool(1)
+  //  private[atmoshpere] val atmoScheduler = Executors.newScheduledThreadPool(1)
 }

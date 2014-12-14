@@ -47,7 +47,7 @@ private[reflect] object ScalaSigReader {
       sig.topLevelClasses.find(_.symbolInfo.name == clazz.getSimpleName).orElse {
         sig.topLevelObjects.map { obj =>
           val t = obj.infoType.asInstanceOf[TypeRefType]
-          t.symbol.children collect { case c: ClassSymbol => c } find(_.symbolInfo.name == clazz.getSimpleName)
+          t.symbol.children collect { case c: ClassSymbol => c } find (_.symbolInfo.name == clazz.getSimpleName)
         }.head
       }
     }
@@ -117,14 +117,14 @@ private[reflect] object ScalaSigReader {
   }
 
   private def toClass(s: Symbol) = s.path match {
-    case "scala.Short"   => classOf[Short]
-    case "scala.Int"     => classOf[Int]
-    case "scala.Long"    => classOf[Long]
+    case "scala.Short" => classOf[Short]
+    case "scala.Int" => classOf[Int]
+    case "scala.Long" => classOf[Long]
     case "scala.Boolean" => classOf[Boolean]
-    case "scala.Float"   => classOf[Float]
-    case "scala.Double"  => classOf[Double]
-    case "scala.Byte"    => classOf[Byte]
-    case _               => classOf[AnyRef]
+    case "scala.Float" => classOf[Float]
+    case "scala.Double" => classOf[Double]
+    case "scala.Byte" => classOf[Byte]
+    case _ => classOf[AnyRef]
   }
 
   private[this] def isPrimitive(s: Symbol) = toClass(s) != classOf[AnyRef]
@@ -140,11 +140,11 @@ private[reflect] object ScalaSigReader {
     case e: NullPointerException => None // yes, this is the exception, but it is totally unhelpful to the end user
   }
 
-//  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
-//    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
-//    case NullaryMethodType(tr @ TypeRefType(_, _, _))                     => tr
-//    case NullaryMethodType(ExistentialType(tr @ TypeRefType(_, _, _), _)) => tr
-//  }
+  //  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
+  //    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
+  //    case NullaryMethodType(tr @ TypeRefType(_, _, _))                     => tr
+  //    case NullaryMethodType(ExistentialType(tr @ TypeRefType(_, _, _), _)) => tr
+  //  }
 
   val ModuleFieldName = "MODULE$"
   val ClassLoaders = Vector(this.getClass.getClassLoader)
@@ -165,7 +165,7 @@ private[reflect] object ScalaSigReader {
   }
 
   def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = classLoaders match {
-    case Nil      => sys.error("resolveClass: expected 1+ classloaders but received empty list")
+    case Nil => sys.error("resolveClass: expected 1+ classloaders but received empty list")
     case List(cl) => Some(Class.forName(c, true, cl).asInstanceOf[Class[X]])
     case many => {
       try {
@@ -174,15 +174,13 @@ private[reflect] object ScalaSigReader {
         while (clazz == null && iter.hasNext) {
           try {
             clazz = Class.forName(c, true, iter.next())
-          }
-          catch {
+          } catch {
             case e: ClassNotFoundException => // keep going, maybe it's in the next one
           }
         }
 
         if (clazz != null) Some(clazz.asInstanceOf[Class[X]]) else None
-      }
-      catch {
+      } catch {
         case _: Throwable => None
       }
     }

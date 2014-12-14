@@ -1,10 +1,10 @@
 package org.atmosphere.cpr
 
-import org.scalatra.atmosphere.{RedisScalatraBroadcaster, ScalatraBroadcaster}
+import org.scalatra.atmosphere.{ RedisScalatraBroadcaster, ScalatraBroadcaster }
 import java.net.URI
 
 trait BroadcasterConf {
-  def broadcasterClass: Class[_<:ScalatraBroadcaster]
+  def broadcasterClass: Class[_ <: ScalatraBroadcaster]
   def uri: URI
   def extraSetup: Broadcaster => Unit // To perform optional plugin-specific Broadcaster setup
 }
@@ -17,9 +17,9 @@ trait BroadcasterConf {
  * @param extraSetup Broadcaster => Unit Function that is passed an initialized [[Broadcaster]] in order to allow for
  *                   optional plugin-specific Broadcaster setup. Defaults to doing nothing.
  */
-sealed case class ScalatraBroadcasterConfig(broadcasterClass: Class[_<:ScalatraBroadcaster],
-                                            uri: URI = URI.create("http://127.0.0.1"),
-                                            extraSetup: Broadcaster => Unit = { b => }) extends BroadcasterConf
+sealed case class ScalatraBroadcasterConfig(broadcasterClass: Class[_ <: ScalatraBroadcaster],
+  uri: URI = URI.create("http://127.0.0.1"),
+  extraSetup: Broadcaster => Unit = { b => }) extends BroadcasterConf
 
 /**
  * Convenient configuration class for RedisBroadcaster
@@ -33,5 +33,6 @@ sealed case class ScalatraBroadcasterConfig(broadcasterClass: Class[_<:ScalatraB
 sealed case class RedisScalatraBroadcasterConfig(uri: URI = URI.create("redis://127.0.0.1:6379"), auth: Option[String] = None) extends BroadcasterConf {
   final def broadcasterClass = classOf[RedisScalatraBroadcaster]
   final def extraSetup = { b: Broadcaster =>
-    auth.foreach(b.asInstanceOf[RedisScalatraBroadcaster].setAuth(_)) }
+    auth.foreach(b.asInstanceOf[RedisScalatraBroadcaster].setAuth(_))
+  }
 }

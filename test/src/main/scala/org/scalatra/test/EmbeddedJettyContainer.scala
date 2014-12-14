@@ -1,6 +1,6 @@
 package org.scalatra.test
 
-import org.eclipse.jetty.server.{Connector, Server}
+import org.eclipse.jetty.server.{ Connector, Server }
 import org.eclipse.jetty.server.ServerConnector
 import org.eclipse.jetty.servlet.ServletContextHandler
 
@@ -12,10 +12,10 @@ trait EmbeddedJettyContainer extends JettyContainer {
 
   /**
    * The port of the currently running Jetty.  May differ from port if port is 0.
-   * 
+   *
    * @return Some port if Jetty is currently listening, or None if it is not.
    */
-  def localPort: Option[Int] = server.getConnectors collectFirst  {
+  def localPort: Option[Int] = server.getConnectors collectFirst {
     case x: ServerConnector => x.getLocalPort
   }
 

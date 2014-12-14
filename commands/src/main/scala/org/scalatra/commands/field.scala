@@ -33,9 +33,9 @@ trait FieldDescriptor[T] {
   def name: String
   def value: FieldValidation[T]
   def validator: Option[Validator[T]]
-  def notes: String 
+  def notes: String
   def notes(note: String): FieldDescriptor[T]
-  def description: String 
+  def description: String
   def description(desc: String): FieldDescriptor[T]
   def valueManifest: Manifest[T]
   def valueSource: ValueSource.Value
@@ -47,7 +47,7 @@ trait FieldDescriptor[T] {
 
   def position: Int
   def position(pos: Int): FieldDescriptor[T]
-  
+
   private[commands] def defVal: Option[DefVal[T]]
   def defaultValue: Option[T] = defVal.map(_.value)
   def withDefaultValue(default: => T): FieldDescriptor[T]
@@ -74,15 +74,15 @@ trait FieldDescriptor[T] {
   private[commands] def transformations: T => T
 
   override def equals(obj: Any) = obj match {
-    case b : FieldDescriptor[_] => b.name == this.name
+    case b: FieldDescriptor[_] => b.name == this.name
     case _ => false
   }
 
 }
 
 class BasicFieldDescriptor[T](
-    val name: String, 
-    val validator: Option[Validator[T]] = None, 
+    val name: String,
+    val validator: Option[Validator[T]] = None,
     private[commands] val transformations: T => T = identity _,
     private[commands] var isRequired: Boolean = false,
     val description: String = "",
@@ -100,24 +100,24 @@ class BasicFieldDescriptor[T](
 
   def validateWith(bindingValidators: BindingValidator[T]*): FieldDescriptor[T] = {
     val nwValidators: Option[Validator[T]] =
-      if(bindingValidators.nonEmpty) Some(bindingValidators.map(_ apply name).reduce(_ andThen _)) else None
+      if (bindingValidators.nonEmpty) Some(bindingValidators.map(_ apply name).reduce(_ andThen _)) else None
 
     copy(validator = validator.flatMap(v => nwValidators.map(v andThen)) orElse nwValidators)
   }
 
   def copy(
-      name: String = name, 
-      validator: Option[Validator[T]] = validator, 
-      transformations: T => T = transformations, 
-      isRequired: Boolean = isRequired, 
-      description: String = description, 
-      notes: String = notes,
-      defVal: Option[DefVal[T]] = defVal,
-      valueSource: ValueSource.Value = valueSource,
-      allowableValues: List[T] = allowableValues,
-      displayName: Option[String] = displayName,
-      position: Int = position,
-      requiredError: String = requiredError): FieldDescriptor[T] = {
+    name: String = name,
+    validator: Option[Validator[T]] = validator,
+    transformations: T => T = transformations,
+    isRequired: Boolean = isRequired,
+    description: String = description,
+    notes: String = notes,
+    defVal: Option[DefVal[T]] = defVal,
+    valueSource: ValueSource.Value = valueSource,
+    allowableValues: List[T] = allowableValues,
+    displayName: Option[String] = displayName,
+    position: Int = position,
+    requiredError: String = requiredError): FieldDescriptor[T] = {
     new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName, position, requiredError)(valueManifest)
   }
 
@@ -136,7 +136,7 @@ class BasicFieldDescriptor[T](
   def optional(default: => T): FieldDescriptor[T] = withDefaultValue(default)
 
   def description(desc: String) = copy(description = desc)
-  
+
   def notes(note: String) = copy(notes = note)
 
   def withDefaultValue(default: => T): FieldDescriptor[T] = copy(defVal = Some(DefVal(default)), isRequired = false)
@@ -152,7 +152,6 @@ class BasicFieldDescriptor[T](
 
   def position(pos: Int): FieldDescriptor[T] = copy(position = pos)
 }
-
 
 trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def field: FieldDescriptor[T]
@@ -170,12 +169,12 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def requiredError: String = field.requiredError
   def withRequiredError(msgFormat: String): DataboundFieldDescriptor[S, T]
   def description = field.description
-  def description(desc: String): DataboundFieldDescriptor[S, T] 
+  def description(desc: String): DataboundFieldDescriptor[S, T]
   def notes = field.notes
   def notes(note: String): DataboundFieldDescriptor[S, T]
   def valueManifest = field.valueManifest
   private[commands] def defVal: Option[DefVal[T]] = field.defVal
-  def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] 
+  def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T]
   def valueSource: ValueSource.Value = field.valueSource
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T]
   def allowableValues = field.allowableValues
@@ -184,7 +183,7 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def displayName(name: String): DataboundFieldDescriptor[S, T]
   def position: Int = field.position
   def position(pos: Int): DataboundFieldDescriptor[S, T]
-  
+
 }
 
 trait ValidatedFieldDescriptor[S, T] extends DataboundFieldDescriptor[S, T] {
@@ -196,14 +195,12 @@ object BoundFieldDescriptor {
     new BoundFieldDescriptor(original, value, binding, binding.validator)
 }
 
-
 class BoundFieldDescriptor[S, T](
     val original: Option[S],
-    val value: FieldValidation[T], 
-    val field: FieldDescriptor[T], 
+    val value: FieldValidation[T],
+    val field: FieldDescriptor[T],
     val validator: Option[Validator[T]]) extends DataboundFieldDescriptor[S, T] {
   def name: String = field.name
-  
 
   override def hashCode(): Int = field.hashCode()
   override def equals(other: Any) = other match {
@@ -214,10 +211,9 @@ class BoundFieldDescriptor[S, T](
   override def toString() = "BoundFieldDescriptor(name: %s, original: %s, converted: %s)".format(name, original, value)
 
   def validateWith(bindingValidators: BindingValidator[T]*): DataboundFieldDescriptor[S, T] = {
-    val nwFld = field.validateWith(bindingValidators:_*)
+    val nwFld = field.validateWith(bindingValidators: _*)
     copy(field = nwFld, validator = nwFld.validator)
   }
-
 
   def withRequiredError(msgFormat: String): DataboundFieldDescriptor[S, T] = copy(field = field.withRequiredError(msgFormat))
 
@@ -229,9 +225,9 @@ class BoundFieldDescriptor[S, T](
   def required = copy(field = field.required)
 
   def optional(default: => T): DataboundFieldDescriptor[S, T] = withDefaultValue(default)
-  
+
   def description(desc: String) = copy(field = field.description(desc))
-  
+
   def notes(note: String) = copy(field = field.notes(note))
 
   def validate: ValidatedFieldDescriptor[S, T] = {
@@ -240,22 +236,23 @@ class BoundFieldDescriptor[S, T](
       new ValidatedBoundFieldDescriptor(value map transformations, this)
     } else {
       val doValidation: Validator[T] = if (isRequired) {
-        (x: FieldValidation[T]) => x flatMap { v =>
-          if (original.isDefined) v.success else ValidationError("%s is required." format name.underscore.humanize, FieldName(name), ValidationFail).failure
-        }
+        (x: FieldValidation[T]) =>
+          x flatMap { v =>
+            if (original.isDefined) v.success else ValidationError("%s is required." format name.underscore.humanize, FieldName(name), ValidationFail).failure
+          }
       } else identity
       new ValidatedBoundFieldDescriptor((doValidation andThen defaultValidator)(value) map transformations, this)
     }
   }
 
   private[commands] def transformations: (T) => T = field.transformations
-  
+
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] = copy(field = field.withDefaultValue(default))
-  
+
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
 
   def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] =
-    copy(field = field.allowableValues(vals:_*))
+    copy(field = field.allowableValues(vals: _*))
 
   def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
   def position(pos: Int): DataboundFieldDescriptor[S, T] = copy(field = field.position(pos))
@@ -274,7 +271,7 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   override def toString() = "BoundFieldDescriptor(name: %s, original: %s, converted: %s)".format(name, original, value)
 
   def validateWith(bindingValidators: BindingValidator[T]*): DataboundFieldDescriptor[S, T] = {
-    copy(field = field.validateWith(bindingValidators:_*))
+    copy(field = field.validateWith(bindingValidators: _*))
   }
 
   def copy(value: FieldValidation[T] = value, field: DataboundFieldDescriptor[S, T] = field): ValidatedFieldDescriptor[S, T] =
@@ -289,7 +286,7 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   def withRequiredError(msgFormat: String): DataboundFieldDescriptor[S, T] = copy(field = field.withRequiredError(msgFormat))
 
   def description(desc: String) = copy(field = field.description(desc))
-  
+
   def notes(note: String) = copy(field = field.notes(note))
 
   def validator: Option[Validator[T]] = field.validator
@@ -297,20 +294,19 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   def original: Option[S] = field.original
 
   private[commands] def transformations: (T) => T = field.transformations
-  
+
   def withDefaultValue(default: => T): DataboundFieldDescriptor[S, T] = copy(field = field.withDefaultValue(default))
-  
+
   def sourcedFrom(valueSource: ValueSource.Value): DataboundFieldDescriptor[S, T] = copy(field = field.sourcedFrom(valueSource))
-  
-  def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] = copy(field = field.allowableValues(vals:_*))
-  
+
+  def allowableValues(vals: T*): DataboundFieldDescriptor[S, T] = copy(field = field.allowableValues(vals: _*))
+
   def displayName(name: String): DataboundFieldDescriptor[S, T] = copy(field = field.displayName(name))
 
   def position(pos: Int): DataboundFieldDescriptor[S, T] = copy(field = field.position(pos))
 }
 
 import scala.util.matching.Regex
-
 
 trait BindingValidatorImplicits {
 
@@ -324,13 +320,11 @@ trait BindingValidatorImplicits {
 
 object BindingValidators {
 
-
   class ValidatableSeq[T <: Seq[_]](b: FieldDescriptor[T]) {
     def notEmpty: FieldDescriptor[T] = notEmpty()
     def notEmpty(messageFormat: String = b.requiredError): FieldDescriptor[T] =
       b.required.validateWith(BindingValidators.nonEmptyCollection(messageFormat))
   }
-
 
   class ValidatableOrdered[T <% Ordered[T]](b: FieldDescriptor[T]) {
     def greaterThan(min: T, messageFormat: String = "%%s must be greater than %s"): FieldDescriptor[T] =
@@ -348,7 +342,7 @@ object BindingValidators {
   }
 
   class ValidatableGenericBinding[T](b: FieldDescriptor[T]) {
-    def validate(validate: T => Boolean, messageFormat: String = "%s is invalid."): FieldDescriptor[T] = 
+    def validate(validate: T => Boolean, messageFormat: String = "%s is invalid."): FieldDescriptor[T] =
       b.validateWith(BindingValidators.validate(validate, messageFormat))
   }
 
@@ -357,10 +351,9 @@ object BindingValidators {
     def notBlank(messageFormat: String = b.requiredError): FieldDescriptor[String] =
       b.required.validateWith(BindingValidators.nonEmptyString(messageFormat))
 
-
     def validEmail: FieldDescriptor[String] = validEmail()
     def validEmail(messageFormat: String = "%s must be a valid email address."): FieldDescriptor[String] =
-    b.validateWith(BindingValidators.validEmail(messageFormat))
+      b.validateWith(BindingValidators.validEmail(messageFormat))
 
     def validAbsoluteUrl(allowLocalHost: Boolean, messageFormat: String = "%s must be a valid absolute url.", schemes: Seq[String] = Seq("http", "https")): FieldDescriptor[String] =
       b.validateWith(BindingValidators.validAbsoluteUrl(allowLocalHost, messageFormat, schemes))
@@ -374,10 +367,8 @@ object BindingValidators {
     def validForConfirmation(against: Field[String], messageFormat: String = "%%s must match %s."): FieldDescriptor[String] =
       b.validateWith(BindingValidators.validConfirmation(against, messageFormat))
 
-
     def minLength(min: Int, messageFormat: String = "%%s must be at least %s characters long."): FieldDescriptor[String] =
       b.validateWith(BindingValidators.minLength(min, messageFormat))
-
 
     def enumValue(enum: Enumeration, messageFormat: String = "%%s must be one of %s."): FieldDescriptor[String] =
       b.validateWith(BindingValidators.enumValue(enum, messageFormat))
@@ -401,48 +392,48 @@ object BindingValidators {
   }
 
   def nonEmptyCollection[TResult <: Traversable[_]]: BindingValidator[TResult] = nonEmptyCollection[TResult]()
-  def nonEmptyCollection[TResult <: Traversable[_]](messageFormat: String = "%s must not be empty."): BindingValidator[TResult] = (s: String) =>{
+  def nonEmptyCollection[TResult <: Traversable[_]](messageFormat: String = "%s must not be empty."): BindingValidator[TResult] = (s: String) => {
     _ flatMap (Validation.nonEmptyCollection(s, _, messageFormat))
   }
 
   def validEmail: BindingValidator[String] = validEmail()
-  def validEmail(messageFormat: String = "%s must be a valid email address."): BindingValidator[String] = (s: String) =>{
+  def validEmail(messageFormat: String = "%s must be a valid email address."): BindingValidator[String] = (s: String) => {
     _ flatMap (Validation.validEmail(s, _, messageFormat))
   }
 
-  def validAbsoluteUrl(allowLocalHost: Boolean, messageFormat: String = "%s must be a absolute valid url.", schemes: Seq[String] = Seq("http", "https")): BindingValidator[String] = (s: String) =>{
+  def validAbsoluteUrl(allowLocalHost: Boolean, messageFormat: String = "%s must be a absolute valid url.", schemes: Seq[String] = Seq("http", "https")): BindingValidator[String] = (s: String) => {
     _ flatMap Validators.validAbsoluteUrl(s, allowLocalHost, messageFormat, schemes).validate
   }
 
-  def validUrl(allowLocalHost: Boolean, messageFormat: String = "%s must be a valid url.", schemes: Seq[String] = Seq("http", "https")): BindingValidator[String] = (s: String) =>{
+  def validUrl(allowLocalHost: Boolean, messageFormat: String = "%s must be a valid url.", schemes: Seq[String] = Seq("http", "https")): BindingValidator[String] = (s: String) => {
     _ flatMap Validators.validUrl(s, allowLocalHost, messageFormat, schemes).validate
   }
 
-  def validFormat(regex: Regex, messageFormat: String = "%s is invalid."): BindingValidator[String] = (s: String) =>{
+  def validFormat(regex: Regex, messageFormat: String = "%s is invalid."): BindingValidator[String] = (s: String) => {
     _ flatMap Validators.validFormat(s, regex, messageFormat).validate
   }
 
-  def validConfirmation(against: Field[String], messageFormat: String = "%%s must match %s."): BindingValidator[String] = (s: String) =>{
+  def validConfirmation(against: Field[String], messageFormat: String = "%%s must match %s."): BindingValidator[String] = (s: String) => {
     _ flatMap { Validators.validConfirmation(s, against.name, (against.value orElse against.defaultValue).orNull, messageFormat).validate }
   }
 
-  def greaterThan[T <% Ordered[T]](min: T, messageFormat: String = "%%s must be greater than %s."): BindingValidator[T] = (s: String) =>{
+  def greaterThan[T <% Ordered[T]](min: T, messageFormat: String = "%%s must be greater than %s."): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.greaterThan(s, min, messageFormat).validate
   }
 
-  def lessThan[T <% Ordered[T]](max: T, messageFormat: String = "%%s must be less than %s."): BindingValidator[T] = (s: String) =>{
+  def lessThan[T <% Ordered[T]](max: T, messageFormat: String = "%%s must be less than %s."): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.lessThan(s, max, messageFormat).validate
   }
 
-  def greaterThanOrEqualTo[T <% Ordered[T]](min: T, messageFormat: String = "%%s must be greater than or equal to %s."): BindingValidator[T] = (s: String) =>{
+  def greaterThanOrEqualTo[T <% Ordered[T]](min: T, messageFormat: String = "%%s must be greater than or equal to %s."): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.greaterThanOrEqualTo(s, min, messageFormat).validate
   }
 
-  def lessThanOrEqualTo[T <% Ordered[T]](max: T, messageFormat: String = "%%s must be less than or equal to %s."): BindingValidator[T] = (s: String) =>{
+  def lessThanOrEqualTo[T <% Ordered[T]](max: T, messageFormat: String = "%%s must be less than or equal to %s."): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.lessThanOrEqualTo(s, max, messageFormat).validate
   }
 
-  def minLength(min: Int, messageFormat: String = "%%s must be at least %s characters long."): BindingValidator[String] = (s: String) =>{
+  def minLength(min: Int, messageFormat: String = "%%s must be at least %s characters long."): BindingValidator[String] = (s: String) => {
     _ flatMap Validators.minLength(s, min, messageFormat).validate
   }
 
@@ -450,27 +441,27 @@ object BindingValidators {
     _ flatMap Validators.oneOf(s, messageFormat, expected).validate
   }
 
-  def enumValue(enum: Enumeration, messageFormat: String = "%%s must be one of %s."): BindingValidator[String] = 
+  def enumValue(enum: Enumeration, messageFormat: String = "%%s must be one of %s."): BindingValidator[String] =
     oneOf(messageFormat, enum.values.map(_.toString).toSeq)
 }
 
-class Field[A:Manifest](descr: FieldDescriptor[A], command: Command) {
+class Field[A: Manifest](descr: FieldDescriptor[A], command: Command) {
 
   val name = descr.name
   def validation: FieldValidation[A] = binding.field.value.asInstanceOf[FieldValidation[A]]
   def value: Option[A] = binding.field.value.toOption.asInstanceOf[Option[A]]
   def defaultValue: Option[A] = descr.defaultValue
-  def error: Option[ValidationError] = binding.field.value.fold(_.some, _=>None)
+  def error: Option[ValidationError] = binding.field.value.fold(_.some, _ => None)
   def original = binding.original
 
   def binding: Binding = command.bindings(name)
 
   def isValid = validation.isSuccess
   def isInvalid = validation.isFailure
-  
-	def notes: String = descr.notes
+
+  def notes: String = descr.notes
   def description: String = descr.description
-  
+
   def isRequired: Boolean = descr.isRequired
   def valueSource: ValueSource.Value = descr.valueSource
   def allowableValues = descr.allowableValues

@@ -4,7 +4,7 @@ import eu.medsea.util.EncodingGuesser
 import eu.medsea.mimeutil.{ MimeType, MimeUtil2 }
 import collection.JavaConversions._
 import java.io.{ InputStream, File }
-import java.net.{URI, URL}
+import java.net.{ URI, URL }
 import grizzled.slf4j.Logger
 import util.control.Exception._
 
@@ -88,7 +88,6 @@ trait Mimes {
   }
 
   def isTextMime(mime: String) = MimeUtil2.isTextMimeType(new MimeType(mime))
-
 
   private def quiet(fn: ⇒ Unit) =
     allCatch.withApply(internalLogger.warn("An error occurred while registering a mime type detector.", _))(fn)

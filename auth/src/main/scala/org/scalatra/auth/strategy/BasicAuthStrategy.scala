@@ -3,15 +3,15 @@ package auth
 package strategy
 
 import util.RicherString._
-import org.scalatra.auth.{ScentrySupport, ScentryStrategy}
+import org.scalatra.auth.{ ScentrySupport, ScentryStrategy }
 import net.iharder.Base64
 import java.util.Locale
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import io.Codec
 
-trait RemoteAddress { self: ScentryStrategy[_]  =>
+trait RemoteAddress { self: ScentryStrategy[_] =>
 
-  protected def remoteAddress(implicit request: HttpServletRequest) ={
+  protected def remoteAddress(implicit request: HttpServletRequest) = {
     val proxied = request.getHeader("X-FORWARDED-FOR")
     val res = if (proxied.nonBlank) proxied else request.getRemoteAddr
     res
@@ -24,18 +24,17 @@ trait RemoteAddress { self: ScentryStrategy[_]  =>
  * for more details on usage check:
  * https://gist.github.com/732347
  */
-trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraBase with ScentrySupport[UserType])  =>
+trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraBase with ScentrySupport[UserType]) =>
 
   def realm: String
 
-
   protected def basicAuth()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val baReq = new BasicAuthStrategy.BasicAuthRequest(request)
-    if(!baReq.providesAuth) {
+    if (!baReq.providesAuth) {
       response.setHeader("WWW-Authenticate", "Basic realm=\"%s\"" format realm)
       halt(401, "Unauthenticated")
     }
-    if(!baReq.isBasicAuth) {
+    if (!baReq.isBasicAuth) {
       halt(400, "Bad Request")
     }
     scentry.authenticate("Basic")
@@ -59,10 +58,10 @@ object BasicAuthStrategy {
 
     private[this] var _credentials: Option[(String, String)] = None
     def credentials = {
-      if (_credentials.isEmpty )
+      if (_credentials.isEmpty)
         _credentials = params map { p =>
           (null.asInstanceOf[(String, String)] /: new String(Base64.decode(p), Codec.UTF8.charSet).split(":", 2)) { (t, l) =>
-            if(t == null) (l, null) else (t._1, l)
+            if (t == null) (l, null) else (t._1, l)
           }
         }
       _credentials
@@ -72,8 +71,8 @@ object BasicAuthStrategy {
   }
 }
 abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraBase, realm: String)
-  extends ScentryStrategy[UserType]
-  with RemoteAddress {
+    extends ScentryStrategy[UserType]
+    with RemoteAddress {
 
   import BasicAuthStrategy._
 
@@ -83,7 +82,6 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
 
   protected def challenge = "Basic realm=\"%s\"" format realm
 
-
   override def isValid(implicit request: HttpServletRequest) = request.isBasicAuth && request.providesAuth
 
   def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) =
@@ -92,11 +90,9 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
   protected def getUserId(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): String
   protected def validate(userName: String, password: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType]
 
-
   override def afterSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     response.setHeader(REMOTE_USER, getUserId(user))
   }
-
 
   override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) {
     app halt Unauthorized(headers = Map("WWW-Authenticate" -> challenge))

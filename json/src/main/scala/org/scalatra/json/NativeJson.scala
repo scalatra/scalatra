@@ -3,7 +3,7 @@ package json
 
 import text.Document
 import org.json4s._
-import java.io.{InputStreamReader, InputStream, Writer}
+import java.io.{ InputStreamReader, InputStream, Writer }
 import util.RicherString._
 
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
@@ -24,11 +24,9 @@ trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with
 
 trait NativeJsonValueReaderProperty extends JsonValueReaderProperty[Document] { self: native.JsonMethods => }
 
-
 trait NativeJsonOutput extends JsonOutput[Document] with native.JsonMethods {
   protected def writeJson(json: JValue, writer: Writer) {
     if (json != JNothing) native.Printer.compact(render(json), writer)
   }
 }
-
 

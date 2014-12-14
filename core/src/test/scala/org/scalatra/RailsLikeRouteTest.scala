@@ -19,15 +19,15 @@ class RailsLikeRouteTest extends ScalatraFunSuite {
 
   test("matches without extension") {
     get("/foo") {
-      header("file") should equal ("foo")
-      header("ext") should equal ("")
+      header("file") should equal("foo")
+      header("ext") should equal("")
     }
   }
 
   test("matches with extension") {
     get("/foo.xml") {
-      header("file") should equal ("foo")
-      header("ext") should equal ("xml")
+      header("file") should equal("foo")
+      header("ext") should equal("xml")
     }
   }
 }

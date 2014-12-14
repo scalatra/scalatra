@@ -10,7 +10,7 @@ import java.util.Date
 import scalaz._
 import Scalaz._
 import Conversions._
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.{ DateTimeZone, DateTime }
 import org.json4s._
 // import org.scalatra.commands.DefaultValues._
 // import JsonZeroes._
@@ -63,9 +63,9 @@ class BindingSpec extends Specification {
       bound.original must_== Some(Some("joske"))
       bound.validation must_== "joske".success
     }
-    
+
   }
-  
+
   "A BindingBuilder" should {
     import TypeConverterFactories._
 
@@ -73,9 +73,9 @@ class BindingSpec extends Specification {
       import BindingSyntax._
       val b = Binding(asString("login"))
       b.field.name must_== "login"
-      
+
     }
-    
+
     "build a Binding with Map[String, String]" in {
 
       val builder = Binding(FieldDescriptor[String]("login"))
@@ -337,31 +337,31 @@ class BindingSpec extends Specification {
     field(Right(Some(v.toString))).value must_== v.success[ValidationError]
   }
 
-//  val jsonMapper = new ObjectMapper()
-//  jsonMapper.registerModule(DefaultScalaModule)
-//  def testJacksonBinding[T](value: => T)(implicit mf: Manifest[T], zt: Zero[T], converter: TypeConverter[JsonNode, T]) = {
-//    val field = newBinding[T]
-//    field.value must_== zt.zero.success
-//    val v = value
-//
-//    field(Some(jsonMapper.readValue(jsonMapper.writeValueAsString(v), classOf[JsonNode]))).value must_== v.success
-//  }
-//
-//  def testJacksonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], zt: Zero[DateTime], converter: TypeConverter[JsonNode, DateTime]) = {
-//    val field = newBinding[DateTime]
-//    field.value must_== zt.zero.success
-//    val v = transform(new DateTime(DateTimeZone.UTC))
-//    val s = v.toString(format.dateTimeFormat)
-//    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.success
-//  }
-//
-//  def testJacksonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], zt: Zero[Date], converter: TypeConverter[JsonNode, Date]) = {
-//    val field = newBinding[Date]
-//    field.value must_== zt.zero.success
-//    val v = transform(new DateTime(DateTimeZone.UTC))
-//    val s = v.toString(format.dateTimeFormat)
-//    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.toDate.success
-//  }
+  //  val jsonMapper = new ObjectMapper()
+  //  jsonMapper.registerModule(DefaultScalaModule)
+  //  def testJacksonBinding[T](value: => T)(implicit mf: Manifest[T], zt: Zero[T], converter: TypeConverter[JsonNode, T]) = {
+  //    val field = newBinding[T]
+  //    field.value must_== zt.zero.success
+  //    val v = value
+  //
+  //    field(Some(jsonMapper.readValue(jsonMapper.writeValueAsString(v), classOf[JsonNode]))).value must_== v.success
+  //  }
+  //
+  //  def testJacksonDateTimeBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[DateTime], zt: Zero[DateTime], converter: TypeConverter[JsonNode, DateTime]) = {
+  //    val field = newBinding[DateTime]
+  //    field.value must_== zt.zero.success
+  //    val v = transform(new DateTime(DateTimeZone.UTC))
+  //    val s = v.toString(format.dateTimeFormat)
+  //    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.success
+  //  }
+  //
+  //  def testJacksonDateBinding(format: JodaDateFormats.DateFormat, transform: DateTime => DateTime = identity)(implicit mf: Manifest[Date], zt: Zero[Date], converter: TypeConverter[JsonNode, Date]) = {
+  //    val field = newBinding[Date]
+  //    field.value must_== zt.zero.success
+  //    val v = transform(new DateTime(DateTimeZone.UTC))
+  //    val s = v.toString(format.dateTimeFormat)
+  //    field(Some(new TextNode(s).asInstanceOf[JsonNode])).value must_== v.toDate.success
+  //  }
 
   def testLiftJsonBinding[T](value: => T)(implicit mf: Manifest[T], converter: TypeConverter[JValue, T]) = {
     val field = newBinding[T]
@@ -387,7 +387,7 @@ class BindingSpec extends Specification {
     field(Right(Some(Extraction.decompose(s)))).value must_== v.toDate.success
   }
 
-  def newBinding[T:Manifest]: FieldDescriptor[T] = FieldDescriptor[T](randomFieldName)
+  def newBinding[T: Manifest]: FieldDescriptor[T] = FieldDescriptor[T](randomFieldName)
 
   def randomFieldName = "field_" + random
 }

@@ -1,8 +1,8 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.{AsyncContext, AsyncEvent}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.{ AsyncContext, AsyncEvent }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 object AsyncSupport {
   val ExecutionContextKey = "org.scalatra.ExecutionContext"
@@ -66,36 +66,36 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
    * }}}
    *
    */
-  def asyncGet(transformers: RouteTransformer*)(block: => Any): Route = 
+  def asyncGet(transformers: RouteTransformer*)(block: => Any): Route =
     get(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route = 
+  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route =
     post(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route = 
+  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route =
     put(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route = 
+  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route =
     delete(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route = 
+  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route =
     options(transformers: _*)(asynchronously(block)())
 
   /**
    * @see asyncGet
    */
-  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route = 
+  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route =
     patch(transformers: _*)(asynchronously(block)())
 }

@@ -51,5 +51,4 @@ object Validation {
   def enumValue(fieldName: String, value: ⇒ String, enum: Enumeration, messageFormat: String = "%%s must be one of %s."): FieldValidation[String] =
     oneOf(fieldName, value, messageFormat, enum.values.map(_.toString).toSeq)
 
-
 }

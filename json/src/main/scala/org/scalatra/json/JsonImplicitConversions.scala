@@ -3,13 +3,13 @@ package json
 
 import org.scalatra.util.conversion._
 import java.util.Date
-import java.text.{DateFormat, SimpleDateFormat}
+import java.text.{ DateFormat, SimpleDateFormat }
 import scala.util.control.Exception._
 import org.json4s._
 
 trait JsonImplicitConversions extends TypeConverterSupport {
   implicit protected def jsonFormats: Formats
-  
+
   implicit val jsonToBoolean: TypeConverter[JValue, Boolean] = safe(j => j.extractOpt[Boolean] getOrElse j.extract[String].toBoolean)
 
   implicit val jsonToFloat: TypeConverter[JValue, Float] = safe(j => j.extractOpt[Float] getOrElse j.extract[String].toFloat)
@@ -32,7 +32,6 @@ trait JsonImplicitConversions extends TypeConverterSupport {
     case _ => None
   })
 
-
   def jsonToDate(format: => String): TypeConverter[JValue, Date] = jsonToDateFormat(new SimpleDateFormat(format))
 
   def jsonToDateFormat(format: => DateFormat): TypeConverter[JValue, Date] =
@@ -41,7 +40,6 @@ trait JsonImplicitConversions extends TypeConverterSupport {
   implicit def jsonToSeq[T](implicit elementConverter: TypeConverter[JValue, T], mf: Manifest[T]): TypeConverter[JValue, Seq[T]] =
     safe(_.extract[List[T]])
 
-
   import JsonConversions._
   implicit def jsonToValTypeConversion(source: JValue) = new JsonValConversion(source)
 
@@ -49,7 +47,7 @@ trait JsonImplicitConversions extends TypeConverterSupport {
 
   implicit def jsonToSeqConversion(source: JValue) = new {
     def asSeq[T](implicit mf: Manifest[T], tc: TypeConverter[JValue, T]): Option[Seq[T]] =
-         jsonToSeq[T].apply(source)
+      jsonToSeq[T].apply(source)
   }
 }
 
@@ -60,11 +58,8 @@ object JsonConversions {
     def as[T: JsonTypeConverter]: Option[T] = implicitly[TypeConverter[JValue, T]].apply(source)
   }
 
-
   class JsonDateConversion[JValue](source: JValue, jsonToDate: String => TypeConverter[JValue, Date]) {
     def asDate(format: String): Option[Date] = jsonToDate(format).apply(source)
   }
-
-
 
 }

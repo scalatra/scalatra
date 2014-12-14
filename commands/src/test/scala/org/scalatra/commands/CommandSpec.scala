@@ -13,7 +13,6 @@ import scalaz.Scalaz._
 
 trait BindingTemplate { self: Command with TypeConverterFactories =>
 
-
   val upperCaseName: Field[String] = bind[String]("name").transform(_.toUpperCase).optional("")
 
   val lowerCaseSurname: Field[String] = asString("surname").transform(_.toLowerCase).optional("")
@@ -25,7 +24,6 @@ trait BindingTemplate { self: Command with TypeConverterFactories =>
 }
 
 trait WithBinding extends Command with TypeConverterFactories with BindingTemplate {
-
 
   val a = upperCaseName
 
@@ -40,11 +38,11 @@ class MixAndMatchCommand extends ParamsOnlyCommand {
   val name: Field[String] = asString("name").notBlank
   val age: Field[Int] = "age"
   val token: Field[String] = (
-      asString("API-TOKEN").notBlank
-        sourcedFrom Header 
-        description "The API token for this request"
-        notes "Invalid data kills kittens"
-        allowableValues "123")
+    asString("API-TOKEN").notBlank
+    sourcedFrom Header
+    description "The API token for this request"
+    notes "Invalid data kills kittens"
+    allowableValues "123")
   val skip: Field[Int] = asInt("skip").sourcedFrom(Query).description("The offset for this collection index")
   val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
 }
@@ -66,7 +64,7 @@ class CommandSpec extends Specification {
 
   import org.scalatra.util.ParamsValueReaderProperties._
 
-//  implicit val formats: Formats = DefaultFormats
+  //  implicit val formats: Formats = DefaultFormats
   "The 'Command' trait" should {
 
     "bind and register a 'FieldDescriptor[T]' instance" in {
@@ -87,7 +85,7 @@ class CommandSpec extends Specification {
       form.a.validation must_== params("name").toUpperCase.success
       form.lower.validation must_== params("surname").toLowerCase.success
     }
-    
+
     "bindTo with values from all kinds of different sources and bind matching values to specific keys" in {
       val form = new MixAndMatchCommand
       val params = Map("name" -> "John", "age" -> "45", "limit" -> "30", "skip" -> "20")
@@ -127,9 +125,8 @@ class CommandSpec extends Specification {
 
         beforeBinding {
           a.original must beNone
-          timestamp = currentTimeMillis()-1
+          timestamp = currentTimeMillis() - 1
         }
-
 
       }
 
@@ -173,7 +170,6 @@ class CommandSpec extends Specification {
   }
 }
 
-
 class CommandSample extends ParamsOnlyCommand {
   var bound = false
 
@@ -185,7 +181,7 @@ class CommandSample extends ParamsOnlyCommand {
 class CommandSupportSpec extends Specification with Mockito {
 
   class ScalatraPage extends ScalatraFilter with ParamsOnlyCommandSupport
-//  implicit val formats: Formats = DefaultFormats
+  //  implicit val formats: Formats = DefaultFormats
   "The CommandSupport trait" should {
 
     "provide a convention for request keys with commandRequestKey[T]" in {
@@ -234,10 +230,9 @@ class CommandSupportSpec extends Specification with Mockito {
 
     val page = new ScalatraPage
 
-    val matcher:RouteMatcher = page.ifValid[ValidatedCommand]
+    val matcher: RouteMatcher = page.ifValid[ValidatedCommand]
 
     matcher must not(beNull[RouteMatcher])
   }
 }
-
 

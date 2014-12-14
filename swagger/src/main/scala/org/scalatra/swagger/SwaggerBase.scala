@@ -15,7 +15,6 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
   protected implicit def jsonFormats: Formats
   protected def docToJson(doc: ApiType): JValue
 
-
   implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
 
   /**
@@ -39,15 +38,15 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
       if (fmt != null) format = fmt
       swagger.doc(doc) match {
         case Some(d) ⇒ renderDoc(d.asInstanceOf[ApiType])
-        case _         ⇒ halt(404)
+        case _ ⇒ halt(404)
       }
     }
 
-    get("/("+indexRoute+"(.:format))") {
+    get("/(" + indexRoute + "(.:format))") {
       renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
     }
 
-    options("/("+indexRoute+"(.:format))") {}
+    options("/(" + indexRoute + "(.:format))") {}
   }
 
   /**
@@ -65,7 +64,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     val protocols = dontAddOnEmpty("protocols", doc.protocols)_
     val authorizations = dontAddOnEmpty("authorizations", doc.authorizations)_
     val jsonDoc = (consumes andThen produces andThen protocols andThen authorizations)(json)
-//    println("The rendered json doc:\n" + jackson.prettyJson(jsonDoc))
+    //    println("The rendered json doc:\n" + jackson.prettyJson(jsonDoc))
     jsonDoc
   }
 
@@ -76,17 +75,17 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   protected def renderIndex(docs: List[ApiType]): JValue = {
     ("apiVersion" -> swagger.apiVersion) ~
-    ("swaggerVersion" -> swagger.swaggerVersion) ~
-    ("apis" ->
-      (docs.filter(_.apis.nonEmpty).toList map {
-        doc =>
-          ("path" -> (url(doc.resourcePath, includeServletPath = false, includeContextPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
-          ("description" -> doc.description)
-      })) ~
-    ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
-      acc merge JObject(List(auth.`type` -> Extraction.decompose(auth)))
-    }) ~
-    ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)))
+      ("swaggerVersion" -> swagger.swaggerVersion) ~
+      ("apis" ->
+        (docs.filter(_.apis.nonEmpty).toList map {
+          doc =>
+            ("path" -> (url(doc.resourcePath, includeServletPath = false, includeContextPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
+              ("description" -> doc.description)
+        })) ~
+        ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
+          acc merge JObject(List(auth.`type` -> Extraction.decompose(auth)))
+        }) ~
+        ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)))
   }
 
   error {

@@ -53,7 +53,7 @@ package object io {
    * @param f the block
    * @return the result of f
    */
-  def withTempFile[A](content: String, prefix: String = "scalatra", suffix: String = ".tmp",  directory: Option[File] = None)(f: File => A) = {
+  def withTempFile[A](content: String, prefix: String = "scalatra", suffix: String = ".tmp", directory: Option[File] = None)(f: File => A) = {
     val tmp = File.createTempFile(prefix, suffix, directory.getOrElse(null))
     try {
       using(new BufferedWriter(new FileWriter(tmp))) { out =>
@@ -61,8 +61,7 @@ package object io {
         out.flush()
       }
       f(tmp)
-    }
-    finally {
+    } finally {
       tmp.delete()
     }
   }

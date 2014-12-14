@@ -2,13 +2,12 @@ package org.scalatra.test
 
 import javax.servlet.http._
 import org.specs2.mutable._
-import org.specs2.specification.{Step, Fragments}
+import org.specs2.specification.{ Step, Fragments }
 
 class EmbeddedJettyContainerSpec extends Specification
-  with EmbeddedJettyContainer
-  with HttpComponentsClient
-{
-  override def map(fs: =>Fragments) =
+    with EmbeddedJettyContainer
+    with HttpComponentsClient {
+  override def map(fs: => Fragments) =
     Step(start()) ^ super.map(fs) ^ Step(stop())
 
   addServlet(new HttpServlet {

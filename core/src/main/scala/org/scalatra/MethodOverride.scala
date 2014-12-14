@@ -1,7 +1,7 @@
 package org.scalatra
 
 import scala.collection.SortedSet
-import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse}
+import javax.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse }
 import servlet.ServletApiImplicits
 
 object MethodOverride {

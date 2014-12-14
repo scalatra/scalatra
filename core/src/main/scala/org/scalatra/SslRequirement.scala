@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.net.URI
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import servlet.ServletApiImplicits
 
 /**
@@ -20,11 +20,11 @@ trait SslRequirement extends Handler with ServletApiImplicits {
       super.handle(req, res)
     }
   }
-  
+
   /**
    * Maps unsecured ports to secure ports.  By default, 80 redirects to
    * 443, and 8080 to 8443.
    */
-  protected def securePortMap: PartialFunction[Int, Int] = 
+  protected def securePortMap: PartialFunction[Int, Int] =
     Map(80 -> 443, 8080 -> 8443)
 }

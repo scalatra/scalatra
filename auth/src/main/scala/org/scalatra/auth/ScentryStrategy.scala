@@ -3,7 +3,7 @@ package auth
 
 import servlet.ServletBase
 
-import javax.servlet.http.{HttpServletResponse, HttpSession, HttpServletRequest, Cookie}
+import javax.servlet.http.{ HttpServletResponse, HttpSession, HttpServletRequest, Cookie }
 import javax.servlet.ServletContext
 
 trait ScentryStrategy[UserType <: AnyRef] {

@@ -1,9 +1,8 @@
 package org.scalatra.atmosphere
 
-
 /**
-* Useful filters to limit who receives broadcasts.
-*/
+ * Useful filters to limit who receives broadcasts.
+ */
 trait AtmosphereClientFilters extends Serializable {
 
   /**

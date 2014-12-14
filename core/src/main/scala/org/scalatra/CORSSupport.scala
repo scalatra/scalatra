@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import util.RicherString._
 import java.util.Locale.ENGLISH
 import grizzled.slf4j.Logger
@@ -30,13 +30,13 @@ object CorsSupport {
     AccessControlRequestMethodHeader)
 
   case class CORSConfig(
-               allowedOrigins: Seq[String],
-               allowedMethods: Seq[String],
-               allowedHeaders: Seq[String],
-               allowCredentials: Boolean,
-               preflightMaxAge: Int = 0)
+    allowedOrigins: Seq[String],
+    allowedMethods: Seq[String],
+    allowedHeaders: Seq[String],
+    allowCredentials: Boolean,
+    preflightMaxAge: Int = 0)
 
-  private[this] def configKey(name: String) = "org.scalatra.cors."+name
+  private[this] def configKey(name: String) = "org.scalatra.cors." + name
   val AllowedOriginsKey = configKey("allowedOrigins")
   val AllowedMethodsKey = configKey("allowedMethods")
   val AllowedHeadersKey = configKey("allowedHeaders")
@@ -45,21 +45,21 @@ object CorsSupport {
   val CorsConfigKey = configKey("corsConfig")
   private val DefaultMethods = "GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH"
   private val DefaultHeaders = Seq("Cookie",
-            "Host",
-            "X-Forwarded-For",
-            "Accept-Charset",
-            "If-Modified-Since",
-            "Accept-Language",
-            "X-Forwarded-Port",
-            "Connection",
-            "X-Forwarded-Proto",
-            "User-Agent",
-            "Referer",
-            "Accept-Encoding",
-            "X-Requested-With",
-            "Authorization",
-            "Accept",
-            "Content-Type").mkString(",")
+    "Host",
+    "X-Forwarded-For",
+    "Accept-Charset",
+    "If-Modified-Since",
+    "Accept-Language",
+    "X-Forwarded-Port",
+    "Connection",
+    "X-Forwarded-Proto",
+    "User-Agent",
+    "Referer",
+    "Accept-Encoding",
+    "X-Requested-With",
+    "Authorization",
+    "Accept",
+    "Content-Type").mkString(",")
 
 }
 trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
@@ -77,15 +77,12 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
       Option(config.context.getInitParameter(AllowCredentialsKey)).map(_.toBoolean).getOrElse(true),
       Option(config.context.getInitParameter(PreflightMaxAgeKey)).map(_.toInt).getOrElse(1800))
 
-
-
-
     val corsCfg = config.context.getOrElseUpdate(CorsConfigKey, createDefault).asInstanceOf[CORSConfig]
     import corsCfg._
     logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s".format(
-        allowedOrigins mkString ", ",
-        allowedMethods mkString ", ",
-        allowedHeaders mkString ", ")
+      allowedOrigins mkString ", ",
+      allowedMethods mkString ", ",
+      allowedHeaders mkString ", ")
   }
 
   protected def handlePreflightRequest() {

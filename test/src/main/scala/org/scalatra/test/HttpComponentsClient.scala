@@ -1,15 +1,15 @@
 package org.scalatra.test
 
-import org.apache.http.impl.client.{HttpClientBuilder, BasicCookieStore, DefaultHttpClient}
+import org.apache.http.impl.client.{ HttpClientBuilder, BasicCookieStore, DefaultHttpClient }
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods._
 import org.apache.http.entity.ByteArrayEntity
-import java.io.{OutputStream, File, ByteArrayOutputStream}
-import org.apache.http.client.params.{CookiePolicy, ClientPNames}
-import org.apache.http.entity.mime.{FormBodyPart, MultipartEntity, HttpMultipartMode}
-import org.apache.http.entity.mime.content.{ContentBody, FileBody, StringBody}
+import java.io.{ OutputStream, File, ByteArrayOutputStream }
+import org.apache.http.client.params.{ CookiePolicy, ClientPNames }
+import org.apache.http.entity.mime.{ FormBodyPart, MultipartEntity, HttpMultipartMode }
+import org.apache.http.entity.mime.content.{ ContentBody, FileBody, StringBody }
 import util.DynamicVariable
-import org.apache.http.client.{RedirectStrategy, CookieStore}
+import org.apache.http.client.{ RedirectStrategy, CookieStore }
 import scala.io.Codec
 import org.apache.http.client.config.RequestConfig
 
@@ -53,42 +53,42 @@ trait HttpComponentsClient extends Client {
   }
 
   def submit[A](
-                   method: String,
-                   path: String,
-                   queryParams: Iterable[(String, String)] = Map.empty,
-                   headers: Iterable[(String, String)] = Seq.empty,
-                   body: Array[Byte] = null)(f: => A): A =
-  {
-    val client = createClient
-    val queryString = toQueryString(queryParams)
-    val url = if (queryString == "")
-      "%s/%s".format(baseUrl, path)
-    else
-      "%s/%s?%s".format(baseUrl, path, queryString)
+    method: String,
+    path: String,
+    queryParams: Iterable[(String, String)] = Map.empty,
+    headers: Iterable[(String, String)] = Seq.empty,
+    body: Array[Byte] = null)(f: => A): A =
+    {
+      val client = createClient
+      val queryString = toQueryString(queryParams)
+      val url = if (queryString == "")
+        "%s/%s".format(baseUrl, path)
+      else
+        "%s/%s?%s".format(baseUrl, path, queryString)
 
-    val req = createMethod(method.toUpperCase, url)
-    attachBody(req, body)
-    attachHeaders(req, headers)
+      val req = createMethod(method.toUpperCase, url)
+      attachBody(req, body)
+      attachHeaders(req, headers)
 
-    withResponse(HttpComponentsClientResponse(client.execute(req))) { f }
-  }
+      withResponse(HttpComponentsClientResponse(client.execute(req))) { f }
+    }
 
   protected def submitMultipart[A](
-                                      method: String,
-                                      path: String,
-                                      params: Iterable[(String, String)],
-                                      headers: Iterable[(String, String)],
-                                      files: Iterable[(String, Any)])(f: => A): A =
-  {
-    val client = createClient
-    val url = "%s/%s".format(baseUrl, path)
-    val req = createMethod(method.toUpperCase, url)
+    method: String,
+    path: String,
+    params: Iterable[(String, String)],
+    headers: Iterable[(String, String)],
+    files: Iterable[(String, Any)])(f: => A): A =
+    {
+      val client = createClient
+      val url = "%s/%s".format(baseUrl, path)
+      val req = createMethod(method.toUpperCase, url)
 
-    attachMultipartBody(req, params, files)
-    attachHeaders(req, headers)
+      attachMultipartBody(req, params, files)
+      attachHeaders(req, headers)
 
-    withResponse(HttpComponentsClientResponse(client.execute(req))) { f }
-  }
+      withResponse(HttpComponentsClientResponse(client.execute(req))) { f }
+    }
 
   protected def createClient = {
     val builder = HttpClientBuilder.create()
@@ -105,13 +105,13 @@ trait HttpComponentsClient extends Client {
 
   private def createMethod(method: String, url: String) = {
     val req = method match {
-      case "GET"     => new HttpGet(url)
-      case "HEAD"    => new HttpHead(url)
+      case "GET" => new HttpGet(url)
+      case "HEAD" => new HttpHead(url)
       case "OPTIONS" => new HttpOptions(url)
-      case "DELETE"  => new HttpDelete(url)
-      case "TRACE"   => new HttpTrace(url)
-      case "POST"  => new HttpPost(url)
-      case "PUT"   => new HttpPut(url)
+      case "DELETE" => new HttpDelete(url)
+      case "TRACE" => new HttpTrace(url)
+      case "POST" => new HttpPost(url)
+      case "PUT" => new HttpPut(url)
       case "PATCH" => new HttpPatch(url)
     }
 
@@ -140,8 +140,7 @@ trait HttpComponentsClient extends Client {
   private def attachMultipartBody(
     req: HttpRequestBase,
     params: Iterable[(String, String)],
-    files: Iterable[(String, Any)])
-  {
+    files: Iterable[(String, Any)]) {
 
     if (params.isEmpty && files.isEmpty) {
       return
@@ -177,7 +176,7 @@ trait HttpComponentsClient extends Client {
     case s: Any =>
       throw new IllegalArgumentException(
         ("The body type for file parameter '%s' could not be inferred. The " +
-        "supported types are java.util.File and org.scalatra.test.Uploadable").format(name))
+          "supported types are java.util.File and org.scalatra.test.Uploadable").format(name))
   }
 }
 

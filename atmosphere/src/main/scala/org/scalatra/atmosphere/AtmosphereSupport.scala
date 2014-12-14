@@ -2,7 +2,7 @@ package org.scalatra
 package atmosphere
 
 import json.JsonSupport
-import javax.servlet.{ServletContext, ServletConfig, FilterConfig, ServletException}
+import javax.servlet.{ ServletContext, ServletConfig, FilterConfig, ServletException }
 import org.apache.catalina.CometProcessor
 import org.jboss.servlet.http.HttpEventServlet
 import java.io.IOException
@@ -13,7 +13,7 @@ import org.atmosphere.container.JBossWebCometSupport
 import org.atmosphere.cpr._
 import collection.JavaConverters._
 import org.json4s._
-import org.atmosphere.cache.{UUIDBroadcasterCache, HeaderBroadcasterCache}
+import org.atmosphere.cache.{ UUIDBroadcasterCache, HeaderBroadcasterCache }
 import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import grizzled.slf4j.Logger
@@ -21,7 +21,7 @@ import com.typesafe.config.ConfigFactory
 import scala.util.control.Exception.allCatch
 import org.atmosphere.client.TrackMessageSizeInterceptor
 import org.atmosphere.interceptor.SessionCreationInterceptor
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import servlet.ScalatraAsyncSupport
 import java.util
 
@@ -96,10 +96,11 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
   }
 
-  /** Servlets that want to track atmosphere message size should override this.
-    * @see [[TrackMessageSizeInterceptor]]
-    */
-  protected def trackMessageSize : Boolean = false
+  /**
+   * Servlets that want to track atmosphere message size should override this.
+   * @see [[TrackMessageSizeInterceptor]]
+   */
+  protected def trackMessageSize: Boolean = false
 
   protected def configureInterceptors(cfg: ServletConfig) = {
     atmosphereFramework.interceptor(new SessionCreationInterceptor)
@@ -118,7 +119,6 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       }
     }
   }
-
 
   /**
    * Handles a request and renders a response.
@@ -146,7 +146,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   }
 
   private[this] def noGetRoute = sys.error("You are using the AtmosphereSupport without defining any Get route," +
-     "you should get rid of it.")
+    "you should get rid of it.")
 
   private[this] def atmosphereRoutes = routes.methodRoutes.getOrElse(Get, noGetRoute).filter(_.metadata.contains('Atmosphere))
 
@@ -174,8 +174,8 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   def atmosphere(transformers: RouteTransformer*)(block: => AtmosphereClient) = {
     val newTransformers = transformers :+ Atmosphere
-    get(newTransformers:_*)(block)
-    post(newTransformers:_*){()}
+    get(newTransformers: _*)(block)
+    post(newTransformers: _*) { () }
   }
 
   /**

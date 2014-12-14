@@ -1,7 +1,7 @@
 package org.scalatra
 
 import org.specs2.mutable.Specification
-import org.scalatra.util.{MultiMap, MultiMapHeadView, MapWithIndifferentAccess}
+import org.scalatra.util.{ MultiMap, MultiMapHeadView, MapWithIndifferentAccess }
 import org.scalatra.util.conversion.TypeConverter
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -83,7 +83,6 @@ class ParamsExtensionSpec extends Specification {
       multiParams.getAs[Int]("blah") must beNone
     }
 
-
     "return Empty list if some conversion is invalid" in {
       val multiParams: MultiMap = Map("invalids" -> List("1", "a", "2"))
       multiParams.getAs[Int]("invalids") must_== Some(List(1, 2))
@@ -109,5 +108,4 @@ class ParamsExtensionSpec extends Specification {
     }
   }
 }
-
 

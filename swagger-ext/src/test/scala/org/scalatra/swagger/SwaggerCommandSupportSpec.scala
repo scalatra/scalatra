@@ -5,26 +5,26 @@ import org.json4s._
 import org.scalatra.commands._
 import org.scalatra.test.specs2.MutableScalatraSpec
 
-object SwaggerCommandSupportSpec  {
+object SwaggerCommandSupportSpec {
   implicit val stringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
   class SimpleCommand extends ParamsOnlyCommand {
     val name: Field[String] = asString("name").notBlank.position(1)
     val age: Field[Int] = bind[Int]("age").optional(0)
   }
-  
+
   class FullCommand extends JsonCommand {
     protected implicit val jsonFormats: Formats = DefaultFormats
 
     import org.scalatra.commands.ValueSource._
-    
+
     val name: Field[String] = asString("name").notBlank.position(1)
     val age: Field[Int] = bind[Int]("age").withDefaultValue(0)
     val token: Field[String] = (
-        asString("API-TOKEN").notBlank
-	        sourcedFrom Header 
-	        description "The API token for this request"
-	        notes "Invalid data kills kittens"
-	        allowableValues "123")
+      asString("API-TOKEN").notBlank
+      sourcedFrom Header
+      description "The API token for this request"
+      notes "Invalid data kills kittens"
+      allowableValues "123")
     val skip: Field[Int] = asInt("skip").withDefaultValue(0).sourcedFrom(Query).description("The offset for this collection index")
     val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
   }
@@ -59,7 +59,7 @@ class SwaggerCommandSupportSpec extends MutableScalatraSpec {
       model.get.description must beEmpty
       model.get.properties must containTheSameElementsAs(List("age" -> ModelProperty(DataType.Int, required = false), "name" -> ModelProperty(DataType.String, 1, required = true)))
     }
-    
+
     "generate a model and parameters for a full command" in {
       val parameterList = List(
         Parameter("body", DataType("FullCommand"), None, paramType = ParamType.Body),
@@ -73,12 +73,12 @@ class SwaggerCommandSupportSpec extends MutableScalatraSpec {
       parameters must contain(parameterList(1))
       parameters must contain(parameterList(2))
       // Disabled headers for now, until swagger codegen mangles header names
-//      parameters must contain(parameterList(3))
+      //      parameters must contain(parameterList(3))
       model must beSome[Model]
       model.get.id must_== "FullCommand"
       model.get.description must beEmpty
       model.get.properties must containTheSameElementsAs(List("age" -> ModelProperty(DataType.Int, required = false), "name" -> ModelProperty(DataType.String, 1, required = true)))
     }
   }
-  
+
 }

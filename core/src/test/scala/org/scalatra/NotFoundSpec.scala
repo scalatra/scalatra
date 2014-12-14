@@ -2,7 +2,8 @@ package org.scalatra
 
 import test.specs2.ScalatraSpec
 
-class NotFoundSpec extends ScalatraSpec { def is = s2"""
+class NotFoundSpec extends ScalatraSpec {
+  def is = s2"""
   The notFound block
     should run when no route matches $customNotFound
     should not result in a 404 if the block doesn't $customNotFoundStatus

@@ -2,7 +2,7 @@ package org.scalatra
 package validation
 
 import org.specs2.mutable.Specification
-import org.json4s.{DefaultFormats, Formats}
+import org.json4s.{ DefaultFormats, Formats }
 import commands._
 import scalaz._
 import Scalaz._
@@ -13,7 +13,6 @@ class WithValidation extends WithBindingFromParams {
 
   val legalAge: Field[Int] = asInt("age").greaterThanOrEqualTo(18)
 }
-
 
 class ValidationSupportSpec extends Specification {
   implicit val formats: Formats = DefaultFormats
@@ -50,7 +49,6 @@ class ValidationSupportSpec extends Specification {
       ageValidatedForm.legalAge.validation aka "the validation result" must_== Failure(ValidationError("Age must be greater than or equal to 18", FieldName("age"), ValidationFail))
     }
 
-
     "evaluate non-exhaustive validation as 'accepted'" in {
       val formUnderTest = new WithValidation
       val params = Map("name" -> "John", "surname" -> "Doe", "age" -> "20")
@@ -66,5 +64,4 @@ class ValidationSupportSpec extends Specification {
 
   }
 }
-
 

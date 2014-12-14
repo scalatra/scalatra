@@ -1,6 +1,6 @@
 package org.scalatra.util
 
-import java.io.{FileInputStream, File}
+import java.io.{ FileInputStream, File }
 import org.mozilla.universalchardet.UniversalDetector
 import scala.io.Codec
 import java.nio.charset.Charset
@@ -15,7 +15,7 @@ object FileCharset {
     try {
       using(new FileInputStream(file)) { fis =>
         var idx = fis.read(buf)
-        while(idx > 0 && !detector.isDone) {
+        while (idx > 0 && !detector.isDone) {
           detector.handleData(buf, 0, idx)
           idx = fis.read(buf)
         }
@@ -24,7 +24,7 @@ object FileCharset {
       getCharset(detector, Codec.fileEncodingCodec)
     } catch {
       case t: Throwable =>
-        logger.warn("Failed to detect charset for file: "+file.getPath+".", t)
+        logger.warn("Failed to detect charset for file: " + file.getPath + ".", t)
         Codec.defaultCharsetCodec.charSet
     } finally {
       detector.reset()
@@ -44,7 +44,7 @@ object FileCharset {
     val detector = new UniversalDetector(null)
     try {
       var idx = 0
-      while(idx < barr.length && !detector.isDone) {
+      while (idx < barr.length && !detector.isDone) {
         if (idx > 0) detector.handleData(barr, 0, idx)
         idx += 1
       }

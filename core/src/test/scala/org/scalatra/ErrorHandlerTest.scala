@@ -33,36 +33,36 @@ class ErrorHandlerTest extends ScalatraFunSuite {
 
   test("result of error handler should be rendered") {
     get("/base/1") {
-      body should equal ("base")
+      body should equal("base")
     }
   }
 
   test("error handlers are composable") {
     get("/child/2") {
-      body should equal ("child")
+      body should equal("child")
     }
 
     get("/child/1") {
-      body should equal ("base")
+      body should equal("base")
     }
   }
 
   test("response status should not be set on error") {
     get("/base/1") {
-      status should equal (418)
+      status should equal(418)
     }
   }
 
   test("rethrows uncaught exceptions") {
     get("/base/uncaught") {
-      status should equal (500)
+      status should equal(500)
     }
   }
 
   test("halt() can be used from error handler") {
     get("/halt/3") {
-      status should equal (413)
-      body should equal ("no more")
+      status should equal(413)
+      body should equal("no more")
     }
   }
 }

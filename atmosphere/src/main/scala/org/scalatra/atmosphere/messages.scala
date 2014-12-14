@@ -58,7 +58,6 @@ case class BinaryMessage(content: Array[Byte]) extends ProtocolMessage[Array[Byt
  */
 case class Error(cause: Option[Throwable]) extends InboundMessage
 
-
 sealed trait Disconnector
 case object ServerDisconnected extends Disconnector
 case object ClientDisconnected extends Disconnector

@@ -1,14 +1,14 @@
 package org.scalatra.swagger
 
 import java.util.concurrent.ConcurrentHashMap
-import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
+import com.thoughtworks.paranamer.{ BytecodeReadingParanamer, CachingParanamer }
 import java.lang.reflect.{ Constructor => JConstructor }
 import collection.JavaConverters._
 
 package object reflect {
 
   private[reflect] class Memo[A, R] {
-    private[this] val cache =  new ConcurrentHashMap[A, R](1500, 1, 1)
+    private[this] val cache = new ConcurrentHashMap[A, R](1500, 1, 1)
     def apply(x: A, f: A => R): R = {
       if (cache.containsKey(x))
         cache.get(x)
@@ -18,7 +18,7 @@ package object reflect {
       }
     }
 
-    def replace(x: A, v: R):R = {
+    def replace(x: A, v: R): R = {
       cache.put(x, v)
       v
     }

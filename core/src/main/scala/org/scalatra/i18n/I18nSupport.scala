@@ -18,8 +18,7 @@ trait I18nSupport {
 
   import I18nSupport._
 
-
-  def locale(implicit request: HttpServletRequest): Locale  = if (request == null) {
+  def locale(implicit request: HttpServletRequest): Locale = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call locale")
   } else {
     request.get(LocaleKey).map(_.asInstanceOf[Locale]).orNull
@@ -38,7 +37,6 @@ trait I18nSupport {
     request.get(MessagesKey).map(_.asInstanceOf[Messages]).orNull
   }
 
-
   before() {
     request(LocaleKey) = resolveLocale
     request(MessagesKey) = provideMessages(locale)
@@ -50,7 +48,7 @@ trait I18nSupport {
    * @param locale Locale used to create instance
    * @return a new instance of Messages, override to provide own implementation
    */
-  def provideMessages(locale:Locale) : Messages = Messages(locale)
+  def provideMessages(locale: Locale): Messages = Messages(locale)
 
   /*
   * Resolve Locale based on HTTP request parameter or Cookie
@@ -82,7 +80,7 @@ trait I18nSupport {
   /**
    * Accept-Language header looks like "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4"
    * Specification see [[http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html]]
-   * 
+   *
    * @return first preferred found locale or None
    */
   private def resolveHttpLocaleFromUserAgent: Option[Locale] = {
@@ -120,8 +118,8 @@ trait I18nSupport {
    */
   private def localeFromString(in: String): Locale = {
 
-      val token = in.split("_")
-      new Locale(token.head, token.last)
+    val token = in.split("_")
+    new Locale(token.head, token.last)
   }
 
   private def defaultLocale: Locale = {

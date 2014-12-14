@@ -29,13 +29,13 @@ class SessionTest extends ScalatraFunSuite {
 
   test("GET /session with no session should return 'None'") {
     get("/session") {
-      body should equal ("None")
+      body should equal("None")
     }
   }
 
   test("POST /session with val=yes should return 'yes'") {
     post("/session", "val" -> "yes") {
-      body should equal ("yes")
+      body should equal("yes")
     }
   }
 
@@ -43,10 +43,10 @@ class SessionTest extends ScalatraFunSuite {
     val data = "some data going in as symbol"
     session {
       post("/session", "val" -> data) {
-        body should equal (data)
+        body should equal(data)
       }
       get("/session") {
-        body should equal (data)
+        body should equal(data)
       }
     }
   }
@@ -55,10 +55,10 @@ class SessionTest extends ScalatraFunSuite {
     val data = "session_value"
     session {
       post("/session", "val" -> data) {
-        body should equal (data)
+        body should equal(data)
       }
       get("/session-symbol") {
-        body should equal (data)
+        body should equal(data)
       }
     }
   }
@@ -66,7 +66,7 @@ class SessionTest extends ScalatraFunSuite {
   test("sessionOption should be None when no session exists") {
     session {
       get("/session-option") {
-        body should equal ("None")
+        body should equal("None")
       }
     }
   }
@@ -85,7 +85,7 @@ class SessionTest extends ScalatraFunSuite {
     session {
       post("/session-symbol-update") {}
       get("/session-symbol") {
-        body should equal ("set with symbol")
+        body should equal("set with symbol")
       }
     }
   }

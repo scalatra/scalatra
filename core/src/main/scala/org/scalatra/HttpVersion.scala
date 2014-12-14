@@ -8,7 +8,6 @@ abstract class HttpVersion(val protocolName: String, val majorVersion: Int, val 
 
   override def hashCode() = protocolName.## * 31 + majorVersion.## * 31 + minorVersion
 
-
   override def equals(obj: Any) = obj match {
     case m: HttpVersion => protocolName == m.protocolName && majorVersion == m.majorVersion && minorVersion == m.minorVersion
     case _ => false

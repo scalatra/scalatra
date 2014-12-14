@@ -55,7 +55,7 @@ class RoutePrecedenceTest extends ScalatraFunSuite {
 
   test("Routes in child should override routes in base") {
     get("/override-route") {
-      body should equal ("child")
+      body should equal("child")
     }
   }
 
@@ -71,19 +71,19 @@ class RoutePrecedenceTest extends ScalatraFunSuite {
 
   test("pass immediately passes to next matching route") {
     get("/pass") {
-      body should equal ("13")
+      body should equal("13")
     }
   }
 
   test("pass invokes notFound action if no more matching routes") {
     get("/pass-to-not-found") {
-      body should equal ("ac")
+      body should equal("ac")
     }
   }
 
   test("does not keep executing routes without pass") {
     get("/do-not-pass") {
-      body should equal ("1")
+      body should equal("1")
     }
   }
 }

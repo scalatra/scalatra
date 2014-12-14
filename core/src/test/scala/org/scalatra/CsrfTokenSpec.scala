@@ -8,7 +8,7 @@ class CsrfTokenServlet extends ScalatraServlet with CsrfTokenSupport {
   get("/renderForm") {
     <html>
       <body>
-        <form method="post"><input type="hidden" name={csrfKey} value={csrfToken} /></form>
+        <form method="post"><input type="hidden" name={ csrfKey } value={ csrfToken }/></form>
       </body>
     </html>
   }
@@ -21,7 +21,6 @@ class CsrfTokenServlet extends ScalatraServlet with CsrfTokenSupport {
 object CsrfTokenSpec extends MutableScalatraSpec {
 
   addServlet(classOf[CsrfTokenServlet], "/*")
-
 
   "the get request should include the CSRF token" in {
     get("/renderForm") {
@@ -47,7 +46,7 @@ object CsrfTokenSpec extends MutableScalatraSpec {
       }
       post("/renderForm", CsrfTokenSupport.DefaultKey -> "Hey I'm different") {
         status must be_==(403)
-        body must not be_==("SUCCESS")
+        body must not be_== ("SUCCESS")
       }
     }
   }

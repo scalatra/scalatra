@@ -2,7 +2,7 @@ package org.scalatra
 package test
 package specs2
 
-import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 
 class MutableScalatraSpecSpec extends MutableScalatraSpec {
   // scalatra-specs2 does not depend on Scalatra, so we'll create our own

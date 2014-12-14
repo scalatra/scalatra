@@ -11,12 +11,10 @@ import javax.servlet.http.HttpServletRequest
  * available to the action.
  */
 case class Route(
-  routeMatchers: Seq[RouteMatcher] = Seq.empty,
-  action: Action,
-  contextPath: HttpServletRequest => String = _ => "",
-  metadata: Map[Symbol, Any] = Map.empty
-)
-{
+    routeMatchers: Seq[RouteMatcher] = Seq.empty,
+    action: Action,
+    contextPath: HttpServletRequest => String = _ => "",
+    metadata: Map[Symbol, Any] = Map.empty) {
   /**
    * Optionally returns this route's action and the multi-map of route
    * parameters extracted from the matchers.  Each matcher's returned params
@@ -26,10 +24,11 @@ case class Route(
    */
   def apply(requestPath: String): Option[MatchedRoute] = {
     routeMatchers.foldLeft(Option(MultiMap())) {
-      (acc: Option[MultiParams], routeMatcher: RouteMatcher) => for {
-        routeParams <- acc
-        matcherParams <- routeMatcher(requestPath)
-      } yield routeParams ++ matcherParams
+      (acc: Option[MultiParams], routeMatcher: RouteMatcher) =>
+        for {
+          routeParams <- acc
+          matcherParams <- routeMatcher(requestPath)
+        } yield routeParams ++ matcherParams
     } map { routeParams => MatchedRoute(action, routeParams) }
   }
 
@@ -51,10 +50,10 @@ case class Route(
 object Route {
   def apply(transformers: Seq[RouteTransformer], action: Action): Route =
     apply(transformers, action, (_: HttpServletRequest) => "")
-  
+
   def apply(transformers: Seq[RouteTransformer], action: Action, contextPath: HttpServletRequest => String): Route = {
     val route = Route(action = action, contextPath = contextPath)
-    transformers.foldLeft(route){ (route, transformer) => transformer(route) }
+    transformers.foldLeft(route) { (route, transformer) => transformer(route) }
   }
 
   def appendMatcher(matcher: RouteMatcher): RouteTransformer = { (route: Route) =>

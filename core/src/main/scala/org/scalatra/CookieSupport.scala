@@ -1,21 +1,21 @@
 package org.scalatra
 
 import collection._
-import java.util.{Calendar, TimeZone, Date, Locale}
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, Cookie => ServletCookie}
+import java.util.{ Calendar, TimeZone, Date, Locale }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse, Cookie => ServletCookie }
 import servlet.ServletApiImplicits
 import util.DateUtil
 import util.RicherString._
 
 case class CookieOptions(
-        domain  : String  = "",
-        path    : String  = "",
-        maxAge  : Int     = -1,
-        secure  : Boolean = false,
-        comment : String  = "",
-        httpOnly: Boolean = false,
-        version : Int = 0,
-        encoding: String  = "UTF-8")
+  domain: String = "",
+  path: String = "",
+  maxAge: Int = -1,
+  secure: Boolean = false,
+  comment: String = "",
+  httpOnly: Boolean = false,
+  version: Int = 0,
+  encoding: String = "UTF-8")
 
 object Cookie {
   @volatile private[this] var _currentTimeMillis: Option[Long] = None
@@ -35,17 +35,17 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
     sb append name append "="
     sb append value
 
-    if(cookieOptions.domain.nonBlank && cookieOptions.domain != "localhost")
+    if (cookieOptions.domain.nonBlank && cookieOptions.domain != "localhost")
       sb.append("; Domain=").append(
         (if (!cookieOptions.domain.startsWith(".")) "." + cookieOptions.domain else cookieOptions.domain).toLowerCase(Locale.ENGLISH)
       )
 
     val pth = cookieOptions.path
-    if(pth.nonBlank) sb append "; Path=" append (if(!pth.startsWith("/")) {
+    if (pth.nonBlank) sb append "; Path=" append (if (!pth.startsWith("/")) {
       "/" + pth
     } else { pth })
 
-    if(cookieOptions.comment.nonBlank) sb append ("; Comment=") append cookieOptions.comment
+    if (cookieOptions.comment.nonBlank) sb append ("; Comment=") append cookieOptions.comment
 
     appendMaxAge(sb, cookieOptions.maxAge, cookieOptions.version)
 
@@ -56,9 +56,9 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
 
   private[this] def appendMaxAge(sb: StringBuffer, maxAge: Int, version: Int) = {
     val dateInMillis = maxAge match {
-       case a if a < 0 => None // we don't do anything for max-age when it's < 0 then it becomes a session cookie
-       case 0 => Some(0L) // Set the date to the min date for the system
-       case a => Some(currentTimeMillis + a * 1000)
+      case a if a < 0 => None // we don't do anything for max-age when it's < 0 then it becomes a session cookie
+      case 0 => Some(0L) // Set the date to the min date for the system
+      case a => Some(currentTimeMillis + a * 1000)
     }
 
     // This used to be Max-Age but IE is not always very happy with that
@@ -70,9 +70,8 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
   }
 
   private[this] def appendExpires(sb: StringBuffer, expires: Date) =
-    sb append  "; Expires=" append formatExpires(expires)
+    sb append "; Expires=" append formatExpires(expires)
 }
-
 
 class SweetCookies(private[this] val reqCookies: Map[String, String], private[this] val response: HttpServletResponse) extends ServletApiImplicits {
   private[this] lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
@@ -81,12 +80,12 @@ class SweetCookies(private[this] val reqCookies: Map[String, String], private[th
 
   def apply(key: String) = cookies.get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
 
-  def update(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
+  def update(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) = {
     cookies += name -> value
     addCookie(name, value, cookieOptions)
   }
 
-  def set(name: String, value: String)(implicit cookieOptions: CookieOptions=CookieOptions()) = {
+  def set(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) = {
     this.update(name, value)(cookieOptions)
   }
 

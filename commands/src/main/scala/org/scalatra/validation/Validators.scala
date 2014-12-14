@@ -30,11 +30,10 @@ object Validators {
     new PredicateValidator[TValue](fieldName, validate, messageFormat)
 
   /**
-  * Must be a non-empty [String]. null, " ", and "" are not allowed.
-  */
+   * Must be a non-empty [String]. null, " ", and "" are not allowed.
+   */
   def nonEmptyString(fieldName: String, messageFormat: String = "%s must be present."): Validator[String] =
     new PredicateValidator[String](fieldName, _.nonBlank, messageFormat)
-
 
   /**
    * Must be non-null.
@@ -121,10 +120,9 @@ object Validators {
 
   /**
    * Checks if the value of the data is a value of the specified enum.
-   */ 
+   */
   def enumValue(fieldName: String, enum: Enumeration, messageFormat: String = "%%s must be one of %s."): Validator[String] =
     oneOf(fieldName, messageFormat, enum.values.map(_.toString).toSeq)
-
 
   private def buildUrlValidator(fieldName: String, absolute: Boolean, allowLocalHost: Boolean, messageFormat: String = "%s must be a valid url.", schemes: Seq[String]): Validator[String] = {
     val validator = (url: String) ⇒ {

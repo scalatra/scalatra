@@ -4,26 +4,28 @@ package fileupload
 import servlet._
 
 import org.apache.commons.fileupload.servlet.ServletFileUpload
-import org.apache.commons.fileupload.disk.{DiskFileItem, DiskFileItemFactory}
+import org.apache.commons.fileupload.disk.{ DiskFileItem, DiskFileItemFactory }
 import collection.JavaConversions._
 import scala.util.DynamicVariable
-import java.util.{List => JList, HashMap => JHashMap, Map => JMap}
-import javax.servlet.http.{HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse}
+import java.util.{ List => JList, HashMap => JHashMap, Map => JMap }
+import javax.servlet.http.{ HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse }
 import collection.Iterable
 import java.lang.String
-import org.apache.commons.fileupload.{FileUploadException, FileUploadBase, FileItemFactory, FileItem}
+import org.apache.commons.fileupload.{ FileUploadException, FileUploadBase, FileItemFactory, FileItem }
 
-/** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
-   * as part of a multipart HTTP request.  Commonly this is used for retrieving uploaded files.
-   *
-   * Once the trait has been mixed into your handler you can access any files uploaded using {{{ fileParams("myFile") }}} where ''myFile'' is the name
-   * of the parameter used to upload the file being retrieved.
-   *
-   * @note Once any handler with FileUploadSupport has accessed the request, the fileParams returned by FileUploadSupport will remain fixed for
-   * the lifetime of the request. */
+/**
+ * FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
+ * as part of a multipart HTTP request.  Commonly this is used for retrieving uploaded files.
+ *
+ * Once the trait has been mixed into your handler you can access any files uploaded using {{{ fileParams("myFile") }}} where ''myFile'' is the name
+ * of the parameter used to upload the file being retrieved.
+ *
+ * @note Once any handler with FileUploadSupport has accessed the request, the fileParams returned by FileUploadSupport will remain fixed for
+ * the lifetime of the request.
+ */
 @deprecated(message = "Deprecated in favor of Servlet 3.0 API's multipart features. " +
-                      "Please use org.scalatra.servlet.FileUploadSupport instead.",
-            since = "2.1.0")
+  "Please use org.scalatra.servlet.FileUploadSupport instead.",
+  since = "2.1.0")
 trait FileUploadSupport extends ServletBase {
   import FileUploadSupport._
 
@@ -39,8 +41,7 @@ trait FileUploadSupport extends ServletBase {
             mergedParams += name -> (values.toList ++ formValues)
         }
         wrapRequest(req, mergedParams)
-      }
-      else req
+      } else req
     } catch {
       case e: FileUploadException => {
         req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
@@ -61,7 +62,7 @@ trait FileUploadSupport extends ServletBase {
 
     isPostOrPut && (req.contentType match {
       case Some(contentType) => contentType.startsWith(FileUploadBase.MULTIPART)
-      case _                 => false
+      case _ => false
     })
   }
 
@@ -78,7 +79,7 @@ trait FileUploadSupport extends ServletBase {
             BodyParams(params.fileParams, params.formParams + ((item.getFieldName, fileItemToString(req, item) :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
           else
             BodyParams(params.fileParams + ((item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
-          }
+        }
         req(BodyParamsKey) = bodyParams
         bodyParams
     }
@@ -117,18 +118,18 @@ trait FileUploadSupport extends ServletBase {
 
   /**
    * Creates a new file upload handler to parse the request.  By default, it
-   * creates a `ServletFileUpload` instance with the file item factory 
+   * creates a `ServletFileUpload` instance with the file item factory
    * returned by the `fileItemFactory` method.  Override this method to
    * customize properties such as the maximum file size, progress listener,
    * etc.
    *
    * @return a new file upload handler.
    */
-  protected def newServletFileUpload: ServletFileUpload = 
+  protected def newServletFileUpload: ServletFileUpload =
     new ServletFileUpload(fileItemFactory)
 
   /**
-   * The file item factory used by the default implementation of 
+   * The file item factory used by the default implementation of
    * `newServletFileUpload`.  By default, we use a DiskFileItemFactory.
    */
   /*
@@ -142,7 +143,7 @@ trait FileUploadSupport extends ServletBase {
   protected val _fileParams = new collection.Map[String, FileItem] {
     def get(key: String) = fileMultiParams.get(key) flatMap { _.headOption }
     override def size = fileMultiParams.size
-    override def iterator = (fileMultiParams map { case(k, v) => (k, v.head) }).iterator
+    override def iterator = (fileMultiParams map { case (k, v) => (k, v.head) }).iterator
     override def -(key: String) = Map() ++ this - key
     override def +[B1 >: FileItem](kv: (String, B1)) = Map() ++ this + kv
   }
@@ -155,5 +156,4 @@ object FileUploadSupport {
   case class BodyParams(fileParams: FileMultiParams, formParams: Map[String, List[String]])
   private val BodyParamsKey = "org.scalatra.fileupload.bodyParams"
 }
-
 
