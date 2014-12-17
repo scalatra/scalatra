@@ -52,7 +52,7 @@ object ScalatraBuild extends Build {
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
       scalatraCommon, scalatraSwaggerExt, scalatraSpring,
-      scalatraMetrics)
+      scalatraMetrics, scalatraCache)
   )
 
   lazy val scalatraCommon = Project(
@@ -261,6 +261,24 @@ object ScalatraBuild extends Build {
       description := "Scalatra integration with Metrics"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraCache = Project(
+    id = "scalatra-cache",
+    base = file("cache"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(),
+      description := "Scalatra Cache support"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraCacheGuava = Project(
+    id = "scalatra-cache-guava",
+    base = file("cache-guava"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(),
+      description := "Scalatra Cache integration with Google Guava"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCache % "compile;test->test;provided->provided",)
 
   lazy val scalatraExample = Project(
      id = "scalatra-example",
