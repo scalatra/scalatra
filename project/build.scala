@@ -278,7 +278,7 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(),
       description := "Scalatra Cache integration with Google Guava"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCache % "compile;test->test;provided->provided",)
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCache % "compile;test->test;provided->provided")
 
   lazy val scalatraExample = Project(
      id = "scalatra-example",
