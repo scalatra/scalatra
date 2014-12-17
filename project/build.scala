@@ -275,7 +275,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-cache-guava",
     base = file("cache-guava"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(),
+      libraryDependencies ++= Seq(googleGuava, googleFindBugs),
       description := "Scalatra Cache integration with Google Guava"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCache % "compile;test->test;provided->provided")
@@ -350,6 +350,8 @@ object ScalatraBuild extends Build {
     lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.3.0_a2.3"
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.0"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.0"
+    lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "18.0"
+    lazy val googleFindBugs           = "com.google.code.findbugs" % "jsr305"                      % "1.3.9"
 
     private val akkaVersion             = "2.3.7"
     private val grizzledSlf4jVersion    = "1.0.2"

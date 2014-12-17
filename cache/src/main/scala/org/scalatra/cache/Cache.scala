@@ -6,4 +6,6 @@ trait Cache {
   def put[V](key: String, value: V, ttlMs: Long): V
 
   def remove(key: String)
+
+  def flush()
 }
