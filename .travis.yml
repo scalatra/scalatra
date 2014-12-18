@@ -2,5 +2,6 @@ language: scala
 scala:
   - 2.10.4
   - 2.11.4
+sudo: false
 script: ./sbt test
 
