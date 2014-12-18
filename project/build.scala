@@ -52,7 +52,7 @@ object ScalatraBuild extends Build {
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
       scalatraCommon, scalatraSwaggerExt, scalatraSpring,
-      scalatraMetrics, scalatraCache)
+      scalatraMetrics, scalatraCache, scalatraCacheGuava)
   )
 
   lazy val scalatraCommon = Project(

@@ -1,3 +1,5 @@
+package org.scalatra.guavaCache
+
 import com.google.common.cache.CacheBuilder
 import org.scalatra.cache.Cache
 
