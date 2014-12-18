@@ -20,7 +20,9 @@ class MessagesSpec extends WordSpec with Matchers{
         messages.get("missing") should equal(None)
       }
       "throw MissingResourceException" in {
-        evaluating { messages("missing") } should produce[MissingResourceException]
+        an [MissingResourceException] should be thrownBy { 
+          messages("missing") 
+        }
       }
     }
   }

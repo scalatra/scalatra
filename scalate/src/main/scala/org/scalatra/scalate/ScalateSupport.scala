@@ -41,9 +41,10 @@ object ScalateSupport {
 
 /**
  * ScalateSupport creates and configures a template engine and provides
- * helper methods and bindings to integrate with the ScalatraKernel.
+ * helper methods and bindings to integrate with the ServletBase.
  */
-trait ScalateSupport extends ScalatraKernel {
+trait ScalateSupport extends org.scalatra.servlet.ServletBase {
+
   /**
    * The template engine used by the methods in this support class.  It
    * provides a lower-level interface to Scalate and may be used directly
@@ -65,7 +66,7 @@ trait ScalateSupport extends ScalatraKernel {
 
   /**
    * Creates the templateEngine from the config.  There is little reason to
-   * override this unless you have created a ScalatraKernel extension outside
+   * override this unless you have created a ServletBase extension outside
    * an HttpServlet or Filter.
    */
   protected def createTemplateEngine(config: ConfigT): TemplateEngine = {
@@ -95,7 +96,7 @@ trait ScalateSupport extends ScalatraKernel {
     this: TemplateEngine =>
 
     /**
-     * Delegates to the ScalatraKernel's isDevelopmentMode flag.
+     * Delegates to the ServletBase's isDevelopmentMode flag.
      */
     override def isDevelopmentMode = ScalateSupport.this.isDevelopmentMode
 

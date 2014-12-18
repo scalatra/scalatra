@@ -396,7 +396,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   protected def renderResponseBody(actionResult: Any) {
     @tailrec def loop(ar: Any): Any = ar match {
       case _: Unit | Unit => runRenderCallbacks(Success(actionResult))
-      case a => loop(renderPipeline.lift(a) getOrElse())
+      case a => loop(renderPipeline.lift(a).getOrElse(()))
     }
     try {
       runCallbacks(Success(actionResult))

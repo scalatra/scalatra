@@ -63,7 +63,7 @@ abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]
           r
         case Fail(t) ⇒
           logger.error(s"Command [${cmd.getClass.getName}] failed.", t)
-          ValidationError(s"Failed to execute ${cmd.getClass.getSimpleName.underscore.humanize}", UnknownError).failNel[S]
+          ValidationError(s"Failed to execute ${cmd.getClass.getSimpleName.underscore.humanize}", UnknownError).failureNel[S]
       }
     } else {
       val f = cmd.errors.map(_.validation) collect {
@@ -71,7 +71,7 @@ abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]
       }
       def failures = if (f.size == 1) "failure" else "failures"
       logger.debug(s"Command [${cmd.getClass.getName}}] executed with ${f.size} $failures.\n${f.toList}")
-      NonEmptyList(f.head, f.tail: _*).fail
+      NonEmptyList(f.head, f.tail: _*).failure
     }
   }
 }
@@ -120,7 +120,7 @@ abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidatio
       res recover {
         case t: Throwable =>
           logger.error(s"Command [${cmd.getClass.getName}] failed.", t)
-          ValidationError(s"Failed to execute ${cmd.getClass.getSimpleName.underscore.humanize}", UnknownError).failNel[S]
+          ValidationError(s"Failed to execute ${cmd.getClass.getSimpleName.underscore.humanize}", UnknownError).failureNel[S]
       }
     } else {
       val f = cmd.errors.map(_.validation) collect {
@@ -128,7 +128,7 @@ abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidatio
       }
       def failures = if (f.size == 1) "failure" else "failures"
       logger.debug(s"Command [${cmd.getClass.getName}] executed with ${f.size} $failures.\n${f.toList}")
-      Future.successful(NonEmptyList(f.head, f.tail: _*).fail)
+      Future.successful(NonEmptyList(f.head, f.tail: _*).failure)
     }
   }
 }

@@ -81,7 +81,7 @@ class CookieSupportTest extends ScalatraFunSuite {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
 
       // Allow some slop, since it's a new call to currentTimeMillis
-      cookie.getMaxAge.toInt should be (oneWeek plusOrMinus 10000)
+      cookie.getMaxAge.toInt should be (oneWeek +- 10000)
     }
   }
 
