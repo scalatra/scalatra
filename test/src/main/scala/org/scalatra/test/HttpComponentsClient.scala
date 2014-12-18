@@ -53,11 +53,11 @@ trait HttpComponentsClient extends Client {
   }
 
   def submit[A](
-    method: String,
-    path: String,
-    queryParams: Iterable[(String, String)] = Map.empty,
-    headers: Map[String, String] = Map.empty,
-    body: Array[Byte] = null)(f: => A): A =
+                   method: String,
+                   path: String,
+                   queryParams: Iterable[(String, String)] = Map.empty,
+                   headers: Iterable[(String, String)] = Seq.empty,
+                   body: Array[Byte] = null)(f: => A): A =
   {
     val client = createClient
     val queryString = toQueryString(queryParams)
@@ -74,11 +74,11 @@ trait HttpComponentsClient extends Client {
   }
 
   protected def submitMultipart[A](
-    method: String,
-    path: String,
-    params: Iterable[(String, String)],
-    headers: Map[String, String],
-    files: Iterable[(String, Any)])(f: => A): A =
+                                      method: String,
+                                      path: String,
+                                      params: Iterable[(String, String)],
+                                      headers: Iterable[(String, String)],
+                                      files: Iterable[(String, Any)])(f: => A): A =
   {
     val client = createClient
     val url = "%s/%s".format(baseUrl, path)
@@ -99,8 +99,8 @@ trait HttpComponentsClient extends Client {
     builder.build()
   }
 
-  private def attachHeaders(req: HttpRequestBase, headers: Map[String, String]) {
-    headers.foreach { case (name, value) => req.setHeader(name, value) }
+  private def attachHeaders(req: HttpRequestBase, headers: Iterable[(String, String)]) {
+    headers.foreach { case (name, value) => req.addHeader(name, value) }
   }
 
   private def createMethod(method: String, url: String) = {
