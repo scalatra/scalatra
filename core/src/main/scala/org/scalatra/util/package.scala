@@ -12,12 +12,10 @@ package object util {
   def using[A, B <: { def close(): Unit }](closeable: B)(f: B => A) {
     try {
       f(closeable)
-    }
-    finally {
+    } finally {
       if (closeable != null)
         closeable.close()
     }
   }
-
 
 }

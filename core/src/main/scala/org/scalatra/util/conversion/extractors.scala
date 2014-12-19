@@ -11,8 +11,6 @@ trait TypeExtractor[T] {
   def unapply(source: String): Option[T] = converter(source)
 }
 
-
-
 object Extractors extends DefaultImplicitConversions {
 
   sealed abstract class TypeExtractorImpl[T](implicit val converter: TypeConverter[String, T]) extends TypeExtractor[T]

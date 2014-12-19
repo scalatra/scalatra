@@ -1,7 +1,7 @@
 package org.scalatra
 
 import _root_.akka.actor._
-import scala.concurrent.{Future, Await}
+import scala.concurrent.{ Future, Await }
 import _root_.akka.pattern.ask
 import _root_.akka.actor.SupervisorStrategy._
 import scala.concurrent.duration._
@@ -109,7 +109,7 @@ class AkkaSupportSpec extends MutableScalatraSpec {
 
     "infers the content type of the future result" in {
       get("/foo.jpg") {
-        header("Content-Type") must startWith ("image/jpeg")
+        header("Content-Type") must startWith("image/jpeg")
       }
     }
 

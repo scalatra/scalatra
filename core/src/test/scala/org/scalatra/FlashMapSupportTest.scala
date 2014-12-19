@@ -85,7 +85,7 @@ class FlashMapSupportTest extends ScalatraFunSuite {
     session {
       post("/message") {}
       get("/filter") {
-        header("message") should equal ("posted")
+        header("message") should equal("posted")
       }
     }
   }
@@ -97,7 +97,7 @@ class FlashMapSupportTest extends ScalatraFunSuite {
       get("/unused", "sweep" -> "false") {}
 
       get("/message") {
-        header("message") should equal ("posted")
+        header("message") should equal("posted")
       }
     }
   }
@@ -110,7 +110,7 @@ class FlashMapSupportTest extends ScalatraFunSuite {
       get("/unused", "sweep" -> "true") {}
 
       get("/message") {
-        header("message") should equal (null)
+        header("message") should equal(null)
       }
     }
   }
@@ -125,10 +125,10 @@ class FlashMapSupportTwoServletsTest extends ScalatraFunSuite {
     session {
       post("/second/redirect") {}
       get("/first/message") {
-        header("message") should equal ("redirected")
+        header("message") should equal("redirected")
       }
       get("/first/message") {
-        header("message") should equal (null)
+        header("message") should equal(null)
       }
     }
   }
@@ -138,7 +138,7 @@ class FlashMapSupportTwoServletsTest extends ScalatraFunSuite {
       get("/first/message") {}
       post("/second/redirect") {}
       get("/first/message") {
-        header("message") should equal ("redirected")
+        header("message") should equal("redirected")
       }
     }
   }

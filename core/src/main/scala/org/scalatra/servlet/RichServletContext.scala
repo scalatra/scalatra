@@ -1,10 +1,10 @@
 package org.scalatra
 package servlet
 
-import java.net.{MalformedURLException, URL}
+import java.net.{ MalformedURLException, URL }
 import java.util.EnumSet
-import javax.servlet.{ServletConfig, DispatcherType, Filter, ServletContext}
-import javax.servlet.http.{HttpServletResponse, HttpServlet, HttpServletRequest}
+import javax.servlet.{ ServletConfig, DispatcherType, Filter, ServletContext }
+import javax.servlet.http.{ HttpServletResponse, HttpServlet, HttpServletRequest }
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import java.{ util => jutil }
@@ -27,8 +27,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
   def resource(path: String): Option[URL] =
     try {
       Option(sc.getResource(path))
-    }
-    catch {
+    } catch {
       case e: MalformedURLException => throw e
     }
 

@@ -1,12 +1,12 @@
 package org.scalatra
 package atmosphere
 
-import java.util.concurrent.{TimeUnit, CountDownLatch}
+import java.util.concurrent.{ TimeUnit, CountDownLatch }
 
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.wasync._
-import org.atmosphere.wasync.impl.{DefaultRequestBuilder, DefaultOptionsBuilder, DefaultOptions}
-import org.json4s.{Formats, DefaultFormats}
+import org.atmosphere.wasync.impl.{ DefaultRequestBuilder, DefaultOptionsBuilder, DefaultOptions }
+import org.json4s.{ Formats, DefaultFormats }
 import org.scalatra.json.JacksonJsonSupport
 import org.json4s._
 import JsonDSL._
@@ -14,11 +14,11 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.concurrent.duration._
 
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.specs2.specification.{Step, Fragments}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import org.specs2.specification.{ Step, Fragments }
 
 class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem: ActorSystem)
-  extends ScalatraServlet with JacksonJsonSupport with SessionSupport with AtmosphereSupport {
+    extends ScalatraServlet with JacksonJsonSupport with SessionSupport with AtmosphereSupport {
 
   implicit protected def jsonFormats: Formats = DefaultFormats
   implicit val system = scalatraActorSystem.dispatcher
@@ -35,7 +35,7 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
           broadcast("connected", to = Everyone)
         case TextMessage(txt) =>
           println("text message: " + txt)
-          send(("seen" -> txt):JValue)
+          send(("seen" -> txt): JValue)
         case JsonMessage(json) =>
           println("json message: " + json)
           send(("seen" -> "test1") ~ ("data" -> json))

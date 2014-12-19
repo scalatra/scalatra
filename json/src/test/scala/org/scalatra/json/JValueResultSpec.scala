@@ -116,7 +116,7 @@ class JValueResultSpec extends MutableScalatraSpec {
     }
     "render a null value" in {
       get("/null-value.json") {
-         body must_== ""
+        body must_== ""
       }
     }
     "render a null value" in {

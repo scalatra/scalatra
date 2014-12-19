@@ -28,15 +28,14 @@ abstract class ClientResponse {
     def get(key: String) = {
       headers.get(key) match {
         case Some(values) => Some(values.head)
-        case _            => None
+        case _ => None
       }
     }
-
 
     override def apply(key: String) = {
       get(key) match {
         case Some(value) => value
-        case _           => null
+        case _ => null
       }
     }
 
@@ -48,7 +47,7 @@ abstract class ClientResponse {
   def charset = {
     header.getOrElse("Content-Type", "").split(";").map(_.trim).find(_.startsWith("charset=")) match {
       case Some(attr) => Some(attr.split("=")(1))
-      case _          => None
+      case _ => None
     }
   }
 
@@ -58,7 +57,7 @@ abstract class ClientResponse {
 
   def getLongHeader(name: String) = header.getOrElse(name, "-1").toLong
 
-  def getHeaderNames(): java.util.Enumeration[String] =  headers.keysIterator.asJavaEnumeration
+  def getHeaderNames(): java.util.Enumeration[String] = headers.keysIterator.asJavaEnumeration
 
   def getHeaderValues(name: String): java.util.Enumeration[String] = headers.getOrElse(name, Seq()).iterator.asJavaEnumeration
 

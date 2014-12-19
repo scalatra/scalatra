@@ -1,11 +1,11 @@
 package org.scalatra.scalate
 
 import org.scalatra._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import test.specs2.MutableScalatraSpec
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import java.util.concurrent.{ExecutorService, ThreadFactory, Executors}
-import org.specs2.specification.{Step, Fragments}
+import java.util.concurrent.{ ExecutorService, ThreadFactory, Executors }
+import org.specs2.specification.{ Step, Fragments }
 
 class DaemonThreadFactory extends ThreadFactory {
   def newThread(r: Runnable): Thread = {
@@ -80,10 +80,12 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
 
   val urlGenerationWithParams = get("/url-generation-with-params/:a/vs/:b") {
 
-    new AsyncResult { val is = Future {
-      println("Rendering reverse routing template")
-      layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
-    } }
+    new AsyncResult {
+      val is = Future {
+        println("Rendering reverse routing template")
+        layoutTemplate("/urlGenerationWithParams.jade", ("a" -> params("a")), ("b" -> params("b")))
+      }
+    }
   }
 
   get("/legacy-view-path") {
@@ -95,12 +97,13 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
   }
 
   get("/bindings/*") {
-    new AsyncResult { val is =
-      Future {
-        flash.now("message") = "flash works"
-        session("message") = "session works"
-        jade(requestPath)
-      }
+    new AsyncResult {
+      val is =
+        Future {
+          flash.now("message") = "flash works"
+          session("message") = "session works"
+          jade(requestPath)
+        }
     }
   }
 
@@ -113,11 +116,12 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
   }
 
   get("/template-attributes") {
-    new AsyncResult { val is =
-      Future {
-        templateAttributes("foo") = "from attributes"
-        scaml("params")
-      }
+    new AsyncResult {
+      val is =
+        Future {
+          templateAttributes("foo") = "from attributes"
+          scaml("params")
+        }
     }
   }
 
@@ -129,40 +133,39 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
 class ScalateFuturesSupportSpec extends MutableScalatraSpec {
   sequential
   "ScalateSupport with Futures" should {
-    "render uncaught errors with 500.scaml"                       in e1
-    "not throw a NullPointerException for trivial requests"       in e2
-    "render a simple template"                                    in e3
-    "render a simple template with params"                        in e4
-    "looks for layouts in /WEB-INF/layouts"                       in e5
-    "generate a url from a template"                              in e6
-    "generate a url with params from a template"                  in e7
-    "render a simple template via jade method"                    in e8
-    "render a simple template with params via jade method"        in e9
-    "render a simple template via scaml method"                   in e10
-    "render a simple template with params via scaml method"       in e11
-    "render a simple template via ssp method"                     in e12
-    "render a simple template with params via ssp method"         in e13
-    "render a simple template via mustache method"                in e14
-    "render a simple template with params via mustache method"    in e15
-    "looks for templates in legacy /WEB-INF/scalate/templates"    in e16
-    "looks for index page if no template found"                   in e17
-    "implicitly bind flash"                                       in e18
-    "implicitly bind session"                                     in e19
-    "implicitly bind params"                                      in e20
-    "implicitly bind multiParams"                                 in e21
-    "set templateAttributes when creating a render context"       in e22
-    "render to a string instead of response"                      in e23
+    "render uncaught errors with 500.scaml" in e1
+    "not throw a NullPointerException for trivial requests" in e2
+    "render a simple template" in e3
+    "render a simple template with params" in e4
+    "looks for layouts in /WEB-INF/layouts" in e5
+    "generate a url from a template" in e6
+    "generate a url with params from a template" in e7
+    "render a simple template via jade method" in e8
+    "render a simple template with params via jade method" in e9
+    "render a simple template via scaml method" in e10
+    "render a simple template with params via scaml method" in e11
+    "render a simple template via ssp method" in e12
+    "render a simple template with params via ssp method" in e13
+    "render a simple template via mustache method" in e14
+    "render a simple template with params via mustache method" in e15
+    "looks for templates in legacy /WEB-INF/scalate/templates" in e16
+    "looks for index page if no template found" in e17
+    "implicitly bind flash" in e18
+    "implicitly bind session" in e19
+    "implicitly bind params" in e20
+    "implicitly bind multiParams" in e21
+    "set templateAttributes when creating a render context" in e22
+    "render to a string instead of response" in e23
   }
 
   val pool = DaemonThreadFactory.newPool()
   addServlet(new ScalateFuturesSupportServlet(pool), "/*")
 
-
   override def map(fs: => Fragments): Fragments = super.map(fs) ^ Step(pool.shutdown())
 
   def e1 = get("/barf") {
     status must_== 500
-    body must contain ("id=\"scalate-error\"")
+    body must contain("id=\"scalate-error\"")
   }
 
   def e2 = get("/happy-happy") {

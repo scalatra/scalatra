@@ -18,41 +18,39 @@ class CorsSupportSpec extends ScalatraSpec {
 
   def is =
     "The CORS support should" ^
-       "augment a valid simple request" ! context.validSimpleRequest ^
-       "not touch a regular request" ! context.dontTouchRegularRequest ^
-       "respond to a valid preflight request" ! context.validPreflightRequest ^
-       "respond to a valid preflight request with headers" ! context.validPreflightRequestWithHeaders ^ end
+      "augment a valid simple request" ! context.validSimpleRequest ^
+      "not touch a regular request" ! context.dontTouchRegularRequest ^
+      "respond to a valid preflight request" ! context.validPreflightRequest ^
+      "respond to a valid preflight request with headers" ! context.validPreflightRequestWithHeaders ^ end
 
+  object context {
+    def validSimpleRequest = {
+      get("/", headers = Map(CorsSupport.OriginHeader -> "http://www.example.com")) {
+        response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must_== "http://www.example.com"
+      }
+    }
+    def dontTouchRegularRequest = {
+      get("/") {
+        response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must beNull
+      }
+    }
 
+    def validPreflightRequest = {
+      options("/", headers = Map(CorsSupport.OriginHeader -> "http://www.example.com", CorsSupport.AccessControlRequestMethodHeader -> "GET", "Content-Type" -> "application/json")) {
+        response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must_== "http://www.example.com"
+      }
+    }
 
-   object context {
-     def validSimpleRequest = {
-       get("/", headers = Map(CorsSupport.OriginHeader -> "http://www.example.com")) {
-         response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must_== "http://www.example.com"
-       }
-     }
-     def dontTouchRegularRequest = {
-       get("/") {
-         response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must beNull
-       }
-     }
-
-     def validPreflightRequest = {
-       options("/", headers = Map(CorsSupport.OriginHeader -> "http://www.example.com", CorsSupport.AccessControlRequestMethodHeader -> "GET", "Content-Type" -> "application/json")) {
-         response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must_== "http://www.example.com"
-       }
-     }
-
-     def validPreflightRequestWithHeaders = {
-       val hdrs = Map(
-         CorsSupport.OriginHeader -> "http://www.example.com",
-         CorsSupport.AccessControlRequestMethodHeader -> "GET",
-         CorsSupport.AccessControlRequestHeadersHeader -> "Origin, Authorization, Accept",
-         "Content-Type" -> "application/json")
-       options("/", headers = hdrs) {
-         response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must_== "http://www.example.com"
-         response.getHeader(CorsSupport.AccessControlAllowMethodsHeader) must_== "GET,HEAD,POST"
-       }
-     }
-   }
+    def validPreflightRequestWithHeaders = {
+      val hdrs = Map(
+        CorsSupport.OriginHeader -> "http://www.example.com",
+        CorsSupport.AccessControlRequestMethodHeader -> "GET",
+        CorsSupport.AccessControlRequestHeadersHeader -> "Origin, Authorization, Accept",
+        "Content-Type" -> "application/json")
+      options("/", headers = hdrs) {
+        response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must_== "http://www.example.com"
+        response.getHeader(CorsSupport.AccessControlAllowMethodsHeader) must_== "GET,HEAD,POST"
+      }
+    }
+  }
 }

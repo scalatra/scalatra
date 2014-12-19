@@ -5,9 +5,8 @@ import ScentryAuthStore.ScentryAuthStore
 import collection.mutable
 import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import servlet.ServletApiImplicits._
-
 
 object Scentry {
 
@@ -65,7 +64,7 @@ class Scentry[UserType <: AnyRef](
   def register(strategy: => ScentryStrategy[UserType]) {
     register(strategy.name, ((_: ScalatraBase) => strategy))
   }
-  
+
   def register(name: String, strategyFactory: StrategyFactory) {
     _strategies += (name -> strategyFactory)
   }
@@ -115,7 +114,7 @@ class Scentry[UserType <: AnyRef](
 
   @deprecated("Use the version that uses string keys instead", "2.2")
   def authenticate(name: Symbol, names: Symbol*)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] =
-    authenticate((Seq(name) ++ names.toSeq).map(_.name):_*)
+    authenticate((Seq(name) ++ names.toSeq).map(_.name): _*)
 
   def authenticate(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] = {
     val r = runAuthentication(names: _*) map {
@@ -135,13 +134,12 @@ class Scentry[UserType <: AnyRef](
       runCallbacks(_.isValid) { _.beforeAuthenticate }
       strat.authenticate() match {
         case Some(usr) ⇒ Some(strat.name -> usr)
-        case _         ⇒
+        case _ ⇒
           strat.unauthenticated()
           None
       }
     }).find(_.isDefined) getOrElse None
   }
-
 
   private[this] var defaultUnauthenticated: Option[() ⇒ Unit] = None
 
@@ -160,7 +158,7 @@ class Scentry[UserType <: AnyRef](
   private[this] def runCallbacks(guard: StrategyType ⇒ Boolean = s ⇒ true)(which: StrategyType ⇒ Unit) {
     strategies foreach {
       case (_, v) if guard(v) ⇒ which(v)
-      case _                  ⇒ // guard failed
+      case _ ⇒ // guard failed
     }
   }
 }

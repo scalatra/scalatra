@@ -1,14 +1,14 @@
 package org.scalatra
 package servlet
 
-import scala.collection.{Map => CMap}
+import scala.collection.{ Map => CMap }
 import scala.collection.immutable.DefaultMap
 import scala.collection.JavaConverters._
 import scala.io.Source
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
 import java.io.InputStream
-import util.{MultiMap, MultiMapHeadView}
+import util.{ MultiMap, MultiMapHeadView }
 import util.RicherString._
 
 object RichRequest {
@@ -172,11 +172,11 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * @return the message body as a string according to the request's encoding
    * (defult ISO-8859-1).
    */
-  def body:String = {
+  def body: String = {
     cachedBody getOrElse {
       val encoding = r.getCharacterEncoding
-      val enc = if(encoding == null || encoding.trim.length == 0) {
-        if (contentType.exists(_ equalsIgnoreCase "application/json")) "UTF-8"  else "ISO-8859-1"
+      val enc = if (encoding == null || encoding.trim.length == 0) {
+        if (contentType.exists(_ equalsIgnoreCase "application/json")) "UTF-8" else "ISO-8859-1"
       } else encoding
       val body = Source.fromInputStream(r.getInputStream, enc).mkString
       update(cachedBodyKey, body)
@@ -204,7 +204,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   def multiCookies: MultiMap = {
     val rr = Option(r.getCookies).getOrElse(Array()).toSeq.
       groupBy { _.getName }.
-      transform { case(k, v) => v map { _.getValue }}.
+      transform { case (k, v) => v map { _.getValue } }.
       withDefaultValue(Seq.empty)
     MultiMap(rr)
   }

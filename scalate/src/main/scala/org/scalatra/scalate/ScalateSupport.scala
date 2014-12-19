@@ -2,14 +2,14 @@ package org.scalatra
 package scalate
 
 import scala.collection.mutable
-import java.io.{StringWriter, PrintWriter}
-import javax.servlet.{ServletContext, ServletConfig, FilterConfig}
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.fusesource.scalate.{TemplateEngine, Binding, RenderContext}
+import java.io.{ StringWriter, PrintWriter }
+import javax.servlet.{ ServletContext, ServletConfig, FilterConfig }
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import org.fusesource.scalate.{ TemplateEngine, Binding, RenderContext }
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import org.fusesource.scalate.servlet.{ServletRenderContext, ServletTemplateEngine}
+import org.fusesource.scalate.servlet.{ ServletRenderContext, ServletTemplateEngine }
 import org.fusesource.scalate.support.TemplateFinder
-import collection.concurrent.{Map=>CMap, TrieMap}
+import collection.concurrent.{ Map => CMap, TrieMap }
 import language.reflectiveCalls
 
 object ScalateSupport {
@@ -23,7 +23,7 @@ object ScalateSupport {
       base <- ScalateSupport.DefaultLayouts
       extension <- TemplateEngine.templateTypes
     } yield ("%s.%s".format(base, extension))
-    engine.layoutStrategy = new DefaultLayoutStrategy(engine, layouts:_*)
+    engine.layoutStrategy = new DefaultLayoutStrategy(engine, layouts: _*)
   }
 
   private val TemplateAttributesKey = "org.scalatra.scalate.ScalateSupport.TemplateAttributes"
@@ -102,7 +102,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
 
     ScalateSupport.setLayoutStrategy(this)
     templateDirectories = defaultTemplatePath
-    bindings ::= Binding("context", "_root_."+classOf[ScalatraRenderContext].getName, importMembers = true, isImplicit = true)
+    bindings ::= Binding("context", "_root_." + classOf[ScalatraRenderContext].getName, importMembers = true, isImplicit = true)
     importStatements ::= "import org.scalatra.servlet.ServletApiImplicits._"
   }
 
@@ -126,7 +126,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    */
   @deprecated("not idiomatic Scalate; consider layoutTemplate instead", "2.0.0")
   def renderTemplate(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse) =
-    createRenderContext(request, response, response.writer).render(path, Map(attributes : _*))
+    createRenderContext(request, response, response.writer).render(path, Map(attributes: _*))
 
   /**
    * Flag whether the Scalate error page is enabled.  If true, uncaught
@@ -137,14 +137,13 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
   protected def isScalateErrorPageEnabled = true
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
-//    try {
-      super.handle(req, res)
-//    }
-//    catch {
-//      case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
-//    }
+    //    try {
+    super.handle(req, res)
+    //    }
+    //    catch {
+    //      case e if isScalateErrorPageEnabled => renderScalateErrorPage(req, res, e)
+    //    }
   }
-
 
   override protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     if (isScalateErrorPageEnabled) renderScalateErrorPage(request, response, e)
@@ -205,25 +204,25 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    * Convenience method for `layoutTemplateAs("jade")`.
    */
   protected def jade(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
-    layoutTemplateAs(Set("jade"))(path, attributes:_*)
+    layoutTemplateAs(Set("jade"))(path, attributes: _*)
 
   /**
    * Convenience method for `layoutTemplateAs("scaml")`.
    */
   protected def scaml(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
-    layoutTemplateAs(Set("scaml"))(path, attributes:_*)
+    layoutTemplateAs(Set("scaml"))(path, attributes: _*)
 
   /**
    * Convenience method for `layoutTemplateAs("ssp")`.
    */
   protected def ssp(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
-    layoutTemplateAs(Set("ssp"))(path, attributes:_*)
+    layoutTemplateAs(Set("ssp"))(path, attributes: _*)
 
   /**
    * Convenience method for `layoutTemplateAs("mustache")`.
    */
   protected def mustache(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
-    layoutTemplateAs(Set("mustache"))(path, attributes:_*)
+    layoutTemplateAs(Set("mustache"))(path, attributes: _*)
 
   /**
    * Finds and renders a template with the current layout strategy,
@@ -239,8 +238,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
     val buffer = new StringWriter()
     val out = new PrintWriter(buffer)
     val context = createRenderContext(request, response, out)
-    val attrs = templateAttributes ++ (defaultLayoutPath map (p => Map("layout" -> p) ++ Map(attributes:_*)) getOrElse Map(attributes:_*))
-
+    val attrs = templateAttributes ++ (defaultLayoutPath map (p => Map("layout" -> p) ++ Map(attributes: _*)) getOrElse Map(attributes: _*))
 
     attrs foreach {
       case (k, v) => context.attributes(k) = v
@@ -258,7 +256,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    * layouts by passing `layout -> ""`.
    */
   protected def layoutTemplate(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse): String =
-    layoutTemplateAs(templateEngine.extensions)(path, attributes :_*)
+    layoutTemplateAs(templateEngine.extensions)(path, attributes: _*)
 
   /**
    * Finds a template for a path.  Delegates to a TemplateFinder, and if
@@ -268,7 +266,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
     val finder = new TemplateFinder(templateEngine) {
       override lazy val extensions = extensionSet
     }
-    finder.findTemplate(("/"+path).replaceAll("//", "/")) orElse
+    finder.findTemplate(("/" + path).replaceAll("//", "/")) orElse
       finder.findTemplate("/%s/%s".format(path, defaultIndexName))
   }
 

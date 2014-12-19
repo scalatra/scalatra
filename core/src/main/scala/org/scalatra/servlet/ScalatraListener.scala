@@ -3,7 +3,7 @@ package servlet
 
 //import akka.actor.ActorSystem
 import javax.servlet.ServletContext
-import javax.servlet.{ServletContextEvent, ServletContextListener}
+import javax.servlet.{ ServletContextEvent, ServletContextListener }
 import grizzled.slf4j.Logger
 import util.RicherString._
 import scala.util.control.Exception._
@@ -12,7 +12,7 @@ class ScalatraListener extends ServletContextListener {
   import ScalatraListener._
 
   private[this] val logger: Logger = Logger[this.type]
-  
+
   private[this] var cycle: LifeCycle = _
 
   private[this] var servletContext: ServletContext = _
@@ -39,7 +39,7 @@ class ScalatraListener extends ServletContextListener {
   }
 
   protected def probeForCycleClass(classLoader: ClassLoader) = {
-    val cycleClassName = 
+    val cycleClassName =
       Option(servletContext.getInitParameter(LifeCycleKey)).flatMap(_.blankOption) getOrElse DefaultLifeCycle
     logger info ("The cycle class name from the config: " + (if (cycleClassName == null) "null" else cycleClassName))
 
@@ -69,7 +69,7 @@ class ScalatraListener extends ServletContextListener {
 }
 
 object ScalatraListener {
-  
+
   // DO NOT RENAME THIS CLASS NAME AS IT BREAKS THE ENTIRE WORLD
   // TOGETHER WITH THE WORLD IT WILL BREAK ALL EXISTING SCALATRA APPS
   // RENAMING THIS CLASS WILL RESULT IN GETTING SHOT, IF YOU SURVIVE YOU WILL BE SHOT AGAIN

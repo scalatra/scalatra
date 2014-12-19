@@ -1,7 +1,7 @@
 package org.scalatra
 package json
 
-import java.io.{InputStreamReader, InputStream}
+import java.io.{ InputStreamReader, InputStream }
 import org.json4s._
 import Xml._
 import javax.servlet.http.HttpServletRequest
@@ -24,7 +24,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
   protected def parseRequestBody(format: String)(implicit request: HttpServletRequest) = try {
     val ct = request.contentType getOrElse ""
     if (format == "json") {
-      val bd  = {
+      val bd = {
         if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readJsonFromBody getOrElse JNothing
         else if (cacheRequestBodyAsString) readJsonFromBody(request.body)
         else readJsonFromStreamWithCharset(request.inputStream, request.characterEncoding getOrElse defaultCharacterEncoding)
@@ -62,7 +62,6 @@ trait JsonSupport[T] extends JsonOutput[T] {
     } else JNothing
   }
   protected def transformRequestBody(body: JValue) = body
-
 
   override protected def invoke(matchedRoute: MatchedRoute) = {
     withRouteMultiParams(Some(matchedRoute)) {

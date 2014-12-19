@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.{Cookie => ServletCookie}
+import javax.servlet.http.{ Cookie => ServletCookie }
 import test.scalatest.ScalatraFunSuite
 
 class RequestCookiesTest extends ScalatraFunSuite {
@@ -20,17 +20,17 @@ class RequestCookiesTest extends ScalatraFunSuite {
 
   test("multiCookies is a multi-map of names to values") {
     get("/multi-cookies", headers = Map("Cookie" -> "one=uno; one=eins; two=zwei")) {
-      header("one") should be ("uno:eins")
-      header("two") should be ("zwei")
-      header("three") should be ("")
+      header("one") should be("uno:eins")
+      header("two") should be("zwei")
+      header("three") should be("")
     }
   }
 
   test("cookies is a map of names to values") {
     get("/cookies", headers = Map("Cookie" -> "one=uno; one=eins; two=zwei")) {
-      header("one") should be ("uno")
-      header("two") should be ("zwei")
-      header("three") should be ("NONE")
+      header("one") should be("uno")
+      header("two") should be("zwei")
+      header("three") should be("NONE")
     }
   }
 }

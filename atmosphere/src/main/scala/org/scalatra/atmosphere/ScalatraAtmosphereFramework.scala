@@ -1,7 +1,7 @@
 package org.scalatra
 package atmosphere
 
-import org.atmosphere.cpr.{Action => AtmoAction, BroadcasterFactory, AtmosphereResponse, AtmosphereRequest, AtmosphereFramework}
+import org.atmosphere.cpr.{ Action => AtmoAction, BroadcasterFactory, AtmosphereResponse, AtmosphereRequest, AtmosphereFramework }
 import org.atmosphere.container._
 import java.util.UUID
 import org.atmosphere.cpr.ApplicationConfig._
@@ -13,7 +13,6 @@ import scala.util.control.Exception._
 import org.scalatra.util.RicherString._
 import grizzled.slf4j.Logger
 import scala.Some
-
 
 class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers: Boolean = false) extends AtmosphereFramework(isFilter, autoDetectHandlers) {
 

@@ -1,10 +1,10 @@
 package org.scalatra
 package i18n
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{ Matchers, WordSpec }
 import java.util.MissingResourceException
 
-class MessagesSpec extends WordSpec with Matchers{
+class MessagesSpec extends WordSpec with Matchers {
   val messages = Messages()
   "Messages" when {
     "able to find a message" should {
@@ -20,8 +20,8 @@ class MessagesSpec extends WordSpec with Matchers{
         messages.get("missing") should equal(None)
       }
       "throw MissingResourceException" in {
-        an [MissingResourceException] should be thrownBy { 
-          messages("missing") 
+        an[MissingResourceException] should be thrownBy {
+          messages("missing")
         }
       }
     }

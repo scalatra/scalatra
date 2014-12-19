@@ -20,7 +20,7 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    * @return an option value containing the attribute associated with the key
    * in the underlying servlet object, or None if none exists.
    */
-  def get(key:String): Option[Any] = {
+  def get(key: String): Option[Any] = {
     if (attributes == null) None
     else {
       attributes.getAttribute(key) match {
@@ -51,8 +51,7 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    *         or throw an exception if the key doesn't exist
    */
   def as[T](key: String)(implicit mf: Manifest[T], converter: TypeConverter[Any, T]): T =
-    getAs[T](key) getOrElse (throw new ScalatraException("Key "+key+" not found"))
-
+    getAs[T](key) getOrElse (throw new ScalatraException("Key " + key + " not found"))
 
   /**
    * Return the attribute associated with the key or throw an exception when nothing found
@@ -64,7 +63,6 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    */
   def getAsOrElse[T](key: String, default: => T)(implicit mf: Manifest[T], converter: TypeConverter[Any, T]): T =
     getAs[T](key) getOrElse default
-
 
   /**
    * Creates a new iterator over all attributes in the underlying servlet object.

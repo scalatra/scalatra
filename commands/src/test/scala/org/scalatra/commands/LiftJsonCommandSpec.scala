@@ -4,7 +4,6 @@ package commands
 import org.scalatra.json._
 import org.json4s._
 
-
 class NativeJsonTestForm extends JsonCommand {
   protected implicit val jsonFormats = DefaultFormats
   val name: Field[String] = asString("name").minLength(5)
@@ -33,6 +32,5 @@ class NativeJsonCommandSpecServlet extends ScalatraServlet with NativeJsonSuppor
   }
 
 }
-
 
 class NativeJsonCommandSpec extends JsonCommandSpec("NativeJson", new NativeJsonCommandSpecServlet)

@@ -1,14 +1,13 @@
 package org.scalatra
 package test
 
-import servlet.{ScalatraAsyncSupport, HasMultipartConfig}
-import javax.servlet.{ServletConfig, DispatcherType, Filter}
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
+import servlet.{ ScalatraAsyncSupport, HasMultipartConfig }
+import javax.servlet.{ ServletConfig, DispatcherType, Filter }
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest, HttpServlet }
 import java.util.EnumSet
 import org.eclipse.jetty.servlet._
 import scala.deprecated
 import java.util
-
 
 object JettyContainer {
   private val DefaultDispatcherTypes: EnumSet[DispatcherType] =
@@ -37,7 +36,7 @@ trait JettyContainer extends Container {
     addFilter(app, path, dispatches)
 
   def addServlet(servlet: HttpServlet, path: String) { addServlet(servlet, path, servlet.getClass.getName) }
-  def addServlet(servlet: HttpServlet, path: String, name: String){
+  def addServlet(servlet: HttpServlet, path: String, name: String) {
     val holder = new ServletHolder(name, servlet)
 
     servlet match {
@@ -68,8 +67,6 @@ trait JettyContainer extends Container {
 
   def addFilter(filter: Class[_ <: Filter], path: String, dispatches: util.EnumSet[DispatcherType]): FilterHolder =
     servletContextHandler.addFilter(filter, path, dispatches)
-
-
 
   // Add a default servlet.  If there is no underlying servlet, then
   // filters just return 404.

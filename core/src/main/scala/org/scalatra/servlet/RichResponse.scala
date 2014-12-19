@@ -3,8 +3,8 @@ package servlet
 
 import util.RicherString._
 
-import java.io.{OutputStream, PrintWriter}
-import javax.servlet.http.{HttpServletResponse, HttpServletResponseWrapper, Cookie => ServletCookie}
+import java.io.{ OutputStream, PrintWriter }
+import javax.servlet.http.{ HttpServletResponse, HttpServletResponseWrapper, Cookie => ServletCookie }
 import scala.collection.JavaConverters._
 import scala.collection.mutable.Map
 
@@ -20,15 +20,15 @@ case class RichResponse(res: HttpServletResponse) {
   }
 
   object headers extends Map[String, String] {
-    def get(key: String): Option[String] = 
+    def get(key: String): Option[String] =
       res.getHeaders(key) match {
         case xs if xs.isEmpty => None
         case xs => Some(xs.asScala mkString ",")
       }
 
-    def iterator: Iterator[(String, String)] = 
+    def iterator: Iterator[(String, String)] =
       for (name <- res.getHeaderNames.asScala.iterator)
-      yield (name, res.getHeaders(name).asScala mkString ", ")
+        yield (name, res.getHeaders(name).asScala mkString ", ")
 
     def +=(kv: (String, String)): this.type = {
       res.setHeader(kv._1, kv._2)
@@ -46,10 +46,10 @@ case class RichResponse(res: HttpServletResponse) {
 
     val sCookie = new ServletCookie(name, value)
     if (options.domain.nonBlank) sCookie.setDomain(options.domain)
-    if(options.path.nonBlank) sCookie.setPath(options.path)
+    if (options.path.nonBlank) sCookie.setPath(options.path)
     sCookie.setMaxAge(options.maxAge)
     sCookie.setSecure(options.secure)
-    if(options.comment.nonBlank) sCookie.setComment(options.comment)
+    if (options.comment.nonBlank) sCookie.setComment(options.comment)
     sCookie.setHttpOnly(options.httpOnly)
     sCookie.setVersion(options.version)
     res.addCookie(sCookie)
@@ -61,19 +61,19 @@ case class RichResponse(res: HttpServletResponse) {
   def characterEncoding_=(encoding: Option[String]) {
     res.setCharacterEncoding(encoding getOrElse null)
   }
-  
+
   def contentType: Option[String] =
     Option(res.getContentType)
 
   def contentType_=(contentType: Option[String]) {
-    res.setContentType(contentType getOrElse null) 
+    res.setContentType(contentType getOrElse null)
   }
-  
+
   def redirect(uri: String) {
     res.sendRedirect(uri)
   }
-  
-  def outputStream: OutputStream = 
+
+  def outputStream: OutputStream =
     res.getOutputStream
 
   def writer: PrintWriter =

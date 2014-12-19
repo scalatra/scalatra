@@ -1,6 +1,6 @@
 package org.scalatra.util
 
-import java.util.{Locale, TimeZone, Date}
+import java.util.{ Locale, TimeZone, Date }
 import java.text.SimpleDateFormat
 
 object DateUtil {

@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse, HttpSession}
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse, HttpSession }
 
 trait ServletApiImplicits {
   implicit def enrichRequest(request: HttpServletRequest): RichRequest =

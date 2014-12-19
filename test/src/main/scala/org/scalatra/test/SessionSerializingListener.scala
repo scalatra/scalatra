@@ -1,7 +1,7 @@
 package org.scalatra.test
 
-import java.io.{NotSerializableException, OutputStream, ObjectOutputStream}
-import javax.servlet.http.{HttpSessionAttributeListener, HttpSessionBindingEvent}
+import java.io.{ NotSerializableException, OutputStream, ObjectOutputStream }
+import javax.servlet.http.{ HttpSessionAttributeListener, HttpSessionBindingEvent }
 
 object NullOut extends OutputStream {
   def write(b: Int) {}

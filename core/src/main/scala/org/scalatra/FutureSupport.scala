@@ -2,13 +2,13 @@ package org.scalatra
 
 import scala.concurrent.duration._
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.{ServletContext, AsyncEvent, AsyncListener}
+import javax.servlet.{ ServletContext, AsyncEvent, AsyncListener }
 import servlet.AsyncSupport
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Failure, Success, Try }
 
-abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext  {
+abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext {
 
   implicit val request: HttpServletRequest = scalatraContext.request
   implicit val response: HttpServletResponse = scalatraContext.response
@@ -32,16 +32,15 @@ trait FutureSupport extends AsyncSupport {
   @deprecated("Override the `timeout` method on a `org.scalatra.AsyncResult` instead.", "2.2")
   protected def asyncTimeout: Duration = 30 seconds
 
-
   override protected def isAsyncExecutable(result: Any) =
     classOf[Future[_]].isAssignableFrom(result.getClass) ||
       classOf[AsyncResult].isAssignableFrom(result.getClass)
 
   override protected def renderResponse(actionResult: Any) {
     actionResult match {
-      case r: AsyncResult ⇒ handleFuture(r.is , r.timeout)
-      case f: Future[_]   ⇒ handleFuture(f, asyncTimeout)
-      case a              ⇒ super.renderResponse(a)
+      case r: AsyncResult ⇒ handleFuture(r.is, r.timeout)
+      case f: Future[_] ⇒ handleFuture(f, asyncTimeout)
+      case a ⇒ super.renderResponse(a)
     }
   }
 
@@ -118,7 +117,4 @@ trait FutureSupport extends AsyncSupport {
     renderFutureResult(f)
   }
 }
-
-
-
 

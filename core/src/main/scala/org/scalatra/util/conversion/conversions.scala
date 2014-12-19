@@ -3,7 +3,7 @@ package util
 package conversion
 
 import java.util.Date
-import java.text.{DateFormat, SimpleDateFormat}
+import java.text.{ DateFormat, SimpleDateFormat }
 import scala.util.control.Exception.allCatch
 import scala._
 
@@ -27,7 +27,7 @@ trait TypeConverterSupport {
 object TypeConverterSupport extends TypeConverterSupport
 
 trait LowestPriorityImplicitConversions extends TypeConverterSupport {
-  implicit def lowestPriorityAny2T[T:Manifest]: TypeConverter[Any, T] = safe {
+  implicit def lowestPriorityAny2T[T: Manifest]: TypeConverter[Any, T] = safe {
     case a if manifest[T].erasure.isAssignableFrom(a.getClass) => a.asInstanceOf[T]
   }
 }
@@ -116,10 +116,12 @@ trait BigDecimalImplicitConversions { self: DefaultImplicitConversions =>
  */
 trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 
-  implicit val stringToBoolean: TypeConverter[String, Boolean] = safe { s => s.toUpperCase match {
-    case "ON" | "TRUE" | "OK" | "1" | "CHECKED" | "YES" | "ENABLE" | "ENABLED" => true
-    case _ => false
-  } }
+  implicit val stringToBoolean: TypeConverter[String, Boolean] = safe { s =>
+    s.toUpperCase match {
+      case "ON" | "TRUE" | "OK" | "1" | "CHECKED" | "YES" | "ENABLE" | "ENABLED" => true
+      case _ => false
+    }
+  }
 
   implicit val stringToFloat: TypeConverter[String, Float] = safe(_.toFloat)
 
@@ -135,7 +137,6 @@ trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 
   implicit val stringToSelf: TypeConverter[String, String] = safe(identity)
 
-
   def stringToDate(format: => String): TypeConverter[String, Date] = stringToDateFormat(new SimpleDateFormat(format))
 
   def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] = safe(format.parse(_))
@@ -143,7 +144,7 @@ trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
   implicit def defaultStringToSeq[T](implicit elementConverter: TypeConverter[String, T], mf: Manifest[T]): TypeConverter[String, Seq[T]] =
     stringToSeq[T](elementConverter)
 
-  def stringToSeq[T:Manifest](elementConverter: TypeConverter[String, T], separator: String = ","): TypeConverter[String, Seq[T]] =
+  def stringToSeq[T: Manifest](elementConverter: TypeConverter[String, T], separator: String = ","): TypeConverter[String, Seq[T]] =
     safe(s => s.split(separator).toSeq.flatMap(e => elementConverter(e.trim)))
 
   implicit def seqHead[T](implicit elementConverter: TypeConverter[String, T], mf: Manifest[T]): TypeConverter[Seq[String], T] =
@@ -155,7 +156,6 @@ trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 }
 
 object Conversions extends DefaultImplicitConversions {
-
 
   private type StringTypeConverter[T] = TypeConverter[String, T]
   class ValConversion(source: String) {

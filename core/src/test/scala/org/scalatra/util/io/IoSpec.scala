@@ -8,7 +8,7 @@ import org.scalatest.Matchers
 
 class IoSpec extends WordSpec with Matchers {
   "copy" should {
-   "copy an input stream smaller than the buffer size to the output stream" in {
+    "copy an input stream smaller than the buffer size to the output stream" in {
       testCopy(100, 256)
     }
 
@@ -33,7 +33,7 @@ class IoSpec extends WordSpec with Matchers {
       val in = new ByteArrayInputStream(bytes)
       val out = new ByteArrayOutputStream
       copy(in, out, bufferSize)
-      out.toByteArray should equal (bytes)
+      out.toByteArray should equal(bytes)
     }
 
     "close the input stream even if copying throws" in {
@@ -44,9 +44,8 @@ class IoSpec extends WordSpec with Matchers {
       }
       try {
         copy(in, new ByteArrayOutputStream)
-      }
-      catch { case ignore: Throwable => }
-      isClosed should equal (true)
+      } catch { case ignore: Throwable => }
+      isClosed should equal(true)
     }
 
     "throw any exception during copy" in {
@@ -57,9 +56,8 @@ class IoSpec extends WordSpec with Matchers {
       val caught = try {
         copy(in, new ByteArrayOutputStream)
         None
-      }
-      catch { case ex: Throwable => Some(ex) }
-      caught should equal (Some(e))
+      } catch { case ex: Throwable => Some(ex) }
+      caught should equal(Some(e))
     }
   }
 
@@ -68,7 +66,7 @@ class IoSpec extends WordSpec with Matchers {
 
     "create a temp file with the specified contents" in {
       withTempFile(content) { f =>
-        Source.fromFile(f).mkString should equal (content)
+        Source.fromFile(f).mkString should equal(content)
       }
     }
 
@@ -76,9 +74,9 @@ class IoSpec extends WordSpec with Matchers {
       var f: File = null
       withTempFile(content) { myF =>
         f = myF
-        f.exists() should be (true)
+        f.exists() should be(true)
       }
-      f.exists() should be (false)
+      f.exists() should be(false)
     }
 
     "remove the temp file even if the block throws" in {
@@ -88,12 +86,10 @@ class IoSpec extends WordSpec with Matchers {
           f = myF
           throw new RuntimeException()
         }
-      }
-      catch {
-        case _: Throwable => f.exists() should be (false)
+      } catch {
+        case _: Throwable => f.exists() should be(false)
       }
     }
   }
 }
-
 

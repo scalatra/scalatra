@@ -19,7 +19,7 @@ class MetricsSupportSpec extends ScalatraFlatSpec {
 
   "The Metrics support" should "not error out using metrics" in {
     get("/") {
-      status should equal (200)
+      status should equal(200)
     }
   }
 }

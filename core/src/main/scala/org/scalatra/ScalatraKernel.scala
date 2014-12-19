@@ -1,7 +1,6 @@
 package org.scalatra
 
-object ScalatraKernel
-{
+object ScalatraKernel {
   @deprecated("Use org.scalatra.MultiParams", "2.1.0")
   type MultiParams = util.MultiMap
 

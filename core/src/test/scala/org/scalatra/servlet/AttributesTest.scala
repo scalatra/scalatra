@@ -15,20 +15,20 @@ trait AttributesTest {
       attributesMap("two") = "2"
       attributesMap("three") = "3"
       attributesMap -= "two"
-      attributesMap foreach { case(k, v) => response.setHeader(k, v.toString) }
+      attributesMap foreach { case (k, v) => response.setHeader(k, v.toString) }
     }
   }
 
   test("apply should set request attribute") {
     get("/attributes-test") {
-      header("one") should equal ("1")
-      header("three") should equal ("3")
+      header("one") should equal("1")
+      header("three") should equal("3")
     }
   }
 
   test("-= should remove request attribute") {
     get("/attributes-test") {
-      header("two") should equal (null)
+      header("two") should equal(null)
     }
   }
 }

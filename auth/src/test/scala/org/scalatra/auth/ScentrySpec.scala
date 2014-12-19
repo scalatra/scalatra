@@ -42,7 +42,7 @@ object ScentrySpec extends Specification with Mockito {
 
     implicit val res = mock[HttpServletResponse].smart
 
-    val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s)}, new SessionAuthStore(context))
+    val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s) }, new SessionAuthStore(context))
     var beforeFetchCalled = false
     var afterFetchCalled = false
     var beforeSetUserCalled = false
@@ -62,37 +62,35 @@ object ScentrySpec extends Specification with Mockito {
       defaultUnauthenticatedCalled = true
     }
 
-
-
     val s = new ScentryStrategy[User] {
-        protected val app = context
-        def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) ={
-          successStrategyCalled = true
-          Some(User("12345"))
-        }
-        override def beforeFetch[IdType](id: IdType)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeFetchCalled = true
-        override def afterFetch(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterFetchCalled = true
-        override def beforeSetUser(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeSetUserCalled = true
-        override def afterSetUser(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterSetUserCalled = true
-        override def beforeLogout(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeLogoutCalled = true
-        override def afterLogout(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterLogoutCalled = true
-        override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
-        override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
-        override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedSuccessCalled = true }
+      protected val app = context
+      def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+        successStrategyCalled = true
+        Some(User("12345"))
+      }
+      override def beforeFetch[IdType](id: IdType)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeFetchCalled = true
+      override def afterFetch(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterFetchCalled = true
+      override def beforeSetUser(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeSetUserCalled = true
+      override def afterSetUser(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterSetUserCalled = true
+      override def beforeLogout(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeLogoutCalled = true
+      override def afterLogout(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterLogoutCalled = true
+      override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
+      override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
+      override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedSuccessCalled = true }
     }
 
     val sUnsuccess = new ScentryStrategy[User] {
-        protected val app = context
-        def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
-          failingStrategyCalled = true
-          None
-        }
-        override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
-        override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
-        override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedCalled = true }
+      protected val app = context
+      def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+        failingStrategyCalled = true
+        None
       }
+      override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
+      override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
+      override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedCalled = true }
+    }
     "allow registration of global strategies" in {
-      Scentry.register("Bogus", (_: ScalatraBase) =>  s)
+      Scentry.register("Bogus", (_: ScalatraBase) => s)
       Scentry.globalStrategies("Bogus").asInstanceOf[Scentry[User]#StrategyFactory](context) must be_==(s)
     }
 
@@ -102,7 +100,7 @@ object ScentrySpec extends Specification with Mockito {
     }
 
     "return both global and local strategies from instance" in {
-      Scentry.register("Bogus", _ =>  s)
+      Scentry.register("Bogus", _ => s)
       theScentry.register("LocalFoo", app => s)
       theScentry.strategies.size must be_==(2)
     }
@@ -177,7 +175,7 @@ object ScentrySpec extends Specification with Mockito {
     }
 
     "run the default unauthenticated hook when authenticating without a name" in {
-//      theScentry.register("LocalFoo", _ => s)
+      //      theScentry.register("LocalFoo", _ => s)
       theScentry.register("LocalBar", _ => sUnsuccess)
       theScentry.authenticate()
       unauthenticatedCalled must beTrue

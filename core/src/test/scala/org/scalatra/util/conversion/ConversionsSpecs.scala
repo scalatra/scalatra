@@ -3,14 +3,13 @@ package util
 package conversion
 
 import org.specs2.mutable.Specification
-import java.util.{Date, Calendar}
+import java.util.{ Date, Calendar }
 
 class ConversionsSpecs extends Specification {
 
   "The TypeConverterSupport trait" should {
 
     object WithImplicit extends TypeConverterSupport
-
 
     "provide an exception-safe TypeConverter that return None in case of exceptions" in {
 

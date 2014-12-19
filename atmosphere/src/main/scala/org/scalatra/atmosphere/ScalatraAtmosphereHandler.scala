@@ -7,7 +7,7 @@ import org.scalatra.servlet.ServletApiImplicits._
 import org.json4s.Formats
 import java.nio.CharBuffer
 import org.scalatra.util.RicherString._
-import javax.servlet.http.{HttpServletRequest, HttpSession}
+import javax.servlet.http.{ HttpServletRequest, HttpSession }
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
 import grizzled.slf4j.Logger
@@ -22,25 +22,24 @@ object ScalatraAtmosphereHandler {
     def client(resource: AtmosphereResource) =
       Option(resource.session()).flatMap(_.get(org.scalatra.atmosphere.AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
 
-
     def onPreSuspend(event: AtmosphereResourceEvent) {}
 
     def onBroadcast(event: AtmosphereResourceEvent) {
       val resource = event.getResource
-        resource.transport match {
-          case JSONP | AJAX | LONG_POLLING =>
-          case _ => resource.getResponse.flushBuffer()
-        }
+      resource.transport match {
+        case JSONP | AJAX | LONG_POLLING =>
+        case _ => resource.getResponse.flushBuffer()
+      }
     }
 
     def onDisconnect(event: AtmosphereResourceEvent) {
       val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
       client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
-//      if (!event.getResource.isResumed) {
-//        event.getResource.session.invalidate()
-//      } else {
-        event.getResource.session.removeAttribute(org.scalatra.atmosphere.AtmosphereClientKey)
-//      }
+      //      if (!event.getResource.isResumed) {
+      //        event.getResource.session.invalidate()
+      //      } else {
+      event.getResource.session.removeAttribute(org.scalatra.atmosphere.AtmosphereClientKey)
+      //      }
     }
 
     def onResume(event: AtmosphereResourceEvent) {}
@@ -69,7 +68,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
     (req.requestMethod, route.isDefined) match {
       case (Post, _) =>
-        var client : AtmosphereClient = null
+        var client: AtmosphereClient = null
         if (isNew) {
           session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
         }
@@ -141,7 +140,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
     body.toString()
   }
 
-  private[this] def  addEventListener(resource: AtmosphereResource) {
+  private[this] def addEventListener(resource: AtmosphereResource) {
     resource.addEventListener(new ScalatraResourceEventListener)
   }
   /**
@@ -154,7 +153,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   private[this] def multiParams(request: HttpServletRequest): MultiParams = {
     val read = request.contains("MultiParamsRead")
     val found = request.get(MultiParamsKey) map (
-     _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
+      _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
     )
     val multi = found getOrElse request.multiParameters
     request("MultiParamsRead") = new {}

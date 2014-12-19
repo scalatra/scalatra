@@ -1,9 +1,9 @@
 package org.scalatra
 package json
 
-import xml.{NodeSeq, XML}
+import xml.{ NodeSeq, XML }
 import io.Codec
-import java.io.{Writer, StringWriter, PrintWriter}
+import java.io.{ Writer, StringWriter, PrintWriter }
 import org.json4s._
 import org.json4s.Xml._
 import text.Document
@@ -12,7 +12,6 @@ object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
   val RosettaPrelude = "/**/"
 }
-
 
 trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
@@ -24,7 +23,7 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
    *
    * By default no parameterNames will be checked
    */
-  def jsonpCallbackParameterNames:  Iterable[String] = Nil
+  def jsonpCallbackParameterNames: Iterable[String] = Nil
 
   /**
    * Whether or not to apply the jsonVulnerabilityGuard when rendering json.
@@ -70,7 +69,7 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
           writer.write("%s(%s);".format(some, compact(render(transformResponseBody(jv)))))
         case _ =>
           contentType = formats("json")
-          if(jsonVulnerabilityGuard) writer.write(VulnerabilityPrelude)
+          if (jsonVulnerabilityGuard) writer.write(VulnerabilityPrelude)
           writeJson(transformResponseBody(jv), writer)
           ()
       }

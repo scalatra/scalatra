@@ -1,5 +1,5 @@
 package org.scalatra
-package i18n 
+package i18n
 
 import java.util.Locale
 import java.util.ResourceBundle
@@ -12,13 +12,13 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
   private[this] val bundle = ResourceBundle.getBundle(bundlePath, locale)
 
   /**
-   * Null-safe implementation is preferred by using Option. The caller can 
+   * Null-safe implementation is preferred by using Option. The caller can
    * support default value by using getOrElse:
    * messages.get("hello").getOrElse("world")
-   * 
+   *
    * The return value can also be used with format:
    * messages.get("hello %d").map(_.format(5))
-   * 
+   *
    * To return the string itself:
    * messages("hello")
    *
@@ -31,7 +31,7 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
       case e: MissingResourceException => None
     }
   }
-  
+
   def apply(key: String): String = {
     bundle.getString(key)
   }
@@ -44,7 +44,7 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
   } catch {
     case e: MissingResourceException => default
   }
-  
+
   /**
    * Returned the value for the key or the default
    */

@@ -2,7 +2,7 @@ package org.scalatra
 
 import util.conversion._
 import java.util.Date
-import util.{MultiMap, MapWithIndifferentAccess, MultiMapHeadView}
+import util.{ MultiMap, MapWithIndifferentAccess, MultiMapHeadView }
 
 /**
  * Add some implicits
@@ -45,7 +45,6 @@ trait ScalatraParamsImplicits {
 
     def as[T <: Date](nameAndFormat: (String, String)): Seq[Date] =
       getAs[T](nameAndFormat) getOrElse (throw new ScalatraException("Key %s could not be found.".format(nameAndFormat._1)))
-
 
     def getAsOrElse[T <: Any](name: String, default: => Seq[T])(implicit tc: TypeConverter[String, T]): Seq[T] =
       getAs[T](name).getOrElse(default)

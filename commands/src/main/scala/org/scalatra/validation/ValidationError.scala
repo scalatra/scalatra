@@ -52,7 +52,7 @@ object ValidationError {
       case Some(f: FieldName) => f
     }
     val code = arguments collectFirst {
-      case f: ErrorCode =>  f
+      case f: ErrorCode => f
       case Some(f: ErrorCode) => f
     }
     val args = arguments filter {
@@ -69,7 +69,7 @@ object ValidationError {
  * @param knownCodes A list of known error codes for your system
  */
 class ErrorCodeSerializer(knownCodes: ErrorCode*) extends Serializer[ErrorCode] {
-  val ecs = Map(knownCodes map { c ⇒ c.getClass.getSimpleName.replaceAll("\\$$","").toUpperCase -> c }: _*)
+  val ecs = Map(knownCodes map { c ⇒ c.getClass.getSimpleName.replaceAll("\\$$", "").toUpperCase -> c }: _*)
   val Class = classOf[ErrorCode]
 
   def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), ErrorCode] = {

@@ -1,6 +1,5 @@
 package org.scalatra
 
-
 import java.security.SecureRandom
 import javax.servlet.http.HttpServletRequest
 
@@ -9,8 +8,8 @@ object GenerateId {
     generateCsrfToken()
   }
 
-  private[this] def hexEncode(bytes: Array[Byte]) =  ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
-    if((b.toInt & 0xff) < 0x10) sb.append("0")
+  private[this] def hexEncode(bytes: Array[Byte]) = ((new StringBuilder(bytes.length * 2) /: bytes) { (sb, b) =>
+    if ((b.toInt & 0xff) < 0x10) sb.append("0")
     sb.append(Integer.toString(b.toInt & 0xff, 16))
   }).toString
 
@@ -37,8 +36,6 @@ object CsrfTokenSupport {
  * request is prepared with `prepareCsrfToken`.
  */
 trait CsrfTokenSupport { this: ScalatraBase =>
-
-
 
   before(isForged) { handleForgery() }
   before() { prepareCsrfToken() }
@@ -88,7 +85,6 @@ trait CsrfTokenSupport { this: ScalatraBase =>
     request.getSession.getAttribute(csrfKey).asInstanceOf[String]
 }
 
-
 trait XsrfTokenSupport { this: ScalatraBase =>
 
   import XsrfTokenSupport._
@@ -105,7 +101,7 @@ trait XsrfTokenSupport { this: ScalatraBase =>
     request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
   def xsrfGuard(only: RouteTransformer*) {
-    before((only.toSeq ++ Seq[RouteTransformer](isForged)):_*) { handleForgery() }
+    before((only.toSeq ++ Seq[RouteTransformer](isForged)): _*) { handleForgery() }
   }
 
   before() { prepareXsrfToken() }
@@ -147,5 +143,4 @@ object XsrfTokenSupport {
   val HeaderNames = Vector("X-XSRF-TOKEN")
   val CookieKey = "XSRF-TOKEN"
 }
-
 

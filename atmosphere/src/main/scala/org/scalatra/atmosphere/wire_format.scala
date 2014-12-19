@@ -1,7 +1,7 @@
 package org.scalatra
 package atmosphere
 
-import org.json4s.{JsonAST, jackson, Formats}
+import org.json4s.{ JsonAST, jackson, Formats }
 import org.json4s.jackson.JsonMethods
 import org.json4s.JsonAST.JValue
 
@@ -55,7 +55,7 @@ trait WireFormat {
  * otherwise it creates a text message
  *
  */
-abstract class SimpleJsonWireFormat extends WireFormat  { self: org.json4s.JsonMethods[_] =>
+abstract class SimpleJsonWireFormat extends WireFormat { self: org.json4s.JsonMethods[_] =>
 
   val name = "simpleJson"
   val supportsAck = false

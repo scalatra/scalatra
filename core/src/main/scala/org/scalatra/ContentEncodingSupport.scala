@@ -1,5 +1,5 @@
 package org.scalatra
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 /**
  * Scalatra handler for gzipped responses.
@@ -18,7 +18,7 @@ trait ContentEncodingSupport extends Handler {
   /** Decodes the request if necessary. */
   private def decodedRequest(req: HttpServletRequest): HttpServletRequest = (for {
     name <- Option(req.getHeader("Content-Encoding"))
-    enc  <- ContentEncoding.forName(name)
+    enc <- ContentEncoding.forName(name)
   } yield enc(req)).getOrElse(req)
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {

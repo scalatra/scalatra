@@ -3,7 +3,7 @@ package org.scalatra
 object ResponseStatus {
   def apply(code: Int): ResponseStatus =
     ResponseStatus(code, ReasonMap.getOrElse(code, ""))
-  
+
   /**
    * Status code list taken from http://www.iana.org/assignments/http-status-codes/http-status-codes.xml
    */
@@ -69,9 +69,8 @@ object ResponseStatus {
   )
 }
 
-case class ResponseStatus(code: Int, message: String) 
-  extends Ordered[ResponseStatus] 
-{
+case class ResponseStatus(code: Int, message: String)
+    extends Ordered[ResponseStatus] {
   def compare(that: ResponseStatus) = code.compareTo(that.code)
 
   def line = {

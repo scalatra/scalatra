@@ -1,7 +1,7 @@
 package org.scalatra
 
-import java.lang.{Integer => JInteger}
-import scala.util.control.{NoStackTrace, ControlThrowable}
+import java.lang.{ Integer => JInteger }
+import scala.util.control.{ NoStackTrace, ControlThrowable }
 
 /**
  * A collection of methods that affect the control flow of routes.
@@ -17,12 +17,11 @@ trait Control {
    * @param headers headers to add to the response
    * @param reason the HTTP status reason to set, or null to leave unchanged.
    */
-  def halt [T : Manifest](
-      status: JInteger = null,
-      body: T = (),
-      headers: Map[String, String] = Map.empty,
-      reason: String = null)
-  : Nothing = {
+  def halt[T: Manifest](
+    status: JInteger = null,
+    body: T = (),
+    headers: Map[String, String] = Map.empty,
+    reason: String = null): Nothing = {
     val statusOpt = if (status == null) None else Some(status.intValue)
     throw new HaltException(statusOpt, Some(reason), headers, body)
   }
@@ -38,10 +37,10 @@ trait Control {
 }
 
 private[scalatra] case class HaltException(
-    status: Option[Int],
-    reason: Option[String],
-    headers: Map[String, String],
-    body: Any)
-  extends Throwable with NoStackTrace
+  status: Option[Int],
+  reason: Option[String],
+  headers: Map[String, String],
+  body: Any)
+    extends Throwable with NoStackTrace
 
 private[scalatra] class PassException extends Throwable with NoStackTrace

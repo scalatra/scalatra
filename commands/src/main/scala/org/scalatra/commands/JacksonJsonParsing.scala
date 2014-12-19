@@ -1,12 +1,11 @@
 package org.scalatra
 package commands
 
-import json.{JacksonJsonValueReaderProperty, JacksonJsonSupport}
+import json.{ JacksonJsonValueReaderProperty, JacksonJsonSupport }
 import javax.servlet.http.HttpServletRequest
 
 trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderProperty { self: JacksonJsonSupport with CommandSupport =>
   type CommandType = JsonCommand
-
 
   override protected def bindCommand[T <: CommandType](newCommand: T)(implicit request: HttpServletRequest, mf: Manifest[T]): T = {
     val requestFormat = request.contentType match {

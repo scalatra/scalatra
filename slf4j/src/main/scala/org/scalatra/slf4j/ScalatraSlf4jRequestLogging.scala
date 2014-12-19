@@ -4,8 +4,8 @@ package slf4j
 import org.scalatra.util.MultiMap
 import org.slf4j.MDC
 import java.util.{ Map ⇒ JMap }
-import grizzled.slf4j.{Logger, Logging}
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import grizzled.slf4j.{ Logger, Logging }
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import collection.JavaConverters._
 import org.scalatra.util.RicherString._
 

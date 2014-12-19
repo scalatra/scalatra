@@ -57,10 +57,10 @@ class DataTypeSpec extends Specification {
       DataType[Boolean] must_== DataType.Boolean
       DataType[java.lang.Boolean] must_== DataType.Boolean
     }
-//
-//    "return a correct Map datatype" in {
-//      DataType[Map[String, String]] must_== DataType.GenMap(DataType.String, DataType.String)
-//    }
+    //
+    //    "return a correct Map datatype" in {
+    //      DataType[Map[String, String]] must_== DataType.GenMap(DataType.String, DataType.String)
+    //    }
 
     "return a correct Collection datatype" in {
       DataType[Traversable[String]] must_== DataType.GenArray(DataType.String)

@@ -1,8 +1,8 @@
 package org.scalatra.jetty
 
-import org.scalatest.{BeforeAndAfterAll, WordSpec}
-import java.net.{URL, InetSocketAddress}
-import org.scalatra.{LifeCycle, ScalatraServlet}
+import org.scalatest.{ BeforeAndAfterAll, WordSpec }
+import java.net.{ URL, InetSocketAddress }
+import org.scalatra.{ LifeCycle, ScalatraServlet }
 import scala.io.Source
 import javax.servlet.ServletContext
 import org.scalatra.servlet.ScalatraListener
@@ -40,11 +40,10 @@ class JettyServerSpec extends WordSpec with BeforeAndAfterAll {
 
   "A JettyServer" should {
     "return hello" in {
-      val stream = Source.fromInputStream(new URL("http://localhost:"+port+"/").openStream())
+      val stream = Source.fromInputStream(new URL("http://localhost:" + port + "/").openStream())
       try {
         assert(stream.getLines().mkString === "hello")
-      }
-      finally {
+      } finally {
         stream.close()
       }
     }

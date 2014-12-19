@@ -79,7 +79,6 @@ class NativeJsonSupportServlet(val withBigDecimal: Boolean)
 class JacksonSupportServlet(val withBigDecimal: Boolean)
   extends ScalatraServlet with JsonSupportServlet[JValue] with JacksonJsonSupport
 
-
 // specs
 class JacksonRequestBodySpec extends JsonRequestSpec {
   addServlet(new JacksonSupportServlet(false), "/*")

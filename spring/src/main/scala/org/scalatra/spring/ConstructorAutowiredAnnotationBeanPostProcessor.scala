@@ -9,9 +9,9 @@ import grizzled.slf4j.Logging
 /** @author Stephen Samuel */
 @Component
 class ConstructorAutowiredAnnotationBeanPostProcessor
-  extends InstantiationAwareBeanPostProcessorAdapter
-  with org.springframework.core.Ordered
-  with Logging {
+    extends InstantiationAwareBeanPostProcessorAdapter
+    with org.springframework.core.Ordered
+    with Logging {
 
   logger.error("Configured for Scala constructor support")
 

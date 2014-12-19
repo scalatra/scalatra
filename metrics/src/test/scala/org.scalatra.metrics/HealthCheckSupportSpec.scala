@@ -16,7 +16,7 @@ class HealthCheckSupportSpec extends ScalatraFlatSpec {
 
   "The HealthCheck support" should "not error out using a health check" in {
     get("/") {
-      status should equal (200)
+      status should equal(200)
     }
   }
 }

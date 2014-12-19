@@ -1,9 +1,9 @@
 package org.scalatra
 import java.io._
 import java.nio.charset.Charset
-import java.util.zip.{DeflaterOutputStream, GZIPInputStream, GZIPOutputStream, InflaterInputStream}
-import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper}
-import javax.servlet.{ReadListener, ServletInputStream, ServletOutputStream, WriteListener}
+import java.util.zip.{ DeflaterOutputStream, GZIPInputStream, GZIPOutputStream, InflaterInputStream }
+import javax.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper }
+import javax.servlet.{ ReadListener, ServletInputStream, ServletOutputStream, WriteListener }
 
 import scala.util.Try
 
@@ -34,17 +34,15 @@ object ContentEncoding {
       override def decode(in: InputStream): InputStream = d(in)
     }
 
-  val GZip     = create("gzip",     out => new GZIPOutputStream(out),     in => new GZIPInputStream(in))
-  val Deflate  = create("deflate",  out => new DeflaterOutputStream(out), in => new InflaterInputStream(in))
+  val GZip = create("gzip", out => new GZIPOutputStream(out), in => new GZIPInputStream(in))
+  val Deflate = create("deflate", out => new DeflaterOutputStream(out), in => new InflaterInputStream(in))
 
   def forName(name: String): Option[ContentEncoding] = name.toLowerCase match {
-    case "gzip"     => Some(GZip)
-    case "deflate"  => Some(Deflate)
-    case _          => None
+    case "gzip" => Some(GZip)
+    case "deflate" => Some(Deflate)
+    case _ => None
   }
 }
-
-
 
 // - Request decoding --------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
@@ -66,8 +64,6 @@ private class EncodedInputStream(encoded: InputStream, raw: ServletInputStream) 
   override def read(b: Array[Byte]): Int = read(b, 0, b.length)
   override def read(b: Array[Byte], off: Int, len: Int) = encoded.read(b, off, len)
 }
-
-
 
 // - Response encoding -------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
@@ -95,7 +91,7 @@ private class EncodedServletResponse(res: HttpServletResponse, enc: ContentEncod
 
   /** Returns the charset with which to encode the response. */
   private def getCharset: Charset = (for {
-    name    <- Option(getCharacterEncoding)
+    name <- Option(getCharacterEncoding)
     charset <- Try(Charset.forName(name)).toOption
   } yield charset).getOrElse {
     // The charset is either not known or not supported, defaults to ISO 8859 1, as per RFC and servlet documentation.
@@ -118,20 +114,17 @@ private class EncodedServletResponse(res: HttpServletResponse, enc: ContentEncod
 private class EncodedOutputStream(out: OutputStream, orig: ServletOutputStream) extends ServletOutputStream {
   // - Raw writing -----------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
-  override def write(b: Int)                             = out.write(b)
-  override def write(b: Array[Byte])                     = write(b, 0, b.length)
+  override def write(b: Int) = out.write(b)
+  override def write(b: Array[Byte]) = write(b, 0, b.length)
   override def write(b: Array[Byte], off: Int, len: Int) = out.write(b, off, len)
-
-
 
   // - Cleanup ---------------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
   override def flush() = out.flush()
   override def close() = out.close()
 
-
   // - ServletOutputStream  --------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
   override def setWriteListener(writeListener: WriteListener) = orig.setWriteListener(writeListener)
-  override def isReady                                        = orig.isReady
+  override def isReady = orig.isReady
 }

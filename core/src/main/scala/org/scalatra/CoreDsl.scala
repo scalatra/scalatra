@@ -1,7 +1,7 @@
 package org.scalatra
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import servlet.ServletApiImplicits
 
 /**
@@ -121,14 +121,15 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    *   trap(403) {
    *    "You are not authorized"
    *   }
-   }* }}}
-   }}*/
+   * }* }}}
+   * }}
+   */
   def trap(codes: Range)(block: => Any): Unit
 
   /**
    * @see error
    */
   def trap(code: Int)(block: => Any) {
-    trap(Range(code, code+1))(block)
+    trap(Range(code, code + 1))(block)
   }
 }

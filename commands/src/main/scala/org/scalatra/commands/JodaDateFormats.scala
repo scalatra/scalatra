@@ -1,11 +1,11 @@
 package org.scalatra
 package commands
-import org.joda.time.format.{ISODateTimeFormat, DateTimeFormat, DateTimeFormatter}
+import org.joda.time.format.{ ISODateTimeFormat, DateTimeFormat, DateTimeFormatter }
 import scala.util.control.Exception._
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.{ DateTimeZone, DateTime }
 import org.scalatra.util.RicherString._
-import java.text.{SimpleDateFormat}
-import java.util.{Locale, TimeZone}
+import java.text.{ SimpleDateFormat }
+import java.util.{ Locale, TimeZone }
 
 trait DateParser {
   def parse(s: String): Option[DateTime]
@@ -15,14 +15,12 @@ trait DateParser {
 object JodaDateFormats extends DateParser {
   DateTimeZone.setDefault(DateTimeZone.UTC)
 
-
   val Web: DateParser = JodaDateFormats(Iso8601NoMillis, Iso8601, HttpDate)
-
 
   def parse(s: String) = Web.parse(s)
 
   def apply(f: DateFormat*): DateParser = new DateParser {
-    def parse(s: String) = f.toList.foldLeft (None: Option[DateTime]) { (r, f) ⇒ if (!r.isDefined) f.parse(s) else r }
+    def parse(s: String) = f.toList.foldLeft(None: Option[DateTime]) { (r, f) ⇒ if (!r.isDefined) f.parse(s) else r }
   }
 
   trait DateFormat extends DateParser {

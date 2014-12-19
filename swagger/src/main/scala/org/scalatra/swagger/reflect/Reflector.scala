@@ -1,6 +1,6 @@
 package org.scalatra.swagger.reflect
 
-import java.{util => jutil}
+import java.{ util => jutil }
 import java.lang.reflect._
 import scala.util.control.Exception._
 import java.util.Date
@@ -14,12 +14,12 @@ object Reflector {
   private[this] val descriptors = new Memo[ScalaType, ObjectDescriptor]
 
   private[this] val primitives = {
-      Set[Type](classOf[String], classOf[Char], classOf[Int], classOf[Long], classOf[Double],
-        classOf[Float], classOf[Byte], classOf[BigInt], classOf[Boolean],
-        classOf[Short], classOf[java.lang.Integer], classOf[java.lang.Long],
-        classOf[java.lang.Double], classOf[java.lang.Float], classOf[java.lang.Character],
-        classOf[java.lang.Byte], classOf[java.lang.Boolean], classOf[Number],
-        classOf[java.lang.Short], classOf[Date], classOf[Timestamp], classOf[Symbol], classOf[Unit])
+    Set[Type](classOf[String], classOf[Char], classOf[Int], classOf[Long], classOf[Double],
+      classOf[Float], classOf[Byte], classOf[BigInt], classOf[Boolean],
+      classOf[Short], classOf[java.lang.Integer], classOf[java.lang.Long],
+      classOf[java.lang.Double], classOf[java.lang.Float], classOf[java.lang.Character],
+      classOf[java.lang.Byte], classOf[java.lang.Boolean], classOf[Number],
+      classOf[java.lang.Short], classOf[Date], classOf[Timestamp], classOf[Symbol], classOf[Unit])
   }
 
   private[this] val defaultExcluded = Set(classOf[Nothing], classOf[Null])
@@ -53,15 +53,13 @@ object Reflector {
         while (clazz == null && iter.hasNext) {
           try {
             clazz = Class.forName(c, true, iter.next())
-          }
-          catch {
+          } catch {
             case e: ClassNotFoundException => // keep going, maybe it's in the next one
           }
         }
 
         if (clazz != null) Some(clazz.asInstanceOf[Class[X]]) else None
-      }
-      catch {
+      } catch {
         case _: Throwable => None
       }
     }
@@ -75,9 +73,9 @@ object Reflector {
       val path = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
       val c = resolveClass(path, Vector(getClass.getClassLoader))
       val companion = c flatMap { cl =>
-          allCatch opt {
-            SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
-          }
+        allCatch opt {
+          SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
+        }
       }
 
       def properties: Seq[PropertyDescriptor] = {
@@ -89,9 +87,10 @@ object Reflector {
             val mod = f.getModifiers
             if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
               val st = ManifestScalaType(f.getType, f.getGenericType match {
-                case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
-                  if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
-                  else Reflector.scalaTypeOf(cc)
+                case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map {
+                  case (cc, i) =>
+                    if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
+                    else Reflector.scalaTypeOf(cc)
                 }
                 case _ => Nil
               })
@@ -108,7 +107,7 @@ object Reflector {
 
       def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
         val idxes = container.map(_._2.reverse)
-        t  match {
+        t match {
           case v: TypeVariable[_] =>
             val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
             if (a.erasure == classOf[java.lang.Object]) {
@@ -177,6 +176,5 @@ object Reflector {
 
   def unmangleName(name: String) =
     unmangledNames(name, scala.reflect.NameTransformer.decode)
-
 
 }

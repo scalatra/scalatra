@@ -25,7 +25,7 @@ trait ScalateI18nSupport extends ScalateSupport with I18nSupport {
   before() {
     templateEngine.bindings ::= Binding("messages", classOf[Messages].getName, true, isImplicit = true)
   }
-  
+
   /**
    * Added "messages" into the template context so it can be accessed like:
    * #{messages("hello")}

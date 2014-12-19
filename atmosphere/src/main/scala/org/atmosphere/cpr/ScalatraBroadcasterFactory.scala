@@ -4,9 +4,9 @@ import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
-import org.scalatra.atmosphere.{WireFormat, ScalatraBroadcaster}
+import org.scalatra.atmosphere.{ WireFormat, ScalatraBroadcaster }
 import collection.JavaConverters._
-import scala.collection.concurrent.{Map => ConcurrentMap}
+import scala.collection.concurrent.{ Map => ConcurrentMap }
 
 object ScalatraBroadcasterFactory {
 }
@@ -48,15 +48,16 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bCfg: BroadcasterConf)(i
   def destroy() {
     val s = cfg.getInitParameter(ApplicationConfig.SHARED)
     if (s != null && s.equalsIgnoreCase("TRUE")) {
-        logger.warn("Factory shared, will not be destroyed. That can possibly cause memory leaks if" +
-                "Broadcaster where created. Make sure you destroy them manually.")
+      logger.warn("Factory shared, will not be destroyed. That can possibly cause memory leaks if" +
+        "Broadcaster where created. Make sure you destroy them manually.")
     }
 
     var bc: BroadcasterConfig = null
-    store foreach { case (k, b) =>
-      b.resumeAll()
-      b.destroy()
-      bc = b.getBroadcasterConfig
+    store foreach {
+      case (k, b) =>
+        b.resumeAll()
+        b.destroy()
+        bc = b.getBroadcasterConfig
     }
     if (bc != null) bc.forceDestroy()
 
@@ -109,10 +110,10 @@ class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bCfg: BroadcasterConf)(i
 
   def remove(b: Broadcaster, id: Any): Boolean = {
     val removed: Boolean = store.remove(id, b)
-     if (removed) {
-       logger.debug("Removing Broadcaster {} factory size now {} ", id, store.size)
-     }
-     removed
+    if (removed) {
+      logger.debug("Removing Broadcaster {} factory size now {} ", id, store.size)
+    }
+    removed
   }
 
   def remove(id: Any): Boolean = store.remove(id).isDefined

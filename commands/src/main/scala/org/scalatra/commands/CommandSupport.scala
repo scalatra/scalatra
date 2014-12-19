@@ -1,7 +1,7 @@
 package org.scalatra
 package commands
 
-import util.{ParamsValueReaderProperties, MultiMap}
+import util.{ ParamsValueReaderProperties, MultiMap }
 import java.util.Date
 import org.joda.time.DateTime
 import collection.JavaConverters._
@@ -9,12 +9,11 @@ import java.util.concurrent.ConcurrentHashMap
 import grizzled.slf4j.Logger
 import scala.collection.concurrent.{ Map => ConcurrentMap }
 import javax.servlet.http.HttpServletRequest
-import scala.concurrent.{Future, ExecutionContext}
-
+import scala.concurrent.{ Future, ExecutionContext }
 
 /**
-* Support for [[org.scalatra.commands.Command]] binding and validation.
-*/
+ * Support for [[org.scalatra.commands.Command]] binding and validation.
+ */
 trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors { this: ScalatraBase =>
 
   type CommandType <: Command
@@ -51,13 +50,13 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
     newCommand
   }
 
-  def commandOption[T <: CommandType](implicit request: HttpServletRequest, mf: Manifest[T]) : Option[T] =
+  def commandOption[T <: CommandType](implicit request: HttpServletRequest, mf: Manifest[T]): Option[T] =
     request.get(commandRequestKey[T]).map(_.asInstanceOf[T])
 
   private[commands] def commandRequestKey[T <: CommandType](implicit request: HttpServletRequest, mf: Manifest[T]) =
     "_command_" + manifest[T].erasure.getName
 
-  private class CommandRouteMatcher[T <: CommandType ](implicit mf: Manifest[T]) extends RouteMatcher {
+  private class CommandRouteMatcher[T <: CommandType](implicit mf: Manifest[T]) extends RouteMatcher {
 
     override def apply(requestPath: String) = if (command[T].isValid) Some(MultiMap()) else None
   }
@@ -66,7 +65,6 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
    * Create a [[org.scalatra.RouteMatcher]] that evaluates '''true''' only if a command is valid.
    */
   def ifValid[T <: CommandType](implicit mf: Manifest[T]): RouteMatcher = new CommandRouteMatcher[T]
-
 
 }
 

@@ -5,10 +5,9 @@ import ActionResult._
 import test.specs2.MutableScalatraSpec
 import java.io.ByteArrayOutputStream
 import javax.servlet.ServletConfig
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 
 class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
-
 
 trait ActionResultTestBase {
   self: ScalatraBase =>
@@ -51,7 +50,6 @@ trait ActionResultTestBase {
       else
         "Content-Type"
 
-
     Ok("Hello, world!", headers = Map(
       headerName -> "application/vnd.ms-excel"
     ))
@@ -86,7 +84,6 @@ class ActionResultServletSpec extends ActionResultsSpec {
   mount(classOf[ActionResultServlet], "/*")
 }
 abstract class ActionResultsSpec extends MutableScalatraSpec {
-
 
   "returning ActionResult from action with status and body" should {
     "set the status code" in {
@@ -212,7 +209,7 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
     }
   }
 
-  "returning ActionResult"  should {
+  "returning ActionResult" should {
     "defaults to call by value" in {
       get("/defaults-to-call-by-value") {
         body mustEqual "open"

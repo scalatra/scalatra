@@ -19,13 +19,13 @@ class RequestBodyTest extends ScalatraFunSuite {
 
   test("can read request body") {
     post("/request-body", "My cat's breath smells like cat food!") {
-      body should equal ("My cat's breath smells like cat food!")
+      body should equal("My cat's breath smells like cat food!")
     }
   }
 
   test("request body is idempotent") {
     post("/request-body", "Miss Hoover, I glued my head to my shoulder.") {
-      header("X-Idempotent") should equal ("true")
+      header("X-Idempotent") should equal("true")
     }
   }
 }

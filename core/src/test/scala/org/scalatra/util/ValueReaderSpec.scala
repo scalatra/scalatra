@@ -4,7 +4,6 @@ package util
 import conversion.DefaultImplicitConversions
 import org.specs2.mutable.Specification
 
-
 class ValueReaderSpec extends Specification with DefaultImplicitConversions {
 
   val params = Map(

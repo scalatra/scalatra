@@ -109,7 +109,7 @@ class RouteTestServlet extends ScalatraServlet {
   get("/encoded-uri-3/%C3%B6") {
     "ö"
   }
-  
+
   get("/semicolon/?") {
     "semicolon"
   }
@@ -129,138 +129,138 @@ class RouteTest extends ScalatraFunSuite {
 
   test("routes can be a simple string") {
     get("/foo") {
-      body should equal ("matched simple string route")
+      body should equal("matched simple string route")
     }
   }
 
   test("routes can be a boolean expression") {
     get("/whatever", "booleanTest" -> "true") {
-      body should equal ("matched boolean route")
+      body should equal("matched boolean route")
     }
   }
 
   test("supports optional named params") {
     get("/optional/hello/world") {
-      body should equal ("foo=hello;bar=world")
+      body should equal("foo=hello;bar=world")
     }
 
     get("/optional/hello") {
-      body should equal ("foo=hello")
+      body should equal("foo=hello")
     }
 
     get("/optional") {
-      body should equal ("")
+      body should equal("")
     }
 
     get("/optional-ext.json") {
-      body should equal ("ext=json")
+      body should equal("ext=json")
     }
 
     get("/optional-ext") {
-      body should equal ("")
+      body should equal("")
     }
   }
 
   test("supports single splat params") {
     get("/single-splat/foo") {
-      body should equal ("foo")
+      body should equal("foo")
     }
 
     get("/single-splat/foo/bar/baz") {
-      body should equal ("foo/bar/baz")
+      body should equal("foo/bar/baz")
     }
   }
 
   test("supports mixing multiple splat params") {
     get("/mixing-multiple-splats/bar/foo/bling/baz/boom") {
-      body should equal ("bar:bling:baz/boom")
+      body should equal("bar:bling:baz/boom")
     }
   }
 
   test("supports mixing named and splat params") {
     get("/mix-named-and-splat-params/foo/bar/baz") {
-      body should equal ("foo:bar/baz")
+      body should equal("foo:bar/baz")
     }
   }
 
   test("matches a dot ('.') as part of a named param") {
     get("/dot-in-named-param/user@example.com/name") {
-      body should equal ("user@example.com")
+      body should equal("user@example.com")
     }
   }
 
   test("matches a literal dot ('.') outside of named params") {
     get("/dot-outside-named-param/pony.jpg") {
-      header("file") should equal ("pony")
-      header("ext") should equal ("jpg")
+      header("file") should equal("pony")
+      header("ext") should equal("jpg")
     }
   }
 
   test("literally matches . in paths") {
     get("/literal.dot.in.path") {
-      body should equal ("matched literal dot")
+      body should equal("matched literal dot")
     }
   }
 
   test("literally matches $ in paths") {
     get("/test$") {
-      body should equal ("test$")
+      body should equal("test$")
     }
   }
 
   test("literally matches + in paths") {
     get("/te+st") {
-      body should equal ("te+st")
+      body should equal("te+st")
     }
   }
 
   test("literally matches () in paths") {
     get("/test(bar)") {
-      body should equal ("test(bar)")
+      body should equal("test(bar)")
     }
   }
-  
+
   test("literally matches ; in paths") {
     get("/foo;123") {
-      status should equal (200)
+      status should equal(200)
     }
   }
 
   test("supports conditional path routes") {
     get("/conditional", "condition" -> "true") {
-      body should equal ("true")
+      body should equal("true")
     }
 
     get("/conditional") {
-      body should equal ("false")
+      body should equal("false")
     }
   }
 
   test("supports regular expressions") {
     get("/foooom/bar") {
-      body should equal ("regex match")
+      body should equal("regex match")
     }
   }
 
   test("makes regular expression captures available in params(\"captures\")") {
     get("/foorooomma/baf") {
-      body should equal ("orooomma:f")
+      body should equal("orooomma:f")
     }
   }
 
   test("supports conditional regex routes") {
     get("/regular-expression", "condition" -> "true") {
-      body should equal ("regex: true")
+      body should equal("regex: true")
     }
 
     get("/regular-expression", "condition" -> "false") {
-      body should equal ("regex: false")
+      body should equal("regex: false")
     }
   }
 
   test("a route with no matchers matches all requests to that method") {
     post("/an-arbitrary-path") {
-      body should equal ("I match any post!")
+      body should equal("I match any post!")
     }
   }
 
@@ -272,63 +272,63 @@ class RouteTest extends ScalatraFunSuite {
 
   test("trailing slash is optional in a subcontext-mapped servlet") {
     get("/subcontext") {
-      body should equal ("root")
+      body should equal("root")
     }
 
     get("/subcontext/") {
-      body should equal ("root")
+      body should equal("root")
     }
   }
 
   test("handles encoded characters in uri") {
     get("/encoded-uri/ac/dc") {
-      status should equal (405)
+      status should equal(405)
     }
 
     get("/encoded-uri/ac%2Fdc") {
-      status should equal (200)
-      body should equal ("ac/dc")
+      status should equal(200)
+      body should equal("ac/dc")
     }
 
     get("/encoded-uri/%23toc") {
-      status should equal (200)
-      body should equal ("#toc")
+      status should equal(200)
+      body should equal("#toc")
     }
 
     get("/encoded-uri/%3Fquery") {
-      status should equal (200)
-      body should equal ("?query")
+      status should equal(200)
+      body should equal("?query")
     }
 
     get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
-      status should equal (200)
-      body should equal ("Fußgängerübergänge/?#")
+      status should equal(200)
+      body should equal("Fußgängerübergänge/?#")
     }
 
     get("/encoded-uri/ö%C3%B6%25C3%25B6") {
-      status should equal (200)
-      body should equal ("öö%C3%B6")
+      status should equal(200)
+      body should equal("öö%C3%B6")
     }
 
     get("/encoded-uri-2/中国话不用彁字。") {
-      status should equal (200)
+      status should equal(200)
     }
 
     get("/encoded-uri-2/%E4%B8%AD%E5%9B%BD%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
-      status should equal (200)
+      status should equal(200)
     }
 
     // mixing encoded with decoded characters
     get("/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
-      status should equal (200)
+      status should equal(200)
     }
 
     get("/encoded-uri-3/%25C3%25B6") {
-      status should equal (200)
+      status should equal(200)
     }
   }
-  
-   test("should chop off uri starting from semicolon") {
+
+  test("should chop off uri starting from semicolon") {
     get("/semicolon;jessionid=9328475932475") {
       status should equal(200)
       body should equal("semicolon")

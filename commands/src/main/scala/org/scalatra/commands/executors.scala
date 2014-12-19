@@ -6,9 +6,9 @@ import org.scalatra.validation._
 import grizzled.slf4j.Logger
 import mojolly.inflector.InflectorImports._
 import annotation.implicitNotFound
-import scala.util.{Failure => Fail, Success => Succ, Try}
+import scala.util.{ Failure => Fail, Success => Succ, Try }
 import scalaz.Failure
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait CommandExecutors {
 
@@ -27,8 +27,6 @@ trait CommandExecutors {
 }
 
 object CommandExecutors extends CommandExecutors
-
-
 
 /**
  * A typeclass for executing commands. This allows for picking an executor based on the return type of the

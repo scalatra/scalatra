@@ -4,16 +4,16 @@ import scala.util.matching.Regex
 import servlet.ServletApiImplicits
 import util.conversion.DefaultImplicitConversions
 import util.io.zeroCopy
-import java.io.{File, FileInputStream}
+import java.io.{ File, FileInputStream }
 import scala.annotation.tailrec
 import util._
 import util.RicherString._
 import rl.UrlCodingUtils
-import javax.servlet.{Filter, ServletContext}
-import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+import javax.servlet.{ Filter, ServletContext }
+import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 import scala.util.control.Exception._
 import org.scalatra.ScalatraBase._
-import scala.util.{Failure, Try, Success}
+import scala.util.{ Failure, Try, Success }
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
@@ -114,7 +114,6 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     }
   }
 
-
   /**
    * The servlet context in which this kernel runs.
    */
@@ -195,14 +194,14 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
         try {
           handleStatusCode(extractStatusCode(e)) match {
             case Some(result) => renderResponse(result)
-            case _            => renderHaltException(e)
+            case _ => renderHaltException(e)
           }
         } catch {
           case e: HaltException => renderHaltException(e)
-          case e: Throwable     => error(e)
+          case e: Throwable => error(e)
         }
       }
-      
+
       case e: Throwable => error(e)
     }
   }
@@ -268,11 +267,9 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   private def liftAction(action: Action): Option[Any] =
     try {
       Some(action())
-    }
-    catch {
+    } catch {
       case e: PassException => None
     }
-
 
   def before(transformers: RouteTransformer*)(fun: => Any) {
     routes.appendBeforeFilter(Route(transformers, () => fun))
@@ -344,7 +341,6 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     }
   }
 
-
   protected def setMultiparams[S](matchedRoute: Option[MatchedRoute], originalParams: MultiParams)(implicit request: HttpServletRequest) {
     val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
       case (key, values) =>
@@ -384,7 +380,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
       actionResult.headers.find {
         case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
       }.getOrElse(("Content-Type", contentTypeInferrer(actionResult.body)))._2
-//    case Unit | _: Unit => null
+    //    case Unit | _: Unit => null
     case _ => "text/html"
   }
 
@@ -521,7 +517,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
 
   protected def extractStatusCode(e: HaltException) = e match {
     case HaltException(Some(status), _, _, _) => status
-    case _                                    => response.status.code
+    case _ => response.status.code
   }
 
   def get(transformers: RouteTransformer*)(action: => Any) = addRoute(Get, transformers, action)
@@ -584,7 +580,6 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    * The configuration, typically a ServletConfig or FilterConfig.
    */
   var config: ConfigT = _
-
 
   /**
    * Initializes the kernel.  Used to provide context that is unavailable
@@ -662,7 +657,6 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
     val p = if (candidate.startsWith("/")) candidate else "/" + candidate
     if (p.endsWith("/")) p.dropRight(1) else p
   }
-
 
   protected def isHttps(implicit request: HttpServletRequest) = {
     // also respect load balancer version of the protocol
@@ -746,7 +740,6 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
    */
   def isDevelopmentMode = environment.toUpperCase.startsWith("DEV")
 
-
   /**
    * The effective path against which routes are matched.  The definition
    * varies between servlets and filters.
@@ -766,7 +759,7 @@ trait ScalatraBase extends ScalatraContext with CoreDsl with DynamicScope with I
   def multiParams(implicit request: HttpServletRequest): MultiParams = {
     val read = request.contains("MultiParamsRead")
     val found = request.get(MultiParamsKey) map (
-     _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
+      _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
     )
     val multi = found getOrElse request.multiParameters
     request("MultiParamsRead") = new {}

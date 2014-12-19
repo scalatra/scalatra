@@ -2,11 +2,11 @@ package org.scalatra
 
 import java.io._
 
-import org.apache.http.impl.client.{CloseableHttpClient, HttpClientBuilder}
+import org.apache.http.impl.client.{ CloseableHttpClient, HttpClientBuilder }
 import org.scalatest._
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
  * Test servlet using ContentEncodingSupport.
@@ -58,7 +58,7 @@ abstract class ContentEncodingSupportTest(e: ContentEncoding) extends ScalatraFu
 
       post("/", Helper.body, Map("Accept-Encoding" -> encoding.name)) {
         response.headers("Content-Encoding") should equal(List(encoding.name))
-          Helper.uncompress(response.bodyBytes) should equal(Helper.body)
+        Helper.uncompress(response.bodyBytes) should equal(Helper.body)
       }
     }
   }
@@ -111,7 +111,7 @@ private object Helper {
   /**
    * Uncompresses an array to a string with gzip.
    */
-  def uncompress(bytes: Array[Byte])(implicit encoding: ContentEncoding) : String = {
+  def uncompress(bytes: Array[Byte])(implicit encoding: ContentEncoding): String = {
     convertStreamToString(encoding.decode(new ByteArrayInputStream(bytes)))
   }
 
