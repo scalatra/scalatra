@@ -6,7 +6,7 @@ import com.google.common.cache.CacheBuilder
 import org.scalatra.cache.Cache
 
 class GuavaCache(ttlMs: Long) extends Cache {
-  lazy private[this] val cache = CacheBuilder.newBuilder()
+  private[this] val cache = CacheBuilder.newBuilder()
     .expireAfterWrite(ttlMs, TimeUnit.MILLISECONDS)
     .maximumSize(10000L)
     .build[String, Object]
