@@ -38,7 +38,7 @@ final class SinatraRouteMatcher(pattern: String)
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
-  def apply(requestPath: String) = SinatraPathPatternParser(pattern)(requestPath)
+  def apply(requestPath: String): Option[MultiParams] = SinatraPathPatternParser(pattern)(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
     generator(Builder("", params, splats)).get
@@ -108,7 +108,7 @@ final class RailsRouteMatcher(pattern: String)
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
-  def apply(requestPath: String) = RailsPathPatternParser(pattern)(requestPath)
+  def apply(requestPath: String): Option[MultiParams] = RailsPathPatternParser(pattern)(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
     generator(Builder("", params)).get
@@ -159,26 +159,27 @@ final class RailsRouteMatcher(pattern: String)
     private def static: Parser[Builder => Builder] =
       (escaped | char) ^^ { str => builder => builder addStatic str }
 
-    private def identifier = """[a-zA-Z_]\w*""".r
+    private def identifier: Regex = """[a-zA-Z_]\w*""".r
 
-    private def escaped = literal("\\") ~> (char | paren)
+    private def escaped: Parser[String] = literal("\\") ~> (char | paren)
 
-    private def char = metachar | stdchar
+    private def char: Parser[String] = metachar | stdchar
 
-    private def metachar = """[.^$|?+*{}\\\[\]-]""".r
+    private def metachar: Regex = """[.^$|?+*{}\\\[\]-]""".r
 
-    private def stdchar = """[^()]""".r
+    private def stdchar: Regex = """[^()]""".r
 
-    private def paren = ("(" | ")")
+    private def paren: Parser[String] = ("(" | ")")
+
   }
 }
 
 final class PathPatternRouteMatcher(pattern: PathPattern)
     extends RouteMatcher {
 
-  def apply(requestPath: String) = pattern(requestPath)
+  def apply(requestPath: String): Option[MultiParams] = pattern(requestPath)
 
-  override def toString = pattern.regex.toString
+  override def toString: String = pattern.regex.toString
 }
 
 /**
@@ -194,33 +195,34 @@ final class RegexRouteMatcher(regex: Regex)
    * @return If the regex matches the request path, returns a list of all
    * captured groups in a "captures" variable.  Otherwise, returns None.
    */
-  def apply(requestPath: String) = regex.findFirstMatchIn(requestPath) map {
+  def apply(requestPath: String): Option[MultiMap] = regex.findFirstMatchIn(requestPath) map {
     _.subgroups match {
       case Nil => MultiMap()
       case xs => Map("captures" -> xs)
     }
   }
 
-  override def toString = regex.toString
+  override def toString: String = regex.toString
 }
 
 /**
  * A route matcher on a boolean condition.  Does not extract any route parameters.
  */
 final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
+
   /**
    * Evaluates the block.
    *
    * @return Some empty map if the block evaluates to true, or else None.
    */
-  def apply(requestPath: String) = if (block) Some(MultiMap()) else None
+  def apply(requestPath: String): Option[MultiMap] = if (block) Some(MultiMap()) else None
 
-  override def toString = "[Boolean Guard]"
+  override def toString: String = "[Boolean Guard]"
 }
 
 final class StatusCodeRouteMatcher(codes: Range, responseStatus: => Int) extends RouteMatcher {
 
-  def apply(requestPath: String) = if (codes.contains(responseStatus)) Some(MultiMap()) else None
+  def apply(requestPath: String): Option[MultiMap] = if (codes.contains(responseStatus)) Some(MultiMap()) else None
 
-  override def toString = codes.toString()
+  override def toString: String = codes.toString()
 }

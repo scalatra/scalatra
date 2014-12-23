@@ -1,13 +1,13 @@
 package org.scalatra
 
 object ResponseStatus {
-  def apply(code: Int): ResponseStatus =
-    ResponseStatus(code, ReasonMap.getOrElse(code, ""))
+
+  def apply(code: Int): ResponseStatus = ResponseStatus(code, ReasonMap.getOrElse(code, ""))
 
   /**
    * Status code list taken from http://www.iana.org/assignments/http-status-codes/http-status-codes.xml
    */
-  private[this] val ReasonMap = Map(
+  private[this] val ReasonMap: Map[Int, String] = Map(
     100 -> "Continue",
     101 -> "Switching Protocols",
     102 -> "Processing",
@@ -71,9 +71,10 @@ object ResponseStatus {
 
 case class ResponseStatus(code: Int, message: String)
     extends Ordered[ResponseStatus] {
-  def compare(that: ResponseStatus) = code.compareTo(that.code)
 
-  def line = {
+  def compare(that: ResponseStatus): Int = code.compareTo(that.code)
+
+  def line: String = {
     val buf = new StringBuilder(message.length + 5)
     buf.append(code)
     buf.append(' ')

@@ -1,19 +1,20 @@
 package org
 
 import org.scalatra.servlet.FileUploadSupport
-import org.scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
+import org.scalatra.util.{ MultiMap, MapWithIndifferentAccess, MultiMapHeadView }
 
 package object scalatra
     extends Control // make halt and pass visible to helpers outside the DSL
     //  with DefaultValues // make defaults visible
     {
-  import org.scalatra.util.MultiMap
 
   object RouteTransformer {
-    implicit def fn2transformer(fn: Route => Route) = new RouteTransformer {
+
+    implicit def fn2transformer(fn: Route => Route): RouteTransformer = new RouteTransformer {
       override def apply(route: Route): Route = fn(route)
     }
   }
+
   trait RouteTransformer {
     def apply(route: Route): Route
   }
@@ -55,19 +56,4 @@ package object scalatra
   type FullCoreStack = CoreStack with FileUploadSupport
   type FileUploadStack = FutureSupport with FlashMapSupport with FileUploadSupport
 
-  //  class OptionDefaults[T](value: Option[T]) {
-  //	  /**
-  //	   * Returns the item contained in the Option if it is defined, otherwise, the default element for the type A
-  //	   * <p/>
-  //	   * For example:
-  //	   * <pre>
-  //	   * val o: Option = None
-  //	   * val a: List[String] = ~o
-  //	   * </pre>
-  //	   */
-  //	  def unary_~(implicit z: DefaultValue[T]): T = value getOrElse z.default
-  //	
-  //	  def orDefault(implicit z: DefaultValue[T]): T = value getOrElse z.default
-  //	}
-  //  implicit def option2optionWithDefault[T](opt: Option[T]) = new OptionDefaults(opt)
 }

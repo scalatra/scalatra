@@ -48,6 +48,7 @@ case class Route(
 }
 
 object Route {
+
   def apply(transformers: Seq[RouteTransformer], action: Action): Route =
     apply(transformers, action, (_: HttpServletRequest) => "")
 
@@ -59,6 +60,7 @@ object Route {
   def appendMatcher(matcher: RouteMatcher): RouteTransformer = { (route: Route) =>
     route.copy(routeMatchers = route.routeMatchers :+ matcher)
   }
+
 }
 
 /**

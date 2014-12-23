@@ -7,10 +7,13 @@ import org.scalatra.servlet.ServletApiImplicits
 import scala.collection.SortedSet
 
 object MethodOverride {
+
   val ParamName = "_method"
+
   val HeaderName = SortedSet(
     "X-HTTP-METHOD-OVERRIDE", "X-HTTP-METHOD", "X-METHOD-OVERRIDE"
   )
+
 }
 
 /**
@@ -19,7 +22,8 @@ object MethodOverride {
  * the value of the `_method` parameter is treated as the request's method.
  */
 trait MethodOverride extends Handler with ServletApiImplicits {
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     val req2 = req.requestMethod match {
       case Post => new HttpServletRequestWrapper(req) {
         override def getMethod(): String =
@@ -39,4 +43,5 @@ trait MethodOverride extends Handler with ServletApiImplicits {
       headerKeyOpt.flatMap { req.headers get _ }
     }
   }
+
 }

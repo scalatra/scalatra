@@ -10,8 +10,10 @@ import scala.util.control.Exception.catching
 
 object ScalatraServlet {
 
-  val RequestPathKey = "org.scalatra.ScalatraServlet.requestPath"
   import org.scalatra.servlet.ServletApiImplicits._
+
+  val RequestPathKey = "org.scalatra.ScalatraServlet.requestPath"
+
   def requestPath(request: HttpServletRequest): String = {
     require(request != null, "The request can't be null for getting the request path")
     def startIndex(r: HttpServletRequest) =
@@ -34,6 +36,7 @@ object ScalatraServlet {
     val pos = u2.indexOf(';')
     if (pos > -1) u2.substring(0, pos) else u2
   }
+
 }
 
 /**
@@ -52,7 +55,8 @@ abstract class ScalatraServlet
     extends HttpServlet
     with ServletBase
     with Initializable {
-  override def service(request: HttpServletRequest, response: HttpServletResponse) {
+
+  override def service(request: HttpServletRequest, response: HttpServletResponse): Unit = {
     handle(request, response)
   }
 
@@ -67,9 +71,9 @@ abstract class ScalatraServlet
    * All other servlet mappings likely want to return request.getServletPath.
    * Custom implementations are allowed for unusual cases.
    */
-  def requestPath(implicit request: HttpServletRequest) = ScalatraServlet.requestPath(request)
+  def requestPath(implicit request: HttpServletRequest): String = ScalatraServlet.requestPath(request)
 
-  protected def routeBasePath(implicit request: HttpServletRequest) = {
+  protected def routeBasePath(implicit request: HttpServletRequest): String = {
     require(config != null, "routeBasePath requires the servlet to be initialized")
     require(request != null, "routeBasePath requires an active request to determine the servlet path")
 
@@ -113,17 +117,18 @@ abstract class ScalatraServlet
 
   type ConfigT = ServletConfig
 
-  override def init(config: ServletConfig) {
+  override def init(config: ServletConfig): Unit = {
     super.init(config)
     initialize(config) // see Initializable.initialize for why
   }
 
-  override def initialize(config: ServletConfig) {
+  override def initialize(config: ServletConfig): Unit = {
     super.initialize(config)
   }
 
-  override def destroy() {
+  override def destroy(): Unit = {
     shutdown()
     super.destroy()
   }
+
 }
