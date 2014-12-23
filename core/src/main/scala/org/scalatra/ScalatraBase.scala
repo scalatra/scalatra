@@ -37,8 +37,7 @@ object ScalatraBase {
   val RenderCallbacks = s"$KeyPrefix.renderCallbacks"
   val IsAsyncKey = s"$KeyPrefix.isAsync"
 
-  // TODO: should return Boolean value
-  def isAsyncResponse(implicit request: HttpServletRequest): Any = request.get(IsAsyncKey).getOrElse(false)
+  def isAsyncResponse(implicit request: HttpServletRequest): Boolean = request.get(IsAsyncKey).exists(_ => true)
 
   def onSuccess(fn: Any => Unit)(implicit request: HttpServletRequest): Unit = addCallback(_.foreach(fn))
 
@@ -90,9 +89,7 @@ trait ScalatraBase
     with ServletApiImplicits
     with ScalatraParamsImplicits
     with DefaultImplicitConversions
-    with SessionSupport
-    // TODO: remove this
-    with CookieSupport {
+    with SessionSupport {
 
   @deprecated("Use servletContext instead", "2.1.0")
   def applicationContext: ServletContext = servletContext
