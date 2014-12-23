@@ -1,7 +1,6 @@
 package org.scalatra
 
-import org.scalatest.{ Matchers, FunSuite }
-import org.scalatest.matchers.MustMatchers
+import org.scalatest.{ FunSuite, Matchers }
 
 class SinatraLikeUrlGeneratorTest extends FunSuite with Matchers {
 

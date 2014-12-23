@@ -1,12 +1,14 @@
 package org.scalatra
 
-import scala.concurrent.duration._
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.{ ServletContext, AsyncEvent, AsyncListener }
-import servlet.AsyncSupport
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.{ AsyncEvent, AsyncListener, ServletContext }
+
+import org.scalatra.servlet.AsyncSupport
+
+import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.{ Failure, Success, Try }
+import scala.util.{ Failure, Success }
 
 abstract class AsyncResult(implicit override val scalatraContext: ScalatraContext) extends ScalatraContext {
 

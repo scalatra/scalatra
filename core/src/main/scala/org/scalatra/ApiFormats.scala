@@ -1,12 +1,13 @@
 package org.scalatra
 
-import collection.JavaConverters._
-import java.util.concurrent.ConcurrentHashMap
-import org.scalatra.util.RicherString._
 import java.util.Locale.ENGLISH
+import java.util.concurrent.ConcurrentHashMap
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
+import org.scalatra.util.RicherString._
+
+import scala.collection.JavaConverters._
 import scala.collection.concurrent
-import collection.mutable
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 
 object ApiFormats {
   /**
@@ -168,7 +169,7 @@ trait ApiFormats extends ScalatraBase {
   private def getFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String =
     getFromResponseHeader orElse getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
 
-  import ApiFormats.FormatKey
+  import org.scalatra.ApiFormats.FormatKey
 
   protected override def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams

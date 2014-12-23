@@ -1,10 +1,10 @@
 package org.scalatra
 
-import scala.concurrent.Future
-import scala.concurrent.Promise
-import scala.concurrent.duration._
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.cpr.AtmosphereResource
+
+import scala.concurrent.{ Future, Promise }
+import scala.concurrent.duration._
 import scala.util.control.Exception._
 
 package object atmosphere {

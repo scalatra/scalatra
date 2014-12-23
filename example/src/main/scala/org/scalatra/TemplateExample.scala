@@ -1,7 +1,8 @@
 package org.scalatra
 
-import scala.xml.{ Text, Node }
-import scalate.ScalateSupport
+import org.scalatra.scalate.ScalateSupport
+
+import scala.xml.{ Node, Text }
 
 object Template {
 

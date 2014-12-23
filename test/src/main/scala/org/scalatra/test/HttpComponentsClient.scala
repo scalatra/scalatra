@@ -1,17 +1,17 @@
 package org.scalatra.test
 
-import org.apache.http.impl.client.{ HttpClientBuilder, BasicCookieStore, DefaultHttpClient }
+import java.io.{ ByteArrayOutputStream, File, OutputStream }
+
 import org.apache.http.HttpResponse
+import org.apache.http.client.CookieStore
+import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods._
 import org.apache.http.entity.ByteArrayEntity
-import java.io.{ OutputStream, File, ByteArrayOutputStream }
-import org.apache.http.client.params.{ CookiePolicy, ClientPNames }
-import org.apache.http.entity.mime.{ FormBodyPart, MultipartEntity, HttpMultipartMode }
-import org.apache.http.entity.mime.content.{ ContentBody, FileBody, StringBody }
-import util.DynamicVariable
-import org.apache.http.client.{ RedirectStrategy, CookieStore }
-import scala.io.Codec
-import org.apache.http.client.config.RequestConfig
+import org.apache.http.entity.mime.content.{ ContentBody, StringBody }
+import org.apache.http.entity.mime.{ FormBodyPart, HttpMultipartMode, MultipartEntity }
+import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
+
+import scala.util.DynamicVariable
 
 case class HttpComponentsClientResponse(res: HttpResponse) extends ClientResponse {
   lazy val bodyBytes: Array[Byte] = {

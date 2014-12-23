@@ -1,11 +1,11 @@
 package org.scalatra
 package servlet
 
-import scala.collection.mutable.Map
+import org.scalatra.util.MutableMapWithIndifferentAccess
+import org.scalatra.util.conversion.TypeConverter
+
 import scala.collection.JavaConverters._
-import java.util.Enumeration
-import util.MutableMapWithIndifferentAccess
-import util.conversion.TypeConverter
+import scala.collection.mutable.Map
 
 /**
  * Adapts attributes from servlet objects (e.g., ServletRequest, HttpSession,

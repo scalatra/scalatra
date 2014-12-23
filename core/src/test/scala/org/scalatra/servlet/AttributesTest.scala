@@ -1,8 +1,9 @@
 package org.scalatra
 package servlet
 
+import org.scalatra.test.scalatest.ScalatraFunSuite
+
 import scala.collection.mutable.Map
-import test.scalatest.ScalatraFunSuite
 
 trait AttributesTest {
   this: ScalatraFunSuite =>

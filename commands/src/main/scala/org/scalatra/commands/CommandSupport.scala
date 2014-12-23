@@ -1,15 +1,13 @@
 package org.scalatra
 package commands
 
-import util.{ ParamsValueReaderProperties, MultiMap }
-import java.util.Date
-import org.joda.time.DateTime
-import collection.JavaConverters._
 import java.util.concurrent.ConcurrentHashMap
-import grizzled.slf4j.Logger
-import scala.collection.concurrent.{ Map => ConcurrentMap }
 import javax.servlet.http.HttpServletRequest
-import scala.concurrent.{ Future, ExecutionContext }
+
+import org.scalatra.util.{ MultiMap, ParamsValueReaderProperties }
+
+import scala.collection.JavaConverters._
+import scala.collection.concurrent.{ Map => ConcurrentMap }
 
 /**
  * Support for [[org.scalatra.commands.Command]] binding and validation.

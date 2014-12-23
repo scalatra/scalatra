@@ -1,8 +1,6 @@
 package org.scalatra
 
-import javax.servlet.ServletContext
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import servlet.ServletApiImplicits
+import org.scalatra.servlet.ServletApiImplicits
 
 /**
  * The core Scalatra DSL.

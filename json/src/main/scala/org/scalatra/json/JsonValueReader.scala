@@ -1,9 +1,10 @@
 package org.scalatra
 package json
 
-import org.scalatra.util.ValueReader
-import util.RicherString._
 import org.json4s._
+import org.scalatra.util.RicherString._
+import org.scalatra.util.ValueReader
+
 import scala.util.control.Exception.allCatch
 
 class JsonValueReader(val data: JValue)(implicit formats: Formats) extends ValueReader[JValue, JValue] {

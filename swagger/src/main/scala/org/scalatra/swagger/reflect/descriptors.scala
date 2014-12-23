@@ -91,7 +91,7 @@ trait ScalaType extends Equals {
 
 class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
 
-  import ManifestScalaType.{ types, CopiedManifestScalaType }
+  import org.scalatra.swagger.reflect.ManifestScalaType.{ CopiedManifestScalaType, types }
   private[this] val self = this
   val erasure: Class[_] = manifest.runtimeClass
 

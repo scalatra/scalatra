@@ -1,7 +1,7 @@
 package org.scalatra
 package servlet
 
-import test.scalatest.ScalatraFunSuite
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class ServletContextAttributesTest extends ScalatraFunSuite with AttributesTest {
   addServlet(new AttributesServlet {

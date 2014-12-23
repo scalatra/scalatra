@@ -3,7 +3,7 @@ package scalatest
 
 import org.junit.runner.RunWith
 import org.scalatest._
-import org.scalatest.junit.{ JUnitSuite, JUnit3Suite, JUnitRunner }
+import org.scalatest.junit.{ JUnit3Suite, JUnitRunner, JUnitSuite }
 import org.scalatest.testng.TestNGSuite
 
 @RunWith(classOf[JUnitRunner]) /**

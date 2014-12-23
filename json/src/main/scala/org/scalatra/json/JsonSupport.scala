@@ -1,12 +1,13 @@
 package org.scalatra
 package json
 
-import java.io.{ InputStreamReader, InputStream }
-import org.json4s._
-import Xml._
+import java.io.{ InputStream, InputStreamReader }
 import javax.servlet.http.HttpServletRequest
+
+import org.json4s.Xml._
+import org.json4s._
+import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
-import util.RicherString._
 
 object JsonSupport {
 
@@ -15,7 +16,7 @@ object JsonSupport {
 
 trait JsonSupport[T] extends JsonOutput[T] {
 
-  import JsonSupport._
+  import org.scalatra.json.JsonSupport._
 
   private[this] val logger = LoggerFactory.getLogger(getClass)
 

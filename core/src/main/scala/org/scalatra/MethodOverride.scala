@@ -1,8 +1,10 @@
 package org.scalatra
 
-import scala.collection.SortedSet
 import javax.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse }
-import servlet.ServletApiImplicits
+
+import org.scalatra.servlet.ServletApiImplicits
+
+import scala.collection.SortedSet
 
 object MethodOverride {
   val ParamName = "_method"
@@ -29,7 +31,7 @@ trait MethodOverride extends Handler with ServletApiImplicits {
   }
 
   private[this] def methodOverride(req: HttpServletRequest) = {
-    import MethodOverride._
+    import org.scalatra.MethodOverride._
     val methodOpt = req.parameters get ParamName
     methodOpt orElse {
       val headers = req.headers

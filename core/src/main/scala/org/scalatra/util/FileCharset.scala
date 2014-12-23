@@ -1,10 +1,12 @@
 package org.scalatra.util
 
-import java.io.{ FileInputStream, File }
-import org.mozilla.universalchardet.UniversalDetector
-import scala.io.Codec
+import java.io.{ File, FileInputStream }
 import java.nio.charset.Charset
+
 import grizzled.slf4j.Logger
+import org.mozilla.universalchardet.UniversalDetector
+
+import scala.io.Codec
 
 object FileCharset {
 

@@ -1,8 +1,9 @@
 package org.scalatra
 package i18n
 
-import org.scalatest.{ Matchers, WordSpec }
 import java.util.MissingResourceException
+
+import org.scalatest.{ Matchers, WordSpec }
 
 class MessagesSpec extends WordSpec with Matchers {
   val messages = Messages()

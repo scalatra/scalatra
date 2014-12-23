@@ -1,12 +1,14 @@
 package org.scalatra
 package atmosphere
 
+import java.util.concurrent.ConcurrentLinkedQueue
+
 import _root_.akka.actor._
-import collection.JavaConverters._
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
-import concurrent.{ ExecutionContext, Future }
-import java.util.concurrent.ConcurrentLinkedQueue
+
+import scala.collection.JavaConverters._
+import scala.concurrent.{ ExecutionContext, Future }
 
 trait ScalatraBroadcaster extends Broadcaster {
 

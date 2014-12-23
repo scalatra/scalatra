@@ -1,7 +1,7 @@
 package org.scalatra.util
 
-import java.util.{ Locale, TimeZone, Date }
 import java.text.SimpleDateFormat
+import java.util.{ Date, Locale, TimeZone }
 
 object DateUtil {
   @volatile private[this] var _currentTimeMillis: Option[Long] = None

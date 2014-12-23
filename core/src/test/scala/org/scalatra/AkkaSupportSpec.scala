@@ -1,15 +1,10 @@
 package org.scalatra
 
 import _root_.akka.actor._
-import scala.concurrent.{ Future, Await }
-import _root_.akka.pattern.ask
-import _root_.akka.actor.SupervisorStrategy._
-import scala.concurrent.duration._
+import org.scalatra.test.specs2.MutableScalatraSpec
 
-import _root_.akka.util.Timeout
-import test.specs2.MutableScalatraSpec
-import scala.util.control.ControlThrowable
-import runtime.NonLocalReturnControl
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   val system = ActorSystem()

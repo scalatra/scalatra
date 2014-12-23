@@ -2,9 +2,9 @@ package org.scalatra
 package auth
 package strategy
 
-import test.specs2._
-
 import javax.servlet.http.HttpServletRequest
+
+import org.scalatra.test.specs2._
 import org.specs2.mock.Mockito
 
 class BasicAuthStrategySpec extends MutableScalatraSpec with Mockito {

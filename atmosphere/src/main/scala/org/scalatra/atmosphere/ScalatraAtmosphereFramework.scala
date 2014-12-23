@@ -1,18 +1,9 @@
 package org.scalatra
 package atmosphere
 
-import org.atmosphere.cpr.{ Action => AtmoAction, BroadcasterFactory, AtmosphereResponse, AtmosphereRequest, AtmosphereFramework }
-import org.atmosphere.container._
-import java.util.UUID
-import org.atmosphere.cpr.ApplicationConfig._
-import org.atmosphere.cpr.FrameworkConfig._
-import org.atmosphere.cpr.HeaderConfig._
-import org.atmosphere.websocket.WebSocket._
-import org.scalatra.servlet.ServletApiImplicits._
-import scala.util.control.Exception._
-import org.scalatra.util.RicherString._
 import grizzled.slf4j.Logger
-import scala.Some
+import org.atmosphere.container._
+import org.atmosphere.cpr.{ AtmosphereFramework, Action => AtmoAction }
 
 class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers: Boolean = false) extends AtmosphereFramework(isFilter, autoDetectHandlers) {
 

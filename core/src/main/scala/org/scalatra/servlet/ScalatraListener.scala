@@ -2,14 +2,13 @@ package org.scalatra
 package servlet
 
 //import akka.actor.ActorSystem
-import javax.servlet.ServletContext
-import javax.servlet.{ ServletContextEvent, ServletContextListener }
+import javax.servlet.{ ServletContext, ServletContextEvent, ServletContextListener }
+
 import grizzled.slf4j.Logger
-import util.RicherString._
-import scala.util.control.Exception._
+import org.scalatra.util.RicherString._
 
 class ScalatraListener extends ServletContextListener {
-  import ScalatraListener._
+  import org.scalatra.servlet.ScalatraListener._
 
   private[this] val logger: Logger = Logger[this.type]
 

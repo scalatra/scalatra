@@ -1,6 +1,6 @@
 package org.scalatra.test
 
-import java.io.{ NotSerializableException, OutputStream, ObjectOutputStream }
+import java.io.{ NotSerializableException, ObjectOutputStream, OutputStream }
 import javax.servlet.http.{ HttpSessionAttributeListener, HttpSessionBindingEvent }
 
 object NullOut extends OutputStream {

@@ -1,20 +1,18 @@
 package org.scalatra
 package swagger
 
-import java.util.{ Date => JDate, Locale }
-import org.json4s._
-import org.json4s.JsonDSL._
-import DefaultReaders._
-import DefaultWriters._
-import org.joda.time._
-import format.ISODateTimeFormat
+import java.util.{ Date => JDate }
+
 import grizzled.slf4j.Logger
-import org.scalatra.json.JsonSupport
+import org.joda.time._
+import org.joda.time.format.ISODateTimeFormat
+import org.json4s.JsonDSL._
+import org.json4s._
 import org.scalatra.auth.ScentrySupport
-import collection.mutable
+import org.scalatra.json.JsonSupport
 import org.scalatra.swagger.DataType.ValueDataType
-import org.scalatra.util.NotNothing
 import org.scalatra.swagger.SwaggerSerializers.SwaggerFormats
+import org.scalatra.util.NotNothing
 
 class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[AuthApi[AnyRef]] {
   private[this] val logger = Logger[this.type]
@@ -41,7 +39,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
 import org.scalatra.util.RicherString._
 
 object SwaggerAuthSerializers {
-  import SwaggerSerializers.{ dontAddOnEmpty, writeDataType, readDataType }
+  import org.scalatra.swagger.SwaggerSerializers.{ dontAddOnEmpty, readDataType, writeDataType }
 
   def authFormats[T <: AnyRef](userOption: Option[T])(implicit mf: Manifest[T]): SwaggerFormats = SwaggerSerializers.formats ++ Seq(
     new AuthOperationSerializer[T](userOption),
@@ -204,7 +202,7 @@ case class AuthApi[TypeForUser <: AnyRef](
   position: Int = 0) extends SwaggerApi[AuthEndpoint[TypeForUser]]
 object AuthApi {
 
-  import SwaggerSupportSyntax.SwaggerOperationBuilder
+  import org.scalatra.swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
 
   lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
@@ -256,8 +254,7 @@ case class AuthOperation[TypeForUser <: AnyRef](method: HttpMethod,
   allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
-  import AuthApi.AuthOperationBuilder
-  import SwaggerSupportSyntax._
+  import org.scalatra.swagger.AuthApi.AuthOperationBuilder
 
   @deprecated("Use the `apiOperation.allows` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def allows(value: Option[TypeForUser] => Boolean) = swaggerMeta(Symbols.Allows, value)

@@ -1,11 +1,13 @@
 package org.scalatra
 
-import collection._
-import java.util.{ Calendar, TimeZone, Date, Locale }
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse, Cookie => ServletCookie }
-import servlet.ServletApiImplicits
-import util.DateUtil
-import util.RicherString._
+import java.util.{ Date, Locale }
+import javax.servlet.http.{ HttpServletResponse, Cookie => ServletCookie }
+
+import org.scalatra.servlet.ServletApiImplicits
+import org.scalatra.util.DateUtil
+import org.scalatra.util.RicherString._
+
+import scala.collection._
 
 case class CookieOptions(
   domain: String = "",
@@ -26,7 +28,7 @@ object Cookie {
   def formatExpires(date: Date) = DateUtil.formatDate(date, "EEE, dd MMM yyyy HH:mm:ss zzz")
 }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
-  import Cookie._
+  import org.scalatra.Cookie._
 
   val options = cookieOptions
 
@@ -115,7 +117,7 @@ object CookieSupport {
 }
 
 trait CookieContext { self: ScalatraContext =>
-  import CookieSupport._
+  import org.scalatra.CookieSupport._
   implicit def cookieOptions: CookieOptions = servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]
 
   def cookies = request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]

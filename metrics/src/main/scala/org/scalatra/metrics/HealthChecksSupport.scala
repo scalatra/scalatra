@@ -1,11 +1,7 @@
 package org.scalatra.metrics
 
-import java.util.concurrent.Callable
-
 import com.codahale.metrics.health.HealthCheckRegistry
-import nl.grons.metrics._
 import nl.grons.metrics.scala._
-import org.scalatra.ScalatraBase
 
 trait HealthChecksSupport extends nl.grons.metrics.scala.CheckedBuilder with MetricsBootstrap {
   implicit def healthCheckRegistry: HealthCheckRegistry

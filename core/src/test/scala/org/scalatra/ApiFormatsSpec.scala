@@ -1,6 +1,6 @@
 package org.scalatra
 
-import test.specs2.MutableScalatraSpec
+import org.scalatra.test.specs2.MutableScalatraSpec
 
 class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
   override protected implicit def string2RouteMatcher(path: String): RouteMatcher = RailsPathPatternParser(path)

@@ -1,21 +1,19 @@
 package org.scalatra
 package atmosphere
 
-import java.util.concurrent.{ TimeUnit, CountDownLatch }
+import java.util.concurrent.{ CountDownLatch, TimeUnit }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import _root_.akka.actor.ActorSystem
 import org.atmosphere.wasync._
-import org.atmosphere.wasync.impl.{ DefaultRequestBuilder, DefaultOptionsBuilder, DefaultOptions }
-import org.json4s.{ Formats, DefaultFormats }
+import org.atmosphere.wasync.impl.{ DefaultOptions, DefaultOptionsBuilder, DefaultRequestBuilder }
+import org.json4s.JsonDSL._
+import org.json4s.{ DefaultFormats, Formats, _ }
 import org.scalatra.json.JacksonJsonSupport
-import org.json4s._
-import JsonDSL._
 import org.scalatra.test.specs2.MutableScalatraSpec
+import org.specs2.specification.{ Fragments, Step }
 
 import scala.concurrent.duration._
-
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import org.specs2.specification.{ Step, Fragments }
 
 class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem: ActorSystem)
     extends ScalatraServlet with JacksonJsonSupport with SessionSupport with AtmosphereSupport {

@@ -1,6 +1,6 @@
 package org.scalatra
 
-import test.scalatest.ScalatraWordSpec
+import org.scalatra.test.scalatest.ScalatraWordSpec
 
 class RemoveRouteServlet extends ScalatraServlet {
   val foo = get("/foo") { "foo" }

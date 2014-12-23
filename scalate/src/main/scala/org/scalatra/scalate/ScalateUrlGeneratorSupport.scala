@@ -2,11 +2,9 @@ package org.scalatra
 package scalate
 
 import java.io.PrintWriter
-import java.lang.reflect.Field
-import java.lang.Class
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import org.fusesource.scalate.servlet.{ ServletRenderContext, ServletTemplateEngine }
-import org.fusesource.scalate.{ TemplateEngine, Binding }
+
+import org.fusesource.scalate.Binding
 
 trait ScalateUrlGeneratorSupport extends ScalateSupport {
 

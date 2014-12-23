@@ -1,8 +1,7 @@
 package org.scalatra
 
 import org.scalatest.BeforeAndAfterEach
-import test.scalatest.ScalatraFunSuite
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class ScalatraExpectedFilterException extends RuntimeException
 class FilterTestServlet extends ScalatraServlet {

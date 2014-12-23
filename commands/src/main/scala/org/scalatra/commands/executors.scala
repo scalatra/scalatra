@@ -1,14 +1,14 @@
 package org.scalatra.commands
 
-import scalaz._
-import syntax.validation._
-import org.scalatra.validation._
 import grizzled.slf4j.Logger
 import mojolly.inflector.InflectorImports._
-import annotation.implicitNotFound
-import scala.util.{ Failure => Fail, Success => Succ, Try }
-import scalaz.Failure
+import org.scalatra.validation._
+
+import scala.annotation.implicitNotFound
 import scala.concurrent.{ ExecutionContext, Future }
+import scala.util.{ Try, Failure => Fail, Success => Succ }
+import scalaz.{ Failure, _ }
+import scalaz.syntax.validation._
 
 trait CommandExecutors {
 

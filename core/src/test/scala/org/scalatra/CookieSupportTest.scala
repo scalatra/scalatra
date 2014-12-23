@@ -1,8 +1,8 @@
 package org.scalatra
 
-import test.scalatest.ScalatraFunSuite
-import org.scalatest.matchers.MustMatchers
 import java.net.HttpCookie
+
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class CookieSupportServlet extends ScalatraServlet {
 

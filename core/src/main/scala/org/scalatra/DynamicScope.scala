@@ -1,7 +1,8 @@
 package org.scalatra
 
-import scala.util.DynamicVariable
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
+import scala.util.DynamicVariable
 
 trait RequestResponseScope {
   /**

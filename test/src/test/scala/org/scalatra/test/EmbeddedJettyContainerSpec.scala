@@ -1,8 +1,9 @@
 package org.scalatra.test
 
 import javax.servlet.http._
+
 import org.specs2.mutable._
-import org.specs2.specification.{ Step, Fragments }
+import org.specs2.specification.{ Fragments, Step }
 
 class EmbeddedJettyContainerSpec extends Specification
     with EmbeddedJettyContainer

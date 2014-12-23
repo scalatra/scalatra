@@ -1,9 +1,10 @@
 package org.scalatra
 
+import org.scalatra.test.scalatest.ScalatraWordSpec
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
-import ExecutionContext.Implicits.global
-import test.scalatest.ScalatraWordSpec
 
 class RouteConcurrencyServlet extends ScalatraServlet {
   for {

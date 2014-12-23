@@ -1,11 +1,12 @@
 package org.scalatra.test
 
 import java.io.InputStream
-import collection.DefaultMap
+
+import scala.collection.DefaultMap
 
 case class ResponseStatus(code: Int, message: String)
 
-import collection.JavaConverters._
+import scala.collection.JavaConverters._
 
 abstract class ClientResponse {
   def bodyBytes: Array[Byte]

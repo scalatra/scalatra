@@ -1,17 +1,18 @@
 package org.scalatra
 package validation
 
-import org.apache.commons.validator.routines.EmailValidator
-import scala.util.matching.Regex
-import java.util.Locale._
-import scala.util.control.Exception._
 import java.net.URI
-import org.apache.commons.validator.routines.UrlValidator
-import scalaz._
-import Scalaz._
+import java.util.Locale._
+
 import mojolly.inflector.InflectorImports._
-import commands.FieldValidation
-import util.RicherString._
+import org.apache.commons.validator.routines.{ EmailValidator, UrlValidator }
+import org.scalatra.commands.FieldValidation
+import org.scalatra.util.RicherString._
+
+import scala.util.control.Exception._
+import scala.util.matching.Regex
+import scalaz.Scalaz._
+import scalaz._
 
 object Validators {
   trait Validator[TValue] {

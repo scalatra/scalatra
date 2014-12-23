@@ -1,6 +1,6 @@
-import org.scalatra._
-
 import javax.servlet.ServletContext
+
+import org.scalatra._
 
 class ScalatraBootstrap extends LifeCycle {
 

@@ -1,11 +1,13 @@
 package org.scalatra.scalate
 
-import org.scalatra._
-import scala.concurrent.{ ExecutionContext, Future }
-import test.specs2.MutableScalatraSpec
+import java.util.concurrent.{ ExecutorService, Executors, ThreadFactory }
+
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import java.util.concurrent.{ ExecutorService, ThreadFactory, Executors }
-import org.specs2.specification.{ Step, Fragments }
+import org.scalatra._
+import org.scalatra.test.specs2.MutableScalatraSpec
+import org.specs2.specification.{ Fragments, Step }
+
+import scala.concurrent.{ ExecutionContext, Future }
 
 class DaemonThreadFactory extends ThreadFactory {
   def newThread(r: Runnable): Thread = {

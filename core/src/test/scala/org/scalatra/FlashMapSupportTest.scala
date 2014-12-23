@@ -1,7 +1,8 @@
 package org.scalatra
 
-import test.scalatest.ScalatraFunSuite
 import javax.servlet.http.HttpServletRequest
+
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   post("/message") {

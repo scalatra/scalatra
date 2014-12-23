@@ -1,9 +1,11 @@
 package org.scalatra
 package json
 
-import org.json4s._
 import java.io.File
-import xml.NodeSeq
+
+import org.json4s._
+
+import scala.xml.NodeSeq
 
 /**
  * Responsible for passing a JValue further in the render pipeline.

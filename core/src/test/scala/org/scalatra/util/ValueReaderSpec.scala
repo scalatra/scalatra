@@ -1,7 +1,7 @@
 package org.scalatra
 package util
 
-import conversion.DefaultImplicitConversions
+import org.scalatra.util.conversion.DefaultImplicitConversions
 import org.specs2.mutable.Specification
 
 class ValueReaderSpec extends Specification with DefaultImplicitConversions {

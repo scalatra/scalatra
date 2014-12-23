@@ -1,8 +1,8 @@
 package org.scalatra
 
-import org.scalatest.matchers.MustMatchers
-import org.scalatest._
 import java.util.Date
+
+import org.scalatest._
 
 class CookieTest extends WordSpec with Matchers with BeforeAndAfterAll {
 

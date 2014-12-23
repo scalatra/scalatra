@@ -1,17 +1,18 @@
 package org.scalatra
 package commands
 
+import java.util.Date
+
+import org.joda.time.{ DateTime, DateTimeZone }
+import org.json4s._
+import org.scalatra.util.conversion.Conversions._
 import org.scalatra.util.conversion._
 import org.scalatra.validation._
+import org.specs2.mutable.Specification
 
 import scala.math._
-import org.specs2.mutable.Specification
-import java.util.Date
+import scalaz.Scalaz._
 import scalaz._
-import Scalaz._
-import Conversions._
-import org.joda.time.{ DateTimeZone, DateTime }
-import org.json4s._
 // import org.scalatra.commands.DefaultValues._
 // import JsonZeroes._
 
@@ -40,7 +41,7 @@ class BindingSpec extends Specification {
   }
 
   "A Binding" should {
-    import TypeConverterFactories._
+    import org.scalatra.commands.TypeConverterFactories._
     "construct containers by name" in {
       val cont = Binding("login", implicitly[TypeConverter[String, String]], implicitly[TypeConverterFactory[String]])
       cont.name must_== "login"
@@ -67,10 +68,10 @@ class BindingSpec extends Specification {
   }
 
   "A BindingBuilder" should {
-    import TypeConverterFactories._
+    import org.scalatra.commands.TypeConverterFactories._
 
     "start the build process by taking a FieldDescriptor[T]" in {
-      import BindingSyntax._
+      import org.scalatra.commands.BindingSyntax._
       val b = Binding(asString("login"))
       b.field.name must_== "login"
 
@@ -114,7 +115,7 @@ class BindingSpec extends Specification {
 
   "BindingImplicits" should {
 
-    import BindingImplicits._
+    import org.scalatra.commands.BindingImplicits._
     "provide FieldDescriptor[Boolean]" in {
       testBinding[Boolean](true)
     }
@@ -284,7 +285,7 @@ class BindingSpec extends Specification {
   }
 
   "Defining validations" should {
-    import BindingImplicits._
+    import org.scalatra.commands.BindingImplicits._
     "have a validation for notBlank" in {
       val field = newBinding[String].notBlank
       field.validator must not(beEmpty)

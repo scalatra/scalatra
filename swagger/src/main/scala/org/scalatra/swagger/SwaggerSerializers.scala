@@ -1,19 +1,20 @@
 package org.scalatra.swagger
 
-import org.json4s._
-import DefaultReaders._
-import org.scalatra.util.RicherString._
-import JsonDSL._
-import org.scalatra.HttpMethod
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{ DateTime, DateTimeZone }
-import java.util.{ Date => JDate }
-import org.json4s.ext.{ EnumNameSerializer, JodaTimeSerializers }
 import java.lang.reflect.Type
 import java.text.SimpleDateFormat
+import java.util.{ Date => JDate }
+
+import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.{ DateTime, DateTimeZone }
+import org.json4s.DefaultReaders._
+import org.json4s.JsonDSL._
+import org.json4s._
+import org.json4s.ext.{ EnumNameSerializer, JodaTimeSerializers }
+import org.scalatra.HttpMethod
+import org.scalatra.util.RicherString._
 
 object SwaggerSerializers {
-  import AllowableValues._
+  import org.scalatra.swagger.AllowableValues._
   private val simpleTypes =
     Set("int32", "int64", "float", "double", "string", "byte", "boolean", "date", "date-time", "array")
   private def isSimpleType(name: String) = simpleTypes contains name

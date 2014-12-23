@@ -1,9 +1,9 @@
 package org.scalatra
 
-import scala.xml.Text
-import test.scalatest.ScalatraFunSuite
 import java.io.File
-import util.io.withTempFile
+
+import org.scalatra.test.scalatest.ScalatraFunSuite
+import org.scalatra.util.io.withTempFile
 
 class ScalatraTestServlet extends ScalatraServlet {
   get("/") {

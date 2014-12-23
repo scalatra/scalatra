@@ -1,16 +1,18 @@
 package org.scalatra
 package swagger
 
-import java.util.{ Date => JDate }
-import org.json4s._
-import org.joda.time._
-import format.ISODateTimeFormat
-import grizzled.slf4j.Logger
-import collection.JavaConverters._
-import java.util.concurrent.ConcurrentHashMap
-import reflect._
 import java.lang.reflect.Field
+import java.util.concurrent.ConcurrentHashMap
+import java.util.{ Date => JDate }
+
+import grizzled.slf4j.Logger
+import org.joda.time._
+import org.joda.time.format.ISODateTimeFormat
+import org.json4s._
+import org.scalatra.swagger.reflect._
 import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
+
+import scala.collection.JavaConverters._
 
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String

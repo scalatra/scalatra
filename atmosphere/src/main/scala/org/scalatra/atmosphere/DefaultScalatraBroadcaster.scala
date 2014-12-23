@@ -1,8 +1,9 @@
 package org.scalatra.atmosphere
 
+import java.util.concurrent.ConcurrentLinkedQueue
+
 import _root_.akka.actor._
 import org.atmosphere.cpr._
-import java.util.concurrent.ConcurrentLinkedQueue
 
 final class DefaultScalatraBroadcaster()(implicit wireFormat: WireFormat, system: ActorSystem)
     extends DefaultBroadcaster with ScalatraBroadcaster {

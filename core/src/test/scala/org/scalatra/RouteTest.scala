@@ -3,9 +3,9 @@
  */
 package org.scalatra
 
-import test.scalatest.ScalatraFunSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class RouteTestServlet extends ScalatraServlet {
   get("/foo") {

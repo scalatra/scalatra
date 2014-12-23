@@ -1,7 +1,7 @@
 package org.scalatra
 package i18n
 
-import test.scalatest.ScalatraWordSpec
+import org.scalatra.test.scalatest.ScalatraWordSpec
 
 class I18nSupportServlet extends ScalatraServlet with I18nSupport {
   get("/:key") {

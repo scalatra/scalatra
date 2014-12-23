@@ -1,8 +1,6 @@
 package org.scalatra
 
-import org.scalatra._
-
-import test.specs2.MutableScalatraSpec
+import org.scalatra.test.specs2.MutableScalatraSpec
 
 class CsrfTokenServlet extends ScalatraServlet with CsrfTokenSupport {
   get("/renderForm") {

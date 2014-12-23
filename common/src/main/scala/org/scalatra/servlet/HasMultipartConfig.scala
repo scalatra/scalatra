@@ -9,7 +9,7 @@ object HasMultipartConfig {
 }
 trait HasMultipartConfig extends Initializable { self: { def servletContext: ServletContext } =>
 
-  import HasMultipartConfig._
+  import org.scalatra.servlet.HasMultipartConfig._
 
   private[this] def multipartConfigFromContext: Option[MultipartConfig] = {
     // hack to support the tests without changes

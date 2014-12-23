@@ -1,7 +1,8 @@
 package org.scalatra.test
 
-import java.io.{ InputStream, FileInputStream, ByteArrayOutputStream, File }
-import annotation.tailrec
+import java.io.{ ByteArrayOutputStream, File, FileInputStream }
+
+import scala.annotation.tailrec
 
 abstract class Uploadable {
   def content: Array[Byte]

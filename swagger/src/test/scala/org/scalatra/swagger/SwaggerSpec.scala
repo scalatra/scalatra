@@ -1,19 +1,20 @@
 package org.scalatra
 package swagger
 
-import test.specs2.ScalatraSpec
-import org.specs2._
-import org.specs2.matcher.{ ThrownExpectations, MatchResult, JsonMatchers }
-import org.json4s._
-import jackson.JsonMethods
-import JsonDSL._
-import org.json4s.native.JsonParser
-import org.scalatra.json.{ JValueResult, NativeJsonSupport }
-import scala.io.Source
 import java.net.ServerSocket
-import org.scalatra.swagger.annotations._
-import scala.collection.mutable
+
 import org.joda.time.DateTime
+import org.json4s.JsonDSL._
+import org.json4s._
+import org.json4s.jackson.JsonMethods
+import org.json4s.native.JsonParser
+import org.scalatra.json.NativeJsonSupport
+import org.scalatra.swagger.annotations._
+import org.scalatra.test.specs2.ScalatraSpec
+import org.specs2.matcher.{ JsonMatchers, MatchResult }
+
+import scala.collection.mutable
+import scala.io.Source
 
 class SwaggerSpec extends ScalatraSpec with JsonMatchers {
   def is = sequential ^

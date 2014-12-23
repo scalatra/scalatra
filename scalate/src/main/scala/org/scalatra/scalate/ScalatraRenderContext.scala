@@ -1,14 +1,12 @@
 package org.scalatra
 package scalate
 
-import servlet.{ FileItem, FileUploadSupport, FileMultiParams, ServletBase }
-
 import java.io.PrintWriter
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest, HttpSession }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse, HttpSession }
+
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.ServletRenderContext
-import javax.servlet.ServletContext
-import servlet.ServletApiImplicits._
+import org.scalatra.servlet.{ FileItem, FileMultiParams, FileUploadSupport, ServletBase }
 
 /**
  * A render context integrated with Scalatra.  Exposes a few extra

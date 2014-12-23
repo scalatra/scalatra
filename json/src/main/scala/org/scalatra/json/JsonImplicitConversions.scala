@@ -1,11 +1,11 @@
 package org.scalatra
 package json
 
-import org.scalatra.util.conversion._
-import java.util.Date
 import java.text.{ DateFormat, SimpleDateFormat }
-import scala.util.control.Exception._
+import java.util.Date
+
 import org.json4s._
+import org.scalatra.util.conversion._
 
 trait JsonImplicitConversions extends TypeConverterSupport {
   implicit protected def jsonFormats: Formats
@@ -40,7 +40,7 @@ trait JsonImplicitConversions extends TypeConverterSupport {
   implicit def jsonToSeq[T](implicit elementConverter: TypeConverter[JValue, T], mf: Manifest[T]): TypeConverter[JValue, Seq[T]] =
     safe(_.extract[List[T]])
 
-  import JsonConversions._
+  import org.scalatra.json.JsonConversions._
   implicit def jsonToValTypeConversion(source: JValue) = new JsonValConversion(source)
 
   implicit def jsonToDateConversion(source: JValue) = new JsonDateConversion(source, jsonToDate(_))

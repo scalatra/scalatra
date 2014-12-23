@@ -1,8 +1,10 @@
 package org.scalatra
 
-import test.specs2.MutableScalatraSpec
 import java.net.HttpCookie
-import collection.JavaConverters._
+
+import org.scalatra.test.specs2.MutableScalatraSpec
+
+import scala.collection.JavaConverters._
 
 class XsrfTokenServlet extends ScalatraServlet with XsrfTokenSupport {
 

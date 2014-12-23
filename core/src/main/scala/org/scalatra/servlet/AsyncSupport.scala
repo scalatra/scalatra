@@ -1,7 +1,7 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.{ AsyncContext, AsyncEvent }
+import javax.servlet.AsyncEvent
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 object AsyncSupport {

@@ -1,6 +1,5 @@
 package org.scalatra.example
 
-import org.scalatra._
 import org.scalatra.jetty.JettyServer
 
 object EmbeddedServer {

@@ -1,6 +1,6 @@
 package org.scalatra
 
-import test.scalatest.ScalatraFunSuite
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class ErrorHandlerTest extends ScalatraFunSuite {
   trait TestException extends RuntimeException

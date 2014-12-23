@@ -1,12 +1,11 @@
 package org.scalatra.servlet
 
-import scala.collection.JavaConversions._
-import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatra.ScalatraServlet
 import java.io.File
-import javax.servlet.http.HttpServlet
-import org.eclipse.jetty.servlet.ServletHolder
-import javax.servlet.MultipartConfigElement
+
+import org.scalatra.ScalatraServlet
+import org.scalatra.test.scalatest.ScalatraFunSuite
+
+import scala.collection.JavaConversions._
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
   def handleRequest() {

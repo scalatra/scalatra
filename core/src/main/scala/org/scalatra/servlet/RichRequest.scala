@@ -1,22 +1,24 @@
 package org.scalatra
 package servlet
 
-import scala.collection.{ Map => CMap }
-import scala.collection.immutable.DefaultMap
-import scala.collection.JavaConverters._
-import scala.io.Source
+import java.io.InputStream
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
-import java.io.InputStream
-import util.{ MultiMap, MultiMapHeadView }
-import util.RicherString._
+
+import org.scalatra.util.RicherString._
+import org.scalatra.util.{ MultiMap, MultiMapHeadView }
+
+import scala.collection.JavaConverters._
+import scala.collection.immutable.DefaultMap
+import scala.collection.{ Map => CMap }
+import scala.io.Source
 
 object RichRequest {
   private val cachedBodyKey = "org.scalatra.RichRequest.cachedBody"
 }
 
 case class RichRequest(r: HttpServletRequest) extends AttributesMap {
-  import RichRequest.cachedBodyKey
+  import org.scalatra.servlet.RichRequest.cachedBodyKey
 
   /**
    * The version of the protocol the client used to send the request.

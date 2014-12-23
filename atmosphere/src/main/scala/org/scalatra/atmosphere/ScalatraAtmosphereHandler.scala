@@ -1,16 +1,15 @@
 package org.scalatra
 package atmosphere
 
-import org.atmosphere.handler.AbstractReflectorAtmosphereHandler
-import org.atmosphere.cpr._
-import org.scalatra.servlet.ServletApiImplicits._
-import org.json4s.Formats
 import java.nio.CharBuffer
-import org.scalatra.util.RicherString._
 import javax.servlet.http.{ HttpServletRequest, HttpSession }
-import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
-import org.atmosphere.cpr.AtmosphereResource.TRANSPORT
+
 import grizzled.slf4j.Logger
+import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
+import org.atmosphere.cpr._
+import org.atmosphere.handler.AbstractReflectorAtmosphereHandler
+import org.scalatra.servlet.ServletApiImplicits._
+import org.scalatra.util.RicherString._
 
 object ScalatraAtmosphereHandler {
   @deprecated("Use `org.scalatra.atmosphere.AtmosphereClientKey` instead", "2.2.1")
@@ -56,7 +55,7 @@ object ScalatraAtmosphereHandler {
 
 class ScalatraAtmosphereException(message: String) extends ScalatraException(message)
 class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
-  import ScalatraAtmosphereHandler._
+  import org.scalatra.atmosphere.ScalatraAtmosphereHandler._
 
   private[this] val internalLogger = Logger(getClass)
 
@@ -190,7 +189,7 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
   }
 
   private[this] def resumeIfNeeded(resource: AtmosphereResource) {
-    import AtmosphereResource.TRANSPORT._
+    import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
     resource.transport match {
       case JSONP | AJAX | LONG_POLLING => resource.resumeOnBroadcast(true)
       case _ =>

@@ -1,8 +1,9 @@
 package org.scalatra
 
-import org.scalatra.test.specs2.MutableScalatraSpec
-import scala.concurrent.Future
 import _root_.akka.actor.ActorSystem
+import org.scalatra.test.specs2.MutableScalatraSpec
+
+import scala.concurrent.Future
 
 class AkkaSupportAfterFilterServlet extends ScalatraServlet with FutureSupport {
   val system = ActorSystem()

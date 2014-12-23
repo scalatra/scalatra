@@ -1,8 +1,8 @@
 package org.scalatra
 package swagger
 
-import org.scalatra.json.JacksonJsonSupport
 import org.json4s._
+import org.scalatra.json.JacksonJsonSupport
 import org.scalatra.test.specs2.ScalatraSpec
 import org.specs2.matcher.JsonMatchers
 
