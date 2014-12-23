@@ -24,10 +24,12 @@ import scala.util.DynamicVariable
  * @see ScalatraServlet
  */
 trait ScalatraFilter extends Filter with ServletBase {
-  private[this] val _filterChain = new DynamicVariable[FilterChain](null)
-  protected def filterChain = _filterChain.value
 
-  def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+  private[this] val _filterChain = new DynamicVariable[FilterChain](null)
+
+  protected def filterChain: FilterChain = _filterChain.value
+
+  def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     val httpRequest = request.asInstanceOf[HttpServletRequest]
     val httpResponse = response.asInstanceOf[HttpServletResponse]
 
@@ -38,7 +40,7 @@ trait ScalatraFilter extends Filter with ServletBase {
 
   // What goes in servletPath and what goes in pathInfo depends on how the underlying servlet is mapped.
   // Unlike the Scalatra servlet, we'll use both here by default.  Don't like it?  Override it.
-  def requestPath(implicit request: HttpServletRequest) = {
+  def requestPath(implicit request: HttpServletRequest): String = {
     def getRequestPath = request.getRequestURI match {
       case requestURI: String =>
         var uri = requestURI
@@ -63,7 +65,7 @@ trait ScalatraFilter extends Filter with ServletBase {
     }
   }
 
-  protected def routeBasePath(implicit request: HttpServletRequest) = {
+  protected def routeBasePath(implicit request: HttpServletRequest): String = {
     if (servletContext == null)
       throw new IllegalStateException("routeBasePath requires an initialized servlet context to determine the context path")
     servletContext.getContextPath
@@ -76,11 +78,12 @@ trait ScalatraFilter extends Filter with ServletBase {
   type ConfigT = FilterConfig
 
   // see Initializable.initialize for why
-  def init(filterConfig: FilterConfig) {
+  def init(filterConfig: FilterConfig): Unit = {
     initialize(filterConfig)
   }
 
-  def destroy {
+  def destroy: Unit = {
     shutdown()
   }
+
 }

@@ -33,12 +33,15 @@ trait ScalatraParamsImplicits {
 
   sealed class TypedMultiParams(multiParams: MultiParams) {
 
-    def getAs[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] = multiParams.get(name) map {
-      s =>
-        s.flatMap(tc.apply(_))
+    def getAs[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] = {
+      multiParams.get(name) map {
+        s => s.flatMap(tc.apply(_))
+      }
     }
 
-    def getAs[T <: Date](nameAndFormat: (String, String)): Option[Seq[Date]] = getAs(nameAndFormat._1)(stringToDate(nameAndFormat._2))
+    def getAs[T <: Date](nameAndFormat: (String, String)): Option[Seq[Date]] = {
+      getAs(nameAndFormat._1)(stringToDate(nameAndFormat._2))
+    }
 
     def as[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Seq[T] =
       getAs[T](name) getOrElse (throw new ScalatraException("Key %s could not be found.".format(name)))
@@ -49,14 +52,19 @@ trait ScalatraParamsImplicits {
     def getAsOrElse[T <: Any](name: String, default: => Seq[T])(implicit tc: TypeConverter[String, T]): Seq[T] =
       getAs[T](name).getOrElse(default)
 
-    def getAsOrElse(nameAndFormat: (String, String), default: => Seq[Date])(implicit tc: TypeConverter[String, Date]): Seq[Date] =
+    def getAsOrElse(nameAndFormat: (String, String), default: => Seq[Date])(
+      implicit tc: TypeConverter[String, Date]): Seq[Date] = {
       getAs[Date](nameAndFormat).getOrElse(default)
+    }
 
   }
 
-  implicit def toTypedParams(params: Params) = new TypedParams(params)
+  implicit def toTypedParams(params: Params): TypedParams = new TypedParams(params)
 
-  implicit def toTypedMultiParams(params: MultiParams) = new TypedMultiParams(params)
+  implicit def toTypedMultiParams(params: MultiParams): TypedMultiParams = new TypedMultiParams(params)
+
 }
 
-object ScalatraParamsImplicits extends ScalatraParamsImplicits with DefaultImplicitConversions
+object ScalatraParamsImplicits
+  extends ScalatraParamsImplicits
+  with DefaultImplicitConversions

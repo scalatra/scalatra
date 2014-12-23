@@ -8,6 +8,7 @@ import scala.util.parsing.combinator.RegexParsers
  * parameters.
  */
 case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
+
   def apply(path: String): Option[MultiParams] = {
     // This is a performance hotspot.  Hideous mutatations ahead.
     val m = regex.pattern.matcher(path)
@@ -30,25 +31,32 @@ case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
     new Regex(this.regex.toString + pathPattern.regex.toString),
     this.captureGroupNames ::: pathPattern.captureGroupNames
   )
+
 }
 
 /**
  * Parses a string into a path pattern for routing.
  */
 trait PathPatternParser {
+
   def apply(pattern: String): PathPattern
+
 }
 
 object PathPatternParser {
+
   val PathReservedCharacters = "/?#"
+
 }
 
 trait RegexPathPatternParser extends PathPatternParser with RegexParsers {
+
   /**
    * This parser gradually builds a regular expression.  Some intermediate
    * strings are not valid regexes, so we wait to compile until the end.
    */
   protected case class PartialPathPattern(regex: String, captureGroupNames: List[String] = Nil) {
+
     def toPathPattern: PathPattern = PathPattern(regex.r, captureGroupNames)
 
     def +(other: PartialPathPattern): PartialPathPattern = PartialPathPattern(
@@ -62,6 +70,7 @@ trait RegexPathPatternParser extends PathPatternParser with RegexParsers {
  * A Sinatra-compatible route path pattern parser.
  */
 class SinatraPathPatternParser extends RegexPathPatternParser {
+
   def apply(pattern: String): PathPattern =
     parseAll(pathPattern, pattern) match {
       case Success(pathPattern, _) =>
@@ -85,16 +94,20 @@ class SinatraPathPatternParser extends RegexPathPatternParser {
     { c => PartialPathPattern("\\" + c) }
 
   private def normalChar = ".".r ^^ { c => PartialPathPattern(c) }
+
 }
 
 object SinatraPathPatternParser {
+
   def apply(pattern: String): PathPattern = new SinatraPathPatternParser().apply(pattern)
+
 }
 
 /**
  * Path pattern parser based on Rack::Mount::Strexp, which is used by Rails.
  */
 class RailsPathPatternParser extends RegexPathPatternParser {
+
   def apply(pattern: String): PathPattern =
     parseAll(target, pattern) match {
       case Success(target, _) => target
@@ -136,6 +149,8 @@ class RailsPathPatternParser extends RegexPathPatternParser {
 }
 
 object RailsPathPatternParser {
+
   def apply(pattern: String): PathPattern = new RailsPathPatternParser().apply(pattern)
+
 }
 

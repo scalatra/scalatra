@@ -18,14 +18,16 @@ import scala.collection.JavaConverters._
  * @see FlashMapSupport
  */
 class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
+
   private[this] val m = new ConcurrentHashMap[String, Any]().asScala
+
   private[this] val flagged = new ConcurrentSkipListSet[String]().asScala
 
   /**
    * Removes an entry from the flash map.  It is no longer available for this
    * request or the next.
    */
-  def -=(key: String) = {
+  def -=(key: String): FlashMap.this.type = {
     m -= key
     this
   }
@@ -33,7 +35,7 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
   /**
    * Adds an entry to the flash map.  Clears the sweep flag for the key.
    */
-  def +=(kv: (String, Any)) = {
+  def +=(kv: (String, Any)): FlashMap.this.type = {
     flagged -= kv._1
     m += kv
     this
@@ -58,7 +60,7 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
   /**
    * Returns the value associated with a key and flags it to be swept.
    */
-  def get(key: String) = {
+  def get(key: String): Option[Any] = {
     flagged += key
     m.get(key)
   }
@@ -66,28 +68,28 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
   /**
    * Removes all flagged entries.
    */
-  def sweep() {
+  def sweep(): Unit = {
     flagged foreach { key => m -= key }
   }
 
   /**
    * Clears all flags so no entries are removed on the next sweep.
    */
-  def keep() {
+  def keep(): Unit = {
     flagged.clear()
   }
 
   /**
    * Clears the flag for the specified key so its entry is not removed on the next sweep.
    */
-  def keep(key: String) {
+  def keep(key: String): Unit = {
     flagged -= key
   }
 
   /**
    * Flags all current keys so the entire map is cleared on the next sweep.
    */
-  def flag() {
+  def flag(): Unit = {
     flagged ++= m.keys
   }
 
@@ -100,6 +102,7 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
    * }}}
    */
   object now {
+
     def update(key: String, value: Any) = {
       flagged += key
       m += key -> value
@@ -108,9 +111,13 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
 }
 
 object FlashMapSupport {
+
   val SessionKey = FlashMapSupport.getClass.getName + ".flashMap"
+
   val LockKey = FlashMapSupport.getClass.getName + ".lock"
+
   val FlashMapKey = "org.scalatra.FlashMap"
+
 }
 
 /**
@@ -134,7 +141,7 @@ trait FlashMapSupport extends Handler {
 
   import org.scalatra.FlashMapSupport._
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     withRequest(req) {
       val f = flash
       val isOutermost = !request.contains(LockKey)
@@ -168,7 +175,7 @@ trait FlashMapSupport extends Handler {
    * Override to implement custom session retriever, or sanity checks if session is still active
    * @param f
    */
-  def flashMapSetSession(f: FlashMap) {
+  def flashMapSetSession(f: FlashMap): Unit = {
     try {
       // Save flashMap to Session after (a session could stop existing during a request, so catch exception)
       session(SessionKey) = f
@@ -192,10 +199,11 @@ trait FlashMapSupport extends Handler {
    */
   def flash(implicit request: HttpServletRequest): FlashMap = getFlash(request)
 
-  def flash(key: String)(implicit request: HttpServletRequest) = getFlash(request)(key)
+  def flash(key: String)(implicit request: HttpServletRequest): Any = getFlash(request)(key)
 
   /**
    * Determines whether unused flash entries should be swept.  The default is false.
    */
-  protected def sweepUnusedFlashEntries(req: HttpServletRequest) = false
+  protected def sweepUnusedFlashEntries(req: HttpServletRequest): Boolean = false
+
 }

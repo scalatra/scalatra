@@ -124,7 +124,8 @@ class RouteRegistry {
       route <- routes
     } yield method + " " + route).toSeq sortWith (_ < _)
 
-  def methodRoutes = _methodRoutes.clone()
+  def methodRoutes: Map[HttpMethod, Seq[Route]] = _methodRoutes.clone().toMap
 
   override def toString: String = entryPoints mkString ", "
+
 }
