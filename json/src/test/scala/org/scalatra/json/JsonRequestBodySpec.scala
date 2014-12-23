@@ -1,8 +1,8 @@
 package org.scalatra
 package json
 
-import test.specs2.MutableScalatraSpec
 import org.json4s._
+import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.text.Document
 

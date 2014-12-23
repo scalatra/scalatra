@@ -1,18 +1,11 @@
 package org.scalatra
 package scalate
 
-import i18n.I18nSupport
-
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import org.fusesource.scalate.Binding
-import org.fusesource.scalate.RenderContext
-import javax.servlet.ServletConfig
-import org.fusesource.scalate.servlet.ServletTemplateEngine
-import javax.servlet.FilterConfig
-import org.fusesource.scalate.TemplateEngine
-import i18n.Messages
 import java.io.PrintWriter
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
+import org.fusesource.scalate.{ Binding, RenderContext }
+import org.scalatra.i18n.{ I18nSupport, Messages }
 
 trait ScalateI18nSupport extends ScalateSupport with I18nSupport {
 

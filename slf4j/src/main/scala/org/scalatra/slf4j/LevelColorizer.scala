@@ -1,10 +1,10 @@
 package org.scalatra
 package slf4j
 
+import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.pattern.ClassicConverter
 import ch.qos.logback.classic.spi.ILoggingEvent
-import ch.qos.logback.classic.Level
-import util.RicherString._
+import org.scalatra.util.RicherString._
 
 object LevelColorizer {
   private val EndColor = "\u001b[m"
@@ -52,7 +52,7 @@ object LevelColorizer {
 class LevelColorizer extends ClassicConverter {
 
   def convert(event: ILoggingEvent) = {
-    import LevelColorizer._
+    import org.scalatra.slf4j.LevelColorizer._
     val c = colors.getOrElse(event.getLevel, "")
     "%s%s%s" format (c, event.getLevel, c.blankOption map (_ ⇒ EndColor) getOrElse "")
   }

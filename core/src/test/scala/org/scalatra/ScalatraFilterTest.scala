@@ -1,9 +1,10 @@
 package org.scalatra
 
-import test.scalatest.ScalatraFunSuite
-import org.scalatest.junit.JUnitRunner
-import org.junit.runner.RunWith
 import javax.servlet.http.HttpServletRequest
+
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 /*
  * There are four types of servlet mappings: path, extension, default, and exact-match.  Test them all, as they can all

@@ -1,10 +1,12 @@
 package org.scalatra
 
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import util.RicherString._
 import java.util.Locale.ENGLISH
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
 import grizzled.slf4j.Logger
-import collection.JavaConverters._
+import org.scalatra.util.RicherString._
+
+import scala.collection.JavaConverters._
 
 object CorsSupport {
   val OriginHeader: String = "Origin"
@@ -64,7 +66,7 @@ object CorsSupport {
 }
 trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
 
-  import CorsSupport._
+  import org.scalatra.CorsSupport._
 
   private[this] lazy val logger = Logger(getClass)
 

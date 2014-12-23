@@ -1,15 +1,15 @@
 package org.scalatra
 package commands
 
-import validation._
-import util.conversion._
-import scalaz._
-import scalaz.Validation.FlatMap._
-import syntax.validation._
-import syntax.std.option._
 import mojolly.inflector.InflectorImports._
 import org.scalatra.util.RicherString._
-import org.json4s.JsonFormat
+import org.scalatra.util.conversion._
+import org.scalatra.validation._
+
+import scalaz.Validation.FlatMap._
+import scalaz._
+import scalaz.syntax.std.option._
+import scalaz.syntax.validation._
 
 object DefVal {
   def apply[T](prov: => T) = new DefVal(prov)
@@ -310,7 +310,7 @@ import scala.util.matching.Regex
 
 trait BindingValidatorImplicits {
 
-  import BindingValidators._
+  import org.scalatra.commands.BindingValidators._
   implicit def validatableStringBinding(b: FieldDescriptor[String]) = new ValidatableStringBinding(b)
   implicit def validatableSeqBinding[T <: Seq[_]](b: FieldDescriptor[T]) = new ValidatableSeq(b)
   implicit def validatableGenericBinding[T](b: FieldDescriptor[T]) = new ValidatableGenericBinding(b)
@@ -375,6 +375,7 @@ object BindingValidators {
   }
 
   import org.scalatra.validation.Validation
+
   import scalaz.Validation.FlatMap._
 
   def validate[TValue](validate: TValue => Boolean, messageFormat: String = "%s is invalid."): BindingValidator[TValue] = (s: String) => {

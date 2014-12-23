@@ -6,7 +6,6 @@ import com.codahale.metrics.MetricRegistry
 import com.codahale.metrics.health.HealthCheckRegistry
 import com.codahale.metrics.servlet._
 import com.codahale.metrics.servlets._
-import org.scalatra.servlet
 import org.scalatra.servlet.ServletApiImplicits
 
 object MetricsSupportExtensions extends ServletApiImplicits {

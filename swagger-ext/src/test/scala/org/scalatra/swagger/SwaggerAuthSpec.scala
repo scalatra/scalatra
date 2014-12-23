@@ -1,17 +1,15 @@
 package org.scalatra
 package swagger
 
-import org.scalatra.test.specs2.MutableScalatraSpec
-import org.scalatra.json.NativeJsonSupport
-import org.scalatra.auth.ScentrySupport
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
 import org.json4s._
 import org.json4s.native.JsonMethods._
-import org.scalatra.auth.ScentryStrategy
+import org.scalatra.auth.{ ScentryConfig, ScentryStrategy, ScentrySupport }
+import org.scalatra.json.NativeJsonSupport
 import org.scalatra.servlet.ServletApiImplicits._
-import util.RicherString._
-import org.scalatra.auth.ScentryConfig
-import org.scalatra.auth.ScentryAuthStore.CookieAuthStore
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import org.scalatra.test.specs2.MutableScalatraSpec
+import org.scalatra.util.RicherString._
 
 object SwaggerAuthSpec {
   case class User(login: String, token: String = "the_token")
@@ -142,7 +140,7 @@ object SwaggerAuthSpec {
 }
 class SwaggerAuthSpec extends MutableScalatraSpec {
 
-  import SwaggerAuthSpec._
+  import org.scalatra.swagger.SwaggerAuthSpec._
   implicit val swagger: SwaggerWithAuth = new SpecSwagger
 
   addServlet(new PetsApi, "/pets/*")

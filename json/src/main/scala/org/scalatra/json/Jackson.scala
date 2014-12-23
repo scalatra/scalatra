@@ -1,10 +1,11 @@
 package org.scalatra
 package json
 
-import java.io.{ Writer, InputStreamReader, InputStream }
+import java.io.{ InputStream, InputStreamReader, Writer }
+
 import com.fasterxml.jackson.databind.DeserializationFeature
 import org.json4s._
-import util.RicherString._
+import org.scalatra.util.RicherString._
 
 trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with JValueResult {
 

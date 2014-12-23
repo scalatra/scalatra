@@ -1,11 +1,12 @@
 package org.scalatra.swagger.reflect
 
-import java.{ util => jutil }
 import java.lang.reflect._
-import scala.util.control.Exception._
-import java.util.Date
 import java.sql.Timestamp
-import collection.mutable.ArrayBuffer
+import java.util.Date
+import java.{ util => jutil }
+
+import scala.collection.mutable.ArrayBuffer
+import scala.util.control.Exception._
 
 object Reflector {
 

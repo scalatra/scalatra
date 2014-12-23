@@ -1,8 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import test.scalatest.ScalatraFunSuite
-import javax.servlet.ServletConfig
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class AfterTestServlet extends ScalatraServlet with AfterTestAppBase
 trait AfterTestAppBase extends ScalatraBase {

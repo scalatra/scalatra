@@ -1,8 +1,8 @@
 package org.scalatra
 
-import util.MultiMap
-import javax.activation.MimetypesFileTypeMap
 import javax.servlet.http.HttpServletRequest
+
+import org.scalatra.util.MultiMap
 
 /**
  * A route is a set of matchers and an action.  A route is considered to match

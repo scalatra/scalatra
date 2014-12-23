@@ -1,10 +1,11 @@
 package org.scalatra.util
 package io
 
-import scala.io.Source
 import java.io._
-import org.scalatest.WordSpec
-import org.scalatest.Matchers
+
+import org.scalatest.{ Matchers, WordSpec }
+
+import scala.io.Source
 
 class IoSpec extends WordSpec with Matchers {
   "copy" should {

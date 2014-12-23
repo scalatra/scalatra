@@ -1,12 +1,12 @@
 package org.scalatra
 package validation
 
-import org.specs2.mutable.Specification
 import org.json4s.{ DefaultFormats, Formats }
-import commands._
+import org.scalatra.commands._
+import org.specs2.mutable.Specification
+
+import scalaz.Scalaz._
 import scalaz._
-import Scalaz._
-import org.scalatra.commands.BindingSyntax._
 
 class WithValidation extends WithBindingFromParams {
   val notRequiredCap: Field[Int] = asInt("cap").optional(0).greaterThan(100)

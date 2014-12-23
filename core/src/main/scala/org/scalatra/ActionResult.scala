@@ -9,7 +9,7 @@ private object Helpers {
   }
 }
 
-import Helpers._
+import org.scalatra.Helpers._
 
 object Ok {
   def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =

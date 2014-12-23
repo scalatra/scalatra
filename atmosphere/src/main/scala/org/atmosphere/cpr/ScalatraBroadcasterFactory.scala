@@ -1,11 +1,13 @@
 package org.atmosphere.cpr
 
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
-import java.util.concurrent.ConcurrentHashMap
-import java.util.UUID
-import org.scalatra.atmosphere.{ WireFormat, ScalatraBroadcaster }
-import collection.JavaConverters._
+import org.scalatra.atmosphere.{ ScalatraBroadcaster, WireFormat }
+
+import scala.collection.JavaConverters._
 import scala.collection.concurrent.{ Map => ConcurrentMap }
 
 object ScalatraBroadcasterFactory {

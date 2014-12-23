@@ -1,8 +1,9 @@
 package org.scalatra.util
 
-import scala.annotation.tailrec
 import java.io._
 import java.nio.channels.Channels
+
+import scala.annotation.tailrec
 
 /**
  * A collection of I/O ulility methods.

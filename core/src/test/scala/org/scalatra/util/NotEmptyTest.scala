@@ -1,8 +1,8 @@
 package org.scalatra.util
 
-import org.scalatest.{ Matchers, FunSuite }
-import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{ FunSuite, Matchers }
 
 @RunWith(classOf[JUnitRunner])
 class NotEmptyTest extends FunSuite with Matchers {

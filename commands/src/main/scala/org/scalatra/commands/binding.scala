@@ -1,12 +1,14 @@
 package org.scalatra
 package commands
 
-import org.scalatra.util.conversion._
-import validation._
 import java.util.Date
-import scalaz._
-import syntax.std.option._
+
 import org.joda.time.DateTime
+import org.scalatra.util.conversion._
+import org.scalatra.validation._
+
+import scalaz._
+import scalaz.syntax.std.option._
 
 class BindingException(message: String) extends ScalatraException(message)
 

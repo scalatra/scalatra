@@ -1,7 +1,8 @@
 package org.scalatra
 
 import java.lang.{ Integer => JInteger }
-import scala.util.control.{ NoStackTrace, ControlThrowable }
+
+import scala.util.control.NoStackTrace
 
 /**
  * A collection of methods that affect the control flow of routes.

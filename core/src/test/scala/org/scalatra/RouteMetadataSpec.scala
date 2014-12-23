@@ -1,6 +1,6 @@
 package org.scalatra
 
-import test.specs2.MutableScalatraSpec
+import org.scalatra.test.specs2.MutableScalatraSpec
 
 class RouteMetadataSpec extends MutableScalatraSpec {
   addServlet(RouteMetadataSpec.servlet, "/*")

@@ -1,13 +1,13 @@
 package org.scalatra
 package test
 
-import servlet.{ ScalatraAsyncSupport, HasMultipartConfig }
-import javax.servlet.{ ServletConfig, DispatcherType, Filter }
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest, HttpServlet }
-import java.util.EnumSet
-import org.eclipse.jetty.servlet._
-import scala.deprecated
 import java.util
+import java.util.EnumSet
+import javax.servlet.http.HttpServlet
+import javax.servlet.{ DispatcherType, Filter }
+
+import org.eclipse.jetty.servlet._
+import org.scalatra.servlet.{ HasMultipartConfig, ScalatraAsyncSupport }
 
 object JettyContainer {
   private val DefaultDispatcherTypes: EnumSet[DispatcherType] =
@@ -15,7 +15,7 @@ object JettyContainer {
 }
 
 trait JettyContainer extends Container {
-  import JettyContainer._
+  import org.scalatra.test.JettyContainer._
 
   def servletContextHandler: ServletContextHandler
   def skipDefaultServlet: Boolean = false

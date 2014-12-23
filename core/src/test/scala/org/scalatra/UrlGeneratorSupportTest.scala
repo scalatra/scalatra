@@ -1,6 +1,6 @@
 package org.scalatra
 
-import test.scalatest.ScalatraFunSuite
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class UrlGeneratorContextTestServlet extends ScalatraServlet with UrlGeneratorSupport {
   val servletRoute: Route = get("/foo") { url(servletRoute) }

@@ -1,16 +1,18 @@
 package org.scalatra
 package scalate
 
-import scala.collection.mutable
-import java.io.{ StringWriter, PrintWriter }
-import javax.servlet.{ ServletContext, ServletConfig, FilterConfig }
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import org.fusesource.scalate.{ TemplateEngine, Binding, RenderContext }
+import java.io.{ PrintWriter, StringWriter }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.{ FilterConfig, ServletConfig }
+
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
-import org.fusesource.scalate.servlet.{ ServletRenderContext, ServletTemplateEngine }
+import org.fusesource.scalate.servlet.ServletTemplateEngine
 import org.fusesource.scalate.support.TemplateFinder
-import collection.concurrent.{ Map => CMap, TrieMap }
-import language.reflectiveCalls
+import org.fusesource.scalate.{ Binding, RenderContext, TemplateEngine }
+
+import scala.collection.concurrent.{ TrieMap, Map => CMap }
+import scala.collection.mutable
+import scala.language.reflectiveCalls
 
 object ScalateSupport {
   val DefaultLayouts = Seq(

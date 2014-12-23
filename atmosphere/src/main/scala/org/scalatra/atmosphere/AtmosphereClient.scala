@@ -1,11 +1,12 @@
 package org.scalatra
 package atmosphere
 
+import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
 import org.scalatra.util.RicherString._
-import grizzled.slf4j.Logger
-import concurrent.ExecutionContext
+
 import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext
 
 object AtmosphereClient {
   def lookupAll(): Seq[ScalatraBroadcaster] = {

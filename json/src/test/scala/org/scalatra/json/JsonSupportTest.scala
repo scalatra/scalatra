@@ -1,9 +1,8 @@
 package org.scalatra
 package json
 
-import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatra.ScalatraServlet
 import org.json4s._
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class JsonSupportTest extends json.JsonSupportTestBase {
   addServlet(new JsonSupportTestServlet, "/*")

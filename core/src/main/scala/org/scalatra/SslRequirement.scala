@@ -2,7 +2,8 @@ package org.scalatra
 
 import java.net.URI
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import servlet.ServletApiImplicits
+
+import org.scalatra.servlet.ServletApiImplicits
 
 /**
  * Redirects unsecured requests to the corresponding secure URL.

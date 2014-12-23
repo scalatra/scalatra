@@ -1,10 +1,12 @@
 package org.scalatra
 package json
 
-import text.Document
+import java.io.{ InputStream, InputStreamReader, Writer }
+
 import org.json4s._
-import java.io.{ InputStreamReader, InputStream, Writer }
-import util.RicherString._
+import org.scalatra.util.RicherString._
+
+import scala.text.Document
 
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
   protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue = {

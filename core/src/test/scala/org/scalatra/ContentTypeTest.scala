@@ -1,16 +1,18 @@
 package org.scalatra
 
-import _root_.akka.actor.{ Actor, Props, ActorRef, ActorSystem }
+import java.nio.charset.Charset
+
+import _root_.akka.actor.{ Actor, ActorRef, ActorSystem, Props }
 import _root_.akka.pattern.ask
 import _root_.akka.util.Timeout
-import scala.xml.Text
-import test.scalatest.ScalatraFunSuite
-import org.scalatra.util.RicherString._
-import java.nio.charset.Charset
-import scala.concurrent.duration._
-import concurrent.Await
-import org.scalatest.BeforeAndAfterAll
 import org.eclipse.jetty.servlet.ServletHolder
+import org.scalatest.BeforeAndAfterAll
+import org.scalatra.test.scalatest.ScalatraFunSuite
+import org.scalatra.util.RicherString._
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.xml.Text
 
 class ContentTypeTestServlet(system: ActorSystem) extends ScalatraServlet {
   get("/json") {

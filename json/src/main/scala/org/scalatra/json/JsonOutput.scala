@@ -1,12 +1,13 @@
 package org.scalatra
 package json
 
-import xml.{ NodeSeq, XML }
-import io.Codec
-import java.io.{ Writer, StringWriter, PrintWriter }
-import org.json4s._
+import java.io.Writer
+
 import org.json4s.Xml._
-import text.Document
+import org.json4s._
+
+import scala.io.Codec
+import scala.xml.XML
 
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
@@ -15,7 +16,7 @@ object JsonOutput {
 
 trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
-  import JsonOutput._
+  import org.scalatra.json.JsonOutput._
   /**
    * If a request is made with a parameter in jsonpCallbackParameterNames it will
    * be assumed that it is a JSONP request and the json will be returned as the

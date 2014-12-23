@@ -1,9 +1,11 @@
 package org.scalatra
 
-import util.MutableMapWithIndifferentAccess
+import java.util.concurrent.{ ConcurrentHashMap, ConcurrentSkipListSet }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import collection.JavaConverters._
-import java.util.concurrent.{ ConcurrentSkipListSet, ConcurrentHashMap }
+
+import org.scalatra.util.MutableMapWithIndifferentAccess
+
+import scala.collection.JavaConverters._
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
@@ -130,7 +132,7 @@ object FlashMapSupport {
 trait FlashMapSupport extends Handler {
   this: ScalatraBase =>
 
-  import FlashMapSupport._
+  import org.scalatra.FlashMapSupport._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
     withRequest(req) {

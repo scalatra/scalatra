@@ -2,10 +2,10 @@ package org.scalatra
 package util
 package conversion
 
-import java.util.Date
 import java.text.{ DateFormat, SimpleDateFormat }
+import java.util.Date
+
 import scala.util.control.Exception.allCatch
-import scala._
 
 /**
  * Support types and implicits for [[org.scalatra.util.conversion.TypeConverter]].

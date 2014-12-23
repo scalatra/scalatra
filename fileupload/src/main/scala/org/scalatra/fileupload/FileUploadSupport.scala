@@ -1,17 +1,15 @@
 package org.scalatra
 package fileupload
 
-import servlet._
+import java.util.{ HashMap => JHashMap, List => JList, Map => JMap }
+import javax.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse }
 
-import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.fileupload.disk.{ DiskFileItem, DiskFileItemFactory }
-import collection.JavaConversions._
-import scala.util.DynamicVariable
-import java.util.{ List => JList, HashMap => JHashMap, Map => JMap }
-import javax.servlet.http.{ HttpServletRequestWrapper, HttpServletRequest, HttpServletResponse }
-import collection.Iterable
-import java.lang.String
-import org.apache.commons.fileupload.{ FileUploadException, FileUploadBase, FileItemFactory, FileItem }
+import org.apache.commons.fileupload.servlet.ServletFileUpload
+import org.apache.commons.fileupload.{ FileItem, FileItemFactory, FileUploadBase, FileUploadException }
+import org.scalatra.servlet._
+
+import scala.collection.JavaConversions._
 
 /**
  * FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
@@ -27,7 +25,7 @@ import org.apache.commons.fileupload.{ FileUploadException, FileUploadBase, File
   "Please use org.scalatra.servlet.FileUploadSupport instead.",
   since = "2.1.0")
 trait FileUploadSupport extends ServletBase {
-  import FileUploadSupport._
+  import org.scalatra.fileupload.FileUploadSupport._
 
   override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
     val req2 = try {

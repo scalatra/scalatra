@@ -1,9 +1,9 @@
 package org.scalatra.metrics
 
 import java.util.concurrent.Callable
+
 import com.codahale.metrics._
 import nl.grons.metrics.scala._
-import org.scalatra.ScalatraBase
 
 trait MetricsSupport extends nl.grons.metrics.scala.InstrumentedBuilder with MetricsBootstrap {
   implicit def metricRegistry: MetricRegistry

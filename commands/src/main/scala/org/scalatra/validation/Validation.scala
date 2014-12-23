@@ -1,8 +1,9 @@
 package org.scalatra
 package validation
 
+import org.scalatra.commands.FieldValidation
+
 import scala.util.matching.Regex
-import commands.FieldValidation
 
 object Validation {
 

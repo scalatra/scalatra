@@ -1,6 +1,6 @@
 package org.scalatra
 
-import test.scalatest.ScalatraFunSuite
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 object DefaultRouteTest {
   val existingRoute = "/existing-route"
@@ -8,7 +8,7 @@ object DefaultRouteTest {
 }
 
 class DefaultRouteTestServlet extends ScalatraServlet {
-  import DefaultRouteTest._
+  import org.scalatra.DefaultRouteTest._
 
   get(existingRoute) {
     "get"
@@ -32,7 +32,7 @@ class DefaultRouteTestServlet extends ScalatraServlet {
 }
 
 class DefaultRouteTest extends ScalatraFunSuite {
-  import DefaultRouteTest._
+  import org.scalatra.DefaultRouteTest._
 
   addServlet(classOf[DefaultRouteTestServlet], "/*")
 

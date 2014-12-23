@@ -1,12 +1,13 @@
 package org.scalatra
 package commands
 
-import scala.util.control.Exception.allCatch
 import grizzled.slf4j.Logger
-import validation._
+import org.scalatra.validation._
+
+import scala.util.control.Exception.allCatch
 import scalaz._
-import syntax.std.option._
-import syntax.validation._
+import scalaz.syntax.std.option._
+import scalaz.syntax.validation._
 
 @deprecated("This approach is not fully type-safe. The compiler can't enforce that the handle method returns a `S`. Please use the `>>` or `apply` method on a command.", "2.2.1")
 trait CommandHandler {

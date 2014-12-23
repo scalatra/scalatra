@@ -1,9 +1,11 @@
 package org.scalatra
 
-import servlet.ServletBase
-import scala.util.DynamicVariable
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import javax.servlet._
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
+import org.scalatra.servlet.ServletBase
+
+import scala.util.DynamicVariable
 
 /**
  * An implementation of the Scalatra DSL in a filter.  You may prefer a filter

@@ -1,13 +1,13 @@
 package org
 
-import scalatra.servlet.FileUploadSupport
-import scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
+import org.scalatra.servlet.FileUploadSupport
+import org.scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
 
 package object scalatra
     extends Control // make halt and pass visible to helpers outside the DSL
     //  with DefaultValues // make defaults visible
     {
-  import util.MultiMap
+  import org.scalatra.util.MultiMap
 
   object RouteTransformer {
     implicit def fn2transformer(fn: Route => Route) = new RouteTransformer {

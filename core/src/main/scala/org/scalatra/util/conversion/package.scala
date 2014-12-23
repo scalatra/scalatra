@@ -1,7 +1,7 @@
 package org.scalatra
 package util
 
-import annotation.implicitNotFound
+import scala.annotation.implicitNotFound
 
 package object conversion {
 

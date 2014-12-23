@@ -1,12 +1,13 @@
 package org.scalatra
 package commands
 
-import org.json4s._
-import org.scalatra.json.{ NativeJsonSupport, NativeJsonValueReaderProperty, JsonValueReader, JsonImplicitConversions }
-import org.scalatra.util.conversion._
-import org.joda.time.DateTime
 import java.util.Date
+
+import org.joda.time.DateTime
+import org.json4s._
+import org.scalatra.json.{ JsonImplicitConversions, JsonValueReader }
 import org.scalatra.util.ValueReader
+import org.scalatra.util.conversion._
 
 trait JsonBindingImplicits extends BindingImplicits with JsonImplicitConversions {
 

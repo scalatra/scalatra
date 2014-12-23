@@ -1,8 +1,9 @@
 package org.scalatra
 package commands
 
-import json.{ JacksonJsonValueReaderProperty, JacksonJsonSupport }
 import javax.servlet.http.HttpServletRequest
+
+import org.scalatra.json.{ JacksonJsonSupport, JacksonJsonValueReaderProperty }
 
 trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderProperty { self: JacksonJsonSupport with CommandSupport =>
   type CommandType = JsonCommand

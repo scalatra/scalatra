@@ -1,7 +1,8 @@
 package org.atmosphere.cpr
 
-import org.scalatra.atmosphere.{ RedisScalatraBroadcaster, ScalatraBroadcaster }
 import java.net.URI
+
+import org.scalatra.atmosphere.{ RedisScalatraBroadcaster, ScalatraBroadcaster }
 
 trait BroadcasterConf {
   def broadcasterClass: Class[_ <: ScalatraBroadcaster]

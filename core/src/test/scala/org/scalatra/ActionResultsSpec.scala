@@ -1,11 +1,8 @@
 package org.scalatra
 
-import ActionResult._
-
-import test.specs2.MutableScalatraSpec
 import java.io.ByteArrayOutputStream
-import javax.servlet.ServletConfig
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+
+import org.scalatra.test.specs2.MutableScalatraSpec
 
 class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
 

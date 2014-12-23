@@ -1,13 +1,14 @@
 package org.scalatra.spring
 
-import org.scalatest.{ FunSuite, OneInstancePerTest }
-import javax.servlet.{ ServletRegistration, ServletContext }
-import org.scalatest.mock.MockitoSugar
-import org.springframework.context.ApplicationContext
-import org.mockito.{ Matchers, Mockito }
-import org.scalatra.ScalatraServlet
 import java.util
 import javax.servlet.http.HttpServlet
+import javax.servlet.{ ServletContext, ServletRegistration }
+
+import org.mockito.{ Matchers, Mockito }
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{ FunSuite, OneInstancePerTest }
+import org.scalatra.ScalatraServlet
+import org.springframework.context.ApplicationContext
 
 /** @author Stephen Samuel */
 class SpringScalatraBootstrapTest extends FunSuite with OneInstancePerTest with MockitoSugar {

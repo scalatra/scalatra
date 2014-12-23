@@ -1,18 +1,12 @@
 package org.scalatra
 package auth
 
-import org.specs2.mutable._
-import org.mockito.Matchers._
 import javax.servlet.http._
-import auth.ScentryAuthStore.SessionAuthStore
+
+import org.mockito.Matchers._
+import org.scalatra.auth.ScentryAuthStore.SessionAuthStore
 import org.specs2.mock.Mockito
-import javax.servlet._
-import java.util
-import java.io.BufferedReader
-import util.Locale
-import scala.Some
-import scala.Some
-import java.security.Principal
+import org.specs2.mutable._
 
 object ScentrySpec extends Specification with Mockito {
   sequential

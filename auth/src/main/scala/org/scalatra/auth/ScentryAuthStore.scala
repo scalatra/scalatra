@@ -1,11 +1,9 @@
 package org.scalatra
 package auth
 
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest, HttpSession }
-import servlet.ServletApiImplicits._
-import util.RicherString._
-import java.text.SimpleDateFormat
-import java.util.{ Date, TimeZone }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
+import org.scalatra.servlet.ServletApiImplicits._
 
 object ScentryAuthStore {
 

@@ -1,10 +1,10 @@
 package org.scalatra
 
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import servlet.ServletApiImplicits
-import util.{ MapWithIndifferentAccess, MultiMapHeadView }
 import javax.servlet.ServletContext
-import annotation.implicitNotFound
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
+import org.scalatra.servlet.ServletApiImplicits
+import org.scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
 
 class ScalatraParams(protected val multiMap: Map[String, Seq[String]]) extends MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
 
@@ -13,7 +13,7 @@ object ScalatraContext {
 }
 
 trait ScalatraContext extends ServletApiImplicits with SessionSupport with CookieContext {
-  import ScalatraContext.StableValuesContext
+  import org.scalatra.ScalatraContext.StableValuesContext
   implicit def request: HttpServletRequest
   implicit def response: HttpServletResponse
   def servletContext: ServletContext

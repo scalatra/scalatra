@@ -1,9 +1,8 @@
 package org.scalatra
 package scalate
 
-import test.specs2.ScalatraSpec
-import org.fusesource.scalate.{ TemplateSource, Binding }
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
+import org.scalatra.test.specs2.ScalatraSpec
 
 class ScalateSupportSpec extends ScalatraSpec {
   def is =

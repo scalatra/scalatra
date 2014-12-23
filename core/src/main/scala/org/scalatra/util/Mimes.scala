@@ -1,12 +1,14 @@
 package org.scalatra.util
 
-import eu.medsea.util.EncodingGuesser
-import eu.medsea.mimeutil.{ MimeType, MimeUtil2 }
-import collection.JavaConversions._
-import java.io.{ InputStream, File }
+import java.io.{ File, InputStream }
 import java.net.{ URI, URL }
+
+import eu.medsea.mimeutil.{ MimeType, MimeUtil2 }
+import eu.medsea.util.EncodingGuesser
 import grizzled.slf4j.Logger
-import util.control.Exception._
+
+import scala.collection.JavaConversions._
+import scala.util.control.Exception._
 
 object Mimes {
 
@@ -33,7 +35,7 @@ object Mimes {
 trait Mimes {
 
   @transient private[this] val internalLogger = Logger(getClass)
-  import Mimes._
+  import org.scalatra.util.Mimes._
 
   protected[this] def mimeUtil: MimeUtil2 = new MimeUtil2()
   quiet { mimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector") }

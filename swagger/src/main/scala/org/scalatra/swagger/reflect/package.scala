@@ -1,9 +1,9 @@
 package org.scalatra.swagger
 
-import java.util.concurrent.ConcurrentHashMap
-import com.thoughtworks.paranamer.{ BytecodeReadingParanamer, CachingParanamer }
 import java.lang.reflect.{ Constructor => JConstructor }
-import collection.JavaConverters._
+import java.util.concurrent.ConcurrentHashMap
+
+import com.thoughtworks.paranamer.{ BytecodeReadingParanamer, CachingParanamer }
 
 package object reflect {
 

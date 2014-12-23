@@ -1,12 +1,11 @@
 package org.scalatra.servlet
 
-import scala.collection.JavaConversions._
-import org.scalatra.test.specs2.MutableScalatraSpec
-import org.scalatra.ScalatraServlet
 import java.io.File
-import org.eclipse.jetty.servlet.ServletHolder
-import javax.servlet.{ MultipartConfigElement, ServletException }
-import javax.servlet.http.HttpServlet
+
+import org.scalatra.ScalatraServlet
+import org.scalatra.test.specs2.MutableScalatraSpec
+
+import scala.collection.JavaConversions._
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders() {

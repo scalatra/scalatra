@@ -1,12 +1,13 @@
 package org.scalatra.test
 
-import org.specs2.mutable.Specification
-import org.specs2.specification.{ Step, Fragments }
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest, HttpServlet }
+import java.io.{ InputStream, OutputStream }
+import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 
-import collection.JavaConversions._
-import java.io.{ OutputStream, InputStream, ByteArrayOutputStream }
-import annotation.tailrec
+import org.specs2.mutable.Specification
+import org.specs2.specification.{ Fragments, Step }
+
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
 
 class HttpComponentsClientSpec
     extends Specification

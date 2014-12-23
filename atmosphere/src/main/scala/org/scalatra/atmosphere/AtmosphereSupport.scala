@@ -1,29 +1,28 @@
 package org.scalatra
 package atmosphere
 
-import json.JsonSupport
-import javax.servlet.{ ServletContext, ServletConfig, FilterConfig, ServletException }
-import org.apache.catalina.CometProcessor
-import org.jboss.servlet.http.HttpEventServlet
 import java.io.IOException
-import org.atmosphere.container.Tomcat7CometSupport
-import org.atmosphere.container.TomcatCometSupport
-import org.jboss.servlet.http.HttpEvent
-import org.atmosphere.container.JBossWebCometSupport
-import org.atmosphere.cpr._
-import collection.JavaConverters._
-import org.json4s._
-import org.atmosphere.cache.{ UUIDBroadcasterCache, HeaderBroadcasterCache }
-import org.scalatra.util.RicherString._
-import _root_.akka.actor.ActorSystem
-import grizzled.slf4j.Logger
-import com.typesafe.config.ConfigFactory
-import scala.util.control.Exception.allCatch
-import org.atmosphere.client.TrackMessageSizeInterceptor
-import org.atmosphere.interceptor.SessionCreationInterceptor
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import servlet.ScalatraAsyncSupport
 import java.util
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.{ FilterConfig, ServletConfig, ServletContext, ServletException }
+
+import _root_.akka.actor.ActorSystem
+import com.typesafe.config.ConfigFactory
+import grizzled.slf4j.Logger
+import org.apache.catalina.CometProcessor
+import org.atmosphere.cache.UUIDBroadcasterCache
+import org.atmosphere.client.TrackMessageSizeInterceptor
+import org.atmosphere.container.{ JBossWebCometSupport, Tomcat7CometSupport, TomcatCometSupport }
+import org.atmosphere.cpr._
+import org.atmosphere.interceptor.SessionCreationInterceptor
+import org.jboss.servlet.http.{ HttpEvent, HttpEventServlet }
+import org.json4s._
+import org.scalatra.json.JsonSupport
+import org.scalatra.servlet.ScalatraAsyncSupport
+import org.scalatra.util.RicherString._
+
+import scala.collection.JavaConverters._
+import scala.util.control.Exception.allCatch
 
 trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
 

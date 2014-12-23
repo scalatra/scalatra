@@ -1,16 +1,17 @@
 package org.scalatra
 package swagger
 
-import collection.mutable
-import collection.JavaConverters._
-import reflect.{ ManifestFactory, Reflector }
-import util.RicherString._
-import javax.servlet.{ Servlet, Filter }
-import scala.util.parsing.combinator.RegexParsers
-import scala.util.control.Exception.allCatch
+import javax.servlet.{ Filter, Servlet }
+
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
-import org.json4s.JsonFormat
+import org.scalatra.swagger.reflect.Reflector
 import org.scalatra.util.NotNothing
+import org.scalatra.util.RicherString._
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
+import scala.util.control.Exception.allCatch
+import scala.util.parsing.combinator.RegexParsers
 
 trait SwaggerSupportBase {
   /**
@@ -412,7 +413,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   @deprecated("Use the `apiOperation.errors` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def errors(value: Error*) = swaggerMeta(Symbols.Errors, value.toList)
 
-  import SwaggerSupportSyntax._
+  import org.scalatra.swagger.SwaggerSupportSyntax._
   protected def apiOperation[T: Manifest: NotNothing](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
@@ -486,7 +487,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
  */
 trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax {
 
-  import SwaggerSupportSyntax._
+  import org.scalatra.swagger.SwaggerSupportSyntax._
 
   protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
   protected def apiOperation[T: Manifest: NotNothing](nickname: String): OperationBuilder = {

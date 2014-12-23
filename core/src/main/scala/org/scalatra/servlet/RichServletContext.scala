@@ -2,13 +2,11 @@ package org.scalatra
 package servlet
 
 import java.net.{ MalformedURLException, URL }
-import java.util.EnumSet
-import javax.servlet.{ ServletConfig, DispatcherType, Filter, ServletContext }
-import javax.servlet.http.{ HttpServletResponse, HttpServlet, HttpServletRequest }
-import scala.collection.JavaConverters._
-import scala.collection.mutable
 import java.{ util => jutil }
-import org.scalatra.util
+import javax.servlet.http.{ HttpServlet, HttpServletRequest }
+import javax.servlet.{ DispatcherType, Filter, ServletContext }
+
+import scala.collection.mutable
 
 /**
  * Extension methods to the standard ServletContext.

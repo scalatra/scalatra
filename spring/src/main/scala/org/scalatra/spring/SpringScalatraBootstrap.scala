@@ -1,13 +1,15 @@
 package org.scalatra.spring
 
-import org.scalatra.servlet.RichServletContext
-import scala.collection.JavaConverters._
-import org.scalatra.ScalatraServlet
-import javax.servlet.ServletContext
 import javax.annotation.PostConstruct
-import org.springframework.stereotype.Component
+import javax.servlet.ServletContext
+
+import org.scalatra.ScalatraServlet
+import org.scalatra.servlet.RichServletContext
 import org.springframework.context.{ ApplicationContext, ApplicationContextAware }
+import org.springframework.stereotype.Component
 import org.springframework.web.context.ServletContextAware
+
+import scala.collection.JavaConverters._
 
 /** @author Stephen Samuel */
 @Component

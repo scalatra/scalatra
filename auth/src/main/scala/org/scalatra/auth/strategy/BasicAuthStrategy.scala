@@ -2,14 +2,17 @@ package org.scalatra
 package auth
 package strategy
 
-import util.RicherString._
-import org.scalatra.auth.{ ScentrySupport, ScentryStrategy }
-import net.iharder.Base64
 import java.util.Locale
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
-import io.Codec
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
+import net.iharder.Base64
+import org.scalatra.util.RicherString._
+
+import scala.io.Codec
 
 trait RemoteAddress { self: ScentryStrategy[_] =>
+
+  import org.scalatra.auth.strategy.BasicAuthStrategy._
 
   protected def remoteAddress(implicit request: HttpServletRequest) = {
     val proxied = request.getHeader("X-FORWARDED-FOR")
@@ -74,11 +77,9 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
     extends ScentryStrategy[UserType]
     with RemoteAddress {
 
-  import BasicAuthStrategy._
-
   private[this] val REMOTE_USER = "REMOTE_USER"
 
-  implicit def request2BasicAuthRequest(r: HttpServletRequest) = new BasicAuthRequest(r)
+  implicit def request2BasicAuthRequest(r: HttpServletRequest) = new BasicAuthStrategy.BasicAuthRequest(r)
 
   protected def challenge = "Basic realm=\"%s\"" format realm
 

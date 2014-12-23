@@ -1,9 +1,7 @@
 package org.scalatra
 package i18n
 
-import java.util.Locale
-import java.util.ResourceBundle
-import java.util.MissingResourceException
+import java.util.{ Locale, MissingResourceException, ResourceBundle }
 
 object Messages {
   def apply(locale: Locale = Locale.getDefault, bundlePath: String = "i18n/messages"): Messages = new Messages(locale, bundlePath)

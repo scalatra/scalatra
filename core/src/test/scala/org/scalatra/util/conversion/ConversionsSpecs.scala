@@ -2,8 +2,9 @@ package org.scalatra
 package util
 package conversion
 
+import java.util.{ Calendar, Date }
+
 import org.specs2.mutable.Specification
-import java.util.{ Date, Calendar }
 
 class ConversionsSpecs extends Specification {
 
@@ -103,7 +104,7 @@ class ConversionsSpecs extends Specification {
 
   "The Conversions object" should {
 
-    import Conversions._
+    import org.scalatra.util.conversion.Conversions._
 
     "Pimp String type with as[T]" in {
 

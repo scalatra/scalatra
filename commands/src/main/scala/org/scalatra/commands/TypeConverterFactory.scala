@@ -1,9 +1,7 @@
 package org.scalatra
 package commands
 
-import util.conversion._
-import java.util.Date
-import org.joda.time.DateTime
+import org.scalatra.util.conversion._
 
 trait TypeConverterFactory[T] extends BindingImplicits {
 

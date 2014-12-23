@@ -1,19 +1,21 @@
 package org.scalatra
 
-import scala.util.matching.Regex
-import servlet.ServletApiImplicits
-import util.conversion.DefaultImplicitConversions
-import util.io.zeroCopy
 import java.io.{ File, FileInputStream }
-import scala.annotation.tailrec
-import util._
-import util.RicherString._
-import rl.UrlCodingUtils
-import javax.servlet.{ Filter, ServletContext }
 import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
-import scala.util.control.Exception._
+import javax.servlet.{ Filter, ServletContext }
+
 import org.scalatra.ScalatraBase._
-import scala.util.{ Failure, Try, Success }
+import org.scalatra.servlet.ServletApiImplicits
+import org.scalatra.util.RicherString._
+import org.scalatra.util._
+import org.scalatra.util.conversion.DefaultImplicitConversions
+import org.scalatra.util.io.zeroCopy
+import rl.UrlCodingUtils
+
+import scala.annotation.tailrec
+import scala.util.control.Exception._
+import scala.util.matching.Regex
+import scala.util.{ Failure, Success, Try }
 
 object UriDecoder {
   def firstStep(uri: String) = UrlCodingUtils.urlDecode(UrlCodingUtils.ensureUrlEncoding(uri), toSkip = PathPatternParser.PathReservedCharacters)
@@ -38,7 +40,7 @@ object ScalatraBase {
   val RenderCallbacks = s"$KeyPrefix.renderCallbacks"
   val IsAsyncKey = s"$KeyPrefix.isAsync"
 
-  import servlet.ServletApiImplicits._
+  import org.scalatra.servlet.ServletApiImplicits._
   def isAsyncResponse(implicit request: HttpServletRequest) = request.get(IsAsyncKey).getOrElse(false)
 
   def onSuccess(fn: Any => Unit)(implicit request: HttpServletRequest) = addCallback(_.foreach(fn))
@@ -65,7 +67,7 @@ object ScalatraBase {
 
   def runRenderCallbacks(data: Try[Any])(implicit request: HttpServletRequest) = renderCallbacks.reverse foreach (_(data))
 
-  import collection.JavaConverters._
+  import scala.collection.JavaConverters._
 
   def getServletRegistration(app: ScalatraBase) = {
     val registrations = app.servletContext.getServletRegistrations.values().asScala.toList

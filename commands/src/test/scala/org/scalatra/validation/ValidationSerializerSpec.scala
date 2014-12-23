@@ -1,8 +1,8 @@
 package org.scalatra
 package validation
 
-import org.specs2.mutable.Specification
 import org.json4s._
+import org.specs2.mutable.Specification
 
 class ValidationSerializerSpec extends Specification {
 

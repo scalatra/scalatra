@@ -1,7 +1,8 @@
 package org.scalatra
 
 import javax.servlet.http.{ HttpServletRequest, HttpSession }
-import servlet.ServletApiImplicits
+
+import org.scalatra.servlet.ServletApiImplicits
 
 /**
  * This trait provides session support for stateful applications.

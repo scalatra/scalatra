@@ -1,8 +1,8 @@
 package org.scalatra
 package commands
 
-import org.scalatra.json._
 import org.json4s._
+import org.scalatra.json._
 
 class NativeJsonTestForm extends JsonCommand {
   protected implicit val jsonFormats = DefaultFormats

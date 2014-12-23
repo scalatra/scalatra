@@ -1,11 +1,12 @@
 package org.scalatra
 package servlet
 
+import java.{ util => ju }
 import javax.servlet.ServletContext
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import java.{ util => ju }
-import scala.collection.immutable.DefaultMap
+
 import scala.collection.JavaConverters._
+import scala.collection.immutable.DefaultMap
 
 /**
  * ServletBase implements the Scalatra DSL with the Servlet API, and can be

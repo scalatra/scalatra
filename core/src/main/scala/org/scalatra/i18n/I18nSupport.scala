@@ -16,7 +16,7 @@ trait I18nSupport {
 
   this: ScalatraBase =>
 
-  import I18nSupport._
+  import org.scalatra.i18n.I18nSupport._
 
   def locale(implicit request: HttpServletRequest): Locale = if (request == null) {
     throw new ScalatraException("There needs to be a request in scope to call locale")

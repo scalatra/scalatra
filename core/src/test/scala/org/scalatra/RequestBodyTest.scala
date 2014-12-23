@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import test.scalatest.ScalatraFunSuite
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class RequestBodyTestServlet extends ScalatraServlet {
   post("/request-body") {

@@ -1,8 +1,6 @@
 package org.scalatra
 package atmosphere
 
-import org.json4s.{ JsonAST, jackson, Formats }
-import org.json4s.jackson.JsonMethods
 import org.json4s.JsonAST.JValue
 
 /**

@@ -1,11 +1,13 @@
 package org.scalatra
 package commands
-import org.joda.time.format.{ ISODateTimeFormat, DateTimeFormat, DateTimeFormatter }
-import scala.util.control.Exception._
-import org.joda.time.{ DateTimeZone, DateTime }
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter, ISODateTimeFormat }
+import org.joda.time.{ DateTime, DateTimeZone }
 import org.scalatra.util.RicherString._
-import java.text.{ SimpleDateFormat }
-import java.util.{ Locale, TimeZone }
+
+import scala.util.control.Exception._
 
 trait DateParser {
   def parse(s: String): Option[DateTime]

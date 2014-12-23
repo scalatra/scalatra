@@ -1,9 +1,10 @@
 package org.scalatra
 
-import auth.strategy.{ BasicAuthStrategy, BasicAuthSupport }
-import auth.{ ScentrySupport, ScentryConfig }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+
 import org.scalatra.BasicAuthExample.AuthenticationSupport
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import org.scalatra.auth.strategy.{ BasicAuthStrategy, BasicAuthSupport }
+import org.scalatra.auth.{ ScentryConfig, ScentrySupport }
 
 object BasicAuthExample {
 

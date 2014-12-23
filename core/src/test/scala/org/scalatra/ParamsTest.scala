@@ -1,15 +1,17 @@
 package org.scalatra
 
 import java.util.NoSuchElementException
-import test.scalatest.ScalatraFunSuite
-import io.Codec
+
+import org.scalatra.test.scalatest.ScalatraFunSuite
+
+import scala.io.Codec
 
 object ParamsTestServlet {
   val NoSuchElement = "No Such Element"
 }
 
 class ParamsTestServlet extends ScalatraServlet {
-  import ParamsTestServlet._
+  import org.scalatra.ParamsTestServlet._
 
   get("/multiParams/:key") {
     multiParams(params("key")).mkString("[", ",", "]")

@@ -1,10 +1,11 @@
 package org.scalatra
 package servlet
 
-import util.RicherString._
-
 import java.io.{ OutputStream, PrintWriter }
-import javax.servlet.http.{ HttpServletResponse, HttpServletResponseWrapper, Cookie => ServletCookie }
+import javax.servlet.http.{ HttpServletResponse, Cookie => ServletCookie }
+
+import org.scalatra.util.RicherString._
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable.Map
 

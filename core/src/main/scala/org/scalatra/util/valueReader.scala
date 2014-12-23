@@ -1,8 +1,7 @@
 package org.scalatra
 package util
 
-import conversion._
-import collection.immutable
+import scala.collection.immutable
 import scala.util.control.Exception.allCatch
 
 trait ValueReader[S, U] {

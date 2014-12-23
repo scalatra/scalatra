@@ -1,8 +1,9 @@
 package org.scalatra
 package fileupload
 
-import test.scalatest.ScalatraFunSuite
 import java.io.File
+
+import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class MultipleFilterFileUploadSupportTest extends ScalatraFunSuite {
   addFilter(new ScalatraFilter with FileUploadSupport {

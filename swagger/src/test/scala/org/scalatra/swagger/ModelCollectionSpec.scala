@@ -1,8 +1,9 @@
 package org.scalatra.swagger
 
-import org.specs2.mutable.Specification
-import reflect.Reflector
 import java.util.Date
+
+import org.scalatra.swagger.reflect.Reflector
+import org.specs2.mutable.Specification
 
 object ModelCollectionSpec {
   case class OnlyPrimitives(id: Int, sequence: Long, deviation: Double, name: String, created: Date)
@@ -31,7 +32,7 @@ object ModelCollectionSpec {
 }
 
 class ModelCollectionSpec extends Specification {
-  import ModelCollectionSpec._
+  import org.scalatra.swagger.ModelCollectionSpec._
 
   "Collect models" should {
 

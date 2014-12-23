@@ -1,8 +1,8 @@
 package org.scalatra
 package validation
 
+import org.json4s.JsonDSL._
 import org.json4s._
-import JsonDSL._
 
 /**
  * Encapsulates errors in an API

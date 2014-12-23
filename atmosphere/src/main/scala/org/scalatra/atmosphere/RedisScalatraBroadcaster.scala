@@ -1,17 +1,17 @@
 package org.scalatra.atmosphere
 
-import _root_.akka.actor._
-import org.atmosphere.cpr._
 import java.util.concurrent.ConcurrentLinkedQueue
-import org.atmosphere.plugin.redis.RedisBroadcaster
 
-import scala.concurrent.{ Future, ExecutionContext }
-import collection.JavaConverters._
+import _root_.akka.actor._
 import grizzled.slf4j.Logger
-
+import org.atmosphere.cpr._
+import org.atmosphere.plugin.redis.RedisBroadcaster
 import org.json4s.ShortTypeHints
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{ read, write }
+
+import scala.collection.JavaConverters._
+import scala.concurrent.{ ExecutionContext, Future }
 
 final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
     extends RedisBroadcaster with ScalatraBroadcaster {

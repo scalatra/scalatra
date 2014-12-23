@@ -1,15 +1,17 @@
 package org.scalatra
 
-import servlet.ServletBase
 import javax.servlet._
 import javax.servlet.http._
+
+import org.scalatra.servlet.ServletBase
 import org.scalatra.util.RicherString._
+
 import scala.util.control.Exception.catching
 
 object ScalatraServlet {
 
   val RequestPathKey = "org.scalatra.ScalatraServlet.requestPath"
-  import servlet.ServletApiImplicits._
+  import org.scalatra.servlet.ServletApiImplicits._
   def requestPath(request: HttpServletRequest): String = {
     require(request != null, "The request can't be null for getting the request path")
     def startIndex(r: HttpServletRequest) =

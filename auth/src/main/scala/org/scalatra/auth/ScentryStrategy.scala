@@ -1,10 +1,7 @@
 package org.scalatra
 package auth
 
-import servlet.ServletBase
-
-import javax.servlet.http.{ HttpServletResponse, HttpSession, HttpServletRequest, Cookie }
-import javax.servlet.ServletContext
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 trait ScentryStrategy[UserType <: AnyRef] {
 
