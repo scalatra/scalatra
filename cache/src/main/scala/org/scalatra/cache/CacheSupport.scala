@@ -4,19 +4,21 @@ import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.ScalatraBase
 
+import scala.concurrent.duration.Duration
+
 trait CacheSupport { self: ScalatraBase =>
   implicit val cacheBackend: Cache
   implicit val keyStrategy: KeyStrategy = DefaultKeyStrategy
   implicit val headerStrategy: HeaderStrategy = DefaultHeaderStrategy
 
-  def cache[A](key: String)(value: => A): A = {
+  def cache[A](key: String, ttl: Option[Duration])(value: => A): A = {
     cacheBackend.get[A](key) match {
       case Some(v) => v
-      case None => cacheBackend.put(key, value)
+      case None => cacheBackend.put(key, value, ttl)
     }
   }
 
-  def cached[A](result: => A)(implicit keyStrategy: KeyStrategy,
+  def cached[A](ttl: Option[Duration])(result: => A)(implicit keyStrategy: KeyStrategy,
     headerStrategy: HeaderStrategy,
     request: HttpServletRequest,
     response: HttpServletResponse): A = {
@@ -33,7 +35,7 @@ trait CacheSupport { self: ScalatraBase =>
       case None =>
         val res = result
         val rev = headerStrategy.getNewRevision()
-        cacheBackend.put(key, (rev, result))
+        cacheBackend.put(key, (rev, result), ttl)
         headerStrategy.setRevision(rev)
         res
     }

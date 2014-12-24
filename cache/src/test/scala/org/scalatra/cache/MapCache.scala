@@ -1,5 +1,7 @@
 package org.scalatra.cache
 
+import scala.concurrent.duration.Duration
+
 class MapCache extends Cache {
   var cache = new scala.collection.mutable.HashMap[String, Any]
 
@@ -8,7 +10,7 @@ class MapCache extends Cache {
     case None => None
   }
 
-  override def put[V](key: String, value: V): V =
+  override def put[V](key: String, value: V, ttl: Option[Duration]): V =
     {
       cache.put(key, value.asInstanceOf[Object])
       value

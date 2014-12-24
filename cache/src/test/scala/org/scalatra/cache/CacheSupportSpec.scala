@@ -10,7 +10,7 @@ class CacheSupportSpec extends ScalatraFlatSpec {
     implicit val cacheBackend = new MapCache
 
     get("/") {
-      cached {
+      cached(None) {
         <html><body>test</body></html>
       }
     }
