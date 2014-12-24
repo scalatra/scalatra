@@ -5,9 +5,8 @@ import java.util.concurrent.TimeUnit
 import com.google.common.cache.CacheBuilder
 import org.scalatra.cache.Cache
 
-class GuavaCache(ttlMs: Long) extends Cache {
+object GuavaCache extends Cache {
   private[this] val cache = CacheBuilder.newBuilder()
-    .expireAfterWrite(ttlMs, TimeUnit.MILLISECONDS)
     .maximumSize(10000L)
     .build[String, Object]
 
