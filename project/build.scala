@@ -52,7 +52,7 @@ object ScalatraBuild extends Build {
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
       scalatraCommon, scalatraSwaggerExt, scalatraSpring,
-      scalatraMetrics)
+      scalatraMetrics, scalatraCache, scalatraCacheGuava)
   )
 
   lazy val scalatraCommon = Project(
@@ -262,6 +262,24 @@ object ScalatraBuild extends Build {
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
+  lazy val scalatraCache = Project(
+    id = "scalatra-cache",
+    base = file("cache"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(),
+      description := "Scalatra Cache support"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraCacheGuava = Project(
+    id = "scalatra-cache-guava",
+    base = file("cache-guava"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(googleGuava, googleFindBugs),
+      description := "Scalatra Cache integration with Google Guava"
+    )
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCache % "compile;test->test;provided->provided")
+
   lazy val scalatraExample = Project(
      id = "scalatra-example",
      base = file("example"),
@@ -332,6 +350,8 @@ object ScalatraBuild extends Build {
     lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.3.0_a2.3"
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.0"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.0"
+    lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "18.0"
+    lazy val googleFindBugs           = "com.google.code.findbugs" % "jsr305"                      % "1.3.9"
 
     private val akkaVersion             = "2.3.7"
     private val grizzledSlf4jVersion    = "1.0.2"
