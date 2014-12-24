@@ -254,8 +254,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
 
   def locale: Locale = r.getLocale
 
-  // TODO: should provide Scala value instead?
-  def locales: java.util.Enumeration[Locale] = r.getLocales
+  def locales: Seq[Locale] = r.getLocales.asScala.toSeq
 
 }
 
