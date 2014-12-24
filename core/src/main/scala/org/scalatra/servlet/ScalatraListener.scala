@@ -1,13 +1,13 @@
 package org.scalatra
 package servlet
 
-//import akka.actor.ActorSystem
 import javax.servlet.{ ServletContext, ServletContextEvent, ServletContextListener }
 
 import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
 
 class ScalatraListener extends ServletContextListener {
+
   import org.scalatra.servlet.ScalatraListener._
 
   private[this] val logger: Logger = Logger[this.type]
@@ -16,7 +16,7 @@ class ScalatraListener extends ServletContextListener {
 
   private[this] var servletContext: ServletContext = _
 
-  override def contextInitialized(sce: ServletContextEvent) {
+  override def contextInitialized(sce: ServletContextEvent): Unit = {
     try {
       configureServletContext(sce)
       configureCycleClass(Thread.currentThread.getContextClassLoader)
@@ -27,17 +27,17 @@ class ScalatraListener extends ServletContextListener {
     }
   }
 
-  def contextDestroyed(sce: ServletContextEvent) {
+  def contextDestroyed(sce: ServletContextEvent): Unit = {
     if (cycle != null) {
       logger.info("Destroying life cycle class: %s".format(cycle.getClass.getName))
       cycle.destroy(servletContext)
     }
   }
 
-  protected def configureExecutionContext(sce: ServletContextEvent) {
+  protected def configureExecutionContext(sce: ServletContextEvent): Unit = {
   }
 
-  protected def probeForCycleClass(classLoader: ClassLoader) = {
+  protected def probeForCycleClass(classLoader: ClassLoader): (String, LifeCycle) = {
     val cycleClassName =
       Option(servletContext.getInitParameter(LifeCycleKey)).flatMap(_.blankOption) getOrElse DefaultLifeCycle
     logger info ("The cycle class name from the config: " + (if (cycleClassName == null) "null" else cycleClassName))
@@ -55,11 +55,11 @@ class ScalatraListener extends ServletContextListener {
     (cycleClass.getSimpleName, cycleClass.newInstance.asInstanceOf[LifeCycle])
   }
 
-  protected def configureServletContext(sce: ServletContextEvent) {
+  protected def configureServletContext(sce: ServletContextEvent): Unit = {
     servletContext = sce.getServletContext
   }
 
-  protected def configureCycleClass(classLoader: ClassLoader) {
+  protected def configureCycleClass(classLoader: ClassLoader): Unit = {
     val (cycleClassName, cycleClass) = probeForCycleClass(classLoader)
     cycle = cycleClass
     logger.info("Initializing life cycle class: %s".format(cycleClassName))
@@ -72,7 +72,8 @@ object ScalatraListener {
   // DO NOT RENAME THIS CLASS NAME AS IT BREAKS THE ENTIRE WORLD
   // TOGETHER WITH THE WORLD IT WILL BREAK ALL EXISTING SCALATRA APPS
   // RENAMING THIS CLASS WILL RESULT IN GETTING SHOT, IF YOU SURVIVE YOU WILL BE SHOT AGAIN
-  val DefaultLifeCycle = "ScalatraBootstrap"
-  val OldDefaultLifeCycle = "Scalatra"
-  val LifeCycleKey = "org.scalatra.LifeCycle"
+  val DefaultLifeCycle: String = "ScalatraBootstrap"
+  val OldDefaultLifeCycle: String = "Scalatra"
+  val LifeCycleKey: String = "org.scalatra.LifeCycle"
+
 }

@@ -1,7 +1,7 @@
 package org.scalatra.servlet
 
-import java.io.{ File, FileOutputStream }
-import java.util.{ HashMap => JHashMap, Map => JMap }
+import java.io.{ InputStream, File, FileOutputStream }
+import java.util.{ Map => JMap, HashMap => JHashMap }
 import javax.servlet.http._
 
 import org.scalatra.ScalatraBase
@@ -71,12 +71,12 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
    * doesn't throw `IllegalStateException` or if it throws
    * `IllegalStateException` for some other reason.
    */
-  protected def isSizeConstraintException(e: Exception) = e match {
+  protected def isSizeConstraintException(e: Exception): Boolean = e match {
     case _: IllegalStateException => true
     case _ => false
   }
 
-  override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     val req2 = try {
       if (isMultipartRequest(req)) {
         val bodyParams = extractMultipartParams(req)
@@ -131,7 +131,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
     }
   }
 
-  private def getParts(req: HttpServletRequest) = {
+  private def getParts(req: HttpServletRequest): Iterable[Part] = {
     try {
       if (isMultipartRequest(req)) req.getParts.asScala else Seq.empty[Part]
     } catch {
@@ -155,47 +155,62 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
     mergedParams
   }
 
-  private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
+  private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]): HttpServletRequestWrapper = {
     val wrapped = new HttpServletRequestWrapper(req) {
-      override def getParameter(name: String) = formMap.get(name) map {
+      override def getParameter(name: String): String = formMap.get(name) map {
         _.head
       } getOrElse null
 
-      override def getParameterNames = formMap.keysIterator.asJavaEnumeration
+      override def getParameterNames: java.util.Enumeration[String] = formMap.keysIterator.asJavaEnumeration
 
-      override def getParameterValues(name: String) = formMap.get(name) map {
+      override def getParameterValues(name: String): Array[String] = formMap.get(name) map {
         _.toArray
       } getOrElse null
 
-      override def getParameterMap = (new JHashMap[String, Array[String]].asScala ++ (formMap transform {
-        (k, v) => v.toArray
-      })).asJava
+      override def getParameterMap: JMap[String, Array[String]] = {
+        (new JHashMap[String, Array[String]].asScala ++ (formMap transform {
+          (k, v) => v.toArray
+        })).asJava
+      }
     }
     wrapped
   }
 
-  def fileMultiParams(implicit request: HttpServletRequest): FileMultiParams = extractMultipartParams(request).fileParams
-  def fileMultiParams(key: String)(implicit request: HttpServletRequest): Seq[FileItem] = fileMultiParams(request)(key)
+  def fileMultiParams(implicit request: HttpServletRequest): FileMultiParams = {
+    extractMultipartParams(request).fileParams
+  }
+
+  def fileMultiParams(key: String)(implicit request: HttpServletRequest): Seq[FileItem] = {
+    fileMultiParams(request)(key)
+  }
 
   /**
    * @return a Map, keyed on the names of multipart file upload parameters,
    *         of all multipart files submitted with the request
    */
-  def fileParams(implicit request: HttpServletRequest) = new MultiMapHeadView[String, FileItem] {
-    protected def multiMap = fileMultiParams
+  def fileParams(implicit request: HttpServletRequest): MultiMapHeadView[String, FileItem] = {
+    new MultiMapHeadView[String, FileItem] {
+      protected def multiMap = fileMultiParams
+    }
   }
 
-  def fileParams(key: String)(implicit request: HttpServletRequest): FileItem = fileParams(request)(key)
+  def fileParams(key: String)(implicit request: HttpServletRequest): FileItem = {
+    fileParams(request)(key)
+  }
 }
 
 object FileUploadSupport {
+
   private val BodyParamsKey = "org.scalatra.fileupload.bodyParams"
 
-  case class BodyParams(fileParams: FileMultiParams, formParams: Map[String, List[String]])
+  case class BodyParams(
+    fileParams: FileMultiParams,
+    formParams: Map[String, List[String]])
 
 }
 
-class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty) extends Map[String, Seq[FileItem]] {
+class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty)
+    extends Map[String, Seq[FileItem]] {
 
   def get(key: String): Option[Seq[FileItem]] = {
     (wrapped.get(key) orElse wrapped.get(key + "[]"))
@@ -203,68 +218,76 @@ class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty) extends M
 
   def get(key: Symbol): Option[Seq[FileItem]] = get(key.name)
 
-  def +[B1 >: Seq[FileItem]](kv: (String, B1)) =
+  def +[B1 >: Seq[FileItem]](kv: (String, B1)): FileMultiParams =
     new FileMultiParams(wrapped + kv.asInstanceOf[(String, Seq[FileItem])])
 
-  def -(key: String) = new FileMultiParams(wrapped - key)
+  def -(key: String): FileMultiParams = new FileMultiParams(wrapped - key)
 
-  def iterator = wrapped.iterator
+  def iterator: Iterator[(String, Seq[FileItem])] = wrapped.iterator
 
   override def default(a: String): Seq[FileItem] = wrapped.default(a)
 }
 
 object FileMultiParams {
-  def apply() = new FileMultiParams
 
-  def apply[SeqType <: Seq[FileItem]](wrapped: Map[String, Seq[FileItem]]) =
+  def apply(): FileMultiParams = new FileMultiParams
+
+  def apply[SeqType <: Seq[FileItem]](wrapped: Map[String, Seq[FileItem]]): FileMultiParams = {
     new FileMultiParams(wrapped)
+  }
+
 }
 
 case class FileItem(part: Part) {
-  val size = part.getSize
-  val fieldName = part.getName
-  val name = Util.partAttribute(part, "content-disposition", "filename")
+
+  val size: Long = part.getSize
+  val fieldName: String = part.getName
+  val name: String = Util.partAttribute(part, "content-disposition", "filename")
   val contentType: Option[String] = part.getContentType.blankOption
   val charset: Option[String] = Util.partAttribute(part, "content-type", "charset").blankOption
 
-  def getName = name
+  def getName: String = name
 
-  def getFieldName = fieldName
+  def getFieldName: String = fieldName
 
-  def getSize = size
+  def getSize: Long = size
 
-  def getContentType = contentType.orElse(null)
+  def getContentType: Option[String] = contentType.orElse(null)
 
-  def getCharset = charset.orElse(null)
+  def getCharset: Option[String] = charset.orElse(null)
 
-  def write(file: File) {
+  def write(file: File): Unit = {
     using(new FileOutputStream(file)) { out =>
       io.copy(getInputStream, out)
     }
   }
 
-  def write(fileName: String) {
+  def write(fileName: String): Unit = {
     part.write(fileName)
   }
 
-  def get() = org.scalatra.util.io.readBytes(getInputStream)
+  def get(): Array[Byte] = org.scalatra.util.io.readBytes(getInputStream)
 
-  def isFormField = (name == null)
+  def isFormField: Boolean = (name == null)
 
-  def getInputStream = part.getInputStream
+  def getInputStream: InputStream = part.getInputStream
 }
 
 object Util {
-  def partAttribute(part: Part,
-    headerName: String, attributeName: String,
-    defaultValue: String = null) = Option(part.getHeader(headerName)) match {
-    case Some(value) => {
-      value.split(";").find(_.trim().startsWith(attributeName)) match {
-        case Some(attributeValue) => attributeValue.substring(attributeValue.indexOf('=') + 1).trim().replace("\"", "")
-        case _ => defaultValue
-      }
-    }
 
-    case _ => defaultValue
+  def partAttribute(
+    part: Part,
+    headerName: String, attributeName: String,
+    defaultValue: String = null): String = {
+    Option(part.getHeader(headerName)) match {
+      case Some(value) => {
+        value.split(";").find(_.trim().startsWith(attributeName)) match {
+          case Some(attributeValue) => attributeValue.substring(attributeValue.indexOf('=') + 1).trim().replace("\"", "")
+          case _ => defaultValue
+        }
+      }
+      case _ => defaultValue
+    }
   }
+
 }

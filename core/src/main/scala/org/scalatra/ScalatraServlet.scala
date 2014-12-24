@@ -94,10 +94,11 @@ abstract class ScalatraServlet
    * Attempts to find a static resource matching the request path.  Override
    * to return None to stop this.
    */
-  protected def serveStaticResource(): Option[Any] =
+  protected def serveStaticResource(): Option[Any] = {
     servletContext.resource(request) map { _ =>
       servletContext.getNamedDispatcher("default").forward(request, response)
     }
+  }
 
   /**
    * Called by default notFound if no routes matched and no static resource

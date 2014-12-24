@@ -13,7 +13,10 @@ object ScalatraContext {
     val servletContext: ServletContext) extends ScalatraContext
 }
 
-trait ScalatraContext extends ServletApiImplicits with SessionSupport with CookieContext {
+trait ScalatraContext
+    extends ServletApiImplicits
+    with SessionSupport
+    with CookieContext {
 
   import org.scalatra.ScalatraContext.StableValuesContext
 

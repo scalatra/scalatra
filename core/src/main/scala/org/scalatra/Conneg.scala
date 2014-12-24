@@ -1,4 +1,5 @@
 package org.scalatra
+
 import java.nio.charset.Charset
 import java.text.DecimalFormat
 import javax.servlet.http.HttpServletRequest
@@ -11,13 +12,17 @@ case class Conneg[T](value: T, q: Float = 1)
 
 /** Defines type classes and helper methods for well known content-negotiation headers. */
 object Conneg {
+
   // - Header parsing --------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
   /** Used to parse a specific type of content negotiation header.*/
   trait Format[T] extends RegexParsers {
+
     def entry: Parser[Option[T]]
 
-    val Separators = Set('(', ')', '<', '>', '@', ',', ';', ':', '\\', '"', '/', '[', ']', '?', '=', '{', '}', ' ', '\t')
+    val Separators: Set[Char] = {
+      Set('(', ')', '<', '>', '@', ',', ';', ':', '\\', '"', '/', '[', ']', '?', '=', '{', '}', ' ', '\t')
+    }
 
     // - Base elements -------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------------
@@ -30,7 +35,9 @@ object Conneg {
       if (value.exists(mustEscape)) "\"%s\"" format value.replaceAllLiterally("\\", "\\\\").replaceAllLiterally("\"", "\\\"")
       else value
 
-    private def mustEscape(c: Char) = c < '\u0020' || c > '\u007E' || Separators.contains(c)
+    private def mustEscape(c: Char): Boolean = {
+      c < '\u0020' || c > '\u007E' || Separators.contains(c)
+    }
 
     // - Parameters ----------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------------
@@ -49,7 +56,7 @@ object Conneg {
 
     // - Conneg specific -----------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------------
-    private val qFormat = new DecimalFormat("0.###")
+    private val qFormat: DecimalFormat = new DecimalFormat("0.###")
 
     /** Parser for a single conneg value. */
     def conneg: Parser[Option[Conneg[T]]] = entry ~ qValue ^^ {
@@ -61,14 +68,18 @@ object Conneg {
     def connegs: Parser[List[Option[Conneg[T]]]] = repsep(conneg, ",")
 
     /** Parser for the content-negotiation `q` parameter. */
-    def qValue: Parser[Float] = opt(paramSep ~> ("q" ~ valueSep) ~> """[0-1](\.[0-9]{1,3})?""".r ^^ (_.toFloat)) ^^ {
-      case Some(q) => q
-      case _ => 1.0f
+    def qValue: Parser[Float] = {
+      opt(paramSep ~> ("q" ~ valueSep) ~> """[0-1](\.[0-9]{1,3})?""".r ^^ (_.toFloat)) ^^ {
+        case Some(q) => q
+        case _ => 1.0f
+      }
     }
 
-    def values(raw: String): List[Conneg[T]] = parseAll(connegs, raw) match {
-      case Success(a, _) => a.collect { case Some(v) => v }
-      case _ => List()
+    def values(raw: String): List[Conneg[T]] = {
+      parseAll(connegs, raw) match {
+        case Success(a, _) => a.collect { case Some(v) => v }
+        case _ => List()
+      }
     }
   }
 
@@ -99,7 +110,7 @@ object Conneg {
 
   // - Encoding --------------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
-  val AcceptEncoding = "Accept-Encoding"
+  val AcceptEncoding: String = "Accept-Encoding"
 
   implicit object EncodingFormat extends Format[ContentEncoding] {
     override def entry: EncodingFormat.Parser[Option[ContentEncoding]] = token ^^ ContentEncoding.forName
@@ -110,7 +121,7 @@ object Conneg {
 
   // - Charset ---------------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
-  val AcceptCharset = "Accept-Charset"
+  val AcceptCharset: String = "Accept-Charset"
 
   implicit object CharsetFormat extends Format[Charset] {
     override def entry = token ^^ { s => Try(Charset.forName(s)).toOption }

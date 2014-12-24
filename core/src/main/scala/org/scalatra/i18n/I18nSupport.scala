@@ -5,41 +5,48 @@ import java.util.Locale
 import javax.servlet.http.HttpServletRequest
 
 object I18nSupport {
-  val LocaleKey = "org.scalatra.i18n.locale"
 
-  val UserLocalesKey = "org.scalatra.i18n.userLocales"
+  val LocaleKey: String = "org.scalatra.i18n.locale"
 
-  val MessagesKey = "messages"
+  val UserLocalesKey: String = "org.scalatra.i18n.userLocales"
+
+  val MessagesKey: String = "messages"
+
 }
 
-trait I18nSupport {
-
-  this: ScalatraBase =>
+trait I18nSupport { this: ScalatraBase =>
 
   import org.scalatra.i18n.I18nSupport._
-
-  def locale(implicit request: HttpServletRequest): Locale = if (request == null) {
-    throw new ScalatraException("There needs to be a request in scope to call locale")
-  } else {
-    request.get(LocaleKey).map(_.asInstanceOf[Locale]).orNull
-  }
-
-  def userLocales(implicit request: HttpServletRequest): Array[Locale] = if (request == null) {
-    throw new ScalatraException("There needs to be a request in scope to call userLocales")
-  } else {
-    request.get(UserLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
-  }
-
-  def messages(key: String)(implicit request: HttpServletRequest): String = messages(request)(key)
-  def messages(implicit request: HttpServletRequest): Messages = if (request == null) {
-    throw new ScalatraException("There needs to be a request in scope to call messages")
-  } else {
-    request.get(MessagesKey).map(_.asInstanceOf[Messages]).orNull
-  }
 
   before() {
     request(LocaleKey) = resolveLocale
     request(MessagesKey) = provideMessages(locale)
+  }
+
+  def locale(implicit request: HttpServletRequest): Locale = {
+    if (request == null) {
+      throw new ScalatraException("There needs to be a request in scope to call locale")
+    } else {
+      request.get(LocaleKey).map(_.asInstanceOf[Locale]).orNull
+    }
+  }
+
+  def userLocales(implicit request: HttpServletRequest): Array[Locale] = {
+    if (request == null) {
+      throw new ScalatraException("There needs to be a request in scope to call userLocales")
+    } else {
+      request.get(UserLocalesKey).map(_.asInstanceOf[Array[Locale]]).orNull
+    }
+  }
+
+  def messages(key: String)(implicit request: HttpServletRequest): String = messages(request)(key)
+
+  def messages(implicit request: HttpServletRequest): Messages = {
+    if (request == null) {
+      throw new ScalatraException("There needs to be a request in scope to call messages")
+    } else {
+      request.get(MessagesKey).map(_.asInstanceOf[Messages]).orNull
+    }
   }
 
   /**
@@ -53,9 +60,7 @@ trait I18nSupport {
   /*
   * Resolve Locale based on HTTP request parameter or Cookie
   */
-  private def resolveLocale: Locale = {
-    resolveHttpLocale getOrElse defaultLocale
-  }
+  private def resolveLocale: Locale = resolveHttpLocale getOrElse defaultLocale
 
   /*
    * Get locale either from HTTP param, Cookie or Accept-Language header.
@@ -84,7 +89,6 @@ trait I18nSupport {
    * @return first preferred found locale or None
    */
   private def resolveHttpLocaleFromUserAgent: Option[Locale] = {
-
     request.headers.get("Accept-Language") map { s =>
       val locales = s.split(",").map(s => {
         def splitLanguageCountry(s: String): Locale = {
@@ -105,7 +109,6 @@ trait I18nSupport {
       })
       // save all found locales for later user
       request.setAttribute(UserLocalesKey, locales)
-
       // We assume that all accept-languages are stored in order of quality
       // (so first language is preferred)
       locales.head
@@ -117,12 +120,10 @@ trait I18nSupport {
    * @param in a string like en_GB or de_DE
    */
   private def localeFromString(in: String): Locale = {
-
     val token = in.split("_")
     new Locale(token.head, token.last)
   }
 
-  private def defaultLocale: Locale = {
-    Locale.getDefault
-  }
+  private def defaultLocale: Locale = Locale.getDefault
+
 }

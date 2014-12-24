@@ -5,6 +5,7 @@ import javax.servlet.ServletContext
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse, HttpSession }
 
 trait ServletApiImplicits {
+
   implicit def enrichRequest(request: HttpServletRequest): RichRequest =
     RichRequest(request)
 
@@ -16,6 +17,7 @@ trait ServletApiImplicits {
 
   implicit def enrichServletContext(servletContext: ServletContext): RichServletContext =
     RichServletContext(servletContext)
+
 }
 
 object ServletApiImplicits extends ServletApiImplicits

@@ -6,7 +6,11 @@ package org.scalatra.util
 sealed trait NotNothing[A] {
   type B
 }
+
 object NotNothing {
-  implicit val nothing = new NotNothing[Nothing] { type B = Unit }
-  implicit def notNothing[A] = new NotNothing[A] { type B = A }
+
+  implicit val nothing: NotNothing[Nothing] = new NotNothing[Nothing] { type B = Unit }
+
+  implicit def notNothing[A]: NotNothing[A] = new NotNothing[A] { type B = A }
+
 }

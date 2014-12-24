@@ -1,15 +1,22 @@
 package org.scalatra
 
-case class ActionResult(status: ResponseStatus, body: Any, headers: Map[String, String])
+case class ActionResult(
+  status: ResponseStatus,
+  body: Any,
+  headers: Map[String, String])
 
-private object Helpers {
-  def responseStatus(status: Int, reason: String) = reason match {
-    case "" | null => ResponseStatus(status)
-    case _ => new ResponseStatus(status, reason)
+private object ActionResultHelpers {
+
+  def responseStatus(status: Int, reason: String): ResponseStatus = {
+    reason match {
+      case "" | null => ResponseStatus(status)
+      case _ => new ResponseStatus(status, reason)
+    }
   }
+
 }
 
-import org.scalatra.Helpers._
+import org.scalatra.ActionResultHelpers._
 
 object Ok {
   def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
