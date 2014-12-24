@@ -19,7 +19,7 @@ object GuavaCache extends Cache {
         remove(key)
         None
       } else {
-        Some(e.value.asInstanceOf[V])
+        Some(e.value)
       })
 
   override def put[V](key: String, value: V, ttl: Option[Duration]): V = {
