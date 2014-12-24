@@ -254,7 +254,12 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
 
   def locale: Locale = r.getLocale
 
-  def locales: Seq[Locale] = r.getLocales.asScala.toSeq
+  def locales: Seq[Locale] = {
+    // Although javadoc says "If the client request doesn't provide an Accept-Language header,
+    // this method returns an Enumeration containing one Locale, the default locale for the server.",
+    // just to be safe, care about null value here
+    Option(r.getLocales).map(_.asScala.toSeq).getOrElse(Nil)
+  }
 
 }
 
