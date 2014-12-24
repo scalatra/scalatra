@@ -6,6 +6,8 @@ import org.scalatra.ScalatraBase
 
 trait CacheSupport { self: ScalatraBase =>
   implicit val cacheBackend: Cache
+  implicit val keyStrategy: KeyStrategy = DefaultKeyStrategy
+  implicit val headerStrategy: HeaderStrategy = DefaultHeaderStrategy
 
   def cache[A](key: String)(value: => A): A = {
     cacheBackend.get[A](key) match {
@@ -14,8 +16,10 @@ trait CacheSupport { self: ScalatraBase =>
     }
   }
 
-  def cached[A](keyStrategy: KeyStrategy = DefaultKeyStrategy,
-    headerStrategy: HeaderStrategy = DefaultHeaderStrategy)(result: => A)(implicit request: HttpServletRequest, response: HttpServletResponse): A = {
+  def cached[A](result: => A)(implicit keyStrategy: KeyStrategy,
+    headerStrategy: HeaderStrategy,
+    request: HttpServletRequest,
+    response: HttpServletResponse): A = {
 
     val key = keyStrategy.key
 
