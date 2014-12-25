@@ -11,15 +11,18 @@ import scala.util.parsing.combinator._
  * a (possibly empty) multi-map of parameters if the route is deemed to match.
  */
 trait RouteMatcher extends RouteTransformer {
+
   def apply(requestPath: String): Option[MultiParams]
 
   def apply(route: Route): Route = Route.appendMatcher(this)(route)
+
 }
 
 /**
  * A route matcher from which a URI can be generated from route parameters.
  */
 trait ReversibleRouteMatcher {
+
   /**
    * Generates a URI from a route matcher.
    *
@@ -28,13 +31,15 @@ trait ReversibleRouteMatcher {
    * @return a String that would match the route with the given params and splats
    */
   def reverse(params: Map[String, String], splats: List[String]): String
+
 }
 
 /**
  * An implementation of Sinatra's path pattern syntax.
  */
 final class SinatraRouteMatcher(pattern: String)
-    extends RouteMatcher with ReversibleRouteMatcher {
+    extends RouteMatcher
+    with ReversibleRouteMatcher {
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
@@ -98,13 +103,15 @@ final class SinatraRouteMatcher(pattern: String)
   }
 
   override def toString = pattern
+
 }
 
 /**
  * An implementation of Rails' path pattern syntax
  */
 final class RailsRouteMatcher(pattern: String)
-    extends RouteMatcher with ReversibleRouteMatcher {
+    extends RouteMatcher
+    with ReversibleRouteMatcher {
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
@@ -180,6 +187,7 @@ final class PathPatternRouteMatcher(pattern: PathPattern)
   def apply(requestPath: String): Option[MultiParams] = pattern(requestPath)
 
   override def toString: String = pattern.regex.toString
+
 }
 
 /**
@@ -203,6 +211,7 @@ final class RegexRouteMatcher(regex: Regex)
   }
 
   override def toString: String = regex.toString
+
 }
 
 /**
@@ -218,6 +227,7 @@ final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
   def apply(requestPath: String): Option[MultiMap] = if (block) Some(MultiMap()) else None
 
   override def toString: String = "[Boolean Guard]"
+
 }
 
 final class StatusCodeRouteMatcher(codes: Range, responseStatus: => Int) extends RouteMatcher {
@@ -225,4 +235,5 @@ final class StatusCodeRouteMatcher(codes: Range, responseStatus: => Int) extends
   def apply(requestPath: String): Option[MultiMap] = if (codes.contains(responseStatus)) Some(MultiMap()) else None
 
   override def toString: String = codes.toString()
+
 }

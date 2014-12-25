@@ -4,10 +4,15 @@ package i18n
 import java.util.{ Locale, MissingResourceException, ResourceBundle }
 
 object Messages {
-  def apply(locale: Locale = Locale.getDefault, bundlePath: String = "i18n/messages"): Messages = new Messages(locale, bundlePath)
+
+  def apply(locale: Locale = Locale.getDefault, bundlePath: String = "i18n/messages"): Messages = {
+    new Messages(locale, bundlePath)
+  }
+
 }
 class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
-  private[this] val bundle = ResourceBundle.getBundle(bundlePath, locale)
+
+  private[this] val bundle: ResourceBundle = ResourceBundle.getBundle(bundlePath, locale)
 
   /**
    * Null-safe implementation is preferred by using Option. The caller can
@@ -30,17 +35,17 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
     }
   }
 
-  def apply(key: String): String = {
-    bundle.getString(key)
-  }
+  def apply(key: String): String = bundle.getString(key)
 
   /**
    * Return the value for the key or fall back to the provided default
    */
-  def getOrElse(key: String, default: => String): String = try {
-    bundle.getString(key)
-  } catch {
-    case e: MissingResourceException => default
+  def getOrElse(key: String, default: => String): String = {
+    try {
+      bundle.getString(key)
+    } catch {
+      case e: MissingResourceException => default
+    }
   }
 
   /**
@@ -53,4 +58,5 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
       case e: MissingResourceException => default
     }
   }
+
 }

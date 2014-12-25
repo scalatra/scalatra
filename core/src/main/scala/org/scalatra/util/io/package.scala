@@ -17,7 +17,7 @@ package object io {
    * @param out the output stream to write
    * @param bufferSize the size of buffer to use for each read
    */
-  def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096) {
+  def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
     using(in) { in =>
       val buf = new Array[Byte](bufferSize)
       @tailrec
@@ -32,7 +32,7 @@ package object io {
     }
   }
 
-  def zeroCopy(in: FileInputStream, out: OutputStream) {
+  def zeroCopy(in: FileInputStream, out: OutputStream): Unit = {
     using(in.getChannel) { ch => ch.transferTo(0, ch.size, Channels.newChannel(out)) }
   }
 
@@ -54,7 +54,11 @@ package object io {
    * @param f the block
    * @return the result of f
    */
-  def withTempFile[A](content: String, prefix: String = "scalatra", suffix: String = ".tmp", directory: Option[File] = None)(f: File => A) = {
+  def withTempFile[A](
+    content: String,
+    prefix: String = "scalatra",
+    suffix: String = ".tmp",
+    directory: Option[File] = None)(f: File => A): A = {
     val tmp = File.createTempFile(prefix, suffix, directory.getOrElse(null))
     try {
       using(new BufferedWriter(new FileWriter(tmp))) { out =>
@@ -66,4 +70,5 @@ package object io {
       tmp.delete()
     }
   }
+
 }

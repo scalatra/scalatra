@@ -9,6 +9,14 @@ package org.scalatra.util
  * }
  */
 object NotEmpty {
-  def unapply(s: String) = if (s != null && !s.isEmpty) Some(s) else None
-  def unapply(o: Option[String]): Option[String] = o flatMap { s => unapply(s) }
+
+  def unapply(s: String): Option[String] = {
+    if (s != null && !s.isEmpty) Some(s)
+    else None
+  }
+
+  def unapply(o: Option[String]): Option[String] = {
+    o flatMap { s => unapply(s) }
+  }
+
 }

@@ -15,7 +15,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
    */
   protected def asynchronously(f: => Any): Action
 
-  protected def onAsyncEvent(event: AsyncEvent)(thunk: => Any) {
+  protected def onAsyncEvent(event: AsyncEvent)(thunk: => Any): Unit = {
     withRequest(event.getSuppliedRequest.asInstanceOf[HttpServletRequest]) {
       withResponse(event.getSuppliedResponse.asInstanceOf[HttpServletResponse]) {
         thunk
@@ -23,7 +23,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
     }
   }
 
-  protected def withinAsyncContext(context: javax.servlet.AsyncContext)(thunk: => Any) {
+  protected def withinAsyncContext(context: javax.servlet.AsyncContext)(thunk: => Any): Unit = {
     withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
       withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
         thunk
@@ -66,36 +66,43 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
    * }}}
    *
    */
-  def asyncGet(transformers: RouteTransformer*)(block: => Any): Route =
+  def asyncGet(transformers: RouteTransformer*)(block: => Any): Route = {
     get(transformers: _*)(asynchronously(block)())
+  }
 
   /**
    * @see asyncGet
    */
-  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route =
+  def asyncPost(transformers: RouteTransformer*)(block: => Any): Route = {
     post(transformers: _*)(asynchronously(block)())
+  }
 
   /**
    * @see asyncGet
    */
-  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route =
+  def asyncPut(transformers: RouteTransformer*)(block: => Any): Route = {
     put(transformers: _*)(asynchronously(block)())
+  }
 
   /**
    * @see asyncGet
    */
-  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route =
+  def asyncDelete(transformers: RouteTransformer*)(block: => Any): Route = {
     delete(transformers: _*)(asynchronously(block)())
+  }
 
   /**
    * @see asyncGet
    */
-  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route =
+  def asyncOptions(transformers: RouteTransformer*)(block: => Any): Route = {
     options(transformers: _*)(asynchronously(block)())
+  }
 
   /**
    * @see asyncGet
    */
-  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route =
+  def asyncPatch(transformers: RouteTransformer*)(block: => Any): Route = {
     patch(transformers: _*)(asynchronously(block)())
+  }
+
 }

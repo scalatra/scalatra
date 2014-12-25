@@ -11,7 +11,8 @@ import scala.io.Codec
 object FileCharset {
 
   @transient private[this] val logger: Logger = Logger(getClass)
-  def apply(file: File) = {
+
+  def apply(file: File): Charset = {
     val buf = Array.ofDim[Byte](8192)
     val detector = new UniversalDetector(null)
     try {
@@ -33,7 +34,7 @@ object FileCharset {
     }
   }
 
-  private[this] def getCharset(detector: UniversalDetector, default: Codec) = {
+  private[this] def getCharset(detector: UniversalDetector, default: Codec): Charset = {
     val cs = detector.getDetectedCharset
     if (cs == null || cs.trim().isEmpty) {
       default.charSet
@@ -42,7 +43,7 @@ object FileCharset {
     }
   }
 
-  def apply(barr: Array[Byte]) = {
+  def apply(barr: Array[Byte]): Charset = {
     val detector = new UniversalDetector(null)
     try {
       var idx = 0

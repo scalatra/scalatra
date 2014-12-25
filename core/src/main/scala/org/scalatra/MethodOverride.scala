@@ -8,10 +8,12 @@ import scala.collection.SortedSet
 
 object MethodOverride {
 
-  val ParamName = "_method"
+  val ParamName: String = "_method"
 
-  val HeaderName = SortedSet(
-    "X-HTTP-METHOD-OVERRIDE", "X-HTTP-METHOD", "X-METHOD-OVERRIDE"
+  val HeaderName: SortedSet[String] = SortedSet(
+    "X-HTTP-METHOD-OVERRIDE",
+    "X-HTTP-METHOD",
+    "X-METHOD-OVERRIDE"
   )
 
 }

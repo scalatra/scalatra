@@ -8,6 +8,7 @@ import scala.util.control.NoStackTrace
  * A collection of methods that affect the control flow of routes.
  */
 trait Control {
+
   /**
    * Immediately halts processing of a request.  Can be called from either a
    * before filter or a route.
@@ -44,4 +45,6 @@ private[scalatra] case class HaltException(
   body: Any)
     extends Throwable with NoStackTrace
 
-private[scalatra] class PassException extends Throwable with NoStackTrace
+private[scalatra] class PassException
+  extends Throwable
+  with NoStackTrace

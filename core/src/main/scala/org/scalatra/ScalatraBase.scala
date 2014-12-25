@@ -27,15 +27,15 @@ object ScalatraBase {
    * propagated to ScalatraBase#handle (such as in
    * FileUploadSupport)
    */
-  val PrehandleExceptionKey = "org.scalatra.PrehandleException"
-  val HostNameKey = "org.scalatra.HostName"
-  val PortKey = "org.scalatra.Port"
-  val ForceHttpsKey = "org.scalatra.ForceHttps"
+  val PrehandleExceptionKey: String = "org.scalatra.PrehandleException"
+  val HostNameKey: String = "org.scalatra.HostName"
+  val PortKey: String = "org.scalatra.Port"
+  val ForceHttpsKey: String = "org.scalatra.ForceHttps"
 
-  private[this] val KeyPrefix = classOf[FutureSupport].getName
-  val Callbacks = s"$KeyPrefix.callbacks"
-  val RenderCallbacks = s"$KeyPrefix.renderCallbacks"
-  val IsAsyncKey = s"$KeyPrefix.isAsync"
+  private[this] val KeyPrefix: String = classOf[FutureSupport].getName
+  val Callbacks: String = s"$KeyPrefix.callbacks"
+  val RenderCallbacks: String = s"$KeyPrefix.renderCallbacks"
+  val IsAsyncKey: String = s"$KeyPrefix.isAsync"
 
   def isAsyncResponse(implicit request: HttpServletRequest): Boolean = request.get(IsAsyncKey).exists(_ => true)
 
@@ -58,9 +58,13 @@ object ScalatraBase {
     request(Callbacks) = callback :: callbacks
   }
 
-  def runCallbacks(data: Try[Any])(implicit request: HttpServletRequest): Unit = callbacks.reverse foreach (_(data))
-  def renderCallbacks(implicit request: HttpServletRequest): List[(Try[Any]) => Unit] =
+  def runCallbacks(data: Try[Any])(implicit request: HttpServletRequest): Unit = {
+    callbacks.reverse foreach (_(data))
+  }
+
+  def renderCallbacks(implicit request: HttpServletRequest): List[(Try[Any]) => Unit] = {
     request.getOrElse(RenderCallbacks, List.empty[Try[Any] => Unit]).asInstanceOf[List[Try[Any] => Unit]]
+  }
 
   def addRenderCallback(callback: Try[Any] => Unit)(implicit request: HttpServletRequest): Unit = {
     request(RenderCallbacks) = callback :: renderCallbacks
@@ -198,7 +202,8 @@ trait ScalatraBase
   }
 
   private[this] def cradleHalt(body: => Any, error: Throwable => Any): Any = {
-    try { body } catch {
+    try body
+    catch {
       case e: HaltException => {
         try {
           handleStatusCode(extractStatusCode(e)) match {
@@ -210,7 +215,6 @@ trait ScalatraBase
           case e: Throwable => error(e)
         }
       }
-
       case e: Throwable => error(e)
     }
   }
@@ -256,8 +260,9 @@ trait ScalatraBase
     matchedRoute
   }
 
-  private[scalatra] def matchedRoute(implicit request: HttpServletRequest): Option[MatchedRoute] =
+  private[scalatra] def matchedRoute(implicit request: HttpServletRequest): Option[MatchedRoute] = {
     request.get("org.scalatra.MatchedRoute").map(_.asInstanceOf[MatchedRoute])
+  }
 
   /**
    * Invokes a route or filter.  The multiParams gathered from the route
@@ -269,17 +274,19 @@ trait ScalatraBase
    * @return the result of the matched route's action wrapped in `Some`,
    *         or `None` if the action calls `pass`.
    */
-  protected def invoke(matchedRoute: MatchedRoute): Option[Any] =
+  protected def invoke(matchedRoute: MatchedRoute): Option[Any] = {
     withRouteMultiParams(Some(matchedRoute)) {
       liftAction(matchedRoute.action)
     }
+  }
 
-  private def liftAction(action: Action): Option[Any] =
+  private def liftAction(action: Action): Option[Any] = {
     try {
       Some(action())
     } catch {
       case e: PassException => None
     }
+  }
 
   def before(transformers: RouteTransformer*)(fun: => Any): Unit = {
     routes.appendBeforeFilter(Route(transformers, () => fun))
@@ -322,11 +329,13 @@ trait ScalatraBase
     if (allow.isEmpty) None else liftAction(() => doMethodNotAllowed(allow))
   }
 
-  private[this] def handleStatusCode(status: Int): Option[Any] = for {
-    handler <- routes(status)
-    matchedHandler <- handler(requestPath)
-    handlerResult <- invoke(matchedHandler)
-  } yield handlerResult
+  private[this] def handleStatusCode(status: Int): Option[Any] = {
+    for {
+      handler <- routes(status)
+      matchedHandler <- handler(requestPath)
+      handlerResult <- invoke(matchedHandler)
+    } yield handlerResult
+  }
 
   /**
    * The error handler function, called if an exception is thrown during
@@ -467,15 +476,17 @@ trait ScalatraBase
    * @param path a path expression
    * @return a route matcher based on `path`
    */
-  protected implicit def string2RouteMatcher(path: String): RouteMatcher =
+  protected implicit def string2RouteMatcher(path: String): RouteMatcher = {
     new SinatraRouteMatcher(path)
+  }
 
   /**
    * Path pattern is decoupled from requests.  This adapts the PathPattern to
    * a RouteMatcher by supplying the request path.
    */
-  protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher =
+  protected implicit def pathPatternParser2RouteMatcher(pattern: PathPattern): RouteMatcher = {
     new PathPatternRouteMatcher(pattern)
+  }
 
   /**
    * Converts a regular expression to a route matcher.
@@ -484,8 +495,9 @@ trait ScalatraBase
    * @return a route matcher based on `regex`
    * @see [[org.scalatra.RegexRouteMatcher]]
    */
-  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher =
+  protected implicit def regex2RouteMatcher(regex: Regex): RouteMatcher = {
     new RegexRouteMatcher(regex)
+  }
 
   /**
    * Converts a boolean expression to a route matcher.
@@ -497,8 +509,9 @@ trait ScalatraBase
    *
    * @see [[org.scalatra.BooleanBlockRouteMatcher]]
    */
-  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher =
+  protected implicit def booleanBlock2RouteMatcher(block: => Boolean): RouteMatcher = {
     new BooleanBlockRouteMatcher(block)
+  }
 
   protected def renderHaltException(e: HaltException): Unit = {
     try {
@@ -661,8 +674,9 @@ trait ScalatraBase
     if (withSessionId) addSessionId(newPath + queryString) else newPath + queryString
   }
 
-  private[this] def ensureContextPathsStripped(path: String)(implicit request: HttpServletRequest): String =
+  private[this] def ensureContextPathsStripped(path: String)(implicit request: HttpServletRequest): String = {
     ((ensureContextPathStripped _) andThen (ensureServletPathStripped _))(path)
+  }
 
   private[this] def ensureServletPathStripped(path: String)(implicit request: HttpServletRequest): String = {
     val sp = ensureSlash(request.getServletPath.blankOption getOrElse "")
@@ -681,16 +695,17 @@ trait ScalatraBase
     if (p.endsWith("/")) p.dropRight(1) else p
   }
 
-  protected def isHttps(implicit request: HttpServletRequest) = {
+  protected def isHttps(implicit request: HttpServletRequest): Boolean = {
     // also respect load balancer version of the protocol
     val h = request.getHeader("X-Forwarded-Proto").blankOption
     request.isSecure || (h.isDefined && h.forall(_ equalsIgnoreCase "HTTPS"))
   }
 
-  protected def needsHttps: Boolean =
+  protected def needsHttps: Boolean = {
     allCatch.withApply(_ => false) {
       servletContext.getInitParameter(ForceHttpsKey).blankOption.map(_.toBoolean) getOrElse false
     }
+  }
 
   /**
    * Sends a redirect response and immediately halts the current action.
@@ -756,12 +771,15 @@ trait ScalatraBase
    * @return an option containing the value of the parameter if defined, or
    *         `None` if the parameter is not set.
    */
-  def initParameter(name: String): Option[String] =
+  def initParameter(name: String): Option[String] = {
     config.initParameters.get(name) orElse {
       servletContext.initParameters.get(name)
     }
+  }
 
-  def environment: String = sys.props.get(EnvironmentKey) orElse initParameter(EnvironmentKey) getOrElse "DEVELOPMENT"
+  def environment: String = {
+    sys.props.get(EnvironmentKey) orElse initParameter(EnvironmentKey) getOrElse "DEVELOPMENT"
+  }
 
   /**
    * A boolean flag representing whether the kernel is in development mode.
