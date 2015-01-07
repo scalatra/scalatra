@@ -33,27 +33,27 @@ trait ScalatraTestNGSuite extends TestNGSuite with ScalatraSuite
 /**
  * Convenience trait to add Scalatra test support to FeatureSpec.
  */
-trait ScalatraFeatureSpec extends FeatureSpec with ScalatraSuite
+trait ScalatraFeatureSpec extends FeatureSpecLike with ScalatraSuite
 
 /**
  * Convenience trait to add Scalatra test support to Spec.
  */
-trait ScalatraSpec extends FunSpec with ScalatraSuite
+trait ScalatraSpec extends FunSpecLike with ScalatraSuite
 
 /**
  * Convenience trait to add Scalatra test support to FlatSpec.
  */
-trait ScalatraFlatSpec extends FlatSpec with ScalatraSuite
+trait ScalatraFlatSpec extends FlatSpecLike with ScalatraSuite
 
 /**
  * Convenience trait to add Scalatra test support to FreeSpec.
  */
-trait ScalatraFreeSpec extends FreeSpec with ScalatraSuite
+trait ScalatraFreeSpec extends FreeSpecLike with ScalatraSuite
 
 /**
  * Convenience trait to add Scalatra test support to WordSpec.
  */
-trait ScalatraWordSpec extends WordSpec with ScalatraSuite
+trait ScalatraWordSpec extends WordSpecLike with ScalatraSuite
 
 /**
  * Convenience trait to add Scalatra test support to FunSuite.
