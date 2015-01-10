@@ -41,7 +41,7 @@ object ScalatraServlet {
 
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended
- * base class for most Scalatra applications.  Use a servlet if:
+ * base trait for most Scalatra applications.  Use a servlet if:
  *
  * $ - your Scalatra routes run in a subcontext of your web application.
  * $ - you want Scalatra to have complete control of unmatched requests.
@@ -51,7 +51,7 @@ object ScalatraServlet {
  *
  * @see ScalatraFilter
  */
-abstract class ScalatraServlet
+trait ScalatraServlet
     extends HttpServlet
     with ServletBase
     with Initializable {
