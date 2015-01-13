@@ -55,7 +55,7 @@ and
     trait Foo { ... }
 
 ### Site documentation / handbook
-TBD
+You can open pull requests for the [Scalatra Documentation](http://scalatra.org/) website in its [GitHub repository]( https://github.com/scalatra/scalatra-website/)
 
 ## Code
 For the good of the community we should agree on some coding style and conventions, and try to be consistent, but scala itself and scalatra
