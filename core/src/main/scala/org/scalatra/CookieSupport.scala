@@ -54,6 +54,9 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
     if (pth.nonBlank) {
       sb append "; Path=" append (if (!pth.startsWith("/")) "/" + pth else pth)
     }
+    if (cookieOptions.version > 0) {
+      sb append ("; Version=") append cookieOptions.version
+    }
     if (cookieOptions.comment.nonBlank) {
       sb append ("; Comment=") append cookieOptions.comment
     }
