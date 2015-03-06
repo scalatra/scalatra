@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.util.{ Date, Locale }
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.DateUtil
@@ -144,7 +144,7 @@ trait CookieContext { self: ScalatraContext =>
     servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]
   }
 
-  def cookies: SweetCookies = {
+  def cookies(implicit request: HttpServletRequest): SweetCookies = {
     request.get(SweetCookiesKey).orNull.asInstanceOf[SweetCookies]
   }
 
