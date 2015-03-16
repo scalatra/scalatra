@@ -23,7 +23,7 @@ object ScalatraBuild extends Build {
     javacOptions  ++= Seq("-target", "1.7", "-source", "1.7", "-Xlint:deprecation"),
     manifestSetting,
     resolvers ++= Seq(
-      Opts.resolver.sonatypeSnapshots, 
+      Opts.resolver.sonatypeSnapshots,
       Opts.resolver.sonatypeReleases,
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
       "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases" // specs2 2.4.3 or higher requires this
@@ -359,7 +359,7 @@ object ScalatraBuild extends Build {
     private val httpcomponentsVersion   = "4.3.6"
     private val jettyVersion            = "9.2.6.v20141205"
     private val json4sVersion           = "3.2.11"
-    private val scalateVersion          = "1.7.0"
+    private val scalateVersion          = "1.7.1"
     private val scalatestVersion        = "2.2.2"
     private val specs2Version           = "2.4.15"
   }
