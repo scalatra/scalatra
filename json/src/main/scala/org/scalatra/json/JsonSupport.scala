@@ -9,6 +9,10 @@ import org.json4s._
 import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
 
+import javax.xml.parsers.SAXParserFactory
+import scala.xml.{ Elem, XML }
+import scala.xml.factory.XMLLoader
+
 object JsonSupport {
 
   val ParsedBodyKey = "org.scalatra.json.ParsedBody"
@@ -49,16 +53,26 @@ trait JsonSupport[T] extends JsonOutput[T] {
   protected def readJsonFromBody(bd: String): JValue
   protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue
   protected def readJsonFromStream(stream: InputStream): JValue = readJsonFromStreamWithCharset(stream, defaultCharacterEncoding)
+
+  def secureXML: XMLLoader[Elem] = {
+    val parserFactory = SAXParserFactory.newInstance()
+    parserFactory.setNamespaceAware(false)
+    parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    parserFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    val saxParser = parserFactory.newSAXParser()
+    XML.withSAXParser(saxParser)
+  }
+
   protected def readXmlFromBody(bd: String): JValue = {
     if (bd.nonBlank) {
-      val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.loadString(bd))
+      val JObject(JField(_, jv) :: Nil) = toJson(secureXML.loadString(bd))
       jv
     } else JNothing
   }
   protected def readXmlFromStream(stream: InputStream): JValue = {
     val rdr = new InputStreamReader(stream)
     if (rdr.ready()) {
-      val JObject(JField(_, jv) :: Nil) = toJson(scala.xml.XML.load(rdr))
+      val JObject(JField(_, jv) :: Nil) = toJson(secureXML.load(rdr))
       jv
     } else JNothing
   }
