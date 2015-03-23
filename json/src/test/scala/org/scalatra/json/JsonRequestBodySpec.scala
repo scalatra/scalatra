@@ -47,6 +47,19 @@ trait JsonRequestSpec extends MutableScalatraSpec {
       }
     }
 
+    "parse the xml body which attempts XXE attacks" in {
+      // see also: http://blog.goodstuff.im/lift_xxe_vulnerability
+      val rbody = """<?xml version="1.0"?>
+<!DOCTYPE str [
+<!ENTITY pass SYSTEM "/etc/passwd">
+]>
+<req><name>&pass;</name></req>"""
+      post("/json", headers = Map("Accept" -> "application/xml", "Content-Type" -> "application/xml"), body = rbody) {
+        status must_== 200
+        body must_== ""
+      }
+    }
+
     "parse number as double" in {
       val rbody = """{"number":3.14159265358979323846}"""
       post("/decimal", headers = Map("Accept" -> "application/json", "Content-Type" -> "application/json"), body = rbody) {
