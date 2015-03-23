@@ -42,6 +42,18 @@ class NativeJsonRequestBodySpec extends MutableScalatraSpec {
       }
     }
 
+    "parse the xml body which attempts XXE attacks" in {
+      // see also: http://blog.goodstuff.im/lift_xxe_vulnerability
+      val rbody = """<?xml version="1.0"?>
+<!DOCTYPE str [
+<!ENTITY pass SYSTEM "/etc/passwd">
+]>
+<req><name>&pass;</name></req>"""
+      post("/json", headers = Map("Accept" -> "application/xml", "Content-Type" -> "application/xml"), body = rbody) {
+        status must_== 200
+        body must_== ""
+      }
+    }
   }
 }
 
