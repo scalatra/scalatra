@@ -35,7 +35,7 @@ object ScalatraBuild extends Build {
     ),
     previousArtifact <<= (name, scalaVersion) { (name, sv) =>
       val cross = name + "_" + CrossVersion.binaryScalaVersion(sv)
-      Some("org.scalatra" % cross % "2.3.0")
+      Some("org.scalatra" % cross % "2.3.1")
     }
   ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ mavenCentralFrouFrou ++ scalariformSettings
 
