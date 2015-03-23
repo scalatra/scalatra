@@ -1,0 +1,22 @@
+### Scalatra Core
+
+* #408 Fixes request format qvalue parsing (fixes #406) by @rjz
+* #433 Introduce a JsonResult type by @dozed
+* #478 Fix duplicated multiParams when multipart/form-data requests by @seratch
+* #482 Fix an XXE vulnerability related to scala.xml.XML library by @seratch
+
+### Scalatra Json
+
+* #409 Guard against Rosette flash vulnerability by @jelmerk
+* #433 Introduce a JsonResult type by @dozed
+
+### Scalatra Swagger
+
+Since this version, scalatra-swagger is binary compatible with json4s 3.2.11. #446
+
+* #402 Use resource path to generate key for Swagger API listings by @cb372
+* #415 Need a way to configure includeContextPath and includeServletPath for baseUrl by @ahaid
+
+#### Scalatra Atmosphere
+
+* #421 Fix for Multiple AtmosphereResources in a single HttpSession are collapsed to a single AtmosphereResource when broadcasting (#416) by @ledyba
