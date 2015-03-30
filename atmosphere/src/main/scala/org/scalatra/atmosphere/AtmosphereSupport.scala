@@ -6,6 +6,15 @@ import java.util
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import javax.servlet.{ FilterConfig, ServletConfig, ServletContext, ServletException }
 
+import org.atmosphere.container.Tomcat7CometSupport
+import org.atmosphere.container.TomcatCometSupport
+import org.jboss.servlet.http.HttpEvent
+import org.atmosphere.container.JBossWebCometSupport
+import org.atmosphere.cpr._
+import collection.JavaConverters._
+import org.json4s._
+import org.atmosphere.cache.UUIDBroadcasterCache
+import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import grizzled.slf4j.Logger

@@ -45,7 +45,7 @@ final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protecte
       if (newMsg != null) {
         val selectedResources = _resources.asScala filter clientFilter
         val selectedSet = selectedResources.toSet.asJava
-        push(new Entry(newMsg, selectedSet, new BroadcasterFuture[Any](newMsg), embeddedMsg))
+        push(new Deliver(newMsg, selectedSet, new BroadcasterFuture[Any](newMsg), embeddedMsg))
       }
     } catch {
       case t: Throwable => logger.error("failed to push message: " + message, t)
