@@ -13,7 +13,7 @@ import org.atmosphere.container.JBossWebCometSupport
 import org.atmosphere.cpr._
 import collection.JavaConverters._
 import org.json4s._
-import org.atmosphere.cache.{UUIDBroadcasterCache, HeaderBroadcasterCache}
+import org.atmosphere.cache.UUIDBroadcasterCache
 import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import grizzled.slf4j.Logger

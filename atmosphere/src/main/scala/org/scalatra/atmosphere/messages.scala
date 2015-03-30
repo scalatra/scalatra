@@ -30,6 +30,13 @@ trait ProtocolMessage[T] extends InboundMessage with OutboundMessage {
 case object Connected extends InboundMessage
 
 /**
+ * A callback event signaling a heartbeat
+ *
+ * When you receive this heartbeat message you can be sure there is someone on the other end.
+ */
+case object Heartbeat extends InboundMessage
+
+/**
  * A message representing a json object sent to/received from a remote party.
  *
  * @param content A [[org.json4s.JValue]] object
