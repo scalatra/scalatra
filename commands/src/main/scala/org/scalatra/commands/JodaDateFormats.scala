@@ -5,7 +5,7 @@ import java.util.Locale
 
 import org.joda.time.format.{ DateTimeFormat, DateTimeFormatter, ISODateTimeFormat }
 import org.joda.time.{ DateTime, DateTimeZone }
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.util.control.Exception._
 

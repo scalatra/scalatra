@@ -1,7 +1,6 @@
 package org.scalatra
 
-import org.scalatra.util.MultiMap
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.util.matching.Regex
 import scala.util.parsing.combinator._

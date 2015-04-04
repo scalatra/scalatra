@@ -4,7 +4,7 @@ import java.util.Locale.ENGLISH
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import grizzled.slf4j.Logger
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.collection.JavaConverters._
 

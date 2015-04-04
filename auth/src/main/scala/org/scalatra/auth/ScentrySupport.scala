@@ -3,7 +3,7 @@ package auth
 
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 trait ScentryConfig {
   val login = "/login"

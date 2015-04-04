@@ -36,7 +36,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
   }
 }
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 object SwaggerAuthSerializers {
   import org.scalatra.swagger.SwaggerSerializers.{ dontAddOnEmpty, readDataType, writeDataType }

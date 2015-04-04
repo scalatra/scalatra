@@ -4,7 +4,7 @@ package servlet
 import java.io.{ OutputStream, PrintWriter }
 import javax.servlet.http.{ HttpServletResponse, Cookie => ServletCookie }
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.Map

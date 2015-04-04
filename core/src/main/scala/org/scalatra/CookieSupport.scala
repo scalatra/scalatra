@@ -5,7 +5,7 @@ import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.DateUtil
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.collection._
 

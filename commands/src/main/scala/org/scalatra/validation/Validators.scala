@@ -7,7 +7,7 @@ import java.util.Locale._
 import mojolly.inflector.InflectorImports._
 import org.apache.commons.validator.routines.{ EmailValidator, UrlValidator }
 import org.scalatra.commands.FieldValidation
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.util.control.Exception._
 import scala.util.matching.Regex

@@ -5,7 +5,7 @@ import java.util.{ Map => JMap, HashMap => JHashMap }
 import javax.servlet.http._
 
 import org.scalatra.ScalatraBase
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 import org.scalatra.util.{ io, _ }
 
 import scala.collection.JavaConverters._

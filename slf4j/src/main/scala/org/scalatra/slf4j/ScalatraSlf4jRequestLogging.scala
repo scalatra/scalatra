@@ -5,8 +5,7 @@ import java.util.{ Map => JMap }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import grizzled.slf4j.Logger
-import org.scalatra.util.MultiMap
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 import org.slf4j.MDC
 
 import scala.collection.JavaConverters._

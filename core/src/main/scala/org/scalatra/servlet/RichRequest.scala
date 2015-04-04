@@ -6,7 +6,7 @@ import java.net.URI
 import java.util.Locale
 import javax.servlet.http.HttpServletRequest
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 import org.scalatra.util.{ MultiMap, MultiMapHeadView }
 
 import scala.collection.JavaConverters._

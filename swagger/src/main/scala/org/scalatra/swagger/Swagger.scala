@@ -86,7 +86,7 @@ object Swagger {
     }
   }
 
-  import org.scalatra.util.RicherString._
+  import org.scalatra.util._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
 
   private[this] def toModelProperty(descr: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "")(prop: PropertyDescriptor) = {

@@ -5,7 +5,7 @@ import java.io.{ InputStream, InputStreamReader, Writer }
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import org.json4s._
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with JValueResult {
 

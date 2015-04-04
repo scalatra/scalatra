@@ -4,7 +4,7 @@ import javax.servlet._
 import javax.servlet.http._
 
 import org.scalatra.servlet.ServletBase
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.util.control.Exception.catching
 

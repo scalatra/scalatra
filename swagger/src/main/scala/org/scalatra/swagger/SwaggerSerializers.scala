@@ -11,7 +11,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.ext.{ EnumNameSerializer, JodaTimeSerializers }
 import org.scalatra.HttpMethod
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 object SwaggerSerializers {
   import org.scalatra.swagger.AllowableValues._

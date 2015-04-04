@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest
 
 import org.json4s.Xml._
 import org.json4s._
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 import org.slf4j.LoggerFactory
 
 import javax.xml.parsers.SAXParserFactory

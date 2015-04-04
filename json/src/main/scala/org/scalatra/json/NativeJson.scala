@@ -4,7 +4,7 @@ package json
 import java.io.{ InputStream, InputStreamReader, Writer }
 
 import org.json4s._
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.text.Document
 

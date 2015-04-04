@@ -4,7 +4,7 @@ package servlet
 import javax.servlet.{ ServletContext, ServletContextEvent, ServletContextListener }
 
 import grizzled.slf4j.Logger
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 class ScalatraListener extends ServletContextListener {
 

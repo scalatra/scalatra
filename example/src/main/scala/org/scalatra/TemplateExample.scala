@@ -176,7 +176,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   post("/echo") {
-    import org.scalatra.util.RicherString._
+    import org.scalatra.util._
     params("echo").urlDecode
   }
 }

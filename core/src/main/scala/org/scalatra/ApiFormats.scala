@@ -4,7 +4,7 @@ import java.util.Locale.ENGLISH
 import java.util.concurrent.ConcurrentHashMap
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.collection.JavaConverters._
 import scala.collection.concurrent

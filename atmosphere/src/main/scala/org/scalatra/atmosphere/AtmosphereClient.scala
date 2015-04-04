@@ -3,7 +3,7 @@ package atmosphere
 
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext
