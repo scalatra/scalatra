@@ -304,7 +304,7 @@ object ScalatraBuild extends Build {
     lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.3"
     lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
     lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
-    lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.1.10"
+    lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.2.6"
     lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.8" artifacts(Artifact("jquery", "war", "war"))
     lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "1.4.3"
     lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.2.1"

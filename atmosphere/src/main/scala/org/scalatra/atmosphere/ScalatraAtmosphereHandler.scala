@@ -23,6 +23,10 @@ object ScalatraAtmosphereHandler {
 
     def onPreSuspend(event: AtmosphereResourceEvent) {}
 
+    def onHeartbeat(event: AtmosphereResourceEvent) {
+      client(event.getResource) foreach (_.receive.lift(Heartbeat))
+    }
+
     def onBroadcast(event: AtmosphereResourceEvent) {
       val resource = event.getResource
       resource.transport match {

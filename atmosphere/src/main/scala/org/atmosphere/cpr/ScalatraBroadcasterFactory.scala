@@ -6,18 +6,24 @@ import java.util.concurrent.ConcurrentHashMap
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
 import org.scalatra.atmosphere.{ ScalatraBroadcaster, WireFormat }
+import org.atmosphere.cpr.BroadcasterLifeCyclePolicy.ATMOSPHERE_RESOURCE_POLICY
 
 import scala.collection.JavaConverters._
 import scala.collection.concurrent.{ Map => ConcurrentMap }
+import scala.util.{ Try, Success, Failure }
 
 object ScalatraBroadcasterFactory {
 }
 
-class ScalatraBroadcasterFactory(cfg: AtmosphereConfig, bCfg: BroadcasterConf)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
+class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterConf)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   BroadcasterFactory.setBroadcasterFactory(this, cfg)
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
   private[this] val store: ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
+
+  override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig) {
+    this.cfg = c
+  }
 
   private def createBroadcaster[T <: Broadcaster](c: Class[T], id: Any): T = {
     try {
