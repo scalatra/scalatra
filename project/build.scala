@@ -358,7 +358,7 @@ object ScalatraBuild extends Build {
     private val atmosphereCompatVersion = "2.0.1"
     private val httpcomponentsVersion   = "4.3.6"
     private val jettyVersion            = "9.2.10.v20150310"
-    private val json4sVersion           = "3.2.11"
+    private val json4sVersion           = "3.3.0.RC1"
     private val scalateVersion          = "1.7.1"
     private val scalatestVersion        = "2.2.4"
     private val specs2Version           = "2.4.17"
