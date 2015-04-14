@@ -1,7 +1,7 @@
 package org.scalatra.swagger.reflect
 
 import scala.annotation.tailrec
-import scala.tools.scalap.scalax.rules.scalasig._
+import org.json4s.scalap.scalasig._
 
 private[reflect] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
