@@ -6,10 +6,17 @@ import java.io.{ InputStream, InputStreamReader, Writer }
 import com.fasterxml.jackson.databind.DeserializationFeature
 import org.json4s._
 import org.scalatra.util.RicherString._
+import org.slf4j.LoggerFactory
 
 trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with JValueResult {
 
-  mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, jsonFormats.wantsBigDecimal)
+  if (mapper != null) {
+    val wantsBigDecimal: Boolean = jsonFormats != null && jsonFormats.wantsBigDecimal
+    mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, wantsBigDecimal)
+  } else {
+    val logger = LoggerFactory.getLogger(classOf[JacksonJsonSupport])
+    logger.warn("Skipped to configure #mapper because it's null somehow")
+  }
 
   protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue = {
     val rdr = new InputStreamReader(stream, charset)

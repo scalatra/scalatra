@@ -137,7 +137,12 @@ object ScalatraBuild extends Build {
     base = file("json"),
     settings = scalatraSettings ++ Seq(
       description := "JSON support for Scalatra",
-      libraryDependencies ++= Seq(json4sJackson % "provided", json4sNative % "provided", json4sCore)
+      libraryDependencies ++= Seq(
+        json4sCore,
+        json4sJackson  % "provided",
+        json4sNative   % "provided",
+        logbackClassic % "test"
+      )
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
