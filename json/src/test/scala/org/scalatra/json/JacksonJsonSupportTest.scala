@@ -8,8 +8,12 @@ class JacksonJsonSupportTestServlet extends ScalatraServlet with JacksonJsonSupp
   //implicit protected def jsonFormats: Formats = DefaultFormats
   implicit protected def jsonFormats: Formats = null
 
+  before() {
+    contentType = formats("json")
+  }
+
   get("/") {
-    "ok"
+    Map("result" -> "ok")
   }
 }
 
@@ -19,7 +23,7 @@ class JacksonJsonSupportTest extends ScalatraFunSuite {
   test("works fine (issue #486)") {
     get("/") {
       status should equal(200)
-      body should equal("ok")
+      body should equal("""{"result":"ok"}""")
     }
   }
 }
