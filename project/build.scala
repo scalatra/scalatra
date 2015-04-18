@@ -461,6 +461,11 @@ object ScalatraBuild extends Build {
           <name>Ayush Gupta</name>
           <url>hhttps://github.com/ayush</url>
         </developer>
+        <developer>
+          <id>seratch</id>
+          <name>Kazuhiro Sera</name>
+          <url>hhttps://github.com/seratch</url>
+        </developer>
       </developers>
     )}
   )
