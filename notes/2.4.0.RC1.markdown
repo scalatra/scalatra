@@ -1,0 +1,11 @@
+### Scalatra Json
+
+* #490 Bump json4s version to 3.3.0.RC1 by @seratch
+
+### Scalatra Atmosphere
+
+* #492 Bump atmosphere-runtime to 2.2 by @adamretter
+
+### Scalatra Swagger
+
+* #490 Switch scalap to json4s-scalap since json4s 3.3.0 by @seratch

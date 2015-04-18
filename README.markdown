@@ -31,10 +31,10 @@ The latest stable version of Scalatra is `2.3.1`, and is published to [Maven Cen
 libraryDependencies += "org.scalatra" %% "scalatra" % "2.3.1"
 ```
 
-The upcoming 2.4.0 milestone releases are also available. Please git it a try and give us your feedback!
+The upcoming 2.4.0 RC release is also available. Please git it a try and give us your feedback!
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0.M3"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0.RC1"
 ```
 
 ### Development version
