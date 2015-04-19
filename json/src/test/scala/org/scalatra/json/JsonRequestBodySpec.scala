@@ -6,11 +6,7 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.text.Document
 
-trait JsonSupportServlet[T] extends ScalatraBase with JsonSupport[T] {
-
-  def withBigDecimal: Boolean
-
-  protected implicit val jsonFormats: Formats = if (withBigDecimal) DefaultFormats.withBigDecimal else DefaultFormats
+trait JsonSupportServlet[T] extends ScalatraBase with JsonSupport[T] with JValueResult {
 
   post("/json") {
     parsedBody match {
@@ -87,10 +83,18 @@ trait BigDecimalJsonRequestSpec extends MutableScalatraSpec {
 
 // servlets
 class NativeJsonSupportServlet(val withBigDecimal: Boolean)
-  extends ScalatraServlet with JsonSupportServlet[Document] with NativeJsonSupport
+  extends ScalatraServlet with JsonSupportServlet[Document] with NativeJsonSupport {
+
+  protected implicit val jsonFormats: Formats = if (withBigDecimal) DefaultFormats.withBigDecimal else DefaultFormats
+
+}
 
 class JacksonSupportServlet(val withBigDecimal: Boolean)
-  extends ScalatraServlet with JsonSupportServlet[JValue] with JacksonJsonSupport
+  extends ScalatraServlet with JsonSupportServlet[JValue] with JacksonJsonSupport {
+
+  protected implicit val jsonFormats: Formats = if (withBigDecimal) DefaultFormats.withBigDecimal else DefaultFormats
+
+}
 
 // specs
 class JacksonRequestBodySpec extends JsonRequestSpec {
