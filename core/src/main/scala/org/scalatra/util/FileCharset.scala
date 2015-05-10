@@ -12,8 +12,10 @@ object FileCharset {
 
   @transient private[this] val logger: Logger = Logger(getClass)
 
+  private val CheckByteLength = 8192
+
   def apply(file: File): Charset = {
-    val buf = Array.ofDim[Byte](8192)
+    val buf = Array.ofDim[Byte](CheckByteLength)
     val detector = new UniversalDetector(null)
     try {
       using(new FileInputStream(file)) { fis =>
@@ -47,7 +49,7 @@ object FileCharset {
     val detector = new UniversalDetector(null)
     try {
       var idx = 0
-      while (idx < barr.length && !detector.isDone) {
+      while (idx < barr.length && idx < CheckByteLength && !detector.isDone) {
         if (idx > 0) detector.handleData(barr, 0, idx)
         idx += 1
       }
