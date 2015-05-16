@@ -5,6 +5,7 @@ import org.scalatra.test.scalatest.ScalatraWordSpec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
+import org.scalatest.concurrent.Eventually._
 
 class RouteConcurrencyServlet extends ScalatraServlet {
   for {
@@ -40,8 +41,8 @@ class RouteConcurrencySpec extends ScalatraWordSpec {
     }
 
     "support removing routes concurrently with adding routes" in {
-      get("/count/post") {
-        body should equal("500")
+      eventually {
+        get("/count/post") { body should equal("500") }
       }
     }
   }
