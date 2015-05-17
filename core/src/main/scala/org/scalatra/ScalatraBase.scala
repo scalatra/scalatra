@@ -544,23 +544,21 @@ trait ScalatraBase
     case _ => response.status.code
   }
 
-  def get(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Get, transformers, action)
+  def get(transformers: RouteTransformer*)(action: => Any): Any = RouteMacros.get(transformers:_*)(action)
 
-  def post(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Post, transformers, action)
+  def post(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.post(transformers:_*)(action)
 
-  def put(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Put, transformers, action)
+  def put(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.put(transformers:_*)(action)
 
-  def delete(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Delete, transformers, action)
+  def delete(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.delete(transformers:_*)(action)
 
-  def trap(codes: Range)(block: => Any): Unit = {
-    addStatusRoute(codes, block)
-  }
+  def trap(codes: Range)(block: => Any): Unit = RouteMacros.trap(codes)(block)
 
-  def options(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Options, transformers, action)
+  def options(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.options(transformers:_*)(action)
 
-  def head(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Head, transformers, action)
+  def head(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.head(transformers:_*)(action)
 
-  def patch(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Patch, transformers, action)
+  def patch(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.patch(transformers:_*)(action)
 
   /**
    * Prepends a new route for the given HTTP method.

@@ -21,6 +21,7 @@ object ScalatraBuild extends Build {
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
     javacOptions  ++= Seq("-target", "1.7", "-source", "1.7", "-Xlint:deprecation"),
+    addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
     manifestSetting,
     resolvers ++= Seq(
       Opts.resolver.sonatypeSnapshots,
@@ -68,7 +69,8 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => {
-        val defau = Seq(servletApi % "provided;test",
+        val default = Seq(servletApi % "provided;test",
+          reflect(sv),
           slf4jApi,
           grizzledSlf4j,
           rl,
@@ -78,7 +80,8 @@ object ScalatraBuild extends Build {
           jodaConvert,
           akkaActor % "test"
         )
-        if (sv.startsWith("2.10")) defau else defau ++ Seq(parserCombinators, xml)
+        if (sv.startsWith("2.10")) default ++ Seq(quasiquotes)
+        else default ++ Seq(parserCombinators, xml)
       }),
       libraryDependencies ++= Seq(akkaTestkit % "test"),
       description := "The core Scalatra framework",
@@ -302,6 +305,8 @@ object ScalatraBuild extends Build {
   object Dependencies {
     lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.0.4"
     lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.4"
+    def reflect(sv: String)           =  "org.scala-lang"          %  "scala-reflect"              % sv
+    lazy val quasiquotes              =  "org.scalamacros"         %% "quasiquotes"                % paradiseVersion
     lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
     lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
     // TODO: 2.3 has incompatible API changes
@@ -365,6 +370,8 @@ object ScalatraBuild extends Build {
     private val scalatestVersion        = "2.2.5"
     // TODO: 3.3 has incompatible API changes
     private val specs2Version           = "2.4.17"
+
+    lazy val paradiseVersion            = "2.1.0-M5"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
