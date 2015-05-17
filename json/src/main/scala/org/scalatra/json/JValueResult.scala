@@ -21,7 +21,8 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
   private[this] def customSerializer = jsonFormats.customSerializer
 
   private[this] def renderToJson: RenderPipeline = {
-    case JNull | JNothing =>
+    case JNothing =>
+    case JNull => response.writer.write("null")
     case a: JValue => super.renderPipeline(a)
     case a: Any if isJValueResponse && customSerializer.isDefinedAt(a) =>
       customSerializer.lift(a) match {
