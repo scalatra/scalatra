@@ -7,11 +7,14 @@ trait HealthChecksSupport extends nl.grons.metrics.scala.CheckedBuilder with Met
   implicit def healthCheckRegistry: HealthCheckRegistry
   val registry = healthCheckRegistry
 
+  private type ToMagnet[T] = ByName[T] => HealthCheckMagnet
+
   def healthCheckName(name: String) = MetricName(name)
 
-  def checkHealth(name: String)(thunk: => HealthCheckMagnet) = healthCheck(name) { thunk }
-  def checkHealth(name: String, unhealthyMessage: String)(thunk: => HealthCheckMagnet) =
-    healthCheck(name, unhealthyMessage) { thunk }
+  def checkHealth[T](name: String)(checker: => T)(implicit toMagnet: ToMagnet[T]) =
+    healthCheck(name) { checker }
+  def checkHealth[T](name: String, unhealthyMessage: String)(checker: => T)(implicit toMagnet: ToMagnet[T]) =
+    healthCheck(name, unhealthyMessage) { checker }
 
   def runHealthCheck(name: String) = healthCheckRegistry.runHealthCheck(name)
   def runHealthChecks() = healthCheckRegistry.runHealthChecks()
