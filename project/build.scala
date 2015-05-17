@@ -348,8 +348,7 @@ object ScalatraBuild extends Build {
     lazy val specs2                   =  "org.specs2"              %% "specs2"                     % specs2Version
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
     lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.4"
-    // TODO:  3.5 has incompatible API changes
-    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.3.0_a2.3"
+    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.1"
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.2"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.2"
     lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "18.0"
