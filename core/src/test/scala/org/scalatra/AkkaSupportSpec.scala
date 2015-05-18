@@ -1,5 +1,7 @@
 package org.scalatra
 
+import javax.servlet.http.HttpServletRequest
+
 import _root_.akka.actor._
 import org.scalatra.test.specs2.MutableScalatraSpec
 
@@ -16,6 +18,22 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
       val is: Future[_] = Future {
         redirect("redirected")
       }
+    }
+  }
+
+  get("/redirect-2") {
+    Future {
+      redirect("redirected")
+    }
+  }
+
+  def sessionFoo(implicit request: HttpServletRequest) = {
+    session.getOrElseUpdate("foo", params.getOrElse("foo", "foo"))
+  }
+
+  get("/session") {
+    Future {
+      sessionFoo
     }
   }
 
@@ -71,6 +89,12 @@ class AkkaSupportSpec extends MutableScalatraSpec {
   addServlet(new AkkaSupportServlet, "/*")
 
   "The AkkaSupport" should {
+    "be able to return a Future" in {
+      get("/session") {
+        body must_== "foo"
+      }
+    }
+
     "render the reply of an actor" in {
       get("/working") {
         body must_== "the-working-reply"
@@ -110,6 +134,11 @@ class AkkaSupportSpec extends MutableScalatraSpec {
 
     "redirect with the redirect method" in {
       get("/redirect") {
+        status must_== 302
+        response.header("Location") must_== (baseUrl + "/redirected")
+      }
+
+      get("/redirect-2") {
         status must_== 302
         response.header("Location") must_== (baseUrl + "/redirected")
       }

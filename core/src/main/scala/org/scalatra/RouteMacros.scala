@@ -12,6 +12,16 @@ object RouteMacros {
   def rescopeAction[C <: Context](c: C)(action: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
 
+    object RequestTransformer extends Transformer {
+      override def transform(tree: Tree): Tree = {
+        tree match {
+          case q"$a.this.request" => Ident(TermName("request"))
+          case q"$a.this.response" => Ident(TermName("response"))
+          case _ => super.transform(tree)
+        }
+      }
+    }
+
     if (action.actualType <:< c.mirror.typeOf[Future[_]]) {
 
       val rescopedAction = q"""
@@ -22,7 +32,11 @@ object RouteMacros {
            }
          """
 
-      c.Expr[Unit](rescopedAction)
+      val transformedAction = c.untypecheck(RequestTransformer.transform(rescopedAction))
+
+      println(showCode(transformedAction))
+
+      c.Expr[Unit](transformedAction)
     } else {
       action
     }
@@ -70,21 +84,5 @@ object RouteMacros {
     val rescopedAction = rescopeAction[c.type](c)(block)
     c.Expr[Unit](q"""addStatusRoute($codes, $rescopedAction)""")
   }
-
-  def get(transformers: RouteTransformer*)(action: => Any): Any = macro getImpl
-
-  def post(transformers: RouteTransformer*)(action: => Any): Route = macro postImpl
-
-  def put(transformers: RouteTransformer*)(action: => Any): Route = macro putImpl
-
-  def delete(transformers: RouteTransformer*)(action: => Any): Route = macro deleteImpl
-
-  def trap(codes: Range)(block: => Any): Unit = macro trapImpl
-
-  def options(transformers: RouteTransformer*)(action: => Any): Route = macro optionsImpl
-
-  def head(transformers: RouteTransformer*)(action: => Any): Route = macro headImpl
-
-  def patch(transformers: RouteTransformer*)(action: => Any): Route = macro patchImpl
 
 }

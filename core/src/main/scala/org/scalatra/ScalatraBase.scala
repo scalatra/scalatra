@@ -1,5 +1,7 @@
 package org.scalatra
 
+import scala.language.experimental.macros
+
 import java.io.{ File, FileInputStream }
 import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 import javax.servlet.{ ServletRegistration, Filter, ServletContext }
@@ -544,21 +546,23 @@ trait ScalatraBase
     case _ => response.status.code
   }
 
-  def get(transformers: RouteTransformer*)(action: => Any): Any = RouteMacros.get(transformers:_*)(action)
+  def get(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.getImpl
 
-  def post(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.post(transformers:_*)(action)
+  def post(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.postImpl
 
-  def put(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.put(transformers:_*)(action)
+  def put(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.putImpl
 
-  def delete(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.delete(transformers:_*)(action)
+  def delete(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.deleteImpl
 
-  def trap(codes: Range)(block: => Any): Unit = RouteMacros.trap(codes)(block)
+  def options(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.optionsImpl
 
-  def options(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.options(transformers:_*)(action)
+  def head(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.headImpl
 
-  def head(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.head(transformers:_*)(action)
+  def patch(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.patchImpl
 
-  def patch(transformers: RouteTransformer*)(action: => Any): Route = RouteMacros.patch(transformers:_*)(action)
+  def trap(codes: Range)(block: => Any): Unit = macro RouteMacros.trapImpl
+
+  implicit def int2range(x: Int) = Range(x, x)
 
   /**
    * Prepends a new route for the given HTTP method.
