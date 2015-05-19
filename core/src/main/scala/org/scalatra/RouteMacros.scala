@@ -22,10 +22,14 @@ object RouteMacros {
       }
     }
 
-    if (action.actualType <:< c.mirror.typeOf[Future[_]]) {
+    if (action.actualType <:< c.mirror.typeOf[AsyncResult] || action.actualType <:< c.mirror.typeOf[StableResult]) {
+
+      action
+
+    } else {
 
       val rescopedAction = q"""
-          new org.scalatra.AsyncResult {
+          new org.scalatra.StableResult {
             val is = {
                $action
              }
@@ -37,8 +41,7 @@ object RouteMacros {
       println(showCode(transformedAction))
 
       c.Expr[Unit](transformedAction)
-    } else {
-      action
+
     }
 
   }
