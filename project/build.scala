@@ -25,6 +25,7 @@ object ScalatraBuild extends Build {
     resolvers ++= Seq(
       Opts.resolver.sonatypeSnapshots,
       Opts.resolver.sonatypeReleases,
+      "bintray/non" at "http://dl.bintray.com/non/maven",
       "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
       "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases" // specs2 2.4.3 or higher requires this
     ),
@@ -181,18 +182,17 @@ object ScalatraBuild extends Build {
     id = "scalatra-test",
     base = file("test"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => Seq(
+      libraryDependencies ++= Seq(
         grizzledSlf4j,
         jettyWebapp,
         servletApi,
         mockitoAll,
         commonsLang3,
-        specs2 % "test",
         httpclient,
         httpmime,
         jodaTime % "provided",
         jodaConvert % "provided"
-      )),
+      ) ++ specs2.map(_ % "test"),
       description := "The abstract Scalatra test framework"
     )
   ) dependsOn(scalatraCommon % "compile;test->test;provided->provided")
@@ -210,7 +210,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-specs2",
     base = file("specs2"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies += specs2,
+      libraryDependencies ++= specs2,
       description := "Specs2 support for the Scalatra test framework"
     )
   ) dependsOn(scalatraTest % "compile;test->test;provided->provided")
@@ -345,7 +345,11 @@ object ScalatraBuild extends Build {
     lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.1.5.RELEASE"
     lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.12"
     lazy val slf4jSimple              =  "org.slf4j"               %  "slf4j-simple"               % "1.7.12"
-    lazy val specs2                   =  "org.specs2"              %% "specs2"                     % specs2Version
+    lazy val specs2                   =  Seq(
+                                         "org.specs2"              %% "specs2-core",
+                                         "org.specs2"              %% "specs2-mock",
+                                         "org.specs2"              %% "specs2-matcher-extra"
+                                                                                    ).map(_        % specs2Version)
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
     lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.4"
     lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.1"
@@ -362,8 +366,7 @@ object ScalatraBuild extends Build {
     private val json4sVersion           = "3.3.0.RC2"
     private val scalateVersion          = "1.7.1"
     private val scalatestVersion        = "2.2.5"
-    // TODO: 3.3 has incompatible API changes
-    private val specs2Version           = "2.4.17"
+    private val specs2Version           = "3.6-20150519234533-6476871"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {

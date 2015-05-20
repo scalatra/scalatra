@@ -7,7 +7,7 @@ import org.scalatra.test.specs2.ScalatraSpec
 import org.specs2.matcher.JsonMatchers
 
 class SwaggerApiLookupSpec extends ScalatraSpec with JsonMatchers {
-  val is = s2"""
+  def is = s2"""
   Swagger integration should
     list resources using Servlet path to generate listing path $listResources
     host the API listing of a Servlet without a custom name $listFooOperations

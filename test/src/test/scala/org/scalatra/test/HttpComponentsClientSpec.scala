@@ -4,7 +4,7 @@ import java.io.{ InputStream, OutputStream }
 import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 
 import org.specs2.mutable.Specification
-import org.specs2.specification.{ Fragments, Step }
+import org.specs2.specification.BeforeAfterAll
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
@@ -12,8 +12,11 @@ import scala.collection.JavaConversions._
 class HttpComponentsClientSpec
     extends Specification
     with HttpComponentsClient
-    with EmbeddedJettyContainer {
-  override def map(fs: => Fragments) = Step(start()) ^ super.map(fs) ^ Step(stop())
+    with EmbeddedJettyContainer
+    with BeforeAfterAll {
+
+  def beforeAll = start()
+  def afterAll = stop()
 
   addServlet(new HttpServlet {
     override def service(req: HttpServletRequest, resp: HttpServletResponse) {
