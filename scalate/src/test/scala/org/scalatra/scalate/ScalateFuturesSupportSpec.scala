@@ -5,7 +5,7 @@ import java.util.concurrent.{ ExecutorService, Executors, ThreadFactory }
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.scalatra._
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.specs2.specification.{ Fragments, Step }
+import org.specs2.specification._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -163,7 +163,10 @@ class ScalateFuturesSupportSpec extends MutableScalatraSpec {
   val pool = DaemonThreadFactory.newPool()
   addServlet(new ScalateFuturesSupportServlet(pool), "/*")
 
-  override def map(fs: => Fragments): Fragments = super.map(fs) ^ Step(pool.shutdown())
+  override def afterAll = {
+    super.afterAll
+    pool.shutdown()
+  }
 
   def e1 = get("/barf") {
     status must_== 500
