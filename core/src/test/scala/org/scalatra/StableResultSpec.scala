@@ -3,36 +3,26 @@ package org.scalatra
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 
 class StableResultServlet extends ScalatraServlet {
 
   import scala.concurrent.ExecutionContext.Implicits._
 
   get("/ok") {
-    new StableResult() {
-      override val is: Any = {
-        Ok(123)
-      }
-    }
+    Ok(123)
   }
+
+  // rewritten to:
+  //  {
+  //    class cls$macro$1 extends org.scalatra.StableResult {
+  //      val is = Ok.apply(123, Ok.apply$default$2, Ok.apply$default$3)
+  //    };
+  //    val res$macro$2 = new cls$macro$1();
+  //    res$macro$2.is
+  //  }
 
   get("/future") {
-    new StableResult() {
-      override val is: Any = {
-        Future {
-          println(request.headers) // request is not read from a ThreadLocal here
-          println(session(request).getOrElseUpdate("foo", "bar"))
-
-          response.setHeader("foo", "bar")
-        }
-
-        Ok(123)
-      }
-    }
-  }
-
-  get("/macro") {
     val f = Future {
       println(request.headers)
       println(session(request).getOrElseUpdate("foo", "bar"))
@@ -46,9 +36,8 @@ class StableResultServlet extends ScalatraServlet {
   }
 
   // rewritten to:
-  //
   //  {
-  //    final class $anon extends org.scalatra.StableResult {
+  //    class cls$macro$3 extends org.scalatra.StableResult {
   //      val is = {
   //        val f = scala.concurrent.Future.apply[org.scalatra.ActionResult]({
   //          scala.Predef.println(StableResultServlet.this.enrichRequest(request).headers);
@@ -59,7 +48,8 @@ class StableResultServlet extends ScalatraServlet {
   //        scala.concurrent.Await.result[org.scalatra.ActionResult](f, scala.concurrent.duration.Duration.apply(10L, "seconds"))
   //      }
   //    };
-  //    new $anon()
+  //    val res$macro$4 = new cls$macro$3();
+  //    res$macro$4.is
   //  }
 
 }
@@ -76,13 +66,6 @@ class StableResultSpec extends MutableScalatraSpec {
 
   "A StableResult allows safely closing over request and response in the lexical scope of an action" in {
     get("/future") {
-      status must beEqualTo(200)
-      body must beEqualTo("123")
-    }
-  }
-
-  "A stable request/response value exists in the action" in {
-    get("/macro") {
       status must beEqualTo(200)
       body must beEqualTo("123")
     }

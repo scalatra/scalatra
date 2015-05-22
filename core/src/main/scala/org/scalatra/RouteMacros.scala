@@ -22,23 +22,34 @@ object RouteMacros {
       }
     }
 
-    if (action.actualType <:< c.mirror.typeOf[AsyncResult] || action.actualType <:< c.mirror.typeOf[StableResult]) {
+    // return an AsyncResult
+    // return a StableResult.is
+    // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
+
+    if (action.actualType <:< c.mirror.typeOf[AsyncResult]) {
 
       action
 
+    } else if (action.actualType <:< c.mirror.typeOf[StableResult]) {
+
+      c.Expr[Any](q"""$action.is""")
+
     } else {
 
+      val clsName = TypeName(c.freshName("cls"))
+      val resName = TermName(c.freshName("res"))
+
       val rescopedAction = q"""
-          new org.scalatra.StableResult {
+          class $clsName extends org.scalatra.StableResult {
             val is = {
                $action
-             }
-           }
+            }
+          }
+          val $resName = new $clsName()
+          $resName.is
          """
 
       val transformedAction = c.untypecheck(RequestTransformer.transform(rescopedAction))
-
-      println(showCode(transformedAction))
 
       c.Expr[Unit](transformedAction)
 
