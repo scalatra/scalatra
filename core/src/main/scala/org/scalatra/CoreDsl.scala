@@ -80,55 +80,55 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
    * }}}
    *
    */
-//  def get(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def post(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def put(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def delete(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see get
-//   */
-//  def options(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see head
-//   */
-//  def head(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * @see patch
-//   */
-//  def patch(transformers: RouteTransformer*)(block: => Any): Route
-//
-//  /**
-//   * Error handler for HTTP response status code range. You can intercept every response code previously
-//   * specified with #status or even generic 404 error.
-//   * {{{
-//   *   trap(403) {
-//   *    "You are not authorized"
-//   *   }
-//   * }* }}}
-//   * }}
-//   */
-//  def trap(codes: Range)(block: => Any): Unit
-//
-//  /**
-//   * @see error
-//   */
-//  def trap(code: Int)(block: => Any): Unit = {
-//    trap(Range(code, code + 1))(block)
-//  }
+  //  def get(transformers: RouteTransformer*)(block: => Any): Route
+  //
+  //  /**
+  //   * @see get
+  //   */
+  //  def post(transformers: RouteTransformer*)(block: => Any): Route
+  //
+  //  /**
+  //   * @see get
+  //   */
+  //  def put(transformers: RouteTransformer*)(block: => Any): Route
+  //
+  //  /**
+  //   * @see get
+  //   */
+  //  def delete(transformers: RouteTransformer*)(block: => Any): Route
+  //
+  //  /**
+  //   * @see get
+  //   */
+  //  def options(transformers: RouteTransformer*)(block: => Any): Route
+  //
+  //  /**
+  //   * @see head
+  //   */
+  //  def head(transformers: RouteTransformer*)(block: => Any): Route
+  //
+  //  /**
+  //   * @see patch
+  //   */
+  //  def patch(transformers: RouteTransformer*)(block: => Any): Route
+  //
+  //  /**
+  //   * Error handler for HTTP response status code range. You can intercept every response code previously
+  //   * specified with #status or even generic 404 error.
+  //   * {{{
+  //   *   trap(403) {
+  //   *    "You are not authorized"
+  //   *   }
+  //   * }* }}}
+  //   * }}
+  //   */
+  //  def trap(codes: Range)(block: => Any): Unit
+  //
+  //  /**
+  //   * @see error
+  //   */
+  //  def trap(code: Int)(block: => Any): Unit = {
+  //    trap(Range(code, code + 1))(block)
+  //  }
 
 }

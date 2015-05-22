@@ -1,7 +1,7 @@
 package org.scalatra
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 
 // Provides a stable request/response to an action.
 // Each action is wrapped in a StableResult during compilation.
