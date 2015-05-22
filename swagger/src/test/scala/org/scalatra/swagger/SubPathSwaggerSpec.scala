@@ -7,7 +7,7 @@ import org.scalatra.test.specs2.ScalatraSpec
 import org.specs2.matcher.JsonMatchers
 
 class SubPathSwaggerSpec extends ScalatraSpec with JsonMatchers {
-  val is = s2"""
+  def is = s2"""
   Swagger integration should
     list resources $listResources
     list hacker operations $listHackerOperations

@@ -52,6 +52,7 @@ class JValueResultSpec extends MutableScalatraSpec {
       halt(NotFound())
     }
     get("/null-value.:format") {
+      params.getAs[String]("format").foreach(f => contentType = formats(f))
       null
     }
     get("/null-value") {
@@ -59,6 +60,9 @@ class JValueResultSpec extends MutableScalatraSpec {
     }
     get("/empty-halt") {
       halt(400, null)
+    }
+    get("/jnull") {
+      JNull
     }
 
     get("/class") {
@@ -113,12 +117,12 @@ class JValueResultSpec extends MutableScalatraSpec {
         body must_== "the custom not found"
       }
     }
-    "render a null value" in {
+    "render a null value as JSON body" in {
       get("/null-value.json") {
         body must_== ""
       }
     }
-    "render a null value" in {
+    "render a null value as HTML body" in {
       get("/null-value.html") {
         body must_== ""
       }
@@ -154,6 +158,13 @@ class JValueResultSpec extends MutableScalatraSpec {
     "render a map" in {
       get("/map") {
         parse(body) must_== JObject(List(JField("rum", bottleRum), JField("thing", jValue)))
+      }
+    }
+
+    "render null for JNull" in {
+      get("/jnull") {
+        body must_== "null"
+        parse(body) must_== JNull
       }
     }
   }
