@@ -562,6 +562,8 @@ trait ScalatraBase
 
   def trap(codes: Range)(block: => Any): Unit = macro RouteMacros.trapImpl
 
+  implicit def int2range(x: Int) = Range(x, x + 1)
+
   /**
    * Prepends a new route for the given HTTP method.
    *
