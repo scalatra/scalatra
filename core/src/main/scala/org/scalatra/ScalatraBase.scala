@@ -437,7 +437,6 @@ trait ScalatraBase
   protected def renderPipeline: RenderPipeline = {
     case 404 =>
       doNotFound()
-    case r: StableResult => r.is
     case ActionResult(status, x: Int, resultHeaders) =>
       response.status = status
       resultHeaders foreach {
