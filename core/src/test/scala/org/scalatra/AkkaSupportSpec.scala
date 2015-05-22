@@ -14,16 +14,16 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   override def asyncTimeout = 2 seconds
 
   get("/redirect") {
+    Future {
+      redirect("redirected")
+    }
+  }
+
+  get("/redirect-asyncresult") {
     new AsyncResult {
       val is: Future[_] = Future {
         redirect("redirected")
       }
-    }
-  }
-
-  get("/redirect-2") {
-    Future {
-      redirect("redirected")
     }
   }
 
@@ -138,7 +138,7 @@ class AkkaSupportSpec extends MutableScalatraSpec {
         response.header("Location") must_== (baseUrl + "/redirected")
       }
 
-      get("/redirect-2") {
+      get("/redirect-asyncresult") {
         status must_== 302
         response.header("Location") must_== (baseUrl + "/redirected")
       }
