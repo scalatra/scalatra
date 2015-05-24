@@ -2,10 +2,7 @@ package org.scalatra
 
 import scala.language.experimental.macros
 
-import scala.concurrent.Future
-import scala.reflect.macros.blackbox.Context
-
-import org.scalatra._
+import scala.reflect.macros.Context
 
 object RouteMacros {
 
@@ -15,8 +12,8 @@ object RouteMacros {
     object RequestTransformer extends Transformer {
       override def transform(tree: Tree): Tree = {
         tree match {
-          case q"$a.this.request" => Ident(TermName("request"))
-          case q"$a.this.response" => Ident(TermName("response"))
+          case q"$a.this.request" => Ident(newTermName("request"))
+          case q"$a.this.response" => Ident(newTermName("response"))
           case _ => super.transform(tree)
         }
       }
@@ -26,18 +23,18 @@ object RouteMacros {
     // return a StableResult.is
     // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
 
-    if (action.actualType <:< c.mirror.typeOf[AsyncResult]) {
+    if (action.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
 
       action
 
-    } else if (action.actualType <:< c.mirror.typeOf[StableResult]) {
+    } else if (action.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
 
       c.Expr[Any](q"""$action.is""")
 
     } else {
 
-      val clsName = TypeName(c.freshName("cls"))
-      val resName = TermName(c.freshName("res"))
+      val clsName = newTypeName(c.fresh("cls"))
+      val resName = newTermName(c.fresh("res"))
 
       val rescopedAction = q"""
           class $clsName extends org.scalatra.StableResult {
@@ -49,7 +46,7 @@ object RouteMacros {
           $resName.is
          """
 
-      val transformedAction = c.untypecheck(RequestTransformer.transform(rescopedAction))
+      val transformedAction = c.resetLocalAttrs(RequestTransformer.transform(rescopedAction))
 
       c.Expr[Unit](transformedAction)
 
