@@ -9,7 +9,10 @@ import org.scalatra.util.RicherString._
 
 trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with JValueResult {
 
-  mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, jsonFormats.wantsBigDecimal)
+  override def initialize(config: ConfigT): Unit = {
+    super.initialize(config)
+    mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, jsonFormats.wantsBigDecimal)
+  }
 
   protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue = {
     val rdr = new InputStreamReader(stream, charset)
