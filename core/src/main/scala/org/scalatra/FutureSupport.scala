@@ -10,7 +10,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
 
-@deprecated("AsyncResult has been replaced by StableResult and will be removed in a coming release.", "2.4.0")
+@deprecated("AsyncResult is no longer required and will be removed in a coming release.", "2.4.0")
 abstract class AsyncResult(
   implicit override val scalatraContext: ScalatraContext)
     extends ScalatraContext {

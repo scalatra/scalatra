@@ -64,7 +64,7 @@ class StableResultSpec extends MutableScalatraSpec {
     }
   }
 
-  "A StableResult allows safely closing over request and response in the lexical scope of an action" in {
+  "It is safe to close over request and response in the lexical scope of an action" in {
     get("/future") {
       status must beEqualTo(200)
       body must beEqualTo("123")

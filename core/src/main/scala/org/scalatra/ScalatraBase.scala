@@ -546,6 +546,39 @@ trait ScalatraBase
     case _ => response.status.code
   }
 
+  /**
+   * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]
+   * and a block as the action body.  The return value of the block is
+   * rendered through the pipeline and sent to the client as the response body.
+   *
+   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
+   * behaviour and how to handle your response body more explicitly, and see
+   * how different return types are handled.
+   *
+   * The block is executed in the context of a CoreDsl instance, so all the
+   * methods defined in this trait are also available inside the block.
+   *
+   * {{{
+   *   get("/") {
+   *     <form action="/echo">
+   *       <label>Enter your name</label>
+   *       <input type="text" name="name"/>
+   *     </form>
+   *   }
+   *
+   *   post("/echo") {
+   *     "hello {params('name)}!"
+   *   }
+   * }}}
+   *
+   * ScalatraKernel provides implicit transformation from boolean blocks,
+   * strings and regular expressions to [[org.scalatra.RouteMatcher]], so
+   * you can write code naturally.
+   * {{{
+   *   get("/", request.getRemoteHost == "127.0.0.1") { "Hello localhost!" }
+   * }}}
+   *
+   */
   def get(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.getImpl
 
   def post(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.postImpl
