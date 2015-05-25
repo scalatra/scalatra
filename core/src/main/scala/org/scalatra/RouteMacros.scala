@@ -96,4 +96,11 @@ object RouteMacros {
     c.Expr[Unit](q"""addStatusRoute($codes, $rescopedAction)""")
   }
 
+  def trapCodeImpl(c: Context)(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rescopedAction = rescopeAction[c.type](c)(block)
+    c.Expr[Unit](q"""addStatusRoute(Range($code, $code+1), $rescopedAction)""")
+  }
+
 }
