@@ -22,6 +22,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   get("/async-oh-noes") {
     new AsyncResult {
       override val is = Future {
+        Thread.sleep(100) // To get the container to give up the request
         Ok(body = s"${request.getContextPath}")
       }
     }
