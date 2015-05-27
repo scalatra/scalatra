@@ -18,7 +18,7 @@ trait I18nSupport { this: ScalatraBase =>
 
   import org.scalatra.i18n.I18nSupport._
 
-  before() {
+  before0() {
     request(LocaleKey) = resolveLocale
     request(MessagesKey) = provideMessages(locale)
   }

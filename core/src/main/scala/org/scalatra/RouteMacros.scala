@@ -48,6 +48,8 @@ object RouteMacros {
 
       val transformedAction = c.resetLocalAttrs(RequestTransformer.transform(rescopedAction))
 
+      println(showCode(transformedAction))
+
       c.Expr[Unit](transformedAction)
 
     }
@@ -59,6 +61,20 @@ object RouteMacros {
 
     val rescopedAction = rescopeAction[c.type](c)(action)
     c.Expr[Route](q"""addRoute($method, Seq(..$transformers), $rescopedAction)""")
+  }
+
+  def beforeImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rescopedAction = rescopeAction[c.type](c)(block)
+    c.Expr[Unit](q"""routes.appendBeforeFilter(Route(Seq(..$transformers), () => $rescopedAction))""")
+  }
+
+  def afterImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rescopedAction = rescopeAction[c.type](c)(block)
+    c.Expr[Unit](q"""routes.appendAfterFilter(Route(Seq(..$transformers), () => $rescopedAction))""")
   }
 
   def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
@@ -101,6 +117,38 @@ object RouteMacros {
 
     val rescopedAction = rescopeAction[c.type](c)(block)
     c.Expr[Unit](q"""addStatusRoute(Range($code, $code+1), $rescopedAction)""")
+  }
+
+  def notFoundImpl(c: Context)(block: c.Expr[Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rescopedAction = rescopeAction[c.type](c)(block)
+
+    val tree = q"""
+      doNotFound = {
+        () => $rescopedAction
+      }
+    """
+
+    println(showCode(tree))
+
+    c.Expr[Unit](tree)
+  }
+
+  def methodNotAllowedImpl(c: Context)(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rescopedAction = rescopeAction[c.type](c)(block)
+
+    c.Expr[Unit](q"""doMethodNotAllowed = $rescopedAction""")
+  }
+
+  def errorImpl(c: Context)(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
+    import c.universe._
+
+    val rescopedAction = rescopeAction[c.type](c)(handler)
+
+    c.Expr[Unit](q"""errorHandler = $rescopedAction orElse errorHandler""")
   }
 
 }

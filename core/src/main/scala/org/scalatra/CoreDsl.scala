@@ -8,46 +8,46 @@ import org.scalatra.servlet.ServletApiImplicits
 @deprecated("This trait will be removed, since the core DSL methods are now macros which dont play nicely with abstract methods.", "2.4.0")
 trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiImplicits {
 
-  /**
-   * Adds a filter to run before the route.  The filter only runs if each
-   * routeMatcher returns Some.  If the routeMatchers list is empty, the
-   * filter runs for all routes.
-   */
-  def before(transformers: RouteTransformer*)(block: => Any): Unit
-
-  /**
-   * Adds a filter to run after the route.  The filter only runs if each
-   * routeMatcher returns Some.  If the routeMatchers list is empty, the
-   * filter runs for all routes.
-   */
-  def after(transformers: RouteTransformer*)(block: => Any): Unit
-
-  /**
-   * Defines a block to run if no matching routes are found, or if all
-   * matching routes pass.
-   */
-  def notFound(block: => Any): Unit
-
-  /**
-   * Defines a block to run if matching routes are found only for other
-   * methods.  The set of matching methods is passed to the block.
-   */
-  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit
-
-  /**
-   * Defines an error handler for exceptions thrown in either the before
-   * block or a route action.
-   *
-   * If the error handler does not match, the result falls through to the
-   * previously defined error handler.  The default error handler simply
-   * rethrows the exception.
-   *
-   * The error handler is run before the after filters, and the result is
-   * rendered like a standard response.  It is the error handler's
-   * responsibility to set any appropriate status code.
-   */
-  def error(handler: ErrorHandler): Unit
-
+  //  /**
+  //   * Adds a filter to run before the route.  The filter only runs if each
+  //   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+  //   * filter runs for all routes.
+  //   */
+  //  def before(transformers: RouteTransformer*)(block: => Any): Unit
+  //
+  //  /**
+  //   * Adds a filter to run after the route.  The filter only runs if each
+  //   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+  //   * filter runs for all routes.
+  //   */
+  //  def after(transformers: RouteTransformer*)(block: => Any): Unit
+  //
+  //  /**
+  //   * Defines a block to run if no matching routes are found, or if all
+  //   * matching routes pass.
+  //   */
+  //  def notFound(block: => Any): Unit
+  //
+  //  /**
+  //   * Defines a block to run if matching routes are found only for other
+  //   * methods.  The set of matching methods is passed to the block.
+  //   */
+  //  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit
+  //
+  //  /**
+  //   * Defines an error handler for exceptions thrown in either the before
+  //   * block or a route action.
+  //   *
+  //   * If the error handler does not match, the result falls through to the
+  //   * previously defined error handler.  The default error handler simply
+  //   * rethrows the exception.
+  //   *
+  //   * The error handler is run before the after filters, and the result is
+  //   * rendered like a standard response.  It is the error handler's
+  //   * responsibility to set any appropriate status code.
+  //   */
+  //  def error(handler: ErrorHandler): Unit
+  //
   //  /**
   //   * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]
   //   * and a block as the action body.  The return value of the block is
@@ -62,15 +62,15 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
   //   *
   //   * {{{
   //   *   get("/") {
-  //   *     <form action="/echo">
-  //   *       <label>Enter your name</label>
-  //   *       <input type="text" name="name"/>
-  //   *     </form>
-  //   *   }
+  //   * <form action="/echo">
+  //   * <label>Enter your name</label>
+  //   * <input type="text" name="name"/>
+  //   * </form>
+  //   * }
   //   *
-  //   *   post("/echo") {
-  //   *     "hello {params('name)}!"
-  //   *   }
+  //   * post("/echo") {
+  //   * "hello {params('name)}!"
+  //   * }
   //   * }}}
   //   *
   //   * ScalatraKernel provides implicit transformation from boolean blocks,
@@ -118,8 +118,8 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
   //   * specified with #status or even generic 404 error.
   //   * {{{
   //   *   trap(403) {
-  //   *    "You are not authorized"
-  //   *   }
+  //   * "You are not authorized"
+  //   * }
   //   * }* }}}
   //   * }}
   //   */

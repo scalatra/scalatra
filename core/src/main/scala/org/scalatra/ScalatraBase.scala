@@ -290,11 +290,25 @@ trait ScalatraBase
     }
   }
 
-  def before(transformers: RouteTransformer*)(fun: => Any): Unit = {
+  /**
+   * Adds a filter to run before the route.  The filter only runs if each
+   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+   * filter runs for all routes.
+   */
+  def before(transformers: RouteTransformer*)(block: => Any): Unit = macro RouteMacros.beforeImpl
+
+  /**
+   * Adds a filter to run after the route.  The filter only runs if each
+   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+   * filter runs for all routes.
+   */
+  def after(transformers: RouteTransformer*)(block: => Any): Unit = macro RouteMacros.afterImpl
+
+  protected def before0(transformers: RouteTransformer*)(fun: => Any): Unit = {
     routes.appendBeforeFilter(Route(transformers, () => fun))
   }
 
-  def after(transformers: RouteTransformer*)(fun: => Any): Unit = {
+  protected def after0(transformers: RouteTransformer*)(fun: => Any): Unit = {
     routes.appendAfterFilter(Route(transformers, () => fun))
   }
 
@@ -304,7 +318,13 @@ trait ScalatraBase
    */
   protected var doNotFound: Action
 
-  def notFound(fun: => Any): Unit = {
+  /**
+   * Defines a block to run if no matching routes are found, or if all
+   * matching routes pass.
+   */
+  def notFound(block: => Any): Unit = macro RouteMacros.notFoundImpl
+
+  protected def notFound0(fun: => Any): Unit = {
     doNotFound = {
       () => fun
     }
@@ -322,7 +342,13 @@ trait ScalatraBase
       response.headers("Allow") = allow.mkString(", ")
   }
 
-  def methodNotAllowed(f: Set[HttpMethod] => Any): Unit = {
+  /**
+   * Defines a block to run if matching routes are found only for other
+   * methods.  The set of matching methods is passed to the block.
+   */
+  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit = macro RouteMacros.methodNotAllowedImpl
+
+  protected def methodNotAllowed0(f: Set[HttpMethod] => Any): Unit = {
     doMethodNotAllowed = f
   }
 
@@ -347,7 +373,21 @@ trait ScalatraBase
     case t => throw t
   }
 
-  def error(handler: ErrorHandler): Unit = {
+  /**
+   * Defines an error handler for exceptions thrown in either the before
+   * block or a route action.
+   *
+   * If the error handler does not match, the result falls through to the
+   * previously defined error handler.  The default error handler simply
+   * rethrows the exception.
+   *
+   * The error handler is run before the after filters, and the result is
+   * rendered like a standard response.  It is the error handler's
+   * responsibility to set any appropriate status code.
+   */
+  def error(handler: ErrorHandler): Unit = macro RouteMacros.errorImpl
+
+  protected def error0(handler: ErrorHandler): Unit = {
     errorHandler = handler orElse errorHandler
   }
 
@@ -594,7 +634,7 @@ trait ScalatraBase
   def patch(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.patchImpl
 
   def trap(codes: Range)(block: => Any): Unit = macro RouteMacros.trapImpl
-  
+
   def trap(code: Int)(block: => Any): Unit = macro RouteMacros.trapCodeImpl
 
   /**
