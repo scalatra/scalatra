@@ -1,7 +1,7 @@
 package org.scalatra
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper }
 
 import org.scalatra.servlet.ServletApiImplicits
 
@@ -68,7 +68,12 @@ trait ScalatraContext
   }
 
   protected[this] implicit def scalatraContext: ScalatraContext = {
-    new StableValuesContext()(request, response, servletContext)
+    val reqWrap = new HttpServletRequestWrapper(request) {
+      // Stable copies of things.
+      override val getContextPath = request.getContextPath
+    }
+    val respWrap = new HttpServletResponseWrapper(response)
+    new StableValuesContext()(reqWrap, respWrap, servletContext)
   }
 
 }

@@ -19,6 +19,14 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     }
   }
 
+  get("/async-oh-noes") {
+    new AsyncResult {
+      override val is = Future {
+        Ok(body = s"${request.getContextPath}")
+      }
+    }
+  }
+
   get("/redirected") {
     "redirected"
   }
@@ -112,6 +120,13 @@ class AkkaSupportSpec extends MutableScalatraSpec {
       get("/redirect") {
         status must_== 302
         response.header("Location") must_== (baseUrl + "/redirected")
+      }
+    }
+
+    "have a stable request" in {
+      get("/async-oh-noes") {
+        body must_== ""
+        // body must not be_== "null"
       }
     }
   }
