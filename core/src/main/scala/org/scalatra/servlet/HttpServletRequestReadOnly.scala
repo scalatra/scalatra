@@ -7,7 +7,7 @@ import javax.servlet.http.{ HttpServletRequestWrapper, HttpServletRequest }
  * passed around to different threads.
  *
  * This is necessary because ServletContainers will "recycle" a request once the original HTTP
- * thread is returned, meaning that a lot of attributes are wet to null (in the case of Jetty).
+ * thread is returned, meaning that a lot of attributes are set to null (in the case of Jetty).
  *
  * Limitations of this class include the following:
  *
