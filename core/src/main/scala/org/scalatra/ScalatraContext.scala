@@ -1,16 +1,18 @@
 package org.scalatra
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse, HttpServletResponseWrapper }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import org.scalatra.servlet.ServletApiImplicits
+import org.scalatra.servlet.{ HttpServletRequestReadOnly, ServletApiImplicits }
 
 object ScalatraContext {
 
   private class StableValuesContext(
-    implicit val request: HttpServletRequest,
+    implicit
+    val request: HttpServletRequest,
     val response: HttpServletResponse,
-    val servletContext: ServletContext) extends ScalatraContext
+    val servletContext: ServletContext
+  ) extends ScalatraContext
 }
 
 trait ScalatraContext
@@ -68,73 +70,7 @@ trait ScalatraContext
   }
 
   protected[this] implicit def scalatraContext: ScalatraContext = {
-    val reqWrap = new HttpServletRequestWrapper(request) {
-      // Stable copies of things.
-      override val getAuthType: String = request.getAuthType
-
-      override val getMethod: String = request.getMethod
-
-      override val getPathInfo: String = request.getPathInfo
-
-      override val getPathTranslated: String = request.getPathTranslated
-
-      override val getContextPath: String = request.getContextPath
-
-      override val getQueryString: String = request.getQueryString
-
-      override val getRemoteUser: String = request.getRemoteUser
-
-      override val getRequestedSessionId: String = request.getRequestedSessionId
-
-      override val getRequestURI: String = request.getRequestURI
-
-      override val getServletPath: String = request.getServletPath
-
-      override val isRequestedSessionIdValid: Boolean = request.isRequestedSessionIdValid
-
-      override val isRequestedSessionIdFromCookie: Boolean = request.isRequestedSessionIdFromCookie
-
-      override val isRequestedSessionIdFromURL: Boolean = request.isRequestedSessionIdFromURL
-
-      override val isRequestedSessionIdFromUrl: Boolean = request.isRequestedSessionIdFromUrl
-
-      override val getCharacterEncoding: String = request.getCharacterEncoding
-
-      override val getContentLength: Int = request.getContentLength
-
-      override val getContentType: String = request.getContentType
-
-      override val getContentLengthLong: Long = request.getContentLengthLong
-
-      override val getProtocol: String = request.getProtocol
-
-      override val getServerName: String = request.getServerName
-
-      override val getScheme: String = request.getScheme
-
-      override val getServerPort: Int = request.getServerPort
-
-      override val getRemoteAddr: String = request.getRemoteAddr
-
-      override val getRemoteHost: String = request.getRemoteHost
-
-      override val isSecure: Boolean = request.isSecure
-
-      override val getRemotePort: Int = request.getRemotePort
-
-      override val getLocalName: String = request.getLocalName
-
-      override val getLocalAddr: String = request.getLocalAddr
-
-      override val getLocalPort: Int = request.getLocalPort
-
-      override val isAsyncStarted: Boolean = request.isAsyncStarted
-
-      override val isAsyncSupported: Boolean = request.isAsyncSupported
-
-    }
-    val respWrap = new HttpServletResponseWrapper(response)
-    new StableValuesContext()(reqWrap, respWrap, servletContext)
+    new StableValuesContext()(HttpServletRequestReadOnly(request), response, servletContext)
   }
 
 }
