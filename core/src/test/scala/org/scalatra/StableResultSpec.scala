@@ -84,7 +84,6 @@ class StableResultServlet extends ScalatraServlet with FutureSupport {
   //    doFooSafe
   //  }
 
-
 }
 
 class StableResultSpec extends MutableScalatraSpec {

@@ -6,27 +6,30 @@ import scala.reflect.macros.Context
 
 object RouteMacros {
 
-  def rescopeAction[C <: Context](c: C)(action: c.Expr[Any]): c.Expr[Any] = {
+  // takes an Expr[Any], wraps it in a StableResult
+  // replaces all references to request/response to use the stable values from StableResult (instead of the ThreadLocal)
+  // returns StableResult.is
+  def rescopeExpression[C <: Context](c: C)(expr: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
 
     // return an AsyncResult
     // return a StableResult.is
     // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
 
-    if (action.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
+    if (expr.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
 
-      action
+      expr
 
-    } else if (action.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
+    } else if (expr.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
 
-      c.Expr[Any](q"""$action.is""")
+      c.Expr[Any](q"""$expr.is""")
 
     } else {
 
       val clsName = newTypeName(c.fresh("cls"))
       val resName = newTermName(c.fresh("res"))
 
-      object RequestTransformer extends Transformer {
+      object BendRequestResponse extends Transformer {
         override def transform(tree: Tree): Tree = {
           tree match {
             case q"$a.this.request" => Select(This(clsName), newTermName("request"))
@@ -36,21 +39,26 @@ object RouteMacros {
         }
       }
 
-      val rescopedAction = q"""
+      // duplicate and untype the tree
+      val untypedExpr = c.resetLocalAttrs(expr.tree.duplicate)
+
+      // add to new lexical scope
+      val rescopedExpr = q"""
           class $clsName extends org.scalatra.StableResult {
             val is = {
-               $action
+               $untypedExpr
             }
           }
           val $resName = new $clsName()
           $resName.is
          """
 
-      val transformedAction = c.resetLocalAttrs(RequestTransformer.transform(rescopedAction))
+      // use stable request/response values from the new lexical scope
+      val transformedExpr = BendRequestResponse.transform(rescopedExpr)
 
       // println(show(transformedAction))
 
-      c.Expr[Unit](transformedAction)
+      c.Expr[Unit](transformedExpr)
 
     }
 
@@ -59,21 +67,21 @@ object RouteMacros {
   def addRouteGen[C <: Context](c: C)(method: c.Expr[HttpMethod], transformers: Seq[c.Expr[RouteTransformer]], action: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(action)
+    val rescopedAction = rescopeExpression[c.type](c)(action)
     c.Expr[Route](q"""addRoute($method, Seq(..$transformers), $rescopedAction)""")
   }
 
   def beforeImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(block)
+    val rescopedAction = rescopeExpression[c.type](c)(block)
     c.Expr[Unit](q"""routes.appendBeforeFilter(Route(Seq(..$transformers), () => $rescopedAction))""")
   }
 
   def afterImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(block)
+    val rescopedAction = rescopeExpression[c.type](c)(block)
     c.Expr[Unit](q"""routes.appendAfterFilter(Route(Seq(..$transformers), () => $rescopedAction))""")
   }
 
@@ -108,25 +116,23 @@ object RouteMacros {
   def trapImpl(c: Context)(codes: c.Expr[Range])(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(block)
+    val rescopedAction = rescopeExpression[c.type](c)(block)
     c.Expr[Unit](q"""addStatusRoute($codes, $rescopedAction)""")
   }
 
   def trapCodeImpl(c: Context)(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(block)
+    val rescopedAction = rescopeExpression[c.type](c)(block)
     c.Expr[Unit](q"""addStatusRoute(Range($code, $code+1), $rescopedAction)""")
   }
 
   def notFoundImpl(c: Context)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(block)
-
     val tree = q"""
       doNotFound = {
-        () => $rescopedAction
+        () => ${rescopeExpression[c.type](c)(block)}
       }
     """
 
@@ -136,14 +142,12 @@ object RouteMacros {
   def methodNotAllowedImpl(c: Context)(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(block)
-
     val tree =
       q"""
-         doMethodNotAllowed = (methods: Set[HttpMethod]) => $rescopedAction(methods)
+         doMethodNotAllowed = (methods: Set[HttpMethod]) => ${rescopeExpression[c.type](c)(block)}(methods)
         """
 
-    println(show(tree))
+    // println(show(tree))
 
     c.Expr[Unit](tree)
   }
@@ -151,14 +155,12 @@ object RouteMacros {
   def errorImpl(c: Context)(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
     import c.universe._
 
-    val rescopedAction = rescopeAction[c.type](c)(handler)
-
     val tree =
       q"""errorHandler = {
            new PartialFunction[Throwable, Any]() {
 
              def handler = {
-               $rescopedAction
+               ${rescopeExpression[c.type](c)(handler)}
              }
 
              override def apply(v1: Throwable): Any = {
@@ -172,7 +174,7 @@ object RouteMacros {
            }
          } orElse errorHandler"""
 
-    //    println(show(tree))
+    // println(show(tree))
 
     c.Expr[Unit](tree)
   }
