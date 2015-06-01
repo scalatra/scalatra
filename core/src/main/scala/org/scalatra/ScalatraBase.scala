@@ -304,14 +304,6 @@ trait ScalatraBase
    */
   def after(transformers: RouteTransformer*)(block: => Any): Unit = macro RouteMacros.afterImpl
 
-  protected def before0(transformers: RouteTransformer*)(fun: => Any): Unit = {
-    routes.appendBeforeFilter(Route(transformers, () => fun))
-  }
-
-  protected def after0(transformers: RouteTransformer*)(fun: => Any): Unit = {
-    routes.appendAfterFilter(Route(transformers, () => fun))
-  }
-
   /**
    * Called if no route matches the current request for any method.  The
    * default implementation varies between servlet and filter.
@@ -323,12 +315,6 @@ trait ScalatraBase
    * matching routes pass.
    */
   def notFound(block: => Any): Unit = macro RouteMacros.notFoundImpl
-
-  protected def notFound0(fun: => Any): Unit = {
-    doNotFound = {
-      () => fun
-    }
-  }
 
   /**
    * Called if no route matches the current request method, but routes
@@ -347,10 +333,6 @@ trait ScalatraBase
    * methods.  The set of matching methods is passed to the block.
    */
   def methodNotAllowed(block: Set[HttpMethod] => Any): Unit = macro RouteMacros.methodNotAllowedImpl
-
-  protected def methodNotAllowed0(f: Set[HttpMethod] => Any): Unit = {
-    doMethodNotAllowed = f
-  }
 
   private[this] def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
@@ -386,10 +368,6 @@ trait ScalatraBase
    * responsibility to set any appropriate status code.
    */
   def error(handler: ErrorHandler): Unit = macro RouteMacros.errorImpl
-
-  protected def error0(handler: ErrorHandler): Unit = {
-    errorHandler = handler orElse errorHandler
-  }
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
@@ -674,6 +652,30 @@ trait ScalatraBase
     val route = Route(Seq.empty, () => action, (req: HttpServletRequest) => routeBasePath(req))
     routes.addStatusRoute(codes, route)
   }
+
+  // those methods are there to prevent invoking a macro from code in scalatra-core (which would need separate compile passes)
+  private[scalatra] def before0(transformers: RouteTransformer*)(fun: => Any): Unit = {
+    routes.appendBeforeFilter(Route(transformers, () => fun))
+  }
+
+  private[scalatra] def after0(transformers: RouteTransformer*)(fun: => Any): Unit = {
+    routes.appendAfterFilter(Route(transformers, () => fun))
+  }
+
+  private[scalatra] def error0(handler: ErrorHandler): Unit = {
+    errorHandler = handler orElse errorHandler
+  }
+
+  private[scalatra] def notFound0(fun: => Any): Unit = {
+    doNotFound = {
+      () => fun
+    }
+  }
+
+  private[scalatra] def methodNotAllowed0(f: Set[HttpMethod] => Any): Unit = {
+    doMethodNotAllowed = f
+  }
+
 
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
