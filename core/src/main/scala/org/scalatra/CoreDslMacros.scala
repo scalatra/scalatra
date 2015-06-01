@@ -4,7 +4,7 @@ import scala.language.experimental.macros
 
 import scala.reflect.macros.Context
 
-object RouteMacros {
+object CoreDslMacros {
 
   // takes an Expr[Any], wraps it in a StableResult
   // replaces all references to request/response to use the stable values from StableResult (instead of the ThreadLocal)

@@ -295,14 +295,14 @@ trait ScalatraBase
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def before(transformers: RouteTransformer*)(block: => Any): Unit = macro RouteMacros.beforeImpl
+  def before(transformers: RouteTransformer*)(block: => Any): Unit = macro CoreDslMacros.beforeImpl
 
   /**
    * Adds a filter to run after the route.  The filter only runs if each
    * routeMatcher returns Some.  If the routeMatchers list is empty, the
    * filter runs for all routes.
    */
-  def after(transformers: RouteTransformer*)(block: => Any): Unit = macro RouteMacros.afterImpl
+  def after(transformers: RouteTransformer*)(block: => Any): Unit = macro CoreDslMacros.afterImpl
 
   /**
    * Called if no route matches the current request for any method.  The
@@ -314,7 +314,7 @@ trait ScalatraBase
    * Defines a block to run if no matching routes are found, or if all
    * matching routes pass.
    */
-  def notFound(block: => Any): Unit = macro RouteMacros.notFoundImpl
+  def notFound(block: => Any): Unit = macro CoreDslMacros.notFoundImpl
 
   /**
    * Called if no route matches the current request method, but routes
@@ -332,7 +332,7 @@ trait ScalatraBase
    * Defines a block to run if matching routes are found only for other
    * methods.  The set of matching methods is passed to the block.
    */
-  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit = macro RouteMacros.methodNotAllowedImpl
+  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit = macro CoreDslMacros.methodNotAllowedImpl
 
   private[this] def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
@@ -367,7 +367,7 @@ trait ScalatraBase
    * rendered like a standard response.  It is the error handler's
    * responsibility to set any appropriate status code.
    */
-  def error(handler: ErrorHandler): Unit = macro RouteMacros.errorImpl
+  def error(handler: ErrorHandler): Unit = macro CoreDslMacros.errorImpl
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
@@ -597,23 +597,23 @@ trait ScalatraBase
    * }}}
    *
    */
-  def get(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.getImpl
+  def get(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.getImpl
 
-  def post(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.postImpl
+  def post(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.postImpl
 
-  def put(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.putImpl
+  def put(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.putImpl
 
-  def delete(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.deleteImpl
+  def delete(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.deleteImpl
 
-  def options(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.optionsImpl
+  def options(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.optionsImpl
 
-  def head(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.headImpl
+  def head(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.headImpl
 
-  def patch(transformers: RouteTransformer*)(action: => Any): Route = macro RouteMacros.patchImpl
+  def patch(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.patchImpl
 
-  def trap(codes: Range)(block: => Any): Unit = macro RouteMacros.trapImpl
+  def trap(codes: Range)(block: => Any): Unit = macro CoreDslMacros.trapImpl
 
-  def trap(code: Int)(block: => Any): Unit = macro RouteMacros.trapCodeImpl
+  def trap(code: Int)(block: => Any): Unit = macro CoreDslMacros.trapCodeImpl
 
   /**
    * Prepends a new route for the given HTTP method.
