@@ -676,7 +676,6 @@ trait ScalatraBase
     doMethodNotAllowed = f
   }
 
-
   /**
    * The configuration, typically a ServletConfig or FilterConfig.
    */
