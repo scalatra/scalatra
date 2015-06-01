@@ -182,7 +182,7 @@ object CoreDslMacros {
   def makeAsynchronously[C <: Context](c: C)(block: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
     val block1 = c.resetLocalAttrs(block.tree.duplicate)
-    c.Expr[Any](c.typecheck(q"""asynchronously($block1)()"""))
+    c.Expr[Any](c.typeCheck(q"""asynchronously($block1)()"""))
   }
 
   def asyncGetImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
