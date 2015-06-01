@@ -179,7 +179,7 @@ object CoreDslMacros {
     c.Expr[Unit](tree)
   }
 
-  def asynchronouslyImpl[C <: Context](c: C)(block: c.Expr[Any]): c.Expr[Any] = {
+  def makeAsynchronously[C <: Context](c: C)(block: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
     val block1 = c.resetLocalAttrs(block.tree.duplicate)
     c.Expr[Any](c.typecheck(q"""asynchronously($block1)()"""))
@@ -187,32 +187,32 @@ object CoreDslMacros {
 
   def asyncGetImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
-    addRouteGen[c.type](c)(reify(Get), transformers, asynchronouslyImpl[c.type](c)(block))
+    addRouteGen[c.type](c)(reify(Get), transformers, makeAsynchronously[c.type](c)(block))
   }
 
   def asyncPostImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
-    addRouteGen[c.type](c)(reify(Post), transformers, asynchronouslyImpl[c.type](c)(block))
+    addRouteGen[c.type](c)(reify(Post), transformers, makeAsynchronously[c.type](c)(block))
   }
 
   def asyncPutImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
-    addRouteGen[c.type](c)(reify(Put), transformers, asynchronouslyImpl[c.type](c)(block))
+    addRouteGen[c.type](c)(reify(Put), transformers, makeAsynchronously[c.type](c)(block))
   }
 
   def asyncDeleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
-    addRouteGen[c.type](c)(reify(Delete), transformers, asynchronouslyImpl[c.type](c)(block))
+    addRouteGen[c.type](c)(reify(Delete), transformers, makeAsynchronously[c.type](c)(block))
   }
 
   def asyncOptionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
-    addRouteGen[c.type](c)(reify(Options), transformers, asynchronouslyImpl[c.type](c)(block))
+    addRouteGen[c.type](c)(reify(Options), transformers, makeAsynchronously[c.type](c)(block))
   }
 
   def asyncPatchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
     import c.universe._
-    addRouteGen[c.type](c)(reify(Patch), transformers, asynchronouslyImpl[c.type](c)(block))
+    addRouteGen[c.type](c)(reify(Patch), transformers, makeAsynchronously[c.type](c)(block))
   }
 
 }
