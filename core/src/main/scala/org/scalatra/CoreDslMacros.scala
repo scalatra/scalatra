@@ -179,4 +179,40 @@ object CoreDslMacros {
     c.Expr[Unit](tree)
   }
 
+  def asyncGetImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    import c.universe._
+    val block1 = c.resetLocalAttrs(block.tree.duplicate)
+    addRouteGen[c.type](c)(reify(Get), transformers, c.Expr[Any](c.typecheck(q"""asynchronously($block1)()""")))
+  }
+
+  def asyncPostImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    import c.universe._
+    val block1 = c.resetLocalAttrs(block.tree.duplicate)
+    addRouteGen[c.type](c)(reify(Post), transformers, c.Expr[Any](c.typecheck(q"""asynchronously($block1)()""")))
+  }
+
+  def asyncPutImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    import c.universe._
+    val block1 = c.resetLocalAttrs(block.tree.duplicate)
+    addRouteGen[c.type](c)(reify(Put), transformers, c.Expr[Any](c.typecheck(q"""asynchronously($block1)()""")))
+  }
+
+  def asyncDeleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    import c.universe._
+    val block1 = c.resetLocalAttrs(block.tree.duplicate)
+    addRouteGen[c.type](c)(reify(Delete), transformers, c.Expr[Any](c.typecheck(q"""asynchronously($block1)()""")))
+  }
+
+  def asyncOptionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    import c.universe._
+    val block1 = c.resetLocalAttrs(block.tree.duplicate)
+    addRouteGen[c.type](c)(reify(Options), transformers, c.Expr[Any](c.typecheck(q"""asynchronously($block1)()""")))
+  }
+
+  def asyncPatchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+    import c.universe._
+    val block1 = c.resetLocalAttrs(block.tree.duplicate)
+    addRouteGen[c.type](c)(reify(Patch), transformers, c.Expr[Any](c.typecheck(q"""asynchronously($block1)()""")))
+  }
+
 }
