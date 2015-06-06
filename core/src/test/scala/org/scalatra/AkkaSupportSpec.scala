@@ -13,6 +13,16 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   protected implicit val executor = system.dispatcher
   override def asyncTimeout = 2 seconds
 
+  def helperMethodWithImplicitRequest(implicit request: HttpServletRequest) = {
+    session.getOrElseUpdate("foo", params.getOrElse("foo", "foo"))
+  }
+
+  get("/future") {
+    Future {
+      helperMethodWithImplicitRequest
+    }
+  }
+
   get("/redirect") {
     Future {
       redirect("redirected")
@@ -24,16 +34,6 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
       val is: Future[_] = Future {
         redirect("redirected")
       }
-    }
-  }
-
-  def helperMethodWithImplicitRequest(implicit request: HttpServletRequest) = {
-    session.getOrElseUpdate("foo", params.getOrElse("foo", "foo"))
-  }
-
-  get("/session") {
-    Future {
-      helperMethodWithImplicitRequest
     }
   }
 
@@ -90,7 +90,7 @@ class AkkaSupportSpec extends MutableScalatraSpec {
 
   "The AkkaSupport" should {
     "be able to return a Future" in {
-      get("/session") {
+      get("/future") {
         body must_== "foo"
       }
     }
