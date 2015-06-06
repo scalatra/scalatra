@@ -27,13 +27,13 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     }
   }
 
-  def sessionFoo(implicit request: HttpServletRequest) = {
+  def helperMethodWithImplicitRequest(implicit request: HttpServletRequest) = {
     session.getOrElseUpdate("foo", params.getOrElse("foo", "foo"))
   }
 
   get("/session") {
     Future {
-      sessionFoo
+      helperMethodWithImplicitRequest
     }
   }
 
