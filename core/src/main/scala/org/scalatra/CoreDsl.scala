@@ -5,8 +5,9 @@ import org.scalatra.servlet.ServletApiImplicits
 /**
  * The core Scalatra DSL.
  */
-@deprecated("This trait will be removed, since the core DSL methods are now macros which dont play nicely with abstract methods.", "2.4.0")
 trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiImplicits {
+
+  // commented out since the core DSL methods are macros which cant implement abstract methods
 
   //  /**
   //   * Adds a filter to run before the route.  The filter only runs if each
