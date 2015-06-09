@@ -3,7 +3,7 @@ package org.scalatra
 import javax.servlet.ServletContext
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import org.scalatra.servlet.ServletApiImplicits
+import org.scalatra.servlet.{ HttpServletRequestReadOnly, ServletApiImplicits }
 
 object ScalatraContext {
 
@@ -68,7 +68,7 @@ trait ScalatraContext
   }
 
   protected[this] implicit def scalatraContext: ScalatraContext = {
-    new StableValuesContext()(request, response, servletContext)
+    new StableValuesContext()(HttpServletRequestReadOnly(request), response, servletContext)
   }
 
 }
