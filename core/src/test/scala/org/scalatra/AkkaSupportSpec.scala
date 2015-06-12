@@ -1,5 +1,7 @@
 package org.scalatra
 
+import javax.servlet.http.HttpServletRequest
+
 import _root_.akka.actor._
 import org.scalatra.test.specs2.MutableScalatraSpec
 
@@ -11,7 +13,23 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   protected implicit val executor = system.dispatcher
   override def asyncTimeout = 2 seconds
 
+  def helperMethodWithImplicitRequest(implicit request: HttpServletRequest) = {
+    session.getOrElseUpdate("foo", params.getOrElse("foo", "foo"))
+  }
+
+  get("/future") {
+    Future {
+      helperMethodWithImplicitRequest
+    }
+  }
+
   get("/redirect") {
+    Future {
+      redirect("redirected")
+    }
+  }
+
+  get("/redirect-asyncresult") {
     new AsyncResult {
       val is: Future[_] = Future {
         redirect("redirected")
@@ -71,6 +89,12 @@ class AkkaSupportSpec extends MutableScalatraSpec {
   addServlet(new AkkaSupportServlet, "/*")
 
   "The AkkaSupport" should {
+    "be able to return a Future" in {
+      get("/future") {
+        body must_== "foo"
+      }
+    }
+
     "render the reply of an actor" in {
       get("/working") {
         body must_== "the-working-reply"
@@ -110,6 +134,11 @@ class AkkaSupportSpec extends MutableScalatraSpec {
 
     "redirect with the redirect method" in {
       get("/redirect") {
+        status must_== 302
+        response.header("Location") must_== (baseUrl + "/redirected")
+      }
+
+      get("/redirect-asyncresult") {
         status must_== 302
         response.header("Location") must_== (baseUrl + "/redirected")
       }
