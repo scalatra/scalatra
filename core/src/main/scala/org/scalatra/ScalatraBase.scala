@@ -1,5 +1,7 @@
 package org.scalatra
 
+import scala.language.experimental.macros
+
 import java.io.{ File, FileInputStream }
 import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 import javax.servlet.{ ServletRegistration, Filter, ServletContext }
@@ -288,13 +290,19 @@ trait ScalatraBase
     }
   }
 
-  def before(transformers: RouteTransformer*)(fun: => Any): Unit = {
-    routes.appendBeforeFilter(Route(transformers, () => fun))
-  }
+  /**
+   * Adds a filter to run before the route.  The filter only runs if each
+   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+   * filter runs for all routes.
+   */
+  def before(transformers: RouteTransformer*)(block: => Any): Unit = macro CoreDslMacros.beforeImpl
 
-  def after(transformers: RouteTransformer*)(fun: => Any): Unit = {
-    routes.appendAfterFilter(Route(transformers, () => fun))
-  }
+  /**
+   * Adds a filter to run after the route.  The filter only runs if each
+   * routeMatcher returns Some.  If the routeMatchers list is empty, the
+   * filter runs for all routes.
+   */
+  def after(transformers: RouteTransformer*)(block: => Any): Unit = macro CoreDslMacros.afterImpl
 
   /**
    * Called if no route matches the current request for any method.  The
@@ -302,11 +310,11 @@ trait ScalatraBase
    */
   protected var doNotFound: Action
 
-  def notFound(fun: => Any): Unit = {
-    doNotFound = {
-      () => fun
-    }
-  }
+  /**
+   * Defines a block to run if no matching routes are found, or if all
+   * matching routes pass.
+   */
+  def notFound(block: => Any): Unit = macro CoreDslMacros.notFoundImpl
 
   /**
    * Called if no route matches the current request method, but routes
@@ -320,9 +328,11 @@ trait ScalatraBase
       response.headers("Allow") = allow.mkString(", ")
   }
 
-  def methodNotAllowed(f: Set[HttpMethod] => Any): Unit = {
-    doMethodNotAllowed = f
-  }
+  /**
+   * Defines a block to run if matching routes are found only for other
+   * methods.  The set of matching methods is passed to the block.
+   */
+  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit = macro CoreDslMacros.methodNotAllowedImpl
 
   private[this] def matchOtherMethods(): Option[Any] = {
     val allow = routes.matchingMethodsExcept(request.requestMethod, requestPath)
@@ -345,9 +355,19 @@ trait ScalatraBase
     case t => throw t
   }
 
-  def error(handler: ErrorHandler): Unit = {
-    errorHandler = handler orElse errorHandler
-  }
+  /**
+   * Defines an error handler for exceptions thrown in either the before
+   * block or a route action.
+   *
+   * If the error handler does not match, the result falls through to the
+   * previously defined error handler.  The default error handler simply
+   * rethrows the exception.
+   *
+   * The error handler is run before the after filters, and the result is
+   * rendered like a standard response.  It is the error handler's
+   * responsibility to set any appropriate status code.
+   */
+  def error(handler: ErrorHandler): Unit = macro CoreDslMacros.errorImpl
 
   protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
     val originalParams = multiParams
@@ -544,23 +564,56 @@ trait ScalatraBase
     case _ => response.status.code
   }
 
-  def get(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Get, transformers, action)
+  /**
+   * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]
+   * and a block as the action body.  The return value of the block is
+   * rendered through the pipeline and sent to the client as the response body.
+   *
+   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
+   * behaviour and how to handle your response body more explicitly, and see
+   * how different return types are handled.
+   *
+   * The block is executed in the context of a CoreDsl instance, so all the
+   * methods defined in this trait are also available inside the block.
+   *
+   * {{{
+   *   get("/") {
+   *     <form action="/echo">
+   *       <label>Enter your name</label>
+   *       <input type="text" name="name"/>
+   *     </form>
+   *   }
+   *
+   *   post("/echo") {
+   *     "hello {params('name)}!"
+   *   }
+   * }}}
+   *
+   * ScalatraKernel provides implicit transformation from boolean blocks,
+   * strings and regular expressions to [[org.scalatra.RouteMatcher]], so
+   * you can write code naturally.
+   * {{{
+   *   get("/", request.getRemoteHost == "127.0.0.1") { "Hello localhost!" }
+   * }}}
+   *
+   */
+  def get(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.getImpl
 
-  def post(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Post, transformers, action)
+  def post(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.postImpl
 
-  def put(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Put, transformers, action)
+  def put(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.putImpl
 
-  def delete(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Delete, transformers, action)
+  def delete(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.deleteImpl
 
-  def trap(codes: Range)(block: => Any): Unit = {
-    addStatusRoute(codes, block)
-  }
+  def options(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.optionsImpl
 
-  def options(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Options, transformers, action)
+  def head(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.headImpl
 
-  def head(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Head, transformers, action)
+  def patch(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.patchImpl
 
-  def patch(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Patch, transformers, action)
+  def trap(codes: Range)(block: => Any): Unit = macro CoreDslMacros.trapImpl
+
+  def trap(code: Int)(block: => Any): Unit = macro CoreDslMacros.trapCodeImpl
 
   /**
    * Prepends a new route for the given HTTP method.
@@ -598,6 +651,29 @@ trait ScalatraBase
   protected[scalatra] def addStatusRoute(codes: Range, action: => Any): Unit = {
     val route = Route(Seq.empty, () => action, (req: HttpServletRequest) => routeBasePath(req))
     routes.addStatusRoute(codes, route)
+  }
+
+  // those methods are there to prevent invoking a macro from code in scalatra-core (which would need separate compile passes)
+  private[scalatra] def before0(transformers: RouteTransformer*)(fun: => Any): Unit = {
+    routes.appendBeforeFilter(Route(transformers, () => fun))
+  }
+
+  private[scalatra] def after0(transformers: RouteTransformer*)(fun: => Any): Unit = {
+    routes.appendAfterFilter(Route(transformers, () => fun))
+  }
+
+  private[scalatra] def error0(handler: ErrorHandler): Unit = {
+    errorHandler = handler orElse errorHandler
+  }
+
+  private[scalatra] def notFound0(fun: => Any): Unit = {
+    doNotFound = {
+      () => fun
+    }
+  }
+
+  private[scalatra] def methodNotAllowed0(f: Set[HttpMethod] => Any): Unit = {
+    doMethodNotAllowed = f
   }
 
   /**
