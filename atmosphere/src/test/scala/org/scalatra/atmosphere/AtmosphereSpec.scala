@@ -29,10 +29,17 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
     new AtmosphereClient {
       def receive: AtmoReceive = {
         case Connected =>
+
           println("connected client")
+
+          response.headers("foo") = request.header("bar").getOrElse("")
+
           broadcast("connected", to = Everyone)
         case TextMessage(txt) =>
           println("text message: " + txt)
+
+          response.headers("foo") = request.header("bar").getOrElse("")
+
           send(("seen" -> txt): JValue)
         case JsonMessage(json) =>
           println("json message: " + json)

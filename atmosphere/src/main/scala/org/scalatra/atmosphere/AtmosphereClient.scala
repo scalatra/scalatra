@@ -1,6 +1,9 @@
 package org.scalatra
 package atmosphere
 
+import javax.servlet.ServletContext
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
 import org.scalatra.util.RicherString._
@@ -57,6 +60,19 @@ trait AtmosphereClient extends AtmosphereClientFilters {
   protected def requestUri = {
     val u = resource.getRequest.getRequestURI.blankOption getOrElse "/"
     if (u.endsWith("/")) u + "*" else u + "/*"
+  }
+
+  private var scalatraContext: ScalatraContext = null
+
+  implicit def request: HttpServletRequest = scalatraContext.request
+
+  implicit def response: HttpServletResponse = scalatraContext.response
+
+  def servletContext: ServletContext = scalatraContext.servletContext
+
+  def receiveWithScalatraContext(scalatraContext: ScalatraContext): AtmoReceive = {
+    this.scalatraContext = scalatraContext
+    receive
   }
 
   /**

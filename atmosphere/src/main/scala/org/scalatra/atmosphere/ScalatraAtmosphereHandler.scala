@@ -58,57 +58,60 @@ object ScalatraAtmosphereHandler {
 }
 
 class ScalatraAtmosphereException(message: String) extends ScalatraException(message)
-class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
+class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import org.scalatra.atmosphere.ScalatraAtmosphereHandler._
 
   private[this] val internalLogger = Logger(getClass)
 
   def onRequest(resource: AtmosphereResource) {
-    val req = resource.getRequest
+    implicit val req = resource.getRequest
+    implicit val res = resource.getResponse
     val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
     var session = resource.session()
     val isNew = !session.contains(org.scalatra.atmosphere.AtmosphereClientKey)
 
-    (req.requestMethod, route.isDefined) match {
-      case (Post, _) =>
-        var client: AtmosphereClient = null
-        if (isNew) {
-          session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
+    scalatraApp.withRequestResponse(resource.getRequest, resource.getResponse) {
+      scalatraApp.withRouteMultiParams(route) {
+
+        (req.requestMethod, route.isDefined) match {
+          case (Post, _) =>
+            var client: AtmosphereClient = null
+            if (isNew) {
+              session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
+            }
+
+            client = session(org.scalatra.atmosphere.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
+            handleIncomingMessage(req, client)
+          case (_, true) =>
+            val cl = if (isNew) {
+              createClient(route.get, session, resource)
+            } else null
+
+            addEventListener(resource)
+            resumeIfNeeded(resource)
+            configureBroadcaster(resource)
+            if (isNew && cl != null) handleIncomingMessage(Connected, cl)
+            resource.suspend
+          case _ =>
+            val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
+            internalLogger.warn(ex.getMessage)
+            throw ex
         }
 
-        client = session(org.scalatra.atmosphere.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
-        handleIncomingMessage(req, client)
-      case (_, true) =>
-        val cl = if (isNew) {
-          createClient(route.get, session, resource)
-        } else null
-
-        addEventListener(resource)
-        resumeIfNeeded(resource)
-        configureBroadcaster(resource)
-        if (isNew && cl != null) cl.receive.lift(Connected)
-        resource.suspend
-      case _ =>
-        val ex = new ScalatraAtmosphereException("There is no atmosphere route defined for " + req.getRequestURI)
-        internalLogger.warn(ex.getMessage)
-        throw ex
+      }
     }
   }
 
   private[this] def createClient(route: MatchedRoute, session: HttpSession, resource: AtmosphereResource) = {
-    withRouteMultiParams(route, resource.getRequest) {
-      val client = clientForRoute(route)
-      session(org.scalatra.atmosphere.AtmosphereClientKey) = client
-      client.resource = resource
-      client
-    }
+    val client = clientForRoute(route)
+    session(org.scalatra.atmosphere.AtmosphereClientKey) = client
+    client.resource = resource
+    client
   }
   private[this] def createClient(route: MatchedRoute, resource: AtmosphereResource) = {
-    withRouteMultiParams(route, resource.getRequest) {
-      val client = clientForRoute(route)
-      client.resource = resource
-      client
-    }
+    val client = clientForRoute(route)
+    client.resource = resource
+    client
   }
 
   private[this] def clientForRoute(route: MatchedRoute): AtmosphereClient = {
@@ -129,7 +132,13 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
   private[this] def handleIncomingMessage(req: AtmosphereRequest, client: AtmosphereClient) {
     val parsed: InboundMessage = wireFormat.parseInMessage(readBody(req))
-    client.receive.lift(parsed)
+    handleIncomingMessage(parsed, client)
+  }
+
+  private[this] def handleIncomingMessage(msg: InboundMessage, client: AtmosphereClient) {
+    // the ScalatraContext provides the correct request/response values to the AtmosphereClient.receive method
+    // this can be later refactored to a (Request, Response) => Any
+    client.receiveWithScalatraContext(scalatraApp).lift(msg)
   }
 
   private[this] def readBody(req: AtmosphereRequest) = {
@@ -145,40 +154,6 @@ class ScalatraAtmosphereHandler(implicit wireFormat: WireFormat) extends Abstrac
 
   private[this] def addEventListener(resource: AtmosphereResource) {
     resource.addEventListener(new ScalatraResourceEventListener)
-  }
-  /**
-   * The current multiparams.  Multiparams are a result of merging the
-   * standard request params (query string or post params) with the route
-   * parameters extracted from the route matchers of the current route.
-   * The default value for an unknown param is the empty sequence.  Invalid
-   * outside `handle`.
-   */
-  private[this] def multiParams(request: HttpServletRequest): MultiParams = {
-    val read = request.contains("MultiParamsRead")
-    val found = request.get(MultiParamsKey) map (
-      _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters)
-    )
-    val multi = found getOrElse request.multiParameters
-    request("MultiParamsRead") = new {}
-    request(MultiParamsKey) = multi
-    multi.withDefaultValue(Seq.empty)
-  }
-  private[this] def withRouteMultiParams[S](matchedRoute: MatchedRoute, request: HttpServletRequest)(thunk: => S): S = {
-    val originalParams = multiParams(request)
-    setMultiparams(matchedRoute, originalParams, request)
-    try {
-      thunk
-    } finally {
-      request(MultiParamsKey) = originalParams
-    }
-  }
-
-  def setMultiparams[S](matchedRoute: MatchedRoute, originalParams: MultiParams, request: HttpServletRequest) {
-    val routeParams = matchedRoute.multiParams map {
-      case (key, values) =>
-        key -> values.map(UriDecoder.secondStep(_))
-    }
-    request(MultiParamsKey) = originalParams ++ routeParams
   }
 
   private[this] def liftAction(action: org.scalatra.Action) = try {

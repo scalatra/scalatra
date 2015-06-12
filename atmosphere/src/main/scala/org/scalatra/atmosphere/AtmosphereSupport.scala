@@ -123,7 +123,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     val servletRegistration = ScalatraBase.getServletRegistration(this)
     servletRegistration foreach { reg =>
       reg.getMappings.asScala foreach { mapping =>
-        atmosphereFramework.addAtmosphereHandler(mapping, new ScalatraAtmosphereHandler).initAtmosphereHandler(cfg)
+        atmosphereFramework.addAtmosphereHandler(mapping, new ScalatraAtmosphereHandler(this)).initAtmosphereHandler(cfg)
       }
     }
   }

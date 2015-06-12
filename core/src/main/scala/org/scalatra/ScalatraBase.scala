@@ -369,7 +369,7 @@ trait ScalatraBase
    */
   def error(handler: ErrorHandler): Unit = macro CoreDslMacros.errorImpl
 
-  protected def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
+  protected[scalatra] def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S)(implicit request: HttpServletRequest): S = {
     val originalParams = multiParams
     setMultiparams(matchedRoute, originalParams)
     try {
