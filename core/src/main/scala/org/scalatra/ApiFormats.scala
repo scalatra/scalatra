@@ -172,7 +172,7 @@ trait ApiFormats extends ScalatraBase {
     getFromResponseHeader orElse getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
   }
 
-  protected override def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S): S = {
+  protected[scalatra] override def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S)(implicit request: HttpServletRequest): S = {
     val originalParams: MultiParams = multiParams
     val routeParams: Map[String, Seq[String]] = {
       matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
