@@ -310,7 +310,7 @@ object ScalatraBuild extends Build {
     lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
     lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
     // TODO: 2.3 has incompatible API changes
-    lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.2.6"
+    lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.2.7"
     lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.11" artifacts(Artifact("jquery", "war", "war"))
     lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.2"
     lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.3.0"
@@ -331,7 +331,7 @@ object ScalatraBuild extends Build {
     lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
     lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
     lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "1.7"
-    lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.7"
+    lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.8"
     lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
     lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion
     lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
@@ -347,7 +347,7 @@ object ScalatraBuild extends Build {
     lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
     lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.1.2"
     lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
-    lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.1.5.RELEASE"
+    lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.1.6.RELEASE"
     lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.12"
     lazy val slf4jSimple              =  "org.slf4j"               %  "slf4j-simple"               % "1.7.12"
     lazy val specs2                   =  Seq(
@@ -366,12 +366,12 @@ object ScalatraBuild extends Build {
     private val akkaVersion             = "2.3.11"
     private val grizzledSlf4jVersion    = "1.0.2"
     private val atmosphereCompatVersion = "2.0.1"
-    private val httpcomponentsVersion   = "4.4.1"
-    private val jettyVersion            = "9.2.10.v20150310"
+    private val httpcomponentsVersion   = "4.5"
+    private val jettyVersion            = "9.2.11.v20150529"
     private val json4sVersion           = "3.3.0.RC2"
     private val scalateVersion          = "1.7.1"
     private val scalatestVersion        = "2.2.5"
-    private val specs2Version           = "3.6-20150519234533-6476871"
+    private val specs2Version           = "3.6.1"
 
     lazy val paradiseVersion            = "2.1.0-M5"
   }
