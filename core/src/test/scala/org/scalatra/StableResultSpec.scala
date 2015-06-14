@@ -10,6 +10,22 @@ class StableResultServlet extends ScalatraServlet with FutureSupport {
 
   override implicit val executor = scala.concurrent.ExecutionContext.global
 
+  class X {
+    val routes: Int = 100
+
+    get("/foo") {
+
+    }
+  }
+
+  val x = new X
+
+  case class Route(x: Int)
+
+  before("/*") {
+    contentType = "text/html"
+  }
+
   get("/ok") {
     Ok(123)
   }

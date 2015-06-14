@@ -53,7 +53,7 @@ object CoreDslMacros {
       // add to new lexical scope
       val rescopedExpr =
         q"""
-            class $clsName extends org.scalatra.StableResult {
+            class $clsName extends _root_.org.scalatra.StableResult {
               val is = {
                 $untypedExpr
               }
@@ -75,21 +75,22 @@ object CoreDslMacros {
     import c.universe._
 
     val rescopedAction = rescopeExpression[c.type](c)(action)
-    c.Expr[Route](q"""addRoute($method, Seq(..$transformers), $rescopedAction)""")
+    c.Expr[Route](q"""addRoute($method, _root_.scala.collection.immutable.Seq(..$transformers), $rescopedAction)""")
   }
 
   def beforeImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
     val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""routes.appendBeforeFilter(Route(Seq(..$transformers), () => $rescopedAction))""")
+    c.Expr[Unit](q"""routes.appendBeforeFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => $rescopedAction))""")
+
   }
 
   def afterImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
     val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""routes.appendAfterFilter(Route(Seq(..$transformers), () => $rescopedAction))""")
+    c.Expr[Unit](q"""routes.appendAfterFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => $rescopedAction))""")
   }
 
   def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
@@ -131,7 +132,7 @@ object CoreDslMacros {
     import c.universe._
 
     val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""addStatusRoute(Range($code, $code+1), $rescopedAction)""")
+    c.Expr[Unit](q"""addStatusRoute(scala.collection.immutable.Range($code, $code+1), $rescopedAction)""")
   }
 
   def notFoundImpl(c: Context)(block: c.Expr[Any]): c.Expr[Unit] = {
@@ -151,7 +152,7 @@ object CoreDslMacros {
 
     val tree =
       q"""
-          doMethodNotAllowed = (methods: Set[HttpMethod]) => ${rescopeExpression[c.type](c)(block)}(methods)
+          doMethodNotAllowed = (methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${rescopeExpression[c.type](c)(block)}(methods)
         """
 
     c.Expr[Unit](tree)
@@ -163,17 +164,17 @@ object CoreDslMacros {
     val tree =
       q"""
           errorHandler = {
-           new PartialFunction[Throwable, Any]() {
+           new _root_.scala.PartialFunction[_root_.java.lang.Throwable, _root_.scala.Any]() {
 
              def handler = {
                ${rescopeExpression[c.type](c)(handler)}
              }
 
-             override def apply(v1: Throwable): Any = {
+             override def apply(v1: _root_.java.lang.Throwable): _root_.scala.Any = {
                handler.apply(v1)
              }
 
-             override def isDefinedAt(x: Throwable): Boolean = {
+             override def isDefinedAt(x: _root_.java.lang.Throwable): _root_.scala.Boolean = {
                handler.isDefinedAt(x)
              }
 
