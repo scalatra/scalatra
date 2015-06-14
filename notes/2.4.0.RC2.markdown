@@ -1,3 +1,5 @@
+2.4.0.RC2 was [broken](https://github.com/scalatra/scalatra/issues/518). Please try 2.4.0.RC2-1 instead.
+
 ### Scalatra Core
 
 * #500 Improve automatic charset detection performance by @takezoe
