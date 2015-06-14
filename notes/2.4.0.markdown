@@ -13,6 +13,10 @@
 * #477 Bump Scala minor version (2.11.6, 2.10.5)  by @seratch
 * #481 Bump minor version of dependencies by @seratch
 * #483 Fix an XXE Vulnerability related to scala.xml.XML library by @seratch
+* #500 Improve automatic charset detection performance by @takezoe
+* #502 Bump minor version of dependencies by @seratch
+* #514 Improve request/responsee stability wthin AsyncResult by @lloydmeta
+* #516 Introduce stable request response macro by @dozed
 
 ### Scalatra Cache
 
@@ -20,15 +24,18 @@
 
 ## Scalatra Commands
 
-* **BREAKING** Removes the default value for types, instead a field is now started in an invalid state.
-* **BREAKING** field.optional now is an alias for field.withDefaultValue(theDefault)
+* (Breaking change) Removes the default value for types, instead a field is now started in an invalid state by @casualjim
+* (Breaking change) field.optional now is an alias for field.withDefaultValue(theDefault) by @casualjim
 * #447 Minor upgrades and deprecation warnings reduction by @seratch
+* #510 Fix deprecated APIs in Scalaz's ValidationOps by @xuwei-k
 
 ### Scalatra Json
 
 * #432 Introduce a JsonResult type by @dozed
 * #440 Take Formats bigDecimal setting into account when parsing. by @dozed
 * #490 Bump json4s version to 3.3.0.RC1 by @seratch
+* #504 Fix #496 Rendering JNull in a servlet by @seratch
+* #512 Fix jackson json initialization issue (NPE) by @dozed
 
 ### Scalatra Scalate
 
@@ -40,6 +47,7 @@
 
 * #441 Added basic metrics support by @japhar81
 * #442 Added metrics support for response code filter by @japhar81
+* #505 Upgrade to metrics-scala-3.5.1 by @rossabaker
 
 ### Scalatra ScalaTest
 
@@ -53,3 +61,6 @@
 
 * #490 Switch scalap to json4s-scalap since json4s 3.3.0 by @seratch
 
+### Scalatra Specs2
+
+* #508 Updated specs2 to 3.6.+ by @etorreborre

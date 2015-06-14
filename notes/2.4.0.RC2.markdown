@@ -1,0 +1,24 @@
+### Scalatra Core
+
+* #500 Improve automatic charset detection performance by @takezoe
+* #502 Bump minor version of dependencies by @seratch
+* #514 Improve request/responsee stability wthin AsyncResult by @lloydmeta
+* #516 Introduce stable request response macro by @dozed
+
+### Scalatra Commands
+
+* #510 Fix deprecated APIs in Scalaz's ValidationOps by @xuwei-k 
+
+### Scalatra Json
+
+* #504 Fix #496 Rendering JNull in a servlet by @seratch
+* #512 Fix jackson json initialization issue (NPE) by @dozed
+
+### Scalatra Metrics
+
+* #505 Upgrade to metrics-scala-3.5.1 by @rossabaker
+
+### Scalatra Specs2
+
+* #508 Updated specs2 to 3.6.+ by @etorreborre
+
