@@ -49,15 +49,16 @@ object CoreDslMacros {
       val untypedExpr = untypecheck[c.type](c)(expr.tree.duplicate)
 
       // add to new lexical scope
-      val rescopedExpr = q"""
-        class $clsName extends org.scalatra.StableResult {
-          val is = {
-             $untypedExpr
-          }
-        }
-        val $resName = new $clsName()
-        $resName.is
-       """
+      val rescopedExpr =
+        q"""
+            class $clsName extends org.scalatra.StableResult {
+              val is = {
+                $untypedExpr
+              }
+            }
+            val $resName = new $clsName()
+            $resName.is
+         """
 
       // use stable request/response values from the new lexical scope
       val transformedExpr = RescopeRequestResponse.transform(rescopedExpr)
@@ -148,7 +149,7 @@ object CoreDslMacros {
 
     val tree =
       q"""
-         doMethodNotAllowed = (methods: Set[HttpMethod]) => ${rescopeExpression[c.type](c)(block)}(methods)
+          doMethodNotAllowed = (methods: Set[HttpMethod]) => ${rescopeExpression[c.type](c)(block)}(methods)
         """
 
     c.Expr[Unit](tree)
@@ -158,7 +159,8 @@ object CoreDslMacros {
     import c.universe._
 
     val tree =
-      q"""errorHandler = {
+      q"""
+          errorHandler = {
            new PartialFunction[Throwable, Any]() {
 
              def handler = {
@@ -174,7 +176,8 @@ object CoreDslMacros {
              }
 
            }
-         } orElse errorHandler"""
+         } orElse errorHandler
+        """
 
     c.Expr[Unit](tree)
   }
