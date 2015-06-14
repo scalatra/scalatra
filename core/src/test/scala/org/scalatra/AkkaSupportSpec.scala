@@ -45,7 +45,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
 
   get("/async-oh-noes") {
     new AsyncResult {
-      val is = Future {
+      override val is = Future {
         Thread.sleep(100) // To get the container to give up the request
         Ok(body = s"${request.getContextPath}")
       }
@@ -56,7 +56,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     request.setAttribute("sessionId", params("mockSessionId"))
     val handlingReq = request
     new AsyncResult {
-      val is = Future {
+      override val is = Future {
         Thread.sleep(200)
         Ok(body = request.getAttribute("sessionId"))
       }(futureEC)
