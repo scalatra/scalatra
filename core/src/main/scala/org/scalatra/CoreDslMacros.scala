@@ -4,32 +4,38 @@ import scala.language.experimental.macros
 
 import MacrosCompat.{ Context, freshName, typeName, termName, typecheck, untypecheck }
 
+/**
+ * Macro implementation which generates Scalatra core DSL APIs.
+ */
 object CoreDslMacros {
 
-  // takes an Expr[Any], wraps it in a StableResult
-  // replaces all references to request/response to use the stable values from StableResult (instead of the ThreadLocal)
-  // returns StableResult.is
+  /**
+   * Re-scopes the expression.
+   *
+   * - takes an Expr[Any], wraps it in a StableResult.
+   * - replaces all references to request/response to use the stable values from StableResult (instead of the ThreadLocal)
+   * - returns StableResult.is
+   */
   def rescopeExpression[C <: Context](c: C)(expr: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
 
-    // return an AsyncResult
-    // return a StableResult.is
-    // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
-
     if (expr.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
+      // return an AsyncResult (for backward compatibility, AsyncResult is deprecated in 2.4)
 
       expr
 
     } else if (expr.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
+      // return a StableResult.is
 
       c.Expr[Any](q"""$expr.is""")
 
     } else {
+      // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
 
       val clsName = typeName[c.type](c)(freshName(c)("cls"))
       val resName = termName[c.type](c)(freshName(c)("res"))
 
-      object BendRequestResponse extends Transformer {
+      object RescopeRequestResponse extends Transformer {
         override def transform(tree: Tree): Tree = {
           tree match {
             case q"$a.this.request" => Select(This(clsName), termName[c.type](c)("request"))
@@ -44,19 +50,17 @@ object CoreDslMacros {
 
       // add to new lexical scope
       val rescopedExpr = q"""
-          class $clsName extends org.scalatra.StableResult {
-            val is = {
-               $untypedExpr
-            }
+        class $clsName extends org.scalatra.StableResult {
+          val is = {
+             $untypedExpr
           }
-          val $resName = new $clsName()
-          $resName.is
-         """
+        }
+        val $resName = new $clsName()
+        $resName.is
+       """
 
       // use stable request/response values from the new lexical scope
-      val transformedExpr = BendRequestResponse.transform(rescopedExpr)
-
-      // println(show(transformedAction))
+      val transformedExpr = RescopeRequestResponse.transform(rescopedExpr)
 
       c.Expr[Unit](transformedExpr)
 
@@ -147,8 +151,6 @@ object CoreDslMacros {
          doMethodNotAllowed = (methods: Set[HttpMethod]) => ${rescopeExpression[c.type](c)(block)}(methods)
         """
 
-    // println(show(tree))
-
     c.Expr[Unit](tree)
   }
 
@@ -173,8 +175,6 @@ object CoreDslMacros {
 
            }
          } orElse errorHandler"""
-
-    // println(show(tree))
 
     c.Expr[Unit](tree)
   }
