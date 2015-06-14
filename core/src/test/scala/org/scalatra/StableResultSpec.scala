@@ -1,7 +1,5 @@
 package org.scalatra
 
-import javax.servlet.http.HttpServletRequest
-
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.concurrent.Future
@@ -9,18 +7,6 @@ import scala.concurrent.Future
 class StableResultServlet extends ScalatraServlet with FutureSupport {
 
   override implicit val executor = scala.concurrent.ExecutionContext.global
-
-  class X {
-    val routes: Int = 100
-
-    get("/foo") {
-
-    }
-  }
-
-  val x = new X
-
-  case class Route(x: Int)
 
   before("/*") {
     contentType = "text/html"
@@ -77,6 +63,52 @@ class StableResultServlet extends ScalatraServlet with FutureSupport {
   //   val res$macro$6 = new cls$macro$5();
   //   res$macro$6.is
   // })
+
+  // make sure that ScalatraBase methods are invoked
+  class X {
+    val routes: Int = 100
+    val addRoute: Int = 100
+    val addStatusRoute: Int = 100
+    val doNotFound: Int = 100
+    val doMethodNotAllowed: Int = 100
+    val errorHandler: Int = 100
+    val asynchronously: Int = 100
+
+    before("/*") {
+      contentType = "text/html"
+    }
+
+    after("/*") {
+      contentType = "text/html"
+    }
+
+    get("/foo") {
+
+    }
+
+    asyncGet("/foo") {
+
+    }
+
+    error {
+      case e =>
+    }
+
+    methodNotAllowed {
+      case methods =>
+    }
+
+    trap(100) {
+
+    }
+
+    notFound {
+
+    }
+  }
+
+  case class Route(x: Int)
+
 
   // here are some more issues which will be addressed in the future:
   //
