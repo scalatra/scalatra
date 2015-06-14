@@ -2,7 +2,7 @@ package org.scalatra
 
 import scala.language.experimental.macros
 
-import scala.reflect.macros.Context
+import MacrosCompat.{ Context, freshName, typeName, termName, typecheck, untypecheck }
 
 object CoreDslMacros {
 
@@ -26,21 +26,21 @@ object CoreDslMacros {
 
     } else {
 
-      val clsName = newTypeName(c.fresh("cls"))
-      val resName = newTermName(c.fresh("res"))
+      val clsName = typeName[c.type](c)(freshName(c)("cls"))
+      val resName = termName[c.type](c)(freshName(c)("res"))
 
       object BendRequestResponse extends Transformer {
         override def transform(tree: Tree): Tree = {
           tree match {
-            case q"$a.this.request" => Select(This(clsName), newTermName("request"))
-            case q"$a.this.response" => Select(This(clsName), newTermName("response"))
+            case q"$a.this.request" => Select(This(clsName), termName[c.type](c)("request"))
+            case q"$a.this.response" => Select(This(clsName), termName[c.type](c)("response"))
             case _ => super.transform(tree)
           }
         }
       }
 
       // duplicate and untype the tree
-      val untypedExpr = c.resetLocalAttrs(expr.tree.duplicate)
+      val untypedExpr = untypecheck[c.type](c)(expr.tree.duplicate)
 
       // add to new lexical scope
       val rescopedExpr = q"""
@@ -181,8 +181,8 @@ object CoreDslMacros {
 
   def makeAsynchronously[C <: Context](c: C)(block: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
-    val block1 = c.resetLocalAttrs(block.tree.duplicate)
-    c.Expr[Any](c.typeCheck(q"""asynchronously($block1)()"""))
+    val block1 = untypecheck[c.type](c)(block.tree.duplicate)
+    c.Expr[Any](typecheck[c.type](c)(q"""asynchronously($block1)()"""))
   }
 
   def asyncGetImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
