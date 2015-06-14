@@ -5,7 +5,7 @@ import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
 
 // Provides a stable request/response to an action.
 // Each action is wrapped in a StableResult during compilation.
-protected abstract class StableResult(
+abstract class StableResult(
   implicit override val scalatraContext: ScalatraContext)
     extends ScalatraContext {
 
