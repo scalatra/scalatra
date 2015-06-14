@@ -36,6 +36,32 @@ class StableResultServlet extends ScalatraServlet with FutureSupport {
   //    res$macro$4.is
   //  }
 
+  notFound {
+    halt(404, <h1>Not found.</h1>)
+  }
+
+  // rewritten to:
+  //
+  // doNotFound = (() => {
+  //   class cls$macro$5 extends org.scalatra.StableResult {
+  //     def <init>() = {
+  //       super.<init>();
+  //       ()
+  //     };
+  //     val is = StableResultServlet.this.halt[scala.xml.Elem](scala.this.Predef.int2Integer(404), {
+  //       {
+  //         new scala.xml.Elem(null, "h1", scala.xml.Null, scala.this.xml.TopScope, false, ({
+  //           val $buf = new scala.xml.NodeBuffer();
+  //           $buf.&+(new scala.xml.Text("Not found."));
+  //           $buf
+  //         }: _*))
+  //       }
+  //     }, StableResultServlet.this.halt$default$3[Nothing], StableResultServlet.this.halt$default$4[Nothing])(reflect.this.ManifestFactory.classType[scala.xml.Elem](classOf[scala.xml.Elem]))
+  //   };
+  //   val res$macro$6 = new cls$macro$5();
+  //   res$macro$6.is
+  // })
+
   // here are some more issues which will be addressed in the future:
   //
   //  var futureEffect = false

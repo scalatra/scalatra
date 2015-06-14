@@ -19,15 +19,20 @@ object CoreDslMacros {
   def rescopeExpression[C <: Context](c: C)(expr: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
 
-    if (expr.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
+    // duplicate and untype the tree
+    val untypedExpr = c.Expr[Any](untypecheck[c.type](c)(expr.tree.duplicate))
+
+    val typeIsNothing = expr.actualType =:= implicitly[TypeTag[Nothing]].tpe
+
+    if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
       // return an AsyncResult (for backward compatibility, AsyncResult is deprecated in 2.4)
 
-      expr
+      untypedExpr
 
-    } else if (expr.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
+    } else if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
       // return a StableResult.is
 
-      c.Expr[Any](q"""$expr.is""")
+      c.Expr[Any](q"""$untypedExpr.is""")
 
     } else {
       // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
@@ -44,9 +49,6 @@ object CoreDslMacros {
           }
         }
       }
-
-      // duplicate and untype the tree
-      val untypedExpr = untypecheck[c.type](c)(expr.tree.duplicate)
 
       // add to new lexical scope
       val rescopedExpr =
