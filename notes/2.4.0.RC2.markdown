@@ -2,12 +2,12 @@
 
 * #500 Improve automatic charset detection performance by @takezoe
 * #502 Bump minor version of dependencies by @seratch
-* #514 Improve request/responsee stability wthin AsyncResult by @lloydmeta
+* #514 Improve request/response stability wthin AsyncResult by @lloydmeta
 * #516 Introduce stable request response macro by @dozed
 
 ### Scalatra Commands
 
-* #510 Fix deprecated APIs in Scalaz's ValidationOps by @xuwei-k 
+* #510 Fix deprecated APIs in Scalaz's ValidationOps by @xuwei-k
 
 ### Scalatra Json
 
@@ -21,4 +21,3 @@
 ### Scalatra Specs2
 
 * #508 Updated specs2 to 3.6.+ by @etorreborre
-
