@@ -1,6 +1,7 @@
 package example
 
-import org.scalatra._
+// Don't import org.scalatra._ here to detect macros errors
+import org.scalatra.ScalatraServlet
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 /*
@@ -18,8 +19,43 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 class StableResultVisibilityTest extends ScalatraFunSuite {
 
   class SimpleServlet extends ScalatraServlet {
+
+    // #525 [2.4.0.RC2-1] "not found: value Route"
+    before() {
+    }
+    before("/") {
+    }
+
     get("/") {
       "ok"
+    }
+    trap(100) {
+    }
+
+    after() {
+    }
+    after("/") {
+    }
+
+    error {
+      case e =>
+    }
+    /* TODO
+[error] unexpected UnApply scala.util.control.NonFatal.unapply(<unapply-selector>) <unapply> ((e @ _))
+scala.reflect.internal.FatalError: unexpected UnApply scala.util.control.NonFatal.unapply(<unapply-selector>) <unapply> ((e @ _))
+  at scala.reflect.internal.Reporting$class.abort(Reporting.scala:59)
+  at scala.reflect.internal.SymbolTable.abort(SymbolTable.scala:16)
+
+    error {
+      case scala.util.control.NonFatal(e) =>
+    }
+    */
+
+    notFound {
+    }
+
+    methodNotAllowed {
+      case methods =>
     }
   }
   addServlet(new SimpleServlet, "/*")
