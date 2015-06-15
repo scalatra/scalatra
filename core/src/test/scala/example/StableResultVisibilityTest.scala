@@ -1,6 +1,7 @@
 package example
 
-import org.scalatra._
+// Don't import org.scalatra._ here to detect macros errors
+import org.scalatra.ScalatraServlet
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 /*
@@ -18,8 +19,36 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 class StableResultVisibilityTest extends ScalatraFunSuite {
 
   class SimpleServlet extends ScalatraServlet {
+
+    // #525 [2.4.0.RC2-1] "not found: value Route"
+    before() {
+    }
+    before("/") {
+    }
+
     get("/") {
       "ok"
+    }
+    trap(100) {
+    }
+
+    after() {
+    }
+    after("/") {
+    }
+
+    case class FooException(msg: String) extends Exception
+
+    error {
+      // case scala.util.control.NonFatal(e) =>
+      case FooException(msg) =>
+    }
+
+    notFound {
+    }
+
+    methodNotAllowed {
+      case methods =>
     }
   }
   addServlet(new SimpleServlet, "/*")
