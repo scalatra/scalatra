@@ -1,6 +1,8 @@
 package org.scalatra
 package scalate
 
+import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+
 trait ScalateRenderSupport { self: ScalatraBase with ScalateSupport =>
 
   val templateBaseDirectory = "/WEB-INF/scalate/templates"
@@ -14,7 +16,7 @@ trait ScalateRenderSupport { self: ScalatraBase with ScalateSupport =>
   lazy val oneMonth = oneWeek * 4
   lazy val oneYear = oneWeek * 52
 
-  def render(file: String, params: Map[String, Any] = Map(), responseContentType: String = "text/html", cacheMaxAge: Int = none, statusCode: Int = 200) {
+  def render(file: String, params: Map[String, Any] = Map(), responseContentType: String = "text/html", cacheMaxAge: Int = none, statusCode: Int = 200)(implicit request: HttpServletRequest, response: HttpServletResponse) {
     contentType = responseContentType
     response.setHeader("Cache-Control", "public, max-age=%d" format cacheMaxAge)
     response.setStatus(statusCode)

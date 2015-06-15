@@ -117,8 +117,8 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    * If you return something other than a ScalatraRenderContext, you will
    * also want to redefine that binding.
    */
-  protected def createRenderContext(req: HttpServletRequest = request, resp: HttpServletResponse = response, out: PrintWriter = response.getWriter): RenderContext = {
-    new ScalatraRenderContext(this, templateEngine, out, req, resp)
+  protected def createRenderContext(out: PrintWriter)(implicit request: HttpServletRequest, response: HttpServletResponse): RenderContext = {
+    new ScalatraRenderContext(this, templateEngine, out, request, response)
   }
 
   /**
@@ -128,7 +128,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    */
   @deprecated("not idiomatic Scalate; consider layoutTemplate instead", "2.0.0")
   def renderTemplate(path: String, attributes: (String, Any)*)(implicit request: HttpServletRequest, response: HttpServletResponse) =
-    createRenderContext(request, response, response.writer).render(path, Map(attributes: _*))
+    createRenderContext(response.writer).render(path, Map(attributes: _*))
 
   /**
    * Flag whether the Scalate error page is enabled.  If true, uncaught
@@ -148,17 +148,17 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
   }
 
   override protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
-    if (isScalateErrorPageEnabled) renderScalateErrorPage(request, response, e)
+    if (isScalateErrorPageEnabled) renderScalateErrorPage(e)
     else super.renderUncaughtException(e)
   }
 
   // Hack: Have to pass it the request and response, because we're outside the
   // scope of the super handler.
-  private[this] def renderScalateErrorPage(req: HttpServletRequest, resp: HttpServletResponse, e: Throwable) = {
-    resp.setStatus(500)
-    resp.setContentType("text/html")
+  private[this] def renderScalateErrorPage(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+    response.setStatus(500)
+    response.setContentType("text/html")
     val errorPage = templateEngine.load("/WEB-INF/scalate/errors/500.scaml")
-    val context = createRenderContext(req, resp, resp.getWriter)
+    val context = createRenderContext(response.getWriter)
     context.setAttribute("javax.servlet.error.exception", Some(e))
     templateEngine.layout(errorPage, context)
   }
@@ -239,7 +239,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
     val uri = findTemplate(path, ext).getOrElse(path)
     val buffer = new StringWriter()
     val out = new PrintWriter(buffer)
-    val context = createRenderContext(request, response, out)
+    val context = createRenderContext(out)
     val attrs = templateAttributes ++ (defaultLayoutPath map (p => Map("layout" -> p) ++ Map(attributes: _*)) getOrElse Map(attributes: _*))
 
     attrs foreach {
