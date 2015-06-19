@@ -180,7 +180,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     route.copy(metadata = route.metadata + ('Atmosphere -> 'Atmosphere))
   }
 
-  def atmosphere(transformers: RouteTransformer*)(block: => AtmosphereClient) = {
+  def atmosphere(transformers: RouteTransformer*)(block: => AtmosphereClient): Unit = {
     val newTransformers = transformers :+ Atmosphere
     get(newTransformers: _*)(block)
     post(newTransformers: _*) { () }

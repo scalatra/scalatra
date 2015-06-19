@@ -64,48 +64,48 @@ class StableResultServlet extends ScalatraServlet with FutureSupport {
   //   res$macro$6.is
   // })
 
-  // make sure that ScalatraBase methods are invoked
-  class X {
-    val routes: Int = 100
-    val addRoute: Int = 100
-    val addStatusRoute: Int = 100
-    val doNotFound: Int = 100
-    val doMethodNotAllowed: Int = 100
-    val errorHandler: Int = 100
-    val asynchronously: Int = 100
-
-    before("/*") {
-      contentType = "text/html"
-    }
-
-    after("/*") {
-      contentType = "text/html"
-    }
-
-    get("/foo") {
-
-    }
-
-    asyncGet("/foo") {
-
-    }
-
-    error {
-      case e =>
-    }
-
-    methodNotAllowed {
-      case methods =>
-    }
-
-    trap(100) {
-
-    }
-
-    notFound {
-
-    }
-  }
+//  // make sure that ScalatraBase methods are invoked
+//  class X {
+//    val routes: Int = 100
+//    val addRoute: Int = 100
+//    val addStatusRoute: Int = 100
+//    val doNotFound: Int = 100
+//    val doMethodNotAllowed: Int = 100
+//    val errorHandler: Int = 100
+//    val asynchronously: Int = 100
+//
+//    before("/*") {
+//      contentType = "text/html"
+//    }
+//
+//    after("/*") {
+//      contentType = "text/html"
+//    }
+//
+//    get("/foo") {
+//
+//    }
+//
+//    asyncGet("/foo") {
+//
+//    }
+//
+//    error {
+//      case e =>
+//    }
+//
+//    methodNotAllowed {
+//      case methods =>
+//    }
+//
+//    trap(100) {
+//
+//    }
+//
+//    notFound {
+//
+//    }
+//  }
 
   case class Route(x: Int)
 

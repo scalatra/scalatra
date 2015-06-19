@@ -40,8 +40,7 @@ class StableResultVisibilityTest extends ScalatraFunSuite {
     case class FooException(msg: String) extends Exception
 
     error {
-      // case scala.util.control.NonFatal(e) =>
-      case FooException(msg) =>
+       case scala.util.control.NonFatal(e) =>
     }
 
     notFound {

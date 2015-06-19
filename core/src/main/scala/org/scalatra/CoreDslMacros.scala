@@ -19,20 +19,17 @@ object CoreDslMacros {
   def rescopeExpression[C <: Context](c: C)(expr: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
 
-    // duplicate and untype the tree
-    val untypedExpr = c.Expr[Any](untypecheck[c.type](c)(expr.tree.duplicate))
-
     val typeIsNothing = expr.actualType =:= implicitly[TypeTag[Nothing]].tpe
 
     if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
       // return an AsyncResult (for backward compatibility, AsyncResult is deprecated in 2.4)
 
-      untypedExpr
+      c.Expr[Any](q"""${splicer[c.type](c)(expr.tree)}""")
 
     } else if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
       // return a StableResult.is
 
-      c.Expr[Any](q"""$untypedExpr.is""")
+      c.Expr[Any](q"""${splicer[c.type](c)(expr.tree)}.is""")
 
     } else {
       // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
@@ -55,7 +52,7 @@ object CoreDslMacros {
         q"""
             class $clsName extends _root_.org.scalatra.StableResult {
               val is = {
-                $untypedExpr
+                ${splicer[c.type](c)(expr.tree)}
               }
             }
             val $resName = new $clsName()
@@ -69,6 +66,24 @@ object CoreDslMacros {
 
     }
 
+  }
+
+  // inspired by https://gist.github.com/retronym/10640845#file-macro2-scala
+  // check out the gist for a detailed explanation of the technique
+  private def splicer[C <: Context](c: C)(tree: c.Tree): c.Tree = {
+    import c.universe._, c.internal._, decorators._
+    tree.updateAttachment(OrigOwnerAttachment(enclosingOwner))
+    q"_root_.org.scalatra.CoreDslMacros.Splicer.changeOwner($tree)"
+  }
+
+  case class OrigOwnerAttachment(sym: Any)
+  object Splicer {
+    def impl(c: Context)(tree: c.Tree): c.Tree = {
+      import c.universe._, c.internal._, decorators._
+      val origOwner = tree.attachments.get[OrigOwnerAttachment].map(_.sym).get.asInstanceOf[Symbol]
+      c.internal.changeOwner(tree, origOwner, c.internal.enclosingOwner)
+    }
+    def changeOwner[A](tree: A): A = macro impl
   }
 
   def addRouteGen[C <: Context](c: C)(method: c.Expr[HttpMethod], transformers: Seq[c.Expr[RouteTransformer]], action: c.Expr[Any]): c.Expr[Route] = {
