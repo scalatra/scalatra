@@ -2,7 +2,6 @@ package org.scalatra
 
 import scala.language.experimental.macros
 
-import MacrosCompat.{ Context, freshName, typeName, termName, typecheck, untypecheck }
 import Compat210._
 
 /**
@@ -13,7 +12,7 @@ object CoreDslMacros {
   import scala.reflect.macros._
   // import blackbox.Context
 
-  class CoreDslMacros[C <: Context](val c: C) extends Internal210 {
+  class CoreDslMacros[C <: Context](val c: C) extends MacrosCompat {
 
     import c.universe._
 
@@ -43,8 +42,8 @@ object CoreDslMacros {
       } else {
         // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
 
-        val clsName = typeName[c.type](c)(freshName[c.type](c)("cls"))
-        val resName = termName[c.type](c)(freshName[c.type](c)("res"))
+        val clsName = typeName(freshName("cls"))
+        val resName = termName(freshName("res"))
 
         // add to new lexical scope
         val rescopedTree =
@@ -59,12 +58,12 @@ object CoreDslMacros {
          """
 
         // typecheck the three, creates symbols (class, valdefs)
-        val rescopedTreeTyped = typecheck[c.type](c)(rescopedTree)
+        val rescopedTreeTyped = typecheck(rescopedTree)
 
         // use stable request/response values from the new lexical scope
         val transformedTreeTyped = c.internal.typingTransform(rescopedTreeTyped)((tree, api) => tree match {
-          case q"$a.this.request" => api.typecheck(Select(This(clsName), termName[c.type](c)("request")))
-          case q"$a.this.response" => api.typecheck(Select(This(clsName), termName[c.type](c)("response")))
+          case q"$a.this.request" => api.typecheck(Select(This(clsName), termName("request")))
+          case q"$a.this.response" => api.typecheck(Select(This(clsName), termName("response")))
           case _ => api.default(tree)
         })
 
@@ -181,8 +180,8 @@ object CoreDslMacros {
     // TODO check
 
     def makeAsynchronously(block: c.Expr[Any]): c.Expr[Any] = {
-      val block1 = untypecheck[c.type](c)(block.tree.duplicate)
-      c.Expr[Any](typecheck[c.type](c)(q"""asynchronously($block1)()"""))
+      val block1 = untypecheck(block.tree.duplicate)
+      c.Expr[Any](typecheck(q"""asynchronously($block1)()"""))
     }
 
     def asyncGetImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
