@@ -18,6 +18,7 @@ object CoreDslMacros {
    */
   def rescopeExpression[C <: Context](c: C)(expr: c.Expr[Any]): c.Expr[Any] = {
     import c.universe._
+    import c.internal._
 
     val typeIsNothing = expr.actualType =:= implicitly[TypeTag[Nothing]].tpe
 
@@ -37,18 +38,8 @@ object CoreDslMacros {
       val clsName = typeName[c.type](c)(freshName(c)("cls"))
       val resName = termName[c.type](c)(freshName(c)("res"))
 
-      object RescopeRequestResponse extends Transformer {
-        override def transform(tree: Tree): Tree = {
-          tree match {
-            case q"$a.this.request" => Select(This(clsName), termName[c.type](c)("request"))
-            case q"$a.this.response" => Select(This(clsName), termName[c.type](c)("response"))
-            case _ => super.transform(tree)
-          }
-        }
-      }
-
       // add to new lexical scope
-      val rescopedExpr =
+      val rescopedTree =
         q"""
             class $clsName extends _root_.org.scalatra.StableResult {
               val is = {
@@ -59,10 +50,17 @@ object CoreDslMacros {
             $resName.is
          """
 
-      // use stable request/response values from the new lexical scope
-      val transformedExpr = RescopeRequestResponse.transform(rescopedExpr)
+      // typecheck the three, creates symbols (class, valdefs)
+      val rescopedTreeTyped = c.typecheck(rescopedTree)  // this is not the owner
 
-      c.Expr[Unit](transformedExpr)
+      // use stable request/response values from the new lexical scope
+      val transformedTreeTyped = c.internal.typingTransform(rescopedTreeTyped)((tree, api) => tree match {
+        case q"$a.this.request" => api.typecheck(Select(This(clsName), TermName("request")))
+        case q"$a.this.response" => api.typecheck(Select(This(clsName), TermName("response")))
+        case _ => api.default(tree)
+      })
+
+      c.Expr[Unit](transformedTreeTyped)
 
     }
 
@@ -97,7 +95,7 @@ object CoreDslMacros {
     import c.universe._
 
     val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""routes.appendBeforeFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => $rescopedAction))""")
+    c.Expr[Unit](q"""routes.appendBeforeFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer[c.type](c)(rescopedAction.tree)}))""")
 
   }
 
@@ -105,7 +103,7 @@ object CoreDslMacros {
     import c.universe._
 
     val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""routes.appendAfterFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => $rescopedAction))""")
+    c.Expr[Unit](q"""routes.appendAfterFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer[c.type](c)(rescopedAction.tree)}))""")
   }
 
   def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
@@ -153,9 +151,11 @@ object CoreDslMacros {
   def notFoundImpl(c: Context)(block: c.Expr[Any]): c.Expr[Unit] = {
     import c.universe._
 
+    val rescopedBlock = rescopeExpression[c.type](c)(block)
+
     val tree = q"""
       doNotFound = {
-        () => ${rescopeExpression[c.type](c)(block)}
+        () => ${splicer[c.type](c)(rescopedBlock.tree)}
       }
     """
 
@@ -165,9 +165,11 @@ object CoreDslMacros {
   def methodNotAllowedImpl(c: Context)(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
     import c.universe._
 
+    val rescopedBlock = rescopeExpression[c.type](c)(block)
+
     val tree =
       q"""
-          doMethodNotAllowed = (methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${rescopeExpression[c.type](c)(block)}(methods)
+          doMethodNotAllowed = (methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${splicer[c.type](c)(rescopedBlock.tree)}(methods)
         """
 
     c.Expr[Unit](tree)
@@ -176,13 +178,15 @@ object CoreDslMacros {
   def errorImpl(c: Context)(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
     import c.universe._
 
+    val rescopedHandler = rescopeExpression[c.type](c)(handler)
+
     val tree =
       q"""
           errorHandler = {
            new _root_.scala.PartialFunction[_root_.java.lang.Throwable, _root_.scala.Any]() {
 
              def handler = {
-               ${rescopeExpression[c.type](c)(handler)}
+               ${splicer[c.type](c)(rescopedHandler.tree)}
              }
 
              override def apply(v1: _root_.java.lang.Throwable): _root_.scala.Any = {
