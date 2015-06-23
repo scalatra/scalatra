@@ -3,190 +3,164 @@ package org.scalatra
 import scala.language.experimental.macros
 
 import MacrosCompat.{ Context, freshName, typeName, termName, typecheck, untypecheck }
+import Compat210._
 
 /**
  * Macro implementation which generates Scalatra core DSL APIs.
  */
 object CoreDslMacros {
 
-  /**
-   * Re-scopes the expression.
-   *
-   * - takes an Expr[Any], wraps it in a StableResult.
-   * - replaces all references to request/response to use the stable values from StableResult (instead of the ThreadLocal)
-   * - returns StableResult.is
-   */
-  def rescopeExpression[C <: Context](c: C)(expr: c.Expr[Any]): c.Expr[Any] = {
+  import scala.reflect.macros._
+  // import blackbox.Context
+
+  class CoreDslMacros[C <: Context](val c: C) extends Internal210 {
+
     import c.universe._
-    import c.internal._
 
-    val typeIsNothing = expr.actualType =:= implicitly[TypeTag[Nothing]].tpe
+    /**
+     * Re-scopes the expression.
+     *
+     * - takes an Expr[Any], wraps it in a StableResult.
+     * - replaces all references to request/response to use the stable values from StableResult (instead of the ThreadLocal)
+     * - returns StableResult.is
+     */
+    def rescopeExpression(expr: c.Expr[Any]): c.Expr[Any] = {
+      import c.universe._
+      import internal._
 
-    if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
-      // return an AsyncResult (for backward compatibility, AsyncResult is deprecated in 2.4)
+      val typeIsNothing = expr.actualType =:= implicitly[TypeTag[Nothing]].tpe
 
-      c.Expr[Any](q"""${splicer[c.type](c)(expr.tree)}""")
+      if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[AsyncResult]].tpe) {
+        // return an AsyncResult (for backward compatibility, AsyncResult is deprecated in 2.4)
 
-    } else if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
-      // return a StableResult.is
+        c.Expr[Any](q"""${splicer(expr.tree)}""")
 
-      c.Expr[Any](q"""${splicer[c.type](c)(expr.tree)}.is""")
+      } else if (!typeIsNothing && expr.actualType <:< implicitly[TypeTag[StableResult]].tpe) {
+        // return a StableResult.is
 
-    } else {
-      // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
+        c.Expr[Any](q"""${splicer(expr.tree)}.is""")
 
-      val clsName = typeName[c.type](c)(freshName(c)("cls"))
-      val resName = termName[c.type](c)(freshName(c)("res"))
+      } else {
+        // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
 
-      // add to new lexical scope
-      val rescopedTree =
-        q"""
+        val clsName = typeName[c.type](c)(freshName[c.type](c)("cls"))
+        val resName = termName[c.type](c)(freshName[c.type](c)("res"))
+
+        // add to new lexical scope
+        val rescopedTree =
+          q"""
             class $clsName extends _root_.org.scalatra.StableResult {
               val is = {
-                ${splicer[c.type](c)(expr.tree)}
+                ${splicer(expr.tree)}
               }
             }
             val $resName = new $clsName()
             $resName.is
          """
 
-      // typecheck the three, creates symbols (class, valdefs)
-      val rescopedTreeTyped = c.typecheck(rescopedTree)
+        // typecheck the three, creates symbols (class, valdefs)
+        val rescopedTreeTyped = typecheck[c.type](c)(rescopedTree)
 
-      // use stable request/response values from the new lexical scope
-      val transformedTreeTyped = c.internal.typingTransform(rescopedTreeTyped)((tree, api) => tree match {
-        case q"$a.this.request" => api.typecheck(Select(This(clsName), TermName("request")))
-        case q"$a.this.response" => api.typecheck(Select(This(clsName), TermName("response")))
-        case _ => api.default(tree)
-      })
+        // use stable request/response values from the new lexical scope
+        val transformedTreeTyped = c.internal.typingTransform(rescopedTreeTyped)((tree, api) => tree match {
+          case q"$a.this.request" => api.typecheck(Select(This(clsName), termName[c.type](c)("request")))
+          case q"$a.this.response" => api.typecheck(Select(This(clsName), termName[c.type](c)("response")))
+          case _ => api.default(tree)
+        })
 
-      c.Expr[Unit](transformedTreeTyped)
+        c.Expr[Unit](transformedTreeTyped)
+
+      }
 
     }
 
-  }
-
-  // inspired by https://gist.github.com/retronym/10640845#file-macro2-scala
-  // check out the gist for a detailed explanation of the technique
-  private def splicer[C <: Context](c: C)(tree: c.Tree): c.Tree = {
-    import c.universe._, c.internal._, decorators._
-    tree.updateAttachment(OrigOwnerAttachment(enclosingOwner))
-    q"_root_.org.scalatra.CoreDslMacros.Splicer.changeOwner($tree)"
-  }
-
-  case class OrigOwnerAttachment(sym: Any)
-  object Splicer {
-    def impl(c: Context)(tree: c.Tree): c.Tree = {
-      import c.universe._, c.internal._, decorators._
-      val origOwner = tree.attachments.get[OrigOwnerAttachment].map(_.sym).get.asInstanceOf[Symbol]
-      c.internal.changeOwner(tree, origOwner, c.internal.enclosingOwner)
+    def addRouteGen(method: c.Expr[HttpMethod], transformers: Seq[c.Expr[RouteTransformer]], action: c.Expr[Any]): c.Expr[Route] = {
+      val rescopedAction = rescopeExpression(action)
+      c.Expr[Route](q"""addRoute($method, _root_.scala.collection.immutable.Seq(..$transformers), $rescopedAction)""")
     }
-    def changeOwner[A](tree: A): A = macro impl
-  }
 
-  def addRouteGen[C <: Context](c: C)(method: c.Expr[HttpMethod], transformers: Seq[c.Expr[RouteTransformer]], action: c.Expr[Any]): c.Expr[Route] = {
-    import c.universe._
+    def beforeImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+      val rescopedAction = rescopeExpression(block)
+      c.Expr[Unit](q"""routes.appendBeforeFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer(rescopedAction.tree)}))""")
 
-    val rescopedAction = rescopeExpression[c.type](c)(action)
-    c.Expr[Route](q"""addRoute($method, _root_.scala.collection.immutable.Seq(..$transformers), $rescopedAction)""")
-  }
+    }
 
-  def beforeImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
-    import c.universe._
+    def afterImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+      val rescopedAction = rescopeExpression(block)
+      c.Expr[Unit](q"""routes.appendAfterFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer(rescopedAction.tree)}))""")
+    }
 
-    val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""routes.appendBeforeFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer[c.type](c)(rescopedAction.tree)}))""")
+    def getImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(c.universe.reify(Get), transformers, action)
+    }
 
-  }
+    def postImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(c.universe.reify(Post), transformers, action)
+    }
 
-  def afterImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
-    import c.universe._
+    def putImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(c.universe.reify(Put), transformers, action)
+    }
 
-    val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""routes.appendAfterFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer[c.type](c)(rescopedAction.tree)}))""")
-  }
+    def deleteImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(c.universe.reify(Delete), transformers, action)
+    }
 
-  def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
-    addRouteGen[c.type](c)(c.universe.reify(Get), transformers, action)
-  }
+    def optionsImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(c.universe.reify(Options), transformers, action)
+    }
 
-  def postImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
-    addRouteGen[c.type](c)(c.universe.reify(Post), transformers, action)
-  }
+    def headImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(c.universe.reify(Head), transformers, action)
+    }
 
-  def putImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
-    addRouteGen[c.type](c)(c.universe.reify(Put), transformers, action)
-  }
+    def patchImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(c.universe.reify(Patch), transformers, action)
+    }
 
-  def deleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
-    addRouteGen[c.type](c)(c.universe.reify(Delete), transformers, action)
-  }
+    def trapImpl(codes: c.Expr[Range])(block: c.Expr[Any]): c.Expr[Unit] = {
+      val rescopedAction = rescopeExpression(block)
+      c.Expr[Unit](q"""addStatusRoute($codes, $rescopedAction)""")
+    }
 
-  def optionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
-    addRouteGen[c.type](c)(c.universe.reify(Options), transformers, action)
-  }
+    def trapCodeImpl(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
+      val rescopedAction = rescopeExpression(block)
+      c.Expr[Unit](q"""addStatusRoute(scala.collection.immutable.Range($code, $code+1), $rescopedAction)""")
+    }
 
-  def headImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
-    addRouteGen[c.type](c)(c.universe.reify(Head), transformers, action)
-  }
+    def notFoundImpl(block: c.Expr[Any]): c.Expr[Unit] = {
+      val rescopedBlock = rescopeExpression(block)
 
-  def patchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
-    addRouteGen[c.type](c)(c.universe.reify(Patch), transformers, action)
-  }
-
-  def trapImpl(c: Context)(codes: c.Expr[Range])(block: c.Expr[Any]): c.Expr[Unit] = {
-    import c.universe._
-
-    val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""addStatusRoute($codes, $rescopedAction)""")
-  }
-
-  def trapCodeImpl(c: Context)(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
-    import c.universe._
-
-    val rescopedAction = rescopeExpression[c.type](c)(block)
-    c.Expr[Unit](q"""addStatusRoute(scala.collection.immutable.Range($code, $code+1), $rescopedAction)""")
-  }
-
-  def notFoundImpl(c: Context)(block: c.Expr[Any]): c.Expr[Unit] = {
-    import c.universe._
-
-    val rescopedBlock = rescopeExpression[c.type](c)(block)
-
-    val tree = q"""
+      val tree = q"""
       doNotFound = {
-        () => ${splicer[c.type](c)(rescopedBlock.tree)}
+        () => ${splicer(rescopedBlock.tree)}
       }
     """
 
-    c.Expr[Unit](tree)
-  }
+      c.Expr[Unit](tree)
+    }
 
-  def methodNotAllowedImpl(c: Context)(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
-    import c.universe._
+    def methodNotAllowedImpl(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
+      val rescopedBlock = rescopeExpression(block)
 
-    val rescopedBlock = rescopeExpression[c.type](c)(block)
-
-    val tree =
-      q"""
-          doMethodNotAllowed = (methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${splicer[c.type](c)(rescopedBlock.tree)}(methods)
+      val tree =
+        q"""
+          doMethodNotAllowed = (methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${splicer(rescopedBlock.tree)}(methods)
         """
 
-    c.Expr[Unit](tree)
-  }
+      c.Expr[Unit](tree)
+    }
 
-  def errorImpl(c: Context)(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
-    import c.universe._
+    def errorImpl(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
+      val rescopedHandler = rescopeExpression(handler)
 
-    val rescopedHandler = rescopeExpression[c.type](c)(handler)
-
-    val tree =
-      q"""
+      val tree =
+        q"""
           errorHandler = {
            new _root_.scala.PartialFunction[_root_.java.lang.Throwable, _root_.scala.Any]() {
 
              def handler = {
-               ${splicer[c.type](c)(rescopedHandler.tree)}
+               ${splicer(rescopedHandler.tree)}
              }
 
              override def apply(v1: _root_.java.lang.Throwable): _root_.scala.Any = {
@@ -201,43 +175,155 @@ object CoreDslMacros {
          } orElse errorHandler
         """
 
-    c.Expr[Unit](tree)
+      c.Expr[Unit](tree)
+    }
+
+    // TODO check
+
+    def makeAsynchronously(block: c.Expr[Any]): c.Expr[Any] = {
+      val block1 = untypecheck[c.type](c)(block.tree.duplicate)
+      c.Expr[Any](typecheck[c.type](c)(q"""asynchronously($block1)()"""))
+    }
+
+    def asyncGetImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(reify(Get), transformers, makeAsynchronously(block))
+    }
+
+    def asyncPostImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(reify(Post), transformers, makeAsynchronously(block))
+    }
+
+    def asyncPutImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(reify(Put), transformers, makeAsynchronously(block))
+    }
+
+    def asyncDeleteImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(reify(Delete), transformers, makeAsynchronously(block))
+    }
+
+    def asyncOptionsImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(reify(Options), transformers, makeAsynchronously(block))
+    }
+
+    def asyncPatchImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
+      addRouteGen(reify(Patch), transformers, makeAsynchronously(block))
+    }
+
+    // inspired by https://gist.github.com/retronym/10640845#file-macro2-scala
+    // check out the gist for a detailed explanation of the technique
+    private def splicer(tree: c.Tree): c.Tree = {
+      import internal._, decorators._
+      tree.updateAttachment(macroutil.OrigOwnerAttachment(c.internal.enclosingOwner))
+      q"_root_.org.scalatra.macroutil.Splicer.changeOwner($tree)"
+    }
+
   }
 
-  def makeAsynchronously[C <: Context](c: C)(block: c.Expr[Any]): c.Expr[Any] = {
-    import c.universe._
-    val block1 = untypecheck[c.type](c)(block.tree.duplicate)
-    c.Expr[Any](typecheck[c.type](c)(q"""asynchronously($block1)()"""))
+  def beforeImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+    new CoreDslMacros[c.type](c).beforeImpl(transformers: _*)(block)
+  }
+
+  def afterImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
+    new CoreDslMacros[c.type](c).afterImpl(transformers: _*)(block)
+  }
+
+  def getImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+    new CoreDslMacros[c.type](c).getImpl(transformers: _*)(action)
+  }
+
+  def postImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+    new CoreDslMacros[c.type](c).postImpl(transformers: _*)(action)
+  }
+
+  def putImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+    new CoreDslMacros[c.type](c).putImpl(transformers: _*)(action)
+  }
+
+  def deleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+    new CoreDslMacros[c.type](c).deleteImpl(transformers: _*)(action)
+  }
+
+  def optionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+    new CoreDslMacros[c.type](c).optionsImpl(transformers: _*)(action)
+  }
+
+  def headImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+    new CoreDslMacros[c.type](c).headImpl(transformers: _*)(action)
+  }
+
+  def patchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
+    new CoreDslMacros[c.type](c).patchImpl(transformers: _*)(action)
+  }
+
+  def trapImpl(c: Context)(codes: c.Expr[Range])(block: c.Expr[Any]): c.Expr[Unit] = {
+    new CoreDslMacros[c.type](c).trapImpl(codes)(block)
+  }
+
+  def trapCodeImpl(c: Context)(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
+    new CoreDslMacros[c.type](c).trapCodeImpl(code)(block)
+  }
+
+  def notFoundImpl(c: Context)(block: c.Expr[Any]): c.Expr[Unit] = {
+    new CoreDslMacros[c.type](c).notFoundImpl(block)
+  }
+
+  def methodNotAllowedImpl(c: Context)(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
+    new CoreDslMacros[c.type](c).methodNotAllowedImpl(block)
+  }
+
+  def errorImpl(c: Context)(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
+    new CoreDslMacros[c.type](c).errorImpl(handler)
   }
 
   def asyncGetImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    import c.universe._
-    addRouteGen[c.type](c)(reify(Get), transformers, makeAsynchronously[c.type](c)(block))
+    new CoreDslMacros[c.type](c).asyncGetImpl(transformers: _*)(block)
   }
 
   def asyncPostImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    import c.universe._
-    addRouteGen[c.type](c)(reify(Post), transformers, makeAsynchronously[c.type](c)(block))
+    new CoreDslMacros[c.type](c).asyncPostImpl(transformers: _*)(block)
   }
 
   def asyncPutImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    import c.universe._
-    addRouteGen[c.type](c)(reify(Put), transformers, makeAsynchronously[c.type](c)(block))
+    new CoreDslMacros[c.type](c).asyncPutImpl(transformers: _*)(block)
   }
 
   def asyncDeleteImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    import c.universe._
-    addRouteGen[c.type](c)(reify(Delete), transformers, makeAsynchronously[c.type](c)(block))
+    new CoreDslMacros[c.type](c).asyncDeleteImpl(transformers: _*)(block)
   }
 
   def asyncOptionsImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    import c.universe._
-    addRouteGen[c.type](c)(reify(Options), transformers, makeAsynchronously[c.type](c)(block))
+    new CoreDslMacros[c.type](c).asyncOptionsImpl(transformers: _*)(block)
   }
 
   def asyncPatchImpl(c: Context)(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
-    import c.universe._
-    addRouteGen[c.type](c)(reify(Patch), transformers, makeAsynchronously[c.type](c)(block))
+    new CoreDslMacros[c.type](c).asyncPatchImpl(transformers: _*)(block)
+  }
+
+}
+
+package macroutil {
+
+  case class OrigOwnerAttachment(sym: Any)
+
+  object Splicer {
+
+    import scala.reflect.macros._
+    import blackbox.Context
+
+    def impl[A](c: Context)(expr: c.Expr[A]): c.Expr[A] = {
+      val helper = new Splicer[c.type](c)
+      c.Expr[A](helper.changeOwner(expr.tree))
+    }
+
+    class Splicer[C <: Context](val c: C) extends Internal210 {
+      def changeOwner(tree: c.Tree): c.Tree = {
+        import c.universe._, internal._, decorators._
+        val origOwner = tree.attachments.get[OrigOwnerAttachment].map(_.sym).get.asInstanceOf[Symbol]
+        c.internal.changeOwner(tree, origOwner, c.internal.enclosingOwner)
+      }
+    }
+
+    def changeOwner[A](expr: A): A = macro impl[A]
   }
 
 }

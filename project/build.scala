@@ -70,7 +70,9 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => {
-        val default = Seq(servletApi % "provided;test",
+        val default = Seq(
+          servletApi % "provided;test",
+          scalaCompiler(sv) % "provided",
           reflect(sv),
           slf4jApi,
           grizzledSlf4j,
@@ -306,6 +308,7 @@ object ScalatraBuild extends Build {
     lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.0.4"
     lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.4"
     def reflect(sv: String)           =  "org.scala-lang"          %  "scala-reflect"              % sv
+    def scalaCompiler(sv: String)     =  "org.scala-lang"          %  "scala-compiler"             % sv
     lazy val quasiquotes              =  "org.scalamacros"         %% "quasiquotes"                % paradiseVersion
     lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
     lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
