@@ -51,7 +51,7 @@ object CoreDslMacros {
          """
 
       // typecheck the three, creates symbols (class, valdefs)
-      val rescopedTreeTyped = c.typecheck(rescopedTree)  // this is not the owner
+      val rescopedTreeTyped = c.typecheck(rescopedTree)
 
       // use stable request/response values from the new lexical scope
       val transformedTreeTyped = c.internal.typingTransform(rescopedTreeTyped)((tree, api) => tree match {
