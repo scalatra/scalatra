@@ -1,7 +1,5 @@
 package org.scalatra
 
-import javax.servlet.http.HttpServletRequest
-
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.concurrent.Future
@@ -9,6 +7,10 @@ import scala.concurrent.Future
 class StableResultServlet extends ScalatraServlet with FutureSupport {
 
   override implicit val executor = scala.concurrent.ExecutionContext.global
+
+  before("/*") {
+    contentType = "text/html"
+  }
 
   get("/ok") {
     Ok(123)
@@ -35,6 +37,77 @@ class StableResultServlet extends ScalatraServlet with FutureSupport {
   //    val res$macro$4 = new cls$macro$3();
   //    res$macro$4.is
   //  }
+
+  notFound {
+    halt(404, <h1>Not found.</h1>)
+  }
+
+  // rewritten to:
+  //
+  // doNotFound = (() => {
+  //   class cls$macro$5 extends org.scalatra.StableResult {
+  //     def <init>() = {
+  //       super.<init>();
+  //       ()
+  //     };
+  //     val is = StableResultServlet.this.halt[scala.xml.Elem](scala.this.Predef.int2Integer(404), {
+  //       {
+  //         new scala.xml.Elem(null, "h1", scala.xml.Null, scala.this.xml.TopScope, false, ({
+  //           val $buf = new scala.xml.NodeBuffer();
+  //           $buf.&+(new scala.xml.Text("Not found."));
+  //           $buf
+  //         }: _*))
+  //       }
+  //     }, StableResultServlet.this.halt$default$3[Nothing], StableResultServlet.this.halt$default$4[Nothing])(reflect.this.ManifestFactory.classType[scala.xml.Elem](classOf[scala.xml.Elem]))
+  //   };
+  //   val res$macro$6 = new cls$macro$5();
+  //   res$macro$6.is
+  // })
+
+  //  // make sure that ScalatraBase methods are invoked
+  //  class X {
+  //    val routes: Int = 100
+  //    val addRoute: Int = 100
+  //    val addStatusRoute: Int = 100
+  //    val doNotFound: Int = 100
+  //    val doMethodNotAllowed: Int = 100
+  //    val errorHandler: Int = 100
+  //    val asynchronously: Int = 100
+  //
+  //    before("/*") {
+  //      contentType = "text/html"
+  //    }
+  //
+  //    after("/*") {
+  //      contentType = "text/html"
+  //    }
+  //
+  //    get("/foo") {
+  //
+  //    }
+  //
+  //    asyncGet("/foo") {
+  //
+  //    }
+  //
+  //    error {
+  //      case e =>
+  //    }
+  //
+  //    methodNotAllowed {
+  //      case methods =>
+  //    }
+  //
+  //    trap(100) {
+  //
+  //    }
+  //
+  //    notFound {
+  //
+  //    }
+  //  }
+
+  case class Route(x: Int)
 
   // here are some more issues which will be addressed in the future:
   //
