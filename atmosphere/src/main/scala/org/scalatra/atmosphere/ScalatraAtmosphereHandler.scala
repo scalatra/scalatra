@@ -58,7 +58,7 @@ object ScalatraAtmosphereHandler {
 }
 
 class ScalatraAtmosphereException(message: String) extends ScalatraException(message)
-class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
+class ScalatraAtmosphereHandler(scalatraApp: ScalatraBaseBase)(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import org.scalatra.atmosphere.ScalatraAtmosphereHandler._
 
   private[this] val internalLogger = Logger(getClass)

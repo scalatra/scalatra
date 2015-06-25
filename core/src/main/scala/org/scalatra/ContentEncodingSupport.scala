@@ -5,7 +5,7 @@ import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 /**
  * Scalatra handler for gzipped responses.
  */
-trait ContentEncodingSupport extends Handler { self: ScalatraBase =>
+trait ContentEncodingSupport extends Handler { self: ScalatraBaseBase =>
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     withRequestResponse(req, res) {

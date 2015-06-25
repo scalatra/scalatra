@@ -84,7 +84,7 @@ object ScentrySpec extends Specification with Mockito {
       override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedCalled = true }
     }
     "allow registration of global strategies" in {
-      Scentry.register("Bogus", (_: ScalatraBase) => s)
+      Scentry.register("Bogus", (_: ScalatraBaseBase) => s)
       Scentry.globalStrategies("Bogus").asInstanceOf[Scentry[User]#StrategyFactory](context) must be_==(s)
     }
 

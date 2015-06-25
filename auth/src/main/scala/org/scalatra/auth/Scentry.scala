@@ -12,7 +12,7 @@ import scala.collection.mutable
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = ScalatraBase ⇒ ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ScalatraBaseBase ⇒ ScentryStrategy[UserType]
 
   private val _globalStrategies = new mutable.HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
@@ -33,14 +33,14 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-    app: ScalatraBase,
+    app: ScalatraBaseBase,
     serialize: PartialFunction[UserType, String],
     deserialize: PartialFunction[String, UserType],
     private[this] var _store: ScentryAuthStore) {
 
   private[this] lazy val logger = Logger(getClass)
   type StrategyType = ScentryStrategy[UserType]
-  type StrategyFactory = ScalatraBase ⇒ StrategyType
+  type StrategyFactory = ScalatraBaseBase ⇒ StrategyType
 
   import org.scalatra.auth.Scentry._
 
@@ -64,7 +64,7 @@ class Scentry[UserType <: AnyRef](
   }
 
   def register(strategy: => ScentryStrategy[UserType]) {
-    register(strategy.name, ((_: ScalatraBase) => strategy))
+    register(strategy.name, ((_: ScalatraBaseBase) => strategy))
   }
 
   def register(name: String, strategyFactory: StrategyFactory) {

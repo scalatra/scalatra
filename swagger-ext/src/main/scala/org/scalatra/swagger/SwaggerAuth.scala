@@ -149,26 +149,26 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
   protected implicit def jsonFormats: Formats = SwaggerAuthSerializers.authFormats(userOption)(userManifest)
 
   protected def docToJson(doc: ApiType): JValue = Extraction.decompose(doc)
-  before() {
+  before0() {
     scentry.authenticate()
   }
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
 
-    get("/:doc(.:format)") {
+    addRoute(Get, Seq("/:doc(.:format)"), {
       def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
       swagger.doc(params("doc")) match {
         case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
         case _ ⇒ NotFound()
       }
-    }
+    })
 
-    get("/" + indexRoute + "(.:format)") {
+    addRoute(Get, Seq("/" + indexRoute + "(.:format)"), {
       val docs = swagger.docs.filter(_.apis.exists(_.operations.exists(_.allows(userOption)))).toList
       if (docs.isEmpty) halt(NotFound())
       renderIndex(docs.asInstanceOf[List[ApiType]])
-    }
+    })
   }
 
   protected override def renderIndex(docs: List[ApiType]): JValue = {
@@ -253,7 +253,7 @@ case class AuthOperation[TypeForUser <: AnyRef](method: HttpMethod,
   authorizations: List[String] = Nil,
   allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
-trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
+trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBaseBase with ScentrySupport[TypeForUser] =>
   import org.scalatra.swagger.AuthApi.AuthOperationBuilder
 
   @deprecated("Use the `apiOperation.allows` and `operation` methods to build swagger descriptions of endpoints", "2.2")

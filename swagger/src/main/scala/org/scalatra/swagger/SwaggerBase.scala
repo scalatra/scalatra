@@ -8,7 +8,7 @@ import org.scalatra.json.JsonSupport
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
+trait SwaggerBaseBase extends Initializable with ScalatraBaseBase { self: JsonSupport[_] with CorsSupport =>
 
   protected type ApiType <: SwaggerApi[_]
 
@@ -33,20 +33,21 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   abstract override def initialize(config: ConfigT) {
     super.initialize(config)
-    get("""/([^.]+)*(?:\.(\w+))?""".r) {
+
+    addRoute(Get, Seq("""/([^.]+)*(?:\.(\w+))?""".r), {
       val doc :: fmt :: Nil = multiParams("captures").toList
       if (fmt != null) format = fmt
       swagger.doc(doc) match {
         case Some(d) ⇒ renderDoc(d.asInstanceOf[ApiType])
         case _ ⇒ halt(404)
       }
-    }
+    })
 
-    get("/(" + indexRoute + "(.:format))") {
+    addRoute(Get, Seq("/(" + indexRoute + "(.:format))"), {
       renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
-    }
+    })
 
-    options("/(" + indexRoute + "(.:format))") {}
+    addRoute(Options, Seq("/(" + indexRoute + "(.:format))"), {})
   }
 
   /**
@@ -88,7 +89,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
         ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)))
   }
 
-  error {
+  error0 {
     case t: Throwable =>
       t.printStackTrace()
       throw t
@@ -96,7 +97,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
 }
 
-trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
+trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBaseBase with JsonSupport[_] with CorsSupport =>
   type ApiType = Api
   implicit protected def jsonFormats: Formats = SwaggerSerializers.defaultFormats
   protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)

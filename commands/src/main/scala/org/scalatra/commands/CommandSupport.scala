@@ -12,7 +12,7 @@ import scala.collection.concurrent.{ Map => ConcurrentMap }
 /**
  * Support for [[org.scalatra.commands.Command]] binding and validation.
  */
-trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors { this: ScalatraBase =>
+trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors { this: ScalatraBaseBase =>
 
   type CommandType <: Command
 
@@ -66,6 +66,6 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
 
 }
 
-trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraBase =>
+trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraBaseBase =>
   type CommandType = ParamsOnlyCommand
 }

@@ -26,7 +26,7 @@ object SwaggerAuthSpec {
   )
   class SpecSwagger extends SwaggerWithAuth("1.2", "1.0.0", apiInfo)
 
-  class HeaderOrQueryToken(protected val app: ScalatraBase) extends ScentryStrategy[User] {
+  class HeaderOrQueryToken(protected val app: ScalatraBaseBase) extends ScentryStrategy[User] {
     override def name = "header_or_query_token"
     private def token(implicit request: HttpServletRequest) = (app.request.header("API-TOKEN") orElse app.params.get("api_token")).flatMap(_.blankOption)
     override def isValid(implicit request: HttpServletRequest) = token.isDefined

@@ -22,7 +22,7 @@ object ScalatraSlf4jRequestLogging {
 
 }
 
-trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
+trait ScalatraSlf4jRequestLogging extends ScalatraBaseBase with Handler {
 
   private[this] val logger = Logger("REQUEST")
   import org.scalatra.slf4j.ScalatraSlf4jRequestLogging._

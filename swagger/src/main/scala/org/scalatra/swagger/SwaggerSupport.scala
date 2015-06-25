@@ -296,7 +296,7 @@ object SwaggerSupportSyntax {
       authorizations)
   }
 }
-trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
+trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBaseBase with SwaggerSupportBase =>
   protected implicit def swagger: SwaggerEngine[_]
 
   @deprecated("This field is no longer used, due to changes in Swagger spec 1.2", "2.3.1")
@@ -485,7 +485,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 /**
  * Provides the necessary support for adding documentation to your routes.
  */
-trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax {
+trait SwaggerSupport extends ScalatraBaseBase with SwaggerSupportBase with SwaggerSupportSyntax {
 
   import org.scalatra.swagger.SwaggerSupportSyntax._
 

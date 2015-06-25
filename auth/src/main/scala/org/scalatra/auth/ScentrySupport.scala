@@ -13,7 +13,7 @@ trait ScentryConfig {
 }
 
 trait ScentrySupport[UserType <: AnyRef] extends Initializable {
-  self: ScalatraBase ⇒
+  self: ScalatraBaseBase ⇒
 
   type ScentryConfiguration <: ScentryConfig
 

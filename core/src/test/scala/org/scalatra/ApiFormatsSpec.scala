@@ -3,7 +3,7 @@ package org.scalatra
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
-  override protected implicit def string2RouteMatcher(path: String): RouteMatcher = RailsPathPatternParser(path)
+  override implicit def string2RouteMatcher(path: String): RouteMatcher = RailsPathPatternParser(path)
 
   get("/hello(.:format)") {
     format
