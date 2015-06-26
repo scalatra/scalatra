@@ -10,7 +10,6 @@ import Compat210._
 object CoreDslMacros {
 
   import scala.reflect.macros._
-  // import blackbox.Context
 
   class CoreDslMacros[C <: Context](val c: C) extends MacrosCompat {
 
@@ -22,6 +21,8 @@ object CoreDslMacros {
      * - takes an Expr[Any], wraps it in a StableResult.
      * - replaces all references to request/response to use the stable values from StableResult (instead of the ThreadLocal)
      * - returns StableResult.is
+     *
+     * For details see: https://github.com/scalamacros/macrology201/commits/part1
      */
     def rescopeExpression(expr: c.Expr[Any]): c.Expr[Any] = {
       import c.universe._
