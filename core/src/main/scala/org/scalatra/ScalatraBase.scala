@@ -278,6 +278,10 @@ trait ScalatraBaseFallback extends ScalatraBaseBase {
     addStatusRoute(codes, block)
   }
 
+  def trap(code: Int)(block: => Any): Unit = {
+    addStatusRoute(Range(code, code+1), block)
+  }
+
   def options(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Options, transformers, action)
 
   def head(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Head, transformers, action)
