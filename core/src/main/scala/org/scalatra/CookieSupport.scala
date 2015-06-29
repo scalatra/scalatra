@@ -150,5 +150,5 @@ trait CookieContext { self: ScalatraContext =>
 
 }
 @deprecated("You can remove this mixin, it's included in core by default", "2.2")
-trait CookieSupport { self: ScalatraBase =>
+trait CookieSupport { self: ScalatraBaseBase =>
 }

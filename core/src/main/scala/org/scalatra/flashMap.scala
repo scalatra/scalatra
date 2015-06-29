@@ -137,7 +137,7 @@ object FlashMapSupport {
  * @see FlashMap
  */
 trait FlashMapSupport extends Handler {
-  this: ScalatraBase =>
+  this: ScalatraBaseBase =>
 
   import org.scalatra.FlashMapSupport._
 

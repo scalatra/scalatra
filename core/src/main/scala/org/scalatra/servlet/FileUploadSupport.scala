@@ -4,7 +4,7 @@ import java.io.{ InputStream, File, FileOutputStream }
 import java.util.{ Map => JMap, HashMap => JHashMap }
 import javax.servlet.http._
 
-import org.scalatra.ScalatraBase
+import org.scalatra.{ ScalatraBase, ScalatraBaseBase }
 import org.scalatra.util.RicherString._
 import org.scalatra.util.{ io, _ }
 

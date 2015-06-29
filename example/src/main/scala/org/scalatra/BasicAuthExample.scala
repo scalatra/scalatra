@@ -10,7 +10,7 @@ object BasicAuthExample {
 
   case class MyUser(id: String)
 
-  class OurBasicAuthStrategy(protected override val app: ScalatraBase, realm: String)
+  class OurBasicAuthStrategy(protected override val app: ScalatraBaseBase, realm: String)
       extends BasicAuthStrategy[MyUser](app, realm) {
 
     protected def validate(userName: String, password: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[MyUser] = {
@@ -22,7 +22,7 @@ object BasicAuthExample {
   }
 
   trait AuthenticationSupport extends ScentrySupport[MyUser] with BasicAuthSupport[MyUser] {
-    self: ScalatraBase =>
+    self: ScalatraBaseBase =>
 
     val realm = "Scalatra Basic Auth Example"
 

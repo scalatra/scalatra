@@ -39,6 +39,11 @@ object ScalatraServlet {
 
 }
 
+trait ScalatraServlet extends ScalatraServletBase with ScalatraBase
+
+// fallback servlet which does not use macros
+trait ScalatraServletFallback extends ScalatraServletBase with ScalatraBaseFallback
+
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended
  * base trait for most Scalatra applications.  Use a servlet if:
@@ -51,7 +56,7 @@ object ScalatraServlet {
  *
  * @see ScalatraFilter
  */
-trait ScalatraServlet
+trait ScalatraServletBase
     extends HttpServlet
     with ServletBase
     with Initializable {

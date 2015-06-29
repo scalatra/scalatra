@@ -13,7 +13,7 @@ import scala.collection.immutable.DefaultMap
  * a base trait of a Servlet or a Filter.
  */
 trait ServletBase
-    extends ScalatraBase
+    extends ScalatraBaseBase
     with SessionSupport
     with Initializable {
 

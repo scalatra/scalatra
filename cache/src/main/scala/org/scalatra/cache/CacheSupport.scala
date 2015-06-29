@@ -2,11 +2,11 @@ package org.scalatra.cache
 
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import org.scalatra.ScalatraBase
+import org.scalatra.{ ScalatraBaseBase, ScalatraBase }
 
 import scala.concurrent.duration.Duration
 
-trait CacheSupport { self: ScalatraBase =>
+trait CacheSupport { self: ScalatraBaseBase =>
   implicit val cacheBackend: Cache
   implicit val keyStrategy: KeyStrategy = DefaultKeyStrategy
   implicit val headerStrategy: HeaderStrategy = DefaultHeaderStrategy

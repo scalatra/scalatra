@@ -15,7 +15,7 @@ trait ScalateI18nSupport extends ScalateSupport with I18nSupport {
    * If it were placed in createRenderContext, it wouldn't work for "view" templates
    * on first access. However, on subsequent accesses, it worked fine. 
    */
-  before() {
+  before0() {
     templateEngine.bindings ::= Binding("messages", classOf[Messages].getName, true, isImplicit = true)
   }
 

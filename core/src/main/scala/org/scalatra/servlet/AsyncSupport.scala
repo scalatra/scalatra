@@ -40,7 +40,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
    * The block of these methods is executed in a lightweight event-driven thread
    * from Akka's dispatchers
    *
-   * See [[org.scalatra.ScalatraBase#renderResponseBody]] for the detailed
+   * See [[org.scalatra.ScalatraBaseBase#renderResponseBody]] for the detailed
    * behaviour and how to handle your response body more explicitly, and see
    * how different return types are handled.
    *

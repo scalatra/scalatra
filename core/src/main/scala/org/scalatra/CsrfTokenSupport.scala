@@ -40,7 +40,7 @@ object CsrfTokenSupport {
  * `handleForgery()` hook is invoked.  Otherwise, a token for the next
  * request is prepared with `prepareCsrfToken`.
  */
-trait CsrfTokenSupport { this: ScalatraBase =>
+trait CsrfTokenSupport { this: ScalatraBaseBase =>
 
   before0(isForged) { handleForgery() }
   before0() { prepareCsrfToken() }
@@ -91,7 +91,7 @@ trait CsrfTokenSupport { this: ScalatraBase =>
 
 }
 
-trait XsrfTokenSupport { this: ScalatraBase =>
+trait XsrfTokenSupport { this: ScalatraBaseBase =>
 
   import org.scalatra.XsrfTokenSupport._
   /**

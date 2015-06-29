@@ -33,7 +33,7 @@ import org.scalatra.util.RicherString._
 import scala.collection.JavaConverters._
 import scala.util.control.Exception.allCatch
 
-trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBaseBase with org.scalatra.SessionSupport with JsonSupport[_] =>
 
   private[this] val logger = Logger[this.type]
 
@@ -182,8 +182,8 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   def atmosphere(transformers: RouteTransformer*)(block: => AtmosphereClient): Unit = {
     val newTransformers = transformers :+ Atmosphere
-    get(newTransformers: _*)(block)
-    post(newTransformers: _*) { () }
+    addRoute(Get, newTransformers, block)
+    addRoute(Post, newTransformers, { () })
   }
 
   /**

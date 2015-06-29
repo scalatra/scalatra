@@ -14,7 +14,7 @@ object I18nSupport {
 
 }
 
-trait I18nSupport { this: ScalatraBase =>
+trait I18nSupport { this: ScalatraBaseBase =>
 
   import org.scalatra.i18n.I18nSupport._
 

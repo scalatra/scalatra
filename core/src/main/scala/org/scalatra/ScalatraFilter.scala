@@ -7,6 +7,11 @@ import org.scalatra.servlet.ServletBase
 
 import scala.util.DynamicVariable
 
+trait ScalatraFilter extends ScalatraFilterBase with ScalatraBase
+
+// fallback filter which does not use macros
+trait ScalatraFilterFallback extends ScalatraFilterBase with ScalatraBaseFallback
+
 /**
  * An implementation of the Scalatra DSL in a filter.  You may prefer a filter
  * to a ScalatraServlet if:
@@ -23,7 +28,7 @@ import scala.util.DynamicVariable
  *
  * @see ScalatraServlet
  */
-trait ScalatraFilter extends Filter with ServletBase {
+trait ScalatraFilterBase extends Filter with ServletBase {
 
   private[this] val _filterChain: DynamicVariable[FilterChain] = new DynamicVariable[FilterChain](null)
 

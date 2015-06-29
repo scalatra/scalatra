@@ -81,7 +81,7 @@ object SwaggerCommandSupport {
     }
   }
 }
-trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
+trait SwaggerCommandSupport { this: ScalatraBaseBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
 
   @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def parameters[T <: CommandType: Manifest] =

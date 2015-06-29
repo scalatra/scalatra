@@ -25,7 +25,7 @@ object ApiFormats {
  * $ - Maps formats to content types and vice versa
  * $ - Augments the content-type inferrer to use the format
  */
-trait ApiFormats extends ScalatraBase {
+trait ApiFormats extends ScalatraBaseBase {
 
   import org.scalatra.ApiFormats.FormatKey
 
