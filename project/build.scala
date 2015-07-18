@@ -16,6 +16,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings =
     mimaDefaultSettings ++ Seq(
     organization := "org.scalatra",
+    // TODO: paradise for Scala 2.11.7
     crossScalaVersions := Seq("2.11.6", "2.10.5"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
@@ -70,7 +71,9 @@ object ScalatraBuild extends Build {
     base = file("core"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies <++= scalaVersion(sv => {
-        val default = Seq(servletApi % "provided;test",
+        val default = Seq(
+          servletApi % "provided;test",
+          scalaCompiler(sv) % "provided",
           reflect(sv),
           slf4jApi,
           grizzledSlf4j,
@@ -306,6 +309,7 @@ object ScalatraBuild extends Build {
     lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.0.4"
     lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.4"
     def reflect(sv: String)           =  "org.scala-lang"          %  "scala-reflect"              % sv
+    def scalaCompiler(sv: String)     =  "org.scala-lang"          %  "scala-compiler"             % sv
     lazy val quasiquotes              =  "org.scalamacros"         %% "quasiquotes"                % paradiseVersion
     lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
     lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
@@ -331,7 +335,7 @@ object ScalatraBuild extends Build {
     lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
     lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
     lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "1.7"
-    lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.8"
+    lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.8.1"
     lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
     lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion
     lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
