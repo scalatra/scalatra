@@ -1,4 +1,5 @@
 package org.scalatra
+package macroutils
 
 // defines stubs for stuff that's missing in Scala 2.10
 object Compat210 {
@@ -17,7 +18,6 @@ object Power {
   import scala.reflect.macros._
   object DummyScope {
     import runtime._
-    import contexts._
     type Result = Context
   }
   type PowerContext = DummyScope.Result
@@ -26,21 +26,39 @@ import Power._
 
 // a cake slice that can be mixed into improvised macro bundles
 // to transparently bring new Scala 2.11 features to Scala 2.10
-trait Internal210 { self =>
+trait MacrosCompat210 { self =>
   import scala.reflect.macros._
-  import blackbox.Context
+
+  type Context = blackbox.Context
 
   val c: Context
   import c.universe._
 
+  implicit class RichUniverse(u: Universe) {
+
+    def TypeName(name: String): TypeName = newTypeName(name)
+
+    def TermName(name: String): TermName = newTermName(name)
+
+  }
+
   // enrichments that backport parts of Scala 2.11's c.internal to Scala 2.10
   // these are only going to be picked up if we compile against Scala 2.10
   implicit class RichContext(val c: self.c.type) {
+
+    def freshName(name: String): String = c.fresh(name)
+
+    def typecheck(tree: c.universe.Tree): Tree = c.typeCheck(tree)
+
+    def untypecheck(tree: c.universe.Tree): Tree = c.resetLocalAttrs(tree)
+
     object internal {
+
       def enclosingOwner: Symbol = {
         val powerContext = c.asInstanceOf[PowerContext]
         powerContext.callsiteTyper.context.owner.asInstanceOf[Symbol]
       }
+
       def changeOwner(tree: Tree, oldOwner: Symbol, newOwner: Symbol): Tree = {
         val powerContext = c.asInstanceOf[PowerContext]
         val global = powerContext.universe
@@ -57,15 +75,18 @@ trait Internal210 { self =>
         traverser.traverse(tree.asInstanceOf[global.Tree])
         tree
       }
+
       def valDef(sym: Symbol, rhs: Tree): ValDef = {
         val powerContext = c.asInstanceOf[PowerContext]
         val global = powerContext.universe
         global.ValDef(sym.asInstanceOf[global.Symbol], rhs.asInstanceOf[global.Tree]).asInstanceOf[ValDef]
       }
+
       trait TypingTransformApi {
         def default(tree: Tree): Tree
         def typecheck(tree: Tree): Tree
       }
+
       def typingTransform(tree: Tree)(transformer: (Tree, TypingTransformApi) => Tree): Tree = {
         val powerContext = c.asInstanceOf[PowerContext]
         val global = powerContext.universe

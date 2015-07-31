@@ -2,6 +2,7 @@ package org.scalatra
 package servlet
 
 import scala.language.experimental.macros
+import org.scalatra.macroutils.CoreDslMacros
 
 import javax.servlet.AsyncEvent
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }

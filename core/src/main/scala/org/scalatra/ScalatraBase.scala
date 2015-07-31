@@ -1,6 +1,7 @@
 package org.scalatra
 
 import scala.language.experimental.macros
+import org.scalatra.macroutils.CoreDslMacros
 
 import java.io.{ File, FileInputStream }
 import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
