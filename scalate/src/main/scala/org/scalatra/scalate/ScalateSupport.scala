@@ -66,25 +66,36 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
     super.shutdown()
   }
 
+  protected def contextKey(config: ConfigT): String = {
+
+    val ctxId = config.getServletContext().toString
+
+    val ctxKey = config.getServletContext.getContextPath match {
+      case "" => "ROOT"
+      case path => path.substring(1)
+    }
+
+    f"$ctxId/$ctxKey"
+
+  }
+  
   /**
    * Creates the templateEngine from the config.  There is little reason to
    * override this unless you have created a ServletBase extension outside
    * an HttpServlet or Filter.
    */
   protected def createTemplateEngine(config: ConfigT): TemplateEngine = {
-    val ctx = config.getServletContext.getContextPath match {
-      case "" => "ROOT"
-      case path => path.substring(1)
-    }
+    val ctxKey = contextKey(config)
+    
     config match {
       case servletConfig: ServletConfig =>
-        ScalateSupport.scalateTemplateEngine(ctx, new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine)
+        ScalateSupport.scalateTemplateEngine(ctxKey, new ServletTemplateEngine(servletConfig) with ScalatraTemplateEngine)
       case filterConfig: FilterConfig =>
-        ScalateSupport.scalateTemplateEngine(ctx, new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine)
+        ScalateSupport.scalateTemplateEngine(ctxKey, new ServletTemplateEngine(filterConfig) with ScalatraTemplateEngine)
       case _ =>
         // Don't know how to convert your Config to something that
         // ServletTemplateEngine can accept, so fall back to a TemplateEngine
-        ScalateSupport.scalateTemplateEngine(ctx, new TemplateEngine with ScalatraTemplateEngine)
+        ScalateSupport.scalateTemplateEngine(ctxKey, new TemplateEngine with ScalatraTemplateEngine)
     }
   }
 
