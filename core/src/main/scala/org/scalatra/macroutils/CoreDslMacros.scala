@@ -81,13 +81,13 @@ object CoreDslMacros {
 
     def beforeImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedAction = rescopeExpression(block)
-      c.Expr[Unit](q"""routes.appendBeforeFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer(rescopedAction.tree)}))""")
+      c.Expr[Unit](q"""appendBeforeFilter(_root_.scala.collection.immutable.Seq(..$transformers):_*)($rescopedAction)""")
 
     }
 
     def afterImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedAction = rescopeExpression(block)
-      c.Expr[Unit](q"""routes.appendAfterFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer(rescopedAction.tree)}))""")
+      c.Expr[Unit](q"""appendAfterFilter(_root_.scala.collection.immutable.Seq(..$transformers):_*)($rescopedAction)""")
     }
 
     def getImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
@@ -125,30 +125,17 @@ object CoreDslMacros {
 
     def trapCodeImpl(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedAction = rescopeExpression(block)
-      c.Expr[Unit](q"""addStatusRoute(scala.collection.immutable.Range($code, $code+1), $rescopedAction)""")
+      c.Expr[Unit](q"""addStatusRoute(_root_.scala.collection.immutable.Range($code, $code+1), $rescopedAction)""")
     }
 
     def notFoundImpl(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedBlock = rescopeExpression(block)
-
-      val tree = q"""
-      doNotFound = {
-        () => ${splicer(rescopedBlock.tree)}
-      }
-    """
-
-      c.Expr[Unit](tree)
+      c.Expr[Unit](q"""setNotFoundHandler($rescopedBlock)""")
     }
 
     def methodNotAllowedImpl(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
       val rescopedBlock = rescopeExpression(block)
-
-      val tree =
-        q"""
-          doMethodNotAllowed = (methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${splicer(rescopedBlock.tree)}(methods)
-        """
-
-      c.Expr[Unit](tree)
+      c.Expr[Unit](q"""setMethodNotAllowedHandler($rescopedBlock)""")
     }
 
     def errorImpl(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
@@ -156,7 +143,7 @@ object CoreDslMacros {
 
       val tree =
         q"""
-          errorHandler = {
+          addErrorHandler({
            new _root_.scala.PartialFunction[_root_.java.lang.Throwable, _root_.scala.Any]() {
 
              def handler = {
@@ -172,7 +159,7 @@ object CoreDslMacros {
              }
 
            }
-         } orElse errorHandler
+         })
         """
 
       c.Expr[Unit](tree)
