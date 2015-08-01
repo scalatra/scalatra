@@ -42,8 +42,8 @@ object CsrfTokenSupport {
  */
 trait CsrfTokenSupport { this: ScalatraBase =>
 
-  before0(isForged) { handleForgery() }
-  before0() { prepareCsrfToken() }
+  appendBeforeFilter(isForged) { handleForgery() }
+  appendBeforeFilter() { prepareCsrfToken() }
 
   /**
    * Tests whether a request with a unsafe method is a potential cross-site
@@ -107,10 +107,10 @@ trait XsrfTokenSupport { this: ScalatraBase =>
     request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
   def xsrfGuard(only: RouteTransformer*): Unit = {
-    before0((only.toSeq ++ Seq[RouteTransformer](isForged)): _*) { handleForgery() }
+    appendBeforeFilter((only.toSeq ++ Seq[RouteTransformer](isForged)): _*) { handleForgery() }
   }
 
-  before0() { prepareXsrfToken() }
+  appendBeforeFilter() { prepareXsrfToken() }
 
   /**
    * Tests whether a request with a unsafe method is a potential cross-site
