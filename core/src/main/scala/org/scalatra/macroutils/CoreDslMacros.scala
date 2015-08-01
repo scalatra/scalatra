@@ -7,6 +7,8 @@ import scala.language.experimental.macros
 
 /**
  * Macro implementation which generates Scalatra core DSL APIs.
+ *
+ * For details (e.g. moving a Tree to a new owner, 2.10 compatibility layer) see: https://github.com/scalamacros/macrology201/commits/part1
  */
 object CoreDslMacros {
 
