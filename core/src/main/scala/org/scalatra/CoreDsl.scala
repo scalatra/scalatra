@@ -127,7 +127,7 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
   //  def trap(codes: Range)(block: => Any): Unit
   //
   //  /**
-  //   * @see error
+  //   * @see trap
   //   */
   //  def trap(code: Int)(block: => Any): Unit = {
   //    trap(Range(code, code + 1))(block)

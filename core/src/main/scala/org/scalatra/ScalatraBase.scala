@@ -318,6 +318,20 @@ trait ScalatraBase
   def methodNotAllowed(block: MethodNotAllowedHandler): Unit = macro CoreDslMacros.methodNotAllowedImpl
 
   /**
+   * Defines an error handler for exceptions thrown in either the before
+   * block or a route action.
+   *
+   * If the error handler does not match, the result falls through to the
+   * previously defined error handler.  The default error handler simply
+   * rethrows the exception.
+   *
+   * The error handler is run before the after filters, and the result is
+   * rendered like a standard response.  It is the error handler's
+   * responsibility to set any appropriate status code.
+   */
+  def error(handler: ErrorHandler): Unit = macro CoreDslMacros.errorImpl
+
+  /**
    * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]
    * and a block as the action body.  The return value of the block is
    * rendered through the pipeline and sent to the client as the response body.
@@ -364,8 +378,21 @@ trait ScalatraBase
 
   def patch(transformers: RouteTransformer*)(action: => Any): Route = macro CoreDslMacros.patchImpl
 
+  /**
+   * Error handler for HTTP response status code range. You can intercept every response code previously
+   * specified with #status or even generic 404 error.
+   * {{{
+   *   trap(403) {
+   * "You are not authorized"
+   * }
+   * }* }}}
+   * }}
+   */
   def trap(codes: Range)(block: => Any): Unit = macro CoreDslMacros.trapImpl
 
+  /**
+   * @see trap
+   */
   def trap(code: Int)(block: => Any): Unit = macro CoreDslMacros.trapCodeImpl
 
   /**
@@ -406,20 +433,6 @@ trait ScalatraBase
   protected var errorHandler: ErrorHandler = {
     case t => throw t
   }
-
-  /**
-   * Defines an error handler for exceptions thrown in either the before
-   * block or a route action.
-   *
-   * If the error handler does not match, the result falls through to the
-   * previously defined error handler.  The default error handler simply
-   * rethrows the exception.
-   *
-   * The error handler is run before the after filters, and the result is
-   * rendered like a standard response.  It is the error handler's
-   * responsibility to set any appropriate status code.
-   */
-  def error(handler: ErrorHandler): Unit = macro CoreDslMacros.errorImpl
 
   protected[scalatra] def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S)(implicit request: HttpServletRequest): S = {
     val originalParams = multiParams
