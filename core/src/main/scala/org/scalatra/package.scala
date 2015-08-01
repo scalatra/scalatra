@@ -30,6 +30,8 @@ package object scalatra
 
   type ErrorHandler = PartialFunction[Throwable, Any]
 
+  type MethodNotAllowedHandler = Set[HttpMethod] => Any
+
   type ContentTypeInferrer = PartialFunction[Any, String]
 
   type RenderPipeline = PartialFunction[Any, Any]

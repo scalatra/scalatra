@@ -33,7 +33,7 @@ trait CoreDsl extends Handler with Control with ScalatraContext with ServletApiI
   //   * Defines a block to run if matching routes are found only for other
   //   * methods.  The set of matching methods is passed to the block.
   //   */
-  //  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit
+  //  def methodNotAllowed(block: MethodNotAllowedHandler): Unit
   //
   //  /**
   //   * Defines an error handler for exceptions thrown in either the before

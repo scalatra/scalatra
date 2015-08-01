@@ -133,9 +133,16 @@ object CoreDslMacros {
       c.Expr[Unit](q"""setNotFoundHandler($rescopedBlock)""")
     }
 
-    def methodNotAllowedImpl(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
+    def methodNotAllowedImpl(block: c.Expr[MethodNotAllowedHandler]): c.Expr[Unit] = {
       val rescopedBlock = rescopeExpression(block)
-      c.Expr[Unit](q"""setMethodNotAllowedHandler($rescopedBlock)""")
+
+      // defer instantiating of the StableResult by wrapping in a function
+      val tree =
+        q"""
+          setMethodNotAllowedHandler((methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${splicer(rescopedBlock.tree)}(methods))
+        """
+
+      c.Expr[Unit](tree)
     }
 
     def errorImpl(handler: c.Expr[ErrorHandler]): c.Expr[Unit] = {
@@ -254,7 +261,7 @@ object CoreDslMacros {
     new CoreDslMacros[c.type](c).notFoundImpl(block)
   }
 
-  def methodNotAllowedImpl(c: Context)(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
+  def methodNotAllowedImpl(c: Context)(block: c.Expr[MethodNotAllowedHandler]): c.Expr[Unit] = {
     new CoreDslMacros[c.type](c).methodNotAllowedImpl(block)
   }
 

@@ -315,7 +315,7 @@ trait ScalatraBase
    * Defines a block to run if matching routes are found only for other
    * methods.  The set of matching methods is passed to the block.
    */
-  def methodNotAllowed(block: Set[HttpMethod] => Any): Unit = macro CoreDslMacros.methodNotAllowedImpl
+  def methodNotAllowed(block: MethodNotAllowedHandler): Unit = macro CoreDslMacros.methodNotAllowedImpl
 
   /**
    * The Scalatra DSL core methods take a list of [[org.scalatra.RouteMatcher]]
@@ -380,7 +380,7 @@ trait ScalatraBase
    * and an `Allow` header containing a comma-delimited list of the allowed
    * methods.
    */
-  protected var doMethodNotAllowed: (Set[HttpMethod] => Any) = {
+  protected var doMethodNotAllowed: MethodNotAllowedHandler = {
     allow =>
       status = 405
       response.headers("Allow") = allow.mkString(", ")
@@ -672,7 +672,7 @@ trait ScalatraBase
     }
   }
 
-  protected def setMethodNotAllowedHandler(f: Set[HttpMethod] => Any): Unit = {
+  protected def setMethodNotAllowedHandler(f: MethodNotAllowedHandler): Unit = {
     doMethodNotAllowed = f
   }
 
