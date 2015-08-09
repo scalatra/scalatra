@@ -10,7 +10,6 @@ import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
 
-@deprecated("AsyncResult is no longer required and a Future in an action can safely close over request/response.", "2.4.0")
 abstract class AsyncResult(
   implicit override val scalatraContext: ScalatraContext)
     extends ScalatraContext {
