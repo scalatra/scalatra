@@ -1,18 +1,20 @@
 package org.scalatra
-
-import scala.language.experimental.macros
+package macroutils
 
 import Compat210._
 
+import scala.language.experimental.macros
+
 /**
  * Macro implementation which generates Scalatra core DSL APIs.
+ *
+ * For details (e.g. moving a Tree to a new owner, 2.10 compatibility layer) see: https://github.com/scalamacros/macrology201/commits/part1
  */
 object CoreDslMacros {
 
-  import scala.reflect.macros._
-  // import blackbox.Context
+  type Context = blackbox.Context
 
-  class CoreDslMacros[C <: Context](val c: C) extends MacrosCompat {
+  class CoreDslMacros[C <: Context](val c: C) extends MacrosCompat210 {
 
     import c.universe._
 
@@ -25,7 +27,6 @@ object CoreDslMacros {
      */
     def rescopeExpression(expr: c.Expr[Any]): c.Expr[Any] = {
       import c.universe._
-      import internal._
 
       val typeIsNothing = expr.actualType =:= implicitly[TypeTag[Nothing]].tpe
 
@@ -42,8 +43,8 @@ object CoreDslMacros {
       } else {
         // in all other cases wrap the action in a StableResult to provide a stable lexical scope and return the res.is
 
-        val clsName = typeName(freshName("cls"))
-        val resName = termName(freshName("res"))
+        val clsName = c.universe.TypeName(c.freshName("cls"))
+        val resName = c.universe.TermName(c.freshName("res"))
 
         // add to new lexical scope
         val rescopedTree =
@@ -58,12 +59,12 @@ object CoreDslMacros {
          """
 
         // typecheck the three, creates symbols (class, valdefs)
-        val rescopedTreeTyped = typecheck(rescopedTree)
+        val rescopedTreeTyped = c.typecheck(rescopedTree)
 
         // use stable request/response values from the new lexical scope
         val transformedTreeTyped = c.internal.typingTransform(rescopedTreeTyped)((tree, api) => tree match {
-          case q"$a.this.request" => api.typecheck(Select(This(clsName), termName("request")))
-          case q"$a.this.response" => api.typecheck(Select(This(clsName), termName("response")))
+          case q"$a.this.request" => api.typecheck(Select(This(clsName), c.universe.TermName("request")))
+          case q"$a.this.response" => api.typecheck(Select(This(clsName), c.universe.TermName("response")))
           case _ => api.default(tree)
         })
 
@@ -80,13 +81,13 @@ object CoreDslMacros {
 
     def beforeImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedAction = rescopeExpression(block)
-      c.Expr[Unit](q"""routes.appendBeforeFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer(rescopedAction.tree)}))""")
+      c.Expr[Unit](q"""appendBeforeFilter(_root_.scala.collection.immutable.Seq(..$transformers):_*)($rescopedAction)""")
 
     }
 
     def afterImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedAction = rescopeExpression(block)
-      c.Expr[Unit](q"""routes.appendAfterFilter(_root_.org.scalatra.Route(Seq(..$transformers), () => ${splicer(rescopedAction.tree)}))""")
+      c.Expr[Unit](q"""appendAfterFilter(_root_.scala.collection.immutable.Seq(..$transformers):_*)($rescopedAction)""")
     }
 
     def getImpl(transformers: c.Expr[RouteTransformer]*)(action: c.Expr[Any]): c.Expr[Route] = {
@@ -124,27 +125,21 @@ object CoreDslMacros {
 
     def trapCodeImpl(code: c.Expr[Int])(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedAction = rescopeExpression(block)
-      c.Expr[Unit](q"""addStatusRoute(scala.collection.immutable.Range($code, $code+1), $rescopedAction)""")
+      c.Expr[Unit](q"""addStatusRoute(_root_.scala.collection.immutable.Range($code, $code+1), $rescopedAction)""")
     }
 
     def notFoundImpl(block: c.Expr[Any]): c.Expr[Unit] = {
       val rescopedBlock = rescopeExpression(block)
-
-      val tree = q"""
-      doNotFound = {
-        () => ${splicer(rescopedBlock.tree)}
-      }
-    """
-
-      c.Expr[Unit](tree)
+      c.Expr[Unit](q"""setNotFoundHandler($rescopedBlock)""")
     }
 
-    def methodNotAllowedImpl(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
+    def methodNotAllowedImpl(block: c.Expr[MethodNotAllowedHandler]): c.Expr[Unit] = {
       val rescopedBlock = rescopeExpression(block)
 
+      // defer instantiating of the StableResult by wrapping in a function
       val tree =
         q"""
-          doMethodNotAllowed = (methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${splicer(rescopedBlock.tree)}(methods)
+          setMethodNotAllowedHandler((methods: _root_.scala.collection.immutable.Set[_root_.org.scalatra.HttpMethod]) => ${splicer(rescopedBlock.tree)}(methods))
         """
 
       c.Expr[Unit](tree)
@@ -155,7 +150,7 @@ object CoreDslMacros {
 
       val tree =
         q"""
-          errorHandler = {
+          addErrorHandler({
            new _root_.scala.PartialFunction[_root_.java.lang.Throwable, _root_.scala.Any]() {
 
              def handler = {
@@ -171,7 +166,7 @@ object CoreDslMacros {
              }
 
            }
-         } orElse errorHandler
+         })
         """
 
       c.Expr[Unit](tree)
@@ -180,8 +175,8 @@ object CoreDslMacros {
     // TODO check
 
     def makeAsynchronously(block: c.Expr[Any]): c.Expr[Any] = {
-      val block1 = untypecheck(block.tree.duplicate)
-      c.Expr[Any](typecheck(q"""asynchronously($block1)()"""))
+      val block1 = c.untypecheck(block.tree.duplicate)
+      c.Expr[Any](c.typecheck(q"""asynchronously($block1)()"""))
     }
 
     def asyncGetImpl(transformers: c.Expr[RouteTransformer]*)(block: c.Expr[Any]): c.Expr[Route] = {
@@ -212,8 +207,8 @@ object CoreDslMacros {
     // check out the gist for a detailed explanation of the technique
     private def splicer(tree: c.Tree): c.Tree = {
       import internal._, decorators._
-      tree.updateAttachment(macroutil.OrigOwnerAttachment(c.internal.enclosingOwner))
-      q"_root_.org.scalatra.macroutil.Splicer.changeOwner($tree)"
+      tree.updateAttachment(OrigOwnerAttachment(c.internal.enclosingOwner))
+      q"_root_.org.scalatra.macroutils.Splicer.changeOwner($tree)"
     }
 
   }
@@ -266,7 +261,7 @@ object CoreDslMacros {
     new CoreDslMacros[c.type](c).notFoundImpl(block)
   }
 
-  def methodNotAllowedImpl(c: Context)(block: c.Expr[Set[HttpMethod] => Any]): c.Expr[Unit] = {
+  def methodNotAllowedImpl(c: Context)(block: c.Expr[MethodNotAllowedHandler]): c.Expr[Unit] = {
     new CoreDslMacros[c.type](c).methodNotAllowedImpl(block)
   }
 
@@ -300,29 +295,3 @@ object CoreDslMacros {
 
 }
 
-package macroutil {
-
-  case class OrigOwnerAttachment(sym: Any)
-
-  object Splicer {
-
-    import scala.reflect.macros._
-    import blackbox.Context
-
-    def impl[A](c: Context)(expr: c.Expr[A]): c.Expr[A] = {
-      val helper = new Splicer[c.type](c)
-      c.Expr[A](helper.changeOwner(expr.tree))
-    }
-
-    class Splicer[C <: Context](val c: C) extends Internal210 {
-      def changeOwner(tree: c.Tree): c.Tree = {
-        import c.universe._, internal._, decorators._
-        val origOwner = tree.attachments.get[OrigOwnerAttachment].map(_.sym).get.asInstanceOf[Symbol]
-        c.internal.changeOwner(tree, origOwner, c.internal.enclosingOwner)
-      }
-    }
-
-    def changeOwner[A](expr: A): A = macro impl[A]
-  }
-
-}
