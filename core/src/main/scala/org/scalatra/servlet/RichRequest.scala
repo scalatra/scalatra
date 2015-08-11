@@ -75,14 +75,25 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * the query string or posted form data.
    */
   def multiParameters: MultiParams = {
+    val bodyParams: Map[String, Seq[String]] = {
+      if (r.getParameterMap.isEmpty
+        && r.getMethod != null
+        && !HttpMethod(r.getMethod).isSafe
+        && r.getHeader("Content-Type") != null
+        && r.getHeader("Content-Type").split(";")(0).equalsIgnoreCase("APPLICATION/X-WWW-FORM-URLENCODED")) {
+        rl.MapQueryString.parseString(body)
+      } else {
+        Map.empty
+      }
+    }
     // At the very least in jetty 8 we see problems under load related to this
     if (r.getQueryString.nonBlank && r.getParameterMap.isEmpty) {
-      val qs = rl.MapQueryString.parseString(r.getQueryString)
-      val bd = if (!HttpMethod(r.getMethod).isSafe && r.getHeader("Content-Type").equalsIgnoreCase("APPLICATION/X-WWW-FORM-URLENCODED")) {
-        rl.MapQueryString.parseString(body)
-      } else Map.empty
-      qs ++ bd
-    } else r.getParameterMap.asScala.toMap.transform { (k, v) => v: Seq[String] }
+      val queryStringParams: Map[String, Seq[String]] = rl.MapQueryString.parseString(r.getQueryString)
+      queryStringParams ++ bodyParams
+    } else {
+      val paramMap = r.getParameterMap.asScala.toMap.transform { (k, v) => v: Seq[String] }
+      paramMap ++ bodyParams
+    }
   }
 
   object parameters extends MultiMapHeadView[String, String] {
@@ -178,7 +189,9 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
       val enc = if(encoding == null || encoding.trim.length == 0) {
         if (contentType.exists(_ equalsIgnoreCase "application/json")) "UTF-8"  else "ISO-8859-1"
       } else encoding
-      val body = Source.fromInputStream(r.getInputStream, enc).mkString
+      val body: String = try {
+        Source.fromInputStream(r.getInputStream, enc).mkString
+      } catch { case e: java.io.IOException => "" }
       update(cachedBodyKey, body)
       body
     }
