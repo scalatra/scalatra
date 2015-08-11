@@ -26,7 +26,9 @@ trait MultiMapHeadView[A, B] extends Map[A, B] {
 
   override def size: Int = multiMap.size
 
-  override def iterator: Iterator[(A, B)] = multiMap.map { case (k, v) => (k, v.head) }.iterator
+  override def iterator: Iterator[(A, B)] = multiMap.flatMap {
+    case (k, v) => v.headOption.map { _v => (k, _v) }
+  }.iterator
 
   override def -(key: A): Map[A, B] = Map() ++ this - key
 
