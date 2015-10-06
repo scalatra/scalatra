@@ -16,7 +16,7 @@ object ScalatraBuild extends Build {
   lazy val scalatraSettings =
     mimaDefaultSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.11.6", "2.10.5"),
+    crossScalaVersions := Seq("2.11.7", "2.10.6"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
@@ -302,14 +302,14 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
     lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.0.4"
-    lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.4"
+    lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.5"
     lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
     lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
     // TODO: 2.3 has incompatible API changes
-    lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.2.7"
-    lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.11" artifacts(Artifact("jquery", "war", "war"))
+    lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.2.9"
+    lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.12" artifacts(Artifact("jquery", "war", "war"))
     lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.2"
-    lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.3.0"
+    lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.3.2"
     lazy val atmosphereCompatJbossweb =  "org.atmosphere"          %  "atmosphere-compat-jbossweb" % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat   =  "org.atmosphere"          %  "atmosphere-compat-tomcat"   % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat7  =  "org.atmosphere"          %  "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
@@ -326,13 +326,13 @@ object ScalatraBuild extends Build {
     lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
     lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
     lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
-    lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "1.7"
-    lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.8.1"
+    lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "1.8.1"
+    lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.8.2"
     lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
     lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion
     lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
     lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
-    lazy val junit                    =  "junit"                   %  "junit"                      % "4.11"
+    lazy val junit                    =  "junit"                   %  "junit"                      % "4.12"
     lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
     lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.1.3"
     lazy val mimeUtil                 =  "eu.medsea.mimeutil"      %  "mime-util"                  % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
@@ -341,9 +341,9 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection         =  "org.scalaj"              %% "scalaj-collection"          % "1.2"
     lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
     lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
-    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.1.2"
+    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.1.4"
     lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
-    lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.1.6.RELEASE"
+    lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.2.1.RELEASE"
     lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.12"
     lazy val slf4jSimple              =  "org.slf4j"               %  "slf4j-simple"               % "1.7.12"
     lazy val specs2                   =  Seq(
@@ -352,22 +352,22 @@ object ScalatraBuild extends Build {
                                          "org.specs2"              %% "specs2-matcher-extra"
                                                                                     ).map(_        % specs2Version)
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
-    lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.4"
-    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.1"
+    lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.6" exclude("junit", "junit")
+    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.2"
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.2"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.2"
     lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "18.0"
     lazy val googleFindBugs           = "com.google.code.findbugs" % "jsr305"                      % "3.0.0"
 
-    private val akkaVersion             = "2.3.11"
+    private val akkaVersion             = "2.3.14" // 2.4 dropped Java 7
     private val grizzledSlf4jVersion    = "1.0.2"
     private val atmosphereCompatVersion = "2.0.1"
-    private val httpcomponentsVersion   = "4.5"
-    private val jettyVersion            = "9.2.11.v20150529"
-    private val json4sVersion           = "3.3.0.RC2"
+    private val httpcomponentsVersion   = "4.5.1"
+    private val jettyVersion            = "9.2.13.v20150730"
+    private val json4sVersion           = "3.3.0"
     private val scalateVersion          = "1.7.1"
     private val scalatestVersion        = "2.2.5"
-    private val specs2Version           = "3.6.1"
+    private val specs2Version           = "3.6.4"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
