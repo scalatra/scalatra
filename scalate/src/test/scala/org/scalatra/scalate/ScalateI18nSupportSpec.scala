@@ -1,6 +1,6 @@
 package org.scalatra.scalate
 
-import org.scalatra.{ FutureSupport, ScalatraServlet }
+import org.scalatra.{ AsyncResult, FutureSupport, ScalatraServlet }
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.concurrent.{ ExecutionContext, Future }
@@ -11,8 +11,10 @@ class ScalateI18nSupportSpec extends MutableScalatraSpec {
     protected implicit def executor: ExecutionContext = ExecutionContext.global
 
     get("/") {
-      Future {
-        mustache("hello.mustache")
+      new AsyncResult {
+        val is = Future {
+          mustache("hello.mustache")
+        }
       }
     }
 

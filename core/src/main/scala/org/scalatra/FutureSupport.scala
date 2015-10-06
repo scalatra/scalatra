@@ -10,7 +10,6 @@ import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
 
-@deprecated("AsyncResult is no longer required and will be removed in a coming release.", "2.4.0")
 abstract class AsyncResult(
   implicit override val scalatraContext: ScalatraContext)
     extends ScalatraContext {
@@ -38,7 +37,7 @@ trait FutureSupport extends AsyncSupport {
   // In the meantime, this gives us enough control for our test.
   // IPC: it may not be perfect but I need to be able to configure this timeout in an application
   // This is a Duration instead of a timeout because a duration has the concept of infinity
-  // @deprecated("Override the `timeout` method on a `org.scalatra.AsyncResult` instead.", "2.2")
+  @deprecated("Override the `timeout` method on a `org.scalatra.AsyncResult` instead.", "2.2")
   protected def asyncTimeout: Duration = 30 seconds
 
   override protected def isAsyncExecutable(result: Any): Boolean =
