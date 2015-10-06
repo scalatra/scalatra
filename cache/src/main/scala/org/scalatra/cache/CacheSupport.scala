@@ -35,7 +35,7 @@ trait CacheSupport { self: ScalatraBase =>
       case None =>
         val res = result
         val rev = headerStrategy.getNewRevision()
-        cacheBackend.put(key, (rev, result), ttl)
+        cacheBackend.put(key, (rev, res), ttl)
         headerStrategy.setRevision(rev)
         res
     }
