@@ -34,7 +34,7 @@ libraryDependencies += "org.scalatra" %% "scalatra" % "2.3.1"
 The upcoming 2.4.0 RC release is also available. Please git it a try and give us your feedback!
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0-RC3"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0.RC3"
 ```
 
 ### Development version
