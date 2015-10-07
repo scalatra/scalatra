@@ -16,11 +16,16 @@
 * #500 Improve automatic charset detection performance by @takezoe
 * #502 Bump minor version of dependencies by @seratch
 * #514 Improve request/response stability wthin AsyncResult by @lloydmeta
+* #528 Fix #435 Error with FutureSupport and ScalateI18nSupport using templating by @dozed
 * #516 Introduce stable request response macro by @dozed
+* #544 Removed request/response scoping macro from 2.4.x release by @dozed
+* #535 [2.4.x] Fix #531 Params and multiParams are empty for PATCH request by @seratch
+* #545 Bump dependencies and scala minor version by @seratch
 
 ### Scalatra Cache
 
 * #455 Scalatra cache by @japhar81
+* #541 Fixes double evaluation of result by @offner
 
 ## Scalatra Commands
 
