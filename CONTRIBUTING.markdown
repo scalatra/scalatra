@@ -68,11 +68,11 @@ A few ideas
 * immutability is good
 * functional code is good
 * types are good, so if you can use a better type do it (e.g. `String` instead of `Any`)
-* .. but types are ugly to see: in non-public values try to use type inference when possible
+* ... but types are ugly to see: in non-public values try to use type inference when possible
 * favor less code and use higher order functions + anonymous functions if you can get away with it
-* .. but do not put everything in a function
+* ... but do not put everything in a function
 * traits are better than classes, since they can be composed
-* if something uses recursion, use the `@tailrec` annotation to ensure it's tail recursive and will be optimized to a loop
+* if something uses recursion, use the `@tailrec` annotation to ensure it is tail recursive and will be optimized to a loop
 * if some code is not restricted to scalatra usage or http/servlets, put it inside the util package 
 * indent with two spaces
 * namespace code in org.scalatra
