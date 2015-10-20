@@ -51,3 +51,4 @@ libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0-SNAPSHOT"
 
 * Mailing list: [scalatra-user](http://groups.google.com/group/scalatra-user)
 * IRC: #scalatra on irc.freenode.org
+* [Guidelines for contributing](CONTRIBUTING.markdown)
