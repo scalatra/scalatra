@@ -32,7 +32,7 @@ There is no change too little to be merged in.
 Do some good contributions and we'll give you a shiny commit bit!
 
 ## Documentation
-Good documentation is core to a succesfull and healthy ecosystem, the more we  have, the merrier. 
+Good documentation is core to a successful and healthy ecosystem, the more we  have, the merrier. 
 
 ### Scaladoc
 Scaladoc lives inside the scala source code, if you want to contribute scaladoc patches, do the same thing described above:
