@@ -14,6 +14,7 @@ object UriDecoder {
     uri.replaceAll("%23", "#")
       .replaceAll("%2F", "/")
       .replaceAll("%3F", "?")
+      .replaceAll("%3B", ";")
   }
 
 }
