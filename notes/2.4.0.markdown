@@ -21,11 +21,13 @@
 * #544 Removed request/response scoping macro from 2.4.x release by @dozed
 * #535 [2.4.x] Fix #531 Params and multiParams are empty for PATCH request by @seratch
 * #545 Bump dependencies and scala minor version by @seratch
+* #557 Bump minor version of some libs toward 2.4.0 releaseby @seratch
 
 ### Scalatra Cache
 
 * #455 Scalatra cache by @japhar81
 * #541 Fixes double evaluation of result by @offner
+* #557 Bump minor version of some libs toward 2.4.0 releaseby @seratch
 
 ## Scalatra Commands
 
@@ -33,6 +35,7 @@
 * (Breaking change) field.optional now is an alias for field.withDefaultValue(theDefault) by @casualjim
 * #447 Minor upgrades and deprecation warnings reduction by @seratch
 * #510 Fix deprecated APIs in Scalaz's ValidationOps by @xuwei-k
+* #557 Bump minor version of some libs toward 2.4.0 releaseby @seratch
 
 ### Scalatra Json
 
@@ -69,3 +72,11 @@
 ### Scalatra Specs2
 
 * #508 Updated specs2 to 3.6.+ by @etorreborre
+* #557 Bump minor version of some libs toward 2.4.0 releaseby @seratch
+
+### Scalatra sbt plugin
+
+https://github.com/scalatra/scalatra-sbt
+
+* scalatra-sbt has bumped xsbt-web-plugin version to version 2.x.
+

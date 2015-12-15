@@ -25,16 +25,10 @@ Once you've done that, take a look at the [Scalatra Guides](http://www.scalatra.
 
 ## Latest version
 
-The latest stable version of Scalatra is `2.3.1`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
+The latest stable version of Scalatra is `2.4.0`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.3.1"
-```
-
-The upcoming 2.4.0 RC release is also available. Please git it a try and give us your feedback!
-
-```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0.RC3"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0"
 ```
 
 ### Development version
