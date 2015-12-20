@@ -8,7 +8,7 @@ import com.typesafe.sbt.SbtScalariform.scalariformSettings
 import com.typesafe.tools.mima.core._
 import com.typesafe.tools.mima.core.ProblemFilters._
 import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.{binaryIssueFilters, previousArtifact}
+import com.typesafe.tools.mima.plugin.MimaKeys.{binaryIssueFilters, previousArtifacts}
 
 object ScalatraBuild extends Build {
   import Dependencies._
@@ -34,9 +34,8 @@ object ScalatraBuild extends Build {
       "org.scala-lang" %  "scala-reflect"  % scalaVersion.value,
       "org.scala-lang" %  "scala-compiler" % scalaVersion.value
     ),
-    previousArtifact <<= (name, scalaVersion) { (name, sv) =>
-      val cross = name + "_" + CrossVersion.binaryScalaVersion(sv)
-      Some("org.scalatra" % cross % "2.3.1")
+    previousArtifacts := {
+      Set("2.4.0").map { organization.value % s"${name.value}_${scalaBinaryVersion.value}" % _ }
     }
   ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ mavenCentralFrouFrou ++ scalariformSettings
 
@@ -46,7 +45,7 @@ object ScalatraBuild extends Build {
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
       Unidoc.unidocExclude := Seq("scalatra-example"),
-      previousArtifact := None
+      previousArtifacts := Set.empty
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
@@ -293,7 +292,7 @@ object ScalatraBuild extends Build {
        libraryDependencies += json4sJackson,
        libraryDependencies += atmosphereJQuery,
        description := "Scalatra example project",
-       previousArtifact := None
+       previousArtifacts := Set.empty
      )
   ) dependsOn(
      scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
