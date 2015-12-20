@@ -33,12 +33,12 @@ libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0"
 
 ### Development version
 
-The 2.4.x branch is published as `2.4.0-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
+The 2.4.x branch is published as `2.4.1-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra). 
 
 ```scala
 resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.0-SNAPSHOT"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.4.1-SNAPSHOT"
 ```
 
 ## Community
