@@ -55,7 +55,7 @@ abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]
         case Succ(r) ⇒
           def plur(count: Int) = if (count == 1) "failure" else "failures"
           val resultLog = r.fold(
-            { failures ⇒ s"with ${failures.tail.size + 1} ${plur(failures.size)}\n${failures.list}" },
+            { failures ⇒ s"with ${failures.size} ${plur(failures.size)}\n${failures.list}" },
             { _ ⇒ "successfully" })
           logger.debug(s"Command [${cmd.getClass.getName}] executed $resultLog")
           r
@@ -110,7 +110,7 @@ abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidatio
         case r ⇒
           def plur(count: Int) = if (count == 1) "failure" else "failures"
           val resultLog = r.fold(
-            { failures ⇒ s"with ${failures.list.size} ${plur(failures.list.size)}.\n${failures.list}" },
+            { failures ⇒ s"with ${failures.size} ${plur(failures.size)}.\n${failures.list}" },
             { _ ⇒ "successfully" })
           logger.debug(s"Command [${cmd.getClass.getName}] executed $resultLog")
       }
