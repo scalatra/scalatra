@@ -55,7 +55,7 @@ abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]
         case Succ(r) ⇒
           def plur(count: Int) = if (count == 1) "failure" else "failures"
           val resultLog = r.fold(
-            { failures ⇒ s"with ${failures.tail.size + 1} ${failures.list.size}\n${failures.list}" },
+            { failures ⇒ s"with ${failures.tail.size + 1} ${plur(failures.size)}\n${failures.list}" },
             { _ ⇒ "successfully" })
           logger.debug(s"Command [${cmd.getClass.getName}] executed $resultLog")
           r
