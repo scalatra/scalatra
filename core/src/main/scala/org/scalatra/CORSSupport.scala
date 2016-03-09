@@ -38,7 +38,8 @@ object CorsSupport {
     allowedMethods: Seq[String],
     allowedHeaders: Seq[String],
     allowCredentials: Boolean,
-    preflightMaxAge: Int = 0)
+    preflightMaxAge: Int = 0,
+    enabled: Boolean)
 
   private[this] def configKey(name: String): String = "org.scalatra.cors." + name
 
@@ -47,6 +48,7 @@ object CorsSupport {
   val AllowedHeadersKey: String = configKey("allowedHeaders")
   val AllowCredentialsKey: String = configKey("allowCredentials")
   val PreflightMaxAgeKey: String = configKey("preflightMaxAge")
+  val EnableKey: String = configKey("enable")
   val CorsConfigKey: String = configKey("corsConfig")
 
   private val DefaultMethods: String = "GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH"
@@ -82,14 +84,19 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
       Option(config.context.getInitParameter(AllowedMethodsKey)).getOrElse(DefaultMethods).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowedHeadersKey)).getOrElse(DefaultHeaders).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowCredentialsKey)).map(_.toBoolean).getOrElse(true),
-      Option(config.context.getInitParameter(PreflightMaxAgeKey)).map(_.toInt).getOrElse(1800))
+      Option(config.context.getInitParameter(PreflightMaxAgeKey)).map(_.toInt).getOrElse(1800),
+      Option(config.context.getInitParameter(EnableKey)).map(_.toBoolean).getOrElse(true))
 
     val corsCfg = config.context.getOrElseUpdate(CorsConfigKey, createDefault).asInstanceOf[CORSConfig]
     import corsCfg._
-    logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s".format(
-      allowedOrigins mkString ", ",
-      allowedMethods mkString ", ",
-      allowedHeaders mkString ", ")
+    if (enabled) {
+      logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s".format(
+        allowedOrigins mkString ", ",
+        allowedMethods mkString ", ",
+        allowedHeaders mkString ", ")
+    } else {
+      logger debug "Cors support is disabled"
+    }
   }
 
   protected def handlePreflightRequest(): Unit = {
@@ -196,21 +203,25 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
   }
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
-    withRequestResponse(req, res) {
-      request.requestMethod match {
-        case Options if isPreflightRequest ⇒ {
-          handlePreflightRequest()
+    if (corsConfig.enabled) {
+      withRequestResponse(req, res) {
+        request.requestMethod match {
+          case Options if isPreflightRequest ⇒ {
+            handlePreflightRequest()
+          }
+          case Get | Post | Head if isSimpleRequest ⇒ {
+            augmentSimpleRequest()
+            super.handle(req, res)
+          }
+          case _ if isCORSRequest ⇒ {
+            augmentSimpleRequest()
+            super.handle(req, res)
+          }
+          case _ ⇒ super.handle(req, res)
         }
-        case Get | Post | Head if isSimpleRequest ⇒ {
-          augmentSimpleRequest()
-          super.handle(req, res)
-        }
-        case _ if isCORSRequest ⇒ {
-          augmentSimpleRequest()
-          super.handle(req, res)
-        }
-        case _ ⇒ super.handle(req, res)
       }
+    } else {
+      super.handle(req, res)
     }
   }
 
