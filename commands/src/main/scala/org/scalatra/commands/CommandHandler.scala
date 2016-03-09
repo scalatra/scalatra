@@ -16,11 +16,11 @@ trait CommandHandler {
     commandLogger.debug("Executing [%s].\n%s" format (cmd.getClass.getName, cmd))
     if (cmd.isValid) {
       val res = (allCatch withApply (serverError(cmd.getClass.getName, _))) {
-        handle.lift(cmd).map(_.map(_.asInstanceOf[S])) | ValidationError("Don't know how to handle: " + cmd.getClass.getName, UnknownError).failNel
+        handle.lift(cmd).map(_.map(_.asInstanceOf[S])) | ValidationError("Don't know how to handle: " + cmd.getClass.getName, UnknownError).failureNel
       }
 
       val resultLog = res.fold(
-        { failures => "with %d failures\n%s".format(failures.tail.size + 1, failures.list) },
+        { failures => "with %d failures\n%s".format(failures.size, failures.list) },
         { _ => "successfully" }
       )
       commandLogger.debug("Command [%s] executed %s." format (cmd.getClass.getName, resultLog))
@@ -30,13 +30,13 @@ trait CommandHandler {
         case Failure(e) ⇒ e
       }
       commandLogger.debug("Command [%s] executed with %d failures.\n%s" format (cmd.getClass.getName, f.size, f.toList))
-      NonEmptyList(f.head, f.tail: _*).fail
+      NonEmptyList(f.head, f.tail: _*).failure
     }
   }
 
   private[this] def serverError[R](cmdName: String, ex: Throwable): ModelValidation[R] = {
     commandLogger.error("There was an error while executing " + cmdName, ex)
-    ValidationError("An error occurred while handling: " + cmdName, UnknownError).failNel[R]
+    ValidationError("An error occurred while handling: " + cmdName, UnknownError).failureNel[R]
   }
 
   type Handler = PartialFunction[ModelCommand[_], ModelValidation[_]]

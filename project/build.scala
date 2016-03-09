@@ -26,8 +26,7 @@ object ScalatraBuild extends Build {
       Opts.resolver.sonatypeSnapshots,
       Opts.resolver.sonatypeReleases,
       "bintray/non" at "http://dl.bintray.com/non/maven",
-      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-      "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases" // specs2 2.4.3 or higher requires this
+      "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
     ),
     dependencyOverrides := Set(
       "org.scala-lang" %  "scala-library"  % scalaVersion.value,
@@ -340,7 +339,7 @@ object ScalatraBuild extends Build {
     lazy val scalajCollection         =  "org.scalaj"              %% "scalaj-collection"          % "1.2"
     lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
     lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
-    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.1.6"
+    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.2.1"
     lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
     lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.2.3.RELEASE"
     lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.13"
@@ -366,7 +365,7 @@ object ScalatraBuild extends Build {
     private val json4sVersion           = "3.3.0"
     private val scalateVersion          = "1.7.1"
     private val scalatestVersion        = "2.2.5"
-    private val specs2Version           = "3.6.6"
+    private val specs2Version           = "3.7.2"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
