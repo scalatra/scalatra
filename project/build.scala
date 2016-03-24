@@ -5,16 +5,11 @@ import scala.xml._
 import java.net.URL
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 import com.typesafe.sbt.SbtScalariform.scalariformSettings
-import com.typesafe.tools.mima.core._
-import com.typesafe.tools.mima.core.ProblemFilters._
-import com.typesafe.tools.mima.plugin.MimaPlugin.mimaDefaultSettings
-import com.typesafe.tools.mima.plugin.MimaKeys.{binaryIssueFilters, previousArtifacts}
 
 object ScalatraBuild extends Build {
   import Dependencies._
 
-  lazy val scalatraSettings =
-    mimaDefaultSettings ++ Seq(
+  lazy val scalatraSettings = Seq(
     organization := "org.scalatra",
     crossScalaVersions := Seq("2.11.7", "2.10.6"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
@@ -32,19 +27,15 @@ object ScalatraBuild extends Build {
       "org.scala-lang" %  "scala-library"  % scalaVersion.value,
       "org.scala-lang" %  "scala-reflect"  % scalaVersion.value,
       "org.scala-lang" %  "scala-compiler" % scalaVersion.value
-    ),
-    previousArtifacts := {
-      Set("2.4.0").map { organization.value % s"${name.value}_${scalaBinaryVersion.value}" % _ }
-    }
-  ) ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ mavenCentralFrouFrou ++ scalariformSettings
+    )
+  ) ++ mavenCentralFrouFrou ++ scalariformSettings
 
   lazy val scalatraProject = Project(
     id = "scalatra-project",
     base = file("."),
     settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
       description := "A tiny, Sinatra-like web framework for Scala",
-      Unidoc.unidocExclude := Seq("scalatra-example"),
-      previousArtifacts := Set.empty
+      Unidoc.unidocExclude := Seq("scalatra-example")
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
       scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
@@ -81,12 +72,7 @@ object ScalatraBuild extends Build {
         if (sv.startsWith("2.10")) default else default ++ Seq(parserCombinators, xml)
       }),
       libraryDependencies ++= Seq(akkaTestkit % "test"),
-      description := "The core Scalatra framework",
-      binaryIssueFilters ++= Seq(
-        exclude[MissingTypesProblem]("org.scalatra.HaltException"),
-        exclude[MissingTypesProblem]("org.scalatra.PassException"),
-        exclude[MissingMethodProblem]("org.scalatra.i18n.I18nSupport.provideMessages")
-      )
+      description := "The core Scalatra framework"
     )
   ) dependsOn(
     scalatraSpecs2 % "test->compile",
@@ -290,8 +276,7 @@ object ScalatraBuild extends Build {
        libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
        libraryDependencies += json4sJackson,
        libraryDependencies += atmosphereJQuery,
-       description := "Scalatra example project",
-       previousArtifacts := Set.empty
+       description := "Scalatra example project"
      )
   ) dependsOn(
      scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
