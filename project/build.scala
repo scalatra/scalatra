@@ -67,7 +67,8 @@ object ScalatraBuild extends Build {
           mimeUtil,
           jodaTime,
           jodaConvert,
-          akkaActor % "test"
+          akkaActor % "test",
+          springWeb
         )
         if (sv.startsWith("2.10")) default else default ++ Seq(parserCombinators, xml)
       }),

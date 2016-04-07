@@ -7,6 +7,7 @@ import org.scalatra.servlet.ServletBase
 import org.scalatra.util.RicherString._
 
 import scala.util.control.Exception.catching
+import org.springframework.web.util.HtmlUtils
 
 object ScalatraServlet {
 
@@ -109,8 +110,8 @@ trait ScalatraServlet
     if (isDevelopmentMode) {
       val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
       response.getWriter println error.format(
-        request.getMethod,
-        Option(request.getPathInfo) getOrElse "/",
+        HtmlUtils.htmlEscape(request.getMethod),
+        Option(HtmlUtils.htmlEscape(request.getPathInfo)) getOrElse "/",
         request.getServletPath,
         routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
     }
