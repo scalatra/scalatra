@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
 
 object AtmosphereClient {
   def lookupAll(): Seq[ScalatraBroadcaster] = {
-    BroadcasterFactory.getDefault.lookupAll().asScala.toSeq collect {
+    ScalatraBroadcasterFactory.getDefault.get.lookupAll().asScala.toSeq collect {
       case b: ScalatraBroadcaster => b
     }
   }
@@ -23,7 +23,7 @@ object AtmosphereClient {
     val norm = if (!pth.endsWith("/*")) {
       if (!pth.endsWith("/")) pth + "/*" else "*"
     } else pth
-    val res: Broadcaster = BroadcasterFactory.getDefault.lookup(norm)
+    val res: Broadcaster = ScalatraBroadcasterFactory.getDefault.get.lookup(norm)
     if (res != null && res.isInstanceOf[ScalatraBroadcaster]) {
       Some(res.asInstanceOf[ScalatraBroadcaster])
     } else {
