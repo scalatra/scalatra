@@ -1,29 +1,65 @@
 package org.atmosphere.cpr
 
+import java.util
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
-import org.scalatra.atmosphere.{ ScalatraBroadcaster, WireFormat }
+import org.scalatra.atmosphere.{ScalatraBroadcaster, WireFormat}
 import org.atmosphere.cpr.BroadcasterLifeCyclePolicy.ATMOSPHERE_RESOURCE_POLICY
 
 import scala.collection.JavaConverters._
-import scala.collection.concurrent.{ Map => ConcurrentMap }
-import scala.util.{ Try, Success, Failure }
+import scala.collection.concurrent.{Map => ConcurrentMap}
+import scala.util.{Failure, Success, Try}
 
 object ScalatraBroadcasterFactory {
-}
 
+  var broadcasterFactory : Option[BroadcasterFactory] = None
+  var cfg : Option[AtmosphereConfig] = None
+
+  def setDefault(factory : BroadcasterFactory, cfg: AtmosphereConfig) = {
+    broadcasterFactory = Some(factory)
+    this.cfg = Some(cfg)
+  }
+
+  def clearDefaults = {
+    broadcasterFactory = None
+    cfg = None
+  }
+
+  def getDefault()  = broadcasterFactory
+
+}
+/** As seen from class ScalatraBroadcasterFactory, the missing signatures are as follows.
+  *  For convenience, these are usable as stub implementations.
+def addBroadcasterListener(x$1: org.atmosphere.cpr.BroadcasterListener): org.atmosphere.cpr.BroadcasterFactory = ???
+def broadcasterListeners(): java.util.Collection[org.atmosphere.cpr.BroadcasterListener] = ???
+def removeBroadcasterListener(x$1: org.atmosphere.cpr.BroadcasterListener): org.atmosphere.cpr.BroadcasterFactory = ???
 class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterConf)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
-  BroadcasterFactory.setBroadcasterFactory(this, cfg)
+*/
+class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterConf)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
+  ScalatraBroadcasterFactory.setDefault(this, cfg)
 
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
   private[this] val store: ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
 
-  override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig) {
+  override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig = cfg) {
     this.cfg = c
   }
+
+  private val broadcastListeners : java.util.Collection[org.atmosphere.cpr.BroadcasterListener] = new util.HashSet[BroadcasterListener]()
+
+  def addBroadcasterListener(x$1: org.atmosphere.cpr.BroadcasterListener): org.atmosphere.cpr.BroadcasterFactory = {
+    broadcastListeners.add(x$1)
+    this
+  }
+  def broadcasterListeners(): java.util.Collection[org.atmosphere.cpr.BroadcasterListener] = broadcastListeners
+  def removeBroadcasterListener(x$1: org.atmosphere.cpr.BroadcasterListener): org.atmosphere.cpr.BroadcasterFactory = {
+    broadcastListeners.remove(x$1)
+    this
+  }
+
 
   private def createBroadcaster[T <: Broadcaster](c: Class[T], id: Any): T = {
     try {
@@ -47,7 +83,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
       }
       b
     } catch {
-      case ex: Exception => throw new DefaultBroadcasterFactory.BroadcasterCreationException(ex)
+      case ex: Exception => throw new BroadcasterFactory.BroadcasterCreationException(ex)
     }
   }
 
@@ -70,7 +106,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
     if (bc != null) bc.forceDestroy()
 
     store.clear()
-    BroadcasterFactory.factory = null
+    ScalatraBroadcasterFactory.clearDefaults
   }
 
   def get(): Broadcaster = lookup(UUID.randomUUID().toString)
