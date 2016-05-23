@@ -146,7 +146,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
         request(AtmosphereRouteKey) = atmoRoute.get
         request.getSession(true) // force session creation
         if (request.get(FrameworkConfig.ATMOSPHERE_HANDLER_WRAPPER).isEmpty)
-          atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response))
+          atmosphereFramework.doCometSupport(AtmosphereRequestImpl.wrap(request), AtmosphereResponseImpl.wrap(response))
       } else {
         super.handle(request, response)
       }

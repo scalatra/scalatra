@@ -77,7 +77,7 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
           case (Post, _) =>
             var client: AtmosphereClient = null
             if (isNew) {
-              session = AtmosphereResourceFactory.getDefault.find(resource.uuid).session
+              session = new DefaultAtmosphereResourceFactory().find(resource.uuid).session
             }
 
             client = session(org.scalatra.atmosphere.AtmosphereClientKey).asInstanceOf[AtmosphereClient]
@@ -126,7 +126,7 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
   }
 
   private[this] def configureBroadcaster(resource: AtmosphereResource) {
-    val bc = BroadcasterFactory.getDefault.get(requestUri(resource))
+    val bc = ScalatraBroadcasterFactory.getDefault.get.get(requestUri(resource))
     resource.setBroadcaster(bc)
   }
 
