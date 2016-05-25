@@ -76,6 +76,8 @@ trait FutureSupport extends AsyncSupport {
                     try {
                       renderResponse(errorHandler(e))
                     } catch {
+                      case e: HaltException =>
+                        renderHaltException(e)
                       case e: Throwable =>
                         ScalatraBase.runCallbacks(Failure(e))
                         renderUncaughtException(e)

@@ -132,6 +132,20 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
   }
 }
 
+class ScalateFuturesWithErrorHandlerSupportServlet(exec: ExecutorService) extends ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport with FlashMapSupport with FutureSupport {
+  protected implicit val executor = ExecutionContext.fromExecutorService(exec)
+
+  get("/barf") {
+    new AsyncResult { val is = Future { throw new RuntimeException } }
+  }
+
+  error {
+    case e: Exception =>
+      halt(500, body = "Something went bad")
+  }
+
+}
+
 class ScalateFuturesSupportSpec extends MutableScalatraSpec {
   sequential
   "ScalateSupport with Futures" should {
@@ -277,5 +291,25 @@ class ScalateFuturesSupportSpec extends MutableScalatraSpec {
 
   def e23 = get("/render-to-string") {
     header("X-Template-Output") must_== "<div>SSP template</div>"
+  }
+}
+
+class ScalateFuturesWithErrorHandlerSupportSpec extends MutableScalatraSpec {
+  sequential
+  "ScalateSupport with Futures with error handler" should {
+    "render uncaught errors should run error handler" in e1
+  }
+
+  val pool = DaemonThreadFactory.newPool()
+  addServlet(new ScalateFuturesWithErrorHandlerSupportServlet(pool), "/*")
+
+  override def afterAll = {
+    super.afterAll
+    pool.shutdown()
+  }
+
+  def e1 = get("/barf") {
+    status must_== 500
+    body must_== "Something went bad"
   }
 }
