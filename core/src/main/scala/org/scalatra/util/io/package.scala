@@ -33,7 +33,13 @@ package object io {
   }
 
   def zeroCopy(in: FileInputStream, out: OutputStream): Unit = {
-    using(in.getChannel) { ch => ch.transferTo(0, ch.size, Channels.newChannel(out)) }
+    using(in.getChannel) {
+      ch =>
+        var start = 0L
+        while (start < ch.size) {
+          start += ch.transferTo(start, ch.size, Channels.newChannel(out))
+        }
+    }
   }
 
   def readBytes(in: InputStream): Array[Byte] = {
