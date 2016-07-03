@@ -67,6 +67,7 @@ object ScalatraBuild extends Build {
           mimeUtil,
           jodaTime,
           jodaConvert,
+          commonsLang3,
           akkaActor % "test"
         )
         if (sv.startsWith("2.10")) default else default ++ Seq(parserCombinators, xml)
