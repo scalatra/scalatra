@@ -3,6 +3,7 @@ package org.scalatra
 import javax.servlet._
 import javax.servlet.http._
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.scalatra.servlet.ServletBase
 import org.scalatra.util.RicherString._
 
@@ -110,7 +111,7 @@ trait ScalatraServlet
       val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
       response.getWriter println error.format(
         request.getMethod,
-        Option(request.getPathInfo) getOrElse "/",
+        Option(StringEscapeUtils.escapeEcmaScript(request.getPathInfo)) getOrElse "/",
         request.getServletPath,
         routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
     }
