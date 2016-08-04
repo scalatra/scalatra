@@ -275,12 +275,12 @@ object SwaggerSerializers {
         ("properties" -> (x.properties.sortBy { case (_, p) ⇒ p.position } map { case (k, v) => k -> Extraction.decompose(v) }))
   }))
 
-  class ResponseMessageSerializer extends CustomSerializer[ResponseMessage[_]](implicit formats => ({
+  class ResponseMessageSerializer extends CustomSerializer[ResponseMessage](implicit formats => ({
     case value: JObject =>
-      StringResponseMessage((value \ "code").as[Int], (value \ "message").as[String])
+      ResponseMessage((value \ "code").as[Int], (value \ "message").as[String], (value \ "responseModel").getAs[String].flatMap(_.blankOption))
   }, {
-    case StringResponseMessage(code, message) =>
-      ("code" -> code) ~ ("message" -> message)
+    case ResponseMessage(code, message, responseModel) =>
+      ("code" -> code) ~ ("message" -> message) ~ ("responseModel" -> responseModel)
   }))
 
   class ParameterSerializer extends CustomSerializer[Parameter](implicit formats => ({
@@ -332,7 +332,7 @@ object SwaggerSerializers {
         (value \ "deprecated").extractOpt[Boolean] getOrElse false,
         (value \ "nickname").extractOpt[String].flatMap(_.blankOption),
         (value \ "parameters").extract[List[Parameter]],
-        (value \ "responseMessages").extract[List[ResponseMessage[_]]],
+        (value \ "responseMessages").extract[List[ResponseMessage]],
         (value \ "consumes").extract[List[String]],
         (value \ "produces").extract[List[String]],
         (value \ "protocols").extract[List[String]],
