@@ -87,6 +87,17 @@ trait AtmosphereClient extends AtmosphereClientFilters {
   def receive: AtmoReceive
 
   /**
+   * Close the connection.
+   */
+  def close(): Unit = {
+    if (resource != null) {
+      resource.close()
+    } else {
+      throw new RuntimeException("AtmosphereResource is not present!")
+    }
+  }
+
+  /**
    * A convenience method which sends a message only to the current client,
    * using a broadcast filter.  This is the same as calling `broadcast(message, to = Me)`
    */
