@@ -16,6 +16,9 @@ import org.specs2.matcher.{ JsonMatchers, MatchResult }
 import scala.collection.mutable
 import scala.io.Source
 
+/**
+ * TestCase for Swagger 1.x support
+ */
 class SwaggerSpec extends ScalatraSpec with JsonMatchers {
   def is = sequential ^
     "Swagger integration should" ^
@@ -272,6 +275,186 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers {
       (api \ "operations").find(_ \ "nickname" == JString(name))
     }
   }
+}
+
+/**
+ * TestCase for Swagger 2.0 support
+ */
+class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
+  def is = sequential ^
+    "Swagger 2.0 integration should" ^
+    "generate api definitions" ! generateApiDefinitions ^
+    end
+  val apiInfo = ApiInfo(
+    title = "Swagger Sample App",
+    description = "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
+    termsOfServiceUrl = "http://helloreverb.com/terms/",
+    contact = "apiteam@wordnik.com",
+    license = "Apache 2.0",
+    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html"
+  )
+  val swagger = new Swagger("2.0", "1.0.0", apiInfo)
+  swagger.addAuthorization(ApiKey("apiKey"))
+  swagger.addAuthorization(OAuth(
+    List("PUBLIC"),
+    List(
+      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
+      AuthorizationCodeGrant(
+        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
+        TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
+    )
+  ))
+  val testServlet = new SwaggerTestServlet(swagger)
+
+  addServlet(testServlet, "/pet/*")
+  addServlet(new StoreApi(swagger), "/store/*")
+  addServlet(new UserApi(swagger), "/user/*")
+  addServlet(new SwaggerResourcesServlet(swagger), "/api-docs/*")
+  implicit val formats = DefaultFormats
+
+  /**
+   * Sets the port to listen on.  0 means listen on any available port.
+   */
+  override lazy val port: Int = { val s = new ServerSocket(0); try { s.getLocalPort } finally { s.close() } } //58468
+
+  val swaggerJsonJValue = readJson("swagger.json")
+
+  private def readJson(file: String) = {
+    val f = if (file startsWith "/") file else "/" + file
+    val rdr = Source.fromInputStream(getClass.getResourceAsStream(f)).bufferedReader()
+    JsonParser.parse(rdr)
+  }
+
+  def generateApiDefinitions = get("/api-docs/swagger.json") {
+    val bd = JsonParser.parseOpt(body)
+    bd must beSome[JValue] and {
+      val j = bd.get
+      (j \ "version" must_== swaggerJsonJValue \ "version") and
+        verifyInfo(j \ "info") and
+        verifyPaths(j \ "paths") and
+        verifyDefinitions(j \ "definitions") and
+        veritySecurityDefinitions(j \ "securityDefinitions")
+    }
+  }
+
+  def parseInt(i: String): Option[Int] =
+    try {
+      Some(Integer.parseInt(i))
+    } catch {
+      case _: Throwable ⇒ None
+    }
+
+  def verifyPaths(j: JValue) = {
+    val JObject(paths) = j
+    val expectations = mutable.HashMap(
+      ("/pet/findByTags", "get") -> "findPetsByTags",
+      ("/pet/{petId}", "delete") -> "deletePet",
+      ("/pet/{petId}", "get") -> "getPetById",
+      ("/pet/findByStatus", "get") -> "findPetsByStatus",
+      ("/pet/", "post") -> "addPet",
+      ("/pet/", "put") -> "updatePet",
+      ("/store/order", "post") -> "placeOrder",
+      ("/store/order/{orderId}", "delete") -> "deleteOrder",
+      ("/store/order/{orderId}", "get") -> "getOrderById",
+      ("/user/", "post") -> "createUser"
+    )
+    paths flatMap {
+      case (path, JObject(x)) =>
+        x map {
+          case (method, operation) =>
+            val operationId = expectations((path, method))
+            expectations -= ((path, method))
+            (JString(operationId) must_== operation \ "operationId") and
+              verifyOperation(operation, swaggerJsonJValue \ "paths" \ path \ method, operationId)
+        }
+    } reduce (_ and _) and (expectations must beEmpty)
+  }
+
+  def verifyInfo(j: JValue) = {
+    val info = swaggerJsonJValue \ "info"
+    (j \ "title" must_== info \ "title") and
+      (j \ "version" must_== info \ "version") and
+      (j \ "description" must_== info \ "description") and
+      (j \ "termsOfService" must_== info \ "termsOfService") and
+      (j \ "contact" \ "name" must_== info \ "contact" \ "name") and
+      (j \ "license" \ "name" must_== info \ "license" \ "name") and
+      (j \ "license" \ "url" must_== info \ "license" \ "url")
+  }
+
+  def verifyDefinitions(j: JValue) = {
+    val JObject(definitions) = j
+    definitions.flatMap {
+      case (modelName, model) =>
+        val JObject(properties) = model \ "properties"
+        properties.map {
+          case (propertyName, property) =>
+            verifyProperty(property, swaggerJsonJValue \ "definitions" \ modelName \ "properties" \ propertyName, propertyName)
+        }
+    }.reduce(_ and _)
+  }
+
+  def veritySecurityDefinitions(j: JValue) = {
+    val JObject(definitions) = j
+    definitions.map {
+      case (name, definition) =>
+        verifyFields(definition, swaggerJsonJValue \ "securityDefinitions" \ name, "type", "name", "in", "flow", "authorizationUrl", "scopes")
+    }.reduce(_ and _)
+  }
+
+  def verifyProperty(actual: JValue, expected: JValue, propertyName: String) = {
+    val m = verifyFields(actual, expected, "type", "format", "$ref", "items")
+    m setMessage (m.message + " of the property " + propertyName)
+  }
+
+  def verifyOperation(actual: JValue, expected: JValue, operationId: String) = {
+    val m = verifyFields(actual, expected, "operationId", "summary", "schemes", "consumes", "produces", "parameters", "responses", "security")
+    m setMessage (m.message + " of the operation " + operationId)
+  }
+
+  def verifyFields(actual: JValue, expected: JValue, fields: String*): MatchResult[Any] = {
+    def verifyField(act: JValue, exp: JValue, fn: String): MatchResult[Any] = {
+      fn match {
+        case "schema" =>
+          verifyFields(act \ fn, exp \ fn, "type", "items", "$ref")
+        case "items" =>
+          verifyFields(act \ fn, exp \ fn, "type", "$ref")
+        case "responses" =>
+          val af = act \ fn match {
+            case JObject(res) => res
+            case _ => Nil
+          }
+          val JObject(ef) = exp \ fn
+          val r = af map {
+            case (af_code, af_value) =>
+              val mm = verifyFields(
+                af_value,
+                ef collectFirst { case (ef_code, ef_value) if ef_code == af_code => ef_value } getOrElse JNothing,
+                "schema", "description")
+              mm setMessage (mm.message + " in response messages collection")
+          }
+          def countsmatch = (af.size must_== ef.size).setMessage("The count for the responseMessages is different")
+          if (r.nonEmpty) { countsmatch and (r reduce (_ and _)) } else countsmatch
+        case "parameters" =>
+          val JArray(af) = act \ fn
+          val JArray(ef) = exp \ fn
+          val r = af map { v =>
+            val mm = verifyFields(
+              v,
+              ef find (_ \ "name" == v \ "name") get,
+              "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess")
+            mm setMessage (mm.message + " in parameter " + (v \ "name").extractOrElse("N/A"))
+          }
+
+          if (r.nonEmpty) r reduce (_ and _) else 1.must_==(1)
+        case _ =>
+          val m = act \ fn must_== exp \ fn
+          m setMessage (JsonMethods.compact(JsonMethods.render(act \ fn)) + " does not match\n" + JsonMethods.compact(JsonMethods.render(exp \ fn)) + " for field " + fn)
+      }
+    }
+
+    fields map (verifyField(actual, expected, _)) reduce (_ and _)
+  }
+
 }
 
 class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
