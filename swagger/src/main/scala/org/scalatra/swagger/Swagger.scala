@@ -487,8 +487,8 @@ trait SwaggerOperation {
   def authorizations: List[String]
   def parameters: List[Parameter]
   @deprecated("Swagger spec 1.2 renamed `errorResponses` to `responseMessages`.", "2.2.2")
-  def errorResponses: List[ResponseMessage[_]] = responseMessages
-  def responseMessages: List[ResponseMessage[_]]
+  def errorResponses: List[ResponseMessage] = responseMessages
+  def responseMessages: List[ResponseMessage]
   //  def supportedContentTypes: List[String]
   def position: Int
 }
@@ -500,7 +500,7 @@ case class Operation(method: HttpMethod,
   deprecated: Boolean = false,
   nickname: Option[String] = None,
   parameters: List[Parameter] = Nil,
-  responseMessages: List[ResponseMessage[_]] = Nil,
+  responseMessages: List[ResponseMessage] = Nil,
   //                     supportedContentTypes: List[String] = Nil,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
@@ -517,8 +517,4 @@ case class Endpoint(path: String,
   description: Option[String] = None,
   operations: List[Operation] = Nil) extends SwaggerEndpoint[Operation]
 
-trait ResponseMessage[T] {
-  def code: Int
-  def message: T
-}
-case class StringResponseMessage(code: Int, message: String) extends ResponseMessage[String]
+case class ResponseMessage(code: Int, message: String, responseModel: Option[String] = None)
