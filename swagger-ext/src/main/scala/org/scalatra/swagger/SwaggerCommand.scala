@@ -22,7 +22,7 @@ object SwaggerCommandSupport {
   }
 
   private[this] def createParameterList[T <: Command](obj: T)(implicit mf: Manifest[T]): List[Parameter] = {
-    mf.erasure.getMethods().foldLeft(List.empty[Parameter]) { (lst, fld) =>
+    mf.runtimeClass.getMethods().foldLeft(List.empty[Parameter]) { (lst, fld) =>
       if (fld.getReturnType().isAssignableFrom(classOf[Field[_]]) && fld.getParameterTypes().isEmpty) {
         val f = fld.invoke(obj).asInstanceOf[Field[Any]]
         // remove if statement below to include header params in description again
@@ -67,7 +67,7 @@ object SwaggerCommandSupport {
 
   class CommandOperationBuilder[B <: SwaggerOperationBuilder[_]](registerModel: Model => Unit, underlying: B) {
     def parametersFromCommand[C <: Command: Manifest]: B =
-      parametersFromCommand(manifest[C].erasure.newInstance().asInstanceOf[C])
+      parametersFromCommand(manifest[C].runtimeClass.newInstance().asInstanceOf[C])
 
     def parametersFromCommand[C <: Command: Manifest](cmd: => C): B = {
       SwaggerCommandSupport.parametersFromCommand(cmd) match {
@@ -95,7 +95,7 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
     new CommandOperationBuilder(registerModel(_), underlying)
 
   private[this] def parametersFromCommand[T <: CommandType](implicit mf: Manifest[T]): List[Parameter] = {
-    parametersFromCommand(mf.erasure.newInstance().asInstanceOf[T])
+    parametersFromCommand(mf.runtimeClass.newInstance().asInstanceOf[T])
   }
 
   private[this] def parametersFromCommand[T <: CommandType](cmd: => T)(implicit mf: Manifest[T]): List[Parameter] = {

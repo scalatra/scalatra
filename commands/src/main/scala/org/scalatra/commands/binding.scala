@@ -51,7 +51,7 @@ object Binding {
     type S = I
 
     override def toString() = {
-      "Binding[%s, %s](name: %s, value: %s, original: %s)".format(sourceManifest.erasure.getSimpleName, valueManifest.erasure.getSimpleName, name, validation, original)
+      "Binding[%s, %s](name: %s, value: %s, original: %s)".format(sourceManifest.runtimeClass.getSimpleName, valueManifest.runtimeClass.getSimpleName, name, validation, original)
     }
 
     def transform(transformer: (T) => T): Binding =
@@ -113,7 +113,7 @@ sealed trait Binding {
   def apply(toBind: Either[String, Option[S]]): Binding
 
   override def toString() =
-    "BindingContainer[%s](name: %s, value: %s, original: %s)".format(valueManifest.erasure.getSimpleName, name, validation, original)
+    "BindingContainer[%s](name: %s, value: %s, original: %s)".format(valueManifest.runtimeClass.getSimpleName, name, validation, original)
 
 }
 
