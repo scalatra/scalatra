@@ -321,7 +321,6 @@ object ScalatraBuild extends Build {
     lazy val mimeUtil                 =  "eu.medsea.mimeutil"      %  "mime-util"                  % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll               =  "org.mockito"             %  "mockito-all"                % "1.10.19"
     lazy val rl                       =  "org.scalatra.rl"         %% "rl"                         % "0.4.10"
-    lazy val scalajCollection         =  "org.scalaj"              %% "scalaj-collection"          % "1.2"
     lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
     lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
     lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.2.3"
