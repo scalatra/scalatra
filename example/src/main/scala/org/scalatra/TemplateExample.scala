@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.scalate.ScalateSupport
+//import org.scalatra.scalate.ScalateSupport
 
 import scala.xml.{ Node, Text }
 
@@ -73,7 +73,7 @@ object Template {
   }
 }
 
-class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateSupport {
+class TemplateExample extends ScalatraServlet with FlashMapSupport /*with ScalateSupport*/ {
 
   private def displayPage(title: String, content: Seq[Node]) = Template.page(title, content, url(_, includeServletPath = false))
 
@@ -150,7 +150,7 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
 
   get("/scalate") {
     val content = "this is some fake content for the web page"
-    layoutTemplate("index.scaml", "content" -> content)
+    //layoutTemplate("index.scaml", "content" -> content)
   }
 
   get("/flash-map/form") {
