@@ -65,8 +65,6 @@ object ScalatraBuild extends Build {
           rl,
           jUniversalChardet,
           mimeUtil,
-          jodaTime,
-          jodaConvert,
           commonsLang3,
           akkaActor % "test"
         )
@@ -252,7 +250,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-cache",
     base = file("cache"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(),
+      libraryDependencies ++= Seq(jodaTime, jodaConvert),
       description := "Scalatra Cache support"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
