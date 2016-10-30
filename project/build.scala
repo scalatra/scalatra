@@ -336,7 +336,7 @@ object ScalatraBuild extends Build {
                                                                                     ).map(_        % specs2Version)
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
     lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.9" exclude("junit", "junit")
-    lazy val metricsScala             =  "nl.grons"                %  "metrics-scala_2.11"         % "3.5.5" // TODO Scala 2.12
+    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.5"
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.2"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.2"
     lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "19.0"
