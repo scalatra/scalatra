@@ -11,7 +11,6 @@ import org.json4s.JsonDSL._
 import org.json4s.{ DefaultFormats, Formats, _ }
 import org.scalatra.json.JacksonJsonSupport
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.specs2.specification._
 
 import scala.concurrent.duration._
 
@@ -29,23 +28,27 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
     new AtmosphereClient {
       def receive: AtmoReceive = {
         case Connected =>
-
           println("connected client")
-
           response.headers("foo") = request.header("bar").getOrElse("")
-
           broadcast("connected", to = Everyone)
         case TextMessage(txt) =>
           println("text message: " + txt)
-
           response.headers("foo") = request.header("bar").getOrElse("")
-
-          send(("seen" -> txt): JValue)
+          send("seen" -> txt: JValue)
         case JsonMessage(json) =>
           println("json message: " + json)
           send(("seen" -> "test1") ~ ("data" -> json))
         case m =>
           println("Got unknown message " + m.getClass + " " + m.toString)
+      }
+    }
+  }
+
+  atmosphere("/test2") {
+    new AtmosphereClient {
+      def receive: AtmoReceive = {
+        case TextMessage(text) => close()
+        case _ => ()
       }
     }
   }
@@ -126,13 +129,8 @@ class AtmosphereSpec extends MutableScalatraSpec {
     "allow one client to connect" in {
       val latch = new CountDownLatch(1)
 
-      // yay?
-      val client: Client[DefaultOptions, DefaultOptionsBuilder, DefaultRequestBuilder] = ClientFactory.getDefault.newClient.asInstanceOf[Client[DefaultOptions, DefaultOptionsBuilder, DefaultRequestBuilder]]
-
-      val req = client.newRequestBuilder
-        .method(Request.METHOD.GET)
-        .uri(baseUrl + "/test1")
-        .transport(Request.TRANSPORT.WEBSOCKET)
+      val client = createAtmosphereClient()
+      val req = buildGetRequest(client, "/test1")
 
       val opts = client.newOptionsBuilder().reconnect(false).build()
 
@@ -143,24 +141,59 @@ class AtmosphereSpec extends MutableScalatraSpec {
         }
       }).on(new Function[Throwable] {
         def on(t: Throwable) = {
-          t.printStackTrace
+          t.printStackTrace()
         }
       })
 
-      socket.open(req.build()).fire("echo");
+      socket.open(req.build()).fire("echo")
+
+      latch.await(5, TimeUnit.SECONDS) must beTrue
+    }
+
+    "allow to close a connection on the server side" in {
+      val latch = new CountDownLatch(1)
+
+      val client = createAtmosphereClient()
+      val req = buildGetRequest(client, "/test2")
+
+      val opts = client.newOptionsBuilder().reconnect(false).build()
+
+      val socket = client.create(opts).on(Event.CLOSE, new Function[String] {
+        def on(r: String) = {
+          latch.countDown()
+          println(r)
+        }
+      }).on(new Function[Throwable] {
+        def on(t: Throwable) = {
+          t.printStackTrace()
+        }
+      })
+
+      socket.open(req.build()).fire("close")
 
       latch.await(5, TimeUnit.SECONDS) must beTrue
     }
 
   }
 
-  private def stopSystem {
+  private def createAtmosphereClient(): Client[DefaultOptions, DefaultOptionsBuilder, DefaultRequestBuilder] =
+    ClientFactory.getDefault.newClient.asInstanceOf[Client[DefaultOptions, DefaultOptionsBuilder, DefaultRequestBuilder]]
+
+  private def buildGetRequest(
+      client: Client[DefaultOptions, DefaultOptionsBuilder, DefaultRequestBuilder],
+      endpointUrl: String) =
+    client.newRequestBuilder
+      .method(Request.METHOD.GET)
+      .uri(baseUrl + endpointUrl)
+      .transport(Request.TRANSPORT.WEBSOCKET)
+
+  private def stopSystem() {
     system.shutdown()
     system.awaitTermination(Duration(1, TimeUnit.MINUTES))
   }
 
   override def afterAll = {
     super.afterAll
-    stopSystem
+    stopSystem()
   }
 }
