@@ -45,7 +45,7 @@ trait PathPatternParser {
 
 object PathPatternParser {
 
-  val PathReservedCharacters = "/?#"
+  val PathReservedCharacters = "/?#;"
 
 }
 
