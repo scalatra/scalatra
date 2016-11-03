@@ -298,7 +298,7 @@ object ScalatraBuild extends Build {
     lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.3.1"
     lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.4"
     lazy val commonsLang3             =  "org.apache.commons"      %  "commons-lang3"              % "3.4"
-    lazy val grizzledSlf4j            =  "org.clapper"             %% "grizzled-slf4j"             % grizzledSlf4jVersion
+    lazy val grizzledSlf4j            =  "org.clapper"             %% "grizzled-slf4j"             % grizzledSlf4jVersion // TODO Scala 2.12
     lazy val guice                    =  "com.google.inject"       %  "guice"                      % "4.0"
     lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
     lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
@@ -320,7 +320,7 @@ object ScalatraBuild extends Build {
     lazy val mockitoAll               =  "org.mockito"             %  "mockito-all"                % "1.10.19"
     lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
     lazy val rl                       =  "org.scalatra.rl"         %  "rl_2.11"                    % "0.4.10" // TODO Scala 2.12
-    lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
+    lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion // TODO Scala 2.12
     lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.3.0-M5"
     lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
     lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.2.3.RELEASE"
