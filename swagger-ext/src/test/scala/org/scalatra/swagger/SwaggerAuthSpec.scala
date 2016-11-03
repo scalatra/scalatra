@@ -9,7 +9,7 @@ import org.scalatra.auth.{ ScentryConfig, ScentryStrategy, ScentrySupport }
 import org.scalatra.json.NativeJsonSupport
 import org.scalatra.servlet.ServletApiImplicits._
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 object SwaggerAuthSpec {
   case class User(login: String, token: String = "the_token")

@@ -5,8 +5,7 @@ import javax.servlet.{ Filter, Servlet }
 
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
 import org.scalatra.swagger.reflect.Reflector
-import org.scalatra.util.NotNothing
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable

@@ -6,7 +6,7 @@ import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import grizzled.slf4j.Logger
 import org.scalatra.auth.ScentryAuthStore.ScentryAuthStore
 import org.scalatra.servlet.ServletApiImplicits._
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.collection.mutable
 

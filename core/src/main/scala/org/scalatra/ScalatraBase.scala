@@ -6,7 +6,6 @@ import javax.servlet.{ ServletRegistration, Filter, ServletContext }
 
 import org.scalatra.ScalatraBase._
 import org.scalatra.servlet.ServletApiImplicits
-import org.scalatra.util.RicherString._
 import org.scalatra.util._
 import org.scalatra.util.conversion.DefaultImplicitConversions
 import org.scalatra.util.io.zeroCopy

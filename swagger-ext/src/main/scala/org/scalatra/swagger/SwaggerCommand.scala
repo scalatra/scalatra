@@ -4,7 +4,7 @@ package swagger
 import org.scalatra.commands._
 import org.scalatra.swagger.SwaggerCommandSupport.CommandOperationBuilder
 import org.scalatra.swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scalaz.Scalaz._
 

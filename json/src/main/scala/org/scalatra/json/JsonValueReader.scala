@@ -2,7 +2,7 @@ package org.scalatra
 package json
 
 import org.json4s._
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 import org.scalatra.util.ValueReader
 
 import scala.util.control.Exception.allCatch

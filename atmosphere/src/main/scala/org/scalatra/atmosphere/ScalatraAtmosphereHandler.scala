@@ -9,7 +9,7 @@ import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 import org.atmosphere.cpr._
 import org.atmosphere.handler.AbstractReflectorAtmosphereHandler
 import org.scalatra.servlet.ServletApiImplicits._
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 object ScalatraAtmosphereHandler {
   @deprecated("Use `org.scalatra.atmosphere.AtmosphereClientKey` instead", "2.2.1")

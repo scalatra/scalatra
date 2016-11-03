@@ -6,7 +6,7 @@ import java.util.Locale
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import net.iharder.Base64
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.io.Codec
 

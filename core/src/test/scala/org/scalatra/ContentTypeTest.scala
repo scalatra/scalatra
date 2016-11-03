@@ -8,7 +8,7 @@ import _root_.akka.util.Timeout
 import org.eclipse.jetty.servlet.ServletHolder
 import org.scalatest.BeforeAndAfterAll
 import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatra.util.RicherString._
+import org.scalatra.util._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
