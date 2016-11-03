@@ -11,7 +11,7 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraSettings = Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.12.0-RC1", "2.11.8"),
+    crossScalaVersions := Seq("2.12.0", "2.11.8"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", /*"-Yinline-warnings",*/ "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
@@ -350,7 +350,7 @@ object ScalatraBuild extends Build {
     private val json4sVersion           = "3.4.1"
     private val scalateVersion          = "1.7.1"
     private val scalatestVersion        = "3.0.0"
-    private val specs2Version           = "3.8.5"
+    private val specs2Version           = "3.8.6"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {
