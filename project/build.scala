@@ -278,7 +278,7 @@ object ScalatraBuild extends Build {
        description := "Scalatra example project"
      )
   ) dependsOn(
-     scalatraCore % "compile;test->test;provided->provided", //scalatraScalate,
+     scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
      scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
   )
 
