@@ -47,7 +47,7 @@ object JodaDateFormats extends DateParser {
 
   object HttpDate extends DateFormat {
     val pattern = "EEE, dd MMM yyyy HH:mm:ss zzz"
-    val dateTimeFormat = DateTimeFormat.forPattern(pattern)
+    val dateTimeFormat = DateTimeFormat.forPattern(pattern).withLocale(Locale.ENGLISH)
 
     override def parse(s: String) = {
       s.blankOption flatMap { s ⇒

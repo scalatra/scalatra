@@ -19,7 +19,7 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
   private[this] val commandFactories: ConcurrentMap[Class[_], () => Command] = new ConcurrentHashMap[Class[_], () => Command].asScala
 
   def registerCommand[T <: Command](cmd: => T)(implicit mf: Manifest[T]) {
-    commandFactories += (mf.erasure -> (() => cmd))
+    commandFactories += (mf.runtimeClass -> (() => cmd))
   }
 
   /**
@@ -29,7 +29,7 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
    * a request attribute.
    */
   def command[T <: CommandType](implicit request: HttpServletRequest, mf: Manifest[T]): T = {
-    def createCommand = commandFactories.get(mf.erasure).map(_()).getOrElse(mf.erasure.newInstance()).asInstanceOf[T]
+    def createCommand = commandFactories.get(mf.runtimeClass).map(_()).getOrElse(mf.runtimeClass.newInstance()).asInstanceOf[T]
     commandOption[T] getOrElse bindCommand(createCommand)
   }
 
@@ -52,7 +52,7 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
     request.get(commandRequestKey[T]).map(_.asInstanceOf[T])
 
   private[commands] def commandRequestKey[T <: CommandType](implicit request: HttpServletRequest, mf: Manifest[T]) =
-    "_command_" + manifest[T].erasure.getName
+    "_command_" + manifest[T].runtimeClass.getName
 
   private class CommandRouteMatcher[T <: CommandType](implicit mf: Manifest[T]) extends RouteMatcher {
 
