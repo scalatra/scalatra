@@ -38,7 +38,7 @@ object ScalatraBuild extends Build {
       Unidoc.unidocExclude := Seq("scalatra-example")
     ),
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
-      /*scalatraScalate, */scalatraJson, scalatraSlf4j, scalatraAtmosphere,
+      scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
       scalatraTest, scalatraScalatest, scalatraSpecs2,
       scalatraExample, scalatraSwagger, scalatraJetty,
       scalatraCommon, scalatraSwaggerExt, scalatraSpring,
@@ -298,7 +298,7 @@ object ScalatraBuild extends Build {
     lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.3.1"
     lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.4"
     lazy val commonsLang3             =  "org.apache.commons"      %  "commons-lang3"              % "3.4"
-    lazy val grizzledSlf4j            =  "org.clapper"             %% "grizzled-slf4j"             % grizzledSlf4jVersion // TODO Scala 2.12
+    lazy val grizzledSlf4j            =  "org.clapper"             % "grizzled-slf4j_2.11"             % grizzledSlf4jVersion // TODO Scala 2.12
     lazy val guice                    =  "com.google.inject"       %  "guice"                      % "4.0"
     lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
     lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
@@ -321,7 +321,7 @@ object ScalatraBuild extends Build {
     lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion // TODO Scala 2.12
     lazy val rl                       =  "org.scalatra.rl"         %  "rl_2.11"                    % "0.4.10" // TODO Scala 2.12
     lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
-    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.3.0-M5"
+    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.3.0-M6"
     lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
     lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.2.3.RELEASE"
     lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.21"
@@ -333,19 +333,19 @@ object ScalatraBuild extends Build {
                                                                                     ).map(_        % specs2Version)
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
     lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.9" exclude("junit", "junit")
-    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.5"
+    lazy val metricsScala             =  "nl.grons"                % "metrics-scala_2.12.0-RC2"              % "3.5.5" // TODO Scala 2.12
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.2"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.2"
     lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "19.0"
     lazy val googleFindBugs           = "com.google.code.findbugs" % "jsr305"                      % "3.0.1"
 
-    private val akkaVersion             = "2.4.11"
+    private val akkaVersion             = "2.4.12"
     private val grizzledSlf4jVersion    = "1.2.0"
     private val atmosphereCompatVersion = "2.0.1"
     private val httpcomponentsVersion   = "4.5.2"
     private val jettyVersion            = "9.2.17.v20160517"
-    private val json4sVersion           = "3.4.1"
-    private val scalateVersion          = "1.7.1"
+    private val json4sVersion           = "3.5.0.RC1"
+    private val scalateVersion          = "1.8.0-RC1"
     private val scalatestVersion        = "3.0.0"
     private val specs2Version           = "3.8.6"
   }
