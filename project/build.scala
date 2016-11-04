@@ -318,10 +318,10 @@ object ScalatraBuild extends Build {
     lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.1.7"
     lazy val mimeUtil                 =  "eu.medsea.mimeutil"      %  "mime-util"                  % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll               =  "org.mockito"             %  "mockito-all"                % "1.10.19"
-    lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion // TODO Scala 2.12
+    lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
     lazy val rl                       =  "org.scalatra.rl"         %  "rl_2.11"                    % "0.4.10" // TODO Scala 2.12
     lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
-    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.3.0-M6"
+    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.2.7"
     lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
     lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.2.3.RELEASE"
     lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.21"
