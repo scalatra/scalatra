@@ -56,18 +56,17 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => {
-        val default = Seq(
-          servletApi % "provided;test",
-          slf4jApi,
-          grizzledSlf4j,
-          jUniversalChardet,
-          mimeUtil,
-          commonsLang3,
-          akkaActor % "test"
-        )
-        if (sv.startsWith("2.10")) default else default ++ Seq(parserCombinators, xml)
-      }),
+      libraryDependencies ++= Seq(
+        servletApi % "provided;test",
+        slf4jApi,
+        grizzledSlf4j,
+        jUniversalChardet,
+        mimeUtil,
+        commonsLang3,
+        parserCombinators,
+        xml,
+        akkaActor % "test"
+      ),
       libraryDependencies ++= Seq(akkaTestkit % "test"),
       description := "The core Scalatra framework"
     )
@@ -200,10 +199,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= (scalaVersion) { sv =>
-        val com = Seq(json4sExt, logbackClassic % "provided")
-        if (sv.startsWith("2.10")) com else  parserCombinators +: com
-      },
+      libraryDependencies ++= Seq(json4sExt, parserCombinators, logbackClassic % "provided"),
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
@@ -238,7 +234,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-metrics",
     base = file("metrics"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(metricsScala, metricsServlets, metricsServlet),
+      libraryDependencies ++= Seq(metricsScala(scalaVersion.value), metricsServlets, metricsServlet),
       description := "Scalatra integration with Metrics"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -329,7 +325,11 @@ object ScalatraBuild extends Build {
                                                                                     ).map(_        % specs2Version)
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
     lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.9" exclude("junit", "junit")
-    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.6-snapshot"
+    def metricsScala(version: String) = if(version.startsWith("2.11")){
+      "nl.grons" %% "metrics-scala" % "3.5.5"
+    } else {
+      "nl.grons" %% "metrics-scala" % "3.5.6-snapshot"
+    }
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.2"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.2"
     lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "19.0"
