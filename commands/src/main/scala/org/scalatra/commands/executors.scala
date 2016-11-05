@@ -1,7 +1,7 @@
 package org.scalatra.commands
 
 import grizzled.slf4j.Logger
-import mojolly.inflector.InflectorImports._
+import org.scalatra.util.InflectorImports._
 import org.scalatra.validation._
 
 import scala.annotation.implicitNotFound

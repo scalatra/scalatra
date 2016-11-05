@@ -130,8 +130,7 @@ object ScalatraBuild extends Build {
     base = file("commands"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        "commons-validator"       % "commons-validator"  % "1.5.1",
-        "io.backchat.inflector"   % "scala-inflector_2.11" % "1.3.5" // TODO Scala 2.12
+        "commons-validator" % "commons-validator" % "1.5.1"
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=

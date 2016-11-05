@@ -1,7 +1,7 @@
 package org.scalatra
 package commands
 
-import mojolly.inflector.InflectorImports._
+import org.scalatra.util.InflectorImports._
 import org.scalatra.util.RicherString._
 import org.scalatra.util.conversion._
 import org.scalatra.validation._
