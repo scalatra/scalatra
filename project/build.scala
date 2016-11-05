@@ -13,9 +13,8 @@ object ScalatraBuild extends Build {
     organization := "org.scalatra",
     crossScalaVersions := Seq("2.12.0", "2.11.8"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", /*"-Yinline-warnings",*/ "-Xcheckinit", "-encoding", "utf8", "-feature"),
+    scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation", /*"-Yinline-warnings",*/ "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
-    javacOptions  ++= Seq("-target", "1.7", "-source", "1.7", "-Xlint:deprecation"),
     manifestSetting,
     resolvers ++= Seq(
       Opts.resolver.sonatypeSnapshots,
