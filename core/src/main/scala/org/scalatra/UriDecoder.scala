@@ -1,6 +1,6 @@
 package org.scalatra
 
-import rl.UrlCodingUtils
+import util.UrlCodingUtils
 
 object UriDecoder {
 
