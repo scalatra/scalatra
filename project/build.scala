@@ -234,7 +234,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-metrics",
     base = file("metrics"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(metricsScala(scalaVersion.value), metricsServlets, metricsServlet),
+      libraryDependencies ++= Seq(metricsScala, metricsServlets, metricsServlet),
       description := "Scalatra integration with Metrics"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -325,11 +325,7 @@ object ScalatraBuild extends Build {
                                                                                     ).map(_        % specs2Version)
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
     lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.9" exclude("junit", "junit")
-    def metricsScala(version: String) = if(version.startsWith("2.11")){
-      "nl.grons" %% "metrics-scala" % "3.5.5"
-    } else {
-      "nl.grons" %% "metrics-scala" % "3.5.6-snapshot"
-    }
+    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.5"
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.2"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.2"
     lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "19.0"
@@ -340,8 +336,8 @@ object ScalatraBuild extends Build {
     private val atmosphereCompatVersion = "2.0.1"
     private val httpcomponentsVersion   = "4.5.2"
     private val jettyVersion            = "9.2.17.v20160517"
-    private val json4sVersion           = "3.5.0.RC1"
-    private val scalateVersion          = "1.8.0-RC1"
+    private val json4sVersion           = "3.5.0"
+    private val scalateVersion          = "1.8.0"
     private val scalatestVersion        = "3.0.0"
     private val specs2Version           = "3.8.6"
   }
