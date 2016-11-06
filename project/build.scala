@@ -83,7 +83,6 @@ object ScalatraBuild extends Build {
     id = "scalatra-auth",
     base = file("auth"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(base64),
       description := "Scalatra authentication module"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
@@ -294,7 +293,6 @@ object ScalatraBuild extends Build {
     lazy val atmosphereCompatJbossweb =  "org.atmosphere"          %  "atmosphere-compat-jbossweb" % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat   =  "org.atmosphere"          %  "atmosphere-compat-tomcat"   % atmosphereCompatVersion
     lazy val atmosphereCompatTomcat7  =  "org.atmosphere"          %  "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
-    lazy val base64                   =  "net.iharder"             %  "base64"                     % "2.3.8"
     lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.3.1"
     lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.4"
     lazy val commonsLang3             =  "org.apache.commons"      %  "commons-lang3"              % "3.4"
