@@ -6,3 +6,7 @@ jdk:
   - oraclejdk8
 sudo: false
 script: ./sbt ++$TRAVIS_SCALA_VERSION test
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
