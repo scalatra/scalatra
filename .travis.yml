@@ -5,6 +5,7 @@ scala:
 jdk:
   - oraclejdk8
 sudo: false
+jdk: oraclejdk8
 script: ./sbt ++$TRAVIS_SCALA_VERSION test
 addons:
   apt:
