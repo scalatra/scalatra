@@ -2,7 +2,7 @@ package org.scalatra.swagger
 
 import java.lang.reflect.Type
 import java.text.SimpleDateFormat
-import java.util.{ Date => JDate }
+import java.util.{ Date => JDate, TimeZone }
 
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{ DateTime, DateTimeZone }
@@ -145,6 +145,7 @@ object SwaggerSerializers {
       } catch {
         case _: Throwable ⇒ None
       }
+      def timezone: TimeZone = TimeZone.getTimeZone("UTC")
     }
   }
 
@@ -467,4 +468,3 @@ object SwaggerSerializers {
 
   }))
 }
-

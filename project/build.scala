@@ -11,11 +11,10 @@ object ScalatraBuild extends Build {
 
   lazy val scalatraSettings = Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.11.8", "2.10.6"),
+    crossScalaVersions := Seq("2.12.0", "2.11.8"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
-    scalacOptions ++= Seq("-target:jvm-1.7", "-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
+    scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation", /*"-Yinline-warnings",*/ "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
-    javacOptions  ++= Seq("-target", "1.7", "-source", "1.7", "-Xlint:deprecation"),
     manifestSetting,
     resolvers ++= Seq(
       Opts.resolver.sonatypeSnapshots,
@@ -57,19 +56,17 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= scalaVersion(sv => {
-        val default = Seq(
-          servletApi % "provided;test",
-          slf4jApi,
-          grizzledSlf4j,
-          rl,
-          jUniversalChardet,
-          mimeUtil,
-          commonsLang3,
-          akkaActor % "test"
-        )
-        if (sv.startsWith("2.10")) default else default ++ Seq(parserCombinators, xml)
-      }),
+      libraryDependencies ++= Seq(
+        servletApi % "provided;test",
+        slf4jApi,
+        grizzledSlf4j,
+        jUniversalChardet,
+        mimeUtil,
+        commonsLang3,
+        parserCombinators,
+        xml,
+        akkaActor % "test"
+      ),
       libraryDependencies ++= Seq(akkaTestkit % "test"),
       description := "The core Scalatra framework"
     )
@@ -131,8 +128,7 @@ object ScalatraBuild extends Build {
     base = file("commands"),
     settings = scalatraSettings ++ Seq(
       libraryDependencies ++= Seq(
-        "commons-validator"       % "commons-validator"  % "1.5.1",
-        "io.backchat.inflector"  %% "scala-inflector"    % "1.3.5"
+        "commons-validator" % "commons-validator" % "1.5.1"
       ),
       libraryDependencies ++= Seq(scalaz, jodaTime, jodaConvert),
       initialCommands :=
@@ -203,10 +199,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-swagger",
     base = file("swagger"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies <++= (scalaVersion) { sv =>
-        val com = Seq(json4sExt, logbackClassic % "provided")
-        if (sv.startsWith("2.10")) com else  parserCombinators +: com
-      },
+      libraryDependencies ++= Seq(json4sExt, parserCombinators, logbackClassic % "provided"),
       description := "Scalatra integration with Swagger"
     )
   ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
@@ -284,7 +277,7 @@ object ScalatraBuild extends Build {
 
   object Dependencies {
     lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.0.4"
-    lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.5"
+    lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.6"
     lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
     lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
     lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.4.4"
@@ -318,10 +311,9 @@ object ScalatraBuild extends Build {
     lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.1.7"
     lazy val mimeUtil                 =  "eu.medsea.mimeutil"      %  "mime-util"                  % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
     lazy val mockitoAll               =  "org.mockito"             %  "mockito-all"                % "1.10.19"
-    lazy val rl                       =  "org.scalatra.rl"         %% "rl"                         % "0.4.10"
     lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
     lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
-    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.2.3"
+    lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.2.7"
     lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
     lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.2.3.RELEASE"
     lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.21"
@@ -333,21 +325,21 @@ object ScalatraBuild extends Build {
                                                                                     ).map(_        % specs2Version)
     lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
     lazy val testng                   =  "org.testng"              %  "testng"                     % "6.9.9" exclude("junit", "junit")
-    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.2"
+    lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "3.5.5"
     lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "3.1.2"
     lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "3.1.2"
     lazy val googleGuava              =  "com.google.guava"        % "guava"                       % "19.0"
     lazy val googleFindBugs           = "com.google.code.findbugs" % "jsr305"                      % "3.0.1"
 
-    private val akkaVersion             = "2.3.15" // 2.4 dropped Java 7
-    private val grizzledSlf4jVersion    = "1.0.4"
+    private val akkaVersion             = "2.4.12"
+    private val grizzledSlf4jVersion    = "1.3.0"
     private val atmosphereCompatVersion = "2.0.1"
     private val httpcomponentsVersion   = "4.5.2"
     private val jettyVersion            = "9.2.17.v20160517"
-    private val json4sVersion           = "3.3.0"
-    private val scalateVersion          = "1.7.1"
-    private val scalatestVersion        = "2.2.5"
-    private val specs2Version           = "3.7.3"
+    private val json4sVersion           = "3.5.0"
+    private val scalateVersion          = "1.8.0"
+    private val scalatestVersion        = "3.0.0"
+    private val specs2Version           = "3.8.6"
   }
 
   lazy val manifestSetting = packageOptions <+= (name, version, organization) map {

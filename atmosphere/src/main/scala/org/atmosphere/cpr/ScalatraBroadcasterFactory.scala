@@ -155,7 +155,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
   def remove(b: Broadcaster, id: Any): Boolean = {
     val removed: Boolean = store.remove(id, b)
     if (removed) {
-      logger.debug("Removing Broadcaster {} factory size now {} ", id, store.size)
+      logger.debug("Removing Broadcaster %s factory size now %s ".format(id, store.size))
     }
     removed
   }

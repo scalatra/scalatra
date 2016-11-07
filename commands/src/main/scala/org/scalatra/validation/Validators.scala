@@ -4,9 +4,9 @@ package validation
 import java.net.URI
 import java.util.Locale._
 
-import mojolly.inflector.InflectorImports._
 import org.apache.commons.validator.routines.{ EmailValidator, UrlValidator }
 import org.scalatra.commands.FieldValidation
+import org.scalatra.util.InflectorImports._
 import org.scalatra.util.RicherString._
 
 import scala.util.control.Exception._

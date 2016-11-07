@@ -1,6 +1,12 @@
 language: scala
 scala:
-  - 2.10.6
   - 2.11.8
+  - 2.12.0
+jdk:
+  - oraclejdk8
 sudo: false
 script: ./sbt ++$TRAVIS_SCALA_VERSION test
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer

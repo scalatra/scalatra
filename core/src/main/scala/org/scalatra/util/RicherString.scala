@@ -3,8 +3,6 @@ package org.scalatra.util
 import java.nio.charset.Charset
 import java.util.regex.Pattern
 
-import rl.UrlCodingUtils
-
 class RicherString(orig: String) {
 
   def isBlank: Boolean = {

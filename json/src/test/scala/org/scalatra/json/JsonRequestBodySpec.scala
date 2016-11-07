@@ -2,9 +2,8 @@ package org.scalatra
 package json
 
 import org.json4s._
+import native._
 import org.scalatra.test.specs2.MutableScalatraSpec
-
-import scala.text.Document
 
 trait JsonSupportServlet[T] extends ScalatraBase with JsonSupport[T] with JValueResult {
 
