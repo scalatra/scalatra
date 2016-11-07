@@ -8,10 +8,9 @@ import scala.concurrent.duration._
 import org.scalatest.concurrent.Eventually._
 
 class RouteConcurrencyServlet extends ScalatraServlet {
-  for {
+  private[this] val gets = for {
     i <- 0 until 250
-    x = Future { get(false) { "/" } }
-  } x
+  } yield Future { get(false) { "/" } }
 
   val postRoutes = for {
     i <- 0 until 250
@@ -23,7 +22,7 @@ class RouteConcurrencyServlet extends ScalatraServlet {
     x = Future { post(false) {}; post(false) {} } // add some more routes while we're removing
     y = Future { route.foreach { route => removeRoute("POST", route) } }
   } yield (x, y)
-  Await.result(Future.sequence(b map (kv => kv._1.flatMap(_ => kv._2))), 5.seconds)
+  Await.result(Future.sequence(gets ++ (b map (kv => kv._1.flatMap(_ => kv._2)))), 5.seconds)
 
   get("/count/:method") {
     routes(HttpMethod(params("method"))).size.toString
