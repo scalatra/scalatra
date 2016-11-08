@@ -15,7 +15,6 @@ lazy val scalatraSettings = Seq(
   resolvers ++= Seq(
     Opts.resolver.sonatypeSnapshots,
     Opts.resolver.sonatypeReleases,
-    "bintray/non" at "http://dl.bintray.com/non/maven",
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
   ),
   dependencyOverrides := Set(
