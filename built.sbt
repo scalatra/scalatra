@@ -4,6 +4,7 @@ import java.net.URL
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 import com.typesafe.sbt.SbtScalariform.scalariformSettings
 import Dependencies._
+import UnidocKeys._
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
@@ -27,9 +28,9 @@ lazy val scalatraSettings = Seq(
 lazy val scalatraProject = Project(
   id = "scalatra-project",
   base = file("."),
-  settings = scalatraSettings ++ Unidoc.unidocSettings ++ doNotPublish ++ Seq(
+  settings = scalatraSettings ++ unidocSettings ++ doNotPublish ++ Seq(
     description := "A tiny, Sinatra-like web framework for Scala",
-    Unidoc.unidocExclude := Seq("scalatra-example")
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(scalatraExample)
   ),
   aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
     scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
