@@ -38,7 +38,8 @@
           "responseMessages": [
             {
               "code": 400,
-              "message": "Invalid ID supplied"
+              "message": "Invalid ID supplied",
+              "responseModel": "Error"
             },
             {
               "code": 404,
@@ -210,6 +211,15 @@
     }
   ],
   "models": {
+    "Error": {
+      "id": "Error",
+      "properties": {
+        "message": {
+          "position" : 0,
+          "type": "string"
+        }
+      }
+    },
     "Tag": {
       "id": "Tag",
       "properties": {

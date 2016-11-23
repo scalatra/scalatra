@@ -58,7 +58,7 @@ object SwaggerAuthSerializers {
         (value \ "deprecated").extractOpt[Boolean] getOrElse false,
         (value \ "nickname").extractOpt[String].flatMap(_.blankOption),
         (value \ "parameters").extract[List[Parameter]],
-        (value \ "responseMessages").extract[List[ResponseMessage[_]]],
+        (value \ "responseMessages").extract[List[ResponseMessage]],
         (value \ "consumes").extract[List[String]],
         (value \ "produces").extract[List[String]],
         (value \ "protocols").extract[List[String]],
@@ -246,7 +246,7 @@ case class AuthOperation[TypeForUser <: AnyRef](method: HttpMethod,
   deprecated: Boolean = false,
   nickname: Option[String] = None,
   parameters: List[Parameter] = Nil,
-  responseMessages: List[ResponseMessage[_]] = Nil,
+  responseMessages: List[ResponseMessage] = Nil,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
   protocols: List[String] = Nil,
@@ -294,7 +294,7 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
     val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[AuthOperation[TypeForUser]])
     op map (_.copy(method = method)) getOrElse {
       val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
-      val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage[_]]]) getOrElse Nil
+      val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
       val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[DataType]) getOrElse DataType.Void
       val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
       val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])

@@ -224,7 +224,7 @@ object SwaggerSupportSyntax {
     private[this] var _deprecated: Boolean = false
     private[this] var _nickname: String = _
     private[this] var _parameters: List[Parameter] = Nil
-    private[this] var _responseMessages: List[ResponseMessage[_]] = Nil
+    private[this] var _responseMessages: List[ResponseMessage] = Nil
     private[this] var _produces: List[String] = Nil
     private[this] var _consumes: List[String] = Nil
     private[this] var _protocols: List[String] = Nil
@@ -255,9 +255,9 @@ object SwaggerSupportSyntax {
     def parameters(params: Parameter*): this.type = { _parameters :::= params.toList; this }
     def parameter(param: Parameter): this.type = parameters(param)
     def parameters: List[Parameter] = _parameters
-    def responseMessages: List[ResponseMessage[_]] = _responseMessages
-    def responseMessages(errs: ResponseMessage[_]*): this.type = { _responseMessages :::= errs.toList; this }
-    def responseMessage(err: ResponseMessage[_]): this.type = responseMessages(err)
+    def responseMessages: List[ResponseMessage] = _responseMessages
+    def responseMessages(errs: ResponseMessage*): this.type = { _responseMessages :::= errs.toList; this }
+    def responseMessage(err: ResponseMessage): this.type = responseMessages(err)
     def produces(values: String*): this.type = { _produces :::= values.toList; this }
     def produces: List[String] = _produces
     def consumes: List[String] = _consumes
@@ -270,11 +270,11 @@ object SwaggerSupportSyntax {
     def position: Int = _position
 
     @deprecated("Swagger spec 1.2 defines errors as responseMessages", "2.2.2")
-    def errors(errs: ResponseMessage[_]*): this.type = responseMessages(errs: _*)
+    def errors(errs: ResponseMessage*): this.type = responseMessages(errs: _*)
     @deprecated("Swagger spec 1.2 defines error as responseMessage", "2.2.2")
-    def error(err: ResponseMessage[_]): this.type = responseMessages(err)
+    def error(err: ResponseMessage): this.type = responseMessages(err)
     @deprecated("Swagger spec 1.2 defines errors as responseMessages", "2.2.2")
-    def errorResponses: List[ResponseMessage[_]] = responseMessages
+    def errorResponses: List[ResponseMessage] = responseMessages
 
     def result: T
   }
@@ -296,18 +296,26 @@ object SwaggerSupportSyntax {
       authorizations)
   }
 }
-trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: ScalatraBase with SwaggerSupportBase =>
+trait SwaggerSupportSyntax extends Initializable with CorsSupport {
+  this: ScalatraBase with SwaggerSupportBase =>
   protected implicit def swagger: SwaggerEngine[_]
 
   @deprecated("This field is no longer used, due to changes in Swagger spec 1.2", "2.3.1")
   protected def applicationName: Option[String] = None
+
   protected def applicationDescription: String
+
   @deprecated("Swagger spec 1.2 renamed this to swaggerDefaultMessages, please use that one", "2.2.2")
-  protected def swaggerDefaultErrors: List[ResponseMessage[_]] = swaggerDefaultMessages
-  protected def swaggerDefaultMessages: List[ResponseMessage[_]] = Nil
+  protected def swaggerDefaultErrors: List[ResponseMessage] = swaggerDefaultMessages
+
+  protected def swaggerDefaultMessages: List[ResponseMessage] = Nil
+
   protected def swaggerProduces: List[String] = List("application/json")
+
   protected def swaggerConsumes: List[String] = List("application/json")
+
   protected def swaggerProtocols: List[String] = List("http")
+
   protected def swaggerAuthorizations: List[String] = Nil
 
   private[this] def throwAFit =
@@ -366,6 +374,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
   /**
    * Registers a model for swagger
+   *
    * @param model the model to add to the swagger definition
    */
   protected def registerModel(model: Model) {
@@ -375,9 +384,10 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   /**
    * Registers a model for swagger, this method reflects over the class and collects all
    * non-primitive classes and adds those to the swagger defintion
+   *
    * @tparam T the class of the model to register
    */
-  protected def registerModel[T: Manifest: NotNothing]() {
+  protected def registerModel[T: Manifest : NotNothing]() {
     Swagger.collectModels[T](_models.values.toSet) map registerModel
   }
 
@@ -386,39 +396,49 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
 
   /**
    * The currently registered model descriptions for swagger
+   *
    * @return a map of swagger models
    */
   def models = _models
 
   private[swagger] var _description: PartialFunction[String, String] = Map.empty
+
   protected def description(f: PartialFunction[String, String]) = _description = f orElse _description
 
   @deprecated("Use the `apiOperation.summary` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def summary(value: String) = swaggerMeta(Symbols.Summary, value)
+
   @deprecated("Use the `apiOperation.notes` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def notes(value: String) = swaggerMeta(Symbols.Notes, value)
+
   @deprecated("Use the variant where you use a type parameter, this method doesn't allow for reflection and requires you to manually ad the model", "2.2")
   protected def responseClass(value: String) = swaggerMeta(Symbols.ResponseClass, value)
+
   @deprecated("Use the `apiOperation.responseClass` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def responseClass[T](implicit mf: Manifest[T]) = {
     registerModel[T]()
     swaggerMeta(Symbols.ResponseClass, DataType[T])
   }
+
   @deprecated("Use the `apiOperation.nickname` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def nickname(value: String) = swaggerMeta(Symbols.Nickname, value)
 
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
+
   @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def parameters(value: Parameter*) = swaggerMeta(Symbols.Parameters, value.toList)
+
   @deprecated("Use the `apiOperation.errors` and `operation` methods to build swagger descriptions of endpoints", "2.2")
   protected def errors(value: Error*) = swaggerMeta(Symbols.Errors, value.toList)
 
   import org.scalatra.swagger.SwaggerSupportSyntax._
-  protected def apiOperation[T: Manifest: NotNothing](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
+
+  protected def apiOperation[T: Manifest : NotNothing](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
+
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
   private[this] def swaggerParam[T: Manifest](
-    name: String, liftCollection: Boolean = false, allowsCollection: Boolean = true, allowsOption: Boolean = true): ParameterBuilder[T] = {
+                                               name: String, liftCollection: Boolean = false, allowsCollection: Boolean = true, allowsOption: Boolean = true): ParameterBuilder[T] = {
     val st = Reflector.scalaTypeOf[T]
     if (st.isCollection && !allowsCollection) sys.error("Parameter [" + name + "] does not allow for a collection.")
     if (st.isOption && !allowsOption) sys.error("Parameter [" + name + "] does not allow optional values.")
@@ -436,24 +456,36 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
     Swagger.modelToSwagger[T] foreach { m => b.description(m.description) }
     b
   }
+
   private[this] def swaggerParam(name: String, model: Model): ModelParameterBuilder = {
     registerModel(model)
     new ModelParameterBuilder(DataType(model.id)).description(model.description).name(name)
   }
 
-  protected def bodyParam[T: Manifest: NotNothing]: ParameterBuilder[T] = bodyParam[T]("body")
+  protected def bodyParam[T: Manifest : NotNothing]: ParameterBuilder[T] = bodyParam[T]("body")
+
   protected def bodyParam(model: Model): ModelParameterBuilder = bodyParam("body", model)
-  protected def bodyParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromBody
+
+  protected def bodyParam[T: Manifest : NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name).fromBody
+
   protected def bodyParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromBody
-  protected def queryParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true)
+
+  protected def queryParam[T: Manifest : NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true)
+
   protected def queryParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model)
-  protected def formParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true).fromForm
+
+  protected def formParam[T: Manifest : NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true).fromForm
+
   protected def formParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromForm
-  protected def headerParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] =
+
+  protected def headerParam[T: Manifest : NotNothing](name: String): ParameterBuilder[T] =
     swaggerParam[T](name, allowsCollection = false).fromHeader
+
   protected def headerParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromHeader
-  protected def pathParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] =
+
+  protected def pathParam[T: Manifest : NotNothing](name: String): ParameterBuilder[T] =
     swaggerParam[T](name, allowsCollection = false, allowsOption = false).fromPath
+
   protected def pathParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromPath
 
   protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
@@ -461,6 +493,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { (route: Route) ⇒
     route.copy(metadata = route.metadata + (s -> v))
   }
+
   implicit def dataType2string(dt: DataType) = dt.name
 
   protected def inferSwaggerEndpoint(route: Route): String = route match {
@@ -480,6 +513,14 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport { this: Scalat
       endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
       operation = extract(route, method)
     } yield Entry(endpoint, operation)
+
+  implicit class ResponseMessageWithModel(message: ResponseMessage){
+    def model[T: Manifest : NotNothing] = {
+      swaggerParam[T]("response")
+      message.copy(responseModel = Some(manifest[T].runtimeClass.getSimpleName))
+    }
+  }
+
 }
 
 /**
@@ -523,7 +564,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
     val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[Operation])
     op map (_.copy(method = method)) getOrElse {
       val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
-      val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage[_]]]) getOrElse Nil
+      val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
       val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[DataType]) getOrElse DataType.Void
       val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
       val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
