@@ -36,7 +36,7 @@ trait ServletBase
       override def get(key: String): Option[String] = Option(config.getInitParameter(key))
 
       override def iterator: Iterator[(String, String)] = {
-        for (name <- config.getInitParameterNames.asScala.toIterator)
+        for (name <- config.getInitParameterNames.asScala)
           yield (name, config.getInitParameter(name))
       }
     }
