@@ -9,7 +9,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.fileupload.{ FileItem, FileItemFactory, FileUploadBase, FileUploadException }
 import org.scalatra.servlet._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide easy access to data submitted
@@ -33,7 +33,7 @@ trait FileUploadSupport extends ServletBase {
         val bodyParams = extractMultipartParams(req)
         var mergedParams = bodyParams.formParams
         // Add the query string parameters
-        req.getParameterMap foreach {
+        req.getParameterMap.asScala.foreach {
           case (name, values) =>
             val formValues = mergedParams.getOrElse(name, List.empty)
             mergedParams += name -> (values.toList ++ formValues)
@@ -72,7 +72,7 @@ trait FileUploadSupport extends ServletBase {
       case None =>
         val upload = newServletFileUpload
         val items = upload.parseRequest(req).asInstanceOf[JList[FileItem]]
-        val bodyParams = items.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (item, params) =>
+        val bodyParams = items.asScala.foldRight(BodyParams(FileMultiParams(), Map.empty)) { (item, params) =>
           if (item.isFormField)
             BodyParams(params.fileParams, params.formParams + ((item.getFieldName, fileItemToString(req, item) :: params.formParams.getOrElse(item.getFieldName, List[String]()))))
           else
@@ -107,9 +107,9 @@ trait FileUploadSupport extends ServletBase {
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
     val wrapped = new HttpServletRequestWrapper(req) {
       override def getParameter(name: String) = formMap.get(name) map { _.head } getOrElse null
-      override def getParameterNames = formMap.keysIterator
+      override def getParameterNames = formMap.keysIterator.asJavaEnumeration
       override def getParameterValues(name: String) = formMap.get(name) map { _.toArray } getOrElse null
-      override def getParameterMap = new JHashMap[String, Array[String]] ++ (formMap transform { (k, v) => v.toArray })
+      override def getParameterMap = (formMap transform { (k, v) => v.toArray }).asJava
     }
     wrapped
   }
