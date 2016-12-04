@@ -16,7 +16,7 @@ object ScalatraBuild extends Build {
     mimaDefaultSettings ++
     ls.Plugin.lsSettings ++ Seq(
     organization := "org.scalatra",
-    crossScalaVersions := Seq("2.10.0"),
+    crossScalaVersions := Seq("2.10.3","2.10.2","2.10.1","2.10.0"),
     scalaVersion <<= (crossScalaVersions) { versions => versions.head },
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xcheckinit", "-encoding", "utf8", "-feature"),
     scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
