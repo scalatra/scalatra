@@ -7,7 +7,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeAfterAll
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class HttpComponentsClientSpec
     extends Specification
@@ -35,10 +35,10 @@ class HttpComponentsClientSpec
 
       resp.setHeader("Request-Method", req.getMethod.toUpperCase)
       resp.setHeader("Request-URI", req.getRequestURI)
-      req.getHeaderNames.foreach(headerName =>
+      req.getHeaderNames.asScala.foreach(headerName =>
         resp.setHeader("Request-Header-%s".format(headerName), req.getHeader(headerName)))
 
-      req.getParameterMap.foreach {
+      req.getParameterMap.asScala.foreach {
         case (name, values) =>
           resp.setHeader("Request-Param-%s".format(name), values.mkString(", "))
       }

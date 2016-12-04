@@ -5,11 +5,11 @@ import java.io.File
 import org.scalatra.ScalatraServlet
 import org.scalatra.test.specs2.MutableScalatraSpec
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders() {
-    request.getHeaderNames.filter(_.startsWith("X")).foreach(header =>
+    request.getHeaderNames.asScala.filter(_.startsWith("X")).foreach(header =>
       response.setHeader(header, request.getHeader(header))
     )
   }
