@@ -111,7 +111,7 @@ trait ScalatraServlet
       val error = "Requesting \"%s %s\" on servlet \"%s\" but only have: %s"
       response.getWriter println error.format(
         request.getMethod,
-        Option(StringEscapeUtils.escapeEcmaScript(request.getPathInfo)) getOrElse "/",
+        Option(StringEscapeUtils.escapeHtml4(request.getPathInfo)) getOrElse "/",
         request.getServletPath,
         routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
     }
