@@ -1,7 +1,7 @@
 package org.scalatra
 package fileupload
 
-import java.util.{ HashMap => JHashMap, List => JList, Map => JMap }
+import java.util.{ List => JList }
 import javax.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse }
 
 import org.apache.commons.fileupload.disk.{ DiskFileItem, DiskFileItemFactory }

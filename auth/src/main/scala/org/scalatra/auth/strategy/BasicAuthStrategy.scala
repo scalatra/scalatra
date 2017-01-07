@@ -12,8 +12,6 @@ import scala.io.Codec
 
 trait RemoteAddress { self: ScentryStrategy[_] =>
 
-  import org.scalatra.auth.strategy.BasicAuthStrategy._
-
   protected def remoteAddress(implicit request: HttpServletRequest) = {
     val proxied = request.getHeader("X-FORWARDED-FOR")
     val res = if (proxied.nonBlank) proxied else request.getRemoteAddr

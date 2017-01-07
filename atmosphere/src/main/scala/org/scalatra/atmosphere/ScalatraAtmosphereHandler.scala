@@ -2,7 +2,7 @@ package org.scalatra
 package atmosphere
 
 import java.nio.CharBuffer
-import javax.servlet.http.{ HttpServletRequest, HttpSession }
+import javax.servlet.http.HttpSession
 
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._

@@ -3,7 +3,7 @@ package atmosphere
 
 import grizzled.slf4j.Logger
 import org.atmosphere.container._
-import org.atmosphere.cpr.{ AtmosphereFramework, Action => AtmoAction }
+import org.atmosphere.cpr.AtmosphereFramework
 
 class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers: Boolean = false) extends AtmosphereFramework(isFilter, autoDetectHandlers) {
 

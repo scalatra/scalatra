@@ -11,8 +11,7 @@ import org.scalatra.util.RicherString._
 
 import scala.util.control.Exception._
 import scala.util.matching.Regex
-import scalaz.Scalaz._
-import scalaz._
+import scalaz.syntax.validation._
 
 object Validators {
   trait Validator[TValue] {

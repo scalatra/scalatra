@@ -1,7 +1,6 @@
 package org.scalatra
 package slf4j
 
-import java.util.{ Map => JMap }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import grizzled.slf4j.Logger
