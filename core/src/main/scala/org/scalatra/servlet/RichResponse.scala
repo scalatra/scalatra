@@ -62,13 +62,13 @@ case class RichResponse(res: HttpServletResponse) {
   def characterEncoding: Option[String] = Option(res.getCharacterEncoding)
 
   def characterEncoding_=(encoding: Option[String]): Unit = {
-    res.setCharacterEncoding(encoding getOrElse null)
+    res.setCharacterEncoding(encoding.orNull)
   }
 
   def contentType: Option[String] = Option(res.getContentType)
 
   def contentType_=(contentType: Option[String]): Unit = {
-    res.setContentType(contentType getOrElse null)
+    res.setContentType(contentType.orNull)
   }
 
   def redirect(uri: String): Unit = {

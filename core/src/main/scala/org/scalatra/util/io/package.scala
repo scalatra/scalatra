@@ -65,7 +65,7 @@ package object io {
     prefix: String = "scalatra",
     suffix: String = ".tmp",
     directory: Option[File] = None)(f: File => A): A = {
-    val tmp = File.createTempFile(prefix, suffix, directory.getOrElse(null))
+    val tmp = File.createTempFile(prefix, suffix, directory.orNull)
     try {
       using(new BufferedWriter(new FileWriter(tmp))) { out =>
         out.write(content)
