@@ -16,7 +16,7 @@ trait ScalateRenderSupport { self: ScalatraBase with ScalateSupport =>
   lazy val oneMonth = oneWeek * 4
   lazy val oneYear = oneWeek * 52
 
-  def render(file: String, params: Map[String, Any] = Map(), responseContentType: String = "text/html", cacheMaxAge: Int = none, statusCode: Int = 200)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  def render(file: String, params: Map[String, Any] = Map(), responseContentType: String = "text/html", cacheMaxAge: Int = none, statusCode: Int = 200)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     contentType = responseContentType
     response.setHeader("Cache-Control", "public, max-age=%d" format cacheMaxAge)
     response.setStatus(statusCode)

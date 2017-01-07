@@ -16,7 +16,7 @@ case class MultipartConfig(
       fileSizeThreshold.getOrElse(0))
   }
 
-  def apply(ctxt: ServletContext) {
+  def apply(ctxt: ServletContext): Unit = {
     ctxt.setAttribute(HasMultipartConfig.MultipartConfigKey, this)
   }
 }

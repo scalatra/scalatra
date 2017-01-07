@@ -86,7 +86,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     case e: FailException => "caught"
   }
 
-  override def destroy() {
+  override def destroy(): Unit = {
     super.destroy()
     system.shutdown()
   }

@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
 trait FileUploadSupport extends ServletBase {
   import org.scalatra.fileupload.FileUploadSupport._
 
-  override def handle(req: HttpServletRequest, resp: HttpServletResponse) {
+  override def handle(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
     val req2 = try {
       if (isMultipartContent(req)) {
         val bodyParams = extractMultipartParams(req)

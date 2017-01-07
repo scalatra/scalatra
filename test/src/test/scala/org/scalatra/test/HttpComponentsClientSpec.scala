@@ -19,11 +19,11 @@ class HttpComponentsClientSpec
   def afterAll = stop()
 
   addServlet(new HttpServlet {
-    override def service(req: HttpServletRequest, resp: HttpServletResponse) {
-      def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096) {
+    override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+      def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
         val buf = new Array[Byte](bufferSize)
         @tailrec
-        def loop() {
+        def loop(): Unit = {
           val n = in.read(buf)
           if (n >= 0) {
             out.write(buf, 0, n)

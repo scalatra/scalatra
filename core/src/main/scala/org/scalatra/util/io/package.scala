@@ -21,7 +21,7 @@ package object io {
     using(in) { in =>
       val buf = new Array[Byte](bufferSize)
       @tailrec
-      def loop() {
+      def loop(): Unit = {
         val n = in.read(buf)
         if (n >= 0) {
           out.write(buf, 0, n)

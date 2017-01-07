@@ -29,14 +29,14 @@ trait JettyContainer extends Container {
       throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
   }
 
-  def mount(servlet: HttpServlet, path: String) { addServlet(servlet, path) }
-  def mount(servlet: HttpServlet, path: String, name: String) { addServlet(servlet, path, name) }
+  def mount(servlet: HttpServlet, path: String): Unit = { addServlet(servlet, path) }
+  def mount(servlet: HttpServlet, path: String, name: String): Unit = { addServlet(servlet, path, name) }
 
   def mount(app: Filter, path: String, dispatches: EnumSet[DispatcherType] = DefaultDispatcherTypes) =
     addFilter(app, path, dispatches)
 
-  def addServlet(servlet: HttpServlet, path: String) { addServlet(servlet, path, servlet.getClass.getName) }
-  def addServlet(servlet: HttpServlet, path: String, name: String) {
+  def addServlet(servlet: HttpServlet, path: String): Unit = { addServlet(servlet, path, servlet.getClass.getName) }
+  def addServlet(servlet: HttpServlet, path: String, name: String): Unit = {
     val holder = new ServletHolder(name, servlet)
 
     servlet match {
@@ -72,7 +72,7 @@ trait JettyContainer extends Container {
   // filters just return 404.
   if (!skipDefaultServlet) servletContextHandler.addServlet(new ServletHolder("default", classOf[DefaultServlet]), "/")
 
-  protected def ensureSessionIsSerializable() {
+  protected def ensureSessionIsSerializable(): Unit = {
     servletContextHandler.getSessionHandler.addEventListener(SessionSerializingListener)
   }
 }

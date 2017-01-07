@@ -91,15 +91,15 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
   protected def getUserId(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): String
   protected def validate(userName: String, password: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType]
 
-  override def afterSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  override def afterSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     response.setHeader(REMOTE_USER, getUserId(user))
   }
 
-  override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     app halt Unauthorized(headers = Map("WWW-Authenticate" -> challenge))
   }
 
-  override def afterLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  override def afterLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     response.setHeader(REMOTE_USER, "")
   }
 }
