@@ -23,7 +23,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 
   private[this] var _authorizations = List.empty[AuthorizationType]
   def authorizations = _authorizations
-  def addAuthorization(auth: AuthorizationType) { _authorizations ::= auth }
+  def addAuthorization(auth: AuthorizationType): Unit = { _authorizations ::= auth }
 
   def docs = _docs.values
 

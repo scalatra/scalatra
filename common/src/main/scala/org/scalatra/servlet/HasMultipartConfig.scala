@@ -37,13 +37,13 @@ trait HasMultipartConfig extends Initializable { self: { def servletContext: Ser
 
   private[this] var providedConfig: Option[MultipartConfig] = None
 
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
 
     providedConfig foreach { _ apply config.context }
   }
 
-  def configureMultipartHandling(config: MultipartConfig) {
+  def configureMultipartHandling(config: MultipartConfig): Unit = {
     providedConfig = Some(config)
   }
 }

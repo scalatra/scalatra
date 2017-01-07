@@ -8,7 +8,7 @@ class CorsSupportSpec extends ScalatraSpec {
 
     get("/") { "OK" }
 
-    override def initialize(config: ConfigT) {
+    override def initialize(config: ConfigT): Unit = {
       config.context.setInitParameter(CorsSupport.AllowedOriginsKey, "http://www.example.com")
       config.context.setInitParameter(CorsSupport.AllowedHeadersKey, "X-Requested-With,Authorization,Content-Type,Accept,Origin")
       config.context.setInitParameter(CorsSupport.AllowedMethodsKey, "GET,HEAD,POST")
@@ -61,7 +61,7 @@ class DisabledCorsSupportSpec extends ScalatraSpec {
 
     get("/") { "OK" }
 
-    override def initialize(config: ConfigT) {
+    override def initialize(config: ConfigT): Unit = {
       config.context.setInitParameter(CorsSupport.AllowedOriginsKey, "http://www.example.com")
       config.context.setInitParameter(CorsSupport.AllowedHeadersKey, "X-Requested-With,Authorization,Content-Type,Accept,Origin")
       config.context.setInitParameter(CorsSupport.AllowedMethodsKey, "GET,HEAD,POST")

@@ -48,7 +48,7 @@ private[scalatra] class FakeServletInputStream(data: Array[Byte]) extends Servle
   private[this] val backend = new ByteArrayInputStream(data)
   def read = backend.read
 
-  def setReadListener(readListener: ReadListener) {}
+  def setReadListener(readListener: ReadListener): Unit = {}
 
   def isFinished: Boolean = true
 

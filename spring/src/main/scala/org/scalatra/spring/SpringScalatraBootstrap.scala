@@ -16,7 +16,7 @@ import scala.collection.JavaConverters._
 class SpringScalatraBootstrap extends ApplicationContextAware with ServletContextAware {
 
   @PostConstruct
-  def bootstrap() {
+  def bootstrap(): Unit = {
 
     val richContext = new RichServletContext(servletContext)
     val resources = appContext.getBeansWithAnnotation(classOf[Path])

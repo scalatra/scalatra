@@ -19,7 +19,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(listingPath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]) {
+  def register(listingPath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]): Unit = {
     val endpoints: List[AuthEndpoint[AnyRef]] = s.endpoints(resourcePath) collect { case m: AuthEndpoint[AnyRef] => m }
     _docs += listingPath -> AuthApi(
       apiVersion,
@@ -153,7 +153,7 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
     scentry.authenticate()
   }
 
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
 
     get("/:doc(.:format)") {

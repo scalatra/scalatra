@@ -29,7 +29,7 @@ class IoSpec extends WordSpec with Matchers {
       testCopy(10000, 10000)
     }
 
-    def testCopy(len: Int, bufferSize: Int) {
+    def testCopy(len: Int, bufferSize: Int): Unit = {
       val bytes: Array[Byte] = (0 until len) map { x => x.toByte } toArray
       val in = new ByteArrayInputStream(bytes)
       val out = new ByteArrayOutputStream

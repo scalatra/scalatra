@@ -44,7 +44,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
   private[this] val store: ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
 
-  override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig = cfg) {
+  override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig = cfg): Unit = {
     this.cfg = c
   }
 
@@ -89,7 +89,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
 
   def add(b: Broadcaster, id: Any): Boolean = store.put(id, b).isEmpty
 
-  def destroy() {
+  def destroy(): Unit = {
     val s = cfg.getInitParameter(ApplicationConfig.SHARED)
     if (s != null && s.equalsIgnoreCase("TRUE")) {
       logger.warn("Factory shared, will not be destroyed. That can possibly cause memory leaks if" +
@@ -162,7 +162,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
 
   def remove(id: Any): Boolean = store.remove(id).isDefined
 
-  def removeAllAtmosphereResource(r: AtmosphereResource) {
+  def removeAllAtmosphereResource(r: AtmosphereResource): Unit = {
     // Remove inside all Broadcaster as well.
     try {
       if (store.nonEmpty) {

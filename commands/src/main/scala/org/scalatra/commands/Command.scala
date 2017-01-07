@@ -102,14 +102,14 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   /**
    * Add an action that will be evaluated before field binding occurs.
    */
-  protected def beforeBinding(action: => Any) {
+  protected def beforeBinding(action: => Any): Unit = {
     preBindingActions = preBindingActions :+ (() => action)
   }
 
   /**
    * Add an action that will be evaluated after field binding has been done.
    */
-  protected def afterBinding(action: => Any) {
+  protected def afterBinding(action: => Any): Unit = {
     postBindingActions = postBindingActions :+ (() => action)
   }
 

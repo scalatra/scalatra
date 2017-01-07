@@ -54,7 +54,7 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
     case t: Throwable => t.printStackTrace()
   }
 
-  override def handle(request: HttpServletRequest, response: HttpServletResponse) {
+  override def handle(request: HttpServletRequest, response: HttpServletResponse): Unit = {
     withRequestResponse(request, response) {
       println(request.headers)
       println("routeBasePath: " + routeBasePath(request))
@@ -154,7 +154,7 @@ class AtmosphereSpec extends MutableScalatraSpec {
 
   }
 
-  private def stopSystem {
+  private def stopSystem: Unit = {
     system.shutdown()
     system.awaitTermination(Duration(1, TimeUnit.MINUTES))
   }

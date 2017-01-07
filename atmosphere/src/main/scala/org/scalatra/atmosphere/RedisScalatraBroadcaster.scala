@@ -34,7 +34,7 @@ final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protecte
     broadcast(wrappedMessageString).map(_ => msg)
   }
 
-  override protected def broadcastReceivedMessage(message: AnyRef) {
+  override protected def broadcastReceivedMessage(message: AnyRef): Unit = {
     try {
       val messageString = message.asInstanceOf[String]
       val redisMessage = read[Message](messageString)

@@ -8,7 +8,7 @@ import org.atmosphere.cpr.{ AtmosphereFramework, Action => AtmoAction }
 class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers: Boolean = false) extends AtmosphereFramework(isFilter, autoDetectHandlers) {
 
   private[this] val logger = Logger[ScalatraAtmosphereFramework]
-  def setupTomcat7() {
+  def setupTomcat7(): Unit = {
     if (!getAsyncSupport.supportWebSocket) {
       if (!isCometSupportSpecified && !isCometSupportConfigured.getAndSet(true)) {
         asyncSupport.synchronized {
@@ -18,7 +18,7 @@ class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers:
     }
   }
 
-  def setupTomcat() {
+  def setupTomcat(): Unit = {
     if (!getAsyncSupport.supportWebSocket) {
       if (!isCometSupportSpecified && !isCometSupportConfigured.getAndSet(true)) {
         asyncSupport.synchronized {
@@ -28,7 +28,7 @@ class ScalatraAtmosphereFramework(isFilter: Boolean = false, autoDetectHandlers:
     }
   }
 
-  def setupJBoss() {
+  def setupJBoss(): Unit = {
     if (!isCometSupportSpecified && !isCometSupportConfigured.getAndSet(true)) {
       asyncSupport.synchronized {
         asyncSupport = new JBossWebCometSupport(config)

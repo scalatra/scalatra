@@ -82,7 +82,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     }
   }
 
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     val cfg: ServletConfig = config match {
       case c: FilterConfig => c
@@ -118,7 +118,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
       atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
   }
 
-  private[this] def setupAtmosphereHandlerMappings(cfg: ServletConfig) {
+  private[this] def setupAtmosphereHandlerMappings(cfg: ServletConfig): Unit = {
     // TODO: also support filters?
     val servletRegistration = ScalatraBase.getServletRegistration(this)
     servletRegistration foreach { reg =>
@@ -139,7 +139,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    * $ 3. Binds the current `request`, `response`, and `multiParams`, and calls
    * `executeRoutes()`.
    */
-  abstract override def handle(request: HttpServletRequest, response: HttpServletResponse) {
+  abstract override def handle(request: HttpServletRequest, response: HttpServletResponse): Unit = {
     withRequestResponse(request, response) {
       val atmoRoute = atmosphereRoute(request)
       if (atmoRoute.isDefined) {
@@ -163,7 +163,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     matched <- route(requestPath)
   } yield matched).headOption
 
-  private[this] def configureBroadcasterFactory() {
+  private[this] def configureBroadcasterFactory(): Unit = {
     val factory = new ScalatraBroadcasterFactory(
       atmosphereFramework.getAtmosphereConfig,
       broadcasterConfig)
@@ -171,7 +171,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
     atmosphereFramework.setBroadcasterFactory(factory)
   }
 
-  private[this] def configureBroadcasterCache() {
+  private[this] def configureBroadcasterCache(): Unit = {
     if (atmosphereFramework.getBroadcasterCacheClassName.isBlank)
       atmosphereFramework.setBroadcasterCacheClassName(classOf[UUIDBroadcasterCache].getName)
   }
@@ -197,7 +197,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    */
   @throws(classOf[IOException])
   @throws(classOf[ServletException])
-  def event(cometEvent: org.apache.catalina.CometEvent) {
+  def event(cometEvent: org.apache.catalina.CometEvent): Unit = {
     val req = cometEvent.getHttpServletRequest
     val res = cometEvent.getHttpServletResponse
     req.setAttribute(TomcatCometSupport.COMET_EVENT, cometEvent)
@@ -216,7 +216,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    */
   @throws(classOf[IOException])
   @throws(classOf[ServletException])
-  def event(cometEvent: org.apache.catalina.comet.CometEvent) {
+  def event(cometEvent: org.apache.catalina.comet.CometEvent): Unit = {
     val req = cometEvent.getHttpServletRequest
     val res = cometEvent.getHttpServletResponse
     req.setAttribute(Tomcat7CometSupport.COMET_EVENT, cometEvent)
@@ -241,7 +241,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
    */
   @throws(classOf[IOException])
   @throws(classOf[ServletException])
-  def event(httpEvent: HttpEvent) {
+  def event(httpEvent: HttpEvent): Unit = {
     val req = httpEvent.getHttpServletRequest
     val res = httpEvent.getHttpServletResponse
     req.setAttribute(JBossWebCometSupport.HTTP_EVENT, httpEvent)

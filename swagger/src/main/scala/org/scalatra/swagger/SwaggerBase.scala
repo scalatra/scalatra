@@ -42,7 +42,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
    */
   protected def includeFormatParameter: Boolean = false
 
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     if(swagger.swaggerVersion.startsWith("2.")){
       get("/swagger.json") {
