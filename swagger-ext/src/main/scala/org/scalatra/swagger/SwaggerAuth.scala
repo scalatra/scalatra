@@ -1,8 +1,6 @@
 package org.scalatra
 package swagger
 
-import java.util.{ Date => JDate }
-
 import grizzled.slf4j.Logger
 import org.joda.time._
 import org.joda.time.format.ISODateTimeFormat

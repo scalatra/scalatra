@@ -11,7 +11,6 @@ import org.json4s.JsonDSL._
 import org.json4s.{ DefaultFormats, Formats, _ }
 import org.scalatra.json.JacksonJsonSupport
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.specs2.specification._
 
 import scala.concurrent.duration._
 

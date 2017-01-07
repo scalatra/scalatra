@@ -7,7 +7,6 @@ import org.scalatra.util.conversion._
 import org.scalatra.validation._
 
 import scalaz.Validation.FlatMap._
-import scalaz._
 import scalaz.syntax.std.option._
 import scalaz.syntax.validation._
 

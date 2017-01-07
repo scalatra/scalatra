@@ -1,7 +1,5 @@
 package org.scalatra
 
-import javax.servlet.http.{ Cookie => ServletCookie }
-
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class RequestCookiesTest extends ScalatraFunSuite {

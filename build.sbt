@@ -10,7 +10,7 @@ lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
   crossScalaVersions := Seq("2.12.1", "2.11.8"),
   scalaVersion := crossScalaVersions.value.head,
-  scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation", /*"-Yinline-warnings",*/ "-Xcheckinit", "-encoding", "utf8", "-feature"),
+  scalacOptions ++= Seq("-target:jvm-1.8", "-unchecked", "-deprecation", /*"-Yinline-warnings",*/ "-Xcheckinit", "-encoding", "utf8", "-feature", "-Ywarn-unused-import"),
   scalacOptions ++= Seq("-language:higherKinds", "-language:postfixOps", "-language:implicitConversions", "-language:reflectiveCalls", "-language:existentials"),
   manifestSetting,
   resolvers ++= Seq(
@@ -23,7 +23,9 @@ lazy val scalatraSettings = Seq(
     "org.scala-lang" %  "scala-reflect"  % scalaVersion.value,
     "org.scala-lang" %  "scala-compiler" % scalaVersion.value
   )
-) ++ mavenCentralFrouFrou ++ scalariformSettings
+) ++ mavenCentralFrouFrou ++ scalariformSettings ++ Seq(Compile, Test).flatMap(c =>
+  scalacOptions in (c, console) --= Seq("-Ywarn-unused-import")
+)
 
 lazy val scalatraProject = Project(
   id = "scalatra-project",
