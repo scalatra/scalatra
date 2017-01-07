@@ -31,16 +31,16 @@ object Validation {
   def validConfirmation(fieldName: String, value: ⇒ String, confirmationFieldName: String, confirmationValue: => String, messageFormat: String = "%%s must match %s."): FieldValidation[String] =
     Validators.validConfirmation(fieldName, confirmationFieldName, confirmationValue, messageFormat).validate(value)
 
-  def greaterThan[T <% Ordered[T]](fieldName: String, value: ⇒ T, min: T, messageFormat: String = "%%s must be greater than %s."): FieldValidation[T] =
+  def greaterThan[T](fieldName: String, value: ⇒ T, min: T, messageFormat: String = "%%s must be greater than %s.")(implicit T: T => Ordered[T]): FieldValidation[T] =
     Validators.greaterThan(fieldName, min, messageFormat).validate(value)
 
-  def lessThan[T <% Ordered[T]](fieldName: String, value: ⇒ T, max: T, messageFormat: String = "%%s must be less than %s."): FieldValidation[T] =
+  def lessThan[T](fieldName: String, value: ⇒ T, max: T, messageFormat: String = "%%s must be less than %s.")(implicit T: T => Ordered[T]): FieldValidation[T] =
     Validators.lessThan(fieldName, max, messageFormat).validate(value)
 
-  def greaterThanOrEqualTo[T <% Ordered[T]](fieldName: String, value: ⇒ T, min: T, messageFormat: String = "%%s must be greater than or equal to %s."): FieldValidation[T] =
+  def greaterThanOrEqualTo[T](fieldName: String, value: ⇒ T, min: T, messageFormat: String = "%%s must be greater than or equal to %s.")(implicit T: T => Ordered[T]): FieldValidation[T] =
     Validators.greaterThanOrEqualTo(fieldName, min, messageFormat).validate(value)
 
-  def lessThanOrEqualTo[T <% Ordered[T]](fieldName: String, value: ⇒ T, max: T, messageFormat: String = "%%s must be less than or equal to %s."): FieldValidation[T] =
+  def lessThanOrEqualTo[T](fieldName: String, value: ⇒ T, max: T, messageFormat: String = "%%s must be less than or equal to %s.")(implicit T: T => Ordered[T]): FieldValidation[T] =
     Validators.lessThanOrEqualTo(fieldName, max, messageFormat).validate(value)
 
   def minLength(fieldName: String, value: ⇒ String, min: Int, messageFormat: String = "%%s must be at least %s characters long."): FieldValidation[String] =
