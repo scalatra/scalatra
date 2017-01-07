@@ -95,10 +95,10 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
 
   /**
    * Sets a value for the current request only.  It will be removed before the next request unless explicitly kept.
-   * Data put in this object is availble as usual:
+   * Data put in this object is available as usual:
    * {{{
-   * flash.now("notice") = "logged in succesfully"
-   * flash("notice") // "logged in succesfully"
+   * flash.now("notice") = "logged in successfully"
+   * flash("notice") // "logged in successfully"
    * }}}
    */
   object now {
@@ -126,7 +126,7 @@ object FlashMapSupport {
  * {{{
  * post("/article/create") {
  *   // create session
- *   flash("notice") = "article created succesfully"
+ *   flash("notice") = "article created successfully"
  *   redirect("/home")
  * }
  * get("/home") {
