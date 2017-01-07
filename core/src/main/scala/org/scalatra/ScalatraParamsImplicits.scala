@@ -2,6 +2,7 @@ package org.scalatra
 
 import java.util.Date
 
+import org.scalatra.ScalatraParamsImplicits.{ TypedMultiParams, TypedParams }
 import org.scalatra.util.conversion._
 
 /**
@@ -11,7 +12,16 @@ trait ScalatraParamsImplicits {
 
   self: DefaultImplicitConversions =>
 
-  sealed class TypedParams(params: Params) {
+  implicit def toTypedParams(params: Params): TypedParams = new TypedParams(params)
+
+  implicit def toTypedMultiParams(params: MultiParams): TypedMultiParams = new TypedMultiParams(params)
+}
+
+object ScalatraParamsImplicits
+    extends ScalatraParamsImplicits
+    with DefaultImplicitConversions {
+
+  class TypedParams(private val params: Params) extends AnyVal {
 
     def getAs[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Option[T] = params.get(name).flatMap(tc(_))
 
@@ -31,7 +41,7 @@ trait ScalatraParamsImplicits {
 
   }
 
-  sealed class TypedMultiParams(multiParams: MultiParams) {
+  class TypedMultiParams(private val multiParams: MultiParams) extends AnyVal {
 
     def getAs[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] = {
       multiParams.get(name) map {
@@ -61,12 +71,4 @@ trait ScalatraParamsImplicits {
 
   }
 
-  implicit def toTypedParams(params: Params): TypedParams = new TypedParams(params)
-
-  implicit def toTypedMultiParams(params: MultiParams): TypedMultiParams = new TypedMultiParams(params)
-
 }
-
-object ScalatraParamsImplicits
-  extends ScalatraParamsImplicits
-  with DefaultImplicitConversions
