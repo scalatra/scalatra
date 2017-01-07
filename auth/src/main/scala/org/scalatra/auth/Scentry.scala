@@ -131,7 +131,7 @@ class Scentry[UserType <: AnyRef](
 
   private[this] def runAuthentication(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
-    (subset filter (_.isValid) map { strat =>
+    (subset withFilter(_.isValid) map { strat =>
       logger.debug("Authenticating with: %s" format strat.name)
       runCallbacks(_.isValid) { _.beforeAuthenticate }
       strat.authenticate() match {
