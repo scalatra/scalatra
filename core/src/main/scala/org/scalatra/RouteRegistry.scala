@@ -82,7 +82,7 @@ class RouteRegistry {
     modifyRoutes(method, route +: _)
 
   /**
-   * Removes a route from the method's route seqeuence.
+   * Removes a route from the method's route sequence.
    */
   def removeRoute(method: HttpMethod, route: Route): Unit =
     modifyRoutes(method, _ filterNot (_ == route))

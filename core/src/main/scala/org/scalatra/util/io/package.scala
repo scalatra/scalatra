@@ -6,7 +6,7 @@ import java.nio.channels.Channels
 import scala.annotation.tailrec
 
 /**
- * A collection of I/O ulility methods.
+ * A collection of I/O utility methods.
  */
 package object io {
   /**
