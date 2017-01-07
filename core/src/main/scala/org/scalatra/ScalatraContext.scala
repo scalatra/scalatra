@@ -29,7 +29,7 @@ trait ScalatraContext
   /**
    * Gets the content type of the current response.
    */
-  def contentType: String = response.contentType getOrElse null
+  def contentType: String = response.contentType.orNull
 
   /**
    * Gets the status code of the current response.

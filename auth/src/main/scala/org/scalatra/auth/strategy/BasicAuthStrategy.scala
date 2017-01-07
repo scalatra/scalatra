@@ -69,8 +69,8 @@ object BasicAuthStrategy {
         }
       _credentials
     }
-    def username = credentials map { _._1 } getOrElse null
-    def password = credentials map { _._2 } getOrElse null
+    def username: String = credentials.map { _._1 }.orNull
+    def password: String = credentials.map { _._2 }.orNull
   }
 }
 abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraBase, realm: String)

@@ -106,9 +106,9 @@ trait FileUploadSupport extends ServletBase {
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]) = {
     val wrapped = new HttpServletRequestWrapper(req) {
-      override def getParameter(name: String) = formMap.get(name) map { _.head } getOrElse null
+      override def getParameter(name: String) = formMap.get(name).map { _.head }.orNull
       override def getParameterNames = formMap.keysIterator.asJavaEnumeration
-      override def getParameterValues(name: String) = formMap.get(name) map { _.toArray } getOrElse null
+      override def getParameterValues(name: String) = formMap.get(name).map { _.toArray }.orNull
       override def getParameterMap = (formMap transform { (k, v) => v.toArray }).asJava
     }
     wrapped
