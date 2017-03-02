@@ -152,10 +152,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                   ("responses" ->
                     ("200" ->
                       (if(operation.responseClass.name == "void") {
-                        JField("description", "No response")
+                        List(JField("description", "No response"))
                       } else {
-                        JField("schema", generateDataType(operation.responseClass))
-                      })) ~~
+                        List(JField("description", "OK"), JField("schema", generateDataType(operation.responseClass)))
+                      })) ~
                       operation.responseMessages.map { response =>
                         (response.code.toString ->
                           ("description", response.message) ~~
