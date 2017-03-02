@@ -301,7 +301,8 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
       ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
       AuthorizationCodeGrant(
         TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
-        TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
+        TokenEndpoint("http://localhost:8002/oauth/token", "access_code")),
+      ApplicationGrant(TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
     )
   ))
   val testServlet = new SwaggerTestServlet(swagger)

@@ -468,6 +468,10 @@ case class AuthorizationCodeGrant(
     tokenEndpoint: TokenEndpoint) extends GrantType {
   def `type` = "authorization_code"
 }
+case class ApplicationGrant(
+    tokenEndpoint: TokenEndpoint) extends GrantType {
+  def `type` = "application"
+}
 trait SwaggerOperation {
   @deprecated("Swagger spec 1.2 renamed `httpMethod` to `method`.", "2.2.2")
   def httpMethod: HttpMethod = method
