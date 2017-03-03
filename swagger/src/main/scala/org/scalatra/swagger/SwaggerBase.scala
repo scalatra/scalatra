@@ -171,7 +171,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                         case _        => (requirement -> List.empty)
                       }
                     }
-                  }).toMap)
+                  }))
                 )
               )
             }.toMap)
