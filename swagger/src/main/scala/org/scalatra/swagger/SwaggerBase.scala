@@ -142,7 +142,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                   ("name" -> parameter.name) ~
                     ("description" -> parameter.description) ~
                     ("required" -> parameter.required) ~
-                    ("in" -> parameter.paramType.toString.toLowerCase) ~~
+                    ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
                     (if (parameter.paramType.toString.toLowerCase == "body") {
                       List(JField("schema", JObject(JField("$ref", s"#/definitions/${parameter.`type`.name}"))))
                     } else {
@@ -208,6 +208,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
             JField("in", a.passAs))))
         })
       }).toMap)
+  }
+
+  def swagger2ParamTypeMapping(paramTypeName: String): String = {
+    Map("form" -> "formData").getOrElse(paramTypeName, paramTypeName)
   }
 
   error {
