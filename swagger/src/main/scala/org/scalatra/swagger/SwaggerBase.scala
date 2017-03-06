@@ -210,8 +210,8 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
       }).toMap)
   }
 
-  def swagger2ParamTypeMapping(paramTypeName: String): String = {
-    Map("form" -> "formData").getOrElse(paramTypeName, paramTypeName)
+  private def swagger2ParamTypeMapping(paramTypeName: String): String = {
+    if (paramTypeName == "form") "formData" else paramTypeName
   }
 
   error {
