@@ -61,6 +61,7 @@
         ],
         "responses": {
           "200": {
+            "description": "OK",
             "schema": {
               "type": "array",
               "items": {
@@ -109,6 +110,7 @@
         ],
         "responses": {
           "200": {
+            "description": "OK",
             "schema": {
               "$ref": "#/definitions/Order"
             }
@@ -129,6 +131,7 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "OK",
             "schema": {
               "$ref": "#/definitions/User"
             }
@@ -176,6 +179,7 @@
         ],
         "responses": {
           "200": {
+            "description": "OK",
             "schema": {
               "$ref": "#/definitions/Pet"
             }
@@ -219,6 +223,7 @@
         ],
         "responses": {
           "200": {
+            "description": "OK",
             "schema": {
               "type": "array",
               "items": {
