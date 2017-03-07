@@ -194,11 +194,13 @@
             "description": "Pet not found"
           }
         },
-        "security": {
-          "oauth2": [
-            "PUBLIC"
-          ]
-        }
+        "security": [
+          {
+            "oauth2": [
+              "PUBLIC"
+            ]
+          }
+        ]
       }
     },
     "/pet/findByStatus": {
