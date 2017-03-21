@@ -132,11 +132,11 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
 
   private[this] def originMatches: Boolean = // 6.2.2
     corsConfig.allowedOrigins.contains(AnyOrigin) ||
-      (corsConfig.allowedOrigins contains request.headers.get(OriginHeader).getOrElse(""))
+      (corsConfig.allowedOrigins contains request.headers.getOrElse(OriginHeader, ""))
 
   private[this] def isEnabled: Boolean =
-    !("Upgrade".equalsIgnoreCase(request.headers.get("Connection").getOrElse("")) &&
-      "WebSocket".equalsIgnoreCase(request.headers.get("Upgrade").getOrElse(""))) &&
+    !("Upgrade".equalsIgnoreCase(request.headers.getOrElse("Connection", "")) &&
+      "WebSocket".equalsIgnoreCase(request.headers.getOrElse("Upgrade", ""))) &&
       !requestPath.contains("eb_ping") // don't do anything for the ping endpoint
 
   private[this] def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty

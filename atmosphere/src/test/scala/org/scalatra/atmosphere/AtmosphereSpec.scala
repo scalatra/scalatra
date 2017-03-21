@@ -11,7 +11,6 @@ import org.json4s.JsonDSL._
 import org.json4s.{ DefaultFormats, Formats, _ }
 import org.scalatra.json.JacksonJsonSupport
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.specs2.specification._
 
 import scala.concurrent.duration._
 
@@ -54,7 +53,7 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
     case t: Throwable => t.printStackTrace()
   }
 
-  override def handle(request: HttpServletRequest, response: HttpServletResponse) {
+  override def handle(request: HttpServletRequest, response: HttpServletResponse): Unit = {
     withRequestResponse(request, response) {
       println(request.headers)
       println("routeBasePath: " + routeBasePath(request))
@@ -154,7 +153,7 @@ class AtmosphereSpec extends MutableScalatraSpec {
 
   }
 
-  private def stopSystem {
+  private def stopSystem: Unit = {
     system.shutdown()
     system.awaitTermination(Duration(1, TimeUnit.MINUTES))
   }

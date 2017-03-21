@@ -90,7 +90,7 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
   addServlet(classOf[MultipleFilterTestServlet], "/multiple-filters/*")
   addFilter(classOf[FilterTestFilter], "/*")
 
-  override def beforeEach() {
+  override def beforeEach(): Unit = {
     post("/reset-counters") {}
   }
 

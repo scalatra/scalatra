@@ -6,7 +6,7 @@ import java.nio.channels.Channels
 import scala.annotation.tailrec
 
 /**
- * A collection of I/O ulility methods.
+ * A collection of I/O utility methods.
  */
 package object io {
   /**
@@ -21,7 +21,7 @@ package object io {
     using(in) { in =>
       val buf = new Array[Byte](bufferSize)
       @tailrec
-      def loop() {
+      def loop(): Unit = {
         val n = in.read(buf)
         if (n >= 0) {
           out.write(buf, 0, n)
@@ -65,7 +65,7 @@ package object io {
     prefix: String = "scalatra",
     suffix: String = ".tmp",
     directory: Option[File] = None)(f: File => A): A = {
-    val tmp = File.createTempFile(prefix, suffix, directory.getOrElse(null))
+    val tmp = File.createTempFile(prefix, suffix, directory.orNull)
     try {
       using(new BufferedWriter(new FileWriter(tmp))) { out =>
         out.write(content)

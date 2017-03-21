@@ -153,15 +153,15 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
   private def wrapRequest(req: HttpServletRequest, formMap: Map[String, Seq[String]]): HttpServletRequestWrapper = {
     val wrapped = new HttpServletRequestWrapper(req) {
-      override def getParameter(name: String): String = formMap.get(name) map {
+      override def getParameter(name: String): String = formMap.get(name).map {
         _.head
-      } getOrElse null
+      }.orNull
 
       override def getParameterNames: java.util.Enumeration[String] = formMap.keysIterator.asJavaEnumeration
 
-      override def getParameterValues(name: String): Array[String] = formMap.get(name) map {
+      override def getParameterValues(name: String): Array[String] = formMap.get(name).map {
         _.toArray
-      } getOrElse null
+      }.orNull
 
       override def getParameterMap: JMap[String, Array[String]] = {
         (new JHashMap[String, Array[String]].asScala ++ (formMap transform {

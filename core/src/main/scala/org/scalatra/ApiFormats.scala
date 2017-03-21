@@ -75,7 +75,7 @@ trait ApiFormats extends ScalatraBase {
     "video/x-flv" -> "flv"
   ).asJava).asScala
 
-  protected def addMimeMapping(mime: String, extension: String) {
+  protected def addMimeMapping(mime: String, extension: String): Unit = {
     mimeTypes += mime -> extension
     formats += extension -> mime
   }
@@ -128,7 +128,7 @@ trait ApiFormats extends ScalatraBase {
           val pars = parts(1).split("=").map(_.trim).grouped(2).find(isValidQPair).getOrElse(Array("q", "0"))
           (pars(1).toDouble * 10).ceil.toInt
         } else 10
-        acc + (i -> (parts(0) :: acc.get(i).getOrElse(List.empty)))
+        acc + (i -> (parts(0) :: acc.getOrElse(i, List.empty)))
       }
       accepted.toList.sortWith((kv1, kv2) => kv1._1 > kv2._1).flatMap(_._2.reverse)
     } getOrElse Nil
@@ -153,7 +153,7 @@ trait ApiFormats extends ScalatraBase {
    * one.
    */
   protected def inferFromFormats: ContentTypeInferrer = {
-    case _ if format.nonBlank => formats.get(format) getOrElse "application/octet-stream"
+    case _ if format.nonBlank => formats.getOrElse(format, "application/octet-stream")
   }
 
   override protected def contentTypeInferrer: ContentTypeInferrer = {

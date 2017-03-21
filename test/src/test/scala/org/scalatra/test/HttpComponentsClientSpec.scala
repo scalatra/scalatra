@@ -7,7 +7,7 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeAfterAll
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class HttpComponentsClientSpec
     extends Specification
@@ -19,11 +19,11 @@ class HttpComponentsClientSpec
   def afterAll = stop()
 
   addServlet(new HttpServlet {
-    override def service(req: HttpServletRequest, resp: HttpServletResponse) {
-      def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096) {
+    override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+      def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
         val buf = new Array[Byte](bufferSize)
         @tailrec
-        def loop() {
+        def loop(): Unit = {
           val n = in.read(buf)
           if (n >= 0) {
             out.write(buf, 0, n)
@@ -35,10 +35,10 @@ class HttpComponentsClientSpec
 
       resp.setHeader("Request-Method", req.getMethod.toUpperCase)
       resp.setHeader("Request-URI", req.getRequestURI)
-      req.getHeaderNames.foreach(headerName =>
+      req.getHeaderNames.asScala.foreach(headerName =>
         resp.setHeader("Request-Header-%s".format(headerName), req.getHeader(headerName)))
 
-      req.getParameterMap.foreach {
+      req.getParameterMap.asScala.foreach {
         case (name, values) =>
           resp.setHeader("Request-Param-%s".format(name), values.mkString(", "))
       }

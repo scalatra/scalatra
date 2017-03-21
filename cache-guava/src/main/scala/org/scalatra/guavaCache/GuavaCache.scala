@@ -1,7 +1,5 @@
 package org.scalatra.guavaCache
 
-import java.util.concurrent.TimeUnit
-
 import com.google.common.cache.CacheBuilder
 import org.joda.time.DateTime
 import org.scalatra.cache.Cache

@@ -1,7 +1,7 @@
 package org.scalatra.commands
 
 import grizzled.slf4j.Logger
-import mojolly.inflector.InflectorImports._
+import org.scalatra.util.InflectorImports._
 import org.scalatra.validation._
 
 import scala.annotation.implicitNotFound
@@ -15,7 +15,7 @@ trait CommandExecutors {
   implicit def syncExecutor[T <: Command, S](handler: T => ModelValidation[S]): CommandExecutor[T, ModelValidation[S]] =
     new BlockingCommandExecutor(handler)
 
-  implicit def syncModelExecutor[T <: Command <% S, S](handler: S => ModelValidation[S]): CommandExecutor[T, ModelValidation[S]] =
+  implicit def syncModelExecutor[T <: Command, S](handler: S => ModelValidation[S])(implicit T: T => S): CommandExecutor[T, ModelValidation[S]] =
     new BlockingModelExecutor[T, S](handler)
 
   implicit def asyncExecutor[T <: Command, S](handler: T => Future[ModelValidation[S]])(implicit executionContext: ExecutionContext): CommandExecutor[T, Future[ModelValidation[S]]] =
@@ -97,7 +97,7 @@ class BlockingCommandExecutor[T <: Command, S](handle: T => ModelValidation[S]) 
  * @tparam T The type of model
  * @tparam S The success result type
  */
-class BlockingModelExecutor[T <: Command <% S, S](handle: S => ModelValidation[S]) extends BlockingExecutor[T, S](handle(_))
+class BlockingModelExecutor[T <: Command, S](handle: S => ModelValidation[S])(implicit T: T => S) extends BlockingExecutor[T, S](handle(_))
 
 abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidation[S]])(implicit executionContext: ExecutionContext) extends CommandExecutor[T, Future[ModelValidation[S]]](handle) {
   @transient private[this] val logger = Logger(getClass)

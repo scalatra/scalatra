@@ -93,7 +93,7 @@ class SweetCookies(
   def get(key: String): Option[String] = cookies.get(key)
 
   def apply(key: String): String = {
-    cookies.get(key) getOrElse (throw new Exception("No cookie could be found for the specified key"))
+    cookies.getOrElse(key, throw new Exception("No cookie could be found for the specified key"))
   }
 
   def update(name: String, value: String)(

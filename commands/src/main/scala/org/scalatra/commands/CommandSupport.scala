@@ -18,7 +18,7 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
 
   private[this] val commandFactories: ConcurrentMap[Class[_], () => Command] = new ConcurrentHashMap[Class[_], () => Command].asScala
 
-  def registerCommand[T <: Command](cmd: => T)(implicit mf: Manifest[T]) {
+  def registerCommand[T <: Command](cmd: => T)(implicit mf: Manifest[T]): Unit = {
     commandFactories += (mf.runtimeClass -> (() => cmd))
   }
 

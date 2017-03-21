@@ -338,7 +338,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
    *
    * @param config the configuration.
    */
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     try {
       this match {
@@ -377,7 +377,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
    *
    * @param model the model to add to the swagger definition
    */
-  protected def registerModel(model: Model) {
+  protected def registerModel(model: Model): Unit = {
     _models.getOrElseUpdate(model.id, model)
   }
 
@@ -387,7 +387,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
    *
    * @tparam T the class of the model to register
    */
-  protected def registerModel[T: Manifest : NotNothing]() {
+  protected def registerModel[T: Manifest : NotNothing](): Unit = {
     Swagger.collectModels[T](_models.values.toSet) map registerModel
   }
 

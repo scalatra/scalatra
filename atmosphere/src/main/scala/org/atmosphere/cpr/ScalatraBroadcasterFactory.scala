@@ -7,11 +7,9 @@ import java.util.concurrent.ConcurrentHashMap
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logger
 import org.scalatra.atmosphere.{ScalatraBroadcaster, WireFormat}
-import org.atmosphere.cpr.BroadcasterLifeCyclePolicy.ATMOSPHERE_RESOURCE_POLICY
 
 import scala.collection.JavaConverters._
 import scala.collection.concurrent.{Map => ConcurrentMap}
-import scala.util.{Failure, Success, Try}
 
 object ScalatraBroadcasterFactory {
 
@@ -44,7 +42,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
   private[this] val logger = Logger[ScalatraBroadcasterFactory]
   private[this] val store: ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
 
-  override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig = cfg) {
+  override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig = cfg): Unit = {
     this.cfg = c
   }
 
@@ -89,7 +87,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
 
   def add(b: Broadcaster, id: Any): Boolean = store.put(id, b).isEmpty
 
-  def destroy() {
+  def destroy(): Unit = {
     val s = cfg.getInitParameter(ApplicationConfig.SHARED)
     if (s != null && s.equalsIgnoreCase("TRUE")) {
       logger.warn("Factory shared, will not be destroyed. That can possibly cause memory leaks if" +
@@ -155,14 +153,14 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
   def remove(b: Broadcaster, id: Any): Boolean = {
     val removed: Boolean = store.remove(id, b)
     if (removed) {
-      logger.debug("Removing Broadcaster {} factory size now {} ", id, store.size)
+      logger.debug("Removing Broadcaster %s factory size now %s ".format(id, store.size))
     }
     removed
   }
 
   def remove(id: Any): Boolean = store.remove(id).isDefined
 
-  def removeAllAtmosphereResource(r: AtmosphereResource) {
+  def removeAllAtmosphereResource(r: AtmosphereResource): Unit = {
     // Remove inside all Broadcaster as well.
     try {
       if (store.nonEmpty) {

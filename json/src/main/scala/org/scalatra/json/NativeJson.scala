@@ -4,9 +4,8 @@ package json
 import java.io.{ InputStream, InputStreamReader, Writer }
 
 import org.json4s._
+import native._
 import org.scalatra.util.RicherString._
-
-import scala.text.Document
 
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
   protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue = {
@@ -27,7 +26,7 @@ trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with
 trait NativeJsonValueReaderProperty extends JsonValueReaderProperty[Document] { self: native.JsonMethods => }
 
 trait NativeJsonOutput extends JsonOutput[Document] with native.JsonMethods {
-  protected def writeJson(json: JValue, writer: Writer) {
+  protected def writeJson(json: JValue, writer: Writer): Unit = {
     if (json != JNothing) native.Printer.compact(render(json), writer)
   }
 }

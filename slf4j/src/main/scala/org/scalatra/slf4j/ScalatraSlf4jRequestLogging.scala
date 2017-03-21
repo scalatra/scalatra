@@ -1,7 +1,6 @@
 package org.scalatra
 package slf4j
 
-import java.util.{ Map => JMap }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import grizzled.slf4j.Logger
@@ -27,7 +26,7 @@ trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
   private[this] val logger = Logger("REQUEST")
   import org.scalatra.slf4j.ScalatraSlf4jRequestLogging._
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     val realMultiParams = req.getParameterMap.asScala.toMap transform { (k, v) ⇒ v: Seq[String] }
     withRequest(req) {
       request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
@@ -38,7 +37,7 @@ trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
     }
   }
 
-  protected def logRequest() {
+  protected def logRequest(): Unit = {
     logger.info(MDC.getCopyOfContextMap.asScala.map(kv => kv._1.toString + ": " + kv._2.toString).mkString("{", ", ", " }"))
   }
 
@@ -49,7 +48,7 @@ trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
     try { thunk } finally { request(MultiParamsKey) = originalParams }
   }
 
-  private[this] def fillMdc() { // Do this twice so that we get all the route params if they are available and applicable
+  private[this] def fillMdc(): Unit = { // Do this twice so that we get all the route params if they are available and applicable
     MDC.clear()
     MDC.put(RequestPath, requestPath)
     MDC.put(RequestApp, getClass.getSimpleName)

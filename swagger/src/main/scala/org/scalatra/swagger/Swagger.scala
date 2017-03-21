@@ -7,7 +7,6 @@ import java.util.{ Date => JDate }
 
 import grizzled.slf4j.Logger
 import org.joda.time._
-import org.joda.time.format.ISODateTimeFormat
 import org.json4s._
 import org.scalatra.swagger.reflect._
 import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
@@ -23,7 +22,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 
   private[this] var _authorizations = List.empty[AuthorizationType]
   def authorizations = _authorizations
-  def addAuthorization(auth: AuthorizationType) { _authorizations ::= auth }
+  def addAuthorization(auth: AuthorizationType): Unit = { _authorizations ::= auth }
 
   def docs = _docs.values
 
@@ -47,16 +46,13 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 
 object Swagger {
 
-  val baseTypes = Set("byte", "boolean", "int", "long", "float", "double", "string", "date", "void", "Date", "DateTime", "DateMidnight", "Duration", "FiniteDuration", "Chronology")
-  val excludes: Set[java.lang.reflect.Type] = Set(classOf[java.util.TimeZone], classOf[java.util.Date], classOf[DateTime], classOf[DateMidnight], classOf[ReadableInstant], classOf[Chronology], classOf[DateTimeZone])
-  val containerTypes = Set("Array", "List", "Set")
+  val excludes: Set[java.lang.reflect.Type] = Set(classOf[java.util.TimeZone], classOf[java.util.Date], classOf[DateTime], classOf[LocalDate], classOf[ReadableInstant], classOf[Chronology], classOf[DateTimeZone])
   val SpecVersion = "1.2"
-  val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
     if (tpe.isMap) collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
-    else if (tpe.isCollection || tpe.isOption) {
+    else if ((tpe.isCollection && tpe.typeArgs.headOption.isDefined) || (tpe.isOption && tpe.typeArgs.headOption.isDefined))  {
       val ntpe = tpe.typeArgs.head
       if (!known.contains(ntpe)) collectModels(ntpe, alreadyKnown, known + ntpe)
       else Set.empty
@@ -367,7 +363,7 @@ object DataType {
   private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[DateMidnight])
+    Set[Class[_]](classOf[LocalDate])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
   private[this] val DateTimeTypes =
     Set[Class[_]](classOf[JDate], classOf[DateTime])

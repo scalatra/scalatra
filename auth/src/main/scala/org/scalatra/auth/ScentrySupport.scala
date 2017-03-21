@@ -23,7 +23,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
 
   private[this] var _strategiesFromConfig = List[String]()
 
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     readStrategiesFromConfig(config)
   }

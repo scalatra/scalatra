@@ -22,7 +22,7 @@ case class FilePart(
     val buf = new Array[Byte](4096)
 
     @tailrec
-    def copyStream() {
+    def copyStream(): Unit = {
       val bytesRead = fin.read(buf)
       if (bytesRead > 0) {
         bos.write(buf, 0, bytesRead)

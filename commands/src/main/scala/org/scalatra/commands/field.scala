@@ -1,13 +1,12 @@
 package org.scalatra
 package commands
 
-import mojolly.inflector.InflectorImports._
+import org.scalatra.util.InflectorImports._
 import org.scalatra.util.RicherString._
 import org.scalatra.util.conversion._
 import org.scalatra.validation._
 
 import scalaz.Validation.FlatMap._
-import scalaz._
 import scalaz.syntax.std.option._
 import scalaz.syntax.validation._
 
@@ -314,7 +313,7 @@ trait BindingValidatorImplicits {
   implicit def validatableStringBinding(b: FieldDescriptor[String]) = new ValidatableStringBinding(b)
   implicit def validatableSeqBinding[T <: Seq[_]](b: FieldDescriptor[T]) = new ValidatableSeq(b)
   implicit def validatableGenericBinding[T](b: FieldDescriptor[T]) = new ValidatableGenericBinding(b)
-  implicit def validatableOrderedBinding[T <% Ordered[T]](b: FieldDescriptor[T]) = new ValidatableOrdered(b)
+  implicit def validatableOrderedBinding[T](b: FieldDescriptor[T])(implicit T: T => Ordered[T]) = new ValidatableOrdered(b)
 
 }
 
@@ -326,7 +325,7 @@ object BindingValidators {
       b.required.validateWith(BindingValidators.nonEmptyCollection(messageFormat))
   }
 
-  class ValidatableOrdered[T <% Ordered[T]](b: FieldDescriptor[T]) {
+  class ValidatableOrdered[T](b: FieldDescriptor[T])(implicit T: T => Ordered[T]) {
     def greaterThan(min: T, messageFormat: String = "%%s must be greater than %s"): FieldDescriptor[T] =
       b.validateWith(BindingValidators.greaterThan(min, messageFormat))
 
@@ -418,19 +417,19 @@ object BindingValidators {
     _ flatMap { Validators.validConfirmation(s, against.name, (against.value orElse against.defaultValue).orNull, messageFormat).validate }
   }
 
-  def greaterThan[T <% Ordered[T]](min: T, messageFormat: String = "%%s must be greater than %s."): BindingValidator[T] = (s: String) => {
+  def greaterThan[T](min: T, messageFormat: String = "%%s must be greater than %s.")(implicit T: T => Ordered[T]): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.greaterThan(s, min, messageFormat).validate
   }
 
-  def lessThan[T <% Ordered[T]](max: T, messageFormat: String = "%%s must be less than %s."): BindingValidator[T] = (s: String) => {
+  def lessThan[T](max: T, messageFormat: String = "%%s must be less than %s.")(implicit T: T => Ordered[T]): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.lessThan(s, max, messageFormat).validate
   }
 
-  def greaterThanOrEqualTo[T <% Ordered[T]](min: T, messageFormat: String = "%%s must be greater than or equal to %s."): BindingValidator[T] = (s: String) => {
+  def greaterThanOrEqualTo[T](min: T, messageFormat: String = "%%s must be greater than or equal to %s.")(implicit T: T => Ordered[T]): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.greaterThanOrEqualTo(s, min, messageFormat).validate
   }
 
-  def lessThanOrEqualTo[T <% Ordered[T]](max: T, messageFormat: String = "%%s must be less than or equal to %s."): BindingValidator[T] = (s: String) => {
+  def lessThanOrEqualTo[T](max: T, messageFormat: String = "%%s must be less than or equal to %s.")(implicit T: T => Ordered[T]): BindingValidator[T] = (s: String) => {
     _ flatMap Validators.lessThanOrEqualTo(s, max, messageFormat).validate
   }
 

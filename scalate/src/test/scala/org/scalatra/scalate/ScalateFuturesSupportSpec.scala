@@ -5,7 +5,6 @@ import java.util.concurrent.{ ExecutorService, Executors, ThreadFactory }
 import org.fusesource.scalate.layout.DefaultLayoutStrategy
 import org.scalatra._
 import org.scalatra.test.specs2.MutableScalatraSpec
-import org.specs2.specification._
 
 import scala.concurrent.{ ExecutionContext, Future }
 

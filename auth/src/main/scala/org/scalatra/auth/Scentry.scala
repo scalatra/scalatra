@@ -17,16 +17,16 @@ object Scentry {
   private val _globalStrategies = new mutable.HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
   @deprecated("Use method `register` with strings instead.", "2.0")
-  def registerStrategy[UserType <: AnyRef](name: Symbol, strategyFactory: StrategyFactory[UserType]) {
+  def registerStrategy[UserType <: AnyRef](name: Symbol, strategyFactory: StrategyFactory[UserType]): Unit = {
     _globalStrategies += (name.name -> strategyFactory)
   }
 
-  def register[UserType <: AnyRef](name: String, strategyFactory: StrategyFactory[UserType]) {
+  def register[UserType <: AnyRef](name: String, strategyFactory: StrategyFactory[UserType]): Unit = {
     _globalStrategies += (name -> strategyFactory)
   }
 
   def globalStrategies = _globalStrategies
-  def clearGlobalStrategies() { _globalStrategies.clear() }
+  def clearGlobalStrategies(): Unit = { _globalStrategies.clear() }
 
   val scentryAuthKey = "scentry.auth.default.user"
   val ScentryRequestKey = "org.scalatra.auth.Scentry"
@@ -49,7 +49,7 @@ class Scentry[UserType <: AnyRef](
     request.get(scentryAuthKey).orNull.asInstanceOf[UserType]
 
   def store = _store
-  def store_=(newStore: ScentryAuthStore) {
+  def store_=(newStore: ScentryAuthStore): Unit = {
     _store = newStore
   }
 
@@ -59,15 +59,15 @@ class Scentry[UserType <: AnyRef](
 
   //def session = app.session
   def params(implicit request: HttpServletRequest): Params = app.params(request)
-  def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     app.redirect(uri)(request, response)
   }
 
-  def register(strategy: => ScentryStrategy[UserType]) {
+  def register(strategy: => ScentryStrategy[UserType]): Unit = {
     register(strategy.name, ((_: ScalatraBase) => strategy))
   }
 
-  def register(name: String, strategyFactory: StrategyFactory) {
+  def register(name: String, strategyFactory: StrategyFactory): Unit = {
     _strategies += (name -> strategyFactory)
   }
 
@@ -131,7 +131,7 @@ class Scentry[UserType <: AnyRef](
 
   private[this] def runAuthentication(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
-    (subset filter (_.isValid) map { strat =>
+    (subset withFilter(_.isValid) map { strat =>
       logger.debug("Authenticating with: %s" format strat.name)
       runCallbacks(_.isValid) { _.beforeAuthenticate }
       strat.authenticate() match {
@@ -145,11 +145,11 @@ class Scentry[UserType <: AnyRef](
 
   private[this] var defaultUnauthenticated: Option[() ⇒ Unit] = None
 
-  def unauthenticated(callback: ⇒ Unit) {
+  def unauthenticated(callback: ⇒ Unit): Unit = {
     defaultUnauthenticated = Some(() ⇒ callback)
   }
 
-  def logout()(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  def logout()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     val usr = user
     runCallbacks() { _.beforeLogout(usr) }
     request -= scentryAuthKey
@@ -157,7 +157,7 @@ class Scentry[UserType <: AnyRef](
     runCallbacks() { _.afterLogout(usr) }
   }
 
-  private[this] def runCallbacks(guard: StrategyType ⇒ Boolean = s ⇒ true)(which: StrategyType ⇒ Unit) {
+  private[this] def runCallbacks(guard: StrategyType ⇒ Boolean = s ⇒ true)(which: StrategyType ⇒ Unit): Unit = {
     strategies foreach {
       case (_, v) if guard(v) ⇒ which(v)
       case _ ⇒ // guard failed

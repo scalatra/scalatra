@@ -2,7 +2,7 @@ package org.scalatra
 package atmosphere
 
 import java.nio.CharBuffer
-import javax.servlet.http.{ HttpServletRequest, HttpSession }
+import javax.servlet.http.HttpSession
 
 import grizzled.slf4j.Logger
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
@@ -21,13 +21,13 @@ object ScalatraAtmosphereHandler {
     def client(resource: AtmosphereResource) =
       Option(resource.session()).flatMap(_.get(org.scalatra.atmosphere.AtmosphereClientKey)).map(_.asInstanceOf[AtmosphereClient])
 
-    def onPreSuspend(event: AtmosphereResourceEvent) {}
+    def onPreSuspend(event: AtmosphereResourceEvent): Unit = {}
 
-    def onHeartbeat(event: AtmosphereResourceEvent) {
+    def onHeartbeat(event: AtmosphereResourceEvent): Unit = {
       client(event.getResource) foreach (_.receive.lift(Heartbeat))
     }
 
-    def onBroadcast(event: AtmosphereResourceEvent) {
+    def onBroadcast(event: AtmosphereResourceEvent): Unit = {
       val resource = event.getResource
       resource.transport match {
         case JSONP | AJAX | LONG_POLLING =>
@@ -35,7 +35,7 @@ object ScalatraAtmosphereHandler {
       }
     }
 
-    def onDisconnect(event: AtmosphereResourceEvent) {
+    def onDisconnect(event: AtmosphereResourceEvent): Unit = {
       val disconnector = if (event.isCancelled) ClientDisconnected else ServerDisconnected
       client(event.getResource) foreach (_.receive.lift(Disconnected(disconnector, Option(event.throwable))))
       //      if (!event.getResource.isResumed) {
@@ -45,15 +45,15 @@ object ScalatraAtmosphereHandler {
       //      }
     }
 
-    def onResume(event: AtmosphereResourceEvent) {}
+    def onResume(event: AtmosphereResourceEvent): Unit = {}
 
-    def onSuspend(event: AtmosphereResourceEvent) {}
+    def onSuspend(event: AtmosphereResourceEvent): Unit = {}
 
-    def onThrowable(event: AtmosphereResourceEvent) {
+    def onThrowable(event: AtmosphereResourceEvent): Unit = {
       client(event.getResource) foreach (_.receive.lift(Error(Option(event.throwable()))))
     }
 
-    def onClose(event: AtmosphereResourceEvent) {}
+    def onClose(event: AtmosphereResourceEvent): Unit = {}
   }
 }
 
@@ -63,7 +63,7 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
 
   private[this] val internalLogger = Logger(getClass)
 
-  def onRequest(resource: AtmosphereResource) {
+  def onRequest(resource: AtmosphereResource): Unit = {
     implicit val req = resource.getRequest
     implicit val res = resource.getResponse
     val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
@@ -125,17 +125,17 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
     if (u.endsWith("/")) u + "*" else u + "/*"
   }
 
-  private[this] def configureBroadcaster(resource: AtmosphereResource) {
+  private[this] def configureBroadcaster(resource: AtmosphereResource): Unit = {
     val bc = ScalatraBroadcasterFactory.getDefault.get.get(requestUri(resource))
     resource.setBroadcaster(bc)
   }
 
-  private[this] def handleIncomingMessage(req: AtmosphereRequest, client: AtmosphereClient) {
+  private[this] def handleIncomingMessage(req: AtmosphereRequest, client: AtmosphereClient): Unit = {
     val parsed: InboundMessage = wireFormat.parseInMessage(readBody(req))
     handleIncomingMessage(parsed, client)
   }
 
-  private[this] def handleIncomingMessage(msg: InboundMessage, client: AtmosphereClient) {
+  private[this] def handleIncomingMessage(msg: InboundMessage, client: AtmosphereClient): Unit = {
     // the ScalatraContext provides the correct request/response values to the AtmosphereClient.receive method
     // this can be later refactored to a (Request, Response) => Any
     client.receiveWithScalatraContext(scalatraApp).lift(msg)
@@ -152,7 +152,7 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
     body.toString()
   }
 
-  private[this] def addEventListener(resource: AtmosphereResource) {
+  private[this] def addEventListener(resource: AtmosphereResource): Unit = {
     resource.addEventListener(new ScalatraResourceEventListener)
   }
 
@@ -167,7 +167,7 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
       None
   }
 
-  private[this] def resumeIfNeeded(resource: AtmosphereResource) {
+  private[this] def resumeIfNeeded(resource: AtmosphereResource): Unit = {
     import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
     resource.transport match {
       case JSONP | AJAX | LONG_POLLING => resource.resumeOnBroadcast(true)

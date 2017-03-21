@@ -9,7 +9,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
 
   def name: String = "NameMe"
 
-  def registerWith(registrar: Scentry[UserType]) {
+  def registerWith(registrar: Scentry[UserType]): Unit = {
     if (name == "NameMe") throwOverrideException
     else registrar.register(name, createStrategy _)
   }
@@ -41,46 +41,46 @@ trait ScentryStrategy[UserType <: AnyRef] {
   /**
    * Perform stuff before authenticating, only run when the module is valid
    */
-  def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff after authentication only run when the module is valid
    */
-  def afterAuthenticate(winningStrategy: String, user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def afterAuthenticate(winningStrategy: String, user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff before setting the user in the session
    */
-  def beforeSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def beforeSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff after setting the user in the session
    */
-  def afterSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def afterSetUser(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff before fetching and serializing the user from session
    */
-  def beforeFetch[IdType](userId: IdType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def beforeFetch[IdType](userId: IdType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff after fetching and serializing the user from session
    */
-  def afterFetch(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def afterFetch(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff before logging the user out and invalidating the session
    */
-  def beforeLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def beforeLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff after logging the user out and invalidating the session
    */
-  def afterLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def afterLogout(user: UserType)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
   /**
    * Perform stuff when the request is unauthenticated and the strategy is valid
    */
-  def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) {}
+  def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {}
 
 }

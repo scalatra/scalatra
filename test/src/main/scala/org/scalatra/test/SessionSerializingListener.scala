@@ -4,7 +4,7 @@ import java.io.{ NotSerializableException, ObjectOutputStream, OutputStream }
 import javax.servlet.http.{ HttpSessionAttributeListener, HttpSessionBindingEvent }
 
 object NullOut extends OutputStream {
-  def write(b: Int) {}
+  def write(b: Int): Unit = {}
 }
 
 /*
@@ -14,19 +14,19 @@ object SessionSerializingListener extends HttpSessionAttributeListener {
   //val oos = new ObjectOutputStream(System.out)
   val oos = new ObjectOutputStream(NullOut)
 
-  def attributeAdded(event: HttpSessionBindingEvent) {
+  def attributeAdded(event: HttpSessionBindingEvent): Unit = {
     serializeSession(event)
   }
 
-  def attributeRemoved(event: HttpSessionBindingEvent) {
+  def attributeRemoved(event: HttpSessionBindingEvent): Unit = {
     serializeSession(event)
   }
 
-  def attributeReplaced(event: HttpSessionBindingEvent) {
+  def attributeReplaced(event: HttpSessionBindingEvent): Unit = {
     serializeSession(event)
   }
 
-  def serializeSession(event: HttpSessionBindingEvent) {
+  def serializeSession(event: HttpSessionBindingEvent): Unit = {
     try {
       oos.writeObject(event.getValue)
     } catch {

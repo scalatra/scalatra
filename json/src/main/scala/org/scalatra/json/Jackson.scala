@@ -32,7 +32,7 @@ trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with
 trait JacksonJsonValueReaderProperty extends JsonValueReaderProperty[JValue] { self: jackson.JsonMethods => }
 
 trait JacksonJsonOutput extends JsonOutput[JValue] with jackson.JsonMethods {
-  protected def writeJson(json: JValue, writer: Writer) {
+  protected def writeJson(json: JValue, writer: Writer): Unit = {
     if (json != JNothing) mapper.writeValue(writer, json)
   }
 }

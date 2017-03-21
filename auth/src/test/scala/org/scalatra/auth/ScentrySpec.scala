@@ -70,7 +70,7 @@ object ScentrySpec extends Specification with Mockito {
       override def afterLogout(user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterLogoutCalled = true
       override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
       override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
-      override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedSuccessCalled = true }
+      override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = { unauthenticatedSuccessCalled = true }
     }
 
     val sUnsuccess = new ScentryStrategy[User] {
@@ -81,7 +81,7 @@ object ScentrySpec extends Specification with Mockito {
       }
       override def beforeAuthenticate(implicit request: HttpServletRequest, response: HttpServletResponse) = beforeAuthenticateCalled = true
       override def afterAuthenticate(winningStrategy: String, user: User)(implicit request: HttpServletRequest, response: HttpServletResponse) = afterAuthenticateCalled = true
-      override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse) { unauthenticatedCalled = true }
+      override def unauthenticated()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = { unauthenticatedCalled = true }
     }
     "allow registration of global strategies" in {
       Scentry.register("Bogus", (_: ScalatraBase) => s)

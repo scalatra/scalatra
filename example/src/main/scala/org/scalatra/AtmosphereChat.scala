@@ -7,8 +7,6 @@ import org.json4s._
 import org.scalatra.atmosphere._
 import org.scalatra.json.JacksonJsonSupport
 
-import scala.concurrent.ExecutionContext
-
 class AtmosphereChat extends ScalatraServlet with JacksonJsonSupport with AtmosphereSupport {
   implicit protected val jsonFormats: Formats = DefaultFormats
 

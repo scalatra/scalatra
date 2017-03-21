@@ -56,12 +56,12 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    */
   protected[scalatra] var templateEngine: TemplateEngine = _
 
-  abstract override def initialize(config: ConfigT) {
+  abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     templateEngine = createTemplateEngine(config)
   }
 
-  abstract override def shutdown() {
+  abstract override def shutdown(): Unit = {
     if (templateEngine != null) templateEngine.compiler.shutdown()
     super.shutdown()
   }
@@ -147,7 +147,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    */
   protected def isScalateErrorPageEnabled = true
 
-  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse) {
+  abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     //    try {
     super.handle(req, res)
     //    }
@@ -156,7 +156,7 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
     //    }
   }
 
-  override protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse) {
+  override protected def renderUncaughtException(e: Throwable)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     if (isScalateErrorPageEnabled) renderScalateErrorPage(e)
     else super.renderUncaughtException(e)
   }

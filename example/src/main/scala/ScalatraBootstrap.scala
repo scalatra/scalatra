@@ -4,7 +4,7 @@ import org.scalatra._
 
 class ScalatraBootstrap extends LifeCycle {
 
-  override def init(context: ServletContext) {
+  override def init(context: ServletContext): Unit = {
 
     context.setInitParameter(org.scalatra.atmosphere.TrackMessageSize, "true")
     context.mount(new BasicAuthExample, "/auth")
