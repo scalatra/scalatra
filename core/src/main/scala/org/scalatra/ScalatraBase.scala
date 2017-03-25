@@ -735,7 +735,11 @@ trait ScalatraBase
       implicit request: HttpServletRequest, response: HttpServletResponse): String = {
     if (path.startsWith("http")) path
     else {
-      val p = url(path, params, includeContextPath, includeServletPath, withSessionId = withSessionId)
+      val p = url(path, params,
+        includeContextPath = includeContextPath,
+        includeServletPath = includeServletPath,
+        withSessionId = withSessionId
+      )
       if (p.startsWith("http")) p else buildBaseUrl + ensureSlash(p)
     }
   }
