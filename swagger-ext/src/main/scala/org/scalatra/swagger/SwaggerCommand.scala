@@ -67,7 +67,7 @@ object SwaggerCommandSupport {
 
   class CommandOperationBuilder[B <: SwaggerOperationBuilder[_]](registerModel: Model => Unit, underlying: B) {
     def parametersFromCommand[C <: Command: Manifest]: B =
-      parametersFromCommand(manifest[C].runtimeClass.newInstance().asInstanceOf[C])
+      parametersFromCommand(manifest[C].runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[C])
 
     def parametersFromCommand[C <: Command: Manifest](cmd: => C): B = {
       SwaggerCommandSupport.parametersFromCommand(cmd) match {
@@ -95,7 +95,7 @@ trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with Sw
     new CommandOperationBuilder(registerModel(_), underlying)
 
   private[this] def parametersFromCommand[T <: CommandType](implicit mf: Manifest[T]): List[Parameter] = {
-    parametersFromCommand(mf.runtimeClass.newInstance().asInstanceOf[T])
+    parametersFromCommand(mf.runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[T])
   }
 
   private[this] def parametersFromCommand[T <: CommandType](cmd: => T)(implicit mf: Manifest[T]): List[Parameter] = {
