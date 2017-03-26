@@ -23,7 +23,7 @@ There is no change too little to be merged in.
 ### Working with Github
 
   1. If you are not a github user, check out [their help page](http://help.github.com/) on how to get started, register and go  to step 2
-  2. fork us as decribed [here](http://help.github.com/forking/) 
+  2. fork us as described [here](http://help.github.com/forking/) 
   3. hack hack hack
   4. push to your own forked repository
   5. send a [pull request](https://help.github.com/articles/using-pull-requests)
