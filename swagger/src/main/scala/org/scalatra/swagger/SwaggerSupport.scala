@@ -229,6 +229,7 @@ object SwaggerSupportSyntax {
     private[this] var _consumes: List[String] = Nil
     private[this] var _protocols: List[String] = Nil
     private[this] var _authorizations: List[String] = Nil
+    private[this] var _tags: List[String] = Nil
     private[this] var _position: Int = 0
 
     def resultClass: DataType
@@ -266,6 +267,8 @@ object SwaggerSupportSyntax {
     def protocols(values: String*): this.type = { _protocols :::= values.toList; this }
     def authorizations: List[String] = _authorizations
     def authorizations(values: String*): this.type = { _authorizations :::= values.toList; this }
+    def tags: List[String] = _tags
+    def tags(values: String*): this.type = { _tags :::= values.toList; this }
     def position(value: Int): this.type = { _position = value; this }
     def position: Int = _position
 
@@ -293,7 +296,8 @@ object SwaggerSupportSyntax {
       consumes,
       produces,
       protocols,
-      authorizations)
+      authorizations,
+      tags)
   }
 }
 trait SwaggerSupportSyntax extends Initializable with CorsSupport {

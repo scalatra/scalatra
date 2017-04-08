@@ -18,6 +18,7 @@
       "post": {
         "operationId": "placeOrder",
         "summary": "Place an order for a pet",
+        "tags": ["store"],
         "parameters": [
           {
             "name": "body",
@@ -79,6 +80,7 @@
       "delete": {
         "operationId": "deleteOrder",
         "summary": "Delete purchase order by ID",
+        "tags": ["store"],
         "parameters": [],
         "responses": {
           "200": {
@@ -99,6 +101,7 @@
           "application/json",
           "application/xml"
         ],
+        "tags": ["store"],
         "parameters": [
           {
             "name": "orderId",

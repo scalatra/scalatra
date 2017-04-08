@@ -226,6 +226,7 @@ object AuthApi {
       produces,
       protocols,
       authorizations,
+      tags,
       allows
     )
   }
@@ -249,6 +250,7 @@ case class AuthOperation[TypeForUser <: AnyRef](method: HttpMethod,
   produces: List[String] = Nil,
   protocols: List[String] = Nil,
   authorizations: List[String] = Nil,
+  tags: List[String] = Nil,
   allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
