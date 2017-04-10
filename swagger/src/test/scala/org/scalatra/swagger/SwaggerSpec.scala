@@ -407,7 +407,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   }
 
   def verifyOperation(actual: JValue, expected: JValue, operationId: String) = {
-    val m = verifyFields(actual, expected, "operationId", "summary", "schemes", "consumes", "produces", "parameters", "responses", "security")
+    val m = verifyFields(actual, expected, "operationId", "summary", "schemes", "consumes", "produces", "deprecated", "parameters", "responses", "security")
     m setMessage (m.message + " of the operation " + operationId)
   }
 

@@ -17,6 +17,7 @@
     "/store/order": {
       "post": {
         "operationId": "placeOrder",
+        "deprecated": false,
         "summary": "Place an order for a pet",
         "parameters": [
           {
@@ -47,6 +48,7 @@
           "application/json",
           "application/xml"
         ],
+        "deprecated": true,
         "parameters": [
           {
             "name": "tags",
@@ -79,6 +81,7 @@
       "delete": {
         "operationId": "deleteOrder",
         "summary": "Delete purchase order by ID",
+        "deprecated": false,
         "parameters": [],
         "responses": {
           "200": {
@@ -99,6 +102,7 @@
           "application/json",
           "application/xml"
         ],
+        "deprecated": false,
         "parameters": [
           {
             "name": "orderId",
@@ -128,6 +132,7 @@
       "post": {
         "operationId": "createUser",
         "summary": "",
+        "deprecated": false,
         "parameters": [],
         "responses": {
           "200": {
@@ -143,6 +148,7 @@
       "delete": {
         "operationId": "deletePet",
         "summary": "Deletes a pet",
+        "deprecated": false,
         "parameters": [
           {
             "name": "petId",
@@ -168,6 +174,7 @@
           "application/json",
           "application/xml"
         ],
+        "deprecated": false,
         "parameters": [
           {
             "name": "petId",
@@ -211,6 +218,7 @@
           "application/json",
           "application/xml"
         ],
+        "deprecated": true,
         "parameters": [
           {
             "name": "status",
@@ -243,6 +251,7 @@
       "post": {
         "operationId": "addPet",
         "summary": "Add a new pet to the store",
+        "deprecated": false,
         "parameters": [
           {
             "name": "body",
@@ -266,6 +275,7 @@
       "put": {
         "operationId": "updatePet",
         "summary": "Update an existing pet",
+        "deprecated": false,
         "parameters": [
           {
             "name": "body",
