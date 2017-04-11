@@ -130,7 +130,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
             ("url" -> swagger.apiInfo.licenseUrl)))) ~
       ("paths" ->
         (docs.filter(_.apis.nonEmpty).flatMap {
-          doc => doc.apis.collect { case api: Endpoint =>
+          doc => doc.apis.collect { case api: SwaggerEndpoint[_] =>
             (api.path -> api.operations.map { operation =>
               (operation.method.toString.toLowerCase -> (
                 ("operationId" -> operation.nickname) ~

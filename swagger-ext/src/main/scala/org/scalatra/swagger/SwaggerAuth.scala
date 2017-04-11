@@ -154,34 +154,40 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
 
-    get("/:doc(.:format)") {
-      def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
-      swagger.doc(params("doc")) match {
-        case Some(doc) if isAllowed(doc) ⇒ renderDoc(doc.asInstanceOf[ApiType])
-        case _ ⇒ NotFound()
+    if(swagger.swaggerVersion.startsWith("2.")){
+      get("/swagger.json") {
+        val docs = filterDocs(swagger.docs)
+        if (docs.isEmpty) halt(NotFound())
+        renderSwagger2(docs.asInstanceOf[List[ApiType]])
       }
-    }
+    } else {
+      get("/:doc(.:format)") {
+        def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
 
-    get("/" + indexRoute + "(.:format)") {
-      val docs = swagger.docs.filter(_.apis.exists(_.operations.exists(_.allows(userOption)))).toList
-      if (docs.isEmpty) halt(NotFound())
-      renderIndex(docs.asInstanceOf[List[ApiType]])
+        swagger.doc(params("doc")) match {
+          case Some(doc) if isAllowed(doc) ⇒ renderDoc(filterDoc(doc).asInstanceOf[ApiType])
+          case _ ⇒ NotFound()
+        }
+      }
+
+      get("/(" + indexRoute + "(.:format))") {
+        val docs = filterDocs(swagger.docs)
+        if (docs.isEmpty) halt(NotFound())
+        renderIndex(docs.asInstanceOf[List[ApiType]])
+      }
     }
   }
 
-  protected override def renderIndex(docs: List[ApiType]): JValue = {
-    ("apiVersion" -> swagger.apiVersion) ~
-      ("swaggerVersion" -> swagger.swaggerVersion) ~
-      ("apis" ->
-        (docs.filter(s => s.apis.nonEmpty && s.apis.exists(_.operations.exists(_.allows(userOption)))).toList map {
-          doc =>
-            ("path" -> (url(doc.resourcePath, includeServletPath = false, includeContextPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
-              ("description" -> doc.description)
-        })) ~
-        ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
-          acc merge JObject(List(auth.`type` -> Extraction.decompose(auth)(SwaggerAuthSerializers.authFormats(userOption)(userManifest))))
-        }) ~
-        ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)(SwaggerAuthSerializers.authFormats(userOption)(userManifest))))
+  protected def filterDoc(doc: AuthApi[AnyRef]): AuthApi[AnyRef] = {
+    doc.copy(apis = doc.apis.collect { case api if api.operations.exists(_.allows(userOption)) =>
+      api.copy(operations = api.operations.filter(_.allows(userOption)))
+    })
+  }
+
+  protected def filterDocs(docs: Iterable[AuthApi[AnyRef]]): Iterable[AuthApi[AnyRef]] = {
+    docs.collect { case doc if doc.apis.exists(_.operations.exists(_.allows(userOption))) =>
+      filterDoc(doc)
+    }
   }
 
 }
