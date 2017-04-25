@@ -165,9 +165,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                       }.toMap
                     ) ~!
                   ("security" -> (operation.authorizations.flatMap { requirement =>
-                    swagger.authorizations.find(_.`type` == requirement).map { auth =>
+                    swagger.authorizations.find(_.`keyname` == requirement).map { auth =>
                       auth match {
                         case a: OAuth => (requirement -> a.scopes)
+                        case b: ApiKey => (requirement -> List.empty)
                         case _        => (requirement -> List.empty)
                       }
                     }
@@ -189,12 +190,12 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
         (auth match {
           case a: OAuth => a.grantTypes.headOption.map { grantType =>
             grantType match {
-              case g: ImplicitGrant => ("oauth2" -> JObject(
+              case g: ImplicitGrant => (a.keyname -> JObject(
                 JField("type", "oauth2"),
                 JField("flow", "implicit"),
                 JField("authorizationUrl", g.loginEndpoint.url),
                 JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-              case g: AuthorizationCodeGrant => ("oauth2" -> JObject(
+              case g: AuthorizationCodeGrant => (a.keyname -> JObject(
                 JField("type", "oauth2"),
                 JField("flow", "implicit"),
                 JField("authorizationUrl", g.tokenRequestEndpoint.url),
@@ -202,7 +203,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                 JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
             }
           }
-          case a: ApiKey => Some(("api_key" -> JObject(
+          case a: ApiKey => Some((a.keyname -> JObject(
             JField("type", "apiKey"),
             JField("name", a.keyname),
             JField("in", a.passAs))))

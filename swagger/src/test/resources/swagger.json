@@ -59,6 +59,13 @@
             }
           }
         ],
+        "security": [
+          {
+            "AuthorizationN": [
+              "PUBLIC"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -152,6 +159,11 @@
             "type": "string"
           }
         ],
+        "security": [
+          {
+            "Authorization1": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "No response"
@@ -221,6 +233,11 @@
             "items": {
               "type": "string"
             }
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
           }
         ],
         "responses": {
@@ -416,10 +433,23 @@
         "PUBLIC": "PUBLIC"
       }
     },
-    "api_key": {
+    "apiKey": {
       "type": "apiKey",
       "name": "apiKey",
       "in": "header"
+    },
+    "Authorization1": {
+      "type": "apiKey",
+      "name": "Authorization1",
+      "in": "query"
+    },
+    "AuthorizationN": {
+      "type": "oauth2",
+      "flow": "implicit",
+      "authorizationUrl": "http://localhost:8002/oauth/dialog",
+      "scopes": {
+        "PUBLIC": "PUBLIC"
+      }
     }
   }
 }

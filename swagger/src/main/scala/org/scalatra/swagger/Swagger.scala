@@ -445,10 +445,12 @@ case class TokenEndpoint(url: String, tokenName: String)
 
 trait AuthorizationType {
   def `type`: String
+  def keyname: String
 }
 case class OAuth(
     scopes: List[String],
-    grantTypes: List[GrantType]) extends AuthorizationType {
+    grantTypes: List[GrantType],
+    keyname: String = "oauth2") extends AuthorizationType {
   override val `type` = "oauth2"
 }
 case class ApiKey(keyname: String, passAs: String = "header") extends AuthorizationType {
