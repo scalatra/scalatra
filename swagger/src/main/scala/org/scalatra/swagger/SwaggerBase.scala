@@ -200,6 +200,11 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                 JField("authorizationUrl", g.tokenRequestEndpoint.url),
                 JField("tokenUrl", g.tokenEndpoint.url),
                 JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
+              case g: ApplicationGrant => ("oauth2" -> JObject(
+                JField("type", "oauth2"),
+                JField("flow", "application"),
+                JField("tokenUrl", g.tokenEndpoint.url),
+                JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
             }
           }
           case a: ApiKey => Some(("api_key" -> JObject(
