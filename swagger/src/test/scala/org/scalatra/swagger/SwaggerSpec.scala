@@ -38,6 +38,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers {
   )
   val swagger = new Swagger("1.2", "1.0.0", apiInfo)
   swagger.addAuthorization(ApiKey("apiKey"))
+  swagger.addAuthorization(ApiKey("Authorization1", "query"))
   swagger.addAuthorization(OAuth(
     List("PUBLIC"),
     List(
@@ -46,6 +47,16 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers {
         TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
         TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
     )
+  ))
+  swagger.addAuthorization(OAuth(
+    List("PUBLIC"),
+    List(
+      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
+      AuthorizationCodeGrant(
+        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
+        TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
+    ),
+    "AuthorizationN"
   ))
   val testServlet = new SwaggerTestServlet(swagger)
 
@@ -295,6 +306,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   )
   val swagger = new Swagger("2.0", "1.0.0", apiInfo)
   swagger.addAuthorization(ApiKey("apiKey"))
+  swagger.addAuthorization(ApiKey("Authorization1", "query"))
   swagger.addAuthorization(OAuth(
     List("PUBLIC"),
     List(
@@ -304,6 +316,16 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
         TokenEndpoint("http://localhost:8002/oauth/token", "access_code")),
       ApplicationGrant(TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
     )
+  ))
+  swagger.addAuthorization(OAuth(
+    List("PUBLIC"),
+    List(
+      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
+      AuthorizationCodeGrant(
+        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
+        TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
+    ),
+    "AuthorizationN"
   ))
   val testServlet = new SwaggerTestServlet(swagger)
 
@@ -334,7 +356,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
         verifyInfo(j \ "info") and
         verifyPaths(j \ "paths") and
         verifyDefinitions(j \ "definitions") and
-        veritySecurityDefinitions(j \ "securityDefinitions")
+        verifySecurityDefinitions(j \ "securityDefinitions")
     }
   }
 
@@ -394,7 +416,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     }.reduce(_ and _)
   }
 
-  def veritySecurityDefinitions(j: JValue) = {
+  def verifySecurityDefinitions(j: JValue) = {
     val JObject(definitions) = j
     definitions.map {
       case (name, definition) =>
@@ -522,6 +544,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
   val deletePet =
     (apiOperation[Unit]("deletePet")
       summary "Deletes a pet"
+      authorizations ("Authorization1")
       responseMessage ResponseMessage(400, "Invalid pet value")
       parameter pathParam[String]("petId").description("Pet id to delete"))
 
@@ -535,6 +558,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
       notes "Multiple status values can be provided with comma separated strings"
       produces ("application/json", "application/xml")
       responseMessage ResponseMessage(400, "Invalid status value")
+      authorizations ("apiKey")
       parameter (queryParam[String]("status").required.multiValued
         description "Status values that need to be considered for filter"
         defaultValue "available"
@@ -549,6 +573,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
       summary "Finds Pets by tags"
       notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
       produces ("application/json", "application/xml")
+      authorizations ("AuthorizationN")
       responseMessage ResponseMessage(400, "Invalid tag value")
       parameter queryParam[String]("tags").description("Tags to filter by").multiValued)
 
