@@ -306,7 +306,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   )
   val swagger = new Swagger("2.0", "1.0.0", apiInfo)
   swagger.addAuthorization(ApiKey("apiKey"))
-  swagger.addAuthorization(ApiKey("Authorization1", "query"))
+  swagger.addAuthorization(ApiKey("Authorization1", "query", "you must register your app to receive an apikey"))
   swagger.addAuthorization(OAuth(
     List("PUBLIC"),
     List(
@@ -325,7 +325,8 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
         TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
         TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
     ),
-    "AuthorizationN"
+    "AuthorizationN",
+    "obtain limited access to service"
   ))
   val testServlet = new SwaggerTestServlet(swagger)
 
@@ -420,7 +421,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     val JObject(definitions) = j
     definitions.map {
       case (name, definition) =>
-        verifyFields(definition, swaggerJsonJValue \ "securityDefinitions" \ name, "type", "name", "in", "flow", "authorizationUrl", "scopes")
+        verifyFields(definition, swaggerJsonJValue \ "securityDefinitions" \ name, "type", "name", "description", "in", "flow", "authorizationUrl", "scopes")
     }.reduce(_ and _)
   }
 

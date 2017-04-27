@@ -192,17 +192,20 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
             grantType match {
               case g: ImplicitGrant => (a.keyname -> JObject(
                 JField("type", "oauth2"),
+                JField("description", a.description),
                 JField("flow", "implicit"),
                 JField("authorizationUrl", g.loginEndpoint.url),
                 JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
               case g: AuthorizationCodeGrant => (a.keyname -> JObject(
                 JField("type", "oauth2"),
+                JField("description", a.description),
                 JField("flow", "implicit"),
                 JField("authorizationUrl", g.tokenRequestEndpoint.url),
                 JField("tokenUrl", g.tokenEndpoint.url),
                 JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
               case g: ApplicationGrant => ("oauth2" -> JObject(
                 JField("type", "oauth2"),
+                JField("description", a.description),
                 JField("flow", "application"),
                 JField("tokenUrl", g.tokenEndpoint.url),
                 JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
@@ -210,6 +213,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
           }
           case a: ApiKey => Some((a.keyname -> JObject(
             JField("type", "apiKey"),
+            JField("description", a.description),
             JField("name", a.keyname),
             JField("in", a.passAs))))
         })
