@@ -460,13 +460,11 @@ object SwaggerSerializers {
         ("grantTypes" ->
           (for (t <- grantTypes) yield {
             (t.`type`, Extraction.decompose(t))
-          }).toMap) ~
-          ("description" -> description)
+          }).toMap)
     case obj @ ApiKey(keyname, passAs, description) =>
       ("type" -> obj.`type`) ~
         ("passAs" -> passAs) ~
-        ("name" -> keyname) ~
-        ("description" -> description)
+        ("name" -> keyname)
 
   }))
 }
