@@ -454,14 +454,14 @@ object SwaggerSerializers {
     case value if value \ "type" == JString("oauth2") =>
       OAuth((value \ "scopes").extract[List[String]], (value \ "grantTypes").extract[List[GrantType]])
   }, {
-    case obj @ OAuth(scopes, grantTypes, keyname) =>
+    case obj @ OAuth(scopes, grantTypes, keyname, description) =>
       ("type" -> obj.`type`) ~
         ("scopes" -> scopes) ~
         ("grantTypes" ->
           (for (t <- grantTypes) yield {
             (t.`type`, Extraction.decompose(t))
           }).toMap)
-    case obj @ ApiKey(keyname, passAs) =>
+    case obj @ ApiKey(keyname, passAs, description) =>
       ("type" -> obj.`type`) ~
         ("passAs" -> passAs) ~
         ("name" -> keyname)

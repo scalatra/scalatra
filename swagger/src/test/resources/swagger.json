@@ -427,6 +427,7 @@
   "securityDefinitions": {
     "oauth2": {
       "type": "oauth2",
+      "description": "",
       "flow": "implicit",
       "authorizationUrl": "http://localhost:8002/oauth/dialog",
       "scopes": {
@@ -435,16 +436,19 @@
     },
     "apiKey": {
       "type": "apiKey",
+      "description": "",
       "name": "apiKey",
       "in": "header"
     },
     "Authorization1": {
       "type": "apiKey",
+      "description": "you must register your app to receive an apikey",
       "name": "Authorization1",
       "in": "query"
     },
     "AuthorizationN": {
       "type": "oauth2",
+      "description": "obtain limited access to service",
       "flow": "implicit",
       "authorizationUrl": "http://localhost:8002/oauth/dialog",
       "scopes": {
