@@ -431,7 +431,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   }
 
   def verifyOperation(actual: JValue, expected: JValue, operationId: String) = {
-    val m = verifyFields(actual, expected, "operationId", "summary", "schemes", "consumes", "produces", "parameters", "responses", "security", "tags")
+    val m = verifyFields(actual, expected, "operationId", "summary", "schemes", "consumes", "produces", "deprecated", "parameters", "responses", "security", "tags")
     m setMessage (m.message + " of the operation " + operationId)
   }
 
@@ -471,6 +471,8 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
 
           if (r.nonEmpty) r reduce (_ and _) else 1.must_==(1)
         case _ =>
+          println("act: " + act \ fn)
+          println("exp: " + exp \ fn)
           val m = act \ fn must_== exp \ fn
           m setMessage (JsonMethods.compact(JsonMethods.render(act \ fn)) + " does not match\n" + JsonMethods.compact(JsonMethods.render(exp \ fn)) + " for field " + fn)
       }
