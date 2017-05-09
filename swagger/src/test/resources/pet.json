@@ -62,6 +62,9 @@
               "paramType": "path"
             }
           ],
+          "authorizations": [
+            "Authorization1"
+          ],
           "responseMessages": [
             {
               "code": 400,
@@ -144,6 +147,9 @@
             "application/json",
             "application/xml"
           ],
+          "authorizations": [
+            "apiKey"
+          ],
           "parameters": [
             {
               "name": "status",
@@ -186,6 +192,9 @@
           "produces": [
             "application/json",
             "application/xml"
+          ],
+          "authorizations": [
+            "AuthorizationN"
           ],
           "parameters": [
             {

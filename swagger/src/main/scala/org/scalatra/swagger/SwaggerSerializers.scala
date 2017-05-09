@@ -450,21 +450,21 @@ object SwaggerSerializers {
 
   class AuthorizationTypeSerializer extends CustomSerializer[AuthorizationType](implicit formats => ({
     case value if value \ "type" == JString("apiKey") =>
-      ApiKey((value \ "keyname").extractOpt[String].flatMap(_.blankOption).getOrElse("apiKey"), (value \ "passAs").extract[String])
+      ApiKey((value \ "keyname").extract[String], (value \ "passAs").extract[String])
     case value if value \ "type" == JString("oauth2") =>
       OAuth((value \ "scopes").extract[List[String]], (value \ "grantTypes").extract[List[GrantType]])
   }, {
-    case obj @ OAuth(scopes, grantTypes) =>
+    case obj @ OAuth(scopes, grantTypes, keyname, description) =>
       ("type" -> obj.`type`) ~
         ("scopes" -> scopes) ~
         ("grantTypes" ->
           (for (t <- grantTypes) yield {
             (t.`type`, Extraction.decompose(t))
           }).toMap)
-    case obj @ ApiKey(keyname, passAs) =>
+    case obj @ ApiKey(keyname, passAs, description) =>
       ("type" -> obj.`type`) ~
         ("passAs" -> passAs) ~
-        ("keyname" -> keyname)
+        ("name" -> keyname)
 
   }))
 }

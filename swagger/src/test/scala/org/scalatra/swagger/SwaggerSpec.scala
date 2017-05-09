@@ -38,6 +38,7 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers {
   )
   val swagger = new Swagger("1.2", "1.0.0", apiInfo)
   swagger.addAuthorization(ApiKey("apiKey"))
+  swagger.addAuthorization(ApiKey("Authorization1", "query"))
   swagger.addAuthorization(OAuth(
     List("PUBLIC"),
     List(
@@ -46,6 +47,16 @@ class SwaggerSpec extends ScalatraSpec with JsonMatchers {
         TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
         TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
     )
+  ))
+  swagger.addAuthorization(OAuth(
+    List("PUBLIC"),
+    List(
+      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
+      AuthorizationCodeGrant(
+        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
+        TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
+    ),
+    "AuthorizationN"
   ))
   val testServlet = new SwaggerTestServlet(swagger)
 
@@ -295,6 +306,17 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   )
   val swagger = new Swagger("2.0", "1.0.0", apiInfo)
   swagger.addAuthorization(ApiKey("apiKey"))
+  swagger.addAuthorization(ApiKey("Authorization1", "query", "you must register your app to receive an apikey"))
+  swagger.addAuthorization(OAuth(
+    List("PUBLIC"),
+    List(
+      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
+      AuthorizationCodeGrant(
+        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
+        TokenEndpoint("http://localhost:8002/oauth/token", "access_code")),
+      ApplicationGrant(TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
+    )
+  ))
   swagger.addAuthorization(OAuth(
     List("PUBLIC"),
     List(
@@ -302,7 +324,9 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
       AuthorizationCodeGrant(
         TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
         TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))
-    )
+    ),
+    "AuthorizationN",
+    "obtain limited access to service"
   ))
   val testServlet = new SwaggerTestServlet(swagger)
 
@@ -333,7 +357,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
         verifyInfo(j \ "info") and
         verifyPaths(j \ "paths") and
         verifyDefinitions(j \ "definitions") and
-        veritySecurityDefinitions(j \ "securityDefinitions")
+        verifySecurityDefinitions(j \ "securityDefinitions")
     }
   }
 
@@ -393,11 +417,11 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     }.reduce(_ and _)
   }
 
-  def veritySecurityDefinitions(j: JValue) = {
+  def verifySecurityDefinitions(j: JValue) = {
     val JObject(definitions) = j
     definitions.map {
       case (name, definition) =>
-        verifyFields(definition, swaggerJsonJValue \ "securityDefinitions" \ name, "type", "name", "in", "flow", "authorizationUrl", "scopes")
+        verifyFields(definition, swaggerJsonJValue \ "securityDefinitions" \ name, "type", "name", "description", "in", "flow", "authorizationUrl", "scopes")
     }.reduce(_ and _)
   }
 
@@ -407,7 +431,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   }
 
   def verifyOperation(actual: JValue, expected: JValue, operationId: String) = {
-    val m = verifyFields(actual, expected, "operationId", "summary", "schemes", "consumes", "produces", "deprecated", "parameters", "responses", "security")
+    val m = verifyFields(actual, expected, "operationId", "summary", "schemes", "consumes", "produces", "deprecated", "parameters", "responses", "security", "tags")
     m setMessage (m.message + " of the operation " + operationId)
   }
 
@@ -447,6 +471,8 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
 
           if (r.nonEmpty) r reduce (_ and _) else 1.must_==(1)
         case _ =>
+          println("act: " + act \ fn)
+          println("exp: " + exp \ fn)
           val m = act \ fn must_== exp \ fn
           m setMessage (JsonMethods.compact(JsonMethods.render(act \ fn)) + " does not match\n" + JsonMethods.compact(JsonMethods.render(exp \ fn)) + " for field " + fn)
       }
@@ -521,6 +547,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
   val deletePet =
     (apiOperation[Unit]("deletePet")
       summary "Deletes a pet"
+      authorizations ("Authorization1")
       responseMessage ResponseMessage(400, "Invalid pet value")
       parameter pathParam[String]("petId").description("Pet id to delete"))
 
@@ -534,6 +561,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
       notes "Multiple status values can be provided with comma separated strings"
       produces ("application/json", "application/xml")
       responseMessage ResponseMessage(400, "Invalid status value")
+      authorizations ("apiKey")
       parameter (queryParam[String]("status").required.multiValued
         description "Status values that need to be considered for filter"
         defaultValue "available"
@@ -548,6 +576,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
       summary "Finds Pets by tags"
       notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
       produces ("application/json", "application/xml")
+      authorizations ("AuthorizationN")
       responseMessage ResponseMessage(400, "Invalid tag value")
       parameter queryParam[String]("tags").description("Tags to filter by").multiValued)
 
@@ -570,6 +599,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       summary "Find purchase order by ID"
       notes "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
       produces ("application/json", "application/xml")
+      tags ("store")
       parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),
@@ -584,6 +614,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
     (apiOperation[Unit]("deleteOrder")
       summary "Delete purchase order by ID"
       notes "For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors"
+      tags ("store")
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),
         ResponseMessage(404, "Order not found")
@@ -596,6 +627,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   val placeOrderOperation =
     (apiOperation[Unit]("placeOrder")
       summary "Place an order for a pet"
+      tags ("store")
       responseMessage ResponseMessage(400, "Invalid order")
       parameter bodyParam[Order].description("order placed for purchasing the pet"))
   post("/order", operation(placeOrderOperation)) {

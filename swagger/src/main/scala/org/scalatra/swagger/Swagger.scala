@@ -445,13 +445,17 @@ case class TokenEndpoint(url: String, tokenName: String)
 
 trait AuthorizationType {
   def `type`: String
+  def keyname: String
+  def description: String
 }
 case class OAuth(
     scopes: List[String],
-    grantTypes: List[GrantType]) extends AuthorizationType {
+    grantTypes: List[GrantType],
+    keyname: String = "oauth2",
+    description: String = "") extends AuthorizationType {
   override val `type` = "oauth2"
 }
-case class ApiKey(keyname: String, passAs: String = "header") extends AuthorizationType {
+case class ApiKey(keyname: String, passAs: String = "header", description: String = "") extends AuthorizationType {
   override val `type` = "apiKey"
 }
 
@@ -467,6 +471,10 @@ case class AuthorizationCodeGrant(
     tokenRequestEndpoint: TokenRequestEndpoint,
     tokenEndpoint: TokenEndpoint) extends GrantType {
   def `type` = "authorization_code"
+}
+case class ApplicationGrant(
+    tokenEndpoint: TokenEndpoint) extends GrantType {
+  def `type` = "application"
 }
 trait SwaggerOperation {
   @deprecated("Swagger spec 1.2 renamed `httpMethod` to `method`.", "2.2.2")
@@ -486,6 +494,7 @@ trait SwaggerOperation {
   def errorResponses: List[ResponseMessage] = responseMessages
   def responseMessages: List[ResponseMessage]
   //  def supportedContentTypes: List[String]
+  def tags: List[String]
   def position: Int
 }
 case class Operation(method: HttpMethod,
@@ -501,7 +510,8 @@ case class Operation(method: HttpMethod,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
   protocols: List[String] = Nil,
-  authorizations: List[String] = Nil) extends SwaggerOperation
+  authorizations: List[String] = Nil,
+  tags: List[String] = Nil) extends SwaggerOperation
 
 trait SwaggerEndpoint[T <: SwaggerOperation] {
   def path: String

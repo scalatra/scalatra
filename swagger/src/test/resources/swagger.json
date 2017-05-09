@@ -19,6 +19,7 @@
         "operationId": "placeOrder",
         "deprecated": false,
         "summary": "Place an order for a pet",
+        "tags": ["store"],
         "parameters": [
           {
             "name": "body",
@@ -61,6 +62,13 @@
             }
           }
         ],
+        "security": [
+          {
+            "AuthorizationN": [
+              "PUBLIC"
+            ]
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -81,6 +89,7 @@
       "delete": {
         "operationId": "deleteOrder",
         "summary": "Delete purchase order by ID",
+        "tags": ["store"],
         "deprecated": false,
         "parameters": [],
         "responses": {
@@ -102,6 +111,7 @@
           "application/json",
           "application/xml"
         ],
+        "tags": ["store"],
         "deprecated": false,
         "parameters": [
           {
@@ -156,6 +166,11 @@
             "required": true,
             "in": "path",
             "type": "string"
+          }
+        ],
+        "security": [
+          {
+            "Authorization1": []
           }
         ],
         "responses": {
@@ -229,6 +244,11 @@
             "items": {
               "type": "string"
             }
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
           }
         ],
         "responses": {
@@ -420,16 +440,33 @@
   "securityDefinitions": {
     "oauth2": {
       "type": "oauth2",
+      "description": "",
       "flow": "implicit",
       "authorizationUrl": "http://localhost:8002/oauth/dialog",
       "scopes": {
         "PUBLIC": "PUBLIC"
       }
     },
-    "api_key": {
+    "apiKey": {
       "type": "apiKey",
+      "description": "",
       "name": "apiKey",
       "in": "header"
+    },
+    "Authorization1": {
+      "type": "apiKey",
+      "description": "you must register your app to receive an apikey",
+      "name": "Authorization1",
+      "in": "query"
+    },
+    "AuthorizationN": {
+      "type": "oauth2",
+      "description": "obtain limited access to service",
+      "flow": "implicit",
+      "authorizationUrl": "http://localhost:8002/oauth/dialog",
+      "scopes": {
+        "PUBLIC": "PUBLIC"
+      }
     }
   }
 }
