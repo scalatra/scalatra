@@ -137,7 +137,8 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                 ("summary" -> operation.summary) ~!
                 ("schemes" -> operation.protocols) ~!
                 ("consumes" -> operation.consumes) ~!
-                ("produces" -> operation.produces) ~
+                ("produces" -> operation.produces) ~!
+                ("tags" -> operation.tags) ~
                 ("parameters" -> operation.parameters.map { parameter =>
                   ("name" -> parameter.name) ~
                     ("description" -> parameter.description) ~

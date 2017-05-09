@@ -494,6 +494,7 @@ trait SwaggerOperation {
   def errorResponses: List[ResponseMessage] = responseMessages
   def responseMessages: List[ResponseMessage]
   //  def supportedContentTypes: List[String]
+  def tags: List[String]
   def position: Int
 }
 case class Operation(method: HttpMethod,
@@ -509,7 +510,8 @@ case class Operation(method: HttpMethod,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
   protocols: List[String] = Nil,
-  authorizations: List[String] = Nil) extends SwaggerOperation
+  authorizations: List[String] = Nil,
+  tags: List[String] = Nil) extends SwaggerOperation
 
 trait SwaggerEndpoint[T <: SwaggerOperation] {
   def path: String
