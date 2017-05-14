@@ -64,7 +64,9 @@ trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAcces
    *         or throw an exception if the key doesn't exist
    */
   def getAsOrElse[T](key: String, default: => T)(
-    implicit mf: Manifest[T], converter: TypeConverter[Any, T]): T = {
+    implicit
+    mf: Manifest[T], converter: TypeConverter[Any, T]
+  ): T = {
     getAs[T](key) getOrElse default
   }
 

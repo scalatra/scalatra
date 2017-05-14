@@ -11,7 +11,8 @@ class ValueReaderSpec extends Specification with DefaultImplicitConversions {
     "int" -> "1",
     "long" -> "1239485775745309200",
     "date" -> "29/01/2012",
-    "bool" -> "true")
+    "bool" -> "true"
+  )
 
   val multiParams = Map(
     "hello" -> Seq("world"),

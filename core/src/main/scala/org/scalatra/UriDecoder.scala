@@ -7,7 +7,8 @@ object UriDecoder {
   def firstStep(uri: String): String = {
     UrlCodingUtils.urlDecode(
       toDecode = UrlCodingUtils.ensureUrlEncoding(uri),
-      toSkip = PathPatternParser.PathReservedCharacters)
+      toSkip = PathPatternParser.PathReservedCharacters
+    )
   }
 
   def secondStep(uri: String): String = {

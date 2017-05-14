@@ -105,8 +105,7 @@ trait ApiFormats extends ScalatraBase {
 
   private[this] def getFromAcceptHeader(implicit request: HttpServletRequest): Option[String] = {
     val hdrs = request.contentType.fold(acceptHeader)(contentType =>
-      (acceptHeader ::: List(contentType)).distinct
-    )
+      (acceptHeader ::: List(contentType)).distinct)
     formatForMimeTypes(hdrs: _*)
   }
 

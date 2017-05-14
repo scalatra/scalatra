@@ -31,7 +31,8 @@ object CorsSupport {
     AccessControlAllowOriginHeader,
     AccessControlMaxAgeHeader,
     AccessControlRequestHeadersHeader,
-    AccessControlRequestMethodHeader)
+    AccessControlRequestMethodHeader
+  )
 
   case class CORSConfig(
     allowedOrigins: Seq[String],
@@ -39,7 +40,8 @@ object CorsSupport {
     allowedHeaders: Seq[String],
     allowCredentials: Boolean,
     preflightMaxAge: Int = 0,
-    enabled: Boolean)
+    enabled: Boolean
+  )
 
   private[this] def configKey(name: String): String = "org.scalatra.cors." + name
 
@@ -53,7 +55,8 @@ object CorsSupport {
 
   private val DefaultMethods: String = "GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH"
 
-  private val DefaultHeaders: String = Seq("Cookie",
+  private val DefaultHeaders: String = Seq(
+    "Cookie",
     "Host",
     "X-Forwarded-For",
     "Accept-Charset",
@@ -68,7 +71,8 @@ object CorsSupport {
     "X-Requested-With",
     "Authorization",
     "Accept",
-    "Content-Type").mkString(",")
+    "Content-Type"
+  ).mkString(",")
 
 }
 trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
@@ -85,7 +89,8 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
       Option(config.context.getInitParameter(AllowedHeadersKey)).getOrElse(DefaultHeaders).split(",").map(_.trim),
       Option(config.context.getInitParameter(AllowCredentialsKey)).map(_.toBoolean).getOrElse(true),
       Option(config.context.getInitParameter(PreflightMaxAgeKey)).map(_.toInt).getOrElse(1800),
-      Option(config.context.getInitParameter(EnableKey)).map(_.toBoolean).getOrElse(true))
+      Option(config.context.getInitParameter(EnableKey)).map(_.toBoolean).getOrElse(true)
+    )
 
     val corsCfg = config.context.getOrElseUpdate(CorsConfigKey, createDefault).asInstanceOf[CORSConfig]
     import corsCfg._
@@ -93,7 +98,8 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
       logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s".format(
         allowedOrigins mkString ", ",
         allowedMethods mkString ", ",
-        allowedHeaders mkString ", ")
+        allowedHeaders mkString ", "
+      )
     } else {
       logger debug "Cors support is disabled"
     }

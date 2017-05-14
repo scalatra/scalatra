@@ -10,8 +10,7 @@ import scala.collection.JavaConverters._
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
   def headersToHeaders(): Unit = {
     request.getHeaderNames.asScala.filter(_.startsWith("X")).foreach(header =>
-      response.setHeader(header, request.getHeader(header))
-    )
+      response.setHeader(header, request.getHeader(header)))
   }
 
   def fileParamsToHeaders(): Unit = {
@@ -24,8 +23,7 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
 
   def paramsToHeaders(): Unit = {
     params.foreach(param =>
-      response.setHeader(param._1, param._2)
-    )
+      response.setHeader(param._1, param._2))
   }
 
   post("/upload") {

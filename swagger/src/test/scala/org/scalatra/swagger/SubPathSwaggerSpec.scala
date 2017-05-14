@@ -77,8 +77,8 @@ class ApiController()(implicit val swagger: Swagger) extends ScalatraServlet wit
       Parameter("lastname", DataType.String, Some("The hacker's last name"), None, ParamType.Body, required = true),
       Parameter("motto", DataType.String, Some("A phrase associated with this hacker"), None, ParamType.Body, required = true),
       Parameter("birthyear", DataType.Int, Some("A four-digit number, the year that the user was born in"),
-        Some("A four-digit number"), ParamType.Body, required = true))
-  )
+        Some("A four-digit number"), ParamType.Body, required = true)
+    ))
 
   /**
    * Create a new hacker in the database.

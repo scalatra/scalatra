@@ -220,7 +220,9 @@ trait ScalatraBase
   }
 
   protected def renderUncaughtException(e: Throwable)(
-    implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
+    implicit
+    request: HttpServletRequest, response: HttpServletResponse
+  ): Unit = {
     status = 500
     if (isDevelopmentMode) {
       contentType = "text/plain"
@@ -360,7 +362,9 @@ trait ScalatraBase
   }
 
   protected def setMultiparams[S](matchedRoute: Option[MatchedRoute], originalParams: MultiParams)(
-    implicit request: HttpServletRequest): Unit = {
+    implicit
+    request: HttpServletRequest
+  ): Unit = {
     val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
       case (key, values) =>
         key -> values.map(s => if (s.nonBlank) UriDecoder.secondStep(s) else s)
@@ -625,8 +629,11 @@ trait ScalatraBase
     path: String,
     params: Iterable[(String, Any)] = Iterable.empty,
     includeContextPath: Boolean = true,
-    includeServletPath: Boolean = true)(
-      implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+    includeServletPath: Boolean = true
+  )(
+    implicit
+    request: HttpServletRequest, response: HttpServletResponse
+  ): String = {
     url(path, params, includeContextPath, includeServletPath, absolutize = false)
   }
 
@@ -650,8 +657,11 @@ trait ScalatraBase
     includeContextPath: Boolean = true,
     includeServletPath: Boolean = true,
     absolutize: Boolean = true,
-    withSessionId: Boolean = true)(
-      implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+    withSessionId: Boolean = true
+  )(
+    implicit
+    request: HttpServletRequest, response: HttpServletResponse
+  ): String = {
 
     val newPath = path match {
       case x if x.startsWith("/") && includeContextPath && includeServletPath =>
@@ -731,15 +741,17 @@ trait ScalatraBase
     params: Iterable[(String, Any)] = Iterable.empty,
     includeContextPath: Boolean = true,
     includeServletPath: Boolean = true,
-    withSessionId: Boolean = true)(
-      implicit request: HttpServletRequest, response: HttpServletResponse): String = {
+    withSessionId: Boolean = true
+  )(
+    implicit
+    request: HttpServletRequest, response: HttpServletResponse
+  ): String = {
     if (path.startsWith("http")) path
     else {
       val p = url(path, params,
         includeContextPath = includeContextPath,
         includeServletPath = includeServletPath,
-        withSessionId = withSessionId
-      )
+        withSessionId = withSessionId)
       if (p.startsWith("http")) p else buildBaseUrl + ensureSlash(p)
     }
   }

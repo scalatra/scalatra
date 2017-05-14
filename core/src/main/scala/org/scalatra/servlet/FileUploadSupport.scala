@@ -201,7 +201,8 @@ object FileUploadSupport {
 
   case class BodyParams(
     fileParams: FileMultiParams,
-    formParams: Map[String, List[String]])
+    formParams: Map[String, List[String]]
+  )
 
 }
 
@@ -274,7 +275,8 @@ object Util {
   def partAttribute(
     part: Part,
     headerName: String, attributeName: String,
-    defaultValue: String = null): String = {
+    defaultValue: String = null
+  ): String = {
     Option(part.getHeader(headerName)) match {
       case Some(value) => {
         value.split(";").find(_.trim().startsWith(attributeName)) match {

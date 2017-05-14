@@ -18,7 +18,8 @@ object LevelColorizer {
     Level.DEBUG -> DebugColor,
     Level.INFO -> InfoColor,
     Level.WARN -> WarnColor,
-    Level.ERROR -> ErrorColor)
+    Level.ERROR -> ErrorColor
+  )
 
 }
 

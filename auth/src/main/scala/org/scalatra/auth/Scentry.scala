@@ -36,7 +36,8 @@ class Scentry[UserType <: AnyRef](
     app: ScalatraBase,
     serialize: PartialFunction[UserType, String],
     deserialize: PartialFunction[String, UserType],
-    private[this] var _store: ScentryAuthStore) {
+    private[this] var _store: ScentryAuthStore
+) {
 
   private[this] lazy val logger = Logger(getClass)
   type StrategyType = ScentryStrategy[UserType]
@@ -131,7 +132,7 @@ class Scentry[UserType <: AnyRef](
 
   private[this] def runAuthentication(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
-    (subset withFilter(_.isValid) map { strat =>
+    (subset withFilter (_.isValid) map { strat =>
       logger.debug("Authenticating with: %s" format strat.name)
       runCallbacks(_.isValid) { _.beforeAuthenticate }
       strat.authenticate() match {

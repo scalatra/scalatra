@@ -80,7 +80,8 @@ trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
     "SERVER_NAME" -> req.getServerName,
     "SERVER_PORT" -> req.getServerPort.toString,
     "SERVER_PROTOCOL" -> req.getProtocol,
-    "SERVER_SOFTWARE" -> servletContext.getServerInfo)
+    "SERVER_SOFTWARE" -> servletContext.getServerInfo
+  )
 
   private def %-(s: String) = s.blankOption map (_.urlEncode) getOrElse ""
 

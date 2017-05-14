@@ -36,7 +36,8 @@ object SwaggerSerializers {
       new ModelSerializer,
       new ResponseMessageSerializer,
       new ParameterSerializer,
-      new GrantTypeSerializer)
+      new GrantTypeSerializer
+    )
   }
   trait SwaggerFormats extends DefaultFormats {
 
@@ -238,7 +239,8 @@ object SwaggerSerializers {
         },
         description = (json \ "description").getAs[String].flatMap(_.blankOption),
         allowableValues = json.extract[AllowableValues],
-        items = None)
+        items = None
+      )
   }, {
     case x: ModelProperty =>
       val json: JValue = ("description" -> x.description) ~ ("position" -> x.position)
@@ -363,7 +365,8 @@ object SwaggerSerializers {
       Endpoint(
         (value \ "path").extract[String],
         (value \ "description").extractOpt[String].flatMap(_.blankOption),
-        (value \ "operations").extract[List[Operation]])
+        (value \ "operations").extract[List[Operation]]
+      )
   }, {
     case obj: Endpoint =>
       ("path" -> obj.path) ~
@@ -421,7 +424,8 @@ object SwaggerSerializers {
     case value if value \ "type" == JString("implicit") =>
       ImplicitGrant(
         LoginEndpoint((value \ "loginEndpoint" \ "url").as[String]),
-        (value \ "tokenName").as[String])
+        (value \ "tokenName").as[String]
+      )
     case value if value \ "type" == JString("authorization_code") =>
       AuthorizationCodeGrant(
         TokenRequestEndpoint(
@@ -431,7 +435,9 @@ object SwaggerSerializers {
         ),
         TokenEndpoint(
           (value \ "tokenEndpoint" \ "url").as[String],
-          (value \ "tokenEndpoint" \ "tokenName").as[String]))
+          (value \ "tokenEndpoint" \ "tokenName").as[String]
+        )
+      )
   }, {
     case ImplicitGrant(login, tokenName) =>
       ("type" -> "implicit") ~
@@ -445,7 +451,8 @@ object SwaggerSerializers {
             ("clientSecretName" -> tokenRequest.clientSecretName))) ~
             ("tokenEndpoint" -> (
               ("url" -> tokenEndpoint.url) ~
-              ("tokenName" -> tokenEndpoint.tokenName)))
+              ("tokenName" -> tokenEndpoint.tokenName)
+            ))
   }))
 
   class AuthorizationTypeSerializer extends CustomSerializer[AuthorizationType](implicit formats => ({

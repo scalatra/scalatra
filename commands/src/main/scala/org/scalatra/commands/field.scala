@@ -91,7 +91,8 @@ class BasicFieldDescriptor[T](
     val allowableValues: List[T] = Nil,
     val displayName: Option[String] = None,
     val position: Int = 0,
-    val requiredError: String = "%s is required.")(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
+    val requiredError: String = "%s is required."
+)(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
 
   private[this] def requiredValidationFailure: FieldValidation[T] = ValidationError(requiredError.format(name), FieldName(name)).failure
 
@@ -116,7 +117,8 @@ class BasicFieldDescriptor[T](
     allowableValues: List[T] = allowableValues,
     displayName: Option[String] = displayName,
     position: Int = position,
-    requiredError: String = requiredError): FieldDescriptor[T] = {
+    requiredError: String = requiredError
+  ): FieldDescriptor[T] = {
     new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName, position, requiredError)(valueManifest)
   }
 
@@ -198,7 +200,8 @@ class BoundFieldDescriptor[S, T](
     val original: Option[S],
     val value: FieldValidation[T],
     val field: FieldDescriptor[T],
-    val validator: Option[Validator[T]]) extends DataboundFieldDescriptor[S, T] {
+    val validator: Option[Validator[T]]
+) extends DataboundFieldDescriptor[S, T] {
   def name: String = field.name
 
   override def hashCode(): Int = field.hashCode()

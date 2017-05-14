@@ -83,7 +83,8 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
         xmlRootNode.copy(child = toXml(json)),
         response.characterEncoding.get,
         xmlDecl = true,
-        doctype = null)
+        doctype = null
+      )
   }
 
   protected def writeJson(json: JValue, writer: Writer)

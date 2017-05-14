@@ -61,7 +61,8 @@ object ManifestScalaType {
   private class CopiedManifestScalaType(
       mf: Manifest[_],
       private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
-      override val isPrimitive: Boolean) extends ManifestScalaType(mf) {
+      override val isPrimitive: Boolean
+  ) extends ManifestScalaType(mf) {
     override def typeVars = {
       if (_typeVars == null)
         _typeVars = Map.empty[TypeVariable[_], ScalaType] ++
