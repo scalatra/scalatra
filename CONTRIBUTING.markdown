@@ -38,7 +38,7 @@ Good documentation is core to a successful and healthy ecosystem, the more we  h
 Scaladoc lives inside the scala source code, if you want to contribute scaladoc patches, do the same thing described above:
 fork [the github project](https://github.com/scalatra/scalatra/) and write the documentation, then do a pull request. 
 
-The [scaladoc syntax](http://lampsvn.epfl.ch/trac/scala/wiki/Scaladoc/AuthorDocs) is a mix of javadoc and wiki.
+The [scaladoc syntax](https://wiki.scala-lang.org/display/SW/Writing+Documentation) is a mix of javadoc and wiki.
 Rules for good code documentation are the same as in any other language/framework: why is better than what, compare
 
     /**
