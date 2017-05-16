@@ -230,7 +230,7 @@ case class ResourceListing(
 case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
 
 case class Api(
-  apiVersion: String,
+    apiVersion: String,
     swaggerVersion: String,
     resourcePath: String,
     description: Option[String] = None,
@@ -431,7 +431,7 @@ case class ModelProperty(
 )
 
 case class Model(
-  id: String,
+    id: String,
     name: String,
     qualifiedName: Option[String] = None,
     description: Option[String] = None,
