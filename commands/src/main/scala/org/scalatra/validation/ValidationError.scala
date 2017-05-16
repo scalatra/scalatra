@@ -109,7 +109,8 @@ class ValidationErrorSerializer(includeCode: Boolean = true, includeArgs: Boolea
         (jo \ "message").extractOrElse(""),
         (jo \ "field").extractOpt[String] map FieldName,
         (jo \ "code").extractOpt[ErrorCode],
-        (jo \ "args").children)
+        (jo \ "args").children
+      )
   }, {
     case ValidationError(message, fieldName, code, args) ⇒
       implicit val fmts = formats
@@ -118,4 +119,5 @@ class ValidationErrorSerializer(includeCode: Boolean = true, includeArgs: Boolea
       val ec: JValue = if (includeCode && code.isDefined) ("code" -> (code map (Extraction.decompose(_)(formats)))) else JNothing
       val arg: JValue = if (includeArgs && args.nonEmpty) ("args" -> Extraction.decompose(args)(formats)) else JNothing
       jv merge wf merge ec merge arg
-  }))
+  })
+)

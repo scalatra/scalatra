@@ -2,7 +2,6 @@ import com.typesafe.sbt.pgp.PgpKeys
 import scala.xml._
 import java.net.URL
 import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
-import com.typesafe.sbt.SbtScalariform.scalariformSettings
 import Dependencies._
 import UnidocKeys._
 
@@ -23,7 +22,7 @@ lazy val scalatraSettings = Seq(
     "org.scala-lang" %  "scala-reflect"  % scalaVersion.value,
     "org.scala-lang" %  "scala-compiler" % scalaVersion.value
   )
-) ++ mavenCentralFrouFrou ++ scalariformSettings ++ Seq(Compile, Test).flatMap(c =>
+) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c =>
   scalacOptions in (c, console) --= Seq("-Ywarn-unused-import")
 )
 

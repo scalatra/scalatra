@@ -17,7 +17,8 @@ class ScalatraRenderContext(
     engine: TemplateEngine,
     out: PrintWriter,
     req: HttpServletRequest,
-    res: HttpServletResponse) extends ServletRenderContext(engine, out, req, res, kernel.servletContext) {
+    res: HttpServletResponse
+) extends ServletRenderContext(engine, out, req, res, kernel.servletContext) {
 
   def flash: scala.collection.Map[String, Any] = kernel match {
     case flashMapSupport: FlashMapSupport => flashMapSupport.flash(request)
@@ -108,5 +109,6 @@ class ScalatraRenderContext(
   def url(
     route: Route,
     params: Map[String, String],
-    splats: Iterable[String]): String = UrlGenerator.url(route, params, splats)(request)
+    splats: Iterable[String]
+  ): String = UrlGenerator.url(route, params, splats)(request)
 }

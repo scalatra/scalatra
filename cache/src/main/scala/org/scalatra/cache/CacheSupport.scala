@@ -18,7 +18,8 @@ trait CacheSupport { self: ScalatraBase =>
     }
   }
 
-  def cached[A](ttl: Option[Duration])(result: => A)(implicit keyStrategy: KeyStrategy,
+  def cached[A](ttl: Option[Duration])(result: => A)(implicit
+    keyStrategy: KeyStrategy,
     headerStrategy: HeaderStrategy,
     request: HttpServletRequest,
     response: HttpServletResponse): A = {

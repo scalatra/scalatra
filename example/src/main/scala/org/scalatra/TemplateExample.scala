@@ -78,7 +78,8 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   private def displayPage(title: String, content: Seq[Node]) = Template.page(title, content, url(_, includeServletPath = false))
 
   get("/date/:year/:month/:day") {
-    displayPage("Scalatra: Date Example",
+    displayPage(
+      "Scalatra: Date Example",
       <ul>
         <li>Year: { params("year") }</li>
         <li>Month: { params("month") }</li>
@@ -89,7 +90,8 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   get("/form") {
-    displayPage("Scalatra: Form Post Example",
+    displayPage(
+      "Scalatra: Form Post Example",
       <form action={ url("/post") } method='POST'>
         Post something:<input name="submission" type='text'/>
         <input type='submit'/>
@@ -99,7 +101,8 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   post("/post") {
-    displayPage("Scalatra: Form Post Result",
+    displayPage(
+      "Scalatra: Form Post Result",
       <p>You posted: { params("submission") }</p>
       <pre>Route: /post</pre>
     )
@@ -108,17 +111,21 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   get("/login") {
     (session.get("first"), session.get("last")) match {
       case (Some(first: String), Some(last: String)) =>
-        displayPage("Scalatra: Session Example",
+        displayPage(
+          "Scalatra: Session Example",
           <pre>You have logged in as: { first + "-" + last }</pre>
-          <pre>Route: /login</pre>)
+          <pre>Route: /login</pre>
+        )
       case x =>
-        displayPage("Scalatra: Session Example" + x.toString,
+        displayPage(
+          "Scalatra: Session Example" + x.toString,
           <form action={ url("/login") } method='POST'>
             First Name:<input name="first" type='text'/>
             Last Name:<input name="last" type='text'/>
             <input type='submit'/>
           </form>
-          <pre>Route: /login</pre>)
+          <pre>Route: /login</pre>
+        )
     }
   }
 
@@ -127,25 +134,31 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
       case (first: String, last: String) => {
         session("first") = first
         session("last") = last
-        displayPage("Scalatra: Session Example",
+        displayPage(
+          "Scalatra: Session Example",
           <pre>You have just logged in as: { first + " " + last }</pre>
-          <pre>Route: /login</pre>)
+          <pre>Route: /login</pre>
+        )
       }
     }
   }
 
   get("/logout") {
     session.invalidate
-    displayPage("Scalatra: Session Example",
+    displayPage(
+      "Scalatra: Session Example",
       <pre>You have logged out</pre>
-      <pre>Route: /logout</pre>)
+      <pre>Route: /logout</pre>
+    )
   }
 
   get("/") {
-    displayPage("Scalatra: Hello World",
+    displayPage(
+      "Scalatra: Hello World",
       <h2>Hello world!</h2>
       <p>Referer: { (request referrer) map { Text(_) } getOrElse { <i>none</i> } }</p>
-      <pre>Route: /</pre>)
+      <pre>Route: /</pre>
+    )
   }
 
   get("/scalate") {
@@ -154,13 +167,15 @@ class TemplateExample extends ScalatraServlet with FlashMapSupport with ScalateS
   }
 
   get("/flash-map/form") {
-    displayPage("Scalatra: Flash Map Example",
+    displayPage(
+      "Scalatra: Flash Map Example",
       <span>Supports the post-then-redirect pattern</span>
       <br/>
       <form method="post">
         <label>Message: <input type="text" name="message"/></label><br/>
         <input type="submit"/>
-      </form>)
+      </form>
+    )
   }
 
   post("/flash-map/form") {

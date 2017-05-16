@@ -57,7 +57,8 @@ trait HttpComponentsClient extends Client {
     path: String,
     queryParams: Iterable[(String, String)] = Map.empty,
     headers: Iterable[(String, String)] = Seq.empty,
-    body: Array[Byte] = null)(f: => A): A =
+    body: Array[Byte] = null
+  )(f: => A): A =
     {
       val client = createClient
       val queryString = toQueryString(queryParams)
@@ -78,7 +79,8 @@ trait HttpComponentsClient extends Client {
     path: String,
     params: Iterable[(String, String)],
     headers: Iterable[(String, String)],
-    files: Iterable[(String, Any)])(f: => A): A =
+    files: Iterable[(String, Any)]
+  )(f: => A): A =
     {
       val client = createClient
       val url = "%s/%s".format(baseUrl, path)
@@ -132,7 +134,8 @@ trait HttpComponentsClient extends Client {
           throw new IllegalArgumentException(
             """|HTTP %s does not support enclosing an entity.
                |Please remove the value from `body` parameter
-               |or use POST/PUT/PATCH instead.""".stripMargin.format(req.getMethod))
+               |or use POST/PUT/PATCH instead.""".stripMargin.format(req.getMethod)
+          )
         }
     }
   }
@@ -140,7 +143,8 @@ trait HttpComponentsClient extends Client {
   private def attachMultipartBody(
     req: HttpRequestBase,
     params: Iterable[(String, String)],
-    files: Iterable[(String, Any)]): Unit = {
+    files: Iterable[(String, Any)]
+  ): Unit = {
 
     if (params.isEmpty && files.isEmpty) {
       return
@@ -165,7 +169,8 @@ trait HttpComponentsClient extends Client {
         throw new IllegalArgumentException(
           """|HTTP %s does not support enclosing an entity.
              |Please remove the value from `body` parameter
-             |or use POST/PUT/PATCH instead.""".stripMargin.format(req.getMethod))
+             |or use POST/PUT/PATCH instead.""".stripMargin.format(req.getMethod)
+        )
     }
   }
 
@@ -176,7 +181,8 @@ trait HttpComponentsClient extends Client {
     case s: Any =>
       throw new IllegalArgumentException(
         ("The body type for file parameter '%s' could not be inferred. The " +
-          "supported types are java.util.File and org.scalatra.test.Uploadable").format(name))
+          "supported types are java.util.File and org.scalatra.test.Uploadable").format(name)
+      )
   }
 }
 

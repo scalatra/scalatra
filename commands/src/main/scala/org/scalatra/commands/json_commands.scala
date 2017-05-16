@@ -24,7 +24,8 @@ trait JsonTypeConverterFactory[T] extends TypeConverterFactory[T] with JsonBindi
 }
 
 trait JsonTypeConverterFactories extends JsonBindingImplicits {
-  implicit def jsonTypeConverterFactory[T](implicit seqConverter: TypeConverter[Seq[String], T],
+  implicit def jsonTypeConverterFactory[T](implicit
+    seqConverter: TypeConverter[Seq[String], T],
     stringConverter: TypeConverter[String, T],
     jsonConverter: TypeConverter[JValue, T],
     formats: Formats): TypeConverterFactory[T] =

@@ -4,7 +4,7 @@ package swagger
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalatra.json.JsonSupport
-import org.scalatra.swagger.DataType.{ContainerDataType, ValueDataType}
+import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
@@ -44,7 +44,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
-    if(swagger.swaggerVersion.startsWith("2.")){
+    if (swagger.swaggerVersion.startsWith("2.")) {
       get("/swagger.json") {
         renderSwagger2(swagger.docs.toList.asInstanceOf[List[ApiType]])
       }
@@ -124,102 +124,110 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
         ("description" -> swagger.apiInfo.description) ~
         ("termsOfService" -> swagger.apiInfo.termsOfServiceUrl) ~
         ("contact" -> (
-          ("name" -> swagger.apiInfo.contact))) ~
-        ("license" -> (
-          ("name" -> swagger.apiInfo.license) ~
-            ("url" -> swagger.apiInfo.licenseUrl)))) ~
-      ("paths" ->
-        (docs.filter(_.apis.nonEmpty).flatMap {
-          doc => doc.apis.collect { case api: SwaggerEndpoint[_] =>
-            (api.path -> api.operations.map { operation =>
-              (operation.method.toString.toLowerCase -> (
-                ("operationId" -> operation.nickname) ~
-                ("summary" -> operation.summary) ~!
-                ("schemes" -> operation.protocols) ~!
-                ("consumes" -> operation.consumes) ~!
-                ("produces" -> operation.produces) ~!
-                ("tags" -> operation.tags) ~
-                ("deprecated" -> operation.deprecated) ~
-                ("parameters" -> operation.parameters.map { parameter =>
-                  ("name" -> parameter.name) ~
-                    ("description" -> parameter.description) ~
-                    ("required" -> parameter.required) ~
-                    ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
-                    (if (parameter.paramType.toString.toLowerCase == "body") {
-                      List(JField("schema", JObject(JField("$ref", s"#/definitions/${parameter.`type`.name}"))))
-                    } else {
-                      generateDataType(parameter.`type`)
-                    })
-                  }) ~
-                  ("responses" ->
-                    ("200" ->
-                      (if(operation.responseClass.name == "void") {
-                        List(JField("description", "No response"))
-                      } else {
-                        List(JField("description", "OK"), JField("schema", generateDataType(operation.responseClass)))
-                      })) ~
-                      operation.responseMessages.map { response =>
-                        (response.code.toString ->
-                          ("description", response.message) ~~
-                          response.responseModel.map { model =>
-                            List(JField("schema", JObject(JField("$ref", s"#/definitions/${model}"))))
-                          }.getOrElse(Nil))
-                      }.toMap
-                    ) ~!
-                  ("security" -> (operation.authorizations.flatMap { requirement =>
-                    swagger.authorizations.find(_.`keyname` == requirement).map { auth =>
-                      auth match {
-                        case a: OAuth => (requirement -> a.scopes)
-                        case b: ApiKey => (requirement -> List.empty)
-                        case _        => (requirement -> List.empty)
-                      }
+          ("name" -> swagger.apiInfo.contact)
+        )) ~
+          ("license" -> (
+            ("name" -> swagger.apiInfo.license) ~
+            ("url" -> swagger.apiInfo.licenseUrl)
+          ))) ~
+            ("paths" ->
+              (docs.filter(_.apis.nonEmpty).flatMap {
+                doc =>
+                  doc.apis.collect {
+                    case api: SwaggerEndpoint[_] =>
+                      (api.path -> api.operations.map { operation =>
+                        (operation.method.toString.toLowerCase -> (
+                          ("operationId" -> operation.nickname) ~
+                          ("summary" -> operation.summary) ~!
+                          ("schemes" -> operation.protocols) ~!
+                          ("consumes" -> operation.consumes) ~!
+                          ("produces" -> operation.produces) ~!
+                          ("tags" -> operation.tags) ~
+                          ("deprecated" -> operation.deprecated) ~
+                          ("parameters" -> operation.parameters.map { parameter =>
+                            ("name" -> parameter.name) ~
+                              ("description" -> parameter.description) ~
+                              ("required" -> parameter.required) ~
+                              ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
+                              (if (parameter.paramType.toString.toLowerCase == "body") {
+                                List(JField("schema", JObject(JField("$ref", s"#/definitions/${parameter.`type`.name}"))))
+                              } else {
+                                generateDataType(parameter.`type`)
+                              })
+                          }) ~
+                          ("responses" ->
+                            ("200" ->
+                              (if (operation.responseClass.name == "void") {
+                                List(JField("description", "No response"))
+                              } else {
+                                List(JField("description", "OK"), JField("schema", generateDataType(operation.responseClass)))
+                              })) ~
+                              operation.responseMessages.map { response =>
+                                (response.code.toString ->
+                                  ("description", response.message) ~~
+                                  response.responseModel.map { model =>
+                                    List(JField("schema", JObject(JField("$ref", s"#/definitions/${model}"))))
+                                  }.getOrElse(Nil))
+                              }.toMap) ~!
+                              ("security" -> (operation.authorizations.flatMap { requirement =>
+                                swagger.authorizations.find(_.`keyname` == requirement).map { auth =>
+                                  auth match {
+                                    case a: OAuth => (requirement -> a.scopes)
+                                    case b: ApiKey => (requirement -> List.empty)
+                                    case _ => (requirement -> List.empty)
+                                  }
+                                }
+                              }))
+                        ))
+                      }.toMap)
+                  }.toMap
+              }.toMap)) ~
+              ("definitions" -> docs.flatMap { doc =>
+                doc.models.map {
+                  case (name, model) =>
+                    (name ->
+                      ("properties" -> model.properties.map {
+                        case (name, property) =>
+                          (name -> generateDataType(property.`type`))
+                      }.toMap))
+                }
+              }.toMap) ~
+              ("securityDefinitions" -> (swagger.authorizations.flatMap { auth =>
+                (auth match {
+                  case a: OAuth => a.grantTypes.headOption.map { grantType =>
+                    grantType match {
+                      case g: ImplicitGrant => (a.keyname -> JObject(
+                        JField("type", "oauth2"),
+                        JField("description", a.description),
+                        JField("flow", "implicit"),
+                        JField("authorizationUrl", g.loginEndpoint.url),
+                        JField("scopes", a.scopes.map(scope => JField(scope, scope)))
+                      ))
+                      case g: AuthorizationCodeGrant => (a.keyname -> JObject(
+                        JField("type", "oauth2"),
+                        JField("description", a.description),
+                        JField("flow", "implicit"),
+                        JField("authorizationUrl", g.tokenRequestEndpoint.url),
+                        JField("tokenUrl", g.tokenEndpoint.url),
+                        JField("scopes", a.scopes.map(scope => JField(scope, scope)))
+                      ))
+                      case g: ApplicationGrant => ("oauth2" -> JObject(
+                        JField("type", "oauth2"),
+                        JField("description", a.description),
+                        JField("flow", "application"),
+                        JField("tokenUrl", g.tokenEndpoint.url),
+                        JField("scopes", a.scopes.map(scope => JField(scope, scope)))
+                      ))
                     }
-                  }))
-                )
-              )
-            }.toMap)
-          }.toMap
-        }.toMap)) ~
-      ("definitions" -> docs.flatMap { doc =>
-        doc.models.map { case (name, model) =>
-          (name ->
-            ("properties" -> model.properties.map { case (name, property) =>
-              (name -> generateDataType(property.`type`))
-            }.toMap))
-        }
-      }.toMap) ~
-      ("securityDefinitions" -> (swagger.authorizations.flatMap { auth =>
-        (auth match {
-          case a: OAuth => a.grantTypes.headOption.map { grantType =>
-            grantType match {
-              case g: ImplicitGrant => (a.keyname -> JObject(
-                JField("type", "oauth2"),
-                JField("description", a.description),
-                JField("flow", "implicit"),
-                JField("authorizationUrl", g.loginEndpoint.url),
-                JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-              case g: AuthorizationCodeGrant => (a.keyname -> JObject(
-                JField("type", "oauth2"),
-                JField("description", a.description),
-                JField("flow", "implicit"),
-                JField("authorizationUrl", g.tokenRequestEndpoint.url),
-                JField("tokenUrl", g.tokenEndpoint.url),
-                JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-              case g: ApplicationGrant => ("oauth2" -> JObject(
-                JField("type", "oauth2"),
-                JField("description", a.description),
-                JField("flow", "application"),
-                JField("tokenUrl", g.tokenEndpoint.url),
-                JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-            }
-          }
-          case a: ApiKey => Some((a.keyname -> JObject(
-            JField("type", "apiKey"),
-            JField("description", a.description),
-            JField("name", a.keyname),
-            JField("in", a.passAs))))
-        })
-      }).toMap)
+                  }
+                  case a: ApiKey => Some((a.keyname -> JObject(
+                    JField("type", "apiKey"),
+                    JField("description", a.description),
+                    JField("name", a.keyname),
+                    JField("in", a.passAs)
+                  )))
+                })
+              }).toMap)
   }
 
   private def swagger2ParamTypeMapping(paramTypeName: String): String = {

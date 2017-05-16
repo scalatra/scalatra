@@ -12,7 +12,8 @@ import org.scalatra.servlet.ScalatraListener
  */
 class JettyServer(
     socketAddress: InetSocketAddress = new InetSocketAddress(8080),
-    resourceBase: String = "src/main/webapp") {
+    resourceBase: String = "src/main/webapp"
+) {
   val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
   context.setContextPath("/")
   context.addEventListener(new ScalatraListener)

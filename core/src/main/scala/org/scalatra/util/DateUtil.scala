@@ -19,7 +19,8 @@ object DateUtil {
     date: Date,
     format: String,
     timeZone: TimeZone = TimeZone.getTimeZone("GMT"),
-    locale: Locale = Locale.ENGLISH): String = {
+    locale: Locale = Locale.ENGLISH
+  ): String = {
     val df = new SimpleDateFormat(format, locale)
     df.setTimeZone(timeZone)
     df.format(date)

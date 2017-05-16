@@ -52,7 +52,7 @@ object Swagger {
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
     if (tpe.isMap) collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
-    else if ((tpe.isCollection && tpe.typeArgs.headOption.isDefined) || (tpe.isOption && tpe.typeArgs.headOption.isDefined))  {
+    else if ((tpe.isCollection && tpe.typeArgs.headOption.isDefined) || (tpe.isOption && tpe.typeArgs.headOption.isDefined)) {
       val ntpe = tpe.typeArgs.head
       if (!known.contains(ntpe)) collectModels(ntpe, alreadyKnown, known + ntpe)
       else Set.empty
@@ -93,7 +93,8 @@ object Swagger {
       if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
       required = required && !prop.returnType.isOption,
       description = description.flatMap(_.blankOption),
-      allowableValues = convertToAllowableValues(allowableValues))
+      allowableValues = convertToAllowableValues(allowableValues)
+    )
     //    if (descr.simpleName == "Pet") println("The property is: " + mp)
     prop.name -> mp
   }
@@ -196,7 +197,8 @@ class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: A
       endpoints,
       s.models.toMap,
       (authorizations ::: endpoints.flatMap(_.operations.flatMap(_.authorizations))).distinct,
-      0)
+      0
+    )
   }
 }
 
@@ -222,11 +224,13 @@ case class ResourceListing(
   swaggerVersion: String = Swagger.SpecVersion,
   apis: List[ApiListingReference] = Nil,
   authorizations: List[AuthorizationType] = Nil,
-  info: Option[ApiInfo] = None)
+  info: Option[ApiInfo] = None
+)
 
 case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
 
-case class Api(apiVersion: String,
+case class Api(
+  apiVersion: String,
     swaggerVersion: String,
     resourcePath: String,
     description: Option[String] = None,
@@ -236,7 +240,8 @@ case class Api(apiVersion: String,
     apis: List[Endpoint] = Nil,
     models: Map[String, Model] = Map.empty,
     authorizations: List[String] = Nil,
-    position: Int = 0) extends SwaggerApi[Endpoint] {
+    position: Int = 0
+) extends SwaggerApi[Endpoint] {
 }
 
 object ParamType extends Enumeration {
@@ -385,7 +390,8 @@ case class ApiInfo(
   termsOfServiceUrl: String,
   contact: String,
   license: String,
-  licenseUrl: String)
+  licenseUrl: String
+)
 
 trait AllowableValues
 
@@ -401,7 +407,8 @@ object AllowableValues {
   def empty = AnyValue
 }
 
-case class Parameter(name: String,
+case class Parameter(
+  name: String,
   `type`: DataType,
   description: Option[String] = None,
   notes: Option[String] = None,
@@ -411,22 +418,27 @@ case class Parameter(name: String,
   required: Boolean = true,
   //                     allowMultiple: Boolean = false,
   paramAccess: Option[String] = None,
-  position: Int = 0)
+  position: Int = 0
+)
 
-case class ModelProperty(`type`: DataType,
+case class ModelProperty(
+  `type`: DataType,
   position: Int = 0,
   required: Boolean = false,
   description: Option[String] = None,
   allowableValues: AllowableValues = AllowableValues.AnyValue,
-  items: Option[ModelRef] = None)
+  items: Option[ModelRef] = None
+)
 
-case class Model(id: String,
+case class Model(
+  id: String,
     name: String,
     qualifiedName: Option[String] = None,
     description: Option[String] = None,
     properties: List[(String, ModelProperty)] = Nil,
     baseModel: Option[String] = None,
-    discriminator: Option[String] = None) {
+    discriminator: Option[String] = None
+) {
 
   def setRequired(property: String, required: Boolean): Model = {
     val prop = properties.find(_._1 == property).get
@@ -437,7 +449,8 @@ case class Model(id: String,
 case class ModelRef(
   `type`: String,
   ref: Option[String] = None,
-  qualifiedType: Option[String] = None)
+  qualifiedType: Option[String] = None
+)
 
 case class LoginEndpoint(url: String)
 case class TokenRequestEndpoint(url: String, clientIdName: String, clientSecretName: String)
@@ -452,7 +465,8 @@ case class OAuth(
     scopes: List[String],
     grantTypes: List[GrantType],
     keyname: String = "oauth2",
-    description: String = "") extends AuthorizationType {
+    description: String = ""
+) extends AuthorizationType {
   override val `type` = "oauth2"
 }
 case class ApiKey(keyname: String, passAs: String = "header", description: String = "") extends AuthorizationType {
@@ -464,16 +478,19 @@ trait GrantType {
 }
 case class ImplicitGrant(
     loginEndpoint: LoginEndpoint,
-    tokenName: String) extends GrantType {
+    tokenName: String
+) extends GrantType {
   def `type` = "implicit"
 }
 case class AuthorizationCodeGrant(
     tokenRequestEndpoint: TokenRequestEndpoint,
-    tokenEndpoint: TokenEndpoint) extends GrantType {
+    tokenEndpoint: TokenEndpoint
+) extends GrantType {
   def `type` = "authorization_code"
 }
 case class ApplicationGrant(
-    tokenEndpoint: TokenEndpoint) extends GrantType {
+    tokenEndpoint: TokenEndpoint
+) extends GrantType {
   def `type` = "application"
 }
 trait SwaggerOperation {
@@ -497,7 +514,8 @@ trait SwaggerOperation {
   def tags: List[String]
   def position: Int
 }
-case class Operation(method: HttpMethod,
+case class Operation(
+  method: HttpMethod,
   responseClass: DataType,
   summary: String,
   position: Int,
@@ -511,7 +529,8 @@ case class Operation(method: HttpMethod,
   produces: List[String] = Nil,
   protocols: List[String] = Nil,
   authorizations: List[String] = Nil,
-  tags: List[String] = Nil) extends SwaggerOperation
+  tags: List[String] = Nil
+) extends SwaggerOperation
 
 trait SwaggerEndpoint[T <: SwaggerOperation] {
   def path: String
@@ -519,8 +538,10 @@ trait SwaggerEndpoint[T <: SwaggerOperation] {
   def operations: List[T]
 }
 
-case class Endpoint(path: String,
+case class Endpoint(
+  path: String,
   description: Option[String] = None,
-  operations: List[Operation] = Nil) extends SwaggerEndpoint[Operation]
+  operations: List[Operation] = Nil
+) extends SwaggerEndpoint[Operation]
 
 case class ResponseMessage(code: Int, message: String, responseModel: Option[String] = None)

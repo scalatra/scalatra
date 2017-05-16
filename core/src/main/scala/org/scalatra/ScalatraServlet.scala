@@ -113,7 +113,8 @@ trait ScalatraServlet
         request.getMethod,
         Option(StringEscapeUtils.escapeEcmaScript(request.getPathInfo)) getOrElse "/",
         request.getServletPath,
-        routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
+        routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>")
+      )
     }
   }
 

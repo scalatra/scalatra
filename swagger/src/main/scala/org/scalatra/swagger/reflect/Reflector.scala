@@ -162,8 +162,7 @@ object Reflector {
 
   def defaultValue(compClass: Class[_], compObj: AnyRef, argIndex: Int) = {
     allCatch.withApply(_ => None) {
-      Option(compClass.getMethod("%s$%d".format(ConstructorDefault, argIndex + 1))) map {
-        meth => () => meth.invoke(compObj)
+      Option(compClass.getMethod("%s$%d".format(ConstructorDefault, argIndex + 1))) map { meth => () => meth.invoke(compObj)
       }
     }
   }

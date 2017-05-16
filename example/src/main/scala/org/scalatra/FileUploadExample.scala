@@ -12,7 +12,8 @@ class FileUploadExample extends ScalatraServlet with FileUploadSupport with Flas
   error {
     case e: SizeConstraintExceededException =>
       RequestEntityTooLarge(displayPage(
-        <p>The file you uploaded exceeded the 3 MB limit.</p>))
+        <p>The file you uploaded exceeded the 3 MB limit.</p>
+      ))
   }
 
   get("/") {
@@ -28,7 +29,8 @@ class FileUploadExample extends ScalatraServlet with FileUploadSupport with Flas
       </p>
       <p>
         The maximum file size accepted is 3 MB.
-      </p>)
+      </p>
+    )
   }
 
   post("/") {
@@ -43,7 +45,8 @@ class FileUploadExample extends ScalatraServlet with FileUploadSupport with Flas
         BadRequest(displayPage(
           <p>
             Hey! You forgot to select a file.
-          </p>))
+          </p>
+        ))
     }
   }
 }
