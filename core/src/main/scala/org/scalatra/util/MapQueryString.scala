@@ -21,7 +21,7 @@ object MapQueryString {
 
   private def readQsPair(pair: String, current: Map[String, List[String]] = Map.empty) = {
     (pair split '=' toList).map { source =>
-      if (source != null && source.trim().nonEmpty) UrlCodingUtils.urlEncode(source) else ""
+      if (source != null && source.trim().nonEmpty) UrlCodingUtils.urlDecode(source, plusIsSpace = true) else ""
     } match {
       case item :: Nil ⇒ current + (item -> List[String]())
       case item :: rest ⇒
