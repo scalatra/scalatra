@@ -1,0 +1,24 @@
+## Scalatra Core
+
+* #635 Make config.context.setInitParameter(CorsSupport.AllowedOriginsKey, ...) work properly. by @andrewjackman
+* #637 Update ScalatraBase.scala by @SvenssonWeb
+* #640 s/newInstance()/getDeclaredConstructor().newInstance() by @xuwei-k
+* #667 MapQueryString: Decode instead of encode by @shanielh
+
+## Scalatra Commands
+
+* #640 s/newInstance()/getDeclaredConstructor().newInstance() by @xuwei-k
+
+## Scalatra Swagger
+
+* #629 add support for swagger2 application grant by @kstigen
+* #630 changed to use list for security for an operation for swagger2 by @kstigen
+* #631 Added swagger description OK for response 200 by @kstigen
+* #632 Mapping form to formData for swagger2 by @kstigen
+* #638 fix typo by @xuwei-k
+* #640 s/newInstance()/getDeclaredConstructor().newInstance() by @xuwei-k
+* #647 Swagger 2.0 tags support by @takezoe
+* #648 Recover deprecated property in Swagger 2.0 support by @takezoe
+* #649 Swagger 2.0 support in swagger-ext module by @takezoe
+* #654 adds ability to dynamically name security schemes wrt swagger by @jb08
+* #656 adds ability to add description to swagger security scheme object by @jb08
