@@ -45,7 +45,7 @@ trait JsonImplicitConversions extends TypeConverterSupport {
 
   implicit def jsonToDateConversion(source: JValue) = new JsonDateConversion(source, jsonToDate(_))
 
-  implicit def jsonToSeqConversion(source: JValue) = new {
+  implicit class jsonToSeqConversion(source: JValue) {
     def asSeq[T](implicit mf: Manifest[T], tc: TypeConverter[JValue, T]): Option[Seq[T]] =
       jsonToSeq[T].apply(source)
   }
@@ -53,7 +53,7 @@ trait JsonImplicitConversions extends TypeConverterSupport {
 
 object JsonConversions {
 
-  class JsonValConversion[JValue](source: JValue) {
+  class JsonValConversion[JValue](private val source: JValue) extends AnyVal {
     private type JsonTypeConverter[T] = TypeConverter[JValue, T]
     def as[T: JsonTypeConverter]: Option[T] = implicitly[TypeConverter[JValue, T]].apply(source)
   }

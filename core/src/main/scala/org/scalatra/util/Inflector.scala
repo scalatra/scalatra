@@ -115,7 +115,7 @@ object InflectorImports extends InflectorImports
 
 object Inflector extends Inflector {
 
-  class InflectorString(word: String) {
+  class InflectorString(private val word: String) extends AnyVal {
     def titleize = Inflector.titleize(word)
     def humanize = Inflector.humanize(word)
     def camelize = Inflector.camelize(word)
@@ -129,7 +129,7 @@ object Inflector extends Inflector {
     def fill(values: (String, String)*) = Inflector.interpolate(word, Map(values: _*))
   }
 
-  class InflectorInt(number: Int) {
+  class InflectorInt(private val number: Int) extends AnyVal {
     def ordinalize = Inflector.ordinalize(number)
   }
 

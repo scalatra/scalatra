@@ -158,24 +158,18 @@ trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 object Conversions extends DefaultImplicitConversions {
 
   private type StringTypeConverter[T] = TypeConverter[String, T]
-  class ValConversion(source: String) {
+  implicit class ValConversion(private val source: String) extends AnyVal {
     def as[T: StringTypeConverter]: Option[T] = implicitly[TypeConverter[String, T]].apply(source)
   }
 
-  class DateConversion(source: String) {
+  implicit class DateConversion(private val source: String) extends AnyVal {
     def asDate(format: String): Option[Date] = stringToDate(format).apply(source)
   }
 
-  class SeqConversion(source: String) {
+  implicit class SeqConversion(private val source: String) extends AnyVal {
 
     def asSeq[T](separator: String)(implicit mf: Manifest[T], tc: TypeConverter[String, T]): Option[Seq[T]] =
       stringToSeq[T](tc, separator).apply(source)
 
   }
-
-  implicit def stringToValTypeConversion(source: String) = new ValConversion(source)
-
-  implicit def stringToDateConversion(source: String) = new DateConversion(source)
-
-  implicit def stringToSeqConversion(source: String) = new SeqConversion(source)
 }
