@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.{ ServletContext, ServletRegistration }
 
 import org.mockito.{ Matchers, Mockito }
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{ FunSuite, OneInstancePerTest }
 import org.scalatra.ScalatraServlet
 import org.springframework.context.ApplicationContext
