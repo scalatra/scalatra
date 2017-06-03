@@ -19,7 +19,7 @@ class ScalatraExample extends ScalatraServlet {
 
 ## Documentation
 
-If you're just starting out, see the [installation](http://www.scalatra.org/getting-started/installation.html) and [first project](http://www.scalatra.org/getting-started/first-project.html) sections of our website.
+If you're just starting out, see the [installation](http://scalatra.org/getting-started/installation.html) and [first project](http://scalatra.org/getting-started/first-project.html) sections of our website.
 
 Once you've done that, take a look at the [Scalatra Guides](http://www.scalatra.org/guides/) for documentation on all aspects of the framework, code examples, and more. We also have an extensive selection of [Example Applications](https://github.com/scalatra/scalatra-website-examples) which accompany the tutorials in the Scalatra Guides.
 
@@ -43,6 +43,7 @@ libraryDependencies += "org.scalatra" %% "scalatra" % "2.5.{x}-SNAPSHOT"
 
 ## Community
 
+* Gitter: [Scalatra/Scalatra](https://gitter.im/scalatra/scalatra)
 * Mailing list: [scalatra-user](http://groups.google.com/group/scalatra-user)
 * IRC: #scalatra on irc.freenode.org
 * [Guidelines for contributing](CONTRIBUTING.markdown)
