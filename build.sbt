@@ -32,7 +32,7 @@ lazy val scalatraProject = Project(
   settings = scalatraSettings ++ unidocSettings ++ doNotPublish ++ Seq(
     description := "A tiny, Sinatra-like web framework for Scala"
   ),
-  aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
+  aggregate = Seq(scalatraCore, scalatraAuth, scalatraCommands,
     scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
     scalatraTest, scalatraScalatest, scalatraSpecs2,
     scalatraSwagger, scalatraJetty,
@@ -77,16 +77,6 @@ lazy val scalatraAuth = Project(
   base = file("auth"),
   settings = scalatraSettings ++ Seq(
     description := "Scalatra authentication module"
-  )
-) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-
-lazy val scalatraFileupload = Project(
-  id = "scalatra-fileupload",
-  base = file("fileupload"),
-  settings = scalatraSettings ++ Seq(
-    libraryDependencies ++= Seq(commonsFileupload, commonsIo),
-    description := "Commons-Fileupload integration with Scalatra"
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
