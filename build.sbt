@@ -30,13 +30,12 @@ lazy val scalatraProject = Project(
   id = "scalatra-project",
   base = file("."),
   settings = scalatraSettings ++ unidocSettings ++ doNotPublish ++ Seq(
-    description := "A tiny, Sinatra-like web framework for Scala",
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(scalatraExample)
+    description := "A tiny, Sinatra-like web framework for Scala"
   ),
   aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload, scalatraCommands,
     scalatraScalate, scalatraJson, scalatraSlf4j, scalatraAtmosphere,
     scalatraTest, scalatraScalatest, scalatraSpecs2,
-    scalatraExample, scalatraSwagger, scalatraJetty,
+    scalatraSwagger, scalatraJetty,
     scalatraCommon, scalatraSwaggerExt, scalatraSpring,
     scalatraMetrics, scalatraCache, scalatraCacheGuava)
 )
@@ -252,24 +251,6 @@ lazy val scalatraCacheGuava = Project(
     description := "Scalatra Cache integration with Google Guava"
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraCache % "compile;test->test;provided->provided")
-
-lazy val scalatraExample = Project(
-   id = "scalatra-example",
-   base = file("example"),
-   settings = scalatraSettings ++ doNotPublish ++ scalatraWithWarOverlays ++ Seq(
-     libraryDependencies += servletApi % "container;test;provided",
-     libraryDependencies += jettyWebsocket % "container;test;provided",
-     libraryDependencies += jettyServer % "container;test;provided",
-     libraryDependencies += jettyPlus % "container;test",
-     libraryDependencies ++= Seq(jettyWebapp % "container;test", slf4jSimple),
-     libraryDependencies += json4sJackson,
-     libraryDependencies += atmosphereJQuery,
-     description := "Scalatra example project"
-   )
-) dependsOn(
-   scalatraCore % "compile;test->test;provided->provided", scalatraScalate,
-   scalatraAuth, scalatraFileupload, scalatraJetty, scalatraCommands, scalatraAtmosphere
-)
 
 lazy val manifestSetting = packageOptions += {
   Package.ManifestAttributes(
