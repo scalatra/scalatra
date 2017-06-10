@@ -271,9 +271,6 @@ case class AuthOperation[TypeForUser <: AnyRef](
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
   import org.scalatra.swagger.AuthApi.AuthOperationBuilder
 
-  @deprecated("Use the `apiOperation.allows` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def allows(value: Option[TypeForUser] => Boolean) = swaggerMeta(Symbols.Allows, value)
-
   private def allowAll = (u: Option[TypeForUser]) => true
 
   protected implicit def operationBuilder2operation(bldr: AuthApi.SwaggerAuthOperationBuilder[TypeForUser]): AuthOperation[TypeForUser] =
@@ -281,12 +278,12 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
 
   protected def apiOperation[T: Manifest: NotNothing](nickname: String): AuthOperationBuilder[TypeForUser] = {
     registerModel[T]()
-    new AuthOperationBuilder[TypeForUser](DataType[T]).nickname(nickname).errors(swaggerDefaultErrors: _*)
+    new AuthOperationBuilder[TypeForUser](DataType[T]).nickname(nickname)
   }
 
   protected def apiOperation(nickname: String, model: Model): AuthOperationBuilder[TypeForUser] = {
     registerModel(model)
-    new AuthOperationBuilder[TypeForUser](ValueDataType(model.id)).nickname(nickname).errors(swaggerDefaultErrors: _*)
+    new AuthOperationBuilder[TypeForUser](ValueDataType(model.id)).nickname(nickname)
   }
 
   /**
@@ -325,7 +322,7 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
         notes = notes,
         nickname = nick,
         parameters = theParams,
-        responseMessages = (errors ::: swaggerDefaultMessages ::: swaggerDefaultErrors).distinct,
+        responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,
         consumes = consumes,
         allows = allows

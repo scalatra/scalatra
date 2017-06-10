@@ -35,29 +35,24 @@ trait FutureSupport extends AsyncSupport {
 
   override def asynchronously(f: => Any): Action = () => Future(f)
 
-  // Still thinking of the best way to specify this before making it public.
-  // In the meantime, this gives us enough control for our test.
-  // IPC: it may not be perfect but I need to be able to configure this timeout in an application
-  // This is a Duration instead of a timeout because a duration has the concept of infinity
-  @deprecated("Override the `timeout` method on a `org.scalatra.AsyncResult` instead.", "2.2")
-  protected def asyncTimeout: Duration = 30 seconds
-
   override protected def isAsyncExecutable(result: Any): Boolean =
     classOf[Future[_]].isAssignableFrom(result.getClass) ||
       classOf[AsyncResult].isAssignableFrom(result.getClass)
 
   override protected def renderResponse(actionResult: Any): Unit = {
     actionResult match {
-      case r: AsyncResult => handleFuture(r.is, r.timeout)
-      case f: Future[_] => handleFuture(f, asyncTimeout)
+      case r: AsyncResult => handleFuture(r.is, Some(r.timeout))
+      case f: Future[_] => handleFuture(f, None)
       case a => super.renderResponse(a)
     }
   }
 
-  private[this] def handleFuture(f: Future[_], timeout: Duration): Unit = {
+  private[this] def handleFuture(f: Future[_], timeout: Option[Duration]): Unit = {
     val gotResponseAlready = new AtomicBoolean(false)
     val context = request.startAsync(request, response)
-    if (timeout.isFinite()) context.setTimeout(timeout.toMillis) else context.setTimeout(-1)
+    timeout.foreach { timeout =>
+      if (timeout.isFinite()) context.setTimeout(timeout.toMillis) else context.setTimeout(-1)
+    }
 
     def renderFutureResult(f: Future[_]): Unit = {
       f onComplete {

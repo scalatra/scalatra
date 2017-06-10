@@ -14,7 +14,7 @@ import scala.concurrent.duration._
 class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   val system = ActorSystem()
   protected implicit val executor = system.dispatcher
-  override def asyncTimeout = 2 seconds
+  //  override def asyncTimeout = 2 seconds
 
   private val futureEC = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(1))
 
@@ -54,8 +54,13 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     "the-working-reply"
   }
 
-  asyncGet("/timeout") {
-    Thread.sleep((asyncTimeout plus 1.second).toMillis)
+  get("/timeout") {
+    new AsyncResult {
+      val is: Future[_] = Future {
+        Thread.sleep((3.second).toMillis)
+      }
+      override def timeout: Duration = 2 seconds
+    }
   }
 
   class FailException extends RuntimeException
@@ -83,12 +88,12 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
   error {
-    case e: FailException => "caught"
+    case _: FailException => "caught"
   }
 
   override def destroy(): Unit = {
     super.destroy()
-    system.shutdown()
+    system.terminate()
   }
 }
 

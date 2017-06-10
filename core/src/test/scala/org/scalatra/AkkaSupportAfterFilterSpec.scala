@@ -52,7 +52,7 @@ class AkkaSupportAfterFilterServlet extends ScalatraServlet with FutureSupport {
 
   override def destroy(): Unit = {
     super.destroy()
-    system.shutdown()
+    system.terminate()
   }
 }
 

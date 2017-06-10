@@ -45,9 +45,6 @@ trait ScalatraContext
     response.contentType = Option(contentType)
   }
 
-  @deprecated("Use status_=(Int) instead", "2.1.0")
-  def status(code: Int): Unit = { status_=(code) }
-
   /**
    * Sets the status code of the current response.
    */

@@ -95,9 +95,6 @@ trait ScalatraBase
     with DefaultImplicitConversions
     with SessionSupport {
 
-  @deprecated("Use servletContext instead", "2.1.0")
-  def applicationContext: ServletContext = servletContext
-
   /**
    * The routes registered in this kernel.
    */

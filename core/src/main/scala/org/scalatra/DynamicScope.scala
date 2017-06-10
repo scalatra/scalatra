@@ -78,10 +78,4 @@ trait DynamicScope extends RequestResponseScope {
     dynamicResponse.withValue(response) {
       f
     }
-
-  @deprecated("Do not invoke directly. Use `withRequest` to change the binding, or request to get the value", "2.1.0")
-  protected def _request = dynamicRequest
-
-  @deprecated("Do not invoke directly. Use `withResponse` to change the binding, or `response` to get the value", "2.1.0")
-  protected def _response = dynamicResponse
 }

@@ -196,8 +196,6 @@ object SwaggerSupportSyntax {
       }
     }
 
-    //    def allowsMultiple: Boolean = !SwaggerSupportSyntax.SingleValued.contains(paramType) && _allowMultiple
-
     def result =
       Parameter(name, dataType, description, notes, paramType, defaultValue, allowableValues, isRequired)
   }
@@ -272,13 +270,6 @@ object SwaggerSupportSyntax {
     def position(value: Int): this.type = { _position = value; this }
     def position: Int = _position
 
-    @deprecated("Swagger spec 1.2 defines errors as responseMessages", "2.2.2")
-    def errors(errs: ResponseMessage*): this.type = responseMessages(errs: _*)
-    @deprecated("Swagger spec 1.2 defines error as responseMessage", "2.2.2")
-    def error(err: ResponseMessage): this.type = responseMessages(err)
-    @deprecated("Swagger spec 1.2 defines errors as responseMessages", "2.2.2")
-    def errorResponses: List[ResponseMessage] = responseMessages
-
     def result: T
   }
 
@@ -305,13 +296,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
   this: ScalatraBase with SwaggerSupportBase =>
   protected implicit def swagger: SwaggerEngine[_]
 
-  @deprecated("This field is no longer used, due to changes in Swagger spec 1.2", "2.3.1")
-  protected def applicationName: Option[String] = None
-
   protected def applicationDescription: String
-
-  @deprecated("Swagger spec 1.2 renamed this to swaggerDefaultMessages, please use that one", "2.2.2")
-  protected def swaggerDefaultErrors: List[ResponseMessage] = swaggerDefaultMessages
 
   protected def swaggerDefaultMessages: List[ResponseMessage] = Nil
 
@@ -369,12 +354,6 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   }
 
-  @deprecated("This implicit conversion will be removed in the future", "2.2")
-  implicit protected def modelToSwagger(cls: Class[_]): (String, Model) = {
-    val mod = Swagger.modelToSwagger(Reflector.scalaTypeOf(cls)).get // TODO: the use of .get is pretty dangerous, but it's deprecated
-    mod.id -> mod
-  }
-
   private[swagger] val _models: mutable.Map[String, Model] = mutable.Map.empty
 
   /**
@@ -396,9 +375,6 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
     Swagger.collectModels[T](_models.values.toSet) map registerModel
   }
 
-  @deprecated("Use `registerModel[T]` or `registerModel(model)` instead, this method will be removed in the future", "2.2")
-  protected def models_=(m: Map[String, Model]) = _models ++= m
-
   /**
    * The currently registered model descriptions for swagger
    *
@@ -410,31 +386,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   protected def description(f: PartialFunction[String, String]) = _description = f orElse _description
 
-  @deprecated("Use the `apiOperation.summary` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def summary(value: String) = swaggerMeta(Symbols.Summary, value)
-
-  @deprecated("Use the `apiOperation.notes` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def notes(value: String) = swaggerMeta(Symbols.Notes, value)
-
-  @deprecated("Use the variant where you use a type parameter, this method doesn't allow for reflection and requires you to manually ad the model", "2.2")
-  protected def responseClass(value: String) = swaggerMeta(Symbols.ResponseClass, value)
-
-  @deprecated("Use the `apiOperation.responseClass` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def responseClass[T](implicit mf: Manifest[T]) = {
-    registerModel[T]()
-    swaggerMeta(Symbols.ResponseClass, DataType[T])
-  }
-
-  @deprecated("Use the `apiOperation.nickname` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def nickname(value: String) = swaggerMeta(Symbols.Nickname, value)
-
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
-
-  @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def parameters(value: Parameter*) = swaggerMeta(Symbols.Parameters, value.toList)
-
-  @deprecated("Use the `apiOperation.errors` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def errors(value: Error*) = swaggerMeta(Symbols.Errors, value.toList)
 
   import org.scalatra.swagger.SwaggerSupportSyntax._
 
@@ -539,13 +491,11 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
   protected def apiOperation[T: Manifest: NotNothing](nickname: String): OperationBuilder = {
     registerModel[T]()
-    (new OperationBuilder(DataType[T])
-      nickname nickname)
+    new OperationBuilder(DataType[T]).nickname(nickname)
   }
   protected def apiOperation(nickname: String, model: Model): OperationBuilder = {
     registerModel(model)
-    (new OperationBuilder(ValueDataType(model.id))
-      nickname nickname)
+    new OperationBuilder(ValueDataType(model.id)).nickname(nickname)
   }
 
   /**
@@ -585,7 +535,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
         notes = notes,
         nickname = nick,
         parameters = theParams,
-        responseMessages = (errors ::: swaggerDefaultMessages ::: swaggerDefaultErrors).distinct,
+        responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,
         consumes = consumes
       )

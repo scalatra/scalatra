@@ -20,9 +20,6 @@ object GenerateId {
     hexEncode(tokenVal)
   }
 
-  @deprecated("Use generateCsrfToken()", "2.0.0")
-  protected def generateCSRFToken(): String = generateCsrfToken()
-
 }
 
 object CsrfTokenSupport {
@@ -73,9 +70,6 @@ trait CsrfTokenSupport { this: ScalatraBase =>
   protected def prepareCsrfToken(): String = {
     session.getOrElseUpdate(csrfKey, GenerateId()).toString
   }
-
-  @deprecated("Use prepareCsrfToken()", "2.0.0")
-  protected def prepareCSRFToken(): String = prepareCsrfToken()
 
   /**
    * The key used to store the token on the session, as well as the parameter

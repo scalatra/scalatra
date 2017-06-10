@@ -492,7 +492,6 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
 class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
 
   protected val applicationDescription = "Operations about pets"
-  override protected val applicationName = Some("pet")
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
@@ -505,15 +504,6 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
   get("/undocumented") {
     BadRequest("This should not show up")
   }
-  //
-  //  val rootOperation =
-  //    (apiOperation[List[Pet]]("allPets")
-  //      summary "Show all pets"
-  //      notes "shows all the pets in the data store")
-  //
-  //  get("/", operation(rootOperation)) {
-  //    data.pets
-  //  }
 
   val getPet =
     (apiOperation[Pet]("getPetById")
@@ -593,7 +583,6 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
 
 class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
   protected val applicationDescription = "Operations about store"
-  override protected val applicationName = Some("store")
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
   protected override val swaggerProduces: List[String] = "application/json" :: "application/xml" :: Nil
@@ -643,7 +632,6 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
 
 class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
   protected val applicationDescription = "Operations about user"
-  override protected val applicationName = Some("user")
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
 

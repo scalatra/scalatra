@@ -39,8 +39,6 @@ object SwaggerCommandSupportSpec {
 
     protected def applicationDescription: String = "The command support servlet"
 
-    override protected def applicationName: Option[String] = Some("support")
-
   }
 }
 class SwaggerCommandSupportSpec extends MutableScalatraSpec {

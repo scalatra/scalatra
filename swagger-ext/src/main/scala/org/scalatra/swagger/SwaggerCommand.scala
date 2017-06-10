@@ -86,14 +86,6 @@ object SwaggerCommandSupport {
 }
 trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
 
-  @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def parameters[T <: CommandType: Manifest] =
-    swaggerMeta(Symbols.Parameters, parametersFromCommand[T])
-
-  @deprecated("Use the `apiOperation.parameters` and `operation` methods to build swagger descriptions of endpoints", "2.2")
-  protected def parameters[T <: CommandType: Manifest](cmd: => T) =
-    swaggerMeta(Symbols.Parameters, parametersFromCommand(cmd))
-
   protected implicit def operationBuilder2commandOpBuilder[B <: SwaggerOperationBuilder[_]](underlying: B) =
     new CommandOperationBuilder(registerModel(_), underlying)
 
