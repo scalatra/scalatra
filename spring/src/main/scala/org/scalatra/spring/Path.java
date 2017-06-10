@@ -8,6 +8,7 @@ import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  * @author Stephen Samuel
+ * @deprecated Spring integration has been no longer maintained since 2.6.0. It will be dropped in 2.7.0.
  */
 @Target(TYPE)
 @Retention(RUNTIME)
