@@ -82,7 +82,6 @@ object SwaggerAuthSpec {
     implicit protected def jsonFormats: Formats = DefaultFormats
 
     protected val applicationDescription = "The pets api"
-    override protected val applicationName = Some("pets")
 
     private val allowsTom = (u: Option[User]) => {
       u.map(_.login) == Some("tom")
@@ -116,7 +115,6 @@ object SwaggerAuthSpec {
 
   class AdminApi(implicit protected val swagger: SwaggerWithAuth) extends AuthenticatedBase with NativeJsonSupport with SwaggerAuthSupport[User] {
     protected val applicationDescription = "The admin api"
-    override protected val applicationName = Some("admin")
 
     implicit protected def jsonFormats: Formats = DefaultFormats
 

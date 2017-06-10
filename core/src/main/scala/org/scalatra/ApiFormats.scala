@@ -90,9 +90,6 @@ trait ApiFormats extends ScalatraBase {
    */
   def defaultAcceptedFormats: List[Symbol] = List.empty
 
-  @deprecated("`format` now means the same as `responseFormat`, `responseFormat` will be removed eventually", "2.3")
-  def responseFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String = format
-
   /**
    * The list of media types accepted by the current request.  Parsed from the
    * `Accept` header.

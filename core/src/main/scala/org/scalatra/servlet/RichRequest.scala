@@ -50,10 +50,6 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    */
   def requestMethod: HttpMethod = HttpMethod(r.getMethod)
 
-  // Moved to conform with what similar specs call it
-  @deprecated("Use requestMethod", "2.1.0")
-  def method: HttpMethod = requestMethod
-
   /**
    * The remainder of the request URL's "path", designating the virtual
    * "location" of the request's target within the application. This may be
@@ -159,17 +155,11 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    */
   def serverName: String = r.getServerName
 
-  @deprecated(message = "Use HttpServletRequest.serverName instead", since = "2.0.0")
-  def host: String = serverName
-
   /**
    * When combined with scriptName, pathInfo, and serverName, can be used to
    * complete the URL.  See serverName for more details.
    */
   def serverPort: Int = r.getServerPort
-
-  @deprecated(message = "Use HttpServletRequest.serverPort instead", since = "2.0.0")
-  def port: String = Integer.toString(r.getServerPort)
 
   /**
    * Optionally returns the HTTP referrer.
@@ -180,9 +170,6 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
     case s: String => Some(s)
     case null => None
   }
-
-  @deprecated("Use referrer", "2.0.0")
-  def referer: Option[String] = referrer
 
   /**
    * Caches and returns the body of the response.  The method is idempotent

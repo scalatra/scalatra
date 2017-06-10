@@ -87,7 +87,6 @@ object Swagger {
 
   private[this] def toModelProperty(descr: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "")(prop: PropertyDescriptor) = {
     val ctorParam = if (!prop.returnType.isOption) descr.mostComprehensive.find(_.name == prop.name) else None
-    //    if (descr.simpleName == "Pet") println("converting property: " + prop)
     val mp = ModelProperty(
       DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
       if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
@@ -95,7 +94,6 @@ object Swagger {
       description = description.flatMap(_.blankOption),
       allowableValues = convertToAllowableValues(allowableValues)
     )
-    //    if (descr.simpleName == "Pet") println("The property is: " + mp)
     prop.name -> mp
   }
   def modelToSwagger(klass: ScalaType): Option[Model] = {
@@ -121,7 +119,6 @@ object Swagger {
       val result = apiModel map { am =>
         Model(name, name, klass.fullName.blankOption, properties = fields.flatten, baseModel = am.parent.getName.blankOption, discriminator = am.discriminator.blankOption)
       } orElse Some(Model(name, name, klass.fullName.blankOption, properties = fields.flatten))
-      //      if (descr.simpleName == "Pet") println("The collected fields:\n" + result)
       result
     }
   }
@@ -307,11 +304,6 @@ object DataType {
     def apply(v: DataType): DataType = new ContainerDataType("Array", Some(v))
   }
 
-  //  object GenMap {
-  //    def apply(): DataType = Map
-  //    def apply(k: DataType, v: DataType): DataType = new DataType("Map[%s, %s]" format(k.name, v.name))
-  //  }
-  //
   def apply(name: String, format: Option[String] = None, qualifiedName: Option[String] = None) =
     new ValueDataType(name, format, qualifiedName)
   def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](mf)
@@ -337,13 +329,6 @@ object DataType {
     else if (isDate(klass)) this.Date
     else if (isDateTime(klass)) this.DateTime
     else if (isBool(klass)) this.Boolean
-    //    else if (classOf[java.lang.Enum[_]].isAssignableFrom(klass)) this.Enum
-    //    else if (isMap(klass)) {
-    //      if (st.typeArgs.size == 2) {
-    //        val (k :: v :: Nil) = st.typeArgs.toList
-    //        GenMap(fromScalaType(k), fromScalaType(v))
-    //      } else GenMap()
-    //    }
     else if (classOf[scala.collection.Set[_]].isAssignableFrom(klass) || classOf[java.util.Set[_]].isAssignableFrom(klass)) {
       if (st.typeArgs.nonEmpty) GenSet(fromScalaType(st.typeArgs.head))
       else GenSet()
@@ -373,10 +358,6 @@ object DataType {
   private[this] val DateTimeTypes =
     Set[Class[_]](classOf[JDate], classOf[DateTime])
   private[this] def isDateTime(klass: Class[_]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
-  //
-  //  private[this] def isMap(klass: Class[_]) =
-  //    classOf[collection.Map[_, _]].isAssignableFrom(klass) ||
-  //    classOf[java.util.Map[_, _]].isAssignableFrom(klass)
 
   private[this] def isCollection(klass: Class[_]) =
     classOf[collection.Traversable[_]].isAssignableFrom(klass) ||
@@ -494,8 +475,6 @@ case class ApplicationGrant(
   def `type` = "application"
 }
 trait SwaggerOperation {
-  @deprecated("Swagger spec 1.2 renamed `httpMethod` to `method`.", "2.2.2")
-  def httpMethod: HttpMethod = method
   def method: HttpMethod
   def responseClass: DataType
   def summary: String
@@ -507,10 +486,7 @@ trait SwaggerOperation {
   def protocols: List[String]
   def authorizations: List[String]
   def parameters: List[Parameter]
-  @deprecated("Swagger spec 1.2 renamed `errorResponses` to `responseMessages`.", "2.2.2")
-  def errorResponses: List[ResponseMessage] = responseMessages
   def responseMessages: List[ResponseMessage]
-  //  def supportedContentTypes: List[String]
   def tags: List[String]
   def position: Int
 }
@@ -524,7 +500,6 @@ case class Operation(
   nickname: Option[String] = None,
   parameters: List[Parameter] = Nil,
   responseMessages: List[ResponseMessage] = Nil,
-  //                     supportedContentTypes: List[String] = Nil,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
   protocols: List[String] = Nil,

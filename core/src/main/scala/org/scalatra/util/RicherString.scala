@@ -9,11 +9,6 @@ class RicherString(orig: String) {
     orig == null || orig.trim.isEmpty
   }
 
-  @deprecated("Use nonBlank instead", "2.0")
-  def isNonBlank: Boolean = !isBlank
-
-  @deprecated("Use blankOption instead", "2.0")
-  def toOption: Option[String] = blankOption
   def blankOption: Option[String] = if (isBlank) None else Some(orig)
   def nonBlank: Boolean = !isBlank
 

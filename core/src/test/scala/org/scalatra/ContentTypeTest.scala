@@ -90,7 +90,7 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
   val system = ActorSystem()
   implicit val timeout: Timeout = 5 seconds
 
-  override def afterAll = system.shutdown()
+  override def afterAll = system.terminate()
 
   val servletHolder = new ServletHolder(new ContentTypeTestServlet(system))
   servletHolder.setInitOrder(1) // force load on startup

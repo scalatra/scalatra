@@ -19,9 +19,6 @@ package object scalatra
     def apply(route: Route): Route
   }
 
-  @deprecated("Use ContentEncodingSupport, GZipSupport will be removed eventually", "2.4")
-  type GZipSupport = ContentEncodingSupport
-
   type MultiParams = MultiMap
 
   type Params = MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
@@ -37,9 +34,6 @@ package object scalatra
   val EnvironmentKey = "org.scalatra.environment"
 
   val MultiParamsKey = "org.scalatra.MultiParams"
-
-  @deprecated("Use org.scalatra.servlet.ServletBase if you depend on the Servlet API, or org.scalatra.ScalatraBase if you don't.", "2.1.0")
-  type ScalatraKernel = servlet.ServletBase
 
   type CoreStackNoFlash = CorsSupport with FutureSupport
   type CoreStackNoFlashWithCsrf = CoreStackNoFlash with CsrfTokenSupport
