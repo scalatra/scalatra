@@ -48,6 +48,7 @@ lazy val scalatraProject = Project(
   aggregate = Seq(
     scalatraCore,
     scalatraAuth,
+    scalatraForms,
     scalatraCommands,
     scalatraScalate,
     scalatraJson,
@@ -147,6 +148,14 @@ lazy val scalatraJson = Project(
     )
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+lazy val scalatraForms = Project(
+  id = "scalatra-forms",
+  base = file("forms"),
+  settings = scalatraSettings ++ Seq(
+    description := "Data binding and validation for Scalatra"
+  )
+) dependsOn(scalatraJson % "compile;test->test;provided->provided")
 
 lazy val scalatraCommands = Project(
   id = "scalatra-commands",
