@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 
 /** @author Stephen Samuel */
 @Component
+@deprecated("Spring integration has been no longer maintained. It will be dropped in 2.7.0.", "2.6.0")
 class ConstructorAutowiredAnnotationBeanPostProcessor
     extends InstantiationAwareBeanPostProcessorAdapter
     with org.springframework.core.Ordered

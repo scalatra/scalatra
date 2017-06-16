@@ -13,6 +13,7 @@ import scala.collection.JavaConverters._
 
 /** @author Stephen Samuel */
 @Component
+@deprecated("Spring integration has been no longer maintained. It will be dropped in 2.7.0.", "2.6.0")
 class SpringScalatraBootstrap extends ApplicationContextAware with ServletContextAware {
 
   @PostConstruct
