@@ -5,6 +5,7 @@ import org.scalatra.commands.FieldValidation
 
 import scala.util.matching.Regex
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object Validation {
 
   def nonEmptyString(fieldName: String, value: ⇒ String, messageFormat: String = "%s is required."): FieldValidation[String] =

@@ -39,7 +39,7 @@ import org.scalatra.util.conversion._
  * @version 0.1
  *
  */
-
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait Command extends BindingSyntax with ParamsValueReaderProperties {
 
   type CommandTypeConverterFactory[T] <: TypeConverterFactory[T]
@@ -160,6 +160,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   def >>[S](handler: this.type => S)(implicit executor: ExecutorView[S]): S = apply(handler)
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait ParamsOnlyCommand extends TypeConverterFactories with Command {
   type CommandTypeConverterFactory[T] = TypeConverterFactory[T]
 }

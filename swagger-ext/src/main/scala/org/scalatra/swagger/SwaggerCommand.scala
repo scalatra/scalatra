@@ -8,6 +8,7 @@ import org.scalatra.util.RicherString._
 
 import scalaz.Scalaz._
 
+@deprecated("scalatra-command is deprecated.", "2.6.0")
 object SwaggerCommandSupport {
 
   private[this] val paramtypeMapping =
@@ -84,6 +85,8 @@ object SwaggerCommandSupport {
     }
   }
 }
+
+@deprecated("scalatra-command is deprecated.", "2.6.0")
 trait SwaggerCommandSupport { this: ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax with CommandSupport =>
 
   protected implicit def operationBuilder2commandOpBuilder[B <: SwaggerOperationBuilder[_]](underlying: B) =

@@ -10,6 +10,7 @@ import scala.util.{ Try, Failure => Fail, Success => Succ }
 import scalaz.{ Failure, _ }
 import scalaz.syntax.validation._
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait CommandExecutors {
 
   implicit def syncExecutor[T <: Command, S](handler: T => ModelValidation[S]): CommandExecutor[T, ModelValidation[S]] =
@@ -26,6 +27,7 @@ trait CommandExecutors {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object CommandExecutors extends CommandExecutors
 
 /**
@@ -39,10 +41,12 @@ object CommandExecutors extends CommandExecutors
 @implicitNotFound(
   "Couldn't find an executor for command of type ${T} and result of type ${S}. Did you import org.scalatra.commands.CommandExecutors._ ? You can also implement your own org.scalatra.CommandExecutor."
 )
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 abstract class CommandExecutor[T <: Command, S](handler: T => S) {
   def execute(command: T): S
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]) extends CommandExecutor[T, ModelValidation[S]](handle) {
   @transient private[this] val logger = Logger(getClass)
 
@@ -84,6 +88,7 @@ abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]
  * @tparam T The type of command to handle
  * @tparam S The success result type
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class BlockingCommandExecutor[T <: Command, S](handle: T => ModelValidation[S]) extends BlockingExecutor(handle)
 
 /**
@@ -98,8 +103,10 @@ class BlockingCommandExecutor[T <: Command, S](handle: T => ModelValidation[S]) 
  * @tparam T The type of model
  * @tparam S The success result type
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class BlockingModelExecutor[T <: Command, S](handle: S => ModelValidation[S])(implicit T: T => S) extends BlockingExecutor[T, S](handle(_))
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidation[S]])(implicit executionContext: ExecutionContext) extends CommandExecutor[T, Future[ModelValidation[S]]](handle) {
   @transient private[this] val logger = Logger(getClass)
   def execute(cmd: T): Future[ModelValidation[S]] = {
@@ -141,6 +148,7 @@ abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidatio
  * @tparam T The type of command to handle
  * @tparam S The success result type
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class AsyncCommandExecutor[T <: Command, S](handle: T => Future[ModelValidation[S]])(implicit executionContext: ExecutionContext) extends AsyncExecutor[T, S](handle)(executionContext)
 /**
  * A command executor that can potentially block while executing the command, uses a model as input value for the handler function.
@@ -154,4 +162,5 @@ class AsyncCommandExecutor[T <: Command, S](handle: T => Future[ModelValidation[
  * @tparam T The type of model
  * @tparam S The success result type
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class AsyncModelExecutor[T <: Command, S](handle: S => Future[ModelValidation[S]])(implicit executionContext: ExecutionContext, vw: T => S) extends AsyncExecutor[T, S](handle(_))(executionContext)
