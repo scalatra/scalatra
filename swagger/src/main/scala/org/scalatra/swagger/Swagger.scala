@@ -369,9 +369,9 @@ case class ApiInfo(
   title: String,
   description: String,
   termsOfServiceUrl: String,
-  contact: String,
-  license: String,
-  licenseUrl: String
+  contact: String, // TODO to be nested property for Swagger 2.0?
+  license: String, // TODO to be nested property for Swagger 2.0?
+  licenseUrl: String // TODO to be nested property for Swagger 2.0?
 )
 
 trait AllowableValues
@@ -392,12 +392,13 @@ case class Parameter(
   name: String,
   `type`: DataType,
   description: Option[String] = None,
-  notes: Option[String] = None,
+  @deprecated("This property has been removed in Swagger 2.0, use description instead.", "2.6.0") notes: Option[String] = None,
   paramType: ParamType.ParamType = ParamType.Query,
   defaultValue: Option[String] = None,
-  allowableValues: AllowableValues = AllowableValues.AnyValue,
+  allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
   required: Boolean = true,
   //                     allowMultiple: Boolean = false,
+  // TODO Add collectionFormat: Option[String] for Swagger 2.0
   paramAccess: Option[String] = None,
   position: Int = 0
 )
@@ -407,7 +408,7 @@ case class ModelProperty(
   position: Int = 0,
   required: Boolean = false,
   description: Option[String] = None,
-  allowableValues: AllowableValues = AllowableValues.AnyValue,
+  allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
   items: Option[ModelRef] = None
 )
 
@@ -418,7 +419,7 @@ case class Model(
     description: Option[String] = None,
     properties: List[(String, ModelProperty)] = Nil,
     baseModel: Option[String] = None,
-    discriminator: Option[String] = None
+    discriminator: Option[String] = None // TODO unnecessary?
 ) {
 
   def setRequired(property: String, required: Boolean): Model = {
@@ -430,7 +431,7 @@ case class Model(
 case class ModelRef(
   `type`: String,
   ref: Option[String] = None,
-  qualifiedType: Option[String] = None
+  qualifiedType: Option[String] = None // TODO unnecessary?
 )
 
 case class LoginEndpoint(url: String)
@@ -478,8 +479,10 @@ trait SwaggerOperation {
   def method: HttpMethod
   def responseClass: DataType
   def summary: String
+  @deprecated("This property has been removed in Swagger 2.0, use description instead", "2.6.0")
   def notes: Option[String]
   def deprecated: Boolean
+  @deprecated("This property has been removed in Swagger 2.0, use operationId instead.", "2.6.0")
   def nickname: Option[String]
   def produces: List[String]
   def consumes: List[String]
@@ -495,15 +498,15 @@ case class Operation(
   responseClass: DataType,
   summary: String,
   position: Int,
-  notes: Option[String] = None,
+  @deprecated("This property has been removed in Swagger 2.0, use description instead.", "2.6.0") notes: Option[String] = None,
   deprecated: Boolean = false,
-  nickname: Option[String] = None,
+  @deprecated("This property has been removed in Swagger 2.0, use operationId instead.", "2.6.0") nickname: Option[String] = None,
   parameters: List[Parameter] = Nil,
   responseMessages: List[ResponseMessage] = Nil,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
-  protocols: List[String] = Nil,
-  authorizations: List[String] = Nil,
+  protocols: List[String] = Nil, // TODO Rename to schema for Swagger 2.0?
+  authorizations: List[String] = Nil, // TODO Rename to security for Swagger 2.0?
   tags: List[String] = Nil
 ) extends SwaggerOperation
 

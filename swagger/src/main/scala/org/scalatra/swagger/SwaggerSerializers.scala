@@ -13,6 +13,7 @@ import org.json4s.ext.{ EnumNameSerializer, JodaTimeSerializers }
 import org.scalatra.HttpMethod
 import org.scalatra.util.RicherString._
 
+@deprecated("Swagger 1.x support will be dropped in Scalatra 2.7.0", "2.6.0")
 object SwaggerSerializers {
   import org.scalatra.swagger.AllowableValues._
   private val simpleTypes =

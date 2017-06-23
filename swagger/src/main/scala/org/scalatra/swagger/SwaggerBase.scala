@@ -49,6 +49,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
         renderSwagger2(swagger.docs.toList.asInstanceOf[List[ApiType]])
       }
     } else {
+      // TODO output warning here!!
       get("""/([^.]+)*(?:\.(\w+))?""".r) {
         val doc :: fmt :: Nil = multiParams("captures").toList
         if (fmt != null) format = fmt
@@ -71,6 +72,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
    */
   protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
 
+  @deprecated("Swagger 1.x support will be dropped in Scalatra 2.7.0", "2.6.0")
   protected def renderDoc(doc: ApiType): JValue = {
     val json = docToJson(doc) merge
       ("basePath" -> fullUrl("/", includeContextPath = swagger.baseUrlIncludeContextPath, includeServletPath = swagger.baseUrlIncludeServletPath)) ~
@@ -90,6 +92,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     json merge v
   }
 
+  @deprecated("Swagger 1.x support will be dropped in Scalatra 2.7.0", "2.6.0")
   protected def renderIndex(docs: List[ApiType]): JValue = {
     ("apiVersion" -> swagger.apiVersion) ~
       ("swaggerVersion" -> swagger.swaggerVersion) ~
@@ -206,7 +209,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                       case g: AuthorizationCodeGrant => (a.keyname -> JObject(
                         JField("type", "oauth2"),
                         JField("description", a.description),
-                        JField("flow", "implicit"),
+                        JField("flow", "implicit"), // TODO authorization_code?
                         JField("authorizationUrl", g.tokenRequestEndpoint.url),
                         JField("tokenUrl", g.tokenEndpoint.url),
                         JField("scopes", a.scopes.map(scope => JField(scope, scope)))
