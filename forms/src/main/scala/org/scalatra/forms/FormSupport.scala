@@ -6,10 +6,9 @@ import org.scalatra.servlet.ServletBase
 trait FormSupport { self: ServletBase with I18nSupport =>
 
   protected def validate[T](form: ValueType[T])(hasErrors: Seq[(String, String)] => Any, success: T => Any): Any = {
-    val paramMap = params.toSeq.toMap
-    val errors = form.validate("", paramMap, messages)
+    val errors = form.validate("", multiParams, messages)
     if (errors.isEmpty) {
-      success(form.convert("", paramMap, messages))
+      success(form.convert("", multiParams, messages))
     } else {
       hasErrors(errors)
     }

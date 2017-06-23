@@ -37,15 +37,15 @@ class FormSpec extends FunSuite {
 
   test("Bind parameters to form") {
     val params = Map(
-      "id" -> "1",
-      "age" -> "20",
-      "name" -> "Scalatra",
-      "email" -> " sample@scalatra.org ",
-      "remark" -> "",
-      "options[0]" -> "Java",
-      "options[1]" -> "Scala",
-      "agreement" -> "true",
-      "address.country" -> "Japan"
+      "id" -> Seq("1"),
+      "age" -> Seq("20"),
+      "name" -> Seq("Scalatra"),
+      "email" -> Seq(" sample@scalatra.org "),
+      "remark" -> Seq(""), // None
+      "options[0]" -> Seq("Java"), // Indexed parameter
+      "options[1]" -> Seq("Scala"), // Indexed parameter
+      "agreement" -> Seq("true"), // true
+      "address.country" -> Seq("Japan")
     )
 
     val errors = form.validate("", params, messages)
@@ -64,14 +64,42 @@ class FormSpec extends FunSuite {
     ))
   }
 
+  test("Multi parameter for a list property") {
+    val params = Map(
+      "id" -> Seq("1"),
+      "age" -> Seq("20"),
+      "name" -> Seq("Scalatra"),
+      "email" -> Seq(" sample@scalatra.org "),
+      "remark" -> Seq("Remark"), // Some
+      "options" -> Seq("Java", "Scala"), // Multi parameter
+      "agreement" -> Seq("false"), // false
+      "address.country" -> Seq("Japan")
+    )
+
+    val errors = form.validate("", params, messages)
+    assert(errors.isEmpty)
+
+    val result = form.convert("", params, messages)
+    assert(result == UserInfo(
+      id = 1,
+      age = 20,
+      name = "Scalatra",
+      email = "sample@scalatra.org",
+      remark = Some("Remark"),
+      options = Seq("Java", "Scala"),
+      agreement = false,
+      address = Address("Japan")
+    ))
+  }
+
   test("Validation error") {
     val params = Map(
-      "id" -> "NaN",
-      "age" -> "",
-      "name" -> "Scalatra User",
-      "email" -> "test",
-      "remark" -> "",
-      "agreement" -> ""
+      "id" -> Seq("NaN"),
+      "age" -> Seq(""),
+      "name" -> Seq("Scalatra User"),
+      "email" -> Seq("test"),
+      "remark" -> Seq(""),
+      "agreement" -> Seq("")
     )
 
     val errors = form.validate("", params, messages).toMap
