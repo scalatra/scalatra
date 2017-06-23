@@ -6,14 +6,19 @@ import scalaz._
 
 package object commands {
 
+  @deprecated("Use scalatra-forms instead.", "2.6.0")
   type FieldValidation[T] = Validation[ValidationError, T]
 
+  @deprecated("Use scalatra-forms instead.", "2.6.0")
   type ModelValidation[T] = ValidationNel[ValidationError, T]
 
+  @deprecated("Use scalatra-forms instead.", "2.6.0")
   type Validator[T] = FieldValidation[T] => FieldValidation[T]
 
+  @deprecated("Use scalatra-forms instead.", "2.6.0")
   type BindingValidator[T] = (String) => Validator[T]
 
+  @deprecated("Use scalatra-forms instead.", "2.6.0")
   type BindingAction = () => Any
 
   //

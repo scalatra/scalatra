@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest
 
 import org.scalatra.json.{ NativeJsonSupport, NativeJsonValueReaderProperty }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait NativeJsonParsing extends CommandSupport with NativeJsonValueReaderProperty { self: NativeJsonSupport with CommandSupport =>
   type CommandType = JsonCommand
 

@@ -9,11 +9,13 @@ import org.scalatra.util.RicherString._
 
 import scala.util.control.Exception._
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait DateParser {
   def parse(s: String): Option[DateTime]
   def unapply(s: String) = parse(s)
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object JodaDateFormats extends DateParser {
   DateTimeZone.setDefault(DateTimeZone.UTC)
 

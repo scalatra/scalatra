@@ -10,12 +10,15 @@ import scalaz.Validation.FlatMap._
 import scalaz.syntax.std.option._
 import scalaz.syntax.validation._
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object DefVal {
   def apply[T](prov: => T) = new DefVal(prov)
 }
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class DefVal[T](valueProvider: => T) {
   lazy val value = valueProvider
 }
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object ValueSource extends Enumeration {
   val Header = Value("header")
   val Body = Value("body")
@@ -23,10 +26,12 @@ object ValueSource extends Enumeration {
   val Path = Value("path")
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object FieldDescriptor {
   def apply[T](name: String)(implicit mf: Manifest[T]): FieldDescriptor[T] =
     new BasicFieldDescriptor[T](name, transformations = identity)
 }
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait FieldDescriptor[T] {
 
   def name: String
@@ -79,6 +84,7 @@ trait FieldDescriptor[T] {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class BasicFieldDescriptor[T](
     val name: String,
     val validator: Option[Validator[T]] = None,
@@ -154,6 +160,7 @@ class BasicFieldDescriptor[T](
   def position(pos: Int): FieldDescriptor[T] = copy(position = pos)
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
   def field: FieldDescriptor[T]
   def original: Option[S]
@@ -187,15 +194,18 @@ trait DataboundFieldDescriptor[S, T] extends FieldDescriptor[T] {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait ValidatedFieldDescriptor[S, T] extends DataboundFieldDescriptor[S, T] {
   def validate: ValidatedFieldDescriptor[S, T] = this
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object BoundFieldDescriptor {
   def apply[S, T](original: Option[S], value: FieldValidation[T], binding: FieldDescriptor[T]): DataboundFieldDescriptor[S, T] =
     new BoundFieldDescriptor(original, value, binding, binding.validator)
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class BoundFieldDescriptor[S, T](
     val original: Option[S],
     val value: FieldValidation[T],
@@ -260,6 +270,7 @@ class BoundFieldDescriptor[S, T](
   def position(pos: Int): DataboundFieldDescriptor[S, T] = copy(field = field.position(pos))
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val field: DataboundFieldDescriptor[S, T]) extends ValidatedFieldDescriptor[S, T] {
   def name: String = field.name
 
@@ -310,6 +321,7 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
 
 import scala.util.matching.Regex
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait BindingValidatorImplicits {
 
   import org.scalatra.commands.BindingValidators._
@@ -320,6 +332,7 @@ trait BindingValidatorImplicits {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object BindingValidators {
 
   class ValidatableSeq[T <: Seq[_]](b: FieldDescriptor[T]) {
@@ -448,6 +461,7 @@ object BindingValidators {
     oneOf(messageFormat, enum.values.map(_.toString).toSeq)
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class Field[A: Manifest](descr: FieldDescriptor[A], command: Command) {
 
   val name = descr.name

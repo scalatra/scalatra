@@ -9,8 +9,10 @@ import org.scalatra.validation._
 
 import scalaz.syntax.std.option._
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class BindingException(message: String) extends ScalatraException(message)
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object Binding {
 
   def apply[I, A](fieldName: String, cv: TypeConverter[I, A], tcf: TypeConverterFactory[_])(implicit mf: Manifest[I], mt: Manifest[A]): Binding = {
@@ -72,6 +74,7 @@ object Binding {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 sealed trait Binding {
   // We want to take advantage of compile time checking but we don't want the types
   // and potential changing of a type of a binding to be a problem
@@ -118,6 +121,7 @@ sealed trait Binding {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait BindingSyntax extends BindingValidatorImplicits {
 
   implicit def asType[T: Manifest](name: String): FieldDescriptor[T] = FieldDescriptor[T](name)
@@ -137,6 +141,7 @@ trait BindingSyntax extends BindingValidatorImplicits {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object BindingSyntax extends BindingSyntax
 
 /**
@@ -144,6 +149,7 @@ object BindingSyntax extends BindingSyntax
  *
  * @author mmazzarolo
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorImplicits {
 
   implicit def stringToDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[String, DateTime] =
@@ -160,4 +166,5 @@ trait BindingImplicits extends DefaultImplicitConversions with BindingValidatorI
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object BindingImplicits extends BindingImplicits

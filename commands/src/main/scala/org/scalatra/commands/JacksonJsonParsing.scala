@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest
 
 import org.scalatra.json.{ JacksonJsonSupport, JacksonJsonValueReaderProperty }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait JacksonJsonParsing extends CommandSupport with JacksonJsonValueReaderProperty { self: JacksonJsonSupport with CommandSupport =>
   type CommandType = JsonCommand
 

@@ -13,6 +13,7 @@ import scala.util.control.Exception._
 import scala.util.matching.Regex
 import scalaz.syntax.validation._
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object Validators {
   trait Validator[TValue] {
     def validate[TResult >: TValue <: TValue](subject: TResult): FieldValidation[TResult]

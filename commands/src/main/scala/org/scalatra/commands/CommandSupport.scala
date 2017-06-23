@@ -12,6 +12,7 @@ import scala.collection.concurrent.{ Map => ConcurrentMap }
 /**
  * Support for [[org.scalatra.commands.Command]] binding and validation.
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors { this: ScalatraBase =>
 
   type CommandType <: Command
@@ -66,6 +67,7 @@ trait CommandSupport extends ParamsValueReaderProperties with CommandExecutors {
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait ParamsOnlyCommandSupport extends CommandSupport { this: ScalatraBase =>
   type CommandType = ParamsOnlyCommand
 }

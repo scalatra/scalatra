@@ -11,6 +11,7 @@ import org.json4s._
  * @param code Decouple business logic error types from http errors
  * @param args Optional args, these need to be serializable to json if you're using the [[org.scalatra.validation.ValidationErrorSerializer]]
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case class ValidationError(message: String, field: Option[FieldName], code: Option[ErrorCode], args: Seq[Any])
 
 /**
@@ -18,24 +19,34 @@ case class ValidationError(message: String, field: Option[FieldName], code: Opti
  *
  * @param name The name of the field
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case class FieldName(name: String)
 
 /**
  * A base trait for error codes, all error codes need to extend this.
  * It's available for you so you can add more in your app
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait ErrorCode
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case object NotFound extends ErrorCode
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case object UnknownError extends ErrorCode
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case object NotImplemented extends ErrorCode
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case object BadGateway extends ErrorCode
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case object ValidationFail extends ErrorCode
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case object ServiceUnavailable extends ErrorCode
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 case object GatewayTimeout extends ErrorCode
 
 /**
  * Allows for unordered building of [[org.scalatra.validation.ValidationError]]
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 object ValidationError {
   /**
    * Allows for unordered building of [[org.scalatra.validation.ValidationError]]
@@ -68,6 +79,7 @@ object ValidationError {
  *
  * @param knownCodes A list of known error codes for your system
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class ErrorCodeSerializer(knownCodes: ErrorCode*) extends Serializer[ErrorCode] {
   val ecs = Map(knownCodes map { c ⇒ c.getClass.getSimpleName.replaceAll("\\$$", "").toUpperCase -> c }: _*)
   val Class = classOf[ErrorCode]
@@ -101,6 +113,7 @@ class ErrorCodeSerializer(knownCodes: ErrorCode*) extends Serializer[ErrorCode] 
  * @param includeCode Include the code field if an error code is provided
  * @param includeArgs Include the args field when args are provided
  */
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class ValidationErrorSerializer(includeCode: Boolean = true, includeArgs: Boolean = true) extends CustomSerializer[ValidationError](
   (formats: Formats) ⇒ ({
     case jo @ JObject(JField("message", _) :: _) ⇒

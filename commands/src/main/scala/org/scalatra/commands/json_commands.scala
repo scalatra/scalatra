@@ -9,6 +9,7 @@ import org.scalatra.json.{ JsonImplicitConversions, JsonValueReader }
 import org.scalatra.util.ValueReader
 import org.scalatra.util.conversion._
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait JsonBindingImplicits extends BindingImplicits with JsonImplicitConversions {
 
   implicit def jsonToDateTime(implicit df: DateParser = JodaDateFormats.Web): TypeConverter[JValue, DateTime] =
@@ -19,10 +20,12 @@ trait JsonBindingImplicits extends BindingImplicits with JsonImplicitConversions
 
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait JsonTypeConverterFactory[T] extends TypeConverterFactory[T] with JsonBindingImplicits {
   def resolveJson: TypeConverter[JValue, T]
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait JsonTypeConverterFactories extends JsonBindingImplicits {
   implicit def jsonTypeConverterFactory[T](implicit
     seqConverter: TypeConverter[Seq[String], T],
@@ -37,8 +40,10 @@ trait JsonTypeConverterFactories extends JsonBindingImplicits {
     }
 }
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 class JsonTypeConverterFactoriesImports(implicit protected val jsonFormats: Formats) extends JsonTypeConverterFactories
 
+@deprecated("Use scalatra-forms instead.", "2.6.0")
 trait JsonCommand extends Command with JsonTypeConverterFactories {
 
   type CommandTypeConverterFactory[T] = JsonTypeConverterFactory[T]
