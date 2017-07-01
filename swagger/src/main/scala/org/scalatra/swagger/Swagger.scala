@@ -216,15 +216,15 @@ trait SwaggerApi[T <: SwaggerEndpoint[_]] {
   def model(name: String) = models.get(name)
 }
 
-case class ResourceListing(
-  apiVersion: String,
-  swaggerVersion: String = Swagger.SpecVersion,
-  apis: List[ApiListingReference] = Nil,
-  authorizations: List[AuthorizationType] = Nil,
-  info: Option[ApiInfo] = None
-)
+//case class ResourceListing(
+//  apiVersion: String,
+//  swaggerVersion: String = Swagger.SpecVersion,
+//  apis: List[ApiListingReference] = Nil,
+//  authorizations: List[AuthorizationType] = Nil,
+//  info: Option[ApiInfo] = None
+//)
 
-case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
+//case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
 
 case class Api(
     apiVersion: String,
