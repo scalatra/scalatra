@@ -143,6 +143,9 @@ object SwaggerAuthSerializers {
 }
 
 trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
+
+  private lazy val logger = Logger[SwaggerAuthBase]
+
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
   protected def userManifest: Manifest[TypeForUser]
@@ -163,6 +166,8 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
         renderSwagger2(docs.asInstanceOf[List[ApiType]])
       }
     } else {
+      logger.warn("Move to Swagger 2.0 because Swagger 1.x support will be dropped in Scalatra 2.7.0!!")
+
       get("/:doc(.:format)") {
         def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
 

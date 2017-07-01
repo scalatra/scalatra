@@ -1,6 +1,7 @@
 package org.scalatra
 package swagger
 
+import grizzled.slf4j.Logger
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalatra.json.JsonSupport
@@ -10,6 +11,8 @@ import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
 trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
+
+  private lazy val logger = Logger[SwaggerBaseBase]
 
   protected type ApiType <: SwaggerApi[_]
 
@@ -49,7 +52,8 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
         renderSwagger2(swagger.docs.toList.asInstanceOf[List[ApiType]])
       }
     } else {
-      // TODO output warning here!!
+      logger.warn("Move to Swagger 2.0 because Swagger 1.x support will be dropped in Scalatra 2.7.0!!")
+
       get("""/([^.]+)*(?:\.(\w+))?""".r) {
         val doc :: fmt :: Nil = multiParams("captures").toList
         if (fmt != null) format = fmt
