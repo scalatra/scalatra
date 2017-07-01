@@ -1,7 +1,6 @@
 package org.scalatra
 package swagger
 
-import grizzled.slf4j.Logger
 import org.joda.time._
 import org.joda.time.format.ISODateTimeFormat
 import org.json4s.JsonDSL._
@@ -13,7 +12,7 @@ import org.scalatra.swagger.SwaggerSerializers.SwaggerFormats
 import org.scalatra.util.NotNothing
 
 class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[AuthApi[AnyRef]] {
-  private[this] val logger = Logger[this.type]
+
   /**
    * Registers the documentation for an API with the given path.
    */
@@ -144,8 +143,6 @@ object SwaggerAuthSerializers {
 
 trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
 
-  private lazy val logger = Logger[SwaggerAuthBase]
-
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]
   protected def userManifest: Manifest[TypeForUser]
@@ -158,7 +155,6 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
 
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
-
     if (swagger.swaggerVersion.startsWith("2.")) {
       get("/swagger.json") {
         val docs = filterDocs(swagger.docs)
@@ -166,8 +162,6 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Jso
         renderSwagger2(docs.asInstanceOf[List[ApiType]])
       }
     } else {
-      logger.warn("Move to Swagger 2.0 because Swagger 1.x support will be dropped in Scalatra 2.7.0!!")
-
       get("/:doc(.:format)") {
         def isAllowed(doc: AuthApi[AnyRef]) = doc.apis.exists(_.operations.exists(_.allows(userOption)))
 

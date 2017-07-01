@@ -12,7 +12,7 @@ import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
  */
 trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
 
-  private lazy val logger = Logger[SwaggerBaseBase]
+  private lazy val logger = Logger[this.type]
 
   protected type ApiType <: SwaggerApi[_]
 
