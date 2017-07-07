@@ -190,7 +190,7 @@ class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: A
       description,
       (produces ::: endpoints.flatMap(_.operations.flatMap(_.produces))).distinct,
       (consumes ::: endpoints.flatMap(_.operations.flatMap(_.consumes))).distinct,
-      (protocols ::: endpoints.flatMap(_.operations.flatMap(_.protocols))).distinct,
+      (protocols ::: endpoints.flatMap(_.operations.flatMap(_.schemes))).distinct,
       endpoints,
       s.models.toMap,
       (authorizations ::: endpoints.flatMap(_.operations.flatMap(_.authorizations))).distinct,
@@ -419,7 +419,7 @@ case class Model(
     description: Option[String] = None,
     properties: List[(String, ModelProperty)] = Nil,
     baseModel: Option[String] = None,
-    discriminator: Option[String] = None // TODO unnecessary?
+    discriminator: Option[String] = None
 ) {
 
   def setRequired(property: String, required: Boolean): Model = {
@@ -479,14 +479,12 @@ trait SwaggerOperation {
   def method: HttpMethod
   def responseClass: DataType
   def summary: String
-  @deprecated("This property has been removed in Swagger 2.0, use description instead", "2.6.0")
-  def notes: Option[String]
+  def description: Option[String]
   def deprecated: Boolean
-  @deprecated("This property has been removed in Swagger 2.0, use operationId instead.", "2.6.0")
-  def nickname: Option[String]
+  def operationId: Option[String]
   def produces: List[String]
   def consumes: List[String]
-  def protocols: List[String]
+  def schemes: List[String]
   def authorizations: List[String]
   def parameters: List[Parameter]
   def responseMessages: List[ResponseMessage]
@@ -498,14 +496,14 @@ case class Operation(
   responseClass: DataType,
   summary: String,
   position: Int,
-  @deprecated("This property has been removed in Swagger 2.0, use description instead.", "2.6.0") notes: Option[String] = None,
+  description: Option[String] = None,
   deprecated: Boolean = false,
-  @deprecated("This property has been removed in Swagger 2.0, use operationId instead.", "2.6.0") nickname: Option[String] = None,
+  operationId: Option[String] = None,
   parameters: List[Parameter] = Nil,
   responseMessages: List[ResponseMessage] = Nil,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
-  protocols: List[String] = Nil, // TODO Rename to schema for Swagger 2.0?
+  schemes: List[String] = Nil,
   authorizations: List[String] = Nil, // TODO Rename to security for Swagger 2.0?
   tags: List[String] = Nil
 ) extends SwaggerOperation

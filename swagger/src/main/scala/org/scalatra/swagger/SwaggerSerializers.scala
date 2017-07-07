@@ -347,15 +347,15 @@ object SwaggerSerializers {
       val json = ("method" -> Extraction.decompose(obj.method)) ~
         ("summary" -> obj.summary) ~
         ("position" -> obj.position) ~
-        ("notes" -> obj.notes.flatMap(_.blankOption).getOrElse("")) ~
+        ("notes" -> obj.description.flatMap(_.blankOption).getOrElse("")) ~
         ("deprecated" -> obj.deprecated) ~
-        ("nickname" -> obj.nickname) ~
+        ("nickname" -> obj.operationId) ~
         ("parameters" -> Extraction.decompose(obj.parameters.sortBy(_.position))) ~
         ("responseMessages" -> (if (obj.responseMessages.nonEmpty) Some(Extraction.decompose(obj.responseMessages)) else None))
 
       val consumes = dontAddOnEmpty("consumes", obj.consumes)_
       val produces = dontAddOnEmpty("produces", obj.produces)_
-      val protocols = dontAddOnEmpty("protocols", obj.protocols)_
+      val protocols = dontAddOnEmpty("protocols", obj.schemes)_
       val authorizations = dontAddOnEmpty("authorizations", obj.authorizations)_
       val r = (consumes andThen produces andThen authorizations andThen protocols)(json)
       r merge writeDataType(obj.responseClass)

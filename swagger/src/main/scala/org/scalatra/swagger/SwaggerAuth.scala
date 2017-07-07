@@ -25,7 +25,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
       description,
       (produces ::: endpoints.flatMap(_.operations.flatMap(_.produces))).distinct,
       (consumes ::: endpoints.flatMap(_.operations.flatMap(_.consumes))).distinct,
-      (protocols ::: endpoints.flatMap(_.operations.flatMap(_.protocols))).distinct,
+      (protocols ::: endpoints.flatMap(_.operations.flatMap(_.schemes))).distinct,
       endpoints,
       s.models.toMap,
       (authorizations ::: endpoints.flatMap(_.operations.flatMap(_.authorizations))).distinct,
@@ -67,15 +67,15 @@ object SwaggerAuthSerializers {
       val json = ("method" -> Extraction.decompose(obj.method)) ~
         ("summary" -> obj.summary) ~
         ("position" -> obj.position) ~
-        ("notes" -> obj.notes.flatMap(_.blankOption).getOrElse("")) ~
+        ("notes" -> obj.description.flatMap(_.blankOption).getOrElse("")) ~
         ("deprecated" -> obj.deprecated) ~
-        ("nickname" -> obj.nickname) ~
+        ("nickname" -> obj.operationId) ~
         ("parameters" -> Extraction.decompose(obj.parameters)) ~
         ("responseMessages" -> (if (obj.responseMessages.nonEmpty) Some(Extraction.decompose(obj.responseMessages)) else None))
 
       val consumes = dontAddOnEmpty("consumes", obj.consumes)_
       val produces = dontAddOnEmpty("produces", obj.produces)_
-      val protocols = dontAddOnEmpty("protocols", obj.protocols)_
+      val protocols = dontAddOnEmpty("protocols", obj.schemes)_
       val authorizations = dontAddOnEmpty("authorizations", obj.authorizations)_
       val r = (consumes andThen produces andThen authorizations andThen protocols)(json)
       r merge writeDataType(obj.responseClass)
@@ -254,14 +254,14 @@ case class AuthOperation[TypeForUser <: AnyRef](
   responseClass: DataType,
   summary: String,
   position: Int,
-  notes: Option[String] = None,
+  description: Option[String] = None,
   deprecated: Boolean = false,
-  nickname: Option[String] = None,
+  operationId: Option[String] = None,
   parameters: List[Parameter] = Nil,
   responseMessages: List[ResponseMessage] = Nil,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
-  protocols: List[String] = Nil,
+  schemes: List[String] = Nil,
   authorizations: List[String] = Nil,
   tags: List[String] = Nil,
   allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true
@@ -318,8 +318,8 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
         responseClass = responseClass,
         summary = summary,
         position = 0,
-        notes = notes,
-        nickname = nick,
+        description = notes,
+        operationId = nick,
         parameters = theParams,
         responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,

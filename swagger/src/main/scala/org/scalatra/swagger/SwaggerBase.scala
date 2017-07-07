@@ -144,9 +144,9 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                     case api: SwaggerEndpoint[_] =>
                       (api.path -> api.operations.map { operation =>
                         (operation.method.toString.toLowerCase -> (
-                          ("operationId" -> operation.nickname) ~
+                          ("operationId" -> operation.operationId) ~
                           ("summary" -> operation.summary) ~!
-                          ("schemes" -> operation.protocols) ~!
+                          ("schemes" -> operation.schemes) ~!
                           ("consumes" -> operation.consumes) ~!
                           ("produces" -> operation.produces) ~!
                           ("tags" -> operation.tags) ~
@@ -193,10 +193,15 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                 doc.models.map {
                   case (name, model) =>
                     (name ->
+                      ("type" -> "object") ~
+                      ("discriminator" -> model.discriminator) ~
                       ("properties" -> model.properties.map {
                         case (name, property) =>
                           (name -> generateDataType(property.`type`))
-                      }.toMap))
+                      }.toMap) ~!
+                      ("required" -> model.properties.collect {
+                        case (name, property) if property.required => name
+                      }))
                 }
               }.toMap) ~
               ("securityDefinitions" -> (swagger.authorizations.flatMap { auth =>
@@ -213,7 +218,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                       case g: AuthorizationCodeGrant => (a.keyname -> JObject(
                         JField("type", "oauth2"),
                         JField("description", a.description),
-                        JField("flow", "implicit"), // TODO authorization_code?
+                        JField("flow", "accessCode"),
                         JField("authorizationUrl", g.tokenRequestEndpoint.url),
                         JField("tokenUrl", g.tokenEndpoint.url),
                         JField("scopes", a.scopes.map(scope => JField(scope, scope)))

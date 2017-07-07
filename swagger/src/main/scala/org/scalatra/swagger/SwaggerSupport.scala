@@ -218,14 +218,14 @@ object SwaggerSupportSyntax {
   abstract class SwaggerOperationBuilder[T <: SwaggerOperation] {
 
     private[this] var _summary: String = ""
-    private[this] var _notes: String = ""
+    private[this] var _description: String = ""
     private[this] var _deprecated: Boolean = false
     private[this] var _nickname: String = _
     private[this] var _parameters: List[Parameter] = Nil
     private[this] var _responseMessages: List[ResponseMessage] = Nil
     private[this] var _produces: List[String] = Nil
     private[this] var _consumes: List[String] = Nil
-    private[this] var _protocols: List[String] = Nil
+    private[this] var _schemes: List[String] = Nil
     private[this] var _authorizations: List[String] = Nil
     private[this] var _tags: List[String] = Nil
     private[this] var _position: Int = 0
@@ -237,19 +237,29 @@ object SwaggerSupportSyntax {
       this
     }
     def summary: String = _summary
+    @deprecated("This property will be dropped in Scalatra 2.7.0. Use description instead.", "2.6.0")
     def notes(content: String): this.type = {
-      _notes = content
+      _description = content
       this
     }
-    def notes: Option[String] = _notes.blankOption
+    @deprecated("This property will be dropped in Scalatra 2.7.0. Use description instead.", "2.6.0")
+    def notes: Option[String] = _description.blankOption
+    def description(content: String): this.type = {
+      _description = content
+      this
+    }
+    def description: Option[String] = _description.blankOption
     def deprecated(value: Boolean): this.type = {
       _deprecated = value
       this
     }
     def deprecated: Boolean = _deprecated
     def deprecate: this.type = { _deprecated = true; this }
+    @deprecated("This property will be dropped in Scalatra 2.7.0. Use operationId instead.", "2.6.0")
     def nickname(value: String): this.type = { _nickname = value; this }
+    @deprecated("This property will be dropped in Scalatra 2.7.0. Use operationId instead.", "2.6.0")
     def nickName(value: String): this.type = nickname(value)
+    @deprecated("This property will be dropped in Scalatra 2.7.0. Use operationId instead.", "2.6.0")
     def nickname: Option[String] = _nickname.blankOption
     def parameters(params: Parameter*): this.type = { _parameters :::= params.toList; this }
     def parameter(param: Parameter): this.type = parameters(param)
@@ -261,8 +271,12 @@ object SwaggerSupportSyntax {
     def produces: List[String] = _produces
     def consumes: List[String] = _consumes
     def consumes(values: String*): this.type = { _consumes :::= values.toList; this }
-    def protocols: List[String] = _protocols
-    def protocols(values: String*): this.type = { _protocols :::= values.toList; this }
+    @deprecated("This property will be dropped in Scalatra 2.7.0. Use schemes instead.", "2.6.0")
+    def protocols: List[String] = _schemes
+    @deprecated("This property will be dropped in Scalatra 2.7.0. Use schemes instead.", "2.6.0")
+    def protocols(values: String*): this.type = { _schemes :::= values.toList; this }
+    def schemes: List[String] = _schemes
+    def schemes(values: String*): this.type = { _schemes :::= values.toList; this }
     def authorizations: List[String] = _authorizations
     def authorizations(values: String*): this.type = { _authorizations :::= values.toList; this }
     def tags: List[String] = _tags
@@ -286,7 +300,7 @@ object SwaggerSupportSyntax {
       responseMessages,
       consumes,
       produces,
-      protocols,
+      schemes,
       authorizations,
       tags
     )
@@ -532,8 +546,8 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
         responseClass = responseClass,
         summary = summary,
         position = 0,
-        notes = notes,
-        nickname = nick,
+        description = notes,
+        operationId = nick,
         parameters = theParams,
         responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,
