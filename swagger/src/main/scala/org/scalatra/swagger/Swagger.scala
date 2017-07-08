@@ -190,7 +190,7 @@ class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: A
       description,
       (produces ::: endpoints.flatMap(_.operations.flatMap(_.produces))).distinct,
       (consumes ::: endpoints.flatMap(_.operations.flatMap(_.consumes))).distinct,
-      (protocols ::: endpoints.flatMap(_.operations.flatMap(_.protocols))).distinct,
+      (protocols ::: endpoints.flatMap(_.operations.flatMap(_.schemes))).distinct,
       endpoints,
       s.models.toMap,
       (authorizations ::: endpoints.flatMap(_.operations.flatMap(_.authorizations))).distinct,
@@ -216,15 +216,15 @@ trait SwaggerApi[T <: SwaggerEndpoint[_]] {
   def model(name: String) = models.get(name)
 }
 
-case class ResourceListing(
-  apiVersion: String,
-  swaggerVersion: String = Swagger.SpecVersion,
-  apis: List[ApiListingReference] = Nil,
-  authorizations: List[AuthorizationType] = Nil,
-  info: Option[ApiInfo] = None
-)
+//case class ResourceListing(
+//  apiVersion: String,
+//  swaggerVersion: String = Swagger.SpecVersion,
+//  apis: List[ApiListingReference] = Nil,
+//  authorizations: List[AuthorizationType] = Nil,
+//  info: Option[ApiInfo] = None
+//)
 
-case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
+//case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
 
 case class Api(
     apiVersion: String,
@@ -369,9 +369,9 @@ case class ApiInfo(
   title: String,
   description: String,
   termsOfServiceUrl: String,
-  contact: String,
-  license: String,
-  licenseUrl: String
+  contact: String, // TODO to be nested property for Swagger 2.0
+  license: String, // TODO to be nested property for Swagger 2.0
+  licenseUrl: String // TODO to be nested property for Swagger 2.0
 )
 
 trait AllowableValues
@@ -392,12 +392,13 @@ case class Parameter(
   name: String,
   `type`: DataType,
   description: Option[String] = None,
-  notes: Option[String] = None,
+  @deprecated("This property has been removed in Swagger 2.0, use description instead.", "2.6.0") notes: Option[String] = None,
   paramType: ParamType.ParamType = ParamType.Query,
   defaultValue: Option[String] = None,
-  allowableValues: AllowableValues = AllowableValues.AnyValue,
+  allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
   required: Boolean = true,
   //                     allowMultiple: Boolean = false,
+  // TODO Add collectionFormat: Option[String] for Swagger 2.0
   paramAccess: Option[String] = None,
   position: Int = 0
 )
@@ -407,8 +408,8 @@ case class ModelProperty(
   position: Int = 0,
   required: Boolean = false,
   description: Option[String] = None,
-  allowableValues: AllowableValues = AllowableValues.AnyValue,
-  items: Option[ModelRef] = None
+  allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
+  @deprecated("This property has been removed in Swagger 2.0.", "2.6.0") items: Option[ModelRef] = None
 )
 
 case class Model(
@@ -427,6 +428,7 @@ case class Model(
   }
 }
 
+@deprecated("This class has been removed in Swagger 2.0.", "2.6.0")
 case class ModelRef(
   `type`: String,
   ref: Option[String] = None,
@@ -478,12 +480,12 @@ trait SwaggerOperation {
   def method: HttpMethod
   def responseClass: DataType
   def summary: String
-  def notes: Option[String]
+  def description: Option[String]
   def deprecated: Boolean
-  def nickname: Option[String]
+  def operationId: Option[String]
   def produces: List[String]
   def consumes: List[String]
-  def protocols: List[String]
+  def schemes: List[String]
   def authorizations: List[String]
   def parameters: List[Parameter]
   def responseMessages: List[ResponseMessage]
@@ -495,14 +497,14 @@ case class Operation(
   responseClass: DataType,
   summary: String,
   position: Int,
-  notes: Option[String] = None,
+  description: Option[String] = None,
   deprecated: Boolean = false,
-  nickname: Option[String] = None,
+  operationId: Option[String] = None,
   parameters: List[Parameter] = Nil,
   responseMessages: List[ResponseMessage] = Nil,
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
-  protocols: List[String] = Nil,
+  schemes: List[String] = Nil,
   authorizations: List[String] = Nil,
   tags: List[String] = Nil
 ) extends SwaggerOperation

@@ -1,6 +1,7 @@
 package org.scalatra
 package swagger
 
+import grizzled.slf4j.Logger
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalatra.json.JsonSupport
@@ -10,6 +11,8 @@ import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
 trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
+
+  private lazy val logger = Logger[this.type]
 
   protected type ApiType <: SwaggerApi[_]
 
@@ -49,6 +52,8 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
         renderSwagger2(swagger.docs.toList.asInstanceOf[List[ApiType]])
       }
     } else {
+      logger.warn("Move to Swagger 2.0 because Swagger 1.x support will be dropped in Scalatra 2.7.0!!")
+
       get("""/([^.]+)*(?:\.(\w+))?""".r) {
         val doc :: fmt :: Nil = multiParams("captures").toList
         if (fmt != null) format = fmt
@@ -71,6 +76,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
    */
   protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
 
+  @deprecated("Swagger 1.x support will be dropped in Scalatra 2.7.0", "2.6.0")
   protected def renderDoc(doc: ApiType): JValue = {
     val json = docToJson(doc) merge
       ("basePath" -> fullUrl("/", includeContextPath = swagger.baseUrlIncludeContextPath, includeServletPath = swagger.baseUrlIncludeServletPath)) ~
@@ -90,6 +96,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     json merge v
   }
 
+  @deprecated("Swagger 1.x support will be dropped in Scalatra 2.7.0", "2.6.0")
   protected def renderIndex(docs: List[ApiType]): JValue = {
     ("apiVersion" -> swagger.apiVersion) ~
       ("swaggerVersion" -> swagger.swaggerVersion) ~
@@ -137,9 +144,9 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                     case api: SwaggerEndpoint[_] =>
                       (api.path -> api.operations.map { operation =>
                         (operation.method.toString.toLowerCase -> (
-                          ("operationId" -> operation.nickname) ~
+                          ("operationId" -> operation.operationId) ~
                           ("summary" -> operation.summary) ~!
-                          ("schemes" -> operation.protocols) ~!
+                          ("schemes" -> operation.schemes) ~!
                           ("consumes" -> operation.consumes) ~!
                           ("produces" -> operation.produces) ~!
                           ("tags" -> operation.tags) ~
@@ -186,10 +193,15 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                 doc.models.map {
                   case (name, model) =>
                     (name ->
+                      ("type" -> "object") ~
+                      ("discriminator" -> model.discriminator) ~
                       ("properties" -> model.properties.map {
                         case (name, property) =>
                           (name -> generateDataType(property.`type`))
-                      }.toMap))
+                      }.toMap) ~!
+                      ("required" -> model.properties.collect {
+                        case (name, property) if property.required => name
+                      }))
                 }
               }.toMap) ~
               ("securityDefinitions" -> (swagger.authorizations.flatMap { auth =>
@@ -206,7 +218,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                       case g: AuthorizationCodeGrant => (a.keyname -> JObject(
                         JField("type", "oauth2"),
                         JField("description", a.description),
-                        JField("flow", "implicit"),
+                        JField("flow", "accessCode"),
                         JField("authorizationUrl", g.tokenRequestEndpoint.url),
                         JField("tokenUrl", g.tokenEndpoint.url),
                         JField("scopes", a.scopes.map(scope => JField(scope, scope)))

@@ -60,7 +60,6 @@ lazy val scalatraProject = Project(
     scalatraSwagger,
     scalatraJetty,
     scalatraCommon,
-    scalatraSwaggerExt,
     scalatraSpring,
     scalatraMetrics,
     scalatraCache,
@@ -248,19 +247,24 @@ lazy val scalatraSwagger = Project(
     ),
     description := "Scalatra integration with Swagger"
   )
-) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
-
-lazy val scalatraSwaggerExt = Project(
-  id = "scalatra-swagger-ext",
-  base = file("swagger-ext"),
-  settings = scalatraSettings ++ Seq(
-    description := "Deeper Swagger integration for scalatra"
-  )
 ) dependsOn(
-  scalatraSwagger % "compile;test->test;provided->provided",
+  scalatraCore % "compile;test->test;provided->provided",
+  scalatraJson % "compile;test->test;provided->provided",
   scalatraCommands % "compile;test->test;provided->provided",
   scalatraAuth % "compile;test->test"
 )
+
+//lazy val scalatraSwaggerExt = Project(
+//  id = "scalatra-swagger-ext",
+//  base = file("swagger-ext"),
+//  settings = scalatraSettings ++ Seq(
+//    description := "Deeper Swagger integration for scalatra"
+//  )
+//) dependsOn(
+//  scalatraSwagger % "compile;test->test;provided->provided",
+//  scalatraCommands % "compile;test->test;provided->provided",
+//  scalatraAuth % "compile;test->test"
+//)
 
 lazy val scalatraSlf4j = Project(
   id = "scalatra-slf4j",
