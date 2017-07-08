@@ -369,9 +369,9 @@ case class ApiInfo(
   title: String,
   description: String,
   termsOfServiceUrl: String,
-  contact: String, // TODO to be nested property for Swagger 2.0?
-  license: String, // TODO to be nested property for Swagger 2.0?
-  licenseUrl: String // TODO to be nested property for Swagger 2.0?
+  contact: String, // TODO to be nested property for Swagger 2.0
+  license: String, // TODO to be nested property for Swagger 2.0
+  licenseUrl: String // TODO to be nested property for Swagger 2.0
 )
 
 trait AllowableValues
@@ -409,7 +409,7 @@ case class ModelProperty(
   required: Boolean = false,
   description: Option[String] = None,
   allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
-  items: Option[ModelRef] = None
+  @deprecated("This property has been removed in Swagger 2.0.", "2.6.0") items: Option[ModelRef] = None
 )
 
 case class Model(
@@ -428,10 +428,11 @@ case class Model(
   }
 }
 
+@deprecated("This class has been removed in Swagger 2.0.", "2.6.0")
 case class ModelRef(
   `type`: String,
   ref: Option[String] = None,
-  qualifiedType: Option[String] = None // TODO unnecessary?
+  qualifiedType: Option[String] = None
 )
 
 case class LoginEndpoint(url: String)
@@ -504,7 +505,7 @@ case class Operation(
   consumes: List[String] = Nil,
   produces: List[String] = Nil,
   schemes: List[String] = Nil,
-  authorizations: List[String] = Nil, // TODO Rename to security for Swagger 2.0?
+  authorizations: List[String] = Nil,
   tags: List[String] = Nil
 ) extends SwaggerOperation
 
