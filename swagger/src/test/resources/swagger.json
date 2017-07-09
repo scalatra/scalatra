@@ -347,7 +347,8 @@
           "format": "int64"
         },
         "status": {
-          "type": "string"
+          "type": "string",
+          "description": "pet status in the store"
         },
         "category": {
           "$ref": "#/definitions/Category"
@@ -432,7 +433,8 @@
           "format": "int64"
         },
         "status": {
-          "type": "string"
+          "type": "string",
+          "description": "Order Status"
         }
       }
     }

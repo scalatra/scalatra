@@ -194,10 +194,13 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                   case (name, model) =>
                     (name ->
                       ("type" -> "object") ~
+                      ("description" -> model.description) ~
                       ("discriminator" -> model.discriminator) ~
                       ("properties" -> model.properties.map {
                         case (name, property) =>
-                          (name -> generateDataType(property.`type`))
+                          (name ->
+                            ("description" -> property.description) ~~
+                            generateDataType(property.`type`))
                       }.toMap) ~!
                       ("required" -> model.properties.collect {
                         case (name, property) if property.required => name

@@ -432,7 +432,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   }
 
   def verifyProperty(actual: JValue, expected: JValue, propertyName: String) = {
-    val m = verifyFields(actual, expected, "type", "format", "$ref", "items")
+    val m = verifyFields(actual, expected, "type", "format", "$ref", "items", "description")
     m setMessage (m.message + " of the property " + propertyName)
   }
 

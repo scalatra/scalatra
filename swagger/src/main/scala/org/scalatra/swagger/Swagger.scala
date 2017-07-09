@@ -117,7 +117,15 @@ object Swagger {
       }
 
       val result = apiModel map { am =>
-        Model(name, name, klass.fullName.blankOption, properties = fields.flatten, baseModel = am.parent.getName.blankOption, discriminator = am.discriminator.blankOption)
+        Model(
+          id = name,
+          name = name,
+          qualifiedName = klass.fullName.blankOption,
+          description = am.description().blankOption,
+          properties = fields.flatten,
+          baseModel = am.parent.getName.blankOption,
+          discriminator = am.discriminator.blankOption
+        )
       } orElse Some(Model(name, name, klass.fullName.blankOption, properties = fields.flatten))
       result
     }
