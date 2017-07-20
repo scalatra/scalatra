@@ -133,7 +133,7 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
 
   test("implicit content type does not override charset") {
     get("/implicit/string/iso-8859-1") {
-      response.charset should equal(Some("ISO-8859-1"))
+      response.charset should equal(Some("iso-8859-1"))
     }
   }
 
@@ -155,7 +155,7 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
 
   test("charset is set to default when only content type is explicitly set") {
     get("/default-charset") {
-      response.charset should equal(Some("UTF-8"))
+      response.charset should equal(Some("utf-8"))
     }
   }
 

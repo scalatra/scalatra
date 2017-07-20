@@ -73,7 +73,7 @@ class JsonPTestServlet extends ScalatraServlet with NativeJsonSupport {
 }
 
 abstract class JsonSupportTestBase extends ScalatraFunSuite {
-  protected def expectedXml = """<?xml version='1.0' encoding='UTF-8'?>
+  protected def expectedXml = """<?xml version='1.0' encoding='utf-8'?>
                                 |<resp><k1>v1</k1><k2>v2</k2></resp>""".stripMargin
 
   test("JSON support test") {

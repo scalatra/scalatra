@@ -20,7 +20,7 @@ class RailsLikeRouteTest extends ScalatraFunSuite {
   test("matches without extension") {
     get("/foo") {
       header("file") should equal("foo")
-      header("ext") should equal("")
+      header("ext") should equal(null)
     }
   }
 

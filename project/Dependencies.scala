@@ -6,12 +6,10 @@ object Dependencies {
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.0.6"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
-  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.4.4"
-  //lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.4.13"
+  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.4.13"
   lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.13" artifacts(Artifact("jquery", "war", "war"))
   lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.2"
-  lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.4.2"
-  //lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.4.4"
+  lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.4.4"
   lazy val atmosphereCompatJbossweb =  "org.atmosphere"          %  "atmosphere-compat-jbossweb" % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat   =  "org.atmosphere"          %  "atmosphere-compat-tomcat"   % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat7  =  "org.atmosphere"          %  "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
@@ -62,11 +60,9 @@ object Dependencies {
   private val grizzledSlf4jVersion    = "1.3.1"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.3"
-  private val jettyVersion            = "9.2.19.v20160908"
-  //private val jettyVersion            = "9.4.6.v20170531"
+  private val jettyVersion            = "9.4.6.v20170531"
   private val json4sVersion           = "3.5.2"
   private val scalateVersion          = "1.8.0"
   private val scalatestVersion        = "3.0.3"
-  private val specs2Version           = "3.8.6"
-  //private val specs2Version           = "3.9.4"
+  private val specs2Version           = "3.8.6" //"3.9.4"
 }
