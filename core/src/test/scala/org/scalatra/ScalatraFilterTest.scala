@@ -187,6 +187,16 @@ class ScalatraFilterTest extends ScalatraFunSuite {
       body should equal("?query")
     }
 
+    get("/encoded-uri/%3Bquery") {
+      status should equal(200)
+      body should equal(";query")
+    }
+
+    get("/encoded-uri/%3Bquery;and-some-more-text") {
+      status should equal(200)
+      body should equal(";query")
+    }
+
     get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
       status should equal(200)
       body should equal("Fußgängerübergänge/?#")

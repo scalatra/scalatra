@@ -32,10 +32,14 @@ object ScalatraServlet {
   }
 
   def requestPath(uri: String, idx: Int): String = {
-    val u1 = UriDecoder.firstStep(uri)
-    val u2 = (u1.blankOption map { _.substring(idx) } flatMap (_.blankOption) getOrElse "/")
-    val pos = u2.indexOf(';')
-    if (pos > -1) u2.substring(0, pos) else u2
+    if (uri.length == 0) {
+      "/"
+    } else {
+      val pos = uri.indexOf(';')
+      val u1 = if (pos >= 0) uri.substring(0, pos) else uri
+      val u2 = UriDecoder.firstStep(u1)
+      u2.substring(idx).blankOption.getOrElse("/")
+    }
   }
 
 }

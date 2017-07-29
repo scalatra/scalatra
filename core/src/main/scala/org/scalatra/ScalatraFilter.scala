@@ -4,7 +4,9 @@ import javax.servlet._
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.servlet.ServletBase
+import org.scalatra.util.RicherString._
 
+import scala.util.control.Exception.catching
 import scala.util.DynamicVariable
 
 /**
@@ -27,6 +29,8 @@ trait ScalatraFilter extends Filter with ServletBase {
 
   private[this] val _filterChain: DynamicVariable[FilterChain] = new DynamicVariable[FilterChain](null)
 
+  val RequestPathKey = "org.scalatra.ScalatraFilter.requestPath"
+
   protected def filterChain: FilterChain = _filterChain.value
 
   def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
@@ -41,27 +45,28 @@ trait ScalatraFilter extends Filter with ServletBase {
   // What goes in servletPath and what goes in pathInfo depends on how the underlying servlet is mapped.
   // Unlike the Scalatra servlet, we'll use both here by default.  Don't like it?  Override it.
   def requestPath(implicit request: HttpServletRequest): String = {
-    def getRequestPath: String = request.getRequestURI match {
-      case requestURI: String =>
-        var uri = requestURI
-        if (request.getContextPath.length > 0) uri = uri.substring(request.getContextPath.length)
-        if (uri.length == 0) {
-          uri = "/"
-        } else {
-          val pos = uri.indexOf(';')
-          if (pos >= 0) uri = uri.substring(0, pos)
-        }
-        UriDecoder.firstStep(uri)
-      case null => "/"
+    def startIndex(r: HttpServletRequest) =
+      r.getContextPath.blankOption.map(_.length).getOrElse(0)
+    def getRequestPath(r: HttpServletRequest) = {
+      val u = (catching(classOf[NullPointerException]) opt { r.getRequestURI } getOrElse "/")
+      requestPath(u, startIndex(r))
     }
 
-    request.get("org.scalatra.ScalatraFilter.requestPath") match {
-      case Some(uri) => uri.toString
-      case _ => {
-        val requestPath = getRequestPath
-        request.setAttribute("org.scalatra.ScalatraFilter.requestPath", requestPath)
-        requestPath.toString
-      }
+    request.get(RequestPathKey) map (_.toString) getOrElse {
+      val rp = getRequestPath(request)
+      request(RequestPathKey) = rp
+      rp
+    }
+  }
+
+  def requestPath(uri: String, idx: Int): String = {
+    if (uri.length == 0) {
+      "/"
+    } else {
+      val pos = uri.indexOf(';')
+      val u1 = if (pos >= 0) uri.substring(0, pos) else uri
+      val u2 = UriDecoder.firstStep(u1)
+      u2.substring(idx).blankOption.getOrElse("/")
     }
   }
 
