@@ -7,7 +7,7 @@ import UnidocKeys._
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
-  crossScalaVersions := Seq("2.12.2", "2.11.8"),
+  crossScalaVersions := Seq("2.12.3", "2.11.8"),
   scalaVersion := crossScalaVersions.value.head,
   scalacOptions ++= Seq(
     "-target:jvm-1.8",
