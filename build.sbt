@@ -7,7 +7,7 @@ import UnidocKeys._
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
-  crossScalaVersions := Seq("2.12.1", "2.11.8"),
+  crossScalaVersions := Seq("2.12.3", "2.11.8"),
   scalaVersion := crossScalaVersions.value.head,
   scalacOptions ++= Seq(
     "-target:jvm-1.8",
@@ -161,7 +161,7 @@ lazy val scalatraCommands = Project(
   base = file("commands"),
   settings = scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
-      "commons-validator" % "commons-validator" % "1.5.1"
+      "commons-validator" % "commons-validator" % "1.6"
     ),
     libraryDependencies ++= Seq(
       scalaz,
