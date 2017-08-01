@@ -157,7 +157,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                               ("required" -> parameter.required) ~
                               ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
                               (if (parameter.paramType.toString.toLowerCase == "body") {
-                                List(JField("schema", JObject(JField("$ref", s"#/definitions/${parameter.`type`.name}"))))
+                                List(JField("schema", generateDataType(parameter.`type`)))
                               } else {
                                 generateDataType(parameter.`type`)
                               })
