@@ -52,7 +52,6 @@ lazy val scalatraProject = Project(
     scalatraCommands,
     scalatraScalate,
     scalatraJson,
-    scalatraSlf4j,
     scalatraAtmosphere,
     scalatraTest,
     scalatraScalatest,
@@ -265,18 +264,18 @@ lazy val scalatraSwagger = Project(
 //  scalatraCommands % "compile;test->test;provided->provided",
 //  scalatraAuth % "compile;test->test"
 //)
-
-lazy val scalatraSlf4j = Project(
-  id = "scalatra-slf4j",
-  base = file("slf4j"),
-  settings = scalatraSettings ++ Seq(
-    libraryDependencies ++= Seq(
-      grizzledSlf4j,
-      logbackClassic % "provided"
-    ),
-    description := "Scalatra integration with SLF4J and Logback"
-  )
-) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+//
+//lazy val scalatraSlf4j = Project(
+//  id = "scalatra-slf4j",
+//  base = file("slf4j"),
+//  settings = scalatraSettings ++ Seq(
+//    libraryDependencies ++= Seq(
+//      grizzledSlf4j,
+//      logbackClassic % "provided"
+//    ),
+//    description := "Scalatra integration with SLF4J and Logback"
+//  )
+//) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraSpring = Project(
   id = "scalatra-spring",

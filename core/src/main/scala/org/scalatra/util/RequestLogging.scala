@@ -1,16 +1,15 @@
 package org.scalatra
-package slf4j
+package util
 
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import grizzled.slf4j.Logger
-import org.scalatra.util.MultiMap
 import org.scalatra.util.RicherString._
 import org.slf4j.MDC
 
 import scala.collection.JavaConverters._
 
-object ScalatraSlf4jRequestLogging {
+object RequestLogging {
 
   val CgiParamsKey = "org.scalatra.slf4j.ScalatraSlf4jSupport"
   val RequestPath = "REQUEST_PATH"
@@ -21,10 +20,10 @@ object ScalatraSlf4jRequestLogging {
 
 }
 
-trait ScalatraSlf4jRequestLogging extends ScalatraBase with Handler {
+trait RequestLogging extends ScalatraBase with Handler {
 
   private[this] val logger = Logger("REQUEST")
-  import org.scalatra.slf4j.ScalatraSlf4jRequestLogging._
+  import org.scalatra.util.RequestLogging._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     val realMultiParams = req.getParameterMap.asScala.toMap transform { (k, v) ⇒ v: Seq[String] }
