@@ -20,6 +20,10 @@ object RequestLogging {
 
 }
 
+/**
+ * Logs request information using slf4j with "REQUEST" logger name
+ * by mixing-in this trait to scalatra servlet or filter.
+ */
 trait RequestLogging extends ScalatraBase with Handler {
 
   private[this] val logger = Logger("REQUEST")
