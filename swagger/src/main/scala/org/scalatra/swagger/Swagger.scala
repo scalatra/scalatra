@@ -47,7 +47,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 object Swagger {
 
   val excludes: Set[java.lang.reflect.Type] = Set(classOf[java.util.TimeZone], classOf[java.util.Date], classOf[DateTime], classOf[LocalDate], classOf[ReadableInstant], classOf[Chronology], classOf[DateTimeZone])
-  val SpecVersion = "1.2"
+  val SpecVersion = "2.0"
 
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
