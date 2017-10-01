@@ -1,7 +1,6 @@
 import com.typesafe.sbt.pgp.PgpKeys
 import scala.xml._
 import java.net.URL
-import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 import Dependencies._
 import UnidocKeys._
 
