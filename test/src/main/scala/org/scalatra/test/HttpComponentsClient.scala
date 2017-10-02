@@ -7,8 +7,9 @@ import org.apache.http.client.CookieStore
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods._
 import org.apache.http.entity.ByteArrayEntity
+import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.content.{ ContentBody, StringBody }
-import org.apache.http.entity.mime.{ FormBodyPart, HttpMultipartMode, MultipartEntity }
+import org.apache.http.entity.mime.{ FormBodyPartBuilder, HttpMultipartMode, MultipartEntityBuilder }
 import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
 
 import scala.util.DynamicVariable
@@ -152,18 +153,19 @@ trait HttpComponentsClient extends Client {
 
     req match {
       case r: HttpEntityEnclosingRequestBase =>
-        val multipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE)
+        val builder = MultipartEntityBuilder.create()
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
         params.foreach {
           case (name, value) =>
-            multipartEntity.addPart(new FormBodyPart(name, new StringBody(value)))
+            builder.addPart(FormBodyPartBuilder.create(name, new StringBody(value, ContentType.TEXT_PLAIN)).build())
         }
 
         files.foreach {
           case (name, file) =>
-            multipartEntity.addPart(name, createBody(name, file))
+            builder.addPart(name, createBody(name, file))
         }
 
-        r.setEntity(multipartEntity)
+        r.setEntity(builder.build())
 
       case _ =>
         throw new IllegalArgumentException(
