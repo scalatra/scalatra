@@ -5,8 +5,8 @@ import scala.reflect.ClassTag
 
 package object forms {
 
-  private[forms] val RequestAttributeParamsKey = "scalatra-forms-params"
-  private[forms] val RequestAttributeErrorsKey = "scalatra-forms-errors"
+  private[forms] val RequestAttributeParamsKey = "org.scalatra.forms.params"
+  private[forms] val RequestAttributeErrorsKey = "org.scalatra.forms.errors"
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // ValueTypes
