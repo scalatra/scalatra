@@ -361,10 +361,10 @@ object DataType {
   private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[LocalDate])
+    Set[Class[_]](classOf[LocalDate], classOf[java.time.LocalDate])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
   private[this] val DateTimeTypes =
-    Set[Class[_]](classOf[JDate], classOf[DateTime])
+    Set[Class[_]](classOf[JDate], classOf[DateTime], classOf[LocalDateTime], classOf[java.time.LocalDateTime], classOf[java.time.ZonedDateTime], classOf[java.time.OffsetDateTime])
   private[this] def isDateTime(klass: Class[_]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
 
   private[this] def isCollection(klass: Class[_]) =
