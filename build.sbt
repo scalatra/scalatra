@@ -13,7 +13,7 @@ lazy val scalatraSettings = Seq(
     "-unchecked",
     "-deprecation",
     /*"-Yinline-warnings",*/
-    "-Xcheckinit",
+    /*"-Xcheckinit",*/
     "-encoding", "utf8",
     "-feature",
     "-Ywarn-unused-import",
