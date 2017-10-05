@@ -1,10 +1,12 @@
 package org.scalatra
 
 import org.scalatra.i18n.Messages
-import org.json4s._
 import scala.reflect.ClassTag
 
 package object forms {
+
+  private[forms] val RequestAttributeParamsKey = "org.scalatra.forms.params"
+  private[forms] val RequestAttributeErrorsKey = "org.scalatra.forms.errors"
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   // ValueTypes
@@ -20,9 +22,6 @@ package object forms {
 
     def verifying(validator: (T) => Seq[(String, String)]): ValueType[T] =
       new VerifyingValueType(this, (value: T, params: Map[String, Seq[String]]) => validator(value))
-
-    def validateAsJSON(params: Map[String, Seq[String]], messages: Messages): JObject =
-      toJson(validate("", params, messages))
 
   }
 
@@ -99,15 +98,6 @@ package object forms {
     }
 
   }
-
-  /**
-   * Converts errors to JSON.
-   */
-  protected[forms] def toJson(errors: Seq[(String, String)]): JObject =
-    JObject(errors.map {
-      case (key, value) =>
-        JField(key, JString(value))
-    }.toList)
 
   /**
    * ValueType for the String property.

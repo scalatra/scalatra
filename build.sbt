@@ -1,7 +1,6 @@
 import com.typesafe.sbt.pgp.PgpKeys
 import scala.xml._
 import java.net.URL
-import org.scalatra.sbt.ScalatraPlugin.scalatraWithWarOverlays
 import Dependencies._
 import UnidocKeys._
 
@@ -153,7 +152,7 @@ lazy val scalatraForms = Project(
   settings = scalatraSettings ++ Seq(
     description := "Data binding and validation for Scalatra"
   )
-) dependsOn(scalatraJson % "compile;test->test;provided->provided")
+) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraCommands = Project(
   id = "scalatra-commands",
@@ -252,30 +251,6 @@ lazy val scalatraSwagger = Project(
   scalatraCommands % "compile;test->test;provided->provided",
   scalatraAuth % "compile;test->test"
 )
-
-//lazy val scalatraSwaggerExt = Project(
-//  id = "scalatra-swagger-ext",
-//  base = file("swagger-ext"),
-//  settings = scalatraSettings ++ Seq(
-//    description := "Deeper Swagger integration for scalatra"
-//  )
-//) dependsOn(
-//  scalatraSwagger % "compile;test->test;provided->provided",
-//  scalatraCommands % "compile;test->test;provided->provided",
-//  scalatraAuth % "compile;test->test"
-//)
-//
-//lazy val scalatraSlf4j = Project(
-//  id = "scalatra-slf4j",
-//  base = file("slf4j"),
-//  settings = scalatraSettings ++ Seq(
-//    libraryDependencies ++= Seq(
-//      grizzledSlf4j,
-//      logbackClassic % "provided"
-//    ),
-//    description := "Scalatra integration with SLF4J and Logback"
-//  )
-//) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraSpring = Project(
   id = "scalatra-spring",

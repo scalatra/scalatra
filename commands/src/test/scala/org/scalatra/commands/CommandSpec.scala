@@ -122,7 +122,7 @@ class CommandSpec extends Specification {
 
       trait PreBindAction extends WithBinding {
 
-        var timestamp: Long = _
+        var timestamp: Long = 0L
 
         beforeBinding {
           a.original must beNone
@@ -147,7 +147,7 @@ class CommandSpec extends Specification {
 
       trait AfterBindAction extends WithBinding {
 
-        private var _fullname: String = _
+        private var _fullname: String = null
 
         def fullName: Option[String] = Option {
           _fullname
