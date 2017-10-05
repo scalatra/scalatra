@@ -18,7 +18,7 @@ case class RichResponse(res: HttpServletResponse) {
   def status: ResponseStatus = ResponseStatus(res.getStatus)
 
   def status_=(statusLine: ResponseStatus): Unit = {
-    res.setStatus(statusLine.code, statusLine.message)
+    res.sendError(statusLine.code, statusLine.message)
   }
 
   object headers extends Map[String, String] {

@@ -45,7 +45,7 @@ case class HttpServletRequestReadOnly(private val originalRequest: HttpServletRe
 
   override val isRequestedSessionIdFromURL: Boolean = originalRequest.isRequestedSessionIdFromURL
 
-  override val isRequestedSessionIdFromUrl: Boolean = originalRequest.isRequestedSessionIdFromUrl
+  override val isRequestedSessionIdFromUrl: Boolean = originalRequest.isRequestedSessionIdFromURL
 
   override val getCharacterEncoding: String = originalRequest.getCharacterEncoding
 
