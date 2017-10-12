@@ -1,5 +1,7 @@
 package org.scalatra
 
+import grizzled.slf4j.Logger
+
 case class ActionResult(
   status: ResponseStatus,
   body: Any,
@@ -7,11 +9,15 @@ case class ActionResult(
 )
 
 private object ActionResultHelpers {
+  private lazy val logger = Logger[this.type]
 
   def responseStatus(status: Int, reason: String): ResponseStatus = {
     reason match {
       case "" | null => ResponseStatus(status)
-      case _ => new ResponseStatus(status, reason)
+      case _ => {
+        logger.warn("Explicit reason setting for ResponseStatus class will be dropped in Scalatra 2.7.0!!")
+        new ResponseStatus(status, reason)
+      }
     }
   }
 
