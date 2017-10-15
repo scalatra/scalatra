@@ -2,7 +2,6 @@ import com.typesafe.sbt.pgp.PgpKeys
 import scala.xml._
 import java.net.URL
 import Dependencies._
-import UnidocKeys._
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
@@ -41,7 +40,7 @@ lazy val scalatraSettings = Seq(
 lazy val scalatraProject = Project(
   id = "scalatra-project",
   base = file("."),
-  settings = scalatraSettings ++ unidocSettings ++ doNotPublish ++ Seq(
+  settings = scalatraSettings ++ doNotPublish ++ Seq(
     description := "A tiny, Sinatra-like web framework for Scala"
   ),
   aggregate = Seq(
@@ -63,7 +62,7 @@ lazy val scalatraProject = Project(
     scalatraCache,
     scalatraCacheGuava
   )
-)
+).enablePlugins(ScalaUnidocPlugin)
 
 lazy val scalatraCommon = Project(
   id = "scalatra-common",
