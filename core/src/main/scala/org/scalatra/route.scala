@@ -11,11 +11,10 @@ import org.scalatra.util.MultiMap
  * available to the action.
  */
 case class Route(
-    routeMatchers: Seq[RouteMatcher] = Seq.empty,
-    action: Action,
-    contextPath: HttpServletRequest => String = _ => "",
-    metadata: Map[Symbol, Any] = Map.empty
-) {
+  routeMatchers: Seq[RouteMatcher] = Seq.empty,
+  action: Action,
+  contextPath: HttpServletRequest => String = _ => "",
+  metadata: Map[Symbol, Any] = Map.empty) {
   /**
    * Optionally returns this route's action and the multi-map of route
    * parameters extracted from the matchers.  Each matcher's returned params

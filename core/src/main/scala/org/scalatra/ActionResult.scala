@@ -3,8 +3,7 @@ package org.scalatra
 case class ActionResult(
   status: ResponseStatus,
   body: Any,
-  headers: Map[String, String]
-)
+  headers: Map[String, String])
 
 private object ActionResultHelpers {
 

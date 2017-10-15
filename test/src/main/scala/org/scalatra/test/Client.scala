@@ -31,16 +31,14 @@ trait Client extends ImplicitConversions {
     uri: String,
     queryParams: Iterable[(String, String)] = Seq.empty,
     headers: Iterable[(String, String)] = Seq.empty,
-    body: Array[Byte] = null
-  )(f: => A): A
+    body: Array[Byte] = null)(f: => A): A
 
   protected def submitMultipart[A](
     method: String,
     uri: String,
     params: Iterable[(String, String)] = Seq.empty,
     headers: Iterable[(String, String)] = Seq.empty,
-    files: Iterable[(String, Any)] = Map.empty
-  )(f: => A): A
+    files: Iterable[(String, Any)] = Map.empty)(f: => A): A
 
   def get[A](uri: String)(f: => A): A = submit("GET", uri) { f }
   def get[A](uri: String, params: Tuple2[String, String]*)(f: => A): A =

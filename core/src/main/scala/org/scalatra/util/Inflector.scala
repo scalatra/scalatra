@@ -26,10 +26,7 @@ trait Inflector {
     spacesPattern.replaceAllIn(
       secondPattern.replaceAllIn(
         firstPattern.replaceAllIn(
-          word, replacementPattern
-        ), replacementPattern
-      ), "_"
-    ).toLowerCase
+          word, replacementPattern), replacementPattern), "_").toLowerCase
   }
 
   def capitalize(word: String): String =

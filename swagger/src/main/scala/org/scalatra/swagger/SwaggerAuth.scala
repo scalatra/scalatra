@@ -29,8 +29,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
       endpoints,
       s.models.toMap,
       (authorizations ::: endpoints.flatMap(_.operations.flatMap(_.authorizations))).distinct,
-      0
-    )
+      0)
   }
 }
 
@@ -42,8 +41,7 @@ object SwaggerAuthSerializers {
   def authFormats[T <: AnyRef](userOption: Option[T])(implicit mf: Manifest[T]): SwaggerFormats = SwaggerSerializers.formats ++ Seq(
     new AuthOperationSerializer[T](userOption),
     new AuthEndpointSerializer[T],
-    new AuthApiSerializer[T]
-  )
+    new AuthApiSerializer[T])
 
   class AuthOperationSerializer[T <: AnyRef: Manifest](userOption: Option[T]) extends CustomSerializer[AuthOperation[T]](implicit formats => ({
     case value =>
@@ -60,8 +58,7 @@ object SwaggerAuthSerializers {
         (value \ "consumes").extract[List[String]],
         (value \ "produces").extract[List[String]],
         (value \ "protocols").extract[List[String]],
-        (value \ "authorizations").extract[List[String]]
-      )
+        (value \ "authorizations").extract[List[String]])
   }, {
     case obj: AuthOperation[T] if obj.allows(userOption) =>
       val json = ("method" -> Extraction.decompose(obj.method)) ~
@@ -86,8 +83,7 @@ object SwaggerAuthSerializers {
       AuthEndpoint[T](
         (value \ "path").extract[String],
         (value \ "description").extractOpt[String].flatMap(_.blankOption),
-        (value \ "operations").extract[List[AuthOperation[T]]]
-      )
+        (value \ "operations").extract[List[AuthOperation[T]]])
   }, {
     case obj: AuthEndpoint[T] =>
       ("path" -> obj.path) ~
@@ -107,8 +103,7 @@ object SwaggerAuthSerializers {
         (json \ "apis").extractOrElse(List.empty[AuthEndpoint[T]]),
         (json \ "models").extractOpt[Map[String, Model]].getOrElse(Map.empty),
         (json \ "authorizations").extractOrElse(List.empty[String]),
-        (json \ "position").extractOrElse(0)
-      )
+        (json \ "position").extractOrElse(0))
   }, {
     case x: AuthApi[T] =>
       ("apiVersion" -> x.apiVersion) ~
@@ -206,8 +201,7 @@ case class AuthApi[TypeForUser <: AnyRef](
   apis: List[AuthEndpoint[TypeForUser]] = Nil,
   models: Map[String, Model] = Map.empty,
   authorizations: List[String] = Nil,
-  position: Int = 0
-) extends SwaggerApi[AuthEndpoint[TypeForUser]]
+  position: Int = 0) extends SwaggerApi[AuthEndpoint[TypeForUser]]
 object AuthApi {
 
   import org.scalatra.swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
@@ -237,8 +231,7 @@ object AuthApi {
       protocols,
       authorizations,
       tags,
-      allows
-    )
+      allows)
   }
 
 }
@@ -246,8 +239,7 @@ object AuthApi {
 case class AuthEndpoint[TypeForUser <: AnyRef](
   path: String,
   description: Option[String] = None,
-  operations: List[AuthOperation[TypeForUser]] = Nil
-) extends SwaggerEndpoint[AuthOperation[TypeForUser]]
+  operations: List[AuthOperation[TypeForUser]] = Nil) extends SwaggerEndpoint[AuthOperation[TypeForUser]]
 
 case class AuthOperation[TypeForUser <: AnyRef](
   method: HttpMethod,
@@ -264,8 +256,7 @@ case class AuthOperation[TypeForUser <: AnyRef](
   schemes: List[String] = Nil,
   authorizations: List[String] = Nil,
   tags: List[String] = Nil,
-  allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true
-) extends SwaggerOperation
+  allows: Option[TypeForUser] => Boolean = (_: Option[TypeForUser]) => true) extends SwaggerOperation
 
 trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with SwaggerSupportSyntax { self: ScalatraBase with ScentrySupport[TypeForUser] =>
   import org.scalatra.swagger.AuthApi.AuthOperationBuilder
@@ -324,8 +315,7 @@ trait SwaggerAuthSupport[TypeForUser <: AnyRef] extends SwaggerSupportBase with 
         responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,
         consumes = consumes,
-        allows = allows
-      )
+        allows = allows)
     }
   }
 

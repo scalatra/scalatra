@@ -72,8 +72,8 @@ object BasicAuthStrategy {
   }
 }
 abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: ScalatraBase, realm: String)
-    extends ScentryStrategy[UserType]
-    with RemoteAddress {
+  extends ScentryStrategy[UserType]
+  with RemoteAddress {
 
   private[this] val REMOTE_USER = "REMOTE_USER"
 

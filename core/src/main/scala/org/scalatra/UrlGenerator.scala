@@ -48,8 +48,7 @@ trait UrlGeneratorSupport {
   def url(
     route: Route,
     params: Map[String, String],
-    splats: Iterable[String]
-  )(implicit req: HttpServletRequest): String =
+    splats: Iterable[String])(implicit req: HttpServletRequest): String =
     route.reversibleMatcher match {
       case Some(matcher: ReversibleRouteMatcher) =>
         route.contextPath(req) + matcher.reverse(params, splats.toList)

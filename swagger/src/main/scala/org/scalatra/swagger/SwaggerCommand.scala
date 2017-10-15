@@ -16,8 +16,7 @@ object SwaggerCommandSupport {
       ValueSource.Body -> ParamType.Body,
       ValueSource.Header -> ParamType.Header,
       ValueSource.Query -> ParamType.Query,
-      ValueSource.Path -> ParamType.Path
-    )
+      ValueSource.Path -> ParamType.Path)
 
   def parametersFromCommand[T <: Command](obj: T)(implicit mf: Manifest[T]): (List[Parameter], Option[Model]) = {
     addModelFromCommand(obj, createParameterList(obj))
@@ -38,8 +37,7 @@ object SwaggerCommandSupport {
             if (f.isRequired) None else f.defaultValue.flatMap(_.toString.blankOption),
             if (f.allowableValues.nonEmpty) AllowableValues(f.allowableValues) else AllowableValues.AnyValue,
             required = f.isRequired,
-            position = f.position
-          ) :: lst
+            position = f.position) :: lst
         }
       } else lst
     }
@@ -56,8 +54,7 @@ object SwaggerCommandSupport {
           model.description,
           None,
           ParamType.Body,
-          None
-        )
+          None)
       (bodyParam :: parameters, Some(model))
     } else (parameters, None)
   }

@@ -37,8 +37,7 @@ object SwaggerSerializers {
       new ModelSerializer,
       new ResponseMessageSerializer,
       new ParameterSerializer,
-      new GrantTypeSerializer
-    )
+      new GrantTypeSerializer)
   }
   trait SwaggerFormats extends DefaultFormats {
 
@@ -240,8 +239,7 @@ object SwaggerSerializers {
         },
         description = (json \ "description").getAs[String].flatMap(_.blankOption),
         allowableValues = json.extract[AllowableValues],
-        items = None
-      )
+        items = None)
   }, {
     case x: ModelProperty =>
       val json: JValue = ("description" -> x.description) ~ ("position" -> x.position)
@@ -264,8 +262,7 @@ object SwaggerSerializers {
         (json \ "description").getAs[String].flatMap(_.blankOption),
         properties,
         (json \ "extends").getAs[String].flatMap(_.blankOption),
-        (json \ "discriminator").getAs[String].flatMap(_.blankOption)
-      )
+        (json \ "discriminator").getAs[String].flatMap(_.blankOption))
   }, {
     case x: Model =>
       val required = for ((key, value) <- x.properties if value.required) yield key
@@ -310,8 +307,7 @@ object SwaggerSerializers {
           case JBool(value) => value
           case _ => false
         },
-        (json \ "paramAccess").getAs[String].flatMap(_.blankOption)
-      )
+        (json \ "paramAccess").getAs[String].flatMap(_.blankOption))
   }, {
     case x: Parameter =>
       val output =
@@ -340,8 +336,7 @@ object SwaggerSerializers {
         (value \ "consumes").extract[List[String]],
         (value \ "produces").extract[List[String]],
         (value \ "protocols").extract[List[String]],
-        (value \ "authorizations").extract[List[String]]
-      )
+        (value \ "authorizations").extract[List[String]])
   }, {
     case obj: Operation =>
       val json = ("method" -> Extraction.decompose(obj.method)) ~
@@ -366,8 +361,7 @@ object SwaggerSerializers {
       Endpoint(
         (value \ "path").extract[String],
         (value \ "description").extractOpt[String].flatMap(_.blankOption),
-        (value \ "operations").extract[List[Operation]]
-      )
+        (value \ "operations").extract[List[Operation]])
   }, {
     case obj: Endpoint =>
       ("path" -> obj.path) ~
@@ -388,8 +382,7 @@ object SwaggerSerializers {
         (json \ "apis").extractOrElse(List.empty[Endpoint]),
         (json \ "models").extractOpt[Map[String, Model]].getOrElse(Map.empty),
         (json \ "authorizations").extractOrElse(List.empty[String]),
-        (json \ "position").extractOrElse(0)
-      )
+        (json \ "position").extractOrElse(0))
   }, {
     case x: Api =>
       ("apiVersion" -> x.apiVersion) ~
@@ -425,20 +418,16 @@ object SwaggerSerializers {
     case value if value \ "type" == JString("implicit") =>
       ImplicitGrant(
         LoginEndpoint((value \ "loginEndpoint" \ "url").as[String]),
-        (value \ "tokenName").as[String]
-      )
+        (value \ "tokenName").as[String])
     case value if value \ "type" == JString("authorization_code") =>
       AuthorizationCodeGrant(
         TokenRequestEndpoint(
           (value \ "tokenRequestEndpoint" \ "url").as[String],
           (value \ "tokenRequestEndpoint" \ "clientIdName").as[String],
-          (value \ "tokenRequestEndpoint" \ "clientSecretName").as[String]
-        ),
+          (value \ "tokenRequestEndpoint" \ "clientSecretName").as[String]),
         TokenEndpoint(
           (value \ "tokenEndpoint" \ "url").as[String],
-          (value \ "tokenEndpoint" \ "tokenName").as[String]
-        )
-      )
+          (value \ "tokenEndpoint" \ "tokenName").as[String]))
   }, {
     case ImplicitGrant(login, tokenName) =>
       ("type" -> "implicit") ~
@@ -452,8 +441,7 @@ object SwaggerSerializers {
             ("clientSecretName" -> tokenRequest.clientSecretName))) ~
             ("tokenEndpoint" -> (
               ("url" -> tokenEndpoint.url) ~
-              ("tokenName" -> tokenEndpoint.tokenName)
-            ))
+              ("tokenName" -> tokenEndpoint.tokenName)))
   }))
 
   class AuthorizationTypeSerializer extends CustomSerializer[AuthorizationType](implicit formats => ({

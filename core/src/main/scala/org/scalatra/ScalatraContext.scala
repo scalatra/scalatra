@@ -11,14 +11,13 @@ object ScalatraContext {
     implicit
     val request: HttpServletRequest,
     val response: HttpServletResponse,
-    val servletContext: ServletContext
-  ) extends ScalatraContext
+    val servletContext: ServletContext) extends ScalatraContext
 }
 
 trait ScalatraContext
-    extends ServletApiImplicits
-    with SessionSupport
-    with CookieContext {
+  extends ServletApiImplicits
+  with SessionSupport
+  with CookieContext {
 
   import org.scalatra.ScalatraContext.StableValuesContext
 

@@ -20,7 +20,7 @@ object Validators {
   }
 
   class PredicateValidator[TValue](fieldName: String, isValid: TValue ⇒ Boolean, messageFormat: String)
-      extends Validator[TValue] {
+    extends Validator[TValue] {
     def validate[TResult >: TValue <: TValue](value: TResult): FieldValidation[TResult] = {
       if (isValid(value)) value.success
       else ValidationError(messageFormat.format(fieldName.underscore.humanize), FieldName(fieldName), ValidationFail).failure[TResult]
@@ -79,8 +79,7 @@ object Validators {
     new PredicateValidator[String](
       fieldName,
       _ == confirmationValue,
-      messageFormat.format(confirmationFieldName.underscore.humanize.toLowerCase(ENGLISH))
-    )
+      messageFormat.format(confirmationFieldName.underscore.humanize.toLowerCase(ENGLISH)))
 
   /**
    * Must be greater than the min param.
@@ -111,16 +110,14 @@ object Validators {
    */
   def minLength(fieldName: String, min: Int, messageFormat: String = "%%s must be at least %s characters long."): Validator[String] =
     new PredicateValidator[String](
-      fieldName, _.size >= min, messageFormat.format(min)
-    )
+      fieldName, _.size >= min, messageFormat.format(min))
 
   /**
    * Must be included in the expected collection.
    */
   def oneOf[TResult](fieldName: String, messageFormat: String = "%%s must be one of %s.", expected: Seq[TResult]): Validator[TResult] =
     new PredicateValidator[TResult](
-      fieldName, expected.contains, messageFormat format expected.mkString("[", ", ", "]")
-    )
+      fieldName, expected.contains, messageFormat format expected.mkString("[", ", ", "]"))
 
   /**
    * Checks if the value of the data is a value of the specified enum.

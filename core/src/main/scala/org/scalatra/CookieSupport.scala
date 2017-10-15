@@ -17,8 +17,7 @@ case class CookieOptions(
   comment: String = "",
   httpOnly: Boolean = false,
   version: Int = 0,
-  encoding: String = "UTF-8"
-)
+  encoding: String = "UTF-8")
 
 object Cookie {
 
@@ -86,9 +85,8 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
 }
 
 class SweetCookies(
-    private[this] val reqCookies: Map[String, String],
-    private[this] val response: HttpServletResponse
-) extends ServletApiImplicits {
+  private[this] val reqCookies: Map[String, String],
+  private[this] val response: HttpServletResponse) extends ServletApiImplicits {
 
   private[this] lazy val cookies = mutable.HashMap[String, String]() ++ reqCookies
 
@@ -100,16 +98,14 @@ class SweetCookies(
 
   def update(name: String, value: String)(
     implicit
-    cookieOptions: CookieOptions = CookieOptions()
-  ): Cookie = {
+    cookieOptions: CookieOptions = CookieOptions()): Cookie = {
     cookies += name -> value
     addCookie(name, value, cookieOptions)
   }
 
   def set(name: String, value: String)(
     implicit
-    cookieOptions: CookieOptions = CookieOptions()
-  ): Cookie = {
+    cookieOptions: CookieOptions = CookieOptions()): Cookie = {
     this.update(name, value)(cookieOptions)
   }
 
@@ -120,8 +116,7 @@ class SweetCookies(
 
   def +=(keyValuePair: (String, String))(
     implicit
-    cookieOptions: CookieOptions = CookieOptions()
-  ): Cookie = {
+    cookieOptions: CookieOptions = CookieOptions()): Cookie = {
     this.update(keyValuePair._1, keyValuePair._2)(cookieOptions)
   }
 

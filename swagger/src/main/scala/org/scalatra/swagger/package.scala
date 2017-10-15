@@ -26,8 +26,7 @@ package object swagger {
       Operation,
       Description,
       Consumes,
-      Produces
-    )
+      Produces)
   }
 
   object annotations {

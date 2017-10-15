@@ -114,8 +114,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
             if (!(item.isFormField)) {
               BodyParams(params.fileParams + ((
-                item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]())
-              )), params.formParams)
+                item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
             } else {
               BodyParams(params.fileParams, params.formParams)
             }
@@ -201,13 +200,12 @@ object FileUploadSupport {
 
   case class BodyParams(
     fileParams: FileMultiParams,
-    formParams: Map[String, List[String]]
-  )
+    formParams: Map[String, List[String]])
 
 }
 
 class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty)
-    extends Map[String, Seq[FileItem]] {
+  extends Map[String, Seq[FileItem]] {
 
   def get(key: String): Option[Seq[FileItem]] = {
     (wrapped.get(key) orElse wrapped.get(key + "[]"))
@@ -275,8 +273,7 @@ object Util {
   def partAttribute(
     part: Part,
     headerName: String, attributeName: String,
-    defaultValue: String = null
-  ): String = {
+    defaultValue: String = null): String = {
     Option(part.getHeader(headerName)) match {
       case Some(value) => {
         value.split(";").find(_.trim().startsWith(attributeName)) match {

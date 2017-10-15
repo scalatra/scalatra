@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{ ExecutionContext, Future }
 
 final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
-    extends RedisBroadcaster with ScalatraBroadcaster {
+  extends RedisBroadcaster with ScalatraBroadcaster {
 
   private[this] val logger: Logger = Logger[RedisScalatraBroadcaster]
   protected var _resources: ConcurrentLinkedQueue[AtmosphereResource] = resources

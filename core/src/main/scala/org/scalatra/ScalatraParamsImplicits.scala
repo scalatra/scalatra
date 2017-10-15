@@ -18,8 +18,8 @@ trait ScalatraParamsImplicits {
 }
 
 object ScalatraParamsImplicits
-    extends ScalatraParamsImplicits
-    with DefaultImplicitConversions {
+  extends ScalatraParamsImplicits
+  with DefaultImplicitConversions {
 
   class TypedParams(private val params: Params) extends AnyVal {
 
@@ -64,8 +64,7 @@ object ScalatraParamsImplicits
 
     def getAsOrElse(nameAndFormat: (String, String), default: => Seq[Date])(
       implicit
-      tc: TypeConverter[String, Date]
-    ): Seq[Date] = {
+      tc: TypeConverter[String, Date]): Seq[Date] = {
       getAs[Date](nameAndFormat).getOrElse(default)
     }
 
