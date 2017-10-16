@@ -86,19 +86,18 @@ trait FieldDescriptor[T] {
 
 @deprecated("Use scalatra-forms instead.", "2.6.0")
 class BasicFieldDescriptor[T](
-    val name: String,
-    val validator: Option[Validator[T]] = None,
-    private[commands] val transformations: T => T = identity _,
-    private[commands] var isRequired: Boolean = false,
-    val description: String = "",
-    val notes: String = "",
-    private[commands] val defVal: Option[DefVal[T]] = None,
-    val valueSource: ValueSource.Value = ValueSource.Body,
-    val allowableValues: List[T] = Nil,
-    val displayName: Option[String] = None,
-    val position: Int = 0,
-    val requiredError: String = "%s is required."
-)(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
+  val name: String,
+  val validator: Option[Validator[T]] = None,
+  private[commands] val transformations: T => T = identity _,
+  private[commands] var isRequired: Boolean = false,
+  val description: String = "",
+  val notes: String = "",
+  private[commands] val defVal: Option[DefVal[T]] = None,
+  val valueSource: ValueSource.Value = ValueSource.Body,
+  val allowableValues: List[T] = Nil,
+  val displayName: Option[String] = None,
+  val position: Int = 0,
+  val requiredError: String = "%s is required.")(implicit val valueManifest: Manifest[T]) extends FieldDescriptor[T] {
 
   private[this] def requiredValidationFailure: FieldValidation[T] = ValidationError(requiredError.format(name), FieldName(name)).failure
 
@@ -123,16 +122,14 @@ class BasicFieldDescriptor[T](
     allowableValues: List[T] = allowableValues,
     displayName: Option[String] = displayName,
     position: Int = position,
-    requiredError: String = requiredError
-  ): FieldDescriptor[T] = {
+    requiredError: String = requiredError): FieldDescriptor[T] = {
     new BasicFieldDescriptor(name, validator, transformations, isRequired, description, notes, defVal, valueSource, allowableValues, displayName, position, requiredError)(valueManifest)
   }
 
   def apply[S](original: Either[String, Option[S]])(implicit ms: Manifest[S], convert: TypeConverter[S, T]): DataboundFieldDescriptor[S, T] = {
     val conv = original.fold(
       e => ValidationError(e).failure,
-      o => (o.flatMap(convert(_)) orElse defaultValue).fold(requiredValidationFailure)(_.success)
-    )
+      o => (o.flatMap(convert(_)) orElse defaultValue).fold(requiredValidationFailure)(_.success))
     val o = original.fold(_ => None, identity)
     BoundFieldDescriptor(o, conv, this)
   }
@@ -207,11 +204,10 @@ object BoundFieldDescriptor {
 
 @deprecated("Use scalatra-forms instead.", "2.6.0")
 class BoundFieldDescriptor[S, T](
-    val original: Option[S],
-    val value: FieldValidation[T],
-    val field: FieldDescriptor[T],
-    val validator: Option[Validator[T]]
-) extends DataboundFieldDescriptor[S, T] {
+  val original: Option[S],
+  val value: FieldValidation[T],
+  val field: FieldDescriptor[T],
+  val validator: Option[Validator[T]]) extends DataboundFieldDescriptor[S, T] {
   def name: String = field.name
 
   override def hashCode(): Int = field.hashCode()

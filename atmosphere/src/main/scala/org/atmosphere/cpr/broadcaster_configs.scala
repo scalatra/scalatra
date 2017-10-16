@@ -21,8 +21,7 @@ trait BroadcasterConf {
 sealed case class ScalatraBroadcasterConfig(
   broadcasterClass: Class[_ <: ScalatraBroadcaster],
   uri: URI = URI.create("http://127.0.0.1"),
-  extraSetup: Broadcaster => Unit = { b => }
-) extends BroadcasterConf
+  extraSetup: Broadcaster => Unit = { b => }) extends BroadcasterConf
 
 /**
  * Convenient configuration class for RedisBroadcaster

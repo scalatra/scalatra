@@ -67,9 +67,8 @@ package object forms {
    * @param validator the function which verifies the converted value
    */
   private class VerifyingValueType[T](
-      valueType: ValueType[T],
-      validator: (T, Map[String, Seq[String]]) => Seq[(String, String)]
-  ) extends ValueType[T] {
+    valueType: ValueType[T],
+    validator: (T, Map[String, Seq[String]]) => Seq[(String, String)]) extends ValueType[T] {
 
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages): T = valueType.convert(name, params, messages)
 
@@ -453,8 +452,7 @@ package object forms {
    */
   def optionalRequired[T](
     condition: (Map[String, Seq[String]]) => Boolean,
-    valueType: SingleValueType[T]
-  ): SingleValueType[Option[T]] = new SingleValueType[Option[T]]() {
+    valueType: SingleValueType[T]): SingleValueType[Option[T]] = new SingleValueType[Option[T]]() {
     def convert(value: String, messages: Messages): Option[T] =
       if (value == null || value.isEmpty) None else Some(valueType.convert(value, messages))
 

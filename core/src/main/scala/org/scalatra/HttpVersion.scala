@@ -1,11 +1,10 @@
 package org.scalatra
 
 abstract class HttpVersion(
-    val protocolName: String,
-    val majorVersion: Int,
-    val minorVersion: Int,
-    val keepAliveDefault: Boolean
-) extends Ordered[HttpVersion] {
+  val protocolName: String,
+  val majorVersion: Int,
+  val minorVersion: Int,
+  val keepAliveDefault: Boolean) extends Ordered[HttpVersion] {
 
   val text: String = protocolName + '/' + majorVersion + '.' + minorVersion
 

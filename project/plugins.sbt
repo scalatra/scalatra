@@ -2,7 +2,7 @@ resolvers += Opts.resolver.sonatypeReleases
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 
 addSbtPlugin("org.xerial.sbt"       % "sbt-sonatype"         % "2.0")
-addSbtPlugin("org.scalariform"      % "sbt-scalariform"      % "1.6.0")
+addSbtPlugin("org.scalariform"      % "sbt-scalariform"      % "1.8.1")
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea"             % "1.6.0")
 addSbtPlugin("com.timushev.sbt"     % "sbt-updates"          % "0.3.1")
 addSbtPlugin("com.jsuereth"         % "sbt-pgp"              % "1.1.0")

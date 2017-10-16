@@ -12,9 +12,8 @@ import scala.util.{ Failure, Success }
 
 abstract class AsyncResult(
   implicit
-  override val scalatraContext: ScalatraContext
-)
-    extends ScalatraContext {
+  override val scalatraContext: ScalatraContext)
+  extends ScalatraContext {
 
   implicit val request: HttpServletRequest = scalatraContext.request
 

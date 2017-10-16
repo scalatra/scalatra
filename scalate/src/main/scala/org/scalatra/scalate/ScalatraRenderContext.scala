@@ -13,12 +13,11 @@ import org.scalatra.servlet.{ FileItem, FileMultiParams, FileUploadSupport, Serv
  * standard bindings to the template.
  */
 class ScalatraRenderContext(
-    protected val kernel: ServletBase,
-    engine: TemplateEngine,
-    out: PrintWriter,
-    req: HttpServletRequest,
-    res: HttpServletResponse
-) extends ServletRenderContext(engine, out, req, res, kernel.servletContext) {
+  protected val kernel: ServletBase,
+  engine: TemplateEngine,
+  out: PrintWriter,
+  req: HttpServletRequest,
+  res: HttpServletResponse) extends ServletRenderContext(engine, out, req, res, kernel.servletContext) {
 
   def flash: scala.collection.Map[String, Any] = kernel match {
     case flashMapSupport: FlashMapSupport => flashMapSupport.flash(request)
@@ -106,6 +105,5 @@ class ScalatraRenderContext(
   def url(
     route: Route,
     params: Map[String, String],
-    splats: Iterable[String]
-  ): String = UrlGenerator.url(route, params, splats)(request)
+    splats: Iterable[String]): String = UrlGenerator.url(route, params, splats)(request)
 }

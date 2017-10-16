@@ -58,7 +58,7 @@ object ContentEncoding {
 // - Request decoding --------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 private class DecodedServletRequest(req: HttpServletRequest, enc: ContentEncoding)
-    extends HttpServletRequestWrapper(req) {
+  extends HttpServletRequestWrapper(req) {
 
   override lazy val getInputStream: EncodedInputStream = {
     val raw = req.getInputStream
@@ -74,7 +74,7 @@ private class DecodedServletRequest(req: HttpServletRequest, enc: ContentEncodin
 }
 
 private class EncodedInputStream(encoded: InputStream, raw: ServletInputStream)
-    extends ServletInputStream {
+  extends ServletInputStream {
 
   override def isFinished: Boolean = raw.isFinished
   override def isReady: Boolean = raw.isReady
@@ -90,7 +90,7 @@ private class EncodedInputStream(encoded: InputStream, raw: ServletInputStream)
 // ---------------------------------------------------------------------------------------------------------------------
 /** Encodes any output written to a servlet response. */
 private class EncodedServletResponse(res: HttpServletResponse, enc: ContentEncoding)
-    extends HttpServletResponseWrapper(res) {
+  extends HttpServletResponseWrapper(res) {
 
   // Object to flush when complete, if any.
   // Note that while this is essentially a mutable shared state, it's not really an issue here - or rather, if multiple
@@ -136,7 +136,7 @@ private class EncodedServletResponse(res: HttpServletResponse, enc: ContentEncod
 
 /** Wraps the specified raw and servlet output streams into one servlet output stream. */
 private class EncodedOutputStream(out: OutputStream, orig: ServletOutputStream)
-    extends ServletOutputStream {
+  extends ServletOutputStream {
 
   // - Raw writing -----------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------

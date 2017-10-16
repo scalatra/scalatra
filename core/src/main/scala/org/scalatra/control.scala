@@ -23,8 +23,7 @@ trait Control {
     status: JInteger = null,
     body: T = (),
     headers: Map[String, String] = Map.empty,
-    reason: String = null
-  ): Nothing = {
+    reason: String = null): Nothing = {
     val statusOpt = if (status == null) None else Some(status.intValue)
     throw new HaltException(statusOpt, Some(reason), headers, body)
   }
@@ -43,9 +42,8 @@ private[scalatra] case class HaltException(
   status: Option[Int],
   reason: Option[String],
   headers: Map[String, String],
-  body: Any
-)
-    extends Throwable with NoStackTrace
+  body: Any)
+  extends Throwable with NoStackTrace
 
 private[scalatra] class PassException
   extends Throwable

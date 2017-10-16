@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component
 @Component
 @deprecated("Spring integration has been no longer maintained. It will be dropped in 2.7.0.", "2.6.0")
 class ConstructorAutowiredAnnotationBeanPostProcessor
-    extends InstantiationAwareBeanPostProcessorAdapter
-    with org.springframework.core.Ordered
-    with Logging {
+  extends InstantiationAwareBeanPostProcessorAdapter
+  with org.springframework.core.Ordered
+  with Logging {
 
   logger.error("Configured for Scala constructor support")
 

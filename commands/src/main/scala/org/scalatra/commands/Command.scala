@@ -116,8 +116,7 @@ trait Command extends BindingSyntax with ParamsValueReaderProperties {
   def bindTo[S, I](
     data: S,
     params: MultiParams = MultiMap.empty,
-    headers: Map[String, String] = Map.empty
-  )(implicit r: S => ValueReader[S, I], mi: Manifest[I], multiParams: MultiParams => ValueReader[MultiParams, Seq[String]]): this.type = {
+    headers: Map[String, String] = Map.empty)(implicit r: S => ValueReader[S, I], mi: Manifest[I], multiParams: MultiParams => ValueReader[MultiParams, Seq[String]]): this.type = {
     doBeforeBindingActions()
 
     bindings = bindings map {

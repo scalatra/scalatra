@@ -21,8 +21,7 @@ trait SslRequirement extends Handler with ServletApiImplicits {
         port,
         oldUri.getPath,
         oldUri.getQuery,
-        oldUri.getFragment
-      ).toString
+        oldUri.getFragment).toString
       res.redirect(uri)
     } else {
       super.handle(req, res)

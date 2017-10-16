@@ -59,10 +59,9 @@ object ManifestScalaType {
     override val isPrimitive = true
   }
   private class CopiedManifestScalaType(
-      mf: Manifest[_],
-      private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
-      override val isPrimitive: Boolean
-  ) extends ManifestScalaType(mf) {
+    mf: Manifest[_],
+    private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
+    override val isPrimitive: Boolean) extends ManifestScalaType(mf) {
     override def typeVars = {
       if (_typeVars == null)
         _typeVars = Map.empty[TypeVariable[_], ScalaType] ++
@@ -106,8 +105,7 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
   //  }
 
   val typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
-    if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-  )
+    if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil)
 
   private[this] var _typeVars: Map[TypeVariable[_], ScalaType] = null
   def typeVars = {

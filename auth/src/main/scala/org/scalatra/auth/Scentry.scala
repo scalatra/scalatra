@@ -28,11 +28,10 @@ object Scentry {
 }
 
 class Scentry[UserType <: AnyRef](
-    app: ScalatraBase,
-    serialize: PartialFunction[UserType, String],
-    deserialize: PartialFunction[String, UserType],
-    private[this] var _store: ScentryAuthStore
-) {
+  app: ScalatraBase,
+  serialize: PartialFunction[UserType, String],
+  deserialize: PartialFunction[String, UserType],
+  private[this] var _store: ScentryAuthStore) {
 
   private[this] lazy val logger = Logger(getClass)
   type StrategyType = ScentryStrategy[UserType]

@@ -302,8 +302,7 @@ object SwaggerSupportSyntax {
       produces,
       schemes,
       authorizations,
-      tags
-    )
+      tags)
   }
 }
 trait SwaggerSupportSyntax extends Initializable with CorsSupport {
@@ -409,8 +408,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
   private[this] def swaggerParam[T: Manifest](
-    name: String, liftCollection: Boolean = false, allowsCollection: Boolean = true, allowsOption: Boolean = true
-  ): ParameterBuilder[T] = {
+    name: String, liftCollection: Boolean = false, allowsCollection: Boolean = true, allowsOption: Boolean = true): ParameterBuilder[T] = {
     val st = Reflector.scalaTypeOf[T]
     if (st.isCollection && !allowsCollection) sys.error("Parameter [" + name + "] does not allow for a collection.")
     if (st.isOption && !allowsOption) sys.error("Parameter [" + name + "] does not allow optional values.")
@@ -551,8 +549,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
         parameters = theParams,
         responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,
-        consumes = consumes
-      )
+        consumes = consumes)
     }
   }
 

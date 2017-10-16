@@ -45,11 +45,10 @@ object Binding {
   }
 
   private class DefaultBinding[I, A](val field: FieldDescriptor[A], val typeConverterFactory: TypeConverterFactory[_])(
-      implicit
-      val sourceManifest: Manifest[I],
-      val valueManifest: Manifest[A],
-      val typeConverter: TypeConverter[I, A]
-  ) extends Binding {
+    implicit
+    val sourceManifest: Manifest[I],
+    val valueManifest: Manifest[A],
+    val typeConverter: TypeConverter[I, A]) extends Binding {
     type T = A
     type S = I
 
