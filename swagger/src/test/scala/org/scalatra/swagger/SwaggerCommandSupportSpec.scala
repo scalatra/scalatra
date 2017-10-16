@@ -24,8 +24,7 @@ object SwaggerCommandSupportSpec {
       sourcedFrom Header
       description "The API token for this request"
       notes "Invalid data kills kittens"
-      allowableValues "123"
-    )
+      allowableValues "123")
     val skip: Field[Int] = asInt("skip").withDefaultValue(0).sourcedFrom(Query).description("The offset for this collection index")
     val limit: Field[Int] = asType[Int]("limit").sourcedFrom(Query).withDefaultValue(20).description("the max number of items to return")
   }
@@ -64,8 +63,7 @@ class SwaggerCommandSupportSpec extends MutableScalatraSpec {
         Parameter("body", DataType("FullCommand"), None, paramType = ParamType.Body),
         Parameter("limit", DataType.Int, Some("the max number of items to return"), paramType = ParamType.Query, defaultValue = Some("20"), required = false),
         Parameter("skip", DataType.Int, Some("The offset for this collection index"), paramType = ParamType.Query, defaultValue = Some("0"), required = false),
-        Parameter("API-TOKEN", DataType.String, Some("The API token for this request"), notes = Some("Invalid data kills kittens"), paramType = ParamType.Header, allowableValues = AllowableValues("123"))
-      )
+        Parameter("API-TOKEN", DataType.String, Some("The API token for this request"), notes = Some("Invalid data kills kittens"), paramType = ParamType.Header, allowableValues = AllowableValues("123")))
       val (parameters, model) = SwaggerCommandSupport.parametersFromCommand(new FullCommand)
       parameters.size must_== 3 // parameterList.size // disabled for swagger codegen for now
       parameters must contain(parameterList(0))

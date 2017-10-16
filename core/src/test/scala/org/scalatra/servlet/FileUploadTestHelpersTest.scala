@@ -56,8 +56,7 @@ class FileUploadTestHelpersTest extends ScalatraFunSuite {
 
   val files = Map(
     "textFile" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
-    "binaryFile" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
-  )
+    "binaryFile" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))
 
   val params = Map("one" -> "1", "two" -> "2")
   val headers = Map("Test-Something" -> "lorem ipsum")

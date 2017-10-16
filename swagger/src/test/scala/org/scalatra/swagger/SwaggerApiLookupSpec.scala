@@ -19,8 +19,7 @@ class SwaggerApiLookupSpec extends ScalatraSpec with JsonMatchers {
     termsOfServiceUrl = "http://helloreverb.com/terms/",
     contact = "apiteam@wordnik.com",
     license = "Apache 2.0",
-    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html"
-  )
+    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html")
   val swagger = new Swagger("1.2", "1.0.0", apiInfo)
 
   addServlet(new ApiController1()(swagger), "/api/unnamed")
@@ -32,8 +31,7 @@ class SwaggerApiLookupSpec extends ScalatraSpec with JsonMatchers {
     status must_== 200
     jackson.parseJson(body) \ "apis" must_== JArray(List(
       JObject("path" -> JString("/api/unnamed"), "description" -> JString("The first API")),
-      JObject("path" -> JString("/api/custom-name"), "description" -> JString("The second API"))
-    ))
+      JObject("path" -> JString("/api/custom-name"), "description" -> JString("The second API"))))
   }
 
   def listFooOperations = get("/api-docs/api/unnamed") {

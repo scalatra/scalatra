@@ -51,8 +51,7 @@ class CookieTest extends WordSpec with Matchers with BeforeAndAfterAll {
         comment = "the cookie thingy comment",
         maxAge = 15500,
         secure = true,
-        httpOnly = true
-      ))
+        httpOnly = true))
       val d = new Date(Cookie.currentTimeMillis + 15500 * 1000)
       cookie.toCookieString should
         equal("cookiename=value3; Domain=.nowhere.com; Path=/path/to/page; Comment=the cookie thingy comment; " +

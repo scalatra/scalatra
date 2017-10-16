@@ -22,8 +22,7 @@ object SwaggerAuthSpec {
     termsOfServiceUrl = "http://helloreverb.com/terms/",
     contact = "apiteam@wordnik.com",
     license = "Apache 2.0",
-    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html"
-  )
+    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html")
   class SpecSwagger extends SwaggerWithAuth("1.2", "1.0.0", apiInfo)
 
   class HeaderOrQueryToken(protected val app: ScalatraBase) extends ScentryStrategy[User] {
@@ -64,10 +63,10 @@ object SwaggerAuthSpec {
   }
 
   class ResourcesApp(implicit protected val swagger: SwaggerWithAuth)
-      extends AuthenticatedBase
-      with NativeJsonSupport
-      with CorsSupport
-      with SwaggerAuthBase[User] {
+    extends AuthenticatedBase
+    with NativeJsonSupport
+    with CorsSupport
+    with SwaggerAuthBase[User] {
 
     error {
       case t: Throwable => t.printStackTrace()

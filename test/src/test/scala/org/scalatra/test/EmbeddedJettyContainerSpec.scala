@@ -6,9 +6,9 @@ import org.specs2.mutable._
 import org.specs2.specification.BeforeAfterAll
 
 class EmbeddedJettyContainerSpec extends SpecificationLike
-    with EmbeddedJettyContainer
-    with HttpComponentsClient
-    with BeforeAfterAll {
+  with EmbeddedJettyContainer
+  with HttpComponentsClient
+  with BeforeAfterAll {
 
   def beforeAll = start()
   def afterAll = stop()

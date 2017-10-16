@@ -36,8 +36,7 @@ class HaltTestServlet extends ScalatraServlet {
       status = 403,
       reason = "Go away",
       headers = Map("X-Your-Mother-Was-A" -> "hamster", "X-Your-Father-Smelt-Of" -> "elderberries"),
-      body = <h1>Go away or I shall taunt you a second time!</h1>
-    )
+      body = <h1>Go away or I shall taunt you a second time!</h1>)
     "this content must not be returned"
   }
 
@@ -49,8 +48,7 @@ class HaltTestServlet extends ScalatraServlet {
     halt(ActionResult(
       status = new ResponseStatus(406, "Not Acceptable"),
       headers = Map("X-Action-Result" -> "present"),
-      body = "body sent using ActionResult"
-    ))
+      body = "body sent using ActionResult"))
     "this content must not be returned"
   }
 
