@@ -19,9 +19,12 @@ object ModelSpec {
   case class WithRequiredValue(id: String, name: String)
   case class WithOptionList(id: String, flags: Option[List[String]])
 
+  case class WithOrder(id: String, name: String, title: Option[String], email: String, company: Option[String])
+
   def swaggerProperties[T](implicit mf: Manifest[T]) = swaggerProperty[T]("id")
-  def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) =
-    Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties.find(_._1 == name).get._2
+  def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) = allSwaggerProperties[T].find(_._1 == name).get._2
+  def allSwaggerProperties[T](implicit mf: Manifest[T]) =
+    Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties
 
 }
 
@@ -58,6 +61,9 @@ class ModelSpec extends Specification {
     "conver an option list to a required false list of things" in {
       swaggerProperty[WithOptionList]("flags").required must beFalse
       swaggerProperty[WithOptionList]("flags").`type` must_== DataType[List[String]]
+    }
+    "preserves order of properties" in {
+      allSwaggerProperties[WithOrder].map(_._1) must_== List("id", "name", "title", "email", "company")
     }
 
   }
