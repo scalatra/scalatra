@@ -19,8 +19,7 @@ class SubPathSwaggerSpec extends ScalatraSpec with JsonMatchers {
     termsOfServiceUrl = "http://helloreverb.com/terms/",
     contact = "apiteam@wordnik.com",
     license = "Apache 2.0",
-    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html"
-  )
+    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html")
   val swagger = new Swagger("1.2", "1.0.0", apiInfo)
 
   addServlet(new ApiController()(swagger), "/api/hackers", "api/hackers")
@@ -77,8 +76,7 @@ class ApiController()(implicit val swagger: Swagger) extends ScalatraServlet wit
       Parameter("lastname", DataType.String, Some("The hacker's last name"), None, ParamType.Body, required = true),
       Parameter("motto", DataType.String, Some("A phrase associated with this hacker"), None, ParamType.Body, required = true),
       Parameter("birthyear", DataType.Int, Some("A four-digit number, the year that the user was born in"),
-        Some("A four-digit number"), ParamType.Body, required = true)
-    ))
+        Some("A four-digit number"), ParamType.Body, required = true)))
 
   /**
    * Create a new hacker in the database.

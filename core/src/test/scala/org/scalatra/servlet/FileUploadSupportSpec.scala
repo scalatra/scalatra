@@ -92,8 +92,7 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
 class FileUploadSupportMaxSizeTestServlet extends ScalatraServlet with FileUploadSupport {
   configureMultipartHandling(MultipartConfig(
     maxFileSize = Some(1024),
-    fileSizeThreshold = Some(1024 * 1024 * 1024)
-  ))
+    fileSizeThreshold = Some(1024 * 1024 * 1024)))
 
   error {
     case e: SizeConstraintExceededException => {
@@ -117,13 +116,11 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     val params = Map("param1" -> "one", "param2" -> "two")
     val files = Map(
       "text" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
-      "binary" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
-    )
+      "binary" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))
 
     val headers = Map(
       "X-Header" -> "I'm a header",
-      "X-Header2" -> "I'm another header"
-    )
+      "X-Header2" -> "I'm another header")
 
     post("/upload?qsparam1=three&qsparam2=four", params, files, headers) {
       f

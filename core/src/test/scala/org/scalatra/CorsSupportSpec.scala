@@ -54,8 +54,7 @@ class CorsSupportSpec extends ScalatraSpec {
         CorsSupport.OriginHeader -> "http://www.example.com",
         CorsSupport.AccessControlRequestMethodHeader -> "GET",
         CorsSupport.AccessControlRequestHeadersHeader -> "Origin, Authorization, Accept",
-        "Content-Type" -> "application/json"
-      )
+        "Content-Type" -> "application/json")
       options("/", headers = hdrs) {
         response.getHeader(CorsSupport.AccessControlAllowOriginHeader) must_== "http://www.example.com"
         response.getHeader(CorsSupport.AccessControlAllowMethodsHeader) must_== "GET,HEAD,POST"
