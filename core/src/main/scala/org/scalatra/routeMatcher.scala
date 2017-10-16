@@ -67,11 +67,12 @@ final class SinatraRouteMatcher(pattern: String)
       else this
 
     // checks all splats are used, appends additional params as a query string
+    // strips optional trailing slash from path
     def get: String = {
       if (!splats.isEmpty) throw new Exception("Too many splats for builder \"%s\"" format pattern)
       val pairs = params map { case (key, value) => key.urlEncode + "=" + value.urlEncode }
       val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
-      path + queryString
+      path.replaceFirst("""/\?$""", "") + queryString
     }
   }
 

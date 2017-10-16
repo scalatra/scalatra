@@ -17,6 +17,10 @@ class SinatraLikeUrlGeneratorTest extends FunSuite with Matchers {
     url("/foo") should equal("/foo")
   }
 
+  test("String route with optional trailing slash reverses to url with no slash") {
+    url("/foo/?") should equal("/foo")
+  }
+
   test("Route with one named parameter replaces the parameter") {
     url("/foo/:bar", "bar" -> "bryan") should equal("/foo/bryan")
   }
