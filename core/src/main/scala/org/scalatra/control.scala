@@ -4,10 +4,14 @@ import java.lang.{ Integer => JInteger }
 
 import scala.util.control.NoStackTrace
 
+import grizzled.slf4j.Logger
+
 /**
  * A collection of methods that affect the control flow of routes.
  */
 trait Control {
+
+  private lazy val logger = Logger[this.type]
 
   /**
    * Immediately halts processing of a request.  Can be called from either a
@@ -25,6 +29,9 @@ trait Control {
     headers: Map[String, String] = Map.empty,
     reason: String = null
   ): Nothing = {
+    if ((reason != null && reason != "") && body.!=((): Unit))
+      logger.warn("Calls that set both reason and body as arguments to halt method will be dropped in Scalatra 2.7.0!!")
+
     val statusOpt = if (status == null) None else Some(status.intValue)
     throw new HaltException(statusOpt, Some(reason), headers, body)
   }
