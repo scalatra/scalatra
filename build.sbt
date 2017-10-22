@@ -28,7 +28,7 @@ lazy val scalatraSettings = Seq(
     Opts.resolver.sonatypeReleases,
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
   ),
-  dependencyOverrides := Set(
+  dependencyOverrides := Seq(
     "org.scala-lang" % "scala-library"  % scalaVersion.value,
     "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
     "org.scala-lang" % "scala-compiler" % scalaVersion.value
@@ -39,16 +39,15 @@ lazy val scalatraSettings = Seq(
 
 lazy val scalatraProject = Project(
   id = "scalatra-project",
-  base = file("."),
-  settings = scalatraSettings ++ Seq(
-    name := "scalatra-unidoc",
+  base = file(".")).settings(
+    scalatraSettings ++ Seq(
+    name := "scalatra-project",
     artifacts := Classpaths.artifactDefs(Seq(packageDoc in Compile, makePom in Compile)).value,
     packagedArtifacts := Classpaths.packaged(Seq(packageDoc in Compile, makePom in Compile)).value,
     description := "A tiny, Sinatra-like web framework for Scala"
   ) ++ Defaults.packageTaskSettings(
     packageDoc in Compile, (unidoc in Compile).map(_.flatMap(Path.allSubpaths))
-  ),
-  aggregate = Seq(
+  )).aggregate(
     scalatraCore,
     scalatraAuth,
     scalatraForms,
@@ -66,21 +65,19 @@ lazy val scalatraProject = Project(
     scalatraMetrics,
     scalatraCache,
     scalatraCacheGuava
-  )
-).enablePlugins(ScalaUnidocPlugin)
+  ).enablePlugins(ScalaUnidocPlugin)
 
 lazy val scalatraCommon = Project(
   id = "scalatra-common",
-  base = file("common"),
-  settings = scalatraSettings ++ Seq(
+  base = file("common")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(servletApi % "provided,test")
   )
 )
 
 lazy val scalatraCore = Project(
-  id = "scalatra",
-  base = file("core"),
-  settings = scalatraSettings ++ Seq(
+  id = "scalatra-core",
+  base = file("core")).settings(scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       servletApi % "provided;test",
       slf4jApi,
@@ -103,16 +100,16 @@ lazy val scalatraCore = Project(
 
 lazy val scalatraAuth = Project(
   id = "scalatra-auth",
-  base = file("auth"),
-  settings = scalatraSettings ++ Seq(
+  base = file("auth")).settings(
+    scalatraSettings ++ Seq(
     description := "Scalatra authentication module"
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraAtmosphere = Project(
   id = "scalatra-atmosphere",
-  base = file("atmosphere"),
-  settings = scalatraSettings ++ Seq(
+  base = file("atmosphere")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       atmosphereRuntime,
       atmosphereRedis,
@@ -130,8 +127,8 @@ lazy val scalatraAtmosphere = Project(
 
 lazy val scalatraScalate = Project(
   id = "scalatra-scalate",
-  base = file("scalate"),
-  settings = scalatraSettings ++ Seq(
+  base = file("scalate")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies += scalate,
     description := "Scalate integration with Scalatra"
   )
@@ -139,8 +136,8 @@ lazy val scalatraScalate = Project(
 
 lazy val scalatraJson = Project(
   id = "scalatra-json",
-  base = file("json"),
-  settings = scalatraSettings ++ Seq(
+  base = file("json")).settings(
+    scalatraSettings ++ Seq(
     description := "JSON support for Scalatra",
     libraryDependencies ++= Seq(
       json4sJackson % "provided",
@@ -152,16 +149,16 @@ lazy val scalatraJson = Project(
 
 lazy val scalatraForms = Project(
   id = "scalatra-forms",
-  base = file("forms"),
-  settings = scalatraSettings ++ Seq(
+  base = file("forms")).settings(
+    scalatraSettings ++ Seq(
     description := "Data binding and validation for Scalatra"
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraCommands = Project(
   id = "scalatra-commands",
-  base = file("commands"),
-  settings = scalatraSettings ++ Seq(
+  base = file("commands")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       "commons-validator" % "commons-validator" % "1.6"
     ),
@@ -186,8 +183,8 @@ lazy val scalatraCommands = Project(
 
 lazy val scalatraJetty = Project(
   id = "scalatra-jetty",
-  base = file("jetty"),
-  settings = scalatraSettings ++ Seq(
+  base = file("jetty")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       servletApi,
       jettyServlet
@@ -198,8 +195,8 @@ lazy val scalatraJetty = Project(
 
 lazy val scalatraTest = Project(
   id = "scalatra-test",
-  base = file("test"),
-  settings = scalatraSettings ++ Seq(
+  base = file("test")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       grizzledSlf4j,
       jettyWebapp,
@@ -217,8 +214,8 @@ lazy val scalatraTest = Project(
 
 lazy val scalatraScalatest = Project(
   id = "scalatra-scalatest",
-  base = file("scalatest"),
-  settings = scalatraSettings ++ Seq(
+  base = file("scalatest")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       scalatest,
       junit,
@@ -231,8 +228,8 @@ lazy val scalatraScalatest = Project(
 
 lazy val scalatraSpecs2 = Project(
   id = "scalatra-specs2",
-  base = file("specs2"),
-  settings = scalatraSettings ++ Seq(
+  base = file("specs2")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= specs2,
     description := "Specs2 support for the Scalatra test framework"
   )
@@ -240,8 +237,8 @@ lazy val scalatraSpecs2 = Project(
 
 lazy val scalatraSwagger = Project(
   id = "scalatra-swagger",
-  base = file("swagger"),
-  settings = scalatraSettings ++ Seq(
+  base = file("swagger")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       json4sExt,
       parserCombinators,
@@ -258,8 +255,8 @@ lazy val scalatraSwagger = Project(
 
 lazy val scalatraSpring = Project(
   id = "scalatra-spring",
-  base = file("spring"),
-  settings = scalatraSettings ++ Seq(
+  base = file("spring")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies += springWeb,
     description := "Scalatra integration with Spring Framework"
   )
@@ -267,8 +264,8 @@ lazy val scalatraSpring = Project(
 
 lazy val scalatraMetrics = Project(
   id = "scalatra-metrics",
-  base = file("metrics"),
-  settings = scalatraSettings ++ Seq(
+  base = file("metrics")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       metricsScala,
       metricsServlets,
@@ -280,8 +277,8 @@ lazy val scalatraMetrics = Project(
 
 lazy val scalatraCache = Project(
   id = "scalatra-cache",
-  base = file("cache"),
-  settings = scalatraSettings ++ Seq(
+  base = file("cache")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       jodaTime,
       jodaConvert
@@ -292,8 +289,8 @@ lazy val scalatraCache = Project(
 
 lazy val scalatraCacheGuava = Project(
   id = "scalatra-cache-guava",
-  base = file("cache-guava"),
-  settings = scalatraSettings ++ Seq(
+  base = file("cache-guava")).settings(
+    scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       googleGuava,
       googleFindBugs
