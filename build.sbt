@@ -41,10 +41,13 @@ lazy val scalatraProject = Project(
   id = "scalatra-project",
   base = file(".")).settings(
     scalatraSettings ++ Seq(
-    name := "scalatra-project",
+    name := "scalatra-unidoc",
     artifacts := Classpaths.artifactDefs(Seq(packageDoc in Compile, makePom in Compile)).value,
     packagedArtifacts := Classpaths.packaged(Seq(packageDoc in Compile, makePom in Compile)).value,
-    description := "A tiny, Sinatra-like web framework for Scala"
+    description := "A tiny, Sinatra-like web framework for Scala",
+    shellPrompt := { state =>
+      s"sbt:${Project.extract(state).currentProject.id}" + Def.withColor("> ", Option(scala.Console.CYAN))
+    }
   ) ++ Defaults.packageTaskSettings(
     packageDoc in Compile, (unidoc in Compile).map(_.flatMap(Path.allSubpaths))
   )).aggregate(
