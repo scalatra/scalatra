@@ -18,7 +18,11 @@ class MultiMap(wrapped: Map[String, Seq[String]] = Map.empty)
   extends Map[String, Seq[String]] {
 
   def get(key: String): Option[Seq[String]] = {
-    (wrapped.get(key) orElse wrapped.get(key + "[]"))
+    if (key.endsWith("[]")) {
+      wrapped.get(key)
+    } else {
+      wrapped.get(key) orElse wrapped.get(key + "[]")
+    }
   }
 
   def get(key: Symbol): Option[Seq[String]] = get(key.name)
