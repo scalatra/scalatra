@@ -5,7 +5,7 @@ scala:
 jdk:
   - oraclejdk8
 sudo: false
-script: ./sbt ++$TRAVIS_SCALA_VERSION test unidoc
+script: sbt ++$TRAVIS_SCALA_VERSION test unidoc
 addons:
   apt:
     packages:
