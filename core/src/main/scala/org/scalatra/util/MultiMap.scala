@@ -23,9 +23,11 @@ class MultiMap(wrapped: Map[String, Seq[String]] = Map.empty)
 
   def get(key: Symbol): Option[Seq[String]] = get(key.name)
 
-  def +[B1 >: Seq[String]](kv: (String, B1)): MultiMap = {
-    new MultiMap(wrapped + kv.asInstanceOf[(String, Seq[String])])
-  }
+  override def +[B1 >: Seq[String]](kv: (String, B1)): Map[String, B1] =
+    wrapped + kv
+
+  def +(kv: (String, Seq[String])): MultiMap =
+    new MultiMap(wrapped + kv)
 
   def -(key: String): MultiMap = new MultiMap(wrapped - key)
 
