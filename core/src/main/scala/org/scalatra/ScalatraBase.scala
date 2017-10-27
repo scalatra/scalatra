@@ -8,8 +8,8 @@ import org.scalatra.ScalatraBase._
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.RicherString._
 import org.scalatra.util._
+import org.scalatra.util.io._
 import org.scalatra.util.conversion.DefaultImplicitConversions
-import org.scalatra.util.io.zeroCopy
 
 import scala.annotation.tailrec
 import scala.util.control.Exception._
