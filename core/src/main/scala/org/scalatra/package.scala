@@ -19,7 +19,7 @@ package object scalatra
     def apply(route: Route): Route
   }
 
-  type MultiParams = MultiMap
+  type MultiParams = Map[String, Seq[String]]
 
   type Params = MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
 

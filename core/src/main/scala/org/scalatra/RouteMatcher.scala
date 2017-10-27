@@ -1,6 +1,5 @@
 package org.scalatra
 
-import org.scalatra.util.MultiMap
 import org.scalatra.util.RicherString._
 
 import scala.util.matching.Regex
@@ -204,9 +203,9 @@ final class RegexRouteMatcher(regex: Regex)
    * @return If the regex matches the request path, returns a list of all
    * captured groups in a "captures" variable.  Otherwise, returns None.
    */
-  def apply(requestPath: String): Option[MultiMap] = regex.findFirstMatchIn(requestPath) map {
+  def apply(requestPath: String): Option[MultiParams] = regex.findFirstMatchIn(requestPath) map {
     _.subgroups match {
-      case Nil => MultiMap()
+      case Nil => Map.empty
       case xs => Map("captures" -> xs)
     }
   }
@@ -225,7 +224,7 @@ final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
    *
    * @return Some empty map if the block evaluates to true, or else None.
    */
-  def apply(requestPath: String): Option[MultiMap] = if (block) Some(MultiMap()) else None
+  def apply(requestPath: String): Option[MultiParams] = if (block) Some(Map.empty) else None
 
   override def toString: String = "[Boolean Guard]"
 
@@ -233,7 +232,7 @@ final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
 
 final class StatusCodeRouteMatcher(codes: Range, responseStatus: => Int) extends RouteMatcher {
 
-  def apply(requestPath: String): Option[MultiMap] = if (codes.contains(responseStatus)) Some(MultiMap()) else None
+  def apply(requestPath: String): Option[MultiParams] = if (codes.contains(responseStatus)) Some(Map.empty) else None
 
   override def toString: String = codes.toString()
 

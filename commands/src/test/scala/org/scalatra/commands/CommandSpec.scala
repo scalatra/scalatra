@@ -3,7 +3,6 @@ package commands
 
 import javax.servlet.http.HttpServletRequest
 
-import org.scalatra.util.MultiMap
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 
@@ -89,7 +88,7 @@ class CommandSpec extends Specification {
     "bindTo with values from all kinds of different sources and bind matching values to specific keys" in {
       val form = new MixAndMatchCommand
       val params = Map("name" -> "John", "age" -> "45", "limit" -> "30", "skip" -> "20")
-      val multi = MultiMap(params map { case (k, v) => k -> Seq(v) })
+      val multi = params map { case (k, v) => k -> Seq(v) }
       val hdrs = Map("API-TOKEN" -> "123")
       form.bindTo(params, multi, hdrs)
       form.name.value must beSome("John")
@@ -208,7 +207,7 @@ class CommandSupportSpec extends Specification with Mockito {
 
       implicit val req = mock[HttpServletRequest].smart
       val page = new ScalatraPage {
-        override def multiParams(implicit request: HttpServletRequest): MultiParams = MultiMap()
+        override def multiParams(implicit request: HttpServletRequest): MultiParams = Map.empty
         override implicit def request = req
       }
       val key = page.commandRequestKey[CommandSample]

@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import org.scalatra.util.conversion.TypeConverter
-import org.scalatra.util.{ MapWithIndifferentAccess, MultiMap, MultiMapHeadView }
+import org.scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
 import org.specs2.mutable.Specification
 
 class ParamsExtensionSpec extends Specification {
@@ -12,7 +12,7 @@ class ParamsExtensionSpec extends Specification {
   import org.scalatra.ScalatraParamsImplicits._
 
   case class FakeParams(params: Map[String, String]) extends MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
-    protected def multiMap = MultiMap(params.map(e => (e._1, List(e._2).toSeq)))
+    protected def multiMap = params.map(e => (e._1, Seq(e._2)))
   }
 
   "Scalatra 'Params pimping'" should {
@@ -73,32 +73,32 @@ class ParamsExtensionSpec extends Specification {
 
     "add a getAs[T] method" in {
 
-      val multiParams: MultiMap = Map("CODES" -> List("1", "2").toSeq, "invalids" -> List("a", "b"))
+      val multiParams: MultiParams = Map("CODES" -> Seq("1", "2").toSeq, "invalids" -> Seq("a", "b"))
 
       multiParams.getAs[Int]("CODES") must beSome[Seq[Int]]
-      multiParams.getAs[Int]("CODES").get must containAllOf(List(1, 2)).inOrder
+      multiParams.getAs[Int]("CODES").get must containAllOf(Seq(1, 2)).inOrder
     }
 
     "return None for unexistent parameters" in {
-      val multiParams: MultiMap = Map("invalids" -> List("1", "a", "2"))
+      val multiParams: MultiParams = Map("invalids" -> Seq("1", "a", "2"))
       multiParams.getAs[Int]("blah") must beNone
     }
 
     "return Empty list if some conversion is invalid" in {
-      val multiParams: MultiMap = Map("invalids" -> List("1", "a", "2"))
-      multiParams.getAs[Int]("invalids") must_== Some(List(1, 2))
+      val multiParams: MultiParams = Map("invalids" -> Seq("1", "a", "2"))
+      multiParams.getAs[Int]("invalids") must_== Some(Seq(1, 2))
     }
 
     "return Empty list if all conversions are invalid" in {
-      val multiParams: MultiMap = Map("invalids" -> List("a", "b"))
+      val multiParams: MultiParams = Map("invalids" -> Seq("a", "b"))
       multiParams.getAs[Int]("invalids") must_== Some(Nil)
     }
 
     "add a getAs[Date] method" in {
 
-      val (format, datesAsText) = ("dd/MM/yyyy", List("20/12/2012", "10/02/2001"))
+      val (format, datesAsText) = ("dd/MM/yyyy", Seq("20/12/2012", "10/02/2001"))
 
-      val multiParams: MultiMap = Map("DATES" -> datesAsText.toSeq)
+      val multiParams: MultiParams = Map("DATES" -> datesAsText)
 
       val expectedDates = datesAsText.map {
         new SimpleDateFormat(format).parse(_)

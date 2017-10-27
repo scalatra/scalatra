@@ -32,7 +32,7 @@ trait RequestLogging extends ScalatraBase with Handler {
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     val realMultiParams = req.getParameterMap.asScala.toMap transform { (k, v) ⇒ v: Seq[String] }
     withRequest(req) {
-      request(MultiParamsKey) = MultiMap(Map() ++ realMultiParams)
+      request(MultiParamsKey) = realMultiParams
       request(CgiParamsKey) = readCgiParams(req)
       fillMdc()
       super.handle(req, res)
