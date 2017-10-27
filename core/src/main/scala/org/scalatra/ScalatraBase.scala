@@ -813,8 +813,10 @@ trait ScalatraBase
     val found = request.get(MultiParamsKey) map (
       _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters))
     val multi = found getOrElse request.multiParameters
-    request("MultiParamsRead") = new {}
-    request(MultiParamsKey) = multi
+    if(!read){
+      request("MultiParamsRead") = new {}
+      request(MultiParamsKey) = multi
+    }
     multi.withDefaultValue(Seq.empty)
   }
 
