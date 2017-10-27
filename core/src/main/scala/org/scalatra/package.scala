@@ -1,7 +1,7 @@
 package org
 
 import org.scalatra.servlet.FileUploadSupport
-import org.scalatra.util.{ MultiMap, MapWithIndifferentAccess, MultiMapHeadView }
+import org.scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
 
 package object scalatra
   extends Control // make halt and pass visible to helpers outside the DSL
