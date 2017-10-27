@@ -373,11 +373,9 @@ trait ScalatraBase
    * $ - Call the render pipeline on the result.
    */
   protected def renderResponse(actionResult: Any): Unit = {
-    if (contentType == null)
-      contentTypeInferrer.lift(actionResult) foreach {
-        contentType = _
-      }
-
+    if (contentType == null) {
+      contentType = inferContentType(actionResult)
+    }
     renderResponseBody(actionResult)
   }
 
@@ -389,17 +387,18 @@ trait ScalatraBase
    * $ - "application/octet-stream" for a byte array
    * $ - "text/html" for any other result
    */
-  protected def contentTypeInferrer: ContentTypeInferrer = {
-    case s: String => "text/plain"
-    case bytes: Array[Byte] => MimeTypes(bytes)
-    case is: java.io.InputStream => MimeTypes(is)
-    case file: File => MimeTypes(file)
-    case actionResult: ActionResult =>
-      actionResult.headers.find {
-        case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
-      }.getOrElse(("Content-Type", contentTypeInferrer(actionResult.body)))._2
-    //    case Unit | _: Unit => null
-    case _ => "text/html"
+  protected def inferContentType(content: Any): String = {
+    content match {
+      case s: String => "text/plain"
+      case bytes: Array[Byte] => MimeTypes(bytes)
+      case is: java.io.InputStream => MimeTypes(is)
+      case file: File => MimeTypes(file)
+      case actionResult: ActionResult =>
+        actionResult.headers.find {
+          case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
+        }.getOrElse(("Content-Type", inferContentType(actionResult.body)))._2
+      case _ => "text/html"
+    }
   }
 
   /**
@@ -813,7 +812,7 @@ trait ScalatraBase
     val found = request.get(MultiParamsKey) map (
       _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters))
     val multi = found getOrElse request.multiParameters
-    if(!read){
+    if (!read) {
       request("MultiParamsRead") = new {}
       request(MultiParamsKey) = multi
     }
