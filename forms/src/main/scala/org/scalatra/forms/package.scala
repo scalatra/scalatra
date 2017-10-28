@@ -384,7 +384,7 @@ package object forms {
         }
         case mappingValueType => {
           val listParams = extractMapParams(params)
-          val max = if (listParams.isEmpty) -1 else listParams.map(_._1).max
+          val max = if (listParams.isEmpty) -1 else listParams.keys.max
           (for (i <- 0 to max) yield {
             val rowParams = listParams.getOrElse(i, Map.empty[String, Seq[String]])
             mappingValueType.convert("", rowParams, messages)
@@ -406,7 +406,7 @@ package object forms {
         }
         case mappingValueType => {
           val listParams = extractMapParams(params)
-          val max = if (listParams.isEmpty) -1 else listParams.map(_._1).max
+          val max = if (listParams.isEmpty) -1 else listParams.keys.max
           (for (i <- 0 to max) yield {
             val rowParams = listParams.getOrElse(i, Map.empty[String, Seq[String]])
             mappingValueType.validate("", rowParams, messages).map {
