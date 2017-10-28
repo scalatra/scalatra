@@ -158,11 +158,8 @@ trait ScalatraBase
         onCompleted { _ =>
           withRequestResponse(rq, rs) {
             this match {
-              case f: Filter if !rq.contains("org.scalatra.ScalatraFilter.afterFilters.Run") =>
-                rq("org.scalatra.ScalatraFilter.afterFilters.Run") = new {}
-                runFilters(routes.afterFilters)
-              case f: HttpServlet if !rq.contains("org.scalatra.ScalatraServlet.afterFilters.Run") =>
-                rq("org.scalatra.ScalatraServlet.afterFilters.Run") = new {}
+              case _ if !rq.contains(getClass.getName + ".afterFilters.Run") =>
+                rq(getClass.getName + ".afterFilters.Run") = new {}
                 runFilters(routes.afterFilters)
               case _ =>
             }
