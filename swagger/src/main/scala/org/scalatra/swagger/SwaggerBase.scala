@@ -175,12 +175,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                                   }.getOrElse(Nil))
                               }.toMap) ~!
                               ("security" -> (operation.authorizations.flatMap { requirement =>
-                                swagger.authorizations.find(_.`keyname` == requirement).map { auth =>
-                                  auth match {
-                                    case a: OAuth => (requirement -> a.scopes)
-                                    case b: ApiKey => (requirement -> List.empty)
-                                    case _ => (requirement -> List.empty)
-                                  }
+                                swagger.authorizations.find(_.`keyname` == requirement).map {
+                                  case a: OAuth => (requirement -> a.scopes)
+                                  case b: ApiKey => (requirement -> List.empty)
+                                  case _ => (requirement -> List.empty)
                                 }
                               }))))
                       }.toMap)
@@ -206,28 +204,26 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
               }.toMap) ~
               ("securityDefinitions" -> (swagger.authorizations.flatMap { auth =>
                 (auth match {
-                  case a: OAuth => a.grantTypes.headOption.map { grantType =>
-                    grantType match {
-                      case g: ImplicitGrant => (a.keyname -> JObject(
-                        JField("type", "oauth2"),
-                        JField("description", a.description),
-                        JField("flow", "implicit"),
-                        JField("authorizationUrl", g.loginEndpoint.url),
-                        JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-                      case g: AuthorizationCodeGrant => (a.keyname -> JObject(
-                        JField("type", "oauth2"),
-                        JField("description", a.description),
-                        JField("flow", "accessCode"),
-                        JField("authorizationUrl", g.tokenRequestEndpoint.url),
-                        JField("tokenUrl", g.tokenEndpoint.url),
-                        JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-                      case g: ApplicationGrant => ("oauth2" -> JObject(
-                        JField("type", "oauth2"),
-                        JField("description", a.description),
-                        JField("flow", "application"),
-                        JField("tokenUrl", g.tokenEndpoint.url),
-                        JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-                    }
+                  case a: OAuth => a.grantTypes.headOption.map {
+                    case g: ImplicitGrant => (a.keyname -> JObject(
+                      JField("type", "oauth2"),
+                      JField("description", a.description),
+                      JField("flow", "implicit"),
+                      JField("authorizationUrl", g.loginEndpoint.url),
+                      JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
+                    case g: AuthorizationCodeGrant => (a.keyname -> JObject(
+                      JField("type", "oauth2"),
+                      JField("description", a.description),
+                      JField("flow", "accessCode"),
+                      JField("authorizationUrl", g.tokenRequestEndpoint.url),
+                      JField("tokenUrl", g.tokenEndpoint.url),
+                      JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
+                    case g: ApplicationGrant => ("oauth2" -> JObject(
+                      JField("type", "oauth2"),
+                      JField("description", a.description),
+                      JField("flow", "application"),
+                      JField("tokenUrl", g.tokenEndpoint.url),
+                      JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
                   }
                   case a: ApiKey => Some((a.keyname -> JObject(
                     JField("type", "apiKey"),

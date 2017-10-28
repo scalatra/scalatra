@@ -26,11 +26,11 @@ trait JsonImplicitConversions extends TypeConverterSupport {
 
   implicit val jsonToSelf: TypeConverter[JValue, String] = safe(_.extract[String])
 
-  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safeOption(_ match {
+  implicit val jsonToBigInt: TypeConverter[JValue, BigInt] = safeOption {
     case JInt(bigint) => Some(bigint)
     case JString(v) => Some(BigInt(v))
     case _ => None
-  })
+  }
 
   def jsonToDate(format: => String): TypeConverter[JValue, Date] = jsonToDateFormat(new SimpleDateFormat(format))
 
