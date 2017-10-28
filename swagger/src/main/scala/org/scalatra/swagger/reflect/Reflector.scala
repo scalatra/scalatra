@@ -152,7 +152,7 @@ object Reflector {
                 val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
                 ConstructorParamDescriptor(decoded, paramName, index, theType, default)
             }
-            ConstructorDescriptor(ctorParams.toSeq, ctor, isPrimary = false)
+            ConstructorDescriptor(ctorParams, ctor, isPrimary = false)
         }
       }
 
