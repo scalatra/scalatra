@@ -2,8 +2,6 @@ package org.scalatra
 
 import javax.servlet.http.HttpServletRequest
 
-import org.scalatra.util.MultiMap
-
 /**
  * A route is a set of matchers and an action.  A route is considered to match
  * if all of its route matchers return Some.  If a route matches, its action
@@ -23,7 +21,7 @@ case class Route(
    * returned.
    */
   def apply(requestPath: String): Option[MatchedRoute] = {
-    routeMatchers.foldLeft(Option(MultiMap())) {
+    routeMatchers.foldLeft(Option(Map.empty[String, Seq[String]])) {
       (acc: Option[MultiParams], routeMatcher: RouteMatcher) =>
         for {
           routeParams <- acc

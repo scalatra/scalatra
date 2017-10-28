@@ -1,7 +1,7 @@
 package org
 
 import org.scalatra.servlet.FileUploadSupport
-import org.scalatra.util.{ MultiMap, MapWithIndifferentAccess, MultiMapHeadView }
+import org.scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
 
 package object scalatra
   extends Control // make halt and pass visible to helpers outside the DSL
@@ -19,15 +19,13 @@ package object scalatra
     def apply(route: Route): Route
   }
 
-  type MultiParams = MultiMap
+  type MultiParams = Map[String, Seq[String]]
 
   type Params = MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
 
   type Action = () => Any
 
   type ErrorHandler = PartialFunction[Throwable, Any]
-
-  type ContentTypeInferrer = PartialFunction[Any, String]
 
   type RenderPipeline = PartialFunction[Any, Any]
 

@@ -43,9 +43,3 @@ package object RicherString {
   }
 
 }
-
-//object RicherString {
-//
-//  implicit def stringToRicherString(s: String): RicherString = new RicherString(s)
-//
-//}

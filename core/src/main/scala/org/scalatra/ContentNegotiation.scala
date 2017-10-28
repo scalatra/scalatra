@@ -8,10 +8,10 @@ import scala.util.Try
 import scala.util.parsing.combinator.RegexParsers
 
 /** Represents the value of a content negotiation header. */
-case class Conneg[T](value: T, q: Float = 1)
+case class ContentNegotiation[T](value: T, q: Float = 1)
 
 /** Defines type classes and helper methods for well known content-negotiation headers. */
-object Conneg {
+object ContentNegotiation {
 
   // - Header parsing --------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
@@ -59,13 +59,13 @@ object Conneg {
     private val qFormat: DecimalFormat = new DecimalFormat("0.###")
 
     /** Parser for a single conneg value. */
-    def conneg: Parser[Option[Conneg[T]]] = entry ~ qValue ^^ {
-      case Some(entry) ~ q => Some(new Conneg(entry, q))
+    def conneg: Parser[Option[ContentNegotiation[T]]] = entry ~ qValue ^^ {
+      case Some(entry) ~ q => Some(new ContentNegotiation(entry, q))
       case _ => None
     }
 
     /** Parser for a list of conneg values. */
-    def connegs: Parser[List[Option[Conneg[T]]]] = repsep(conneg, ",")
+    def connegs: Parser[List[Option[ContentNegotiation[T]]]] = repsep(conneg, ",")
 
     /** Parser for the content-negotiation `q` parameter. */
     def qValue: Parser[Float] = {
@@ -75,7 +75,7 @@ object Conneg {
       }
     }
 
-    def values(raw: String): List[Conneg[T]] = {
+    def values(raw: String): List[ContentNegotiation[T]] = {
       parseAll(connegs, raw) match {
         case Success(a, _) => a.collect { case Some(v) => v }
         case _ => List()
@@ -94,7 +94,7 @@ object Conneg {
    * Additionally, this method swallows errors silently. An invalid header value will yield an empty list rather than
    * an exception.
    */
-  def values[T](name: String)(implicit req: HttpServletRequest, format: Format[T]): List[Conneg[T]] = {
+  def values[T](name: String)(implicit req: HttpServletRequest, format: Format[T]): List[ContentNegotiation[T]] = {
     val header = req.getHeader(name)
     if (header == null) List()
     else format.values(header.trim())
@@ -117,7 +117,7 @@ object Conneg {
   }
 
   def preferredEncoding(implicit req: HttpServletRequest): Option[ContentEncoding] = preferredValue(AcceptEncoding)
-  def acceptedEncodings(implicit req: HttpServletRequest): List[Conneg[ContentEncoding]] = values(AcceptEncoding)
+  def acceptedEncodings(implicit req: HttpServletRequest): List[ContentNegotiation[ContentEncoding]] = values(AcceptEncoding)
 
   // - Charset ---------------------------------------------------------------------------------------------------------
   // -------------------------------------------------------------------------------------------------------------------
@@ -128,5 +128,5 @@ object Conneg {
   }
 
   def preferredCharset(implicit req: HttpServletRequest): Option[Charset] = preferredValue[Charset](AcceptCharset)
-  def acceptedCharsets(implicit req: HttpServletRequest): List[Conneg[Charset]] = values(AcceptCharset)
+  def acceptedCharsets(implicit req: HttpServletRequest): List[ContentNegotiation[Charset]] = values(AcceptCharset)
 }

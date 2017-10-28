@@ -6,7 +6,8 @@ import javax.servlet.http._
 
 import org.scalatra.ScalatraBase
 import org.scalatra.util.RicherString._
-import org.scalatra.util.{ io, _ }
+import org.scalatra.util._
+import org.scalatra.util.io._
 
 import scala.collection.JavaConverters._
 
@@ -237,9 +238,9 @@ case class FileItem(part: Part) {
 
   val size: Long = part.getSize
   val fieldName: String = part.getName
-  val name: String = Util.partAttribute(part, "content-disposition", "filename")
+  val name: String = FileItemUtil.partAttribute(part, "content-disposition", "filename")
   val contentType: Option[String] = part.getContentType.blankOption
-  val charset: Option[String] = Util.partAttribute(part, "content-type", "charset").blankOption
+  val charset: Option[String] = FileItemUtil.partAttribute(part, "content-type", "charset").blankOption
 
   def getName: String = name
 
@@ -268,7 +269,7 @@ case class FileItem(part: Part) {
   def getInputStream: InputStream = part.getInputStream
 }
 
-object Util {
+private object FileItemUtil {
 
   def partAttribute(
     part: Part,

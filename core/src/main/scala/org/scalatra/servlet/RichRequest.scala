@@ -7,7 +7,7 @@ import java.util.Locale
 import javax.servlet.http.HttpServletRequest
 
 import org.scalatra.util.RicherString._
-import org.scalatra.util.{ MultiMap, MultiMapHeadView }
+import org.scalatra.util.MultiMapHeadView
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.DefaultMap
@@ -89,12 +89,17 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
       }
     }
     // At the very least in jetty 8 we see problems under load related to this
-    if (r.getQueryString.nonBlank && r.getParameterMap.isEmpty) {
+    val allParams = if (r.getQueryString.nonBlank && r.getParameterMap.isEmpty) {
       val queryStringParams: Map[String, Seq[String]] = util.MapQueryString.parseString(r.getQueryString)
       queryStringParams ++ bodyParams
     } else {
       val paramMap = r.getParameterMap.asScala.toMap.transform { (k, v) => v: Seq[String] }
       paramMap ++ bodyParams
+    }
+    // Allow access to multiple parameters with ruby like syntax without []
+    allParams ++ allParams.collect {
+      case (key, values) if key.endsWith("[]") =>
+        key.substring(0, key.length - 2) -> values
     }
   }
 
@@ -210,12 +215,11 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * Returns a map of cookie names to lists of their values.  The default
    * value of the map is the empty sequence.
    */
-  def multiCookies: MultiMap = {
-    val rr = Option(r.getCookies).getOrElse(Array()).toSeq.
+  def multiCookies: MultiParams = {
+    Option(r.getCookies).getOrElse(Array()).toSeq.
       groupBy { _.getName }.
       transform { case (k, v) => v map { _.getValue } }.
       withDefaultValue(Seq.empty)
-    MultiMap(rr)
   }
 
   /**

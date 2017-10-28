@@ -1,4 +1,4 @@
-package org.scalatra.util
+package org.scalatra.util.io
 
 import java.io.{ File, FileInputStream }
 import java.nio.charset.Charset

@@ -8,8 +8,8 @@ import org.scalatra.ScalatraBase._
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.RicherString._
 import org.scalatra.util._
+import org.scalatra.util.io._
 import org.scalatra.util.conversion.DefaultImplicitConversions
-import org.scalatra.util.io.zeroCopy
 
 import scala.annotation.tailrec
 import scala.util.control.Exception._
@@ -158,11 +158,8 @@ trait ScalatraBase
         onCompleted { _ =>
           withRequestResponse(rq, rs) {
             this match {
-              case f: Filter if !rq.contains("org.scalatra.ScalatraFilter.afterFilters.Run") =>
-                rq("org.scalatra.ScalatraFilter.afterFilters.Run") = new {}
-                runFilters(routes.afterFilters)
-              case f: HttpServlet if !rq.contains("org.scalatra.ScalatraServlet.afterFilters.Run") =>
-                rq("org.scalatra.ScalatraServlet.afterFilters.Run") = new {}
+              case _ if !rq.contains(getClass.getName + ".afterFilters.Run") =>
+                rq(getClass.getName + ".afterFilters.Run") = new {}
                 runFilters(routes.afterFilters)
               case _ =>
             }
@@ -373,11 +370,9 @@ trait ScalatraBase
    * $ - Call the render pipeline on the result.
    */
   protected def renderResponse(actionResult: Any): Unit = {
-    if (contentType == null)
-      contentTypeInferrer.lift(actionResult) foreach {
-        contentType = _
-      }
-
+    if (contentType == null) {
+      contentType = inferContentType(actionResult)
+    }
     renderResponseBody(actionResult)
   }
 
@@ -389,17 +384,18 @@ trait ScalatraBase
    * $ - "application/octet-stream" for a byte array
    * $ - "text/html" for any other result
    */
-  protected def contentTypeInferrer: ContentTypeInferrer = {
-    case s: String => "text/plain"
-    case bytes: Array[Byte] => MimeTypes(bytes)
-    case is: java.io.InputStream => MimeTypes(is)
-    case file: File => MimeTypes(file)
-    case actionResult: ActionResult =>
-      actionResult.headers.find {
-        case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
-      }.getOrElse(("Content-Type", contentTypeInferrer(actionResult.body)))._2
-    //    case Unit | _: Unit => null
-    case _ => "text/html"
+  protected def inferContentType(content: Any): String = {
+    content match {
+      case s: String => "text/plain"
+      case bytes: Array[Byte] => MimeTypes(bytes)
+      case is: java.io.InputStream => MimeTypes(is)
+      case file: File => MimeTypes(file)
+      case actionResult: ActionResult =>
+        actionResult.headers.find {
+          case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
+        }.getOrElse(("Content-Type", inferContentType(actionResult.body)))._2
+      case _ => "text/html"
+    }
   }
 
   /**
@@ -813,8 +809,10 @@ trait ScalatraBase
     val found = request.get(MultiParamsKey) map (
       _.asInstanceOf[MultiParams] ++ (if (read) Map.empty else request.multiParameters))
     val multi = found getOrElse request.multiParameters
-    request("MultiParamsRead") = new {}
-    request(MultiParamsKey) = multi
+    if (!read) {
+      request("MultiParamsRead") = new {}
+      request(MultiParamsKey) = multi
+    }
     multi.withDefaultValue(Seq.empty)
   }
 
