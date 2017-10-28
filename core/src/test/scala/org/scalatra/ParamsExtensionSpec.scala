@@ -73,7 +73,7 @@ class ParamsExtensionSpec extends Specification {
 
     "add a getAs[T] method" in {
 
-      val multiParams: MultiParams = Map("CODES" -> Seq("1", "2").toSeq, "invalids" -> Seq("a", "b"))
+      val multiParams: MultiParams = Map("CODES" -> Seq("1", "2"), "invalids" -> Seq("a", "b"))
 
       multiParams.getAs[Int]("CODES") must beSome[Seq[Int]]
       multiParams.getAs[Int]("CODES").get must containAllOf(Seq(1, 2)).inOrder
