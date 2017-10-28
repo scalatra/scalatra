@@ -15,10 +15,10 @@ case class RichResponse(res: HttpServletResponse) {
    * Note: the servlet API doesn't remember the reason.  If a custom
    * reason was set, it will be returned incorrectly here,
    */
-  def status: ResponseStatus = ResponseStatus(res.getStatus)
+  def status: Int = res.getStatus
 
-  def status_=(statusLine: ResponseStatus): Unit = {
-    res.setStatus(statusLine.code, statusLine.message)
+  def status_=(status: Int): Unit = {
+    res.setStatus(status)
   }
 
   object headers extends Map[String, String] {

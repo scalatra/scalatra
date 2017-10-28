@@ -17,19 +17,17 @@ trait Control {
    *        the status unchanged.
    * @param body a result to render through the render pipeline as the body
    * @param headers headers to add to the response
-   * @param reason the HTTP status reason to set, or null to leave unchanged.
    */
   def halt[T: Manifest](
     status: JInteger = null,
     body: T = (),
-    headers: Map[String, String] = Map.empty,
-    reason: String = null): Nothing = {
+    headers: Map[String, String] = Map.empty): Nothing = {
     val statusOpt = if (status == null) None else Some(status.intValue)
-    throw new HaltException(statusOpt, Some(reason), headers, body)
+    throw new HaltException(statusOpt, headers, body)
   }
 
   def halt(result: ActionResult): Nothing = {
-    halt(result.status.code, result.body, result.headers, result.status.message)
+    halt(result.status, result.body, result.headers)
   }
 
   /**
@@ -40,7 +38,6 @@ trait Control {
 
 private[scalatra] case class HaltException(
   status: Option[Int],
-  reason: Option[String],
   headers: Map[String, String],
   body: Any)
   extends Throwable with NoStackTrace
