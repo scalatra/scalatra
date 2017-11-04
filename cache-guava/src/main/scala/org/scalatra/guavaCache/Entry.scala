@@ -1,7 +1,7 @@
 package org.scalatra.guavaCache
 
-import org.joda.time.DateTime
+import java.time._
 
-case class Entry[+A](value: A, expiresAt: Option[DateTime]) {
-  def isExpired: Boolean = expiresAt.exists(_.isBeforeNow)
+case class Entry[+A](value: A, expiresAt: Option[LocalDateTime]) {
+  def isExpired: Boolean = expiresAt.exists(_.isBefore(LocalDateTime.now))
 }

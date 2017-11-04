@@ -1,6 +1,6 @@
 package org.scalatra.cache
 
-import scala.concurrent.duration.Duration
+import java.time._
 
 trait Cache {
   def get[V](key: String): Option[V]
