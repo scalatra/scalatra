@@ -1,6 +1,6 @@
 package org.scalatra.cache
 
-import scala.concurrent.duration.Duration
+import java.time._
 
 class MapCache extends Cache {
   var cache = new scala.collection.mutable.HashMap[String, Any]
