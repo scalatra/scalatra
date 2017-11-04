@@ -1,10 +1,8 @@
 package org.scalatra.guavaCache
 
 import com.google.common.cache.CacheBuilder
-import org.joda.time.DateTime
 import org.scalatra.cache.Cache
-
-import scala.concurrent.duration.Duration
+import java.time._
 
 object GuavaCache extends Cache {
   private[this] val cache = CacheBuilder.newBuilder()
@@ -21,7 +19,7 @@ object GuavaCache extends Cache {
       })
 
   override def put[V](key: String, value: V, ttl: Option[Duration]): V = {
-    cache.put(key, new Entry(value.asInstanceOf[Object], ttl.map(t => DateTime.now.plusMillis(t.toMillis.toInt))))
+    cache.put(key, new Entry(value.asInstanceOf[Object], ttl.map(t => LocalDateTime.now.plus(t))))
     value
   }
 
