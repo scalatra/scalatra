@@ -1,8 +1,8 @@
 package org.scalatra
 
 import java.io.{ File, FileInputStream }
-import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
-import javax.servlet.{ ServletRegistration, Filter, ServletContext }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.{ ServletRegistration, ServletContext }
 
 import org.scalatra.ScalatraBase._
 import org.scalatra.servlet.ServletApiImplicits
