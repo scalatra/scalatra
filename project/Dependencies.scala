@@ -17,7 +17,6 @@ object Dependencies {
   lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.5"
   lazy val commonsLang3             =  "org.apache.commons"      %  "commons-lang3"              % "3.6"
   lazy val grizzledSlf4j            =  "org.clapper"             %% "grizzled-slf4j"             % grizzledSlf4jVersion
-  lazy val guice                    =  "com.google.inject"       %  "guice"                      % "4.1.0"
   lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
   lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
   lazy val jettyServer              =  "org.eclipse.jetty"       %  "jetty-server"               % jettyVersion
