@@ -3,7 +3,6 @@ package auth
 
 import javax.servlet.http._
 
-import org.mockito.Matchers._
 import org.scalatra.auth.ScentryAuthStore.SessionAuthStore
 import org.specs2.mock.Mockito
 import org.specs2.mutable._

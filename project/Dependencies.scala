@@ -34,7 +34,7 @@ object Dependencies {
   lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
   lazy val mimeUtil                 =  "eu.medsea.mimeutil"      %  "mime-util"                  % "2.1.3" exclude("org.slf4j", "slf4j-log4j12") exclude("log4j", "log4j")
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-all"                % "1.10.19"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "2.7.22"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.2.14"
@@ -63,5 +63,5 @@ object Dependencies {
   private val json4sVersion           = "3.5.2"
   private val scalateVersion          = "1.8.0"
   private val scalatestVersion        = "3.0.3"
-  private val specs2Version           = "3.8.6" //"3.9.4"
+  private val specs2Version           = "4.0.1"
 }
