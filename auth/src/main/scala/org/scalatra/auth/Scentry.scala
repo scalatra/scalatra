@@ -3,10 +3,10 @@ package auth
 
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import grizzled.slf4j.Logger
 import org.scalatra.auth.ScentryAuthStore.ScentryAuthStore
 import org.scalatra.servlet.ServletApiImplicits._
 import org.scalatra.util.RicherString._
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 
@@ -33,7 +33,7 @@ class Scentry[UserType <: AnyRef](
   deserialize: PartialFunction[String, UserType],
   private[this] var _store: ScentryAuthStore) {
 
-  private[this] lazy val logger = Logger(getClass)
+  private[this] lazy val logger = LoggerFactory.getLogger(getClass)
   type StrategyType = ScentryStrategy[UserType]
   type StrategyFactory = ScalatraBase ⇒ StrategyType
 

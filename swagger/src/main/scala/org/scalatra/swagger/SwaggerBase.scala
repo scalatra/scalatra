@@ -1,18 +1,18 @@
 package org.scalatra
 package swagger
 
-import grizzled.slf4j.Logger
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalatra.json.JsonSupport
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
+import org.slf4j.LoggerFactory
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
 trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
 
-  private lazy val logger = Logger[this.type]
+  private lazy val logger = LoggerFactory.getLogger(getClass)
 
   protected type ApiType <: SwaggerApi[_]
 

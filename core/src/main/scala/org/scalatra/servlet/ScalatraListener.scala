@@ -3,14 +3,14 @@ package servlet
 
 import javax.servlet.{ ServletContext, ServletContextEvent, ServletContextListener }
 
-import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
+import org.slf4j.LoggerFactory
 
 class ScalatraListener extends ServletContextListener {
 
   import org.scalatra.servlet.ScalatraListener._
 
-  private[this] val logger: Logger = Logger[this.type]
+  private[this] val logger = LoggerFactory.getLogger(getClass)
 
   private[this] var cycle: LifeCycle = _
 

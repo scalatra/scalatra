@@ -84,7 +84,6 @@ lazy val scalatraCore = Project(
     libraryDependencies ++= Seq(
       servletApi % "provided;test",
       slf4jApi,
-      grizzledSlf4j,
       jUniversalChardet,
       mimeUtil,
       commonsLang3,
@@ -201,7 +200,6 @@ lazy val scalatraTest = Project(
   base = file("test")).settings(
     scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
-      grizzledSlf4j,
       jettyWebapp,
       servletApi,
       mockitoAll,

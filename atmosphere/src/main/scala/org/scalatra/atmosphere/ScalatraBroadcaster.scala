@@ -4,15 +4,15 @@ package atmosphere
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import _root_.akka.actor._
-import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ ExecutionContext, Future }
 
 trait ScalatraBroadcaster extends Broadcaster {
 
-  private[this] val logger: Logger = Logger[ScalatraBroadcaster]
+  private[this] val logger = LoggerFactory.getLogger(classOf[ScalatraBroadcaster])
   protected var _resources: ConcurrentLinkedQueue[AtmosphereResource]
   protected var _wireFormat: WireFormat
   protected implicit var _actorSystem: ActorSystem

@@ -2,7 +2,7 @@ package org.scalatra.spring
 
 import java.lang.reflect.Constructor
 
-import grizzled.slf4j.Logging
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessorAdapter
 import org.springframework.stereotype.Component
@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component
 @deprecated("Spring integration has been no longer maintained. It will be dropped in 2.7.0.", "2.6.0")
 class ConstructorAutowiredAnnotationBeanPostProcessor
   extends InstantiationAwareBeanPostProcessorAdapter
-  with org.springframework.core.Ordered
-  with Logging {
+  with org.springframework.core.Ordered {
+
+  protected val logger = LoggerFactory.getLogger(getClass)
 
   logger.error("Configured for Scala constructor support")
 

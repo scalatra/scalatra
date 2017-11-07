@@ -4,12 +4,12 @@ package atmosphere
 import java.nio.CharBuffer
 import javax.servlet.http.HttpSession
 
-import grizzled.slf4j.Logger
 import org.atmosphere.cpr.AtmosphereResource.TRANSPORT._
 import org.atmosphere.cpr._
 import org.atmosphere.handler.AbstractReflectorAtmosphereHandler
 import org.scalatra.servlet.ServletApiImplicits._
 import org.scalatra.util.RicherString._
+import org.slf4j.LoggerFactory
 
 object ScalatraAtmosphereHandler {
 
@@ -57,7 +57,7 @@ class ScalatraAtmosphereException(message: String) extends ScalatraException(mes
 class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: WireFormat) extends AbstractReflectorAtmosphereHandler {
   import org.scalatra.atmosphere.ScalatraAtmosphereHandler._
 
-  private[this] val internalLogger = Logger(getClass)
+  private[this] val internalLogger = LoggerFactory.getLogger(getClass)
 
   def onRequest(resource: AtmosphereResource): Unit = {
     implicit val req = resource.getRequest
