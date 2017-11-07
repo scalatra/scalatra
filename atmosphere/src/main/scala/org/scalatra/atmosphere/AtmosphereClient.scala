@@ -2,11 +2,11 @@ package org.scalatra
 package atmosphere
 
 import javax.servlet.ServletContext
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
 import org.scalatra.util.RicherString._
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext
@@ -54,7 +54,7 @@ object AtmosphereClient {
 trait AtmosphereClient extends AtmosphereClientFilters {
 
   @volatile private[atmosphere] var resource: AtmosphereResource = _
-  @transient private[this] val internalLogger = Logger[AtmosphereClient]
+  @transient private[this] val internalLogger = LoggerFactory.getLogger(classOf[AtmosphereClient])
   @transient private[this] def broadcaster = resource.getBroadcaster.asInstanceOf[ScalatraBroadcaster]
 
   protected def requestUri = {

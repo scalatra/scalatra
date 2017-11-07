@@ -3,8 +3,8 @@ package org.scalatra
 import java.util.Locale.ENGLISH
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 
@@ -76,7 +76,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
 
   import org.scalatra.CorsSupport._
 
-  private[this] lazy val logger: Logger = Logger(getClass)
+  private[this] lazy val logger = LoggerFactory.getLogger(getClass)
 
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)

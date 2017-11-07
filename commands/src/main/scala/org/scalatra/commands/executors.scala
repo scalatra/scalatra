@@ -1,8 +1,8 @@
 package org.scalatra.commands
 
-import grizzled.slf4j.Logger
 import org.scalatra.util.InflectorImports._
 import org.scalatra.validation._
+import org.slf4j.LoggerFactory
 
 import scala.annotation.implicitNotFound
 import scala.concurrent.{ ExecutionContext, Future }
@@ -47,7 +47,7 @@ abstract class CommandExecutor[T <: Command, S](handler: T => S) {
 
 @deprecated("Use scalatra-forms instead.", "2.6.0")
 abstract class BlockingExecutor[T <: Command, S](handle: T => ModelValidation[S]) extends CommandExecutor[T, ModelValidation[S]](handle) {
-  @transient private[this] val logger = Logger(getClass)
+  @transient private[this] val logger = LoggerFactory.getLogger(getClass)
 
   def execute(cmd: T): ModelValidation[S] = {
     logger.debug(s"Executing [${cmd.getClass.getName}].\n$cmd")
@@ -106,7 +106,7 @@ class BlockingModelExecutor[T <: Command, S](handle: S => ModelValidation[S])(im
 
 @deprecated("Use scalatra-forms instead.", "2.6.0")
 abstract class AsyncExecutor[T <: Command, S](handle: T => Future[ModelValidation[S]])(implicit executionContext: ExecutionContext) extends CommandExecutor[T, Future[ModelValidation[S]]](handle) {
-  @transient private[this] val logger = Logger(getClass)
+  @transient private[this] val logger = LoggerFactory.getLogger(getClass)
   def execute(cmd: T): Future[ModelValidation[S]] = {
     logger.debug(s"Executing [${cmd.getClass.getName}].\n$cmd")
     if (cmd.isValid) {

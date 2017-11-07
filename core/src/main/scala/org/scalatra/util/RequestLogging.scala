@@ -3,9 +3,8 @@ package util
 
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import grizzled.slf4j.Logger
 import org.scalatra.util.RicherString._
-import org.slf4j.MDC
+import org.slf4j.{ LoggerFactory, MDC }
 
 import scala.collection.JavaConverters._
 
@@ -26,7 +25,7 @@ object RequestLogging {
  */
 trait RequestLogging extends ScalatraBase with Handler {
 
-  private[this] val logger = Logger("REQUEST")
+  private[this] val logger = LoggerFactory.getLogger("REQUEST")
   import org.scalatra.util.RequestLogging._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {

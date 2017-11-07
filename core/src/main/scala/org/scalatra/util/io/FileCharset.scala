@@ -3,14 +3,14 @@ package org.scalatra.util.io
 import java.io.{ File, FileInputStream }
 import java.nio.charset.Charset
 
-import grizzled.slf4j.Logger
 import org.mozilla.universalchardet.UniversalDetector
+import org.slf4j.LoggerFactory
 
 import scala.io.Codec
 
 object FileCharset {
 
-  @transient private[this] val logger: Logger = Logger(getClass)
+  @transient private[this] val logger = LoggerFactory.getLogger(getClass)
 
   private val CheckByteLength = 8192
 

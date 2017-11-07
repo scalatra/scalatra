@@ -3,12 +3,12 @@ package org.scalatra.atmosphere
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import _root_.akka.actor._
-import grizzled.slf4j.Logger
 import org.atmosphere.cpr._
 import org.atmosphere.plugin.redis.RedisBroadcaster
 import org.json4s.ShortTypeHints
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{ read, write }
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ ExecutionContext, Future }
@@ -16,7 +16,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protected var _actorSystem: ActorSystem)
   extends RedisBroadcaster with ScalatraBroadcaster {
 
-  private[this] val logger: Logger = Logger[RedisScalatraBroadcaster]
+  private[this] val logger = LoggerFactory.getLogger(classOf[RedisScalatraBroadcaster])
   protected var _resources: ConcurrentLinkedQueue[AtmosphereResource] = resources
   protected var _wireFormat: WireFormat = wireFormat
   implicit val formats = Serialization.formats(ShortTypeHints(List(classOf[Everyone], classOf[OnlySelf], classOf[SkipSelf])))

@@ -5,11 +5,11 @@ import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{ Date => JDate }
 
-import grizzled.slf4j.Logger
 import org.joda.time._
 import org.json4s._
 import org.scalatra.swagger.reflect._
 import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 
@@ -181,7 +181,7 @@ object Swagger {
  * An instance of this class is used to hold the API documentation.
  */
 class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[Api] {
-  private[this] val logger = Logger[this.type]
+  private[this] val logger = LoggerFactory.getLogger(getClass)
 
   /**
    * Registers the documentation for an API with the given path.

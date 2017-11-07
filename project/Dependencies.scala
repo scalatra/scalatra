@@ -16,7 +16,6 @@ object Dependencies {
   lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.3.3"
   lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.5"
   lazy val commonsLang3             =  "org.apache.commons"      %  "commons-lang3"              % "3.6"
-  lazy val grizzledSlf4j            =  "org.clapper"             %% "grizzled-slf4j"             % grizzledSlf4jVersion
   lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
   lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
   lazy val jettyServer              =  "org.eclipse.jetty"       %  "jetty-server"               % jettyVersion
@@ -56,7 +55,6 @@ object Dependencies {
   lazy val googleFindBugs           = "com.google.code.findbugs" % "jsr305"                      % "3.0.2"
 
   private val akkaVersion             = "2.5.3"
-  private val grizzledSlf4jVersion    = "1.3.1"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.3"
   private val jettyVersion            = "9.4.6.v20170531"

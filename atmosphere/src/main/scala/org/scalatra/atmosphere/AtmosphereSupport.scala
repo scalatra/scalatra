@@ -11,13 +11,13 @@ import org.atmosphere.container.TomcatCometSupport
 import org.jboss.servlet.http.HttpEvent
 import org.atmosphere.container.JBossWebCometSupport
 import org.atmosphere.cpr._
+
 import collection.JavaConverters._
 import org.json4s._
 import org.atmosphere.cache.UUIDBroadcasterCache
 import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import grizzled.slf4j.Logger
 import org.apache.catalina.CometProcessor
 import org.atmosphere.cache.UUIDBroadcasterCache
 import org.atmosphere.client.TrackMessageSizeInterceptor
@@ -29,13 +29,14 @@ import org.json4s._
 import org.scalatra.json.JsonSupport
 import org.scalatra.servlet.ScalatraAsyncSupport
 import org.scalatra.util.RicherString._
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception.allCatch
 
 trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
 
-  private[this] val logger = Logger[this.type]
+  private[this] val logger = LoggerFactory.getLogger(getClass)
 
   private[this] val _defaultWireformat = new JacksonSimpleWireformat
 

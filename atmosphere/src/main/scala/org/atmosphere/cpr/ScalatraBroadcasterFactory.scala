@@ -5,8 +5,8 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 import akka.actor.ActorSystem
-import grizzled.slf4j.Logger
 import org.scalatra.atmosphere.{ ScalatraBroadcaster, WireFormat }
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.concurrent.{ Map => ConcurrentMap }
@@ -40,7 +40,7 @@ object ScalatraBroadcasterFactory {
 class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterConf)(implicit wireFormat: WireFormat, system: ActorSystem) extends BroadcasterFactory {
   ScalatraBroadcasterFactory.setDefault(this, cfg)
 
-  private[this] val logger = Logger[ScalatraBroadcasterFactory]
+  private[this] val logger = LoggerFactory.getLogger(classOf[ScalatraBroadcasterFactory])
   private[this] val store: ConcurrentMap[Any, Broadcaster] = new ConcurrentHashMap[Any, Broadcaster]().asScala
 
   override def configure(clazz: Class[_ <: Broadcaster], broadcasterLifeCyclePolicy: String, c: AtmosphereConfig = cfg): Unit = {
