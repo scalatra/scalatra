@@ -35,7 +35,7 @@ trait ScalatraContext
   /**
    * Gets the status code of the current response.
    */
-  def status: Int = response.status.code
+  def status: Int = response.status
 
   /**
    * Sets the content type of the current response.
@@ -47,7 +47,7 @@ trait ScalatraContext
   /**
    * Sets the status code of the current response.
    */
-  def status_=(code: Int): Unit = { response.status = ResponseStatus(code) }
+  def status_=(code: Int): Unit = { response.status = code }
 
   /**
    * Explicitly sets the request-scoped format.  This takes precedence over

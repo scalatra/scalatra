@@ -51,10 +51,6 @@ trait ActionResultTestBase {
       headerName -> "application/vnd.ms-excel"))
   }
 
-  get("/custom-reason") {
-    BadRequest(body = "abc", reason = "Bad Bad Bad")
-  }
-
   get("/input-stream") {
     contentType = "image/png"
     getClass.getResourceAsStream("/org/scalatra/servlet/smiley.png")
@@ -193,14 +189,6 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
     "keep body empty" in {
       get("/ok-no-body") {
         body mustEqual ""
-      }
-    }
-  }
-
-  "returning ActionResult with custom reason" should {
-    "set a custom reason on status line" in {
-      get("/custom-reason") {
-        response.getReason mustEqual "Bad Bad Bad"
       }
     }
   }

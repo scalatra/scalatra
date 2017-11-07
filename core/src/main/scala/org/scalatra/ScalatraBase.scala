@@ -437,7 +437,7 @@ trait ScalatraBase
       }
       response.writer.print(x.toString)
     case status: Int =>
-      response.status = ResponseStatus(status)
+      response.status = status
     case bytes: Array[Byte] =>
       if (contentType != null && contentType.startsWith("text")) response.setCharacterEncoding(FileCharset(bytes).name)
       response.outputStream.write(bytes)
@@ -453,7 +453,7 @@ trait ScalatraBase
     // If an action returns Unit, it assumes responsibility for the response
     case _: Unit | Unit | null =>
     // If an action returns Unit, it assumes responsibility for the response
-    case ActionResult(ResponseStatus(404, _), _: Unit | Unit, _) => doNotFound()
+    case ActionResult(404, _: Unit | Unit, _) => doNotFound()
     case actionResult: ActionResult =>
       response.status = actionResult.status
       actionResult.headers.foreach {
@@ -512,15 +512,13 @@ trait ScalatraBase
     try {
       var rendered = false
       e match {
-        case HaltException(Some(404), _, _, _: Unit | Unit) |
-          HaltException(_, _, _, ActionResult(ResponseStatus(404, _), _: Unit | Unit, _)) =>
+        case HaltException(Some(404), _, _: Unit | Unit) |
+          HaltException(_, _, ActionResult(404, _: Unit | Unit, _)) =>
           renderResponse(doNotFound())
           rendered = true
-        case HaltException(Some(status), Some(reason), _, _) =>
-          response.status = ResponseStatus(status, reason)
-        case HaltException(Some(status), None, _, _) =>
-          response.status = ResponseStatus(status)
-        case HaltException(None, _, _, _) => // leave status line alone
+        case HaltException(Some(status), _, _) =>
+          response.status = status
+        case HaltException(None, _, _) => // leave status line alone
       }
       e.headers foreach {
         case (name, value) => response.addHeader(name, value)
@@ -535,8 +533,8 @@ trait ScalatraBase
   }
 
   protected def extractStatusCode(e: HaltException): Int = e match {
-    case HaltException(Some(status), _, _, _) => status
-    case _ => response.status.code
+    case HaltException(Some(status), _, _) => status
+    case _ => response.status
   }
 
   def get(transformers: RouteTransformer*)(action: => Any): Route = addRoute(Get, transformers, action)

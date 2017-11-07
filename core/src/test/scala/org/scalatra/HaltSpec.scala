@@ -34,7 +34,6 @@ class HaltTestServlet extends ScalatraServlet {
   get("/all-args") {
     halt(
       status = 403,
-      reason = "Go away",
       headers = Map("X-Your-Mother-Was-A" -> "hamster", "X-Your-Father-Smelt-Of" -> "elderberries"),
       body = <h1>Go away or I shall taunt you a second time!</h1>)
     "this content must not be returned"
@@ -46,7 +45,7 @@ class HaltTestServlet extends ScalatraServlet {
 
   get("/action-result") {
     halt(ActionResult(
-      status = new ResponseStatus(406, "Not Acceptable"),
+      status = 406,
       headers = Map("X-Action-Result" -> "present"),
       body = "body sent using ActionResult"))
     "this content must not be returned"
@@ -81,14 +80,12 @@ class HaltSpec extends ScalatraSpec {
       "halt with all arguments should" ^
       "behave like a common halt" ^ commonHalt("/all-args") ^
       "set the status" ! status("/all-args", 403) ^
-      "set the reason" ! reason("/all-args", "Go away") ^
       "set the headers" ! hasHeader("/all-args", "X-Your-Father-Smelt-Of", "elderberries") ^
       "render the body" ! bodyEquals("/all-args", "<h1>Go away or I shall taunt you a second time!</h1>") ^
       end ^
       "halt with an ActionResult should" ^
       "behave like a common halt" ^ commonHalt("/action-result") ^
       "set the status" ! status("/action-result", 406) ^
-      "set the reason" ! reason("/action-result", "Not Acceptable") ^
       "set the headers" ! hasHeader("/action-result", "X-Action-Result", "present") ^
       "render the body" ! bodyEquals("/action-result", "body sent using ActionResult") ^
       end ^

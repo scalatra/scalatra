@@ -94,7 +94,7 @@ trait FutureSupport extends AsyncSupport {
       def onTimeout(event: AsyncEvent): Unit = {
         onAsyncEvent(event) {
           if (gotResponseAlready.compareAndSet(false, true)) {
-            renderHaltException(HaltException(Some(504), None, Map.empty, "Gateway timeout"))
+            renderHaltException(HaltException(Some(504), Map.empty, "Gateway timeout"))
             event.getAsyncContext.complete()
           }
         }
