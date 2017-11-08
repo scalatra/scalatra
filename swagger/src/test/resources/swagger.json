@@ -73,8 +73,8 @@
           "200": {
             "description": "OK",
             "schema": {
-              "type": "array",
-              "items": {
+              "type": "object",
+              "additionalProperties": {
                 "$ref": "#/definitions/Pet"
               }
             }

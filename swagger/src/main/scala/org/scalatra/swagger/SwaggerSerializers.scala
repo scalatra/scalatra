@@ -178,6 +178,10 @@ object SwaggerSerializers {
       ("type" -> "array") ~ ("items" -> writeDataType(dt, "$ref")) ~ ("uniqueItems" -> true)
     case DataType.ContainerDataType("Set", _, _) =>
       ("type" -> "array") ~ ("uniqueItems" -> true)
+    case DataType.ContainerDataType("Map", Some(dt), _) =>
+      ("type" -> "array") ~ ("items" -> writeDataType(dt, "$ref")) // Swagger 1.x doesn't support Map representation.
+    case DataType.ContainerDataType("Map", _, _) =>
+      ("type" -> "array") ~ ("format" -> None) // Swagger 1.x doesn't support Map representation.
     case DataType.ValueDataType(name, _, qualifiedName) =>
       (key -> name): JValue //~ ("qualifiedType" -> qualifiedName)
   }

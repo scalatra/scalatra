@@ -51,14 +51,21 @@ object Swagger {
 
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
-    if (tpe.isMap) collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
-    else if ((tpe.isCollection && tpe.typeArgs.headOption.isDefined) || (tpe.isOption && tpe.typeArgs.headOption.isDefined)) {
+    if (tpe.isMap) {
+      collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
+
+    } else if ((tpe.isCollection && tpe.typeArgs.headOption.isDefined) || (tpe.isOption && tpe.typeArgs.headOption.isDefined)) {
       val ntpe = tpe.typeArgs.head
-      if (!known.contains(ntpe)) collectModels(ntpe, alreadyKnown, known + ntpe)
-      else Set.empty
+      if (!known.contains(ntpe)) {
+        collectModels(ntpe, alreadyKnown, known + ntpe)
+      } else {
+        Set.empty
+      }
+
     } else {
-      if (alreadyKnown.map(_.id).contains(tpe.simpleName)) Set.empty
-      else {
+      if (alreadyKnown.map(_.id).contains(tpe.simpleName)) {
+        Set.empty
+      } else {
         val descr = Reflector.describe(tpe)
         descr match {
           case descriptor: ClassDescriptor =>
@@ -307,11 +314,11 @@ object DataType {
     def apply(v: DataType): DataType = new ContainerDataType("Array", Some(v))
   }
 
-  //  object GenMap {
-  //    def apply(): DataType = Map
-  //    def apply(k: DataType, v: DataType): DataType = new DataType("Map[%s, %s]" format(k.name, v.name))
-  //  }
-  //
+  object GenMap {
+    def apply(): DataType = ContainerDataType("Map")
+    def apply(v: DataType): DataType = new ContainerDataType("Map", Some(v))
+  }
+
   def apply(name: String, format: Option[String] = None, qualifiedName: Option[String] = None) =
     new ValueDataType(name, format, qualifiedName)
   def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](mf)
@@ -350,6 +357,9 @@ object DataType {
     } else if (classOf[collection.Seq[_]].isAssignableFrom(klass) || classOf[java.util.List[_]].isAssignableFrom(klass)) {
       if (st.typeArgs.nonEmpty) GenList(fromScalaType(st.typeArgs.head))
       else GenList()
+    } else if (st.isMap) {
+      if (st.typeArgs.nonEmpty) GenMap(fromScalaType(st.typeArgs.last))
+      else GenMap()
     } else if (st.isArray || isCollection(klass)) {
       if (st.typeArgs.nonEmpty) GenArray(fromScalaType(st.typeArgs.head))
       else GenArray()
