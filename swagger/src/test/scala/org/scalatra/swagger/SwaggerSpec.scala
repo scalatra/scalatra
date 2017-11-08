@@ -427,8 +427,10 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   def verifyFields(actual: JValue, expected: JValue, fields: String*): MatchResult[Any] = {
     def verifyField(act: JValue, exp: JValue, fn: String): MatchResult[Any] = {
       fn match {
+        case "additionalProperties" =>
+          verifyFields(act \ fn, exp \ fn, "type", "$ref")
         case "schema" =>
-          verifyFields(act \ fn, exp \ fn, "type", "items", "$ref")
+          verifyFields(act \ fn, exp \ fn, "type", "items", "$ref", "additionalProperties")
         case "items" =>
           verifyFields(act \ fn, exp \ fn, "type", "$ref")
         case "responses" =>
@@ -549,7 +551,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
   }
 
   val findByTags =
-    (apiOperation[List[Pet]]("findPetsByTags").deprecate
+    (apiOperation[Map[String, Pet]]("findPetsByTags").deprecate
       summary "Finds Pets by tags"
       notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
       produces ("application/json", "application/xml")
@@ -680,9 +682,9 @@ class PetData {
     pets.filter(pet => statuses.contains(pet.status))
   }
 
-  def findPetsByTags(tag: String): List[Pet] = {
+  def findPetsByTags(tag: String): Map[String, Pet] = {
     val tags = tag.split(",").toSet
-    pets.filter(pet => (tags & pet.tags.map(_.name).toSet).nonEmpty)
+    pets.collect { case pet if (tags & pet.tags.map(_.name).toSet).nonEmpty => pet.name -> pet }.toMap
   }
 
   def addPet(pet: Pet) = {
