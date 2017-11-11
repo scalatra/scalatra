@@ -79,7 +79,7 @@ lazy val scalatraCommon = Project(
 )
 
 lazy val scalatraCore = Project(
-  id = "scalatra-core",
+  id = "scalatra",
   base = file("core")).settings(scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       servletApi % "provided;test",
