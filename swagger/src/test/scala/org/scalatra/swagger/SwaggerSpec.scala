@@ -17,273 +17,6 @@ import scala.collection.mutable
 import scala.io.Source
 
 /**
- * TestCase for Swagger 1.x support
- */
-class SwaggerSpec extends ScalatraSpec with JsonMatchers {
-  def is = sequential ^
-    "Swagger integration should" ^
-    "list resources" ! listResources ^
-    "list pet operations" ! listPetOperations ^
-    "list store operations" ! listStoreOperations ^
-    "list user operations" ! listUserOperations ^
-    "list model elements in order" ! checkModelOrder ^
-    end
-  val apiInfo = ApiInfo(
-    title = "Swagger Sample App",
-    description = "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
-    termsOfServiceUrl = "http://helloreverb.com/terms/",
-    contact = "apiteam@wordnik.com",
-    license = "Apache 2.0",
-    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html")
-  val swagger = new Swagger("1.2", "1.0.0", apiInfo)
-  swagger.addAuthorization(ApiKey("apiKey"))
-  swagger.addAuthorization(ApiKey("Authorization1", "query"))
-  swagger.addAuthorization(OAuth(
-    List("PUBLIC"),
-    List(
-      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
-      AuthorizationCodeGrant(
-        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
-        TokenEndpoint("http://localhost:8002/oauth/token", "access_code")))))
-  swagger.addAuthorization(OAuth(
-    List("PUBLIC"),
-    List(
-      ImplicitGrant(LoginEndpoint("http://localhost:8002/oauth/dialog"), "access_code"),
-      AuthorizationCodeGrant(
-        TokenRequestEndpoint("http://localhost:8002/oauth/requestToken", "client_id", "client_secret"),
-        TokenEndpoint("http://localhost:8002/oauth/token", "access_code"))),
-    "AuthorizationN"))
-  val testServlet = new SwaggerTestServlet(swagger)
-
-  addServlet(testServlet, "/pet/*")
-  addServlet(new StoreApi(swagger), "/store/*")
-  addServlet(new UserApi(swagger), "/user/*")
-  addServlet(new SwaggerResourcesServlet(swagger), "/api-docs/*")
-  implicit val formats = DefaultFormats
-
-  /**
-   * Sets the port to listen on.  0 means listen on any available port.
-   */
-  override lazy val port: Int = { val s = new ServerSocket(0); try { s.getLocalPort } finally { s.close() } } //58468
-
-  val listResourceJValue = readJson("api-docs.json") // merge (("basePath" -> ("http://localhost:" + port)):JValue)
-
-  val petOperationsJValue = readJson("pet.json") merge (("basePath" -> ("http://localhost:" + port)): JValue)
-  val storeOperationsJValue = readJson("store.json") merge (("basePath" -> ("http://localhost:" + port)): JValue)
-  val userOperationsJValue = readJson("user.json") merge (("basePath" -> ("http://localhost:" + port)): JValue)
-
-  private def readJson(file: String) = {
-    val f = if (file startsWith "/") file else "/" + file
-    val rdr = Source.fromInputStream(getClass.getResourceAsStream(f)).bufferedReader()
-    JsonParser.parse(rdr)
-  }
-
-  def listResources = get("/api-docs") {
-    val bd = JsonParser.parseOpt(body)
-    bd must beSome[JValue] and {
-      val j = bd.get
-      (j \ "apiVersion" must_== listResourceJValue \ "apiVersion") and
-        (j \ "swaggerVersion" must_== listResourceJValue \ "swaggerVersion") and
-        verifyInfo(j \ "info") and
-        verifyApis(j \ "apis") and
-        verifyAuthorizations(j \ "authorizations")
-
-    }
-  }
-
-  def parseInt(i: String): Option[Int] =
-    try {
-      Some(Integer.parseInt(i))
-    } catch {
-      case _: Throwable ⇒ None
-    }
-
-  val propOrder = "category" :: "name" :: "id" :: "tags" :: "status" :: "photoUrls" :: Nil
-  def checkModelOrder = {
-    get("/api-docs/pet") {
-      val bd = JsonParser.parseOpt(body)
-      bd must beSome[JValue] and {
-        val j = bd.get
-        val props = (j \ "models" \ "Pet" \ "properties").asInstanceOf[JObject].values.map { case (x, y) ⇒ x → y.asInstanceOf[Map[String, BigInt]].get("position").flatMap(x ⇒ parseInt(x.toString)).getOrElse(0) }.toList sortBy (_._2) map (_._1)
-        props must_== propOrder
-      }
-    }
-  }
-
-  def verifyApis(j: JValue) = {
-    val JArray(apis) = j
-    val expectations = mutable.HashMap("/pet" -> "Operations about pets", "/store" -> "Operations about store", "/user" -> "Operations about user")
-    apis map { api =>
-      val JString(path) = api \ "path"
-      val desc = expectations(path)
-      expectations -= path
-      JString(desc) must_== api \ "description"
-    } reduce (_ and _) and (expectations must beEmpty)
-  }
-
-  def verifyAuthorizations(j: JValue) = {
-    val auth = listResourceJValue \ "authorizations"
-    j \ "oauth2" \ "type" must_== auth \ "oauth2" \ "type" and
-      (j \ "oauth2" \ "scopes" must_== auth \ "oauth2" \ "scopes") and
-      (j \ "oauth2" \ "grantTypes" \ "implicit" \ "loginEndpoint" must_== auth \ "oauth2" \ "grantTypes" \ "implicit" \ "loginEndpoint") and
-      (j \ "oauth2" \ "grantTypes" \ "implicit" \ "tokenName" must_== auth \ "oauth2" \ "grantTypes" \ "implicit" \ "tokenName") and
-      (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "url" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "url") and
-      (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientIdName" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientIdName") and
-      (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientSecretName" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenRequestEndpoint" \ "clientSecretName") and
-      (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "url" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "url") and
-      (j \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "tokenName" must_== auth \ "oauth2" \ "grantTypes" \ "authorization_code" \ "tokenEndpoint" \ "tokenName") and
-      (j \ "apiKey" \ "type" must_== auth \ "apiKey" \ "type") and
-      (j \ "apiKey" \ "passAs" must_== auth \ "apiKey" \ "passAs")
-  }
-
-  def verifyInfo(j: JValue) = {
-    val info = listResourceJValue \ "info"
-    (j \ "title" must_== info \ "title") and
-      (j \ "description" must_== info \ "description") and
-      (j \ "termsOfServiceUrl" must_== info \ "termsOfServiceUrl") and
-      (j \ "contact" must_== info \ "contact") and
-      (j \ "license" must_== info \ "license") and
-      (j \ "licenseUrl" must_== info \ "licenseUrl")
-  }
-
-  val petOperations = "updatePet" :: "addPet" :: "deletePet" :: "findPetsByTags" :: "findPetsByStatus" :: "getPetById" :: Nil
-  val storeOperations = "placeOrder" :: "deleteOrder" :: "getOrderById" :: Nil
-  //  val operations = "allPets" :: Nil
-  def listPetOperations = {
-    get("/api-docs/pet") {
-      val bo = JsonParser.parseOpt(body)
-      bo must beSome[JValue] and
-        verifyCommon(bo.get, petOperationsJValue, List("/pet/{petId}", "/pet/findByTags", "/pet/findByStatus", "/pet/")) and
-        petOperations.map(verifyOperation(bo.get, petOperationsJValue, _)).reduce(_ and _) and
-        verifyPetModel(bo.get) and
-        verifyErrorModel(bo.get)
-    }
-  }
-
-  def listStoreOperations = {
-    get("/api-docs/store") {
-      val bo = JsonParser.parseOpt(body)
-      bo must beSome[JValue] and
-        verifyCommon(bo.get, storeOperationsJValue, List("/store/order/{orderId}", "/store/order")) and
-        storeOperations.map(verifyOperation(bo.get, storeOperationsJValue, _)).reduce(_ and _) and
-        verifyStoreModel(bo.get)
-    }
-  }
-
-  def listUserOperations = {
-    pending
-    //    get("/api-docs/pet") {
-    //      val bo = JsonParser.parseOpt(body)
-    //      bo must beSome[JValue] and
-    //        verifyCommon(bo.get) and
-    //        operations.map(verifyOperation(bo.get, _)).reduce(_ and _) and
-    //        verifyPetModel(bo.get)
-    //    }
-  }
-
-  def verifyCommon(actual: JValue, expected: JValue, operationPaths: List[String]): MatchResult[Any] = {
-    (actual \ "apiVersion" must_== expected \ "apiVersion") and
-      (actual \ "swaggerVersion" must_== expected \ "swaggerVersion") and
-      (actual \ "basePath" must_== expected \ "basePath") and
-      (actual \ "description" must_== expected \ "description") and
-      (actual \ "consumes" must_== expected \ "consumes") and
-      (actual \ "produces" must_== expected \ "produces") and
-      (actual \ "resourcePath" must_== expected \ "resourcePath") and {
-        val ja = actual \ "apis" \ "path" \\ classOf[JString]
-        (ja must haveSize(operationPaths.size)) and
-          (ja must containTheSameElementsAs(operationPaths))
-      }
-  }
-
-  def verifyOperation(actual: JValue, expected: JValue, name: String) = {
-    val op = findOperation(actual, name)
-    val exp = findOperation(expected, name)
-    (op must beSome[JValue]).setMessage("Couldn't find operation: " + name) and {
-      val m = verifyFields(op.get, exp.get, "method", "nickname", "type", "$ref", "items", "summary", "parameters", "notes", "responseMessages", "consumes", "produces", "protocols", "authorizations")
-      m setMessage (m.message + " of the operation " + name)
-    }
-  }
-
-  def verifyPetModel(actualPetJson: JValue) = {
-    def petProperties(jv: JValue) = jv \ "models" \ "Pet" \ "properties"
-    //    println("pet model " + jackson.prettyJson(actualPetJson))
-    val actualPetProps = petProperties(actualPetJson)
-    val expectedPetProps = petProperties(petOperationsJValue)
-
-    val m = verifyFields(actualPetProps, expectedPetProps, "category", "id", "name", "status", "tags", "urls")
-    m setMessage (m.message + " of the pet model")
-  }
-
-  def verifyErrorModel(actualPetJson: JValue) = {
-    def petProperties(jv: JValue) = jv \ "models" \ "Error" \ "properties"
-    //    println("pet model " + jackson.prettyJson(actualPetJson))
-    val actualErrorProps = petProperties(actualPetJson)
-    val expectedErrorProps = petProperties(petOperationsJValue)
-
-    val m = verifyFields(actualErrorProps, expectedErrorProps, "message")
-    m setMessage (m.message + " of the error model")
-  }
-
-  def verifyStoreModel(actualStoreJson: JValue) = {
-    def petProperties(jv: JValue) = jv \ "models" \ "Order" \ "properties"
-    val actualOrderProps = petProperties(actualStoreJson)
-    val expectedOrderProps = petProperties(storeOperationsJValue)
-
-    val m = verifyFields(actualOrderProps, expectedOrderProps, "id", "status", "petId", "quantity", "shipDate")
-    m setMessage (m.message + " of the order model")
-  }
-
-  def verifyFields(actual: JValue, expected: JValue, fields: String*): MatchResult[Any] = {
-    def verifyField(act: JValue, exp: JValue, fn: String): MatchResult[Any] = {
-      fn match {
-        case "responseMessages" =>
-          val af = act \ fn match {
-            case JArray(res) => res
-            case _ => Nil
-          }
-          val JArray(ef) = exp \ fn
-          val r = af map { v =>
-            val mm = verifyFields(
-              v,
-              ef find (_ \ "code" == v \ "code") getOrElse JNothing,
-              "code", "message", "responseModel")
-            mm setMessage (mm.message + " in response messages collection")
-          }
-          def countsmatch = (af.size must_== ef.size).setMessage("The count for the responseMessages is different")
-          if (r.nonEmpty) { countsmatch and (r reduce (_ and _)) } else countsmatch
-        case "parameters" =>
-          val JArray(af) = act \ fn
-          val JArray(ef) = exp \ fn
-          val r = af map { v =>
-            val mm = verifyFields(
-              v,
-              ef find (_ \ "name" == v \ "name") get,
-              "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess")
-            mm setMessage (mm.message + " in parameter " + (v \ "name").extractOrElse("N/A"))
-          }
-
-          if (r.nonEmpty) r reduce (_ and _) else 1.must_==(1)
-        case _ =>
-          val m = act \ fn must_== exp \ fn
-          m setMessage (JsonMethods.compact(JsonMethods.render(act \ fn)) + " does not match\n" + JsonMethods.compact(JsonMethods.render(exp \ fn)) + " for field " + fn)
-      }
-    }
-
-    fields map (verifyField(actual, expected, _)) reduce (_ and _)
-  }
-
-  def findOperation(jv: JValue, name: String) = {
-    val JArray(ja) = jv \ "apis"
-    ja find { jn =>
-      val JArray(ops) = jn \ "operations"
-      ops.exists(_ \ "nickname" == JString(name))
-    } flatMap { api =>
-      (api \ "operations").find(_ \ "nickname" == JString(name))
-    }
-  }
-}
-
-/**
  * TestCase for Swagger 2.0 support
  */
 class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
@@ -295,9 +28,13 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     title = "Swagger Sample App",
     description = "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
     termsOfServiceUrl = "http://helloreverb.com/terms/",
-    contact = "apiteam@wordnik.com",
-    license = "Apache 2.0",
-    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html")
+    contact = ContactInfo(
+      name = "helloreverb apiteam",
+      url = "http://helloreverb.com/",
+      email = "apiteam@wordnik.com"),
+    license = LicenseInfo(
+      name = "Apache 2.0",
+      url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
   val swagger = new Swagger("2.0", "1.0.0", apiInfo)
   swagger.addAuthorization(ApiKey("apiKey"))
   swagger.addAuthorization(ApiKey("Authorization1", "query", "you must register your app to receive an apikey"))
@@ -390,6 +127,8 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
       (j \ "description" must_== info \ "description") and
       (j \ "termsOfService" must_== info \ "termsOfService") and
       (j \ "contact" \ "name" must_== info \ "contact" \ "name") and
+      (j \ "contact" \ "url" must_== info \ "contact" \ "url") and
+      (j \ "contact" \ "email" must_== info \ "contact" \ "email") and
       (j \ "license" \ "name" must_== info \ "license" \ "name") and
       (j \ "license" \ "url" must_== info \ "license" \ "url")
   }
@@ -491,7 +230,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
   val getPet =
     (apiOperation[Pet]("getPetById")
       summary "Find pet by ID"
-      notes "Returns a pet based on ID"
+      description "Returns a pet based on ID"
       responseMessages (ResponseMessage(400, "Invalid ID supplied").model[Error], ResponseMessage(404, "Pet not found"))
       parameter pathParam[String]("petId").description("ID of pet that needs to be fetched")
       produces ("application/json", "application/xml")
@@ -537,7 +276,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
   val findByStatus =
     (apiOperation[List[Pet]]("findPetsByStatus").deprecate
       summary "Finds Pets by status"
-      notes "Multiple status values can be provided with comma separated strings"
+      description "Multiple status values can be provided with comma separated strings"
       produces ("application/json", "application/xml")
       responseMessage ResponseMessage(400, "Invalid status value")
       authorizations ("apiKey")
@@ -553,7 +292,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
   val findByTags =
     (apiOperation[Map[String, Pet]]("findPetsByTags").deprecate
       summary "Finds Pets by tags"
-      notes "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
+      description "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
       produces ("application/json", "application/xml")
       authorizations ("AuthorizationN")
       responseMessage ResponseMessage(400, "Invalid tag value")
@@ -575,7 +314,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   val getOrderOperation =
     (apiOperation[Order]("getOrderById")
       summary "Find purchase order by ID"
-      notes "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
+      description "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
       produces ("application/json", "application/xml")
       tags ("store")
       parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required
@@ -590,7 +329,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   val deleteOrderOperation =
     (apiOperation[Unit]("deleteOrder")
       summary "Delete purchase order by ID"
-      notes "For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors"
+      description "For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors"
       tags ("store")
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),

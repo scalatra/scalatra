@@ -137,11 +137,9 @@ object SwaggerSupportSyntax {
     private[this] var _dataType: DataType = _
     private[this] var _name: String = _
     private[this] var _description: Option[String] = None
-    private[this] var _notes: Option[String] = None
     private[this] var _paramType: ParamType.ParamType = ParamType.Query
     private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
     protected[this] var _required: Option[Boolean] = None
-    //    private[this] var _allowMultiple: Boolean = false
     private[this] var _paramAccess: Option[String] = None
 
     def dataType: DataType = _dataType
@@ -150,7 +148,6 @@ object SwaggerSupportSyntax {
     def description(description: String): this.type = { _description = description.blankOption; this }
     def description(description: Option[String]): this.type = { _description = description.flatMap(_.blankOption); this }
 
-    def notes(notes: String): this.type = { _notes = notes.blankOption; this }
     def paramType(name: ParamType.ParamType): this.type = { _paramType = name; this }
 
     def fromBody: this.type = paramType(ParamType.Body)
@@ -177,7 +174,6 @@ object SwaggerSupportSyntax {
 
     def name: String = _name
     def description: Option[String] = _description
-    def notes: Option[String] = _notes
     def paramType: ParamType.ParamType = _paramType
     def paramAccess = _paramAccess
     def allowableValues: AllowableValues = _allowableValues
@@ -197,7 +193,7 @@ object SwaggerSupportSyntax {
     }
 
     def result =
-      Parameter(name, dataType, description, notes, paramType, defaultValue, allowableValues, isRequired)
+      Parameter(name, dataType, description, paramType, defaultValue, allowableValues, isRequired)
   }
 
   class ParameterBuilder[T: Manifest](initialDataType: DataType) extends SwaggerParameterBuilder {
@@ -220,7 +216,7 @@ object SwaggerSupportSyntax {
     private[this] var _summary: String = ""
     private[this] var _description: String = ""
     private[this] var _deprecated: Boolean = false
-    private[this] var _nickname: String = _
+    private[this] var _operationId: String = _
     private[this] var _parameters: List[Parameter] = Nil
     private[this] var _responseMessages: List[ResponseMessage] = Nil
     private[this] var _produces: List[String] = Nil
@@ -232,35 +228,15 @@ object SwaggerSupportSyntax {
 
     def resultClass: DataType
 
-    def summary(content: String): this.type = {
-      _summary = content
-      this
-    }
+    def summary(content: String): this.type = { _summary = content; this }
     def summary: String = _summary
-    @deprecated("This property will be dropped in Scalatra 2.7.0. Use description instead.", "2.6.0")
-    def notes(content: String): this.type = {
-      _description = content
-      this
-    }
-    @deprecated("This property will be dropped in Scalatra 2.7.0. Use description instead.", "2.6.0")
-    def notes: Option[String] = _description.blankOption
-    def description(content: String): this.type = {
-      _description = content
-      this
-    }
+    def description(content: String): this.type = { _description = content; this }
     def description: Option[String] = _description.blankOption
-    def deprecated(value: Boolean): this.type = {
-      _deprecated = value
-      this
-    }
+    def deprecated(value: Boolean): this.type = { _deprecated = value; this }
     def deprecated: Boolean = _deprecated
     def deprecate: this.type = { _deprecated = true; this }
-    @deprecated("This property will be dropped in Scalatra 2.7.0. Use operationId instead.", "2.6.0")
-    def nickname(value: String): this.type = { _nickname = value; this }
-    @deprecated("This property will be dropped in Scalatra 2.7.0. Use operationId instead.", "2.6.0")
-    def nickName(value: String): this.type = nickname(value)
-    @deprecated("This property will be dropped in Scalatra 2.7.0. Use operationId instead.", "2.6.0")
-    def nickname: Option[String] = _nickname.blankOption
+    def operationId(value: String): this.type = { _operationId = value; this }
+    def operationId: String = _operationId
     def parameters(params: Parameter*): this.type = { _parameters :::= params.toList; this }
     def parameter(param: Parameter): this.type = parameters(param)
     def parameters: List[Parameter] = _parameters
@@ -271,10 +247,6 @@ object SwaggerSupportSyntax {
     def produces: List[String] = _produces
     def consumes: List[String] = _consumes
     def consumes(values: String*): this.type = { _consumes :::= values.toList; this }
-    @deprecated("This property will be dropped in Scalatra 2.7.0. Use schemes instead.", "2.6.0")
-    def protocols: List[String] = _schemes
-    @deprecated("This property will be dropped in Scalatra 2.7.0. Use schemes instead.", "2.6.0")
-    def protocols(values: String*): this.type = { _schemes :::= values.toList; this }
     def schemes: List[String] = _schemes
     def schemes(values: String*): this.type = { _schemes :::= values.toList; this }
     def authorizations: List[String] = _authorizations
@@ -290,12 +262,12 @@ object SwaggerSupportSyntax {
   class OperationBuilder(val resultClass: DataType) extends SwaggerOperationBuilder[Operation] {
     def result: Operation = Operation(
       null,
+      operationId,
       resultClass,
       summary,
       position,
-      notes,
+      description,
       deprecated,
-      nickname,
       parameters,
       responseMessages,
       consumes,
@@ -501,13 +473,13 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   import org.scalatra.swagger.SwaggerSupportSyntax._
 
   protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
-  protected def apiOperation[T: Manifest: NotNothing](nickname: String): OperationBuilder = {
+  protected def apiOperation[T: Manifest: NotNothing](operationId: String): OperationBuilder = {
     registerModel[T]()
-    new OperationBuilder(DataType[T]).nickname(nickname)
+    new OperationBuilder(DataType[T]).operationId(operationId)
   }
-  protected def apiOperation(nickname: String, model: Model): OperationBuilder = {
+  protected def apiOperation(operationId: String, model: Model): OperationBuilder = {
     registerModel(model)
-    new OperationBuilder(ValueDataType(model.id)).nickname(nickname)
+    new OperationBuilder(ValueDataType(model.id)).operationId(operationId)
   }
 
   /**
@@ -530,22 +502,23 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
    */
   protected def extractOperation(route: Route, method: HttpMethod): Operation = {
     val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[Operation])
+    println(op)
     op map (_.copy(method = method)) getOrElse {
       val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
       val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
       val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[DataType]) getOrElse DataType.Void
       val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
-      val notes = route.metadata.get(Symbols.Notes) map (_.asInstanceOf[String])
-      val nick = route.metadata.get(Symbols.Nickname) map (_.asInstanceOf[String])
+      val description = route.metadata.get(Symbols.Description) map (_.asInstanceOf[String])
+      val operationId = route.metadata.get(Symbols.OperationId) map (_.asInstanceOf[String]) getOrElse ""
       val produces = route.metadata.get(Symbols.Produces) map (_.asInstanceOf[List[String]]) getOrElse Nil
       val consumes = route.metadata.get(Symbols.Consumes) map (_.asInstanceOf[List[String]]) getOrElse Nil
       Operation(
         method = method,
+        operationId = operationId,
         responseClass = responseClass,
         summary = summary,
         position = 0,
-        description = notes,
-        operationId = nick,
+        description = description,
         parameters = theParams,
         responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,

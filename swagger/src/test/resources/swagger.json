@@ -6,7 +6,9 @@
     "description": "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
     "termsOfService": "http://helloreverb.com/terms/",
     "contact": {
-      "name": "apiteam@wordnik.com"
+      "name": "helloreverb apiteam",
+      "url": "http://helloreverb.com/",
+      "email": "apiteam@wordnik.com"
     },
     "license": {
       "name": "Apache 2.0",

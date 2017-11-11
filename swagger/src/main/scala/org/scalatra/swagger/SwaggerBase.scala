@@ -47,27 +47,8 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
-    if (swagger.swaggerVersion.startsWith("2.")) {
-      get("/swagger.json") {
-        renderSwagger2(swagger.docs.toList.asInstanceOf[List[ApiType]])
-      }
-    } else {
-      logger.warn("Move to Swagger 2.0 because Swagger 1.x support will be dropped in Scalatra 2.7.0!!")
-
-      get("""/([^.]+)*(?:\.(\w+))?""".r) {
-        val doc :: fmt :: Nil = multiParams("captures").toList
-        if (fmt != null) format = fmt
-        swagger.doc(doc) match {
-          case Some(d) ⇒ renderDoc(d.asInstanceOf[ApiType])
-          case _ ⇒ halt(404)
-        }
-      }
-
-      get("/(" + indexRoute + "(.:format))") {
-        renderIndex(swagger.docs.toList.asInstanceOf[List[ApiType]])
-      }
-
-      options("/(" + indexRoute + "(.:format))") {}
+    get("/swagger.json") {
+      renderSwagger2(swagger.docs.toList.asInstanceOf[List[ApiType]])
     }
   }
 
@@ -76,41 +57,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
    */
   protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
 
-  @deprecated("Swagger 1.x support will be dropped in Scalatra 2.7.0", "2.6.0")
-  protected def renderDoc(doc: ApiType): JValue = {
-    val json = docToJson(doc) merge
-      ("basePath" -> fullUrl("/", includeContextPath = swagger.baseUrlIncludeContextPath, includeServletPath = swagger.baseUrlIncludeServletPath)) ~
-      ("swaggerVersion" -> swagger.swaggerVersion) ~
-      ("apiVersion" -> swagger.apiVersion)
-    val consumes = dontAddOnEmpty("consumes", doc.consumes)_
-    val produces = dontAddOnEmpty("produces", doc.produces)_
-    val protocols = dontAddOnEmpty("protocols", doc.protocols)_
-    val authorizations = dontAddOnEmpty("authorizations", doc.authorizations)_
-    val jsonDoc = (consumes andThen produces andThen protocols andThen authorizations)(json)
-    //    println("The rendered json doc:\n" + jackson.prettyJson(jsonDoc))
-    jsonDoc
-  }
-
-  private[this] def dontAddOnEmpty(key: String, value: List[String])(json: JValue) = {
-    val v: JValue = if (value.nonEmpty) key -> value else JNothing
-    json merge v
-  }
-
-  @deprecated("Swagger 1.x support will be dropped in Scalatra 2.7.0", "2.6.0")
-  protected def renderIndex(docs: List[ApiType]): JValue = {
-    ("apiVersion" -> swagger.apiVersion) ~
-      ("swaggerVersion" -> swagger.swaggerVersion) ~
-      ("apis" ->
-        (docs.filter(_.apis.nonEmpty) map {
-          doc =>
-            ("path" -> (url(doc.resourcePath, includeServletPath = false, includeContextPath = false) + (if (includeFormatParameter) ".{format}" else ""))) ~
-              ("description" -> doc.description)
-        })) ~
-        ("authorizations" -> swagger.authorizations.foldLeft(JObject(Nil)) { (acc, auth) =>
-          acc merge JObject(List(auth.`type` -> Extraction.decompose(auth)))
-        }) ~
-        ("info" -> Option(swagger.apiInfo).map(Extraction.decompose(_)))
-  }
+  //  private[this] def dontAddOnEmpty(key: String, value: List[String])(json: JValue) = {
+  //    val v: JValue = if (value.nonEmpty) key -> value else JNothing
+  //    json merge v
+  //  }
 
   private[this] def generateDataType(dataType: DataType): List[JField] = {
     dataType match {
@@ -140,58 +90,59 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
         ("description" -> swagger.apiInfo.description) ~
         ("termsOfService" -> swagger.apiInfo.termsOfServiceUrl) ~
         ("contact" -> (
-          ("name" -> swagger.apiInfo.contact))) ~
+          ("name" -> swagger.apiInfo.contact.name) ~
+          ("url" -> swagger.apiInfo.contact.url) ~
+          ("email" -> swagger.apiInfo.contact.email))) ~
           ("license" -> (
-            ("name" -> swagger.apiInfo.license) ~
-            ("url" -> swagger.apiInfo.licenseUrl)))) ~
+            ("name" -> swagger.apiInfo.license.name) ~
+            ("url" -> swagger.apiInfo.license.url)))) ~
             ("paths" ->
-              (docs.filter(_.apis.nonEmpty).flatMap {
-                doc =>
-                  doc.apis.collect {
-                    case api: SwaggerEndpoint[_] =>
-                      (api.path -> api.operations.map { operation =>
-                        (operation.method.toString.toLowerCase -> (
-                          ("operationId" -> operation.operationId) ~
-                          ("summary" -> operation.summary) ~!
-                          ("schemes" -> operation.schemes) ~!
-                          ("consumes" -> operation.consumes) ~!
-                          ("produces" -> operation.produces) ~!
-                          ("tags" -> operation.tags) ~
-                          ("deprecated" -> operation.deprecated) ~
-                          ("parameters" -> operation.parameters.map { parameter =>
-                            ("name" -> parameter.name) ~
-                              ("description" -> parameter.description) ~
-                              ("required" -> parameter.required) ~
-                              ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
-                              (if (parameter.paramType.toString.toLowerCase == "body" && isStructuredType(parameter.`type`)) {
-                                List(JField("schema", generateDataType(parameter.`type`)))
-                              } else {
-                                generateDataType(parameter.`type`)
-                              })
-                          }) ~
-                          ("responses" ->
-                            ("200" ->
-                              (if (operation.responseClass.name == "void") {
-                                List(JField("description", "No response"))
-                              } else {
-                                List(JField("description", "OK"), JField("schema", generateDataType(operation.responseClass)))
-                              })) ~
-                              operation.responseMessages.map { response =>
-                                (response.code.toString ->
-                                  ("description", response.message) ~~
-                                  response.responseModel.map { model =>
-                                    List(JField("schema", JObject(JField("$ref", s"#/definitions/${model}"))))
-                                  }.getOrElse(Nil))
-                              }.toMap) ~!
-                              ("security" -> (operation.authorizations.flatMap { requirement =>
-                                swagger.authorizations.find(_.`keyname` == requirement).map {
-                                  case a: OAuth => (requirement -> a.scopes)
-                                  case b: ApiKey => (requirement -> List.empty)
-                                  case _ => (requirement -> List.empty)
-                                }
-                              }))))
-                      }.toMap)
-                  }.toMap
+              (docs.filter(_.apis.nonEmpty).flatMap { doc =>
+                doc.apis.collect {
+                  case api: SwaggerEndpoint[_] =>
+                    (api.path -> api.operations.map { operation =>
+                      (operation.method.toString.toLowerCase -> (
+                        ("operationId" -> operation.operationId) ~
+                        ("summary" -> operation.summary) ~!
+                        ("schemes" -> operation.schemes) ~!
+                        ("consumes" -> operation.consumes) ~!
+                        ("produces" -> operation.produces) ~!
+                        ("tags" -> operation.tags) ~
+                        ("deprecated" -> operation.deprecated) ~
+                        ("parameters" -> operation.parameters.map { parameter =>
+                          ("name" -> parameter.name) ~
+                            ("description" -> parameter.description) ~
+                            ("required" -> parameter.required) ~
+                            ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
+                            (if (parameter.paramType.toString.toLowerCase == "body" && isStructuredType(parameter.`type`)) {
+                              List(JField("schema", generateDataType(parameter.`type`)))
+                            } else {
+                              generateDataType(parameter.`type`)
+                            })
+                        }) ~
+                        ("responses" ->
+                          ("200" ->
+                            (if (operation.responseClass.name == "void") {
+                              List(JField("description", "No response"))
+                            } else {
+                              List(JField("description", "OK"), JField("schema", generateDataType(operation.responseClass)))
+                            })) ~
+                            operation.responseMessages.map { response =>
+                              (response.code.toString ->
+                                ("description", response.message) ~~
+                                response.responseModel.map { model =>
+                                  List(JField("schema", JObject(JField("$ref", s"#/definitions/${model}"))))
+                                }.getOrElse(Nil))
+                            }.toMap) ~!
+                            ("security" -> (operation.authorizations.flatMap { requirement =>
+                              swagger.authorizations.find(_.keyName == requirement).map {
+                                case a: OAuth => (requirement -> a.scopes)
+                                case b: ApiKey => (requirement -> List.empty)
+                                case _ => (requirement -> List.empty)
+                              }
+                            }))))
+                    }.toMap)
+                }.toMap
               }.toMap)) ~
               ("definitions" -> docs.flatMap { doc =>
                 doc.models.map {
@@ -214,13 +165,13 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
               ("securityDefinitions" -> (swagger.authorizations.flatMap { auth =>
                 (auth match {
                   case a: OAuth => a.grantTypes.headOption.map {
-                    case g: ImplicitGrant => (a.keyname -> JObject(
+                    case g: ImplicitGrant => (a.keyName -> JObject(
                       JField("type", "oauth2"),
                       JField("description", a.description),
                       JField("flow", "implicit"),
                       JField("authorizationUrl", g.loginEndpoint.url),
                       JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
-                    case g: AuthorizationCodeGrant => (a.keyname -> JObject(
+                    case g: AuthorizationCodeGrant => (a.keyName -> JObject(
                       JField("type", "oauth2"),
                       JField("description", a.description),
                       JField("flow", "accessCode"),
@@ -234,10 +185,10 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                       JField("tokenUrl", g.tokenEndpoint.url),
                       JField("scopes", a.scopes.map(scope => JField(scope, scope)))))
                   }
-                  case a: ApiKey => Some((a.keyname -> JObject(
+                  case a: ApiKey => Some((a.keyName -> JObject(
                     JField("type", "apiKey"),
                     JField("description", a.description),
-                    JField("name", a.keyname),
+                    JField("name", a.keyName),
                     JField("in", a.passAs))))
                 })
               }).toMap)
@@ -249,7 +200,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
   error {
     case t: Throwable =>
-      t.printStackTrace()
+      logger.error("Error during rendering swagger.json", t)
       throw t
   }
 
@@ -257,7 +208,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
 trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
   type ApiType = Api
-  implicit protected def jsonFormats: Formats = SwaggerSerializers.defaultFormats
+  implicit protected def jsonFormats: Formats = DefaultFormats
   protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)
   protected implicit def swagger: SwaggerEngine[ApiType]
 }

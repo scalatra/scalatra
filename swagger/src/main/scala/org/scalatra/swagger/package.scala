@@ -3,8 +3,7 @@ package org.scalatra
 package object swagger {
   object Symbols {
     val Summary = Symbol("swagger.summary")
-    val Notes = Symbol("swagger.notes")
-    val Nickname = Symbol("swagger.nickname")
+    val OperationId = Symbol("swagger.operationId")
     val ResponseClass = Symbol("swagger.responseClass")
     val Parameters = Symbol("swagger.parameters")
     val Errors = Symbol("swagger.errors")
@@ -16,8 +15,7 @@ package object swagger {
     val Consumes = Symbol("swagger.consumes")
     val AllSymbols = Set(
       Summary,
-      Notes,
-      Nickname,
+      OperationId,
       ResponseClass,
       Parameters,
       Errors,
@@ -34,7 +32,7 @@ package object swagger {
 
     type ApiModelProperty = org.scalatra.swagger.runtime.annotations.ApiModelProperty @field
     type ApiModel = org.scalatra.swagger.runtime.annotations.ApiModel
-    type XmlRootElement = javax.xml.bind.annotation.XmlRootElement
+    //type XmlRootElement = javax.xml.bind.annotation.XmlRootElement
     type ApiEnum = org.scalatra.swagger.runtime.annotations.ApiEnum
   }
 }

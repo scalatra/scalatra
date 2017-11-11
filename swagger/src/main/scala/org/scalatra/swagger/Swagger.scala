@@ -46,7 +46,14 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
 
 object Swagger {
 
-  val excludes: Set[java.lang.reflect.Type] = Set(classOf[java.util.TimeZone], classOf[java.util.Date], classOf[DateTime], classOf[LocalDate], classOf[ReadableInstant], classOf[Chronology], classOf[DateTimeZone])
+  val excludes: Set[java.lang.reflect.Type] = Set(
+    classOf[java.util.TimeZone],
+    classOf[java.util.Date],
+    classOf[DateTime],
+    classOf[LocalDate],
+    classOf[ReadableInstant],
+    classOf[Chronology],
+    classOf[DateTimeZone])
   val SpecVersion = "2.0"
 
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
@@ -66,8 +73,8 @@ object Swagger {
       if (alreadyKnown.map(_.id).contains(tpe.simpleName)) {
         Set.empty
       } else {
-        val descr = Reflector.describe(tpe)
-        descr match {
+        val descriptor = Reflector.describe(tpe)
+        descriptor match {
           case descriptor: ClassDescriptor =>
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive).toVector
             val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
@@ -92,11 +99,11 @@ object Swagger {
   import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
 
-  private[this] def toModelProperty(descr: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "")(prop: PropertyDescriptor) = {
-    val ctorParam = descr.mostComprehensive.find(_.name == prop.name)
+  private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "")(prop: PropertyDescriptor) = {
+    val ctorParam = descriptor.mostComprehensive.find(_.name == prop.name)
     val mp = ModelProperty(
-      DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
-      if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
+      `type` = DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
+      position = if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
       required = required && !prop.returnType.isOption,
       description = description.flatMap(_.blankOption),
       allowableValues = convertToAllowableValues(allowableValues))
@@ -107,18 +114,18 @@ object Swagger {
     else {
       val name = klass.simpleName
 
-      val descr = Reflector.describe(klass).asInstanceOf[ClassDescriptor]
+      val descriptor = Reflector.describe(klass).asInstanceOf[ClassDescriptor]
       val apiModel = Option(klass.erasure.getAnnotation(classOf[ApiModel]))
 
       val fields = klass.erasure.getDeclaredFields.toList collect {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
-          val annot = f.getAnnotation(classOf[ApiModelProperty])
-          val asModelProperty = toModelProperty(descr, Some(annot.position()), annot.required(), annot.description().blankOption, annot.allowableValues())_
-          descr.properties.find(_.mangledName == f.getName) map asModelProperty
+          val annotation = f.getAnnotation(classOf[ApiModelProperty])
+          val asModelProperty = toModelProperty(descriptor, Some(annotation.position()), annotation.required(), annotation.description().blankOption, annotation.allowableValues())_
+          descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
         case f: Field =>
-          val asModelProperty = toModelProperty(descr)_
-          descr.properties.find(_.mangledName == f.getName) map asModelProperty
+          val asModelProperty = toModelProperty(descriptor)_
+          descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
       }
 
@@ -140,9 +147,11 @@ object Swagger {
     if (csvString.toLowerCase.startsWith("range[")) {
       val ranges = csvString.substring(6, csvString.length() - 1).split(",")
       buildAllowableRangeValues(ranges, csvString, inclusive = true)
+
     } else if (csvString.toLowerCase.startsWith("rangeexclusive[")) {
       val ranges = csvString.substring(15, csvString.length() - 1).split(",")
       buildAllowableRangeValues(ranges, csvString, inclusive = false)
+
     } else {
       if (csvString.isBlank) {
         AllowableValues.AnyValue
@@ -158,11 +167,13 @@ object Swagger {
   }
 
   private def buildAllowableRangeValues(ranges: Array[String], inputStr: String, inclusive: Boolean = true): AllowableValues.AllowableRangeValues = {
-    var min: java.lang.Float = 0
-    var max: java.lang.Float = 0
+    var min: java.lang.Float = 0f
+    var max: java.lang.Float = 0f
+
     if (ranges.size < 2) {
       throw new RuntimeException("Allowable values format " + inputStr + "is incorrect")
     }
+
     if (ranges(0).equalsIgnoreCase("Infinity")) {
       min = Float.PositiveInfinity
     } else if (ranges(0).equalsIgnoreCase("-Infinity")) {
@@ -170,6 +181,7 @@ object Swagger {
     } else {
       min = ranges(0).toFloat
     }
+
     if (ranges(1).equalsIgnoreCase("Infinity")) {
       max = Float.PositiveInfinity
     } else if (ranges(1).equalsIgnoreCase("-Infinity")) {
@@ -177,9 +189,8 @@ object Swagger {
     } else {
       max = ranges(1).toFloat
     }
-    val allowableValues =
-      AllowableValues.AllowableRangeValues(if (inclusive) Range.inclusive(min.toInt, max.toInt) else Range(min.toInt, max.toInt))
-    allowableValues
+
+    AllowableValues.AllowableRangeValues(if (inclusive) Range.inclusive(min.toInt, max.toInt) else Range(min.toInt, max.toInt))
   }
 
 }
@@ -227,16 +238,6 @@ trait SwaggerApi[T <: SwaggerEndpoint[_]] {
 
   def model(name: String) = models.get(name)
 }
-
-//case class ResourceListing(
-//  apiVersion: String,
-//  swaggerVersion: String = Swagger.SpecVersion,
-//  apis: List[ApiListingReference] = Nil,
-//  authorizations: List[AuthorizationType] = Nil,
-//  info: Option[ApiInfo] = None
-//)
-
-//case class ApiListingReference(path: String, description: Option[String] = None, position: Int = 0)
 
 case class Api(
   apiVersion: String,
@@ -388,10 +389,17 @@ case class ApiInfo(
   title: String,
   description: String,
   termsOfServiceUrl: String,
-  contact: String, // TODO to be nested property for Swagger 2.0
-  license: String, // TODO to be nested property for Swagger 2.0
-  licenseUrl: String // TODO to be nested property for Swagger 2.0
-)
+  contact: ContactInfo,
+  license: LicenseInfo)
+
+case class ContactInfo(
+  name: String,
+  url: String,
+  email: String)
+
+case class LicenseInfo(
+  name: String,
+  url: String)
 
 trait AllowableValues
 
@@ -411,14 +419,11 @@ case class Parameter(
   name: String,
   `type`: DataType,
   description: Option[String] = None,
-  @deprecated("This property has been removed in Swagger 2.0, use description instead.", "2.6.0") notes: Option[String] = None,
   paramType: ParamType.ParamType = ParamType.Query,
   defaultValue: Option[String] = None,
   allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
   required: Boolean = true,
-  //                     allowMultiple: Boolean = false,
   // TODO Add collectionFormat: Option[String] for Swagger 2.0
-  paramAccess: Option[String] = None,
   position: Int = 0)
 
 case class ModelProperty(
@@ -426,8 +431,7 @@ case class ModelProperty(
   position: Int = 0,
   required: Boolean = false,
   description: Option[String] = None,
-  allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
-  @deprecated("This property has been removed in Swagger 2.0.", "2.6.0") items: Option[ModelRef] = None)
+  allowableValues: AllowableValues = AllowableValues.AnyValue) // TODO Generate maximum, minimum and so on for Swagger 2.0
 
 case class Model(
   id: String,
@@ -444,29 +448,23 @@ case class Model(
   }
 }
 
-@deprecated("This class has been removed in Swagger 2.0.", "2.6.0")
-case class ModelRef(
-  `type`: String,
-  ref: Option[String] = None,
-  qualifiedType: Option[String] = None)
-
 case class LoginEndpoint(url: String)
 case class TokenRequestEndpoint(url: String, clientIdName: String, clientSecretName: String)
 case class TokenEndpoint(url: String, tokenName: String)
 
 trait AuthorizationType {
   def `type`: String
-  def keyname: String
+  def keyName: String
   def description: String
 }
 case class OAuth(
   scopes: List[String],
   grantTypes: List[GrantType],
-  keyname: String = "oauth2",
+  keyName: String = "oauth2",
   description: String = "") extends AuthorizationType {
   override val `type` = "oauth2"
 }
-case class ApiKey(keyname: String, passAs: String = "header", description: String = "") extends AuthorizationType {
+case class ApiKey(keyName: String, passAs: String = "header", description: String = "") extends AuthorizationType {
   override val `type` = "apiKey"
 }
 
@@ -489,11 +487,11 @@ case class ApplicationGrant(
 }
 trait SwaggerOperation {
   def method: HttpMethod
+  def operationId: String
   def responseClass: DataType
   def summary: String
   def description: Option[String]
   def deprecated: Boolean
-  def operationId: Option[String]
   def produces: List[String]
   def consumes: List[String]
   def schemes: List[String]
@@ -505,12 +503,12 @@ trait SwaggerOperation {
 }
 case class Operation(
   method: HttpMethod,
+  operationId: String,
   responseClass: DataType,
   summary: String,
   position: Int,
   description: Option[String] = None,
   deprecated: Boolean = false,
-  operationId: Option[String] = None,
   parameters: List[Parameter] = Nil,
   responseMessages: List[ResponseMessage] = Nil,
   consumes: List[String] = Nil,
