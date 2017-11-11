@@ -54,7 +54,6 @@ lazy val scalatraProject = Project(
     scalatraCore,
     scalatraAuth,
     scalatraForms,
-    scalatraCommands,
     scalatraScalate,
     scalatraJson,
     scalatraAtmosphere,
@@ -64,7 +63,6 @@ lazy val scalatraProject = Project(
     scalatraSwagger,
     scalatraJetty,
     scalatraCommon,
-    scalatraSpring,
     scalatraMetrics,
     scalatraCache,
     scalatraCacheGuava
@@ -157,32 +155,6 @@ lazy val scalatraForms = Project(
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
-lazy val scalatraCommands = Project(
-  id = "scalatra-commands",
-  base = file("commands")).settings(
-    scalatraSettings ++ Seq(
-    libraryDependencies ++= Seq(
-      "commons-validator" % "commons-validator" % "1.6"
-    ),
-    libraryDependencies ++= Seq(
-      scalaz,
-      jodaTime,
-      jodaConvert
-    ),
-    initialCommands :=
-      """
-        |import scalaz._
-        |import Scalaz._
-        |import org.scalatra._
-        |import org.scalatra.util._
-        |import conversion._
-        |import commands._
-        |import BindingSyntax._
-      """.stripMargin,
-    description := "Data binding and validation with scalaz for Scalatra"
-  )
-) dependsOn(scalatraJson % "compile;test->test;provided->provided")
-
 lazy val scalatraJetty = Project(
   id = "scalatra-jetty",
   base = file("jetty")).settings(
@@ -249,18 +221,8 @@ lazy val scalatraSwagger = Project(
 ) dependsOn(
   scalatraCore % "compile;test->test;provided->provided",
   scalatraJson % "compile;test->test;provided->provided",
-  scalatraCommands % "compile;test->test;provided->provided",
   scalatraAuth % "compile;test->test"
 )
-
-lazy val scalatraSpring = Project(
-  id = "scalatra-spring",
-  base = file("spring")).settings(
-    scalatraSettings ++ Seq(
-    libraryDependencies += springWeb,
-    description := "Scalatra integration with Spring Framework"
-  )
-) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraMetrics = Project(
   id = "scalatra-metrics",
