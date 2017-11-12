@@ -1,7 +1,6 @@
 package org.scalatra
 
 import java.nio.charset.Charset
-import java.text.DecimalFormat
 import javax.servlet.http.HttpServletRequest
 
 import scala.util.Try
@@ -56,7 +55,6 @@ object ContentNegotiation {
 
     // - Conneg specific -----------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------------
-    private val qFormat: DecimalFormat = new DecimalFormat("0.###")
 
     /** Parser for a single conneg value. */
     def conneg: Parser[Option[ContentNegotiation[T]]] = entry ~ qValue ^^ {

@@ -11,6 +11,7 @@ lazy val scalatraSettings = Seq(
     "-target:jvm-1.8",
     "-unchecked",
     "-deprecation",
+    "-Xlint",
     /*"-Yinline-warnings",*/
     "-Xcheckinit",
     "-encoding", "utf8",
