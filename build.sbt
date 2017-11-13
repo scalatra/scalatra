@@ -65,7 +65,6 @@ lazy val scalatraProject = Project(
     scalatraCommon,
     scalatraMetrics,
     scalatraCache,
-    scalatraCacheGuava
   ).enablePlugins(ScalaUnidocPlugin)
 
 lazy val scalatraCommon = Project(
@@ -243,26 +242,27 @@ lazy val scalatraCache = Project(
     scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       jodaTime,
-      jodaConvert
+      jodaConvert,
+      googleGuava
     ),
     description := "Scalatra Cache support"
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
-lazy val scalatraCacheGuava = Project(
-  id = "scalatra-cache-guava",
-  base = file("cache-guava")).settings(
-    scalatraSettings ++ Seq(
-    libraryDependencies ++= Seq(
-      googleGuava,
-      googleFindBugs
-    ),
-    description := "Scalatra Cache integration with Google Guava"
-  )
-) dependsOn(
-  scalatraCore % "compile;test->test;provided->provided",
-  scalatraCache % "compile;test->test;provided->provided"
-)
+//lazy val scalatraCacheGuava = Project(
+//  id = "scalatra-cache-guava",
+//  base = file("cache-guava")).settings(
+//    scalatraSettings ++ Seq(
+//    libraryDependencies ++= Seq(
+//      googleGuava,
+//      googleFindBugs
+//    ),
+//    description := "Scalatra Cache integration with Google Guava"
+//  )
+//) dependsOn(
+//  scalatraCore % "compile;test->test;provided->provided",
+//  scalatraCache % "compile;test->test;provided->provided"
+//)
 
 lazy val manifestSetting = packageOptions += {
   Package.ManifestAttributes(
