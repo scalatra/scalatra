@@ -104,11 +104,6 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
     client.resource = resource
     client
   }
-  private[this] def createClient(route: MatchedRoute, resource: AtmosphereResource) = {
-    val client = clientForRoute(route)
-    client.resource = resource
-    client
-  }
 
   private[this] def clientForRoute(route: MatchedRoute): AtmosphereClient = {
     liftAction(route.action) getOrElse {
