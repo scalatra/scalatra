@@ -96,10 +96,14 @@ trait Client extends ImplicitConversions {
     patch(uri, params)(f)
   def patch[A](uri: String, params: Iterable[(String, String)])(f: => A): A =
     patch(uri, params, Map[String, String]())(f)
-  def patch[A](uri: String, params: Iterable[(String, String)], headers: Iterable[(String, String)])(f: => A): A =
+  def patch[A](uri: String, params: Iterable[(String, String)], headers: Map[String, String])(f: => A): A =
     patch(uri, toQueryString(params).getBytes("UTF-8"), Seq("Content-Type" -> "application/x-www-form-urlencoded; charset=utf-8") ++ headers)(f)
   def patch[A](uri: String, body: Array[Byte] = Array(), headers: Iterable[(String, String)] = Seq.empty)(f: => A): A =
     submit("PATCH", uri, Seq.empty, headers, body) { f }
+  def patch[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, Any)])(f: => A): A =
+    patch(uri, params, files, Seq.empty) { f }
+  def patch[A](uri: String, params: Iterable[(String, String)], files: Iterable[(String, Any)], headers: Iterable[(String, String)])(f: => A): A =
+    submitMultipart("PATCH", uri, params, headers, files) { f }
 
   private[test] def toQueryString(params: Traversable[(String, String)]) =
     params.map(t => List(t._1, t._2).map(encode(_, "UTF-8")).mkString("=")).mkString("&")
