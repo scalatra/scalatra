@@ -132,7 +132,6 @@ object SwaggerSupportSyntax {
     }
   }
 
-  private val SingleValued = Set(ParamType.Body, ParamType.Path)
   trait SwaggerParameterBuilder {
     private[this] var _dataType: DataType = _
     private[this] var _name: String = _
