@@ -181,7 +181,10 @@ lazy val scalatraCommands = Project(
       """.stripMargin,
     description := "Data binding and validation with scalaz for Scalatra"
   )
-) dependsOn(scalatraJson % "compile;test->test;provided->provided")
+) dependsOn(
+  scalatraJson % "compile;test->test;provided->provided",
+  scalatraSwagger % "compile;test->test;provided->provided"
+)
 
 lazy val scalatraJetty = Project(
   id = "scalatra-jetty",
@@ -249,7 +252,6 @@ lazy val scalatraSwagger = Project(
 ) dependsOn(
   scalatraCore % "compile;test->test;provided->provided",
   scalatraJson % "compile;test->test;provided->provided",
-  scalatraCommands % "compile;test->test;provided->provided",
   scalatraAuth % "compile;test->test"
 )
 
