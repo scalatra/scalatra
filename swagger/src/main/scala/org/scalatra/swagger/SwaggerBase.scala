@@ -75,13 +75,6 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     }
   }
 
-  private[this] def isStructuredType(dataType: DataType): Boolean = {
-    dataType match {
-      case t: ValueDataType if t.qualifiedName.isDefined => true
-      case _ => false
-    }
-  }
-
   protected def renderSwagger2(docs: List[ApiType]): JValue = {
     ("swagger" -> "2.0") ~
       ("info" ->
@@ -114,7 +107,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                             ("description" -> parameter.description) ~
                             ("required" -> parameter.required) ~
                             ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
-                            (if (parameter.paramType.toString.toLowerCase == "body" && isStructuredType(parameter.`type`)) {
+                            (if (parameter.paramType.toString.toLowerCase == "body") {
                               List(JField("schema", generateDataType(parameter.`type`)))
                             } else {
                               generateDataType(parameter.`type`)
