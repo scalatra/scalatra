@@ -1,4 +1,4 @@
-package org.scalatra.guavaCache
+package org.scalatra.cache.guava
 
 import java.time._
 

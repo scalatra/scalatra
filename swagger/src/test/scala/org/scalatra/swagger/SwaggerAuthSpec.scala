@@ -20,10 +20,15 @@ object SwaggerAuthSpec {
     title = "Swagger Sample App",
     description = "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
     termsOfServiceUrl = "http://helloreverb.com/terms/",
-    contact = "apiteam@wordnik.com",
-    license = "Apache 2.0",
-    licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.html")
-  class SpecSwagger extends SwaggerWithAuth("1.2", "1.0.0", apiInfo)
+    contact = ContactInfo(
+      name = "helloreverb apiteam",
+      url = "http://helloreverb.com/",
+      email = "apiteam@wordnik.com"),
+    license = LicenseInfo(
+      name = "Apache 2.0",
+      url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
+
+  class SpecSwagger extends SwaggerWithAuth("2.0", "1.0.0", apiInfo)
 
   class HeaderOrQueryToken(protected val app: ScalatraBase) extends ScentryStrategy[User] {
     override def name = "header_or_query_token"
@@ -135,7 +140,7 @@ object SwaggerAuthSpec {
     }
   }
 }
-class SwaggerAuthSpec extends MutableScalatraSpec {
+class SwaggerAuthSpec2 extends MutableScalatraSpec {
 
   import org.scalatra.swagger.SwaggerAuthSpec._
   implicit val swagger: SwaggerWithAuth = new SpecSwagger
@@ -146,8 +151,10 @@ class SwaggerAuthSpec extends MutableScalatraSpec {
 
   addServlet(new ResourcesApp, "/api-docs/*")
 
-  private def apis(jv: JValue): List[String] = jv \ "apis" \ "path" \\ classOf[JString]
-  private def endpoints(jv: JValue): List[String] = jv \ "apis" \ "operations" \ "method" \\ classOf[JString]
+  private def paths(jv: JValue): List[JValue] = (jv \ "paths").children
+  private def operationId(jv: JValue, path: String, method: String): String = {
+    (jsonBody \ "paths" \ path \ method \ "operationId").asInstanceOf[JString].values
+  }
   private def jsonBody = {
     val b = body
     //    println("json body")
@@ -156,67 +163,35 @@ class SwaggerAuthSpec extends MutableScalatraSpec {
     j
   }
 
-  "SwaggerAuth for Swagger 1.2" should {
+  "SwaggerAuth for Swagger 2.0" should {
 
     "only render accessible endpoints in resources index" in {
-      get("/api-docs") {
+      get("/api-docs/swagger.json") {
         status must_== 200
-        apis(jsonBody).size must_== 1
+        paths(jsonBody).size must_== 1
+        operationId(jsonBody, "/pets/", "get") must_== "getPets"
       }
     }
 
     "don't render inaccessible resource for non-admin user" in {
-      get("/api-docs", "api_token" -> "the_token") {
+      get("/api-docs/swagger.json", "api_token" -> "the_token") {
         status must_== 200
-        apis(jsonBody).size must_== 1
+        paths(jsonBody).size must_== 2
+        operationId(jsonBody, "/pets/", "get") must_== "getPets"
+        operationId(jsonBody, "/pets/authenticated", "get") must_== "authenticated"
       }
     }
 
     "render all resources for admin user" in {
-      get("/api-docs", "api_token" -> "token1") {
+      get("/api-docs/swagger.json", "api_token" -> "token1") {
         status must_== 200
-        apis(jsonBody).size must_== 2
-      }
-    }
-
-    "only render publicly accessible endpoints for pets api" in {
-      get("/api-docs/pets.json") {
-        status must_== 200
-        endpoints(jsonBody).size must_== 1
-      }
-    }
-
-    "only render accessible endpoints in pets api for 'john'" in {
-      get("/api-docs/pets.json", "api_token" -> "the_token") {
-        status must_== 200
-        endpoints(jsonBody).size must_== 2
-      }
-    }
-
-    "only render accessible endpoints in pets api for 'kate'" in {
-      get("/api-docs/pets.json", "api_token" -> "token2") {
-        status must_== 200
-        endpoints(jsonBody).size must_== 3
-      }
-    }
-
-    "only render accessible endpoints in pets api for 'tom'" in {
-      get("/api-docs/pets.json", "api_token" -> "token1") {
-        status must_== 200
-        endpoints(jsonBody).size must_== 4
-      }
-    }
-
-    "render admin endpoints for admin user" in {
-      get("/api-docs/admin.json", "api_token" -> "token1") {
-        status must_== 200
-        endpoints(jsonBody).size must_== 3
-      }
-    }
-
-    "return 404 for non-admin user when requesting admin.json" in {
-      get("/api-docs/admin.json", "api_token" -> "token2") {
-        status must_== 404
+        paths(jsonBody).size must_== 6
+        operationId(jsonBody, "/pets/", "get") must_== "getPets"
+        operationId(jsonBody, "/pets/authenticated", "get") must_== "authenticated"
+        operationId(jsonBody, "/pets/kate-and-tom", "get") must_== "getKateAndTom"
+        operationId(jsonBody, "/admin/", "get") must_== "adminlist"
+        operationId(jsonBody, "/admin/blah", "get") must_== "blah"
+        operationId(jsonBody, "/admin/blah", "post") must_== "createBlah"
       }
     }
 

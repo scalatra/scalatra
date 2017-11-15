@@ -1,8 +1,9 @@
-package org.scalatra.guavaCache
+package org.scalatra.cache.guava
+
+import java.time._
 
 import com.google.common.cache.CacheBuilder
 import org.scalatra.cache.Cache
-import java.time._
 
 object GuavaCache extends Cache {
   private[this] val cache = CacheBuilder.newBuilder()

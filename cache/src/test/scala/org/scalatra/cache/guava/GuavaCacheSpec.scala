@@ -1,8 +1,8 @@
-package org.scalatra.guavaCache
-
-import org.scalatra.test.scalatest.ScalatraFlatSpec
+package org.scalatra.cache.guava
 
 import java.time._
+
+import org.scalatra.test.scalatest.ScalatraFlatSpec
 
 class GuavaCacheSpec extends ScalatraFlatSpec {
   "The GuavaCache" should "put and get a value" in {
