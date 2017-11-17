@@ -75,8 +75,14 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
     }
   }
 
+  protected def bathPath: Option[String] = {
+    val path = url("/", includeContextPath = swagger.baseUrlIncludeContextPath, includeServletPath = swagger.baseUrlIncludeServletPath)
+    if (path.isEmpty) None else Some(path)
+  }
+
   protected def renderSwagger2(docs: List[ApiType]): JValue = {
     ("swagger" -> "2.0") ~
+      ("basePath" -> bathPath) ~
       ("info" ->
         ("title" -> swagger.apiInfo.title) ~
         ("version" -> swagger.apiVersion) ~
