@@ -34,7 +34,7 @@ object SwaggerCommandSupport {
             f.description.blankOption,
             f.notes.blankOption,
             paramtypeMapping(f.valueSource),
-            if (f.isRequired) None else f.defaultValue.flatMap(_.toString.blankOption),
+            if (f.isRequired) None else f.defaultValue.toString.blankOption,
             if (f.allowableValues.nonEmpty) AllowableValues(f.allowableValues) else AllowableValues.AnyValue,
             required = f.isRequired,
             position = f.position
