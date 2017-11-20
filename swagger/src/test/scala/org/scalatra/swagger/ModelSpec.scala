@@ -1,18 +1,15 @@
 package org.scalatra.swagger
 
-import org.scalatra.swagger.AllowableValues.{AllowableRangeValues, AllowableValuesList}
+import org.scalatra.swagger.AllowableValues.{ AllowableRangeValues, AllowableValuesList }
 import org.scalatra.swagger.annotations._
 import org.scalatra.swagger.reflect.Reflector
 import org.specs2.mutable.Specification
 
 object ModelSpec {
 
-  case class WithDescription(@ApiModelProperty(description = "a description", allowableValues = "item1,item2")
-                             id: String)
-  case class WithAllowableValues(@ApiModelProperty(allowableValues = "item1,item2")
-                             id: String)
-  case class WithAllowableRangeValues(@ApiModelProperty(allowableValues = "range[1,10]")
-                                 id: String)
+  case class WithDescription(@ApiModelProperty(description = "a description", allowableValues = "item1,item2") id: String)
+  case class WithAllowableValues(@ApiModelProperty(allowableValues = "item1,item2") id: String)
+  case class WithAllowableRangeValues(@ApiModelProperty(allowableValues = "range[1,10]") id: String)
 
   case class WithRequiredFalse(id: String, @ApiModelProperty(required = false) name: String)
   case class WithRequiredTrue(id: String, @ApiModelProperty(required = true) name: String)
@@ -30,8 +27,6 @@ object ModelSpec {
 
 class ModelSpec extends Specification {
   import org.scalatra.swagger.ModelSpec._
-
-
 
   "Model to Swagger" should {
 

@@ -26,7 +26,8 @@ package object swagger {
       Operation,
       Description,
       Consumes,
-      Produces)
+      Produces
+    )
   }
 
   object annotations {
@@ -42,6 +43,6 @@ package object swagger {
 
     type ApiEnum = org.scalatra.swagger.runtime.annotations.ApiEnum
     @deprecated("In swagger spec 1.2 this was replaced with org.scalatra.swagger.ResponseMessage", "2.2.2")
-    type Error = org.scalatra.swagger.ResponseMessage[String]
+    type Error = org.scalatra.swagger.ResponseMessage
   }
 }

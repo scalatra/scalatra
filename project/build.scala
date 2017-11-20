@@ -222,7 +222,7 @@ object ScalatraBuild extends Build {
       },
       description := "Scalatra integration with Swagger"
     )
-  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided")
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided", scalatraJson % "compile;test->test;provided->provided", scalatraAuth % "compile;test->test")
 
   lazy val scalatraSwaggerExt = Project(
     id = "scalatra-swagger-ext",
