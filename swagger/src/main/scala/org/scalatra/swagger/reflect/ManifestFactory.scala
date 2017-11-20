@@ -1,7 +1,8 @@
 package org.scalatra.swagger.reflect
 
+import java.lang.reflect.{ GenericArrayType, ParameterizedType, Type, TypeVariable, WildcardType }
+
 import scala.reflect.Manifest
-import java.lang.reflect.{ TypeVariable, WildcardType, ParameterizedType, Type, GenericArrayType }
 
 private[swagger] object ManifestFactory {
   def manifestOf(t: Type): Manifest[_] = t match {

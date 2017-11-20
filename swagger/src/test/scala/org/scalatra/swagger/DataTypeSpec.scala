@@ -49,17 +49,18 @@ class DataTypeSpec extends Specification {
     "return a correct Date datatype" in {
       DataType[java.util.Date] must_== DataType.DateTime
       DataType[org.joda.time.DateTime] must_== DataType.DateTime
-      DataType[org.joda.time.DateMidnight] must_== DataType.Date
+      // DateMidnight is deprecated at least in 2.6
+      //DataType[org.joda.time.DateMidnight] must_== DataType.Date
     }
 
     "return a correct Boolean datatype" in {
       DataType[Boolean] must_== DataType.Boolean
       DataType[java.lang.Boolean] must_== DataType.Boolean
     }
-//
-//    "return a correct Map datatype" in {
-//      DataType[Map[String, String]] must_== DataType.GenMap(DataType.String, DataType.String)
-//    }
+    //
+    //    "return a correct Map datatype" in {
+    //      DataType[Map[String, String]] must_== DataType.GenMap(DataType.String, DataType.String)
+    //    }
 
     "return a correct Collection datatype" in {
       DataType[Traversable[String]] must_== DataType.GenArray(DataType.String)

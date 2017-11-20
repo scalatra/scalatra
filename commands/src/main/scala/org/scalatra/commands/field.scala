@@ -57,6 +57,7 @@ trait FieldDescriptor[T] {
   private[commands] def isRequired: Boolean
   def required: FieldDescriptor[T]
   def optional: FieldDescriptor[T]
+  def optional(default: => T): FieldDescriptor[T]
 
   override def toString() = "FieldDescriptor(name: %s)".format(name)
 
@@ -126,7 +127,9 @@ class BasicFieldDescriptor[T](
   def required = copy(isRequired = true)
 
   def optional = copy(isRequired = false)
-  
+
+  def optional(default: => T): FieldDescriptor[T] = withDefaultValue(default)
+
   def description(desc: String) = copy(description = desc)
   
   def notes(note: String) = copy(notes = note)
@@ -214,7 +217,9 @@ class BoundFieldDescriptor[S:DefaultValue, T](
   def required = copy(field = field.required)
 
   def optional = copy(field = field.optional)
-  
+
+  def optional(default: => T): DataboundFieldDescriptor[S, T] = withDefaultValue(default)
+
   def description(desc: String) = copy(field = field.description(desc))
   
   def notes(note: String) = copy(field = field.notes(note))
@@ -270,7 +275,9 @@ class ValidatedBoundFieldDescriptor[S, T](val value: FieldValidation[T], val fie
   def required = copy(field = field.required)
 
   def optional = copy(field = field.optional)
-   
+
+  def optional(default: => T): DataboundFieldDescriptor[S, T] = withDefaultValue(default)
+
   def description(desc: String) = copy(field = field.description(desc))
   
   def notes(note: String) = copy(field = field.notes(note))

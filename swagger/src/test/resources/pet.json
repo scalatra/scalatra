@@ -38,7 +38,8 @@
           "responseMessages": [
             {
               "code": 400,
-              "message": "Invalid ID supplied"
+              "message": "Invalid ID supplied",
+              "responseModel": "Error"
             },
             {
               "code": 404,
@@ -60,6 +61,9 @@
               "type": "string",
               "paramType": "path"
             }
+          ],
+          "authorizations": [
+            "Authorization1"
           ],
           "responseMessages": [
             {
@@ -143,6 +147,9 @@
             "application/json",
             "application/xml"
           ],
+          "authorizations": [
+            "apiKey"
+          ],
           "parameters": [
             {
               "name": "status",
@@ -186,6 +193,9 @@
             "application/json",
             "application/xml"
           ],
+          "authorizations": [
+            "AuthorizationN"
+          ],
           "parameters": [
             {
               "name": "tags",
@@ -210,6 +220,15 @@
     }
   ],
   "models": {
+    "Error": {
+      "id": "Error",
+      "properties": {
+        "message": {
+          "position" : 0,
+          "type": "string"
+        }
+      }
+    },
     "Tag": {
       "id": "Tag",
       "properties": {
