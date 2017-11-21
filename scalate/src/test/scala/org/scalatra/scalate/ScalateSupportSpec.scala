@@ -31,6 +31,7 @@ class ScalateSupportSpec extends ScalatraSpec {
       "set templateAttributes when creating a render context" ! e22 ^ br ^
       "render to a string instead of response" ! e23 ^ br ^
       "set status to 500 when rendering 500.scaml" ! e24 ^ br ^
+      "generate urls from all servlets extending ScalateUrlGeneratorSupport" ! e25 ^ br ^
       end
 
   addServlet(new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport with FlashMapSupport {
@@ -126,6 +127,12 @@ class ScalateSupportSpec extends ScalatraSpec {
       response.setHeader("X-Template-Output", layoutTemplate("simple"))
     }
   }, "/*")
+
+  addServlet(new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
+    val servletTwoBaz = get("/baz") {
+      layoutTemplate("urlGenerationAcrossServlets.jade")
+    }
+  }, "/two/*")
 
   def e1 = get("/barf") {
     body must contain("id=\"scalate-error\"")
@@ -236,5 +243,14 @@ class ScalateSupportSpec extends ScalatraSpec {
 
   def e24 = get("/barf") {
     status must_== 500
+  }
+
+  def e25 = get("/two/baz") {
+    status must_== 200
+    val divs = (scala.xml.XML.loadString(body) \\ "div")
+    val generatedUrlOne = divs.filter(_.attributes.value.text == "urlOnServletOne").headOption.map(_.text).getOrElse("")
+    val generatedUrlTwo = divs.filter(_.attributes.value.text == "urlOnServletTwo").headOption.map(_.text).getOrElse("")
+    generatedUrlOne must_== "/url-generation"
+    generatedUrlTwo must_== "/two/baz"
   }
 }
