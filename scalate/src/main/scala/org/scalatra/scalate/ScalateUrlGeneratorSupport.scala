@@ -4,7 +4,8 @@ package scalate
 import java.io.PrintWriter
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import javax.servlet.ServletContext
-import org.fusesource.scalate.Binding
+
+import org.fusesource.scalate.{ Binding, TemplateEngine }
 import org.fusesource.scalate.servlet.ServletRenderContext
 import org.slf4j.LoggerFactory
 
@@ -19,28 +20,28 @@ trait ScalateUrlGeneratorSupport extends ScalateSupport {
       .map(f => (f.getName, f.invoke(this).asInstanceOf[Route]))
       .toMap
 
-  private final val reverseRoutesKey = "org.scalatra.scalate.reverseRoutes"
+  private final val ReverseRoutesKey = "org.scalatra.scalate.reverseRoutes"
 
-  def saveReverseRoutes(servletClassName: String, routes: Map[String, Route], sc: ServletContext) = {
+  protected def saveReverseRoutes(servletClassName: String, routes: Map[String, Route], sc: ServletContext): Unit = {
     val savedRoutes = savedReverseRoutes(sc)
-    val servletAndRouteNames = savedRoutes.map { case (servletName, routes) => routes.keys.map((servletName, _)) }.flatten
-    servletAndRouteNames.filter { case (_, routeName) => routes.keys.exists(_ == routeName) }.foreach {
-      case (otherServletName: String, routeName: String) => {
-        logger.warn(s"Reverse route with name `${routeName}` declared in both $servletClassName and ${otherServletName} - this could cause incorrect urls to be generated!!!")
-      }
+    val servletAndRouteNames = savedRoutes.flatMap { case (servletName, routes) => routes.keys.map((servletName, _)) }
+    servletAndRouteNames.foreach {
+      case (otherServletName, routeName) =>
+        if (routes.keys.exists(_ == routeName)) {
+          logger.warn(s"Reverse route with name `${routeName}` declared in both $servletClassName and ${otherServletName} - this could cause incorrect urls to be generated!!!")
+        }
     }
     sc.setAttribute(
-      reverseRoutesKey,
+      ReverseRoutesKey,
       savedRoutes + (servletClassName -> routes))
   }
 
-  def savedReverseRoutes(sc: ServletContext) = {
-    Option(sc.getAttribute(reverseRoutesKey))
-      .getOrElse(Map.empty[String, Map[String, Route]])
+  protected def savedReverseRoutes(sc: ServletContext): Map[String, Map[String, Route]] = {
+    Option(sc.getAttribute(ReverseRoutesKey)).getOrElse(Map.empty)
       .asInstanceOf[Map[String, Map[String, Route]]]
   }
 
-  override protected def createTemplateEngine(config: ConfigT) = {
+  override protected def createTemplateEngine(config: ConfigT): TemplateEngine = {
     val engine = super.createTemplateEngine(config)
     saveReverseRoutes(this.getClass.getName, reflectRoutes, this.servletContext)
     val routeBindings = this.reflectRoutes.keys map (Binding(_, classOf[Route].getName))
@@ -48,7 +49,7 @@ trait ScalateUrlGeneratorSupport extends ScalateSupport {
     engine
   }
 
-  override protected def createRenderContext(out: PrintWriter)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+  override protected def createRenderContext(out: PrintWriter)(implicit request: HttpServletRequest, response: HttpServletResponse): ServletRenderContext = {
     import scala.collection.JavaConverters._
     val context = super.createRenderContext(out).asInstanceOf[ServletRenderContext]
 
