@@ -132,7 +132,7 @@ lazy val scalatraScalate = Project(
     libraryDependencies += scalate,
     description := "Scalate integration with Scalatra"
   )
-) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+) dependsOn(scalatraCore  % "compile;test->test;provided->provided")
 
 lazy val scalatraJson = Project(
   id = "scalatra-json",
