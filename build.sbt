@@ -56,6 +56,7 @@ lazy val scalatraProject = Project(
     scalatraAuth,
     scalatraForms,
     scalatraScalate,
+    scalatraTwirl,
     scalatraJson,
     scalatraAtmosphere,
     scalatraTest,
@@ -131,6 +132,15 @@ lazy val scalatraScalate = Project(
     scalatraSettings ++ Seq(
     libraryDependencies += scalate,
     description := "Scalate integration with Scalatra"
+  )
+) dependsOn(scalatraCore  % "compile;test->test;provided->provided")
+
+lazy val scalatraTwirl = Project(
+  id = "scalatra-twirl",
+  base = file("twirl")).settings(
+  scalatraSettings ++ Seq(
+    libraryDependencies += twirlApi,
+    description := "Twirl integration with Scalatra"
   )
 ) dependsOn(scalatraCore  % "compile;test->test;provided->provided")
 
