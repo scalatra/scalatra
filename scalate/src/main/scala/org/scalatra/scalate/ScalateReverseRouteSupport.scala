@@ -9,7 +9,10 @@ import org.fusesource.scalate.{ Binding, TemplateEngine }
 import org.fusesource.scalate.servlet.ServletRenderContext
 import org.slf4j.LoggerFactory
 
-trait ScalateUrlGeneratorSupport extends ScalateSupport {
+@deprecated("Use ScalateReverseRouteSupport instead.", "2.7.0")
+trait ScalateUrlGeneratorSupport extends ScalateReverseRouteSupport
+
+trait ScalateReverseRouteSupport extends ScalateSupport {
 
   private[this] val logger = LoggerFactory.getLogger(getClass)
 
