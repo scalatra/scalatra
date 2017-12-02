@@ -13,7 +13,6 @@ matrix:
   - jdk: oraclejdk9
     scala: 2.12.4
     script:
-    - echo "sbt.version=1.0.2" > project/build.properties # https://github.com/sbt/sbt/issues/3684
     - sbt ++$TRAVIS_SCALA_VERSION test
 addons:
   apt:
