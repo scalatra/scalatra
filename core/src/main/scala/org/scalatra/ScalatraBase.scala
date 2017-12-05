@@ -150,6 +150,7 @@ trait ScalatraBase
   protected def executeRoutes(): Unit = {
     var result: Any = null
     var rendered = true
+    var notFound = false
 
     def runActions = {
       val prehandleException = request.get(PrehandleExceptionKey)
@@ -169,7 +170,10 @@ trait ScalatraBase
         val actionResult = runRoutes(routes(request.requestMethod)).headOption
         // Give the status code handler a chance to override the actionResult
         val r = handleStatusCode(status) getOrElse {
-          actionResult orElse matchOtherMethods() getOrElse doNotFound()
+          actionResult orElse matchOtherMethods() getOrElse {
+            notFound = true
+            doNotFound()
+          }
         }
         rendered = false
         r
@@ -192,7 +196,9 @@ trait ScalatraBase
       })
     })
 
-    if (!rendered) renderResponse(result)
+    if (!rendered && notFound == false) {
+      renderResponse(result)
+    }
   }
 
   private[this] def cradleHalt(body: => Any, error: Throwable => Any): Any = {
