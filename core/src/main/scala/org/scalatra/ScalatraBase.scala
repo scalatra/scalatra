@@ -373,7 +373,9 @@ trait ScalatraBase
    */
   protected def renderResponse(actionResult: Any): Unit = {
     if (contentType == null) {
-      contentType = inferContentType(actionResult)
+      contentTypeInferrer.lift(actionResult) foreach {
+        contentType = _
+      }
     }
     renderResponseBody(actionResult)
   }
@@ -386,18 +388,17 @@ trait ScalatraBase
    * $ - "application/octet-stream" for a byte array
    * $ - "text/html" for any other result
    */
-  protected def inferContentType(content: Any): String = {
-    content match {
-      case s: String => "text/plain"
-      case bytes: Array[Byte] => MimeTypes(bytes)
-      case is: java.io.InputStream => MimeTypes(is)
-      case file: File => MimeTypes(file)
-      case actionResult: ActionResult =>
-        actionResult.headers.find {
-          case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
-        }.getOrElse(("Content-Type", inferContentType(actionResult.body)))._2
-      case _ => "text/html"
-    }
+  protected def contentTypeInferrer: ContentTypeInferrer = {
+    case s: String => "text/plain"
+    case bytes: Array[Byte] => MimeTypes(bytes)
+    case is: java.io.InputStream => MimeTypes(is)
+    case file: File => MimeTypes(file)
+    case actionResult: ActionResult =>
+      actionResult.headers.find {
+        case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
+      }.getOrElse(("Content-Type", contentTypeInferrer(actionResult.body)))._2
+    //    case Unit | _: Unit => null
+    case _ => "text/html"
   }
 
   /**

@@ -140,13 +140,18 @@ trait ApiFormats extends ScalatraBase {
     }
   }
 
-  override protected def inferContentType(content: Any): String = {
-    if (format.nonBlank) {
-      // Infer a content type based on the `format` variable.
-      formats.getOrElse(format, "application/octet-stream")
-    } else {
-      super.inferContentType(content)
-    }
+  /**
+   * A content type inferrer based on the `format` variable.  Looks up the media
+   * type from the `formats` map.  If not found, returns
+   * `application/octet-stream`.  This inferrer is prepended to the inherited
+   * one.
+   */
+  protected def inferFromFormats: ContentTypeInferrer = {
+    case _ if format.nonBlank => formats.getOrElse(format, "application/octet-stream")
+  }
+
+  override protected def contentTypeInferrer: ContentTypeInferrer = {
+    inferFromFormats orElse super.contentTypeInferrer
   }
 
   protected def acceptedFormats(accepted: Symbol*): Boolean = {
