@@ -150,7 +150,6 @@ trait ScalatraBase
   protected def executeRoutes(): Unit = {
     var result: Any = null
     var rendered = true
-    var notFound = false
 
     def runActions = {
       val prehandleException = request.get(PrehandleExceptionKey)
@@ -170,10 +169,7 @@ trait ScalatraBase
         val actionResult = runRoutes(routes(request.requestMethod)).headOption
         // Give the status code handler a chance to override the actionResult
         val r = handleStatusCode(status) getOrElse {
-          actionResult orElse matchOtherMethods() getOrElse {
-            notFound = true
-            doNotFound()
-          }
+          actionResult orElse matchOtherMethods() getOrElse doNotFound()
         }
         rendered = false
         r
@@ -196,7 +192,7 @@ trait ScalatraBase
       })
     })
 
-    if (!rendered && notFound == false) {
+    if (!rendered) {
       renderResponse(result)
     }
   }
@@ -377,7 +373,9 @@ trait ScalatraBase
    */
   protected def renderResponse(actionResult: Any): Unit = {
     if (contentType == null) {
-      contentType = inferContentType(actionResult)
+      contentTypeInferrer.lift(actionResult) foreach {
+        contentType = _
+      }
     }
     renderResponseBody(actionResult)
   }
@@ -390,18 +388,17 @@ trait ScalatraBase
    * $ - "application/octet-stream" for a byte array
    * $ - "text/html" for any other result
    */
-  protected def inferContentType(content: Any): String = {
-    content match {
-      case s: String => "text/plain"
-      case bytes: Array[Byte] => MimeTypes(bytes)
-      case is: java.io.InputStream => MimeTypes(is)
-      case file: File => MimeTypes(file)
-      case actionResult: ActionResult =>
-        actionResult.headers.find {
-          case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
-        }.getOrElse(("Content-Type", inferContentType(actionResult.body)))._2
-      case _ => "text/html"
-    }
+  protected def contentTypeInferrer: ContentTypeInferrer = {
+    case s: String => "text/plain"
+    case bytes: Array[Byte] => MimeTypes(bytes)
+    case is: java.io.InputStream => MimeTypes(is)
+    case file: File => MimeTypes(file)
+    case actionResult: ActionResult =>
+      actionResult.headers.find {
+        case (name, value) => name equalsIgnoreCase "CONTENT-TYPE"
+      }.getOrElse(("Content-Type", contentTypeInferrer(actionResult.body)))._2
+    //    case Unit | _: Unit => null
+    case _ => "text/html"
   }
 
   /**
