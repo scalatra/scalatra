@@ -8,17 +8,6 @@ package object scalatra
   //  with DefaultValues // make defaults visible
   {
 
-  object RouteTransformer {
-
-    implicit def fn2transformer(fn: Route => Route): RouteTransformer = new RouteTransformer {
-      override def apply(route: Route): Route = fn(route)
-    }
-  }
-
-  trait RouteTransformer {
-    def apply(route: Route): Route
-  }
-
   type MultiParams = Map[String, Seq[String]]
 
   type Params = MultiMapHeadView[String, String] with MapWithIndifferentAccess[String]
