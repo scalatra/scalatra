@@ -18,7 +18,7 @@ package object atmosphere {
 
   import org.scalatra.servlet.ServletApiImplicits._
 
-  implicit def atmoResourceWithClient(res: AtmosphereResource) = new {
+  implicit class AtmoResourceWithClient(private val res: AtmosphereResource) extends AnyVal {
     def clientOption = res.session.get(AtmosphereClientKey).asInstanceOf[Option[AtmosphereClient]]
     def client = res.session.apply(AtmosphereClientKey).asInstanceOf[AtmosphereClient]
   }
