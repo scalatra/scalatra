@@ -154,7 +154,7 @@ class AtmosphereSpec extends MutableScalatraSpec {
 
   }
 
-  private def stopSystem: Unit = {
+  private def stopSystem(): Unit = {
     val f = system.terminate()
     Await.result(f, Duration(1, TimeUnit.MINUTES))
   }
