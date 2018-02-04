@@ -177,9 +177,12 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   }
 
   /**
-   * Caches and returns the body of the response.  The method is idempotent
+   * Caches and returns the body of the request.  The method is idempotent
    * for any given request.  The result is cached in memory regardless of size,
    * so be careful.  Calling this method consumes the request's input stream.
+   *
+   * Also note that this method gets data from the input stream of the request,
+   * so it may be already consumed according to the servlet specification 3.1.1.
    *
    * @return the message body as a string according to the request's encoding
    * (defult ISO-8859-1).
