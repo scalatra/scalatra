@@ -38,7 +38,6 @@ object Dependencies {
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val scalaz                   =  "org.scalaz"              %% "scalaz-core"                % "7.2.14"
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
-  lazy val springWeb                =  "org.springframework"     %  "spring-web"                 % "4.3.9.RELEASE"
   lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.25"
   lazy val slf4jSimple              =  "org.slf4j"               %  "slf4j-simple"               % "1.7.25"
   lazy val specs2                   =  Seq(
