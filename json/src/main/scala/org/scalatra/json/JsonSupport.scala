@@ -81,7 +81,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
   override protected def invoke(matchedRoute: MatchedRoute) = {
     withRouteMultiParams(Some(matchedRoute)) {
       val mt = request.contentType.fold("application/x-www-form-urlencoded")(_.split(";").head)
-      val fmt = mimeTypes get mt getOrElse "html"
+      val fmt = mimeTypes.getOrElse(mt, "html")
       if (shouldParseBody(fmt)) {
         request(ParsedBodyKey) = parseRequestBody(fmt).asInstanceOf[AnyRef]
       }
