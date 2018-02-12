@@ -14,15 +14,6 @@ trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with
     mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, jsonFormats.wantsBigDecimal)
   }
 
-  protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue = {
-    val rdr = new InputStreamReader(stream, charset)
-    if (rdr.ready()) mapper.readValue(rdr, classOf[JValue])
-    else {
-      rdr.close()
-      JNothing
-    }
-  }
-
   protected def readJsonFromBody(bd: String): JValue = {
     if (bd.nonBlank) mapper.readValue(bd, classOf[JValue])
     else JNothing
