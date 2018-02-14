@@ -31,13 +31,11 @@ object ScalateSupport {
 
   private val templateEngineInstances: CMap[String, TemplateEngine] = new TrieMap[String, TemplateEngine]
 
-  def scalateTemplateEngine(ctx: String, init: => TemplateEngine): TemplateEngine = {
-    templateEngineInstances.get(ctx).getOrElse {
-      val engine = init
-      engine.workingDirectory = new java.io.File(engine.workingDirectory, ctx)
-      templateEngineInstances.putIfAbsent(ctx, engine).getOrElse(engine)
-    }
-  }
+  def scalateTemplateEngine(ctx: String, init: => TemplateEngine): TemplateEngine = templateEngineInstances.getOrElse(ctx, {
+    val engine = init
+    engine.workingDirectory = new java.io.File(engine.workingDirectory, ctx)
+    templateEngineInstances.putIfAbsent(ctx, engine).getOrElse(engine)
+  })
 }
 
 /**

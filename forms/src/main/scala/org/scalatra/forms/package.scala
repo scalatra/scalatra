@@ -9,7 +9,7 @@ package object forms {
   private[forms] val RequestAttributeErrorsKey = "org.scalatra.forms.errors"
 
   private[forms] def getSingleParam(params: Map[String, Seq[String]], name: String): Option[String] = {
-    params.get(name).getOrElse(Nil).headOption
+    params.getOrElse(name, Nil).headOption
   }
 
   /**
