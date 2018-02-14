@@ -1,7 +1,6 @@
 package org.scalatra
 package json
 
-import java.io.{ InputStream, InputStreamReader }
 import javax.servlet.http.HttpServletRequest
 
 import org.json4s.Xml._
@@ -31,15 +30,13 @@ trait JsonSupport[T] extends JsonOutput[T] {
     if (format == "json") {
       val bd = {
         if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readJsonFromBody getOrElse JNothing
-        else if (cacheRequestBodyAsString) readJsonFromBody(request.body)
-        else readJsonFromStreamWithCharset(request.inputStream, request.characterEncoding getOrElse defaultCharacterEncoding)
+        else readJsonFromBody(request.body)
       }
       transformRequestBody(bd)
     } else if (format == "xml") {
       val bd = {
         if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readXmlFromBody getOrElse JNothing
-        else if (cacheRequestBodyAsString) readXmlFromBody(request.body)
-        else readXmlFromStream(request.inputStream)
+        else readXmlFromBody(request.body)
       }
       transformRequestBody(bd)
     } else JNothing
@@ -51,8 +48,6 @@ trait JsonSupport[T] extends JsonOutput[T] {
   }
 
   protected def readJsonFromBody(bd: String): JValue
-  protected def readJsonFromStreamWithCharset(stream: InputStream, charset: String): JValue
-  protected def readJsonFromStream(stream: InputStream): JValue = readJsonFromStreamWithCharset(stream, defaultCharacterEncoding)
 
   def secureXML: XMLLoader[Elem] = {
     val parserFactory = SAXParserFactory.newInstance()
@@ -66,13 +61,6 @@ trait JsonSupport[T] extends JsonOutput[T] {
   protected def readXmlFromBody(bd: String): JValue = {
     if (bd.nonBlank) {
       val JObject(JField(_, jv) :: Nil) = toJson(secureXML.loadString(bd))
-      jv
-    } else JNothing
-  }
-  protected def readXmlFromStream(stream: InputStream): JValue = {
-    val rdr = new InputStreamReader(stream)
-    if (rdr.ready()) {
-      val JObject(JField(_, jv) :: Nil) = toJson(secureXML.load(rdr))
       jv
     } else JNothing
   }
