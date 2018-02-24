@@ -1,7 +1,7 @@
 package org.scalatra
 package json
 
-import java.io.{ InputStream, InputStreamReader, Writer }
+import java.io.Writer
 
 import org.json4s._
 import native._
