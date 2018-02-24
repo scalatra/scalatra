@@ -2,19 +2,21 @@ package org.scalatra
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
-class ErrorHandlerTest extends ScalatraFunSuite {
-  trait TestException extends RuntimeException
-  case class Exception1() extends TestException
-  case class Exception2() extends TestException
-  case class Exception3() extends TestException
+trait TestException extends RuntimeException
+case class Exception1() extends TestException
+case class Exception2() extends TestException
+case class Exception3() extends TestException
 
+class ErrorHandlerTest extends ScalatraFunSuite {
   class BaseServlet extends ScalatraServlet {
     get("/1") {
       status = 418
       throw new Exception1
     }
     get("/uncaught") { throw new RuntimeException }
-    error { case e: TestException => "base" }
+    error {
+      case e: TestException => "base"
+    }
   }
 
   class ChildServlet extends BaseServlet {
