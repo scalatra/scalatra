@@ -1,7 +1,7 @@
 package org.scalatra
 package json
 
-import java.io.{ InputStream, InputStreamReader, Writer }
+import java.io.Writer
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import org.json4s._
