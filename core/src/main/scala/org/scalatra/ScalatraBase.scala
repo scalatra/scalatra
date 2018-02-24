@@ -178,7 +178,7 @@ trait ScalatraBase
       }
     }
 
-    cradleHalt(result = runActions, e => {
+    cradleHalt({ result = runActions }, e => {
       cradleHalt({
         result = errorHandler(e)
         rendered = false
