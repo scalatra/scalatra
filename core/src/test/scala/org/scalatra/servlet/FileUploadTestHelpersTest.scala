@@ -8,6 +8,8 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 import scala.collection.JavaConverters._
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
+  configureMultipartHandling(HasMultipartConfig.DefaultMultipartConfig)
+
   def handleRequest(): Unit = {
     response.setHeader("Request-Method", request.getMethod)
     params.foreach(p => response.setHeader("Param-" + p._1, p._2))
