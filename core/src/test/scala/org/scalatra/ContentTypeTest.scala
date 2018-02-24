@@ -142,7 +142,7 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
       def receive = {
         case i: Int =>
           val res = get("/concurrent/" + i) { response }
-          sender ! (i, res.mediaType)
+          sender ! Tuple2(i, res.mediaType)
       }
     }
 
