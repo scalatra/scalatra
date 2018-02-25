@@ -4,12 +4,6 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class StatusCodeHandlerTest extends ScalatraFunSuite {
 
-  trait TestException extends RuntimeException
-
-  case class Exception1() extends TestException
-
-  case class Exception2() extends TestException
-
   class BaseServlet extends ScalatraServlet {
     get("/401") {
       status = 401
