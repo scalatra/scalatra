@@ -37,7 +37,6 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
 
   get("/async-attributes/:mockSessionId") {
     request.setAttribute("sessionId", params("mockSessionId"))
-    val handlingReq = request
     new AsyncResult {
       val is = Future {
         Thread.sleep(200)
