@@ -8,6 +8,8 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 import scala.collection.JavaConverters._
 
 class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSupport {
+  configureMultipartHandling(HasMultipartConfig.DefaultMultipartConfig)
+
   def headersToHeaders(): Unit = {
     request.getHeaderNames.asScala.filter(_.startsWith("X")).foreach(header =>
       response.setHeader(header, request.getHeader(header)))
