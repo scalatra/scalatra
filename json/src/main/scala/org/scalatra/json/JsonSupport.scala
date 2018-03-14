@@ -3,6 +3,7 @@ package json
 
 import java.io.{ InputStream, InputStreamReader }
 import javax.servlet.http.HttpServletRequest
+import javax.xml.XMLConstants
 
 import org.json4s.Xml._
 import org.json4s._
@@ -57,6 +58,7 @@ trait JsonSupport[T] extends JsonOutput[T] {
   def secureXML: XMLLoader[Elem] = {
     val parserFactory = SAXParserFactory.newInstance()
     parserFactory.setNamespaceAware(false)
+    parserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     parserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
     parserFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     val saxParser = parserFactory.newSAXParser()
