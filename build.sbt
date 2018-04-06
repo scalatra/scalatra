@@ -187,9 +187,7 @@ lazy val scalatraTest = Project(
       mockitoAll,
       commonsLang3,
       httpclient,
-      httpmime,
-      jodaTime % "provided",
-      jodaConvert % "provided"
+      httpmime
     ) ++ specs2.map(_ % "test"),
     description := "The abstract Scalatra test framework"
   )
@@ -222,6 +220,8 @@ lazy val scalatraSwagger = Project(
   base = file("swagger")).settings(
     scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
+      jodaTime,
+      jodaConvert,
       json4sExt,
       parserCombinators,
       logbackClassic % "provided"
@@ -252,8 +252,6 @@ lazy val scalatraCache = Project(
   base = file("cache")).settings(
     scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
-      jodaTime,
-      jodaConvert,
       googleGuava
     ),
     description := "Scalatra Cache support"
