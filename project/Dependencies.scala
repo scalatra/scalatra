@@ -38,19 +38,16 @@ object Dependencies {
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
   lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.25"
-  lazy val slf4jSimple              =  "org.slf4j"               %  "slf4j-simple"               % "1.7.25"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-mock",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
-  lazy val testJettyServlet         =  "org.eclipse.jetty"       %  "test-jetty-servlet"         % jettyVersion
   lazy val testng                   =  "org.testng"              %  "testng"                     % "6.14.2" exclude("junit", "junit")
   lazy val metricsScala             =  "nl.grons"                %% "metrics-scala"              % "4.0.0"
   lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.0.2"
   lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.0.2"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
-  lazy val googleFindBugs           =  "com.google.code.findbugs" % "jsr305"                     % "3.0.2"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.3.15"
 
   private val akkaVersion             = "2.5.11"
