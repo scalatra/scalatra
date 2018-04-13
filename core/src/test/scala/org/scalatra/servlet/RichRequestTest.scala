@@ -1,13 +1,13 @@
 package org.scalatra
 package servlet
 
-import java.io.{ByteArrayInputStream, IOException}
+import java.io.{ ByteArrayInputStream, IOException }
 import java.util.Locale
 
 import javax.servlet.http.HttpServletRequest
-import javax.servlet.{ReadListener, ServletInputStream}
+import javax.servlet.{ ReadListener, ServletInputStream }
 import org.mockito.Mockito._
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.{ FunSuite, Matchers }
 
 class RichRequestTest extends FunSuite with Matchers {
   implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
