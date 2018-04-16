@@ -36,12 +36,12 @@ trait Control {
   def pass(): Nothing = throw new PassException
 }
 
-private[scalatra] case class HaltException(
+case class HaltException(
   status: Option[Int],
   headers: Map[String, String],
   body: Any)
   extends Throwable with NoStackTrace
 
-private[scalatra] class PassException
+class PassException
   extends Throwable
   with NoStackTrace
