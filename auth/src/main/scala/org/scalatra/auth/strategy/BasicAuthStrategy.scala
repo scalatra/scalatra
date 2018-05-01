@@ -54,14 +54,14 @@ object BasicAuthStrategy {
 
     private def authorizationKey = AUTHORIZATION_KEYS.find(r.getHeader(_) != null)
 
-    def isBasicAuth = (false /: scheme) { (_, sch) => sch == "basic" }
+    def isBasicAuth = scheme.foldLeft(false) { (_, sch) => sch == "basic" }
     def providesAuth = authorizationKey.isDefined
 
     private[this] var _credentials: Option[(String, String)] = None
     def credentials = {
       if (_credentials.isEmpty)
         _credentials = params map { p =>
-          (null.asInstanceOf[(String, String)] /: new String(Base64.getDecoder.decode(p), Codec.UTF8.charSet).split(":", 2)) { (t, l) =>
+          new String(Base64.getDecoder.decode(p), Codec.UTF8.charSet).split(":", 2).foldLeft(null: (String, String)) { (t, l) =>
             if (t == null) (l, null) else (t._1, l)
           }
         }
