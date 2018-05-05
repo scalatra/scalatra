@@ -6,286 +6,141 @@ case class ActionResult(
   headers: Map[String, String]
 )
 
-private object ActionResultHelpers {
+object ActionResult
+    extends ((ResponseStatus, Any, Map[String, String]) => ActionResult) { // SI-3664
+  sealed abstract class Contentful(statusCode: Int)
+      extends ((Any, Map[String, String], String) => ActionResult) {
+    def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
+      ActionResult(responseStatus(statusCode, reason), body, headers)
+  }
 
-  def responseStatus(status: Int, reason: String): ResponseStatus = {
+  sealed abstract class Contentless(statusCode: Int)
+      extends ((Map[String, String], String) => ActionResult) {
+    def apply(headers: Map[String, String] = Map.empty, reason: String = "") =
+      ActionResult(responseStatus(statusCode, reason), Unit, headers)
+  }
+
+  sealed abstract class WithLocation(statusCode: Int)
+      extends ((String, Map[String, String], String) => ActionResult) {
+    def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
+      ActionResult(responseStatus(statusCode, reason), Unit, Map("Location" -> location) ++ headers)
+  }
+
+  private[this] def responseStatus(status: Int, reason: String): ResponseStatus = {
     reason match {
       case "" | null => ResponseStatus(status)
       case _ => new ResponseStatus(status, reason)
     }
   }
-
 }
 
-import org.scalatra.ActionResultHelpers._
+import ActionResult._
 
-object Ok {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(200, reason), body, headers)
-}
+object Ok extends Contentful(200)
 
-object Created {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(201, reason), body, headers)
-}
+object Created extends Contentful(201)
 
-object Accepted {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(202, reason), body, headers)
-}
+object Accepted extends Contentful(202)
 
-object NonAuthoritativeInformation {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(203, reason), body, headers)
-}
+object NonAuthoritativeInformation extends Contentful(203)
 
-object NoContent {
-  def apply(headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(204, reason), Unit, headers)
-}
+object NoContent extends Contentless(204)
 
-object ResetContent {
-  def apply(headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(205, reason), Unit, headers)
-}
+object ResetContent extends Contentless(205)
 
-object PartialContent {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(206, reason), body, headers)
-}
+object PartialContent extends Contentful(206)
 
-object MultiStatus {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(207, reason), body, headers)
-}
+object MultiStatus extends Contentful(207)
 
-object AlreadyReported {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(208, reason), body, headers)
-}
+object AlreadyReported extends Contentful(208)
 
-object IMUsed {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(226, reason), body, headers)
-}
+object IMUsed extends Contentful(226)
 
-object MultipleChoices {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(300, reason), body, headers)
-}
+object MultipleChoices extends Contentful(300)
 
-object MovedPermanently {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(301, reason), Unit, Map("Location" -> location) ++ headers)
-}
+object MovedPermanently extends WithLocation(301)
 
-object Found {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(302, reason), Unit, Map("Location" -> location) ++ headers)
-}
+object Found extends WithLocation(302)
 
-object SeeOther {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(303, reason), Unit, Map("Location" -> location) ++ headers)
-}
+object SeeOther extends WithLocation(303)
 
-object NotModified {
-  def apply(headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(304, reason), Unit, headers)
-}
+object NotModified extends Contentless(304)
 
-object UseProxy {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(305, reason), Unit, Map("Location" -> location) ++ headers)
-}
+object UseProxy extends WithLocation(305)
 
-object TemporaryRedirect {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(307, reason), Unit, Map("Location" -> location) ++ headers)
-}
+object TemporaryRedirect extends WithLocation(307)
 
-object PermanentRedirect {
-  def apply(location: String, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(308, reason), Unit, Map("Location" -> location) ++ headers)
-}
+object PermanentRedirect extends WithLocation(308)
 
-object BadRequest {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(400, reason), body, headers)
-}
+object BadRequest extends Contentful(400)
 
-object Unauthorized {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(401, reason), body, headers)
-}
+object Unauthorized extends Contentful(401)
 
-object PaymentRequired {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(402, reason), body, headers)
-}
+object PaymentRequired extends Contentful(402)
 
-object Forbidden {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(403, reason), body, headers)
-}
+object Forbidden extends Contentful(403)
 
-object NotFound {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(404, reason), body, headers)
-}
+object NotFound extends Contentful(404)
 
-object MethodNotAllowed {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(405, reason), body, headers)
-}
+object MethodNotAllowed extends Contentful(405)
 
-object NotAcceptable {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(406, reason), body, headers)
-}
+object NotAcceptable extends Contentful(406)
 
-object ProxyAuthenticationRequired {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(407, reason), body, headers)
-}
+object ProxyAuthenticationRequired extends Contentful(407)
 
-object RequestTimeout {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(408, reason), body, headers)
-}
+object RequestTimeout extends Contentful(408)
 
-object Conflict {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(409, reason), body, headers)
-}
+object Conflict extends Contentful(409)
 
-object Gone {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(410, reason), body, headers)
-}
+object Gone extends Contentful(410)
 
-object LengthRequired {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(411, reason), body, headers)
-}
+object LengthRequired extends Contentful(411)
 
-object PreconditionFailed {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(412, reason), body, headers)
-}
+object PreconditionFailed extends Contentful(412)
 
-object RequestEntityTooLarge {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(413, reason), body, headers)
-}
+object RequestEntityTooLarge extends Contentful(413)
 
-object RequestURITooLong {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(414, reason), body, headers)
-}
+object RequestURITooLong extends Contentful(414)
 
-object UnsupportedMediaType {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(415, reason), body, headers)
-}
+object UnsupportedMediaType extends Contentful(415)
 
-object RequestedRangeNotSatisfiable {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(416, reason), body, headers)
-}
+object RequestedRangeNotSatisfiable extends Contentful(416)
 
-object ExpectationFailed {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(417, reason), body, headers)
-}
+object ExpectationFailed extends Contentful(417)
 
-object UnprocessableEntity {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(422, reason), body, headers)
-}
+object UnprocessableEntity extends Contentful(422)
 
-object Locked {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(423, reason), body, headers)
-}
+object Locked extends Contentful(423)
 
-object FailedDependency {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(424, reason), body, headers)
-}
+object FailedDependency extends Contentful(424)
 
-object UpgradeRequired {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(426, reason), body, headers)
-}
+object UpgradeRequired extends Contentful(426)
 
-object PreconditionRequired {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(428, reason), body, headers)
-}
+object PreconditionRequired extends Contentful(428)
 
-object TooManyRequests {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(429, reason), body, headers)
-}
+object TooManyRequests extends Contentful(429)
 
-object RequestHeaderFieldsTooLarge {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(431, reason), body, headers)
-}
+object RequestHeaderFieldsTooLarge extends Contentful(431)
 
-object InternalServerError {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(500, reason), body, headers)
-}
+object InternalServerError extends Contentful(500)
 
-object NotImplemented {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(501, reason), body, headers)
-}
+object NotImplemented extends Contentful(501)
 
-object BadGateway {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(502, reason), body, headers)
-}
+object BadGateway extends Contentful(502)
 
-object ServiceUnavailable {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(503, reason), body, headers)
-}
+object ServiceUnavailable extends Contentful(503)
 
-object GatewayTimeout {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(504, reason), body, headers)
-}
+object GatewayTimeout extends Contentful(504)
 
-object HTTPVersionNotSupported {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(505, reason), body, headers)
-}
+object HTTPVersionNotSupported extends Contentful(505)
 
-object VariantAlsoNegotiates {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(506, reason), body, headers)
-}
+object VariantAlsoNegotiates extends Contentful(506)
 
-object InsufficientStorage {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(507, reason), body, headers)
-}
+object InsufficientStorage extends Contentful(507)
 
-object LoopDetected {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(508, reason), body, headers)
-}
+object LoopDetected extends Contentful(508)
 
-object NotExtended {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(510, reason), body, headers)
-}
+object NotExtended extends Contentful(510)
 
-object NetworkAuthenticationRequired {
-  def apply(body: Any = Unit, headers: Map[String, String] = Map.empty, reason: String = "") =
-    ActionResult(responseStatus(511, reason), body, headers)
-}
+object NetworkAuthenticationRequired extends Contentful(511)
 

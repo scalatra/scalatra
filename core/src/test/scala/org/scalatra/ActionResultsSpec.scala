@@ -75,6 +75,11 @@ trait ActionResultTestBase {
 
     res
   }
+
+  get("/chosen-by-map") {
+    val m = Map("ok" -> Ok, "nai" -> NonAuthoritativeInformation)
+    m("ok")(body = "hello, world")
+  }
 }
 
 class ActionResultServletSpec extends ActionResultsSpec {
@@ -210,6 +215,14 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
     "defaults to call by value" in {
       get("/defaults-to-call-by-value") {
         body mustEqual "open"
+      }
+    }
+  }
+
+  "ActionResult constructors" should {
+    "be typed data" in {
+      get("/chosen-by-map") {
+        status mustEqual 200
       }
     }
   }
