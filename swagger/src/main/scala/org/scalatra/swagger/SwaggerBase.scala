@@ -7,6 +7,8 @@ import org.scalatra.json.JsonSupport
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
 import org.slf4j.LoggerFactory
 
+import scala.collection.immutable.ListMap
+
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
@@ -144,7 +146,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
             ("name" -> swagger.apiInfo.license) ~
             ("url" -> swagger.apiInfo.licenseUrl)))) ~
             ("paths" ->
-              (docs.filter(_.apis.nonEmpty).flatMap {
+              ListMap(docs.filter(_.apis.nonEmpty).flatMap {
                 doc =>
                   doc.apis.collect {
                     case api: SwaggerEndpoint[_] =>
@@ -190,9 +192,9 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
                                   case _ => (requirement -> List.empty)
                                 }
                               }))))
-                      }.toMap)
-                  }.toMap
-              }.toMap)) ~
+                      })
+                  }
+              }: _*)) ~
               ("definitions" -> docs.flatMap { doc =>
                 doc.models.map {
                   case (name, model) =>
