@@ -98,11 +98,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     urlPattern: String,
     name: String,
     loadOnStartup: Int = 1): Unit = {
-    val pathMap = urlPattern match {
-      case s if s.endsWith("/*") => s
-      case s if s.endsWith("/") => s + "*"
-      case s => s + "/*"
-    }
+    val pathMap = pathMapping(urlPattern)
 
     if (classOf[HttpServlet].isAssignableFrom(handlerClass)) {
       mountServlet(handlerClass.asInstanceOf[Class[HttpServlet]], pathMap, name, loadOnStartup)
