@@ -231,7 +231,7 @@ trait ScalatraBase
    * Invokes each filters with `invoke`.  The results of the filters
    * are discarded.
    */
-  protected def runFilters(filters: Traversable[Route]): Unit = {
+  protected def runFilters(filters: Iterable[Route]): Unit = {
     for {
       route <- filters
       matchedRoute <- route(requestPath)
@@ -242,7 +242,7 @@ trait ScalatraBase
    * Lazily invokes routes with `invoke`.  The results of the routes
    * are returned as a stream.
    */
-  protected def runRoutes(routes: Traversable[Route]): Stream[Any] = {
+  protected def runRoutes(routes: Iterable[Route]): Stream[Any] = {
     for {
       route <- routes.toStream // toStream makes it lazy so we stop after match
       matchedRoute <- route.apply(requestPath)
