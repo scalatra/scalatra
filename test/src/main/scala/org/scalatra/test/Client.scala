@@ -99,7 +99,7 @@ trait Client extends ImplicitConversions {
   def patch[A](uri: String, body: Array[Byte] = Array(), headers: Iterable[(String, String)] = Seq.empty)(f: => A): A =
     submit("PATCH", uri, Seq.empty, headers, body) { f }
 
-  private[test] def toQueryString(params: Traversable[(String, String)]) =
+  private[test] def toQueryString(params: Iterable[(String, String)]) =
     params.map(t => List(t._1, t._2).map(encode(_, "UTF-8")).mkString("=")).mkString("&")
 
 }
