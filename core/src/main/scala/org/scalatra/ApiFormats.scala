@@ -108,9 +108,11 @@ trait ApiFormats extends ScalatraBase {
     response.contentType flatMap (ctt => ctt.split(";").headOption flatMap mimeTypes.get)
   }
 
+  private[this] val validRange: Set[Double] =
+    Set(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+
   private def parseAcceptHeader(implicit request: HttpServletRequest): List[String] = {
     def isValidQPair(a: Array[String]) = {
-      val validRange = Range.Double.inclusive(0, 1, 0.1)
       a.length == 2 && a(0) == "q" && validRange.contains(a(1).toDouble)
     }
 
