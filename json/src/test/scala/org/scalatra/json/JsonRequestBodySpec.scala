@@ -63,6 +63,13 @@ trait JsonRequestSpec extends MutableScalatraSpec {
       }
     }
 
+    "don't parse when content-type is 'application/x-www-form-urlencoded'" in {
+      val rbody = """{"name": "hello world"}"""
+      post("/json", headers = Map("Accept" -> "application/json", "Content-Type" -> "application/x-www-form-urlencoded"), body = rbody) {
+        status must_== 400
+        body must_== "invalid json"
+      }
+    }
   }
 }
 
