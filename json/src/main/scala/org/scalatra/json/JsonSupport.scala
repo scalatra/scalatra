@@ -25,18 +25,11 @@ trait JsonSupport[T] extends JsonOutput[T] {
   private[this] val logger = LoggerFactory.getLogger(getClass)
 
   protected def parseRequestBody(format: String)(implicit request: HttpServletRequest) = try {
-    val ct = request.contentType getOrElse ""
     if (format == "json") {
-      val bd = {
-        if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readJsonFromBody getOrElse JNothing
-        else readJsonFromBody(request.body)
-      }
+      val bd = readJsonFromBody(request.body)
       transformRequestBody(bd)
     } else if (format == "xml") {
-      val bd = {
-        if (ct == "application/x-www-form-urlencoded") multiParams.keys.headOption map readXmlFromBody getOrElse JNothing
-        else readXmlFromBody(request.body)
-      }
+      val bd = readXmlFromBody(request.body)
       transformRequestBody(bd)
     } else JNothing
   } catch {
