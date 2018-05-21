@@ -12,7 +12,6 @@ object JsonValueReader {
   private val separatorEnd = ""
 }
 
-@deprecated("JsonValueReader is deprecated from Scalatra 2.7.0. It will be deleted in the next major version. Please use the query syntax of Json4s.", "2.7.0")
 class JsonValueReader(val data: JValue)(implicit formats: Formats) extends ValueReader[JValue, JValue] {
   //  type I = T
   import JsonValueReader._

@@ -14,6 +14,7 @@ trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with
   }
 }
 
+@deprecated("NativeJsonValueReaderProperty is deprecated from Scalatra 2.7.0. It will be deleted in the next major version. Please use the query syntax of Json4s.", "2.7.0")
 trait NativeJsonValueReaderProperty extends JsonValueReaderProperty[Document] { self: native.JsonMethods => }
 
 trait NativeJsonOutput extends JsonOutput[Document] with native.JsonMethods {
