@@ -64,21 +64,8 @@ trait JsonSupport[T] extends JsonOutput[T] {
       jv
     } else JNothing
   }
+
   protected def transformRequestBody(body: JValue) = body
-
-  override protected def invoke(matchedRoute: MatchedRoute) = {
-    withRouteMultiParams(Some(matchedRoute)) {
-      val mt = request.contentType.fold("application/x-www-form-urlencoded")(_.split(";").head)
-      val fmt = mimeTypes.getOrElse(mt, "html")
-      if (shouldParseBody(fmt)) {
-        request(ParsedBodyKey) = parseRequestBody(fmt).asInstanceOf[AnyRef]
-      }
-      super.invoke(matchedRoute)
-    }
-  }
-
-  protected def shouldParseBody(fmt: String)(implicit request: HttpServletRequest) =
-    (fmt == "json" || fmt == "xml") && !request.requestMethod.isSafe && parsedBody == JNothing
 
   def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).fold({
     val fmt = requestFormat
