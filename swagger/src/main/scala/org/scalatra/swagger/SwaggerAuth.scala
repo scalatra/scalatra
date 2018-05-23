@@ -5,7 +5,6 @@ import org.joda.time._
 import org.joda.time.format.ISODateTimeFormat
 import org.json4s._
 import org.scalatra.auth.ScentrySupport
-import org.scalatra.json.JsonSupport
 import org.scalatra.swagger.DataType.ValueDataType
 import org.scalatra.util.NotNothing
 
@@ -31,7 +30,7 @@ class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val ap
   }
 }
 
-trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: JsonSupport[_] with CorsSupport with ScentrySupport[TypeForUser] =>
+trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: CorsSupport with ScentrySupport[TypeForUser] =>
 
   protected type ApiType = AuthApi[TypeForUser]
   protected implicit def swagger: SwaggerEngine[AuthApi[AnyRef]]

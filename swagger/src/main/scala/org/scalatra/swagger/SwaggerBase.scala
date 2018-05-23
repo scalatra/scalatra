@@ -3,7 +3,6 @@ package swagger
 
 import org.json4s.JsonDSL._
 import org.json4s._
-import org.scalatra.json.JsonSupport
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
 import org.slf4j.LoggerFactory
 
@@ -12,7 +11,7 @@ import scala.collection.immutable.ListMap
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSupport[_] with CorsSupport =>
+trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSupport =>
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
@@ -208,7 +207,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: JsonSuppor
 
 }
 
-trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
+trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with CorsSupport =>
   type ApiType = Api
   implicit protected def jsonFormats: Formats = DefaultFormats
   protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)
