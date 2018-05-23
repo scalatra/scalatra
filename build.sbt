@@ -117,14 +117,17 @@ lazy val scalatraAtmosphere = Project(
       atmosphereCompatJbossweb,
       atmosphereCompatTomcat,
       atmosphereCompatTomcat7,
+      json4sCore,
+      json4sJackson % "provided",
+      json4sNative % "provided",
       atmosphereClient % "test",
       jettyWebsocket % "test",
       akkaActor,
-      akkaTestkit % "test"
+      akkaTestkit % "test",
     ),
     description := "Atmosphere integration for scalatra"
   )
-) dependsOn(scalatraJson % "compile;test->test;provided->provided")
+) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraScalate = Project(
   id = "scalatra-scalate",
