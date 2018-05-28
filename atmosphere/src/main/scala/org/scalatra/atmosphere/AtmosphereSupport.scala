@@ -26,7 +26,6 @@ import org.atmosphere.cpr._
 import org.atmosphere.interceptor.SessionCreationInterceptor
 import org.jboss.servlet.http.{ HttpEvent, HttpEventServlet }
 import org.json4s._
-import org.scalatra.json.JsonSupport
 import org.scalatra.servlet.ScalatraAsyncSupport
 import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import scala.util.control.Exception.allCatch
 
-trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonSupport[_] =>
+trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonMethods[_] =>
 
   private[this] val logger = LoggerFactory.getLogger(getClass)
 
