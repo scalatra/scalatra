@@ -40,7 +40,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
   /**
    * Registers the documentation for an API with the given path.
    */
-  def register(listingPath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String])
+  def register(listingPath: String, resourcePath: String, description: Option[String], s: SwaggerSupportSyntax with SwaggerSupportBase, consumes: List[String], produces: List[String], protocols: List[String], authorizations: List[String]): Unit
 
 }
 

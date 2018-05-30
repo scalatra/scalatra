@@ -7,7 +7,7 @@ trait Cache {
 
   def put[V](key: String, value: V, ttl: Option[Duration]): V
 
-  def remove(key: String)
+  def remove(key: String): Unit
 
-  def flush()
+  def flush(): Unit
 }

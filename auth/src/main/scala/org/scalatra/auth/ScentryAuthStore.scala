@@ -9,8 +9,8 @@ object ScentryAuthStore {
 
   trait ScentryAuthStore {
     def get(implicit request: HttpServletRequest, response: HttpServletResponse): String
-    def set(value: String)(implicit request: HttpServletRequest, response: HttpServletResponse)
-    def invalidate()(implicit request: HttpServletRequest, response: HttpServletResponse)
+    def set(value: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit
+    def invalidate()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit
   }
 
   class CookieAuthStore(app: ScalatraContext)(implicit cookieOptions: CookieOptions = CookieOptions(path = "/")) extends ScentryAuthStore {

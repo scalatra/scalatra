@@ -86,5 +86,5 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
         doctype = null)
   }
 
-  protected def writeJson(json: JValue, writer: Writer)
+  protected def writeJson(json: JValue, writer: Writer): Unit
 }
