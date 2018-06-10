@@ -59,18 +59,6 @@ trait Mimes {
   }
 
   /**
-   * Detects the mime type of a given file path.
-   *
-   * @param path The path for which to detect the mime type
-   * @param fallback A fallback value in case no mime type can be found
-   */
-  def mimeType(path: String, fallback: String = DefaultMime): String = {
-    detectMime(fallback) {
-      MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(path, new MimeType(fallback))).toString
-    }
-  }
-
-  /**
    * Detects the mime type of a given url.
    *
    * @param url The url for which to detect the mime type
