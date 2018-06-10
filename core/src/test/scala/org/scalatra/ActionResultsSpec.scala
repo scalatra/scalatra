@@ -3,12 +3,15 @@ package org.scalatra
 import java.io.File
 import java.io.ByteArrayOutputStream
 
+import java.net.URLConnection
+
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
 
 trait ActionResultTestBase {
   self: ScalatraBase =>
+
   error {
     case e => BadRequest("something went wrong")
   }
@@ -33,8 +36,8 @@ trait ActionResultTestBase {
     Ok("Hello, world!".getBytes)
   }
 
-  get("/file-png") {
-    val url = getClass.getResource("/org/scalatra/servlet/smiley.png")
+  get("/file-css") {
+    val url = getClass.getResource("/org/scalatra/servlet/test.css")
 
     new File(url.toURI)
   }
@@ -80,6 +83,11 @@ trait ActionResultTestBase {
 }
 
 class ActionResultServletSpec extends ActionResultsSpec {
+
+  // Specify the path of the property file required to infer the MIME Type of Content Type.
+  val ct = getClass.getResource("/util/content-types.properties")
+  System.setProperty("content.types.user.table", ct.getPath)
+
   mount(classOf[ActionResultServlet], "/*")
 }
 abstract class ActionResultsSpec extends MutableScalatraSpec {
@@ -116,11 +124,8 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
     }
 
     "infer contentType for File" in {
-      get("/file-png") {
-        // Originally it is unnecessary to specify charset in the png file,
-        // but it matches Scalatra's specification at the present time.
-        // Future revision is necessary.
-        response.getContentType mustEqual "image/png;charset=utf-8"
+      get("/file-css") {
+        response.getContentType mustEqual "text/css;charset=utf-8"
       }
     }
 
