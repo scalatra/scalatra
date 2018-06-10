@@ -1,6 +1,9 @@
 package org.scalatra
 
+import java.io.File
 import java.io.ByteArrayOutputStream
+
+import java.net.URLConnection
 
 import org.scalatra.test.specs2.MutableScalatraSpec
 
@@ -8,6 +11,7 @@ class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
 
 trait ActionResultTestBase {
   self: ScalatraBase =>
+
   error {
     case e => BadRequest("something went wrong")
   }
@@ -30,6 +34,12 @@ trait ActionResultTestBase {
 
   get("/bytes") {
     Ok("Hello, world!".getBytes)
+  }
+
+  get("/file-css") {
+    val url = getClass.getResource("/org/scalatra/servlet/test.css")
+
+    new File(url.toURI)
   }
 
   get("/error") {
@@ -73,6 +83,11 @@ trait ActionResultTestBase {
 }
 
 class ActionResultServletSpec extends ActionResultsSpec {
+
+  // Specify the path of the property file required to infer the MIME Type of Content Type.
+  val ct = getClass.getResource("/util/content-types.properties")
+  System.setProperty("content.types.user.table", ct.getPath)
+
   mount(classOf[ActionResultServlet], "/*")
 }
 abstract class ActionResultsSpec extends MutableScalatraSpec {
@@ -105,6 +120,12 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
         response.getContentType mustEqual "text/plain;charset=" + java.nio.charset.Charset.defaultCharset.displayName.toLowerCase
+      }
+    }
+
+    "infer contentType for File" in {
+      get("/file-css") {
+        response.getContentType mustEqual "text/css;charset=utf-8"
       }
     }
 

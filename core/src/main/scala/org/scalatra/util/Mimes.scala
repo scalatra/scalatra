@@ -1,7 +1,7 @@
 package org.scalatra.util
 
 import java.io.{ File, InputStream }
-import java.net.{ URI, URL }
+import java.net.{ URI, URL, URLConnection }
 
 import eu.medsea.mimeutil.{ MimeType, MimeUtil2 }
 import eu.medsea.util.EncodingGuesser
@@ -47,26 +47,15 @@ trait Mimes {
       MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(content, new MimeType(fallback))).toString
     }
   }
+
   def fileMime(file: File, fallback: String = DefaultMime): String = {
-    detectMime(fallback) {
-      MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(file, new MimeType(fallback))).toString
-    }
+    val mimeType = URLConnection.guessContentTypeFromName(file.getName)
+    if (mimeType != null) mimeType else fallback
   }
+
   def inputStreamMime(input: InputStream, fallback: String = DefaultMime): String = {
     detectMime(fallback) {
       MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(input, new MimeType(fallback))).toString
-    }
-  }
-
-  /**
-   * Detects the mime type of a given file path.
-   *
-   * @param path The path for which to detect the mime type
-   * @param fallback A fallback value in case no mime type can be found
-   */
-  def mimeType(path: String, fallback: String = DefaultMime): String = {
-    detectMime(fallback) {
-      MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(path, new MimeType(fallback))).toString
     }
   }
 
