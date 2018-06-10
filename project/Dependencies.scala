@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.0"
+  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.1"
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.1.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
@@ -23,8 +23,8 @@ object Dependencies {
   lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
   lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
   lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
-  lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "2.0.1"
-  lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.9.9"
+  lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "2.0.2"
+  lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.10"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
   lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
@@ -50,11 +50,11 @@ object Dependencies {
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.3.15"
 
-  private val akkaVersion             = "2.5.12"
+  private val akkaVersion             = "2.5.13"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.5"
   private val jettyVersion            = "9.4.6.v20170531"
-  private val json4sVersion           = "3.5.3"
+  private val json4sVersion           = "3.5.4"
   private val scalateVersion          = "1.8.0"
   private val scalatestVersion        = "3.0.5"
   private val specs2Version           = "4.2.0"
