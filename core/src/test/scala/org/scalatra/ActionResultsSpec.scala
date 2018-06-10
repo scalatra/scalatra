@@ -1,5 +1,6 @@
 package org.scalatra
 
+import java.io.File
 import java.io.ByteArrayOutputStream
 
 import org.scalatra.test.specs2.MutableScalatraSpec
@@ -30,6 +31,12 @@ trait ActionResultTestBase {
 
   get("/bytes") {
     Ok("Hello, world!".getBytes)
+  }
+
+  get("/file-png") {
+    val url = getClass.getResource("/org/scalatra/servlet/smiley.png")
+
+    new File(url.toURI)
   }
 
   get("/error") {
@@ -105,6 +112,15 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
         response.getContentType mustEqual "text/plain;charset=" + java.nio.charset.Charset.defaultCharset.displayName.toLowerCase
+      }
+    }
+
+    "infer contentType for File" in {
+      get("/file-png") {
+        // Originally it is unnecessary to specify charset in the png file,
+        // but it matches Scalatra's specification at the present time.
+        // Future revision is necessary.
+        response.getContentType mustEqual "image/png;charset=utf-8"
       }
     }
 
