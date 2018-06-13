@@ -10,7 +10,6 @@ import org.scalatra.util.RicherString._
 import org.scalatra.util.MultiMapHeadView
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable.DefaultMap
 import scala.collection.{ Map => CMap }
 import scala.io.Source
 
@@ -113,9 +112,22 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * A map of headers.  Multiple header values are separated by a ','
    * character.  The keys of this map are case-insensitive.
    */
-  object headers extends DefaultMap[String, String] {
+  object headers extends collection.immutable.Map[String, String] {
 
     def get(name: String): Option[String] = Option(r.getHeader(name))
+
+    override def +[V1 >: String](kv: (String, V1)): Map[String, V1] = {
+      val b = Map.newBuilder[String, V1]
+      b ++= this
+      b += ((kv._1, kv._2))
+      b.result()
+    }
+
+    override def -(key: String): Map[String, String] = {
+      val b = this.newBuilder
+      for (kv <- this; if kv._1 != key) b += kv
+      b.result()
+    }
 
     private[scalatra] def getMulti(key: String): Seq[String] = {
       get(key).map(_.split(",").toSeq.map(_.trim)).getOrElse(Seq.empty)
