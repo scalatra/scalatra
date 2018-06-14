@@ -2,8 +2,6 @@ package org.scalatra.test
 
 import java.io.InputStream
 
-import scala.collection.DefaultMap
-
 case class ResponseStatus(code: Int, message: String)
 
 import scala.collection.JavaConverters._
@@ -25,12 +23,26 @@ abstract class ClientResponse {
 
   def status = statusLine.code
 
-  val header = new DefaultMap[String, String] {
+  val header: Map[String, String] = new Map[String, String] {
+
     def get(key: String) = {
       headers.get(key) match {
         case Some(values) => Some(values.head)
         case _ => None
       }
+    }
+
+    override def +[V1 >: String](kv: (String, V1)): Map[String, V1] = {
+      val b = Map.newBuilder[String, V1]
+      b ++= this
+      b += ((kv._1, kv._2))
+      b.result()
+    }
+
+    override def -(key: String): Map[String, String] = {
+      val b = this.newBuilder
+      for (kv <- this; if kv._1 != key) b += kv
+      b.result()
     }
 
     override def apply(key: String) = {

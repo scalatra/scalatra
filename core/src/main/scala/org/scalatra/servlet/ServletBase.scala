@@ -6,7 +6,6 @@ import javax.servlet.ServletContext
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import scala.collection.JavaConverters._
-import scala.collection.immutable.DefaultMap
 
 /**
  * ServletBase implements the Scalatra DSL with the Servlet API, and can be
@@ -31,9 +30,22 @@ trait ServletBase
 
     override def context: ServletContext = config.getServletContext
 
-    object initParameters extends DefaultMap[String, String] {
+    object initParameters extends collection.immutable.Map[String, String] {
 
       override def get(key: String): Option[String] = Option(config.getInitParameter(key))
+
+      override def +[V1 >: String](kv: (String, V1)): Map[String, V1] = {
+        val b = Map.newBuilder[String, V1]
+        b ++= this
+        b += ((kv._1, kv._2))
+        b.result()
+      }
+
+      override def -(key: String): Map[String, String] = {
+        val b = this.newBuilder
+        for (kv <- this; if kv._1 != key) b += kv
+        b.result()
+      }
 
       override def iterator: Iterator[(String, String)] = {
         for (name <- config.getInitParameterNames.asScala)
