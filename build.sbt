@@ -84,7 +84,6 @@ lazy val scalatraCore = Project(
       servletApi % "provided;test",
       slf4jApi,
       jUniversalChardet,
-      mimeUtil,
       commonsLang3,
       parserCombinators,
       xml,
