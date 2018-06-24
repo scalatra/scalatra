@@ -1,6 +1,7 @@
 package org.scalatra
 
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 import org.scalatra.test.specs2.MutableScalatraSpec
 
@@ -54,6 +55,12 @@ trait ActionResultTestBase {
   get("/input-stream") {
     contentType = "image/png"
     getClass.getResourceAsStream("/org/scalatra/servlet/smiley.png")
+  }
+
+  get("/file") {
+    val url = getClass.getResource("/org/scalatra/servlet/smiley.png")
+
+    new File(url.toURI)
   }
 
   get("/defaults-to-call-by-value") {
@@ -119,6 +126,10 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
       get("/input-stream") {
         response.mediaType must beSome("image/png")
         bodyBytes must_== expected
+      }
+
+      get("/file") {
+        response.mediaType must beSome("image/png")
       }
     }
   }
