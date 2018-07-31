@@ -6,6 +6,8 @@ import java.util.{ Calendar, Date }
 
 import org.specs2.mutable.Specification
 
+import scala.reflect.ClassTag
+
 class ConversionsSpecs extends Specification {
 
   "The TypeConverterSupport trait" should {
@@ -87,7 +89,7 @@ class ConversionsSpecs extends Specification {
 
       import Impl._
 
-      def testConversion[T](args: (String, Seq[T]))(implicit mf: Manifest[T], t: TypeConverter[String, T]) = {
+      def testConversion[T: ClassTag](args: (String, Seq[T]))(implicit t: TypeConverter[String, T]) = {
         val (source, expected) = args
         Impl.stringToSeq(t).apply(source).get must containAllOf(expected).inOrder
       }
