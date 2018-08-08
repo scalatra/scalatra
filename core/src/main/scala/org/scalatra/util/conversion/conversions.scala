@@ -7,6 +7,8 @@ import java.util.Date
 
 import scala.util.control.Exception.allCatch
 
+import scala.reflect.ClassTag
+
 /**
  * Support types and implicits for [[org.scalatra.util.conversion.TypeConverter]].
  */
@@ -27,8 +29,8 @@ trait TypeConverterSupport {
 object TypeConverterSupport extends TypeConverterSupport
 
 trait LowestPriorityImplicitConversions extends TypeConverterSupport {
-  implicit def lowestPriorityAny2T[T: Manifest]: TypeConverter[Any, T] = safe {
-    case a if manifest[T].runtimeClass.isAssignableFrom(a.getClass) => a.asInstanceOf[T]
+  implicit def lowestPriorityAny2T[T: ClassTag]: TypeConverter[Any, T] = safe {
+    case a if implicitly[ClassTag[T]].runtimeClass.isAssignableFrom(a.getClass) => a.asInstanceOf[T]
   }
 }
 
@@ -141,16 +143,16 @@ trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 
   def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] = safe(format.parse(_))
 
-  implicit def defaultStringToSeq[T](implicit elementConverter: TypeConverter[String, T], mf: Manifest[T]): TypeConverter[String, Seq[T]] =
+  implicit def defaultStringToSeq[T: ClassTag](implicit elementConverter: TypeConverter[String, T]): TypeConverter[String, Seq[T]] =
     stringToSeq[T](elementConverter)
 
-  def stringToSeq[T: Manifest](elementConverter: TypeConverter[String, T], separator: String = ","): TypeConverter[String, Seq[T]] =
+  def stringToSeq[T: ClassTag](elementConverter: TypeConverter[String, T], separator: String = ","): TypeConverter[String, Seq[T]] =
     safe(s => s.split(separator).toSeq.flatMap(e => elementConverter(e.trim)))
 
-  implicit def seqHead[T](implicit elementConverter: TypeConverter[String, T], mf: Manifest[T]): TypeConverter[Seq[String], T] =
+  implicit def seqHead[T: ClassTag](implicit elementConverter: TypeConverter[String, T]): TypeConverter[Seq[String], T] =
     safeOption(_.headOption.flatMap(elementConverter(_)))
 
-  implicit def seqToSeq[T](implicit elementConverter: TypeConverter[String, T], mf: Manifest[T]): TypeConverter[Seq[String], Seq[T]] =
+  implicit def seqToSeq[T: ClassTag](implicit elementConverter: TypeConverter[String, T]): TypeConverter[Seq[String], Seq[T]] =
     safe(_.flatMap(elementConverter(_)))
 
 }
@@ -167,9 +169,7 @@ object Conversions extends DefaultImplicitConversions {
   }
 
   implicit class SeqConversion(private val source: String) extends AnyVal {
-
-    def asSeq[T](separator: String)(implicit mf: Manifest[T], tc: TypeConverter[String, T]): Option[Seq[T]] =
+    def asSeq[T: ClassTag](separator: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] =
       stringToSeq[T](tc, separator).apply(source)
-
   }
 }

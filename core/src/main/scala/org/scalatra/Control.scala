@@ -18,7 +18,7 @@ trait Control {
    * @param body a result to render through the render pipeline as the body
    * @param headers headers to add to the response
    */
-  def halt[T: Manifest](
+  def halt[T](
     status: JInteger = null,
     body: T = (),
     headers: Map[String, String] = Map.empty): Nothing = {
