@@ -1,7 +1,6 @@
 package org.scalatra.forms
 
 import org.scalatra.i18n.Messages
-import scala.reflect.ClassTag
 
 trait ValueType[T] {
 
