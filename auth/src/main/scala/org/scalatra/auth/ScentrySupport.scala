@@ -28,7 +28,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
     readStrategiesFromConfig(config)
   }
 
-  private def initializeScentry = {
+  private def initializeScentry() = {
     val store = new ScentryAuthStore.SessionAuthStore(this)
     request.setAttribute(Scentry.ScentryRequestKey, new Scentry[UserType](self, toSession, fromSession, store))
   }
@@ -38,7 +38,7 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
       config.context.getInitParameter("scentry.strategies").blankOption map (s ⇒ (s split ";").toList) getOrElse Nil
     }
 
-  private def registerStrategiesFromConfig = _strategiesFromConfig foreach { strategyClassName ⇒
+  private def registerStrategiesFromConfig() = _strategiesFromConfig foreach { strategyClassName ⇒
     val strategy = Class.forName(strategyClassName).getDeclaredConstructor().newInstance().asInstanceOf[ScentryStrategy[UserType]]
     strategy registerWith scentry
   }

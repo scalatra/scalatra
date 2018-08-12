@@ -21,7 +21,7 @@ object ScalatraBroadcasterFactory {
     this.cfg = Some(cfg)
   }
 
-  def clearDefaults = {
+  def clearDefaults() = {
     broadcasterFactory = None
     cfg = None
   }
