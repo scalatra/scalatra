@@ -21,7 +21,7 @@ class ScalatraExample extends ScalatraServlet {
 
 If you're just starting out, see the [installation](http://scalatra.org/getting-started/installation.html) and [first project](http://scalatra.org/getting-started/first-project.html) sections of our website.
 
-Once you've done that, take a look at the [Scalatra Guides](http://www.scalatra.org/guides/) for documentation on all aspects of the framework, code examples, and more. We also have an extensive selection of [Example Applications](https://github.com/scalatra/scalatra-website-examples) which accompany the tutorials in the Scalatra Guides.
+Once you've done that, take a look at the [Scalatra Guides](http://scalatra.org/guides/) for documentation on all aspects of the framework, code examples, and more. We also have an extensive selection of [Example Applications](https://github.com/scalatra/scalatra-website-examples) which accompany the tutorials in the Scalatra Guides.
 
 ## Latest version
 
