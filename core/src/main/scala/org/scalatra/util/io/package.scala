@@ -62,10 +62,10 @@ package object io {
   }
 
   def readBytes(in: InputStream): Array[Byte] = {
-    val out = new ByteArrayOutputStream()
-    copy(in, out)
-
-    out.toByteArray
+   using(new ByteArrayOutputStream()) { out =>
+      copy(in, out)
+      out.toByteArray
+    }
   }
 
   /**
