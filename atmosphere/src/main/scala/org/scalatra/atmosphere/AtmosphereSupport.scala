@@ -112,7 +112,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
 
   protected def configureInterceptors(cfg: ServletConfig) = {
     atmosphereFramework.interceptor(new SessionCreationInterceptor)
-    if (cfg.getInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT).isBlank)
+    if (cfg.getInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT).isBlankString)
       cfg.getServletContext.setInitParameter(ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT, "true")
     if (trackMessageSize || cfg.getInitParameter(TrackMessageSize).blankOption.map(_.toCheckboxBool).getOrElse(false))
       atmosphereFramework.interceptor(new TrackMessageSizeInterceptor)
@@ -172,7 +172,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   }
 
   private[this] def configureBroadcasterCache(): Unit = {
-    if (atmosphereFramework.getBroadcasterCacheClassName.isBlank)
+    if (atmosphereFramework.getBroadcasterCacheClassName.isBlankString)
       atmosphereFramework.setBroadcasterCacheClassName(classOf[UUIDBroadcasterCache].getName)
   }
 

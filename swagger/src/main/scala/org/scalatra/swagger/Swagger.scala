@@ -153,7 +153,7 @@ object Swagger {
       buildAllowableRangeValues(ranges, csvString, inclusive = false)
 
     } else {
-      if (csvString.isBlank) {
+      if (csvString.isBlankString) {
         AllowableValues.AnyValue
       } else {
         val params = csvString.split(",").toList

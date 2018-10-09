@@ -7,12 +7,17 @@ package object RicherString {
 
   implicit final class RicherStringImplicitClass(private val orig: String) extends AnyVal {
 
+    @deprecated("RicherString#isBlank has been deprecated, it's the same method name as Java 11's String#isBlank", "2.7.0")
     def isBlank: Boolean = {
       orig == null || orig.trim.isEmpty
     }
 
-    def blankOption: Option[String] = if (isBlank) None else Some(orig)
-    def nonBlank: Boolean = !isBlank
+    def isBlankString: Boolean = {
+      orig == null || orig.trim.isEmpty
+    }
+
+    def blankOption: Option[String] = if (isBlankString) None else Some(orig)
+    def nonBlank: Boolean = !isBlankString
 
     def urlEncode: String = UrlCodingUtils.urlEncode(orig)
     def formEncode: String = UrlCodingUtils.urlEncode(orig, spaceIsPlus = true)
