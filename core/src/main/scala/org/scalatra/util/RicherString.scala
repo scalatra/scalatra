@@ -1,9 +1,11 @@
 package org.scalatra.util
 
-import java.nio.charset.Charset
+import java.nio.charset.{ Charset, StandardCharsets }
 import java.util.regex.Pattern
 
 package object RicherString {
+
+  private val emptyCharSet = Set[Int]()
 
   implicit final class RicherStringImplicitClass(private val orig: String) extends AnyVal {
 
@@ -16,13 +18,13 @@ package object RicherString {
 
     def urlEncode: String = UrlCodingUtils.urlEncode(orig)
     def formEncode: String = UrlCodingUtils.urlEncode(orig, spaceIsPlus = true)
-    def urlDecode: String = UrlCodingUtils.urlDecode(orig)
-    def formDecode: String = UrlCodingUtils.urlDecode(orig, plusIsSpace = true)
+    def urlDecode: String = UrlCodingUtils.urlDecode(orig, charset = StandardCharsets.UTF_8, plusIsSpace = false, skip = emptyCharSet)
+    def formDecode: String = UrlCodingUtils.urlDecode(orig, charset = StandardCharsets.UTF_8, plusIsSpace = true, skip = emptyCharSet)
 
     def urlEncode(charset: Charset): String = UrlCodingUtils.urlEncode(orig, charset)
     def formEncode(charset: Charset): String = UrlCodingUtils.urlEncode(orig, charset, spaceIsPlus = true)
-    def urlDecode(charset: Charset): String = UrlCodingUtils.urlDecode(orig, charset)
-    def formDecode(charset: Charset): String = UrlCodingUtils.urlDecode(orig, charset, plusIsSpace = true)
+    def urlDecode(charset: Charset): String = UrlCodingUtils.urlDecode(orig, charset, plusIsSpace = false, skip = emptyCharSet)
+    def formDecode(charset: Charset): String = UrlCodingUtils.urlDecode(orig, charset, plusIsSpace = true, skip = emptyCharSet)
 
     def /(path: String): String = {
       (orig.endsWith("/"), path.startsWith("/")) match {

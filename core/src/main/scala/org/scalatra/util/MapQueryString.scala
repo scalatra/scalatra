@@ -1,10 +1,14 @@
 package org.scalatra.util
 
+import java.nio.charset.StandardCharsets
+
 import collection.{ SortedMap, immutable }
 
 object MapQueryString {
 
   val DEFAULT_EXCLUSIONS = List("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sms_ss", "awesm")
+
+  private val emptyCharSet = Set[Int]()
 
   def parseString(rw: String) = {
     // this is probably an accident waiting to happen when people do actually mix stuff
@@ -21,7 +25,11 @@ object MapQueryString {
 
   private def readQsPair(pair: String, current: Map[String, List[String]] = Map.empty) = {
     (pair split '=' toList).map { source =>
-      if (source != null && source.trim().nonEmpty) UrlCodingUtils.urlDecode(source, plusIsSpace = true) else ""
+      if (source != null && source.trim().nonEmpty) {
+        UrlCodingUtils.urlDecode(source, StandardCharsets.UTF_8, plusIsSpace = true, skip = emptyCharSet)
+      } else {
+        ""
+      }
     } match {
       case item :: Nil ⇒ current + (item -> List[String]())
       case item :: rest ⇒
