@@ -8,9 +8,7 @@ object MapQueryString {
 
   val DEFAULT_EXCLUSIONS = List("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sms_ss", "awesm")
 
-  private val emptyCharSet = Set[Int]()
-
-  def parseString(rw: String) = {
+  def parseString(rw: String): Map[String, List[String]] = {
     // this is probably an accident waiting to happen when people do actually mix stuff
     val semiColon = if (rw.indexOf(';') > -1) {
       rw.split(';').foldRight(Map[String, List[String]]()) { readQsPair _ }
@@ -23,17 +21,17 @@ object MapQueryString {
     semiColon ++ ampersand
   }
 
-  private def readQsPair(pair: String, current: Map[String, List[String]] = Map.empty) = {
+  private def readQsPair(pair: String, current: Map[String, List[String]] = Map.empty): Map[String, List[String]] = {
     (pair split '=' toList).map { source =>
       if (source != null && source.trim().nonEmpty) {
-        UrlCodingUtils.urlDecode(source, StandardCharsets.UTF_8, plusIsSpace = true, skip = emptyCharSet)
+        UrlCodingUtils.urlDecode(source, StandardCharsets.UTF_8, plusIsSpace = true, skip = Set.empty[Int])
       } else {
         ""
       }
     } match {
       case item :: Nil ⇒ current + (item -> List[String]())
       case item :: rest ⇒
-        if (!current.contains(item)) current + (item -> rest) else (current + (item -> (rest ::: current(item)).distinct))
+        if (!current.contains(item)) current + (item -> rest) else current + (item -> (rest ::: current(item)).distinct)
       case _ ⇒ current
     }
   }
@@ -42,7 +40,7 @@ object MapQueryString {
 }
 case class MapQueryString(initialValues: Seq[(String, Seq[String])], rawValue: String) {
 
-  val uriPart = {
+  val uriPart: String = {
     "?" + mkString()
   }
 
@@ -50,7 +48,7 @@ case class MapQueryString(initialValues: Seq[(String, Seq[String])], rawValue: S
 
   def value: Value = Map(initialValues: _*)
 
-  def normalize = copy(SortedMap(initialValues filter (k ⇒ !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1)): _*) toSeq)
+  def normalize: MapQueryString = copy(SortedMap(initialValues filter (k ⇒ !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1)): _*) toSeq)
 
   private def mkString(values: Value = value) = values map {
     case (k, v) ⇒ v.map(s ⇒ "%s=%s".format(UrlCodingUtils.queryPartEncode(k), UrlCodingUtils.queryPartEncode(s))).mkString("&")
