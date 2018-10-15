@@ -17,9 +17,9 @@ object UriDecoder {
   }
 
   def secondStep(uri: String): String = {
-    uri.replaceAll("%23", "#")
-      .replaceAll("%2F", "/")
-      .replaceAll("%3F", "?")
+    uri.replace("%23", "#")
+      .replace("%2F", "/")
+      .replace("%3F", "?")
   }
 
 }
