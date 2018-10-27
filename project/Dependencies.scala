@@ -3,19 +3,19 @@ import Keys._
 
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.1"
-  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.1.0"
+  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.1.1"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
-  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.0"
+  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.1"
   lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.21" artifacts(Artifact("jquery", "war", "war"))
   lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.5"
-  lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.4.20"
+  lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.4.21"
   lazy val atmosphereCompatJbossweb =  "org.atmosphere"          %  "atmosphere-compat-jbossweb" % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat   =  "org.atmosphere"          %  "atmosphere-compat-tomcat"   % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat7  =  "org.atmosphere"          %  "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
   lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.3.3"
   lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.5"
-  lazy val commonsLang3             =  "org.apache.commons"      %  "commons-lang3"              % "3.7"
+  lazy val commonsLang3             =  "org.apache.commons"      %  "commons-lang3"              % "3.8.1"
   lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
   lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
   lazy val jettyServer              =  "org.eclipse.jetty"       %  "jetty-server"               % jettyVersion
@@ -23,7 +23,7 @@ object Dependencies {
   lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
   lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
   lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
-  lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "2.1.1"
+  lazy val jodaConvert              =  "org.joda"                %  "joda-convert"               % "2.1.2"
   lazy val jodaTime                 =  "joda-time"               %  "joda-time"                  % "2.10"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
   lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion
@@ -33,7 +33,7 @@ object Dependencies {
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.12"
   lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "2.19.1"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "2.23.0"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
@@ -50,12 +50,12 @@ object Dependencies {
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.3.15"
 
-  private val akkaVersion             = "2.5.14"
+  private val akkaVersion             = "2.5.17"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.6.v20170531"
-  private val json4sVersion           = "3.6.0"
+  private val json4sVersion           = "3.6.1"
   private val scalateVersion          = "1.9.0"
   private val scalatestVersion        = "3.0.5"
-  private val specs2Version           = "4.3.2"
+  private val specs2Version           = "4.3.5"
 }
