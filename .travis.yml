@@ -10,11 +10,10 @@ script:
 - git diff --exit-code
 matrix:
   include:
-  - jdk: oraclejdk10
+  - jdk: openjdk10
     scala: 2.12.7
     script:
     - sbt ++$TRAVIS_SCALA_VERSION test
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+    before_install:
+      - rm "${JAVA_HOME}/lib/security/cacerts"
+      - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
