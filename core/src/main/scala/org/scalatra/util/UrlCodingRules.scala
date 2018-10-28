@@ -1,16 +1,18 @@
 package org.scalatra.util
 
+import java.nio.charset.{ Charset, StandardCharsets }
+import java.nio.{ ByteBuffer, CharBuffer }
+import java.util.Locale
+
+import scala.collection.immutable.BitSet
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
-import java.util.Locale
-import java.nio.charset.Charset
-import java.nio.{ CharBuffer, ByteBuffer }
-import collection.immutable.BitSet
 
 trait UrlCodingUtils {
 
   private val toSkip = BitSet((('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') ++ "!$&'()*+,;=:/?@-._~".toSet).map(_.toInt): _*)
   private val toSkipEncoding = BitSet((('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') ++ ":@-._~".toSet).map(_.toInt): _*)
+  private val toSkipQueryEncoding = toSkipEncoding ++ BitSet('/', '?')
   private val space = ' '.toInt
   private val PctEncoded = """%([0-9a-fA-F][0-9a-fA-F])""".r
   private val LowerPctEncoded = """%([0-9a-f][0-9a-f])""".r
@@ -18,38 +20,35 @@ trait UrlCodingUtils {
 
   private val HexUpperCaseChars = (0 until 16) map { i ⇒ Character.toUpperCase(Character.forDigit(i, 16)) }
 
-  private val UTF_8 = "UTF-8"
-  private val Utf8 = Charset.forName(UTF_8)
-
-  def isUrlEncoded(string: String) = {
+  def isUrlEncoded(string: String): Boolean = {
     PctEncoded.findFirstIn(string).isDefined
   }
 
-  def containsInvalidUriChars(string: String) = {
+  def containsInvalidUriChars(string: String): Boolean = {
     InvalidChars.findFirstIn(string).isDefined
   }
 
-  def needsUrlEncoding(string: String) = {
+  def needsUrlEncoding(string: String): Boolean = {
     !isUrlEncoded(string) && containsInvalidUriChars(string)
   }
 
-  def ensureUrlEncoding(string: String) = if (needsUrlEncoding(string)) urlEncode(string, toSkip = toSkip) else string
+  def ensureUrlEncoding(string: String): String = if (needsUrlEncoding(string)) urlEncode(string, toSkip = toSkip) else string
 
-  def ensureUppercasedEncodings(string: String) = {
+  def ensureUppercasedEncodings(string: String): String = {
     LowerPctEncoded.replaceAllIn(string, (_: Match) match {
       case Regex.Groups(v) ⇒ "%" + v.toUpperCase(Locale.ENGLISH)
     })
   }
 
-  def pathPartEncode(toEncode: String, charset: Charset = Utf8, spaceIsPlus: Boolean = false) = {
+  def pathPartEncode(toEncode: String, charset: Charset = StandardCharsets.UTF_8, spaceIsPlus: Boolean = false): String = {
     urlEncode(toEncode, charset, spaceIsPlus, toSkipEncoding)
   }
 
-  def queryPartEncode(toEncode: String, charset: Charset = Utf8, spaceIsPlus: Boolean = false) = {
-    urlEncode(toEncode, charset, spaceIsPlus, toSkipEncoding ++ BitSet('/', '?'))
+  def queryPartEncode(toEncode: String, charset: Charset = StandardCharsets.UTF_8, spaceIsPlus: Boolean = false): String = {
+    urlEncode(toEncode, charset, spaceIsPlus, toSkipQueryEncoding)
   }
 
-  def urlEncode(toEncode: String, charset: Charset = Utf8, spaceIsPlus: Boolean = false, toSkip: BitSet = toSkip) = {
+  def urlEncode(toEncode: String, charset: Charset = StandardCharsets.UTF_8, spaceIsPlus: Boolean = false, toSkip: BitSet = toSkip): String = {
     val in = charset.encode(ensureUppercasedEncodings(toEncode))
     val out = CharBuffer.allocate((in.remaining() * 3).ceil.toInt)
     while (in.hasRemaining) {
@@ -68,11 +67,14 @@ trait UrlCodingUtils {
     out.toString
   }
 
-  def urlDecode(toDecode: String, charset: Charset = Utf8, plusIsSpace: Boolean = false, toSkip: String = "") = {
+  def urlDecode(toDecode: String, charset: Charset = StandardCharsets.UTF_8, plusIsSpace: Boolean = false, toSkip: String = ""): String = {
+    urlDecode(toDecode, charset, plusIsSpace, toSkip.map(_.toInt).toSet)
+  }
+
+  def urlDecode(toDecode: String, charset: Charset, plusIsSpace: Boolean, skip: Set[Int]): String = {
     val in = CharBuffer.wrap(toDecode)
     // reserve enough space for 3-byte chars like japanese, and hope nobody uses a string of only 4-byte chars
     val out = ByteBuffer.allocate(in.remaining() * 3)
-    val skip = BitSet(toSkip.toSet[Char].map(c ⇒ c.toInt).toSeq: _*)
     while (in.hasRemaining) {
       val mark = in.position()
       val c = in.get()
