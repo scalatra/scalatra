@@ -5,7 +5,6 @@ import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{ Date => JDate }
 
-import org.joda.time._
 import org.json4s._
 import org.scalatra.swagger.reflect._
 import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
@@ -49,11 +48,13 @@ object Swagger {
   val excludes: Set[java.lang.reflect.Type] = Set(
     classOf[java.util.TimeZone],
     classOf[java.util.Date],
-    classOf[DateTime],
-    classOf[LocalDate],
-    classOf[ReadableInstant],
-    classOf[Chronology],
-    classOf[DateTimeZone])
+    classOf[java.time.OffsetDateTime],
+    classOf[java.time.ZonedDateTime],
+    classOf[java.time.LocalDateTime],
+    classOf[java.time.LocalDate],
+    classOf[java.time.Instant],
+    classOf[java.time.chrono.Chronology],
+    classOf[java.time.ZoneOffset])
   val SpecVersion = "2.0"
 
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
@@ -373,10 +374,10 @@ object DataType {
   private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[LocalDate], classOf[java.time.LocalDate])
+    Set[Class[_]](classOf[java.time.LocalDate])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
   private[this] val DateTimeTypes =
-    Set[Class[_]](classOf[JDate], classOf[DateTime], classOf[LocalDateTime], classOf[java.time.LocalDateTime], classOf[java.time.ZonedDateTime], classOf[java.time.OffsetDateTime])
+    Set[Class[_]](classOf[JDate], classOf[java.time.LocalDateTime], classOf[java.time.ZonedDateTime], classOf[java.time.OffsetDateTime])
   private[this] def isDateTime(klass: Class[_]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
 
   private[this] def isCollection(klass: Class[_]) =
