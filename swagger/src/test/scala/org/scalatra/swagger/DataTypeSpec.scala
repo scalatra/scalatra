@@ -49,6 +49,11 @@ class DataTypeSpec extends Specification {
     "return a correct Date datatype" in {
       DataType[java.util.Date] must_== DataType.DateTime
       DataType[org.joda.time.DateTime] must_== DataType.DateTime
+      DataType[org.joda.time.LocalDateTime] must_== DataType.DateTime
+      DataType[java.time.Instant] must_== DataType.DateTime
+      DataType[java.time.LocalDateTime] must_== DataType.DateTime
+      DataType[java.time.ZonedDateTime] must_== DataType.DateTime
+      DataType[java.time.OffsetDateTime] must_== DataType.DateTime
       // DateMidnight is deprecated at least in 2.6
       //DataType[org.joda.time.DateMidnight] must_== DataType.Date
     }
