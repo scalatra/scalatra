@@ -52,6 +52,7 @@ object Swagger {
     classOf[java.time.ZonedDateTime],
     classOf[java.time.LocalDateTime],
     classOf[java.time.LocalDate],
+    classOf[java.time.LocalTime],
     classOf[java.time.Instant],
     classOf[java.time.chrono.Chronology],
     classOf[java.time.ZoneOffset])
