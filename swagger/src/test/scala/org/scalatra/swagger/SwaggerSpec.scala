@@ -2,9 +2,8 @@ package org.scalatra
 package swagger
 
 import java.net.ServerSocket
+import java.time.OffsetDateTime
 
-import org.joda.time.DateTime
-import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods
 import org.json4s.native.JsonParser
@@ -368,7 +367,7 @@ case class Order(
   @ApiModelProperty(position = 2, description = "Order Status", allowableValues = "placed,approved,delivered") status: String,
   @ApiModelProperty(position = 3) petId: Long,
   @ApiModelProperty(position = 4) quantity: Int,
-  @ApiModelProperty(position = 5) shipDate: DateTime)
+  @ApiModelProperty(position = 5) shipDate: OffsetDateTime)
 case class User(id: Long, username: String, password: String, email: String, firstName: String, lastName: String, phone: String, userStatus: Int)
 case class Pet(
   @ApiModelProperty(position = 3) id: Long,
