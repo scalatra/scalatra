@@ -52,6 +52,9 @@ class DataTypeSpec extends Specification {
 
     "return a correct DateTime datatype" in {
       DataType[java.util.Date] must_== DataType.DateTime
+      DataType[java.time.LocalDateTime] must_== DataType.DateTime
+      DataType[java.time.ZonedDateTime] must_== DataType.DateTime
+      DataType[java.time.OffsetDateTime] must_== DataType.DateTime
     }
 
     "return a correct Boolean datatype" in {
