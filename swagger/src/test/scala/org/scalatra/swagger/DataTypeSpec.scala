@@ -34,14 +34,14 @@ class DataTypeSpec extends Specification {
       DataType[Byte] must_== DataType.Byte
     }
 
-    "return a correct Decimal datatype" in {
+    "return a correct Double datatype" in {
       DataType[java.lang.Double] must_== DataType.Double
       DataType[Double] must_== DataType.Double
       DataType[BigDecimal] must_== DataType.Double
       DataType[java.math.BigDecimal] must_== DataType.Double
     }
 
-    "return a correct Decimal datatype" in {
+    "return a correct Float datatype" in {
       DataType[java.lang.Float] must_== DataType.Float
       DataType[Float] must_== DataType.Float
     }
