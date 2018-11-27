@@ -24,12 +24,12 @@ class DataTypeSpec extends Specification {
       DataType[java.math.BigInteger] must_== DataType.Int
     }
 
-    "return correct Long datatype" in {
+    "return a correct Long datatype" in {
       DataType[java.lang.Long] must_== DataType.Long
       DataType[Long] must_== DataType.Long
     }
 
-    "return correct Byte datatype" in {
+    "return a correct Byte datatype" in {
       DataType[java.lang.Byte] must_== DataType.Byte
       DataType[Byte] must_== DataType.Byte
     }
