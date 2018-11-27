@@ -47,6 +47,10 @@ class DataTypeSpec extends Specification {
     }
 
     "return a correct Date datatype" in {
+      DataType[java.time.LocalDate] must_== DataType.Date
+    }
+
+    "return a correct DateTime datatype" in {
       DataType[java.util.Date] must_== DataType.DateTime
     }
 
