@@ -378,7 +378,8 @@ object DataType {
     Set[Class[_]](classOf[java.time.LocalDate])
   private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
   private[this] val DateTimeTypes =
-    Set[Class[_]](classOf[JDate], classOf[java.time.LocalDateTime], classOf[java.time.ZonedDateTime], classOf[java.time.OffsetDateTime])
+    Set[Class[_]](classOf[JDate], classOf[java.time.LocalDateTime], classOf[java.time.ZonedDateTime], classOf[java.time.OffsetDateTime],
+      classOf[java.time.Instant])
   private[this] def isDateTime(klass: Class[_]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
 
   private[this] def isCollection(klass: Class[_]) =

@@ -24,30 +24,38 @@ class DataTypeSpec extends Specification {
       DataType[java.math.BigInteger] must_== DataType.Int
     }
 
-    "return correct Long datatype" in {
+    "return a correct Long datatype" in {
       DataType[java.lang.Long] must_== DataType.Long
       DataType[Long] must_== DataType.Long
     }
 
-    "return correct Byte datatype" in {
+    "return a correct Byte datatype" in {
       DataType[java.lang.Byte] must_== DataType.Byte
       DataType[Byte] must_== DataType.Byte
     }
 
-    "return a correct Decimal datatype" in {
+    "return a correct Double datatype" in {
       DataType[java.lang.Double] must_== DataType.Double
       DataType[Double] must_== DataType.Double
       DataType[BigDecimal] must_== DataType.Double
       DataType[java.math.BigDecimal] must_== DataType.Double
     }
 
-    "return a correct Decimal datatype" in {
+    "return a correct Float datatype" in {
       DataType[java.lang.Float] must_== DataType.Float
       DataType[Float] must_== DataType.Float
     }
 
     "return a correct Date datatype" in {
+      DataType[java.time.LocalDate] must_== DataType.Date
+    }
+
+    "return a correct DateTime datatype" in {
       DataType[java.util.Date] must_== DataType.DateTime
+      DataType[java.time.LocalDateTime] must_== DataType.DateTime
+      DataType[java.time.ZonedDateTime] must_== DataType.DateTime
+      DataType[java.time.OffsetDateTime] must_== DataType.DateTime
+      DataType[java.time.Instant] must_== DataType.DateTime
     }
 
     "return a correct Boolean datatype" in {
