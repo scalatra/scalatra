@@ -29,6 +29,7 @@ object Dependencies {
   lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
+  lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.12"
   lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
@@ -58,7 +59,7 @@ object Dependencies {
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.3"
   private val jettyVersion            = "9.4.6.v20170531"
-  private val json4sVersion           = "3.5.2"
+  private val json4sVersion           = "3.6.3"
   private val scalateVersion          = "1.8.0"
   private val scalatestVersion        = "3.0.3"
   private val specs2Version           = "4.0.1"
