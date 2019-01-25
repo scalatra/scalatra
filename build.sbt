@@ -144,7 +144,8 @@ lazy val scalatraJson = Project(
     libraryDependencies ++= Seq(
       json4sJackson % "provided",
       json4sNative % "provided",
-      json4sCore
+      json4sCore,
+      json4sXml
     )
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
