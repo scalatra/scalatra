@@ -1,8 +1,6 @@
 package org.scalatra
 package swagger
 
-import org.joda.time._
-import org.joda.time.format.ISODateTimeFormat
 import org.json4s._
 import org.scalatra.auth.ScentrySupport
 import org.scalatra.swagger.DataType.ValueDataType
@@ -82,8 +80,6 @@ case class AuthApi[TypeForUser <: AnyRef](
 object AuthApi {
 
   import org.scalatra.swagger.SwaggerSupportSyntax.SwaggerOperationBuilder
-
-  lazy val Iso8601Date = ISODateTimeFormat.dateTime.withZone(DateTimeZone.UTC)
 
   trait SwaggerAuthOperationBuilder[T <: AnyRef] extends SwaggerOperationBuilder[AuthOperation[T]] {
     private[this] var _allows: Option[T] => Boolean = (u: Option[T]) => true
