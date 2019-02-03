@@ -1,9 +1,9 @@
 package org.scalatra.metrics
 
 import com.codahale.metrics.health.HealthCheckRegistry
-import nl.grons.metrics.scala._
+import nl.grons.metrics4.scala._
 
-trait HealthChecksSupport extends nl.grons.metrics.scala.CheckedBuilder with MetricsBootstrap {
+trait HealthChecksSupport extends nl.grons.metrics4.scala.CheckedBuilder with MetricsBootstrap {
   implicit def healthCheckRegistry: HealthCheckRegistry
   val registry = healthCheckRegistry
 
