@@ -172,7 +172,7 @@ trait AtmosphereSupport extends Initializable with Handler with CometProcessor w
   }
 
   private[this] def configureBroadcasterCache(): Unit = {
-    if (atmosphereFramework.getBroadcasterCacheClassName.isBlank)
+    if (atmosphereFramework.getBroadcasterCacheClassName == null)
       atmosphereFramework.setBroadcasterCacheClassName(classOf[UUIDBroadcasterCache].getName)
   }
 
