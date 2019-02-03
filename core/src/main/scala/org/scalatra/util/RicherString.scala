@@ -9,6 +9,7 @@ package object RicherString {
 
   implicit final class RicherStringImplicitClass(private val orig: String) extends AnyVal {
 
+    @deprecated("RicherString#isBlank has been deprecated, it conflicts with Java 11's String#isBlank", "2.7.0")
     def isBlank: Boolean = {
       orig == null || orig.trim.isEmpty
     }
