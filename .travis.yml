@@ -10,7 +10,7 @@ script:
 - git diff --exit-code
 matrix:
   include:
-  - jdk: openjdk10
+  - jdk: openjdk11
     scala: 2.12.8
     script:
     - sbt ++$TRAVIS_SCALA_VERSION test
