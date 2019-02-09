@@ -2,6 +2,7 @@ package org.scalatra.util
 
 import java.nio.charset.{ Charset, StandardCharsets }
 import java.util.regex.Pattern
+import org.apache.commons.lang3.StringUtils
 
 package object RicherString {
 
@@ -9,12 +10,13 @@ package object RicherString {
 
   implicit final class RicherStringImplicitClass(private val orig: String) extends AnyVal {
 
+    @deprecated("RicherString#isBlank has been deprecated, it conflicts with Java 11's String#isBlank", "2.7.0")
     def isBlank: Boolean = {
       orig == null || orig.trim.isEmpty
     }
 
-    def blankOption: Option[String] = if (isBlank) None else Some(orig)
-    def nonBlank: Boolean = !isBlank
+    def blankOption: Option[String] = if (StringUtils.isBlank(orig)) None else Some(orig)
+    def nonBlank: Boolean = !(StringUtils.isBlank(orig))
 
     def urlEncode: String = UrlCodingUtils.urlEncode(orig)
     def formEncode: String = UrlCodingUtils.urlEncode(orig, spaceIsPlus = true)
