@@ -15,13 +15,7 @@ class SessionTestServlet extends ScalatraServlet {
   get("/session-option") {
     sessionOption map { _ => "Some" } getOrElse "None"
   }
-  get("/session-symbol") {
-    session.getOrElse('val, "failure!")
-  }
 
-  post("/session-symbol-update") {
-    session('val) = "set with symbol"
-  }
 }
 
 class SessionTest extends ScalatraFunSuite {
@@ -51,18 +45,6 @@ class SessionTest extends ScalatraFunSuite {
     }
   }
 
-  test("GET /session with the session should return the data set in POST /session even via symbol") {
-    val data = "session_value"
-    session {
-      post("/session", "val" -> data) {
-        body should equal(data)
-      }
-      get("/session-symbol") {
-        body should equal(data)
-      }
-    }
-  }
-
   test("sessionOption should be None when no session exists") {
     session {
       get("/session-option") {
@@ -77,15 +59,6 @@ class SessionTest extends ScalatraFunSuite {
 
       get("/session-option") {
         body should equal("Some")
-      }
-    }
-  }
-
-  test("can update session with symbol") {
-    session {
-      post("/session-symbol-update") {}
-      get("/session-symbol") {
-        body should equal("set with symbol")
       }
     }
   }

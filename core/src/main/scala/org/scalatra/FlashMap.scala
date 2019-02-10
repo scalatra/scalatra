@@ -3,21 +3,15 @@ package org.scalatra
 import java.util.concurrent.{ ConcurrentHashMap, ConcurrentSkipListSet }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import org.scalatra.util.MutableMapWithIndifferentAccess
-
 import scala.collection.JavaConverters._
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
  *
- * FlashMap behaves like [[org.scalatra.util.MapWithIndifferentAccess]].  By
- * default, anything placed in the map is available to the current request and
- * next request, and is then discarded.
- *
  * @see FlashMapSupport
  */
-class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
+class FlashMap extends scala.collection.mutable.Map[String, Any] with Serializable {
 
   private[this] val m = new ConcurrentHashMap[String, Any]().asScala
 
