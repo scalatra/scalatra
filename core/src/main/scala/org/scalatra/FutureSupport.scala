@@ -50,7 +50,7 @@ trait FutureSupport extends AsyncSupport {
     val gotResponseAlready = new AtomicBoolean(false)
     val context = request.startAsync(request, response)
     timeout.foreach { timeout =>
-      if (timeout.isFinite()) context.setTimeout(timeout.toMillis) else context.setTimeout(-1)
+      if (timeout.isFinite) context.setTimeout(timeout.toMillis) else context.setTimeout(-1)
     }
 
     def renderFutureResult(f: Future[_]): Unit = {
