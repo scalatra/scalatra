@@ -773,8 +773,8 @@ trait ScalatraBase
    *         `None` if the parameter is not set.
    */
   def initParameter(name: String): Option[String] = {
-    config.initParameters.get(name) orElse {
-      servletContext.initParameters.get(name)
+    config.getInitParameterOption(name) orElse {
+      Option(servletContext.getInitParameter(name))
     }
   }
 

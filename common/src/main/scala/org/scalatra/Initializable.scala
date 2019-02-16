@@ -12,7 +12,7 @@ trait Initializable {
 
   trait Config {
     def context: ServletContext
-    def initParameters: Map[String, String]
+    def getInitParameterOption(key: String): Option[String]
   }
   protected implicit def configWrapper(config: ConfigT): Config
 

@@ -6,8 +6,6 @@ import java.{ util => jutil }
 import javax.servlet.http.{ HttpServlet, HttpServletRequest }
 import javax.servlet.{ DispatcherType, Filter, ServletContext }
 
-import scala.collection.mutable
-
 /**
  * Extension methods to the standard ServletContext.
  */
@@ -187,33 +185,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
    * absent, as an init parameter.  The default value is `DEVELOPMENT`.
    */
   def environment: String = {
-    sys.props.get(EnvironmentKey) orElse initParameters.get(EnvironmentKey) getOrElse ("DEVELOPMENT")
-  }
-
-  object initParameters extends mutable.Map[String, String] {
-
-    def get(key: String): Option[String] = Option(sc.getInitParameter(key))
-
-    def iterator: Iterator[(String, String)] = {
-      val theInitParams = sc.getInitParameterNames
-      new Iterator[(String, String)] {
-        override def hasNext: Boolean = theInitParams.hasMoreElements
-        override def next(): (String, String) = {
-          val nm = theInitParams.nextElement()
-          (nm, sc.getInitParameter(nm))
-        }
-      }
-    }
-
-    def +=(kv: (String, String)): this.type = {
-      sc.setInitParameter(kv._1, kv._2)
-      this
-    }
-
-    def -=(key: String): this.type = {
-      sc.setInitParameter(key, null)
-      this
-    }
+    sys.props.get(EnvironmentKey) orElse Option(sc.getInitParameter(EnvironmentKey)) getOrElse ("DEVELOPMENT")
   }
 
   def contextPath: String = sc.getContextPath
