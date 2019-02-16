@@ -19,9 +19,9 @@ class ScalatraRenderContext(
   req: HttpServletRequest,
   res: HttpServletResponse) extends ServletRenderContext(engine, out, req, res, kernel.servletContext) with ScalatraFormsHelpers {
 
-  def flash: scala.collection.Map[String, Any] = kernel match {
+  def flash: FlashMap = kernel match {
     case flashMapSupport: FlashMapSupport => flashMapSupport.flash(request)
-    case _ => Map.empty
+    case _ => new FlashMap
   }
 
   def session: HttpSession = kernel.session(request)

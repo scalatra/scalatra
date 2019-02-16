@@ -122,12 +122,6 @@ class FlashMapTest extends FunSuite with Matchers with BeforeAndAfterEach {
     flash.get("foo") should equal(None)
   }
 
-  test("supports symbols as keys") {
-    flash("foo") = "bar"
-    flash.sweep()
-    flash('foo) should equal("bar")
-  }
-
   test("is serializable") {
     flash("foo") = "bar"
     val out = new ObjectOutputStream(new ByteArrayOutputStream)

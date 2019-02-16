@@ -3,21 +3,15 @@ package org.scalatra
 import java.util.concurrent.{ ConcurrentHashMap, ConcurrentSkipListSet }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import org.scalatra.util.MutableMapWithIndifferentAccess
-
 import scala.collection.JavaConverters._
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
  *
- * FlashMap behaves like [[org.scalatra.util.MapWithIndifferentAccess]].  By
- * default, anything placed in the map is available to the current request and
- * next request, and is then discarded.
- *
  * @see FlashMapSupport
  */
-class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
+class FlashMap extends Serializable {
 
   private[this] val m = new ConcurrentHashMap[String, Any]().asScala
 
@@ -42,6 +36,14 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
   }
 
   /**
+   * Adds an entry to the flash map.  Clears the sweep flag for the key.
+   */
+  def update(key: String, value: Any): Unit = {
+    flagged -= key
+    m.update(key, value)
+  }
+
+  /**
    * Creates a new iterator over the values of the flash map.  These are the
    * values that were added during the last request.
    */
@@ -63,6 +65,14 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
   def get(key: String): Option[Any] = {
     flagged += key
     m.get(key)
+  }
+
+  /**
+   * Returns the value associated with a key and flags it to be swept.
+   */
+  def apply(key: String): Any = {
+    flagged += key
+    m(key)
   }
 
   /**
@@ -92,6 +102,11 @@ class FlashMap extends MutableMapWithIndifferentAccess[Any] with Serializable {
   def flag(): Unit = {
     flagged ++= m.keys
   }
+
+  /**
+   * Convert to Set
+   */
+  def toSet: Set[(String, Any)] = m.toSet
 
   /**
    * Sets a value for the current request only.  It will be removed before the next request unless explicitly kept.
