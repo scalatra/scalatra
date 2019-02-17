@@ -9,6 +9,8 @@ import scala.collection.JavaConverters._
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
  *
+ * As of Scalatra 2.7.x, it does not directly inherit Map.
+ *
  * @see FlashMapSupport
  */
 class FlashMap extends Serializable {
@@ -21,6 +23,7 @@ class FlashMap extends Serializable {
    * Removes an entry from the flash map.  It is no longer available for this
    * request or the next.
    */
+  @deprecated("FlashMap#+= has been deprecated, please use remove method instead", "2.7.0")
   def -=(key: String): FlashMap.this.type = {
     m -= key
     this
@@ -29,6 +32,7 @@ class FlashMap extends Serializable {
   /**
    * Adds an entry to the flash map.  Clears the sweep flag for the key.
    */
+  @deprecated("FlashMap#+= has been deprecated, please use update method instead", "2.7.0")
   def +=(kv: (String, Any)): FlashMap.this.type = {
     flagged -= kv._1
     m += kv
@@ -41,6 +45,14 @@ class FlashMap extends Serializable {
   def update(key: String, value: Any): Unit = {
     flagged -= key
     m.update(key, value)
+  }
+
+  /**
+   * Removes an entry from the flash map.  It is no longer available for this
+   * request or the next.
+   */
+  def remove(key: String): Any = {
+    m.remove(key)
   }
 
   /**
