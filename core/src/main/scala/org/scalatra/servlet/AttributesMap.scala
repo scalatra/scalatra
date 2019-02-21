@@ -1,7 +1,6 @@
 package org.scalatra
 package servlet
 
-import org.scalatra.util.MutableMapWithIndifferentAccess
 import org.scalatra.util.conversion.TypeConverter
 
 import scala.collection.JavaConverters._
@@ -11,7 +10,7 @@ import scala.collection.mutable.Map
  * Adapts attributes from servlet objects (e.g., ServletRequest, HttpSession,
  * ServletContext) to a mutable map.
  */
-trait AttributesMap extends Map[String, Any] with MutableMapWithIndifferentAccess[Any] {
+trait AttributesMap extends Map[String, Any] {
 
   protected def attributes: Attributes
 

@@ -4,14 +4,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import org.scalatra.util.conversion.TypeConverter
-import org.scalatra.util.{ MapWithIndifferentAccess, MultiMapHeadView }
+import org.scalatra.util.MultiMapHeadView
 import org.specs2.mutable.Specification
 
 class ParamsExtensionSpec extends Specification {
 
   import org.scalatra.ScalatraParamsImplicits._
 
-  case class FakeParams(params: Map[String, String]) extends MultiMapHeadView[String, String] with MapWithIndifferentAccess[String] {
+  case class FakeParams(params: Map[String, String]) extends MultiMapHeadView[String, String] {
     protected def multiMap = params.map(e => (e._1, Seq(e._2)))
   }
 

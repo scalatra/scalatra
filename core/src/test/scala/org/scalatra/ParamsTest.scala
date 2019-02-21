@@ -29,14 +29,6 @@ class ParamsTestServlet extends ScalatraServlet {
     }
   }
 
-  get("/symbol/:sym") {
-    params('sym)
-  }
-
-  get("/twoSymbols/:sym1/:sym2") {
-    params('sym1) + " and " + params('sym2)
-  }
-
   post("/read-body") {
     "body: " + request.body
   }
@@ -73,18 +65,6 @@ class ParamsTest extends ScalatraFunSuite {
   test("params on unknown key throws NoSuchElementException") {
     get("/params/oops") {
       body should equal(ParamsTestServlet.NoSuchElement)
-    }
-  }
-
-  test("can use symbols as keys for retrieval") {
-    get("/symbol/hello") {
-      body should equal("hello")
-    }
-  }
-
-  test("can use symbols multiple times ") {
-    get("/twoSymbols/hello/world") {
-      body should equal("hello and world")
     }
   }
 
