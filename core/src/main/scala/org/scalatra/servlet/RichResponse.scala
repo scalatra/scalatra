@@ -6,9 +6,6 @@ import javax.servlet.http.{ HttpServletResponse, Cookie => ServletCookie }
 
 import org.scalatra.util.RicherString._
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable.Map
-
 case class RichResponse(res: HttpServletResponse) {
 
   /**
@@ -21,28 +18,10 @@ case class RichResponse(res: HttpServletResponse) {
     res.setStatus(status)
   }
 
-  object headers extends Map[String, String] {
-
-    def get(key: String): Option[String] =
-      res.getHeaders(key) match {
-        case xs if xs.isEmpty => None
-        case xs => Some(xs.asScala mkString ",")
-      }
-
-    def iterator: Iterator[(String, String)] =
-      for (name <- res.getHeaderNames.asScala.iterator)
-        yield (name, res.getHeaders(name).asScala mkString ", ")
-
-    def +=(kv: (String, String)): this.type = {
-      res.setHeader(kv._1, kv._2)
-      this
+  object headers {
+    def update(name: String, value: String): Unit = {
+      res.setHeader(name, value)
     }
-
-    def -=(key: String): this.type = {
-      res.setHeader(key, "")
-      this
-    }
-
   }
 
   def addCookie(cookie: Cookie): Unit = {
