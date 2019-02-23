@@ -8,6 +8,8 @@ import scala.collection.Map
  * for maps with arbitrary keys.  There is no performance gain using symbols.  It is here to make our Rubyists feel
  * more at home.
  */
+
+@deprecated("MapWithIndifferentAccess is deprecated from Scalatra 2.7.0. It will be deleted in the next major version. Please unify the key type of Map to either String or Symbol.", "2.7.0")
 trait MapWithIndifferentAccess[+B] extends Map[String, B] {
 
   def get(key: Symbol): Option[B] = get(key.name)

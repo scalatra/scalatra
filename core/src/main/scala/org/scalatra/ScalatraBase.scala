@@ -819,8 +819,6 @@ trait ScalatraBase
 
   def params(key: String)(implicit request: HttpServletRequest): String = params(request)(key)
 
-  def params(key: Symbol)(implicit request: HttpServletRequest): String = params(request)(key)
-
   def params(implicit request: HttpServletRequest): Params = new ScalatraParams(multiParams)
 
 }
