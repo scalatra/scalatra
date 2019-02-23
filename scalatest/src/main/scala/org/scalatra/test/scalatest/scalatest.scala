@@ -3,8 +3,9 @@ package scalatest
 
 import org.junit.runner.RunWith
 import org.scalatest._
-import org.scalatest.junit.{ JUnit3Suite, JUnitRunner, JUnitSuite }
-import org.scalatest.testng.TestNGSuite
+import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.testng._
+import org.scalatestplus.junit._
 
 @RunWith(classOf[JUnitRunner]) /**
  * Provides Scalatra test support to ScalaTest suites.  The servlet tester
