@@ -58,7 +58,7 @@ class FlashMapTest extends FunSuite with Matchers with BeforeAndAfterEach {
 
   test("values are removed immediately") {
     flash("foo") = "bar"
-    flash -= "foo"
+    flash.remove("foo")
     flash.get("foo") should equal(None)
   }
 

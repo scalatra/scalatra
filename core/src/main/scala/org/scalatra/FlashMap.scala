@@ -9,9 +9,11 @@ import scala.collection.JavaConverters._
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]
  * to allow passing temporary values between sequential actions.
  *
+ * As of Scalatra 2.7.x, it does not directly inherit Map.
+ *
  * @see FlashMapSupport
  */
-class FlashMap extends scala.collection.mutable.Map[String, Any] with Serializable {
+class FlashMap extends Serializable {
 
   private[this] val m = new ConcurrentHashMap[String, Any]().asScala
 
@@ -21,6 +23,7 @@ class FlashMap extends scala.collection.mutable.Map[String, Any] with Serializab
    * Removes an entry from the flash map.  It is no longer available for this
    * request or the next.
    */
+  @deprecated("FlashMap#+= has been deprecated, please use remove method instead", "2.7.0")
   def -=(key: String): FlashMap.this.type = {
     m -= key
     this
@@ -29,10 +32,27 @@ class FlashMap extends scala.collection.mutable.Map[String, Any] with Serializab
   /**
    * Adds an entry to the flash map.  Clears the sweep flag for the key.
    */
+  @deprecated("FlashMap#+= has been deprecated, please use update method instead", "2.7.0")
   def +=(kv: (String, Any)): FlashMap.this.type = {
     flagged -= kv._1
     m += kv
     this
+  }
+
+  /**
+   * Adds an entry to the flash map.  Clears the sweep flag for the key.
+   */
+  def update(key: String, value: Any): Unit = {
+    flagged -= key
+    m.update(key, value)
+  }
+
+  /**
+   * Removes an entry from the flash map.  It is no longer available for this
+   * request or the next.
+   */
+  def remove(key: String): Any = {
+    m.remove(key)
   }
 
   /**
@@ -57,6 +77,14 @@ class FlashMap extends scala.collection.mutable.Map[String, Any] with Serializab
   def get(key: String): Option[Any] = {
     flagged += key
     m.get(key)
+  }
+
+  /**
+   * Returns the value associated with a key and flags it to be swept.
+   */
+  def apply(key: String): Any = {
+    flagged += key
+    m(key)
   }
 
   /**
@@ -86,6 +114,11 @@ class FlashMap extends scala.collection.mutable.Map[String, Any] with Serializab
   def flag(): Unit = {
     flagged ++= m.keys
   }
+
+  /**
+   * Convert to Set
+   */
+  def toSet: Set[(String, Any)] = m.toSet
 
   /**
    * Sets a value for the current request only.  It will be removed before the next request unless explicitly kept.

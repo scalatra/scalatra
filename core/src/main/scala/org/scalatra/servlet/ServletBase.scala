@@ -30,28 +30,7 @@ trait ServletBase
 
     override def context: ServletContext = config.getServletContext
 
-    object initParameters extends collection.immutable.Map[String, String] {
-
-      override def get(key: String): Option[String] = Option(config.getInitParameter(key))
-
-      override def +[V1 >: String](kv: (String, V1)): Map[String, V1] = {
-        val b = Map.newBuilder[String, V1]
-        b ++= this
-        b += ((kv._1, kv._2))
-        b.result()
-      }
-
-      override def -(key: String): Map[String, String] = {
-        val b = this.newBuilder
-        for (kv <- this; if kv._1 != key) b += kv
-        b.result()
-      }
-
-      override def iterator: Iterator[(String, String)] = {
-        for (name <- config.getInitParameterNames.asScala)
-          yield (name, config.getInitParameter(name))
-      }
-    }
+    def getInitParameterOption(key: String): Option[String] = Option(config.getInitParameter(key))
 
   }
 
