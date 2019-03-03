@@ -22,6 +22,8 @@ case class RichResponse(res: HttpServletResponse) {
     def update(name: String, value: String): Unit = {
       res.setHeader(name, value)
     }
+
+    def set(name: String, value: String): Unit = update(name, value)
   }
 
   def addCookie(cookie: Cookie): Unit = {

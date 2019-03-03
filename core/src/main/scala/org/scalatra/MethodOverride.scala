@@ -40,7 +40,7 @@ trait MethodOverride extends Handler with ServletApiImplicits {
     val methodOpt = req.parameters get ParamName
     methodOpt orElse {
       val headers = req.headers
-      val headerKeyOpt = headers.keys.find { HeaderName contains _.toUpperCase() }
+      val headerKeyOpt = headers.names.find { HeaderName contains _.toUpperCase() }
       headerKeyOpt.flatMap { req.headers get _ }
     }
   }

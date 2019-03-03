@@ -123,7 +123,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
       }
     }
 
-    def keys: Iterator[String] = r.getHeaderNames.asScala
+    def names: Iterator[String] = r.getHeaderNames.asScala
 
     private[scalatra] def getMulti(key: String): Seq[String] = {
       get(key).map(_.split(",").toSeq.map(_.trim)).getOrElse(Seq.empty)
