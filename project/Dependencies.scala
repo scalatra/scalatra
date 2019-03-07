@@ -53,7 +53,7 @@ object Dependencies {
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.6.v20170531"
   private val json4sVersion           = "3.6.3"
-  private val scalateVersion          = "1.9.1-RC1"
+  private val scalateVersion          = "1.9.1"
   private val scalatestVersion        = "3.0.6-SNAP6"
   private val specs2Version           = "4.3.5"
 }
