@@ -53,12 +53,12 @@ trait JsonImplicitConversions extends TypeConverterSupport {
 
 object JsonConversions {
 
-  class JsonValConversion[JValue](private val source: JValue) extends AnyVal {
+  class JsonValConversion(private val source: JValue) extends AnyVal {
     private type JsonTypeConverter[T] = TypeConverter[JValue, T]
     def as[T: JsonTypeConverter]: Option[T] = implicitly[TypeConverter[JValue, T]].apply(source)
   }
 
-  class JsonDateConversion[JValue](source: JValue, jsonToDate: String => TypeConverter[JValue, Date]) {
+  class JsonDateConversion(source: JValue, jsonToDate: String => TypeConverter[JValue, Date]) {
     def asDate(format: String): Option[Date] = jsonToDate(format).apply(source)
   }
 
