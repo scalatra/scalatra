@@ -6,7 +6,7 @@ object Dependencies {
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.1.1"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
-  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.1"
+  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.2"
   lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.21" artifacts(Artifact("jquery", "war", "war"))
   lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.5"
   lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.4.21"
@@ -35,7 +35,7 @@ object Dependencies {
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
-  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.25"
+  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.26"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-mock",
@@ -43,17 +43,17 @@ object Dependencies {
                                                                                   ).map(_        % specs2Version)
   lazy val testng                   =  "org.testng"              %  "testng"                     % "6.14.3" exclude("junit", "junit")
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.0.4"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.0.3"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.0.3"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.0.5"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.0.5"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.0"
 
-  private val akkaVersion             = "2.5.19"
+  private val akkaVersion             = "2.5.21"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.6.v20170531"
-  private val json4sVersion           = "3.6.3"
+  private val json4sVersion           = "3.6.5"
   private val scalateVersion          = "1.9.1"
   private val scalatestVersion        = "3.0.6"
-  private val specs2Version           = "4.4.1"
+  private val specs2Version           = "4.5.1"
 }
