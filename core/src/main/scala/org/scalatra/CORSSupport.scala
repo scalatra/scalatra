@@ -175,7 +175,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase ⇒
     val isCors = isCORSRequest
     val enabled = isEnabled
     val allOrigins = allOriginsMatch
-    val res = isCors && enabled && allOrigins && request.headers.keys.forall(isSimpleHeader)
+    val res = isCors && enabled && allOrigins && request.headers.names.forall(isSimpleHeader)
     //    logger debug "This is a simple request: %s, because: %s, %s, %s".format(res, isCors, enabled, allOrigins)
     res
   }
