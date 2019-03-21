@@ -203,11 +203,7 @@ object Swagger {
 /**
  * An instance of this class is used to hold the API documentation.
  */
-<<<<<<< HEAD
-class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "") extends SwaggerEngine[Api] {
-=======
-class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine {
->>>>>>> b62972a296178f888a89e134eec01ae1ffab0887
+class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "") extends SwaggerEngine {
   private[this] val logger = LoggerFactory.getLogger(getClass)
 
   /**
