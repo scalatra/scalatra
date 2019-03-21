@@ -11,14 +11,12 @@ import scala.collection.immutable.ListMap
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSupport =>
+trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
-  protected type ApiType <: SwaggerApi[_]
-
-  protected implicit def jsonFormats: Formats
-  protected def docToJson(doc: ApiType): JValue
+  implicit protected def jsonFormats: Formats = DefaultFormats
+  implicit protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)
 
   implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
 
@@ -49,14 +47,14 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     get("/swagger.json") {
-      renderSwagger2(swagger.docs.toList.asInstanceOf[List[ApiType]])
+      renderSwagger2(swagger.docs.toList.asInstanceOf[List[Api]])
     }
   }
 
   /**
    * Returns the Swagger instance responsible for generating the resource and operation listings.
    */
-  protected implicit def swagger: SwaggerEngine[_ <: SwaggerApi[_]]
+  protected implicit def swagger: SwaggerEngine
 
   //  private[this] def dontAddOnEmpty(key: String, value: List[String])(json: JValue) = {
   //    val v: JValue = if (value.nonEmpty) key -> value else JNothing
@@ -81,7 +79,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
     if (path.isEmpty) None else Some(path)
   }
 
-  protected def renderSwagger2(docs: List[ApiType]): JValue = {
+  protected def renderSwagger2(docs: List[Api]): JValue = {
     ("swagger" -> "2.0") ~
       ("basePath" -> bathPath) ~
       ("info" ->
@@ -99,7 +97,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
             ("paths" ->
               ListMap(docs.filter(_.apis.nonEmpty).flatMap { doc =>
                 doc.apis.collect {
-                  case api: SwaggerEndpoint[_] =>
+                  case api: Endpoint =>
                     (api.path -> api.operations.map { operation =>
                       (operation.method.toString.toLowerCase -> (
                         ("operationId" -> operation.operationId) ~
@@ -205,11 +203,4 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
       throw t
   }
 
-}
-
-trait SwaggerBase extends SwaggerBaseBase { self: ScalatraBase with CorsSupport =>
-  type ApiType = Api
-  implicit protected def jsonFormats: Formats = DefaultFormats
-  protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)
-  protected implicit def swagger: SwaggerEngine[ApiType]
 }
