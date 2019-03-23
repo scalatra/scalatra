@@ -7,7 +7,7 @@ import java.util.{ Date => JDate }
 
 import org.json4s._
 import org.scalatra.swagger.reflect._
-import org.scalatra.swagger.runtime.annotations.ApiModelProperty
+import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
@@ -117,6 +117,7 @@ object Swagger {
       val name = klass.simpleName
 
       val descriptor = Reflector.describe(klass).asInstanceOf[ClassDescriptor]
+      val apiModel = Option(klass.erasure.getAnnotation(classOf[ApiModel]))
 
       val fields = klass.erasure.getDeclaredFields.toList collect {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
@@ -130,7 +131,17 @@ object Swagger {
 
       }
 
-      Some(Model(name, name, klass.fullName.blankOption, properties = fields.flatten))
+      val result = apiModel map { am =>
+        Model(
+          id = name,
+          name = name,
+          qualifiedName = klass.fullName.blankOption,
+          description = am.description().blankOption,
+          properties = fields.flatten,
+          baseModel = am.parent.getName.blankOption,
+          discriminator = am.discriminator.blankOption)
+      } orElse Some(Model(name, name, klass.fullName.blankOption, properties = fields.flatten))
+      result
     }
   }
 
