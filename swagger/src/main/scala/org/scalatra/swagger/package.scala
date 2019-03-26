@@ -32,6 +32,5 @@ package object swagger {
 
     type ApiModelProperty = org.scalatra.swagger.runtime.annotations.ApiModelProperty @field
     type ApiModel = org.scalatra.swagger.runtime.annotations.ApiModel
-    //type XmlRootElement = javax.xml.bind.annotation.XmlRootElement
   }
 }
