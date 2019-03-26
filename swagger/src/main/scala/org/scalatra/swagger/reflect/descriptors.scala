@@ -26,12 +26,6 @@ object ManifestScalaType {
     else {
       if (mf.typeArguments.isEmpty) types(mf, new ManifestScalaType(_))
       else new ManifestScalaType(mf)
-      //      if (!mf.runtimeClass.isArray) types(mf, new ScalaType(_))
-      //      else {
-      //        val nmf = ManifestFactory.manifestOf(mf.runtimeClass, List(ManifestFactory.manifestOf(mf.runtimeClass.getComponentType)))
-      //        types(nmf, new ScalaType(_))
-      //      }
-      //      new ScalaType(mf)
     }
   }
 
@@ -93,15 +87,6 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
 
   import org.scalatra.swagger.reflect.ManifestScalaType.{ CopiedManifestScalaType, types }
   val erasure: Class[_] = manifest.runtimeClass
-
-  //  private[this] var _typeArgs: Seq[ScalaType] = null
-  //  def typeArgs: Seq[ScalaType] = {
-  //    if (_typeArgs == null)
-  //      _typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
-  //        if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil
-  //      )
-  //    _typeArgs
-  //  }
 
   val typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil)
@@ -208,9 +193,6 @@ case class SingletonDescriptor(simpleName: String, fullName: String, erasure: Sc
 
 trait ObjectDescriptor extends Descriptor
 case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaType, companion: Option[SingletonDescriptor], constructors: Seq[ConstructorDescriptor], properties: Seq[PropertyDescriptor]) extends ObjectDescriptor {
-  //    def bestConstructor(argNames: Seq[String]): Option[ConstructorDescriptor] = {
-  //      constructors.sortBy(-_.params.size)
-  //    }
   lazy val mostComprehensive: Seq[ConstructorParamDescriptor] = if (constructors.isEmpty) Seq.empty else constructors.sortBy(-_.params.size).head.params
 }
 case class PrimitiveDescriptor(simpleName: String, fullName: String, erasure: ScalaType) extends ObjectDescriptor {

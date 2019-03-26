@@ -140,12 +140,6 @@ private[reflect] object ScalaSigReader {
     case e: NullPointerException => None // yes, this is the exception, but it is totally unhelpful to the end user
   }
 
-  //  def typeRefType(ms: MethodSymbol): TypeRefType = ms.infoType match {
-  //    case PolyType(tr @ TypeRefType(_, _, _), _)                           => tr
-  //    case NullaryMethodType(tr @ TypeRefType(_, _, _))                     => tr
-  //    case NullaryMethodType(ExistentialType(tr @ TypeRefType(_, _, _), _)) => tr
-  //  }
-
   val ModuleFieldName = "MODULE$"
   val ClassLoaders = Vector(this.getClass.getClassLoader)
 
