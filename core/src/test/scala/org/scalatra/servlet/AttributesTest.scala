@@ -3,20 +3,18 @@ package servlet
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
-import scala.collection.mutable.Map
-
 trait AttributesTest {
   this: ScalatraFunSuite =>
 
   trait AttributesServlet extends ScalatraServlet {
-    def attributesMap: Map[String, Any]
+    def attributesMap: AttributesMap
 
     get("/attributes-test") {
       attributesMap("one") = "1"
       attributesMap("two") = "2"
       attributesMap("three") = "3"
       attributesMap -= "two"
-      attributesMap foreach { case (k, v) => response.setHeader(k, v.toString) }
+      attributesMap.iterator foreach { case (k, v) => response.setHeader(k, v.toString) }
     }
   }
 
