@@ -78,8 +78,6 @@ trait ScalaType extends Equals {
   def isMap: Boolean
   def isCollection: Boolean
   def isOption: Boolean
-  def <:<(that: ScalaType): Boolean
-  def >:>(that: ScalaType): Boolean
   def copy(erasure: Class[_] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = typeVars): ScalaType
 }
 
@@ -126,14 +124,6 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
   def isMap = classOf[Map[_, _]].isAssignableFrom(erasure)
   def isCollection = erasure.isArray || classOf[Iterable[_]].isAssignableFrom(erasure)
   def isOption = classOf[Option[_]].isAssignableFrom(erasure)
-  def <:<(that: ScalaType): Boolean = that match {
-    case t: ManifestScalaType => manifest <:< t.manifest
-    case _ => manifest <:< ManifestFactory.manifestOf(that)
-  }
-  def >:>(that: ScalaType): Boolean = that match {
-    case t: ManifestScalaType => manifest >:> t.manifest
-    case _ => manifest >:> ManifestFactory.manifestOf(that)
-  }
 
   override def hashCode(): Int = manifest.##
 
