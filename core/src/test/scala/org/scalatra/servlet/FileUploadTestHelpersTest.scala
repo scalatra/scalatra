@@ -12,12 +12,12 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
 
   def handleRequest(): Unit = {
     response.setHeader("Request-Method", request.getMethod)
-    params.foreach(p => response.setHeader("Param-" + p._1, p._2))
+    params.iterator.foreach(p => response.setHeader("Param-" + p._1, p._2))
 
     request.getHeaderNames.asScala.filter(header => header.startsWith("Test-")).foreach(header =>
       response.setHeader(header, request.getHeader(header)))
 
-    fileParams.foreach(fileParam => {
+    fileParams.iterator.foreach(fileParam => {
       response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
       response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
       response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.get()))

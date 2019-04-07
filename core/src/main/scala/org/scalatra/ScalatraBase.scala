@@ -117,7 +117,7 @@ trait ScalatraBase
    * `executeRoutes()`.
    */
   override def handle(request: HttpServletRequest, response: HttpServletResponse): Unit = {
-    request(CookieSupport.SweetCookiesKey) = new SweetCookies(request.cookies, response)
+    request(CookieSupport.SweetCookiesKey) = new SweetCookies(request.cookies.toMap, response)
     response.characterEncoding = Some(defaultCharacterEncoding)
     withRequestResponse(request, response) {
       executeRoutes()
