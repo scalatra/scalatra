@@ -3,7 +3,7 @@ import Keys._
 
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.1"
-  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.1.1"
+  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.2.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
   lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.2"
@@ -48,7 +48,7 @@ object Dependencies {
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.0"
 
-  private val akkaVersion             = "2.5.21"
+  private val akkaVersion             = "2.5.22"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.6.v20170531"
