@@ -132,6 +132,15 @@ trait AttributesMap {
   }
 
   /**
+   * Appllies a function f to add attribute elements
+   */
+  def foreach(f: ((String, Any)) => Unit): Unit = {
+    attributes.getAttributeNames().asScala foreach { name =>
+      f((name, attributes.getAttribute(name)))
+    }
+  }
+
+  /**
    * Sets an attribute on the underlying servlet object.
    *
    * @param kv the key/value pair.  If the value is null, has the same effect
