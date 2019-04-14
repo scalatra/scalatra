@@ -23,7 +23,7 @@ abstract class ClientResponse {
 
   def status = statusLine.code
 
-  val header: Map[String, String] = new Map[String, String] {
+  val header = new {
 
     def get(key: String) = {
       headers.get(key) match {
@@ -32,20 +32,10 @@ abstract class ClientResponse {
       }
     }
 
-    override def +[V1 >: String](kv: (String, V1)): Map[String, V1] = {
-      val b = Map.newBuilder[String, V1]
-      b ++= this
-      b += ((kv._1, kv._2))
-      b.result()
-    }
+    def getOrElse(key: String, default: => String): String =
+      get(key) getOrElse (default)
 
-    override def -(key: String): Map[String, String] = {
-      val b = this.newBuilder
-      for (kv <- this; if kv._1 != key) b += kv
-      b.result()
-    }
-
-    override def apply(key: String) = {
+    def apply(key: String) = {
       get(key) match {
         case Some(value) => value
         case _ => null
