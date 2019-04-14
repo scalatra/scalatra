@@ -23,9 +23,9 @@ abstract class ClientResponse {
 
   def status = statusLine.code
 
-  val header = new {
+  object header {
 
-    def get(key: String) = {
+    def get(key: String): Option[String] = {
       headers.get(key) match {
         case Some(values) => Some(values.head)
         case _ => None
@@ -35,14 +35,14 @@ abstract class ClientResponse {
     def getOrElse(key: String, default: => String): String =
       get(key) getOrElse (default)
 
-    def apply(key: String) = {
+    def apply(key: String): String = {
       get(key) match {
         case Some(value) => value
         case _ => null
       }
     }
 
-    def iterator = {
+    def iterator: Iterator[(String, String)] = {
       headers.keys.map(name => (name -> this(name))).iterator
     }
   }
