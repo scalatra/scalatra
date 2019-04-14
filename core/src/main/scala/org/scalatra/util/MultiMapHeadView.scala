@@ -25,7 +25,7 @@ trait MultiMapHeadView[A, B] {
 
   def size: Int = multiMap.size
 
-  def foreach(f: ((A, B)) ⇒ Unit): Unit = multiMap foreach { case (k, v) => f((k, v.head)) }
+  def foreach(f: ((A, B)) => Unit): Unit = multiMap foreach { case (k, v) => f((k, v.head)) }
 
   def iterator: Iterator[(A, B)] = multiMap.iterator.flatMap {
     case (k, v) => v.headOption.map { _v => (k, _v) }
