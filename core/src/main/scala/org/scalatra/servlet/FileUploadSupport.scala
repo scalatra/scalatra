@@ -41,8 +41,8 @@ import scala.collection.JavaConverters._
  * @MultipartConfig(maxFileSize=1024*1024)
  * class FileEaterServlet extends ScalatraServlet with FileUploadSupport {
  *   error {
- *     case e: SizeConstrainttExceededException => "Oh, too much! Can't take it all."
- *     case e: IOException                      => "Server denied me my meal, thanks anyway."
+ *     case e: SizeConstraintExceededException => "Oh, too much! Can't take it all."
+ *     case e: IOException                     => "Server denied me my meal, thanks anyway."
  *   }
  *
  *   post("/eatfile") {
