@@ -236,7 +236,9 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
     }
   }
 
-  protected[scalatra] def attributes: HttpServletRequest = r
+  protected[this] type A = HttpServletRequest
+  protected[this] override def attributes = r
+  protected[this] override def attributesTypeClass: Attributes[A] = Attributes[A]
 
   /**
    * The input stream is an InputStream which contains the raw HTTP POST

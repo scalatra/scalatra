@@ -11,7 +11,9 @@ import javax.servlet.{ DispatcherType, Filter, ServletContext }
  */
 case class RichServletContext(sc: ServletContext) extends AttributesMap {
 
-  protected def attributes: ServletContext = sc
+  protected[this] type A = ServletContext
+  protected[this] override def attributes = sc
+  protected[this] override def attributesTypeClass: Attributes[A] = Attributes[A]
 
   /**
    * Optionally returns a URL to the resource mapped to the given path.  This
