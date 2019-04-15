@@ -43,7 +43,7 @@ class ScalatraRenderContext(
   }
 
   def fileParams: scala.collection.Map[String, FileItem] = kernel match {
-    case fu: FileUploadSupport => fu.fileParams(request)
+    case fu: FileUploadSupport => fu.fileParams(request).toMap
     case _ => Map.empty
   }
 

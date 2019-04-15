@@ -10,7 +10,6 @@ import org.scalatra.util.RicherString._
 import org.scalatra.util.MultiMapHeadView
 
 import scala.collection.JavaConverters._
-import scala.collection.{ Map => CMap }
 import scala.io.Source
 
 object RichRequest {
@@ -231,7 +230,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * Returns a map of cookie names to values.  If multiple values are present
    * for a given cookie, the value is the first cookie of that name.
    */
-  def cookies: CMap[String, String] = {
+  def cookies: MultiMapHeadView[String, String] = {
     new MultiMapHeadView[String, String] {
       override protected def multiMap = multiCookies
     }

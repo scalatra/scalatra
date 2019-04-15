@@ -1,7 +1,5 @@
 package org.scalatra.util
 
-import scala.collection.immutable.Map
-
 object MultiMapHeadView {
 
   def empty[A, B]: MultiMapHeadView[A, B] = {
@@ -12,21 +10,42 @@ object MultiMapHeadView {
 
 }
 
-trait MultiMapHeadView[A, B] extends Map[A, B] {
+trait MultiMapHeadView[A, B] {
 
   protected def multiMap: Map[A, Seq[B]]
 
-  override def get(key: A): Option[B] = multiMap.get(key) flatMap { _.headOption }
+  def apply(key: A): B = multiMap.get(key) match {
+    case Some(v) => v.head
+    case None => throw new NoSuchElementException(s"Key ${key} not found")
+  }
 
-  override def size: Int = multiMap.size
+  def get(key: A): Option[B] = multiMap.get(key) flatMap { _.headOption }
 
-  override def iterator: Iterator[(A, B)] = multiMap.iterator.flatMap {
+  def getOrElse(key: A, default: => B): B = toMap.get(key) getOrElse default
+
+  def size: Int = multiMap.size
+
+  def foreach(f: ((A, B)) => Unit): Unit = multiMap foreach { case (k, v) => f((k, v.head)) }
+
+  def iterator: Iterator[(A, B)] = multiMap.iterator.flatMap {
     case (k, v) => v.headOption.map { _v => (k, _v) }
   }
 
-  override def -(key: A): Map[A, B] = Map() ++ this - key
+  def toMap: Map[A, B] = multiMap map { case (k, v) => (k -> v.head) }
 
-  override def +[B1 >: B](kv: (A, B1)): Map[A, B1] = Map() ++ this + kv
+  def -(key: A): Map[A, B] = toMap - key
+
+  def +[B1 >: B](kv: (A, B1)): Map[A, B1] = toMap + kv
+
+  def isDefinedAt(key: A): Boolean = get(key) match {
+    case Some(_) => true
+    case None => false
+  }
+
+  def contains(key: A): Boolean = get(key) match {
+    case Some(_) => true
+    case None => false
+  }
 
 }
 
