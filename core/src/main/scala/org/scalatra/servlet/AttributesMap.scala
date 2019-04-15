@@ -4,19 +4,19 @@ package servlet
 import org.scalatra.util.conversion.TypeConverter
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.Map
 
 /**
- * Adapts attributes from servlet objects (e.g., ServletRequest, HttpSession,
- * ServletContext) to a mutable map.
+ * Adapts for handling servlet objects (e.g., ServletRequest, HttpSession,
+ * ServletContext) as mutable map.
  */
-trait AttributesMap extends Map[String, Any] {
+trait AttributesMap {
 
   protected def attributes: Attributes
 
   /**
    * Optionally returns the attribute associated with the key
    *
+   * @param key The key to find
    * @return an option value containing the attribute associated with the key
    * in the underlying servlet object, or None if none exists.
    */
@@ -31,7 +31,60 @@ trait AttributesMap extends Map[String, Any] {
   }
 
   /**
-   * Optionally return and type cast the attribute associated with the key
+   * Returns the attribute associated with the key or default value
+   *
+   * @param key The key to find
+   * @param dafault The default value, it will be returned when the key does not exist
+   * @return an value for the attributed associated with the key in the underlying servlet object,
+   *         or the default value if the key doesn't exist
+   */
+  def getOrElse(key: String, default: => Any): Any = get(key) getOrElse default
+
+  /**
+   * Returns the attribute associated with the key or update attributes with the specified value
+   *
+   * @param key The key to find
+   * @param value The value that will be updated the attribute associated with the key when the key does not exist
+   * @return an value for the attributed associated with the key in the underlying servlet object,
+   *         or the updated value if the key doesn't exist
+   */
+  def getOrElseUpdate(key: String, value: => Any): Any = get(key) match {
+    case Some(v) => v
+    case None => val u = value; update(key, u); u
+  }
+
+  /**
+   * Returns the attribute associated with the key or throw an exception when nothing found
+   *
+   * @param key The key to find
+   * @return an value for the attributed associated with the key in the underlying servlet object,
+   *         or throw an exception if the key doesn't exist
+   */
+  def apply(key: String): Any =
+    get(key) getOrElse (throw new ScalatraException(s"Key ${key} not found"))
+
+  /**
+   * Updates the attribute associated with the key
+   *
+   * @param key The key to update
+   * @param valule The value to update
+   */
+  def update(key: String, value: Any): Unit = {
+    if (attributes != null)
+      attributes.setAttribute(key, value.asInstanceOf[AnyRef])
+  }
+
+  /**
+   * Returns whether the specified key exists
+   * @return whether the specified key exists
+   */
+  def contains(key: String): Boolean = get(key) match {
+    case Some(v) => true
+    case None => false
+  }
+
+  /**
+   * Optionally returns and type cast the attribute associated with the key
    *
    * @param key The key to find
    * @tparam T The type of the value
@@ -43,7 +96,7 @@ trait AttributesMap extends Map[String, Any] {
   }
 
   /**
-   * Return the attribute associated with the key or throw an exception when nothing found
+   * Returns the attribute associated with the key or throw an exception when nothing found
    *
    * @param key The key to find
    * @tparam T The type of the value
@@ -51,16 +104,17 @@ trait AttributesMap extends Map[String, Any] {
    *         or throw an exception if the key doesn't exist
    */
   def as[T](key: String)(implicit converter: TypeConverter[Any, T]): T = {
-    getAs[T](key) getOrElse (throw new ScalatraException("Key " + key + " not found"))
+    getAs[T](key) getOrElse (throw new ScalatraException(s"Key ${key} not found"))
   }
 
   /**
-   * Return the attribute associated with the key or throw an exception when nothing found
+   * Returns the attribute associated with the key or default value
    *
    * @param key The key to find
+   * @param dafault The default value, it will be returned when the key does not exist
    * @tparam T The type of the value
    * @return an value for the attributed associated with the key in the underlying servlet object,
-   *         or throw an exception if the key doesn't exist
+   *         or the default value if the key doesn't exist
    */
   def getAsOrElse[T](key: String, default: => T)(implicit converter: TypeConverter[Any, T]): T = {
     getAs[T](key) getOrElse default
@@ -74,6 +128,15 @@ trait AttributesMap extends Map[String, Any] {
   def iterator: Iterator[(String, Any)] = {
     attributes.getAttributeNames().asScala map { key =>
       (key, attributes.getAttribute(key))
+    }
+  }
+
+  /**
+   * Appllies a function f to add attribute elements
+   */
+  def foreach(f: ((String, Any)) => Unit): Unit = {
+    attributes.getAttributeNames().asScala foreach { name =>
+      f((name, attributes.getAttribute(name)))
     }
   }
 
@@ -102,4 +165,16 @@ trait AttributesMap extends Map[String, Any] {
     this
   }
 
+  /**
+   * Returns an attributes keys
+   */
+  def keys = attributes.getAttributeNames.asScala
+
+  /**
+   * dumps all keys and values
+   *
+   */
+  def dumpAll: String = keys.map {
+    a => s"${a}=${attributes.getAttribute(a)}"
+  } mkString "&"
 }

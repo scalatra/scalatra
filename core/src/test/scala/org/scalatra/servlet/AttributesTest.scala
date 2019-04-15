@@ -3,13 +3,11 @@ package servlet
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
-import scala.collection.mutable.Map
-
 trait AttributesTest {
   this: ScalatraFunSuite =>
 
   trait AttributesServlet extends ScalatraServlet {
-    def attributesMap: Map[String, Any]
+    def attributesMap: AttributesMap
 
     get("/attributes-test") {
       attributesMap("one") = "1"
