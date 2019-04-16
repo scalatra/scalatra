@@ -356,7 +356,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
    * @tparam T the class of the model to register
    */
   protected def registerModel[T: Manifest: NotNothing](): Unit = {
-    Swagger.collectModels[T](_models.values.toSet) map registerModel
+    Swagger.collectModels[T](_models.values.toSet) foreach registerModel
   }
 
   /**
@@ -385,7 +385,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
     if (st.isOption && !allowsOption) sys.error("Parameter [" + name + "] does not allow optional values.")
     if (st.isCollection && st.typeArgs.isEmpty) sys.error("A collection needs to have a type for swagger parameter [" + name + "].")
     if (st.isOption && st.typeArgs.isEmpty) sys.error("An Option needs to have a type for swagger parameter [" + name + "].")
-    Swagger.collectModels(st, models.values.toSet) map registerModel
+    Swagger.collectModels(st, models.values.toSet) foreach registerModel
     val dt =
       if (liftCollection && (st.isCollection || st.isOption)) DataType.fromScalaType(st.typeArgs.head)
       else DataType[T]
