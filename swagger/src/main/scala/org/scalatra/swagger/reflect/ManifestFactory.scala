@@ -24,12 +24,12 @@ private[swagger] object ManifestFactory {
 
     case wt: WildcardType =>
       val upper = wt.getUpperBounds
-      if (upper != null && upper.size > 0) manifestOf(upper(0))
+      if (upper != null && upper.nonEmpty) manifestOf(upper(0))
       else manifestOf(classOf[AnyRef])
 
     case wt: TypeVariable[_] =>
       val upper = wt.getBounds
-      if (upper != null && upper.size > 0) manifestOf(upper(0))
+      if (upper != null && upper.nonEmpty) manifestOf(upper(0))
       else manifestOf(classOf[AnyRef])
 
     case c: Class[_] => fromClass(c)
@@ -37,7 +37,7 @@ private[swagger] object ManifestFactory {
   }
 
   def manifestOf(erasure: Class[_], typeArgs: Seq[Manifest[_]]): Manifest[_] = {
-    if (typeArgs.size == 0) {
+    if (typeArgs.isEmpty) {
       fromClass(erasure)
     } else {
       val normalizedErasure =
