@@ -63,7 +63,7 @@ object Swagger {
     if (tpe.isMap) {
       collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
 
-    } else if ((tpe.isCollection && tpe.typeArgs.headOption.isDefined) || (tpe.isOption && tpe.typeArgs.headOption.isDefined)) {
+    } else if ((tpe.isCollection && tpe.typeArgs.nonEmpty) || (tpe.isOption && tpe.typeArgs.nonEmpty)) {
       val ntpe = tpe.typeArgs.head
       if (!known.contains(ntpe)) {
         collectModels(ntpe, alreadyKnown, known + ntpe)
