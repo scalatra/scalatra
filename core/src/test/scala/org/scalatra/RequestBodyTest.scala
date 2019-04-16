@@ -1,7 +1,7 @@
 package org.scalatra
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class RequestBodyTestServlet extends ScalatraServlet {
