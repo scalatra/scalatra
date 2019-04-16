@@ -431,7 +431,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
 
-  protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { (route: Route) ⇒
+  protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { (route: Route) =>
     route.copy(metadata = route.metadata + (s -> v))
   }
 
@@ -449,8 +449,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   protected def swaggerEndpointEntries[T <: SwaggerOperation](extract: (Route, HttpMethod) => T) =
     for {
-      (method, routes) ← routes.methodRoutes
-      route ← routes if (route.metadata.keySet & Symbols.AllSymbols).nonEmpty
+      (method, routes) <- routes.methodRoutes
+      route <- routes if (route.metadata.keySet & Symbols.AllSymbols).nonEmpty
       endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
       operation = extract(route, method)
     } yield Entry(endpoint, operation)
@@ -486,7 +486,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
    */
   def endpoints(basePath: String): List[Endpoint] = {
     (swaggerEndpointEntries(extractOperation) groupBy (_.key)).toList map {
-      case (name, entries) ⇒
+      case (name, entries) =>
         val desc = _description lift name getOrElse ""
         val pth = if (basePath endsWith "/") basePath else basePath + "/"
         val nm = if (name startsWith "/") name.substring(1) else name

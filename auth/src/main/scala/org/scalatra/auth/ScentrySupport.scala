@@ -13,7 +13,7 @@ trait ScentryConfig {
 }
 
 trait ScentrySupport[UserType <: AnyRef] extends Initializable {
-  self: ScalatraBase ⇒
+  self: ScalatraBase =>
 
   type ScentryConfiguration <: ScentryConfig
 
@@ -35,10 +35,10 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
 
   private def readStrategiesFromConfig(config: ConfigT) =
     _strategiesFromConfig = {
-      config.context.getInitParameter("scentry.strategies").blankOption map (s ⇒ (s split ";").toList) getOrElse Nil
+      config.context.getInitParameter("scentry.strategies").blankOption map (s => (s split ";").toList) getOrElse Nil
     }
 
-  private def registerStrategiesFromConfig() = _strategiesFromConfig foreach { strategyClassName ⇒
+  private def registerStrategiesFromConfig() = _strategiesFromConfig foreach { strategyClassName =>
     val strategy = Class.forName(strategyClassName).getDeclaredConstructor().newInstance().asInstanceOf[ScentryStrategy[UserType]]
     strategy registerWith scentry
   }

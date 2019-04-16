@@ -29,7 +29,7 @@ trait RequestLogging extends ScalatraBase with Handler {
   import org.scalatra.util.RequestLogging._
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
-    val realMultiParams = req.getParameterMap.asScala.toMap transform { (k, v) ⇒ v: Seq[String] }
+    val realMultiParams = req.getParameterMap.asScala.toMap transform { (k, v) => v: Seq[String] }
     withRequest(req) {
       request(MultiParamsKey) = realMultiParams
       request(CgiParamsKey) = readCgiParams(req)
@@ -43,7 +43,7 @@ trait RequestLogging extends ScalatraBase with Handler {
     logger.info(MDC.getCopyOfContextMap.asScala.map(kv => kv._1.toString + ": " + kv._2.toString).mkString("{", ", ", " }"))
   }
 
-  override protected[scalatra] def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: ⇒ S)(implicit request: HttpServletRequest): S = {
+  override protected[scalatra] def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S)(implicit request: HttpServletRequest): S = {
     val originalParams = multiParams
     request(MultiParamsKey) = originalParams ++ matchedRoute.map(_.multiParams).getOrElse(Map.empty)
     fillMdc()
@@ -54,14 +54,14 @@ trait RequestLogging extends ScalatraBase with Handler {
     MDC.clear()
     MDC.put(RequestPath, requestPath)
     MDC.put(RequestApp, getClass.getSimpleName)
-    MDC.put(RequestParams, multiParams map { case (k, vl) ⇒ vl.map(v ⇒ "%s=%s".format(%-(k), %-(v))) } mkString "&")
+    MDC.put(RequestParams, multiParams map { case (k, vl) => vl.map(v => "%s=%s".format(%-(k), %-(v))) } mkString "&")
     this match {
       case a: SessionSupport =>
         MDC.put(SessionParams, a.session.dumpAll)
       case _ =>
     }
 
-    MDC.put(CgiParams, cgiParams map { case (k, v) ⇒ "%s=%s".format(%-(k), %-(v)) } mkString "&")
+    MDC.put(CgiParams, cgiParams map { case (k, v) => "%s=%s".format(%-(k), %-(v)) } mkString "&")
   }
 
   private[this] def cgiParams = request get CgiParamsKey map (_.asInstanceOf[Map[String, String]]) getOrElse Map.empty

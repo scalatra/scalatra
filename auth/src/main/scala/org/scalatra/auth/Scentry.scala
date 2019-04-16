@@ -12,7 +12,7 @@ import scala.collection.mutable
 
 object Scentry {
 
-  type StrategyFactory[UserType <: AnyRef] = ScalatraBase ⇒ ScentryStrategy[UserType]
+  type StrategyFactory[UserType <: AnyRef] = ScalatraBase => ScentryStrategy[UserType]
 
   private val _globalStrategies = new mutable.HashMap[String, StrategyFactory[_ <: AnyRef]]()
 
@@ -35,7 +35,7 @@ class Scentry[UserType <: AnyRef](
 
   private[this] lazy val logger = LoggerFactory.getLogger(getClass)
   type StrategyType = ScentryStrategy[UserType]
-  type StrategyFactory = ScalatraBase ⇒ StrategyType
+  type StrategyFactory = ScalatraBase => StrategyType
 
   import org.scalatra.auth.Scentry._
 
@@ -67,7 +67,7 @@ class Scentry[UserType <: AnyRef](
   }
 
   def strategies: mutable.Map[String, ScentryStrategy[UserType]] =
-    (globalStrategies ++ _strategies) map { case (nm, fact) ⇒ (nm -> fact.asInstanceOf[StrategyFactory](app)) }
+    (globalStrategies ++ _strategies) map { case (nm, fact) => (nm -> fact.asInstanceOf[StrategyFactory](app)) }
 
   def userOption(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] =
     Option(_user) orElse {
@@ -102,16 +102,16 @@ class Scentry[UserType <: AnyRef](
   def toSession: PartialFunction[UserType, String] = serialize orElse missingSerializer
 
   private def missingSerializer: PartialFunction[UserType, String] = {
-    case _ ⇒ throw new RuntimeException("You need to provide a session serializer for Scentry")
+    case _ => throw new RuntimeException("You need to provide a session serializer for Scentry")
   }
 
   private def missingDeserializer: PartialFunction[String, UserType] = {
-    case _ ⇒ throw new RuntimeException("You need to provide a session deserializer for Scentry")
+    case _ => throw new RuntimeException("You need to provide a session deserializer for Scentry")
   }
 
   def authenticate(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] = {
     val r = runAuthentication(names: _*) map {
-      case (stratName, usr) ⇒
+      case (stratName, usr) =>
         runCallbacks() { _.afterAuthenticate(stratName, usr) }
         user_=(usr)
         user
@@ -126,18 +126,18 @@ class Scentry[UserType <: AnyRef](
       logger.debug("Authenticating with: %s" format strat.name)
       runCallbacks(_.isValid) { _.beforeAuthenticate }
       strat.authenticate() match {
-        case Some(usr) ⇒ Some(strat.name -> usr)
-        case _ ⇒
+        case Some(usr) => Some(strat.name -> usr)
+        case _ =>
           strat.unauthenticated()
           None
       }
     }).find(_.isDefined) getOrElse None
   }
 
-  private[this] var defaultUnauthenticated: Option[() ⇒ Unit] = None
+  private[this] var defaultUnauthenticated: Option[() => Unit] = None
 
-  def unauthenticated(callback: ⇒ Unit): Unit = {
-    defaultUnauthenticated = Some(() ⇒ callback)
+  def unauthenticated(callback: => Unit): Unit = {
+    defaultUnauthenticated = Some(() => callback)
   }
 
   def logout()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
@@ -148,10 +148,10 @@ class Scentry[UserType <: AnyRef](
     runCallbacks() { _.afterLogout(usr) }
   }
 
-  private[this] def runCallbacks(guard: StrategyType ⇒ Boolean = s ⇒ true)(which: StrategyType ⇒ Unit): Unit = {
+  private[this] def runCallbacks(guard: StrategyType => Boolean = s => true)(which: StrategyType => Unit): Unit = {
     strategies foreach {
-      case (_, v) if guard(v) ⇒ which(v)
-      case _ ⇒ // guard failed
+      case (_, v) if guard(v) => which(v)
+      case _ => // guard failed
     }
   }
 }

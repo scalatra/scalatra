@@ -95,7 +95,7 @@ trait ApiFormats extends ScalatraBase {
   def acceptHeader(implicit request: HttpServletRequest): List[String] = parseAcceptHeader
 
   private[this] def getFromParams(implicit request: HttpServletRequest): Option[String] = {
-    params.get("format").find(p ⇒ formats.contains(p.toLowerCase(ENGLISH)))
+    params.get("format").find(p => formats.contains(p.toLowerCase(ENGLISH)))
   }
 
   private[this] def getFromAcceptHeader(implicit request: HttpServletRequest): Option[String] = {
