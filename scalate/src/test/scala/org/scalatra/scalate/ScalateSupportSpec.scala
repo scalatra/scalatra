@@ -248,8 +248,8 @@ class ScalateSupportSpec extends ScalatraSpec {
   def e25 = get("/two/baz") {
     status must_== 200
     val divs = (scala.xml.XML.loadString(body) \\ "div")
-    val generatedUrlOne = divs.filter(_.attributes.value.text == "urlOnServletOne").headOption.map(_.text).getOrElse("")
-    val generatedUrlTwo = divs.filter(_.attributes.value.text == "urlOnServletTwo").headOption.map(_.text).getOrElse("")
+    val generatedUrlOne = divs.collectFirst { case x if x.attributes.value.text == "urlOnServletOne" => x.text }.getOrElse("")
+    val generatedUrlTwo = divs.collectFirst { case x if x.attributes.value.text == "urlOnServletTwo" => x.text }.getOrElse("")
     generatedUrlOne must_== "/url-generation"
     generatedUrlTwo must_== "/two/baz"
   }
