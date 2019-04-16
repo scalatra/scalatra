@@ -124,7 +124,7 @@ object Reflector {
             st.copy(typeArgs = actualArgs)
           case v: WildcardType =>
             val upper = v.getUpperBounds
-            if (upper != null && upper.size > 0) scalaTypeOf(upper(0))
+            if (upper != null && upper.nonEmpty) scalaTypeOf(upper(0))
             else scalaTypeOf[AnyRef]
           case x =>
             val st = scalaTypeOf(x)
