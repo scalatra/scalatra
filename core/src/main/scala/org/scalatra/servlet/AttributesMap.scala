@@ -134,7 +134,7 @@ trait AttributesMap {
   /**
    * Appllies a function f to add attribute elements
    */
-  def foreach(f: ((String, Any)) => Unit): Unit = {
+  def foreach[U](f: ((String, Any)) => U): Unit = {
     attributes.getAttributeNames().asScala foreach { name =>
       f((name, attributes.getAttribute(name)))
     }
