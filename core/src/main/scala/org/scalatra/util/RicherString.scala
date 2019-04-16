@@ -30,9 +30,9 @@ package object RicherString {
 
     def /(path: String): String = {
       (orig.endsWith("/"), path.startsWith("/")) match {
-        case (true, false) | (false, true) ⇒ orig + path
-        case (false, false) ⇒ orig + "/" + path
-        case (true, true) ⇒ orig + path substring 1
+        case (true, false) | (false, true) => orig + path
+        case (false, false) => orig + "/" + path
+        case (true, true) => orig + path substring 1
       }
     }
 

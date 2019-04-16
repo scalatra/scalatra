@@ -29,10 +29,10 @@ object MapQueryString {
         ""
       }
     } match {
-      case item :: Nil ⇒ current + (item -> List[String]())
-      case item :: rest ⇒
+      case item :: Nil => current + (item -> List[String]())
+      case item :: rest =>
         if (!current.contains(item)) current + (item -> rest) else current + (item -> (rest ::: current(item)).distinct)
-      case _ ⇒ current
+      case _ => current
     }
   }
 
@@ -48,10 +48,10 @@ case class MapQueryString(initialValues: Seq[(String, Seq[String])], rawValue: S
 
   def value: Value = Map(initialValues: _*)
 
-  def normalize: MapQueryString = copy(SortedMap(initialValues filter (k ⇒ !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1)): _*) toSeq)
+  def normalize: MapQueryString = copy(SortedMap(initialValues filter (k => !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1)): _*) toSeq)
 
   private def mkString(values: Value = value) = values map {
-    case (k, v) ⇒ v.map(s ⇒ "%s=%s".format(UrlCodingUtils.queryPartEncode(k), UrlCodingUtils.queryPartEncode(s))).mkString("&")
+    case (k, v) => v.map(s => "%s=%s".format(UrlCodingUtils.queryPartEncode(k), UrlCodingUtils.queryPartEncode(s))).mkString("&")
   } mkString "&"
 
   type Value = immutable.Map[String, Seq[String]]

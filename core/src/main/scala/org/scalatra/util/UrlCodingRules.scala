@@ -18,7 +18,7 @@ trait UrlCodingUtils {
   private val LowerPctEncoded = """%([0-9a-f][0-9a-f])""".r
   private val InvalidChars = "[^\\.a-zA-Z0-9!$&'()*+,;=:/?#\\[\\]@-_~]".r
 
-  private val HexUpperCaseChars = (0 until 16) map { i ⇒ Character.toUpperCase(Character.forDigit(i, 16)) }
+  private val HexUpperCaseChars = (0 until 16) map { i => Character.toUpperCase(Character.forDigit(i, 16)) }
 
   def isUrlEncoded(string: String): Boolean = {
     PctEncoded.findFirstIn(string).isDefined
@@ -36,7 +36,7 @@ trait UrlCodingUtils {
 
   def ensureUppercasedEncodings(string: String): String = {
     LowerPctEncoded.replaceAllIn(string, (_: Match) match {
-      case Regex.Groups(v) ⇒ "%" + v.toUpperCase(Locale.ENGLISH)
+      case Regex.Groups(v) => "%" + v.toUpperCase(Locale.ENGLISH)
     })
   }
 

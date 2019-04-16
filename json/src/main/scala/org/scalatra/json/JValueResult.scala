@@ -36,13 +36,13 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
     case a: ActionResult => super.renderPipeline(a)
     case _: Unit | Unit | null =>
     case s: String => super.renderPipeline(s)
-    case x: scala.xml.Node if format == "xml" ⇒
+    case x: scala.xml.Node if format == "xml" =>
       contentType = formats("xml")
       response.writer.write(scala.xml.Utility.trim(x).toString())
-    case x: NodeSeq if format == "xml" ⇒
+    case x: NodeSeq if format == "xml" =>
       contentType = formats("xml")
       response.writer.write(x.toString)
-    case x: NodeSeq ⇒
+    case x: NodeSeq =>
       response.writer.write(x.toString)
     case p: Product if isJValueResponse => Extraction.decompose(p)
     case p: TraversableOnce[_] if isJValueResponse => Extraction.decompose(p)

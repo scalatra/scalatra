@@ -91,7 +91,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     try {
       Some(Integer.parseInt(i))
     } catch {
-      case _: Throwable ⇒ None
+      case _: Throwable => None
     }
 
   def verifyPaths(j: JValue) = {
