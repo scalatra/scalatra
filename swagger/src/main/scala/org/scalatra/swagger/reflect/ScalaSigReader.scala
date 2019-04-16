@@ -61,7 +61,7 @@ private[reflect] object ScalaSigReader {
   }
 
   private def findField(c: ClassSymbol, name: String): Option[MethodSymbol] =
-    (c.children collect { case m: MethodSymbol if m.name == name => m }).headOption
+    c.children collectFirst { case m: MethodSymbol if m.name == name => m }
 
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[_] = {
     def findPrimitive(t: Type): Symbol = {
