@@ -21,7 +21,7 @@ trait MultiMapHeadView[A, B] {
 
   def get(key: A): Option[B] = multiMap.get(key) flatMap { _.headOption }
 
-  def getOrElse(key: A, default: => B): B = toMap.get(key) getOrElse default
+  def getOrElse(key: A, default: => B): B = toMap.getOrElse(key, default)
 
   def size: Int = multiMap.size
 
