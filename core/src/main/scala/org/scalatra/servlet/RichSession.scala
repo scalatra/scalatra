@@ -10,6 +10,8 @@ case class RichSession(session: HttpSession) extends AttributesMap {
 
   def id: String = session.getId
 
-  protected def attributes: HttpSession = session
+  protected[this] type A = HttpSession
+  protected[this] override def attributes = session
+  protected[this] override def attributesTypeClass: Attributes[A] = Attributes[A]
 
 }

@@ -4,6 +4,8 @@ package servlet
 import org.scalatra.util.conversion.TypeConverter
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable.Map
+import Attributes._
 
 /**
  * Adapts for handling servlet objects (e.g., ServletRequest, HttpSession,
@@ -11,7 +13,9 @@ import scala.collection.JavaConverters._
  */
 trait AttributesMap {
 
-  protected def attributes: Attributes
+  protected[this] type A
+  protected[this] def attributes: A
+  protected[this] implicit def attributesTypeClass: Attributes[A]
 
   /**
    * Optionally returns the attribute associated with the key
