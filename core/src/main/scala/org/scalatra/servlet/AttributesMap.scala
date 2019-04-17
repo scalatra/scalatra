@@ -4,7 +4,6 @@ package servlet
 import org.scalatra.util.conversion.TypeConverter
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.Map
 import Attributes._
 
 /**
