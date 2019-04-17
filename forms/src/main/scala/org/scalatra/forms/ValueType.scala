@@ -77,10 +77,10 @@ abstract class MappingValueType[T] extends ValueType[T] {
   def fields: Seq[(String, ValueType[_])]
 
   def validate(name: String, params: Map[String, Seq[String]], messages: Messages): Seq[(String, String)] = {
-    fields.map {
+    fields.flatMap {
       case (fieldName, valueType) =>
         valueType.validate((if (name.isEmpty) fieldName else name + "." + fieldName), params, messages)
-    }.flatten
+    }
   }
 
 }

@@ -310,13 +310,13 @@ package object forms {
     def validate(name: String, params: Map[String, Seq[String]], messages: Messages): Seq[(String, String)] = {
       valueType match {
         case singleValueType: SingleValueType[_] => {
-          extractSingleParams(name, params).map {
+          extractSingleParams(name, params).flatMap {
             case (i, value) =>
               singleValueType.validate(name, value, params, messages).map {
                 case (key, message) =>
                   (key + "_" + i, message)
               }
-          }.flatten
+          }
         }
         case mappingValueType => {
           val listParams = extractMapParams(params)
