@@ -183,7 +183,7 @@ case class SingletonDescriptor(simpleName: String, fullName: String, erasure: Sc
 
 trait ObjectDescriptor extends Descriptor
 case class ClassDescriptor(simpleName: String, fullName: String, erasure: ScalaType, companion: Option[SingletonDescriptor], constructors: Seq[ConstructorDescriptor], properties: Seq[PropertyDescriptor]) extends ObjectDescriptor {
-  lazy val mostComprehensive: Seq[ConstructorParamDescriptor] = if (constructors.isEmpty) Seq.empty else constructors.sortBy(-_.params.size).head.params
+  lazy val mostComprehensive: Seq[ConstructorParamDescriptor] = if (constructors.isEmpty) Seq.empty else constructors.maxBy(_.params.size).params
 }
 case class PrimitiveDescriptor(simpleName: String, fullName: String, erasure: ScalaType) extends ObjectDescriptor {
 }
