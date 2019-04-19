@@ -179,10 +179,8 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
    * @return a Map, keyed on the names of multipart file upload parameters,
    *         of all multipart files submitted with the request
    */
-  def fileParams(implicit request: HttpServletRequest): MultiMapHeadView[String, FileItem] = {
-    new MultiMapHeadView[String, FileItem] {
-      protected def multiMap = fileMultiParams
-    }
+  def fileParams(implicit request: HttpServletRequest): FileSingleParams = {
+    new FileSingleParams(fileMultiParams(request))
   }
 
   def fileParams(key: String)(implicit request: HttpServletRequest): FileItem = {
@@ -200,14 +198,22 @@ object FileUploadSupport {
 
 }
 
-class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty)
-  extends Map[String, Seq[FileItem]] {
+class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty) {
+
+  def apply(key: String): Seq[FileItem] = get(key) match {
+    case Some(v) => v
+    case None => throw new NoSuchElementException(s"Key ${key} not found")
+  }
 
   def get(key: String): Option[Seq[FileItem]] = {
     (wrapped.get(key) orElse wrapped.get(key + "[]"))
   }
 
-  def get(key: Symbol): Option[Seq[FileItem]] = get(key.name)
+  def getOrElse(key: String, default: => Seq[FileItem]): Seq[FileItem] =
+    get(key) getOrElse default
+
+  def foreach(f: ((String, Seq[FileItem])) => Unit): Unit =
+    wrapped.foreach { case ((k, v)) => f((k, v)) }
 
   def +[B1 >: Seq[FileItem]](kv: (String, B1)): FileMultiParams =
     new FileMultiParams(wrapped + kv.asInstanceOf[(String, Seq[FileItem])])
@@ -216,7 +222,7 @@ class FileMultiParams(wrapped: Map[String, Seq[FileItem]] = Map.empty)
 
   def iterator: Iterator[(String, Seq[FileItem])] = wrapped.iterator
 
-  override def default(a: String): Seq[FileItem] = wrapped.default(a)
+  def toMap: Map[String, Seq[FileItem]] = iterator.toMap
 }
 
 object FileMultiParams {
@@ -227,6 +233,21 @@ object FileMultiParams {
     new FileMultiParams(wrapped)
   }
 
+}
+
+class FileSingleParams(wrapped: FileMultiParams = FileMultiParams()) {
+
+  def apply(key: String): FileItem = get(key) match {
+    case Some(v) => v
+    case None => throw new NoSuchElementException(s"Key ${key} not found")
+  }
+
+  def get(key: String): Option[FileItem] = {
+    wrapped.get(key) map { _.head }
+  }
+
+  def foreach(f: ((String, FileItem)) => Unit): Unit =
+    wrapped.foreach { case ((k, v)) => f((k, v.head)) }
 }
 
 case class FileItem(part: Part) {
