@@ -60,7 +60,7 @@ trait SwaggerAuthBase[TypeForUser <: AnyRef] extends SwaggerBaseBase { self: Cor
     docs.collect {
       case doc if doc.apis.exists(_.operations.exists(_.allows(userOption))) =>
         filterDoc(doc)
-    }
+    }.toList
   }
 
 }
