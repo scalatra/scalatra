@@ -6,7 +6,7 @@ import javax.servlet.http.{ HttpServletRequest, HttpServletResponse, HttpSession
 
 import org.fusesource.scalate.TemplateEngine
 import org.fusesource.scalate.servlet.ServletRenderContext
-import org.scalatra.servlet.{ FileItem, FileMultiParams, FileUploadSupport, ServletBase }
+import org.scalatra.servlet.{ FileMultiParams, FileSingleParams, FileUploadSupport, ServletBase }
 
 /**
  * A render context integrated with Scalatra.  Exposes a few extra
@@ -42,9 +42,9 @@ class ScalatraRenderContext(
     case _ => new FileMultiParams()
   }
 
-  def fileParams: scala.collection.Map[String, FileItem] = kernel match {
-    case fu: FileUploadSupport => fu.fileParams(request).toMap
-    case _ => Map.empty
+  def fileParams: FileSingleParams = kernel match {
+    case fu: FileUploadSupport => fu.fileParams(request)
+    case _ => new FileSingleParams()
   }
 
   def csrfKey = kernel match {
