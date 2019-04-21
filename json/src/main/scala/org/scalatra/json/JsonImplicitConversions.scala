@@ -37,7 +37,7 @@ trait JsonImplicitConversions extends TypeConverterSupport {
   def jsonToDateFormat(format: => DateFormat): TypeConverter[JValue, Date] =
     safeOption(_.extractOpt[String] map format.parse)
 
-  implicit def jsonToSeq[T](implicit elementConverter: TypeConverter[JValue, T], mf: Manifest[T]): TypeConverter[JValue, Seq[T]] =
+  implicit def jsonToSeq[T](implicit mf: Manifest[T]): TypeConverter[JValue, Seq[T]] =
     safe(_.extract[List[T]])
 
   import org.scalatra.json.JsonConversions._
@@ -46,8 +46,7 @@ trait JsonImplicitConversions extends TypeConverterSupport {
   implicit def jsonToDateConversion(source: JValue) = new JsonDateConversion(source, jsonToDate(_))
 
   implicit class jsonToSeqConversion(source: JValue) {
-    def asSeq[T](implicit mf: Manifest[T], tc: TypeConverter[JValue, T]): Option[Seq[T]] =
-      jsonToSeq[T].apply(source)
+    def asSeq[T](implicit mf: Manifest[T]): Option[Seq[T]] = jsonToSeq[T].apply(source)
   }
 }
 
