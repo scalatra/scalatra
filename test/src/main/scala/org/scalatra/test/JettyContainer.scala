@@ -26,7 +26,7 @@ trait JettyContainer extends Container {
     case filter if classOf[Filter].isAssignableFrom(filter) =>
       addFilter(filter.asInstanceOf[Class[_ <: Filter]], path)
     case _ =>
-      throw new IllegalArgumentException(klass + " is not assignable to either HttpServlet or Filter")
+      throw new IllegalArgumentException(klass.toString + " is not assignable to either HttpServlet or Filter")
   }
 
   def mount(servlet: HttpServlet, path: String): Unit = { addServlet(servlet, path) }

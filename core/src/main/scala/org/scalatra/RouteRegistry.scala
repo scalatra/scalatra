@@ -122,7 +122,7 @@ class RouteRegistry {
     (for {
       (method, routes) <- _methodRoutes
       route <- routes
-    } yield method + " " + route).toSeq sortWith (_ < _)
+    } yield method.toString + " " + route).toSeq sortWith (_ < _)
 
   def methodRoutes: Map[HttpMethod, Seq[Route]] = _methodRoutes.clone().toMap
 
