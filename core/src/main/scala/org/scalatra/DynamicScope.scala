@@ -33,10 +33,6 @@ trait RequestResponseScope {
 
 /**
  * The Scalatra DSL requires a dynamically scoped request and response.
- * This trick is explained in greater detail in Gabriele Renzi's blog
- * post about Step, out of which Scalatra grew:
- *
- * http://www.riffraff.info/2009/4/11/step-a-scala-web-picoframework
  */
 trait DynamicScope extends RequestResponseScope {
   /**
