@@ -12,7 +12,6 @@ import org.fusesource.scalate.{ Binding, RenderContext, TemplateEngine }
 
 import scala.collection.concurrent.{ TrieMap, Map => CMap }
 import scala.collection.mutable
-import scala.language.reflectiveCalls
 
 object ScalateSupport {
   val DefaultLayouts = Seq(
