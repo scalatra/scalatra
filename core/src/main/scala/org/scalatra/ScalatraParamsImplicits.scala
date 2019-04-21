@@ -36,7 +36,7 @@ object ScalatraParamsImplicits
     def getAsOrElse[T <: Any](name: String, default: => T)(implicit tc: TypeConverter[String, T]): T =
       getAs[T](name).getOrElse(default)
 
-    def getAsOrElse(nameAndFormat: (String, String), default: => Date)(implicit tc: TypeConverter[String, Date]): Date =
+    def getAsOrElse(nameAndFormat: (String, String), default: => Date): Date =
       getAs[Date](nameAndFormat).getOrElse(default)
 
   }
@@ -62,9 +62,7 @@ object ScalatraParamsImplicits
     def getAsOrElse[T <: Any](name: String, default: => Seq[T])(implicit tc: TypeConverter[String, T]): Seq[T] =
       getAs[T](name).getOrElse(default)
 
-    def getAsOrElse(nameAndFormat: (String, String), default: => Seq[Date])(
-      implicit
-      tc: TypeConverter[String, Date]): Seq[Date] = {
+    def getAsOrElse(nameAndFormat: (String, String), default: => Seq[Date]): Seq[Date] = {
       getAs[Date](nameAndFormat).getOrElse(default)
     }
 
