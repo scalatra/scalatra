@@ -5,8 +5,6 @@ import java.{ util => ju }
 import javax.servlet.ServletContext
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import scala.collection.JavaConverters._
-
 /**
  * ServletBase implements the Scalatra DSL with the Servlet API, and can be
  * a base trait of a Servlet or a Filter.
