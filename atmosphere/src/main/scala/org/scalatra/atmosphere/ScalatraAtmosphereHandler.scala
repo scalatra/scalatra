@@ -61,7 +61,6 @@ class ScalatraAtmosphereHandler(scalatraApp: ScalatraBase)(implicit wireFormat: 
 
   def onRequest(resource: AtmosphereResource): Unit = {
     implicit val req = resource.getRequest
-    implicit val res = resource.getResponse
     val route = Option(req.getAttribute(org.scalatra.atmosphere.AtmosphereRouteKey)).map(_.asInstanceOf[MatchedRoute])
     var session = resource.session()
     val isNew = !session.contains(org.scalatra.atmosphere.AtmosphereClientKey)
