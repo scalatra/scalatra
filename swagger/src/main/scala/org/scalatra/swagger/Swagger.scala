@@ -5,7 +5,6 @@ import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{ Date => JDate }
 
-import org.json4s._
 import org.scalatra.swagger.reflect._
 import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
 import org.slf4j.LoggerFactory
@@ -159,7 +158,6 @@ object Swagger {
         AllowableValues.AnyValue
       } else {
         val params = csvString.split(",").toList
-        implicit val format = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
         paramType match {
           case null => AllowableValues.AllowableValuesList(params)
           case "string" => AllowableValues.AllowableValuesList(params)
@@ -168,7 +166,7 @@ object Swagger {
     }
   }
 
-  private def buildAllowableRangeValues(ranges: Array[String], inputStr: String, inclusive: Boolean = true): AllowableValues.AllowableRangeValues = {
+  private def buildAllowableRangeValues(ranges: Array[String], inputStr: String, inclusive: Boolean): AllowableValues.AllowableRangeValues = {
     var min: java.lang.Float = 0f
     var max: java.lang.Float = 0f
 
