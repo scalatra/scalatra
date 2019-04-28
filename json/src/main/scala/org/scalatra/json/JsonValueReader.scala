@@ -12,7 +12,7 @@ object JsonValueReader {
   private val separatorEnd = ""
 }
 
-class JsonValueReader(val data: JValue)(implicit formats: Formats) extends ValueReader[JValue, JValue] {
+class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
   //  type I = T
   import JsonValueReader._
 
