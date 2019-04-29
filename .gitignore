@@ -30,4 +30,8 @@ target/
 atlassian-ide-plugin.xml
 .lib
 
+# metals artifacts
+.metals
+.bloop
+
 .history
