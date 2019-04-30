@@ -12,9 +12,9 @@ private[swagger] object ManifestFactory {
       val typeArgs = pt.getActualTypeArguments map manifestOf
 
       if (pt.getOwnerType == null) {
-        manifestOf(clazz, typeArgs)
+        manifestOf(clazz, typeArgs.toIndexedSeq)
       } else {
-        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs: _*)
+        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs.toIndexedSeq: _*)
       }
 
     case at: GenericArrayType =>
