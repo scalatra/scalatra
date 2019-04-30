@@ -10,5 +10,5 @@ trait ParameterNameReader {
 object ParanamerReader extends ParameterNameReader {
   private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
   def lookupParameterNames(constructor: JConstructor[_]): Seq[String] =
-    paranamer.lookupParameterNames(constructor)
+    paranamer.lookupParameterNames(constructor).toIndexedSeq
 }

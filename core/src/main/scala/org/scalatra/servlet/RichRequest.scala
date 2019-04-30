@@ -91,7 +91,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
       val queryStringParams: Map[String, Seq[String]] = util.MapQueryString.parseString(r.getQueryString)
       queryStringParams ++ bodyParams
     } else {
-      val paramMap = r.getParameterMap.asScala.toMap.transform { (k, v) => v: Seq[String] }
+      val paramMap = r.getParameterMap.asScala.toMap.transform { (k, v) => v.toIndexedSeq }
       paramMap ++ bodyParams
     }
     // Allow access to multiple parameters with ruby like syntax without []
