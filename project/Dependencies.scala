@@ -43,8 +43,8 @@ object Dependencies {
                                                                                   ).map(_        % specs2Version)
   lazy val testng                   =  "org.testng"              %  "testng"                     % "6.14.3" exclude("junit", "junit")
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.0.5"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.0.5"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.0.5"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.0"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.0"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.1"
 
