@@ -34,7 +34,7 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
     case is: java.io.InputStream => super.renderPipeline(is)
     case file: File => super.renderPipeline(file)
     case a: ActionResult => super.renderPipeline(a)
-    case _: Unit | Unit | null =>
+    case _: Unit | null =>
     case s: String => super.renderPipeline(s)
     case x: scala.xml.Node if format == "xml" =>
       contentType = formats("xml")

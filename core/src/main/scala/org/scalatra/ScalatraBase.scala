@@ -408,7 +408,7 @@ trait ScalatraBase
    */
   protected def renderResponseBody(actionResult: Any): Unit = {
     @tailrec def loop(ar: Any): Any = ar match {
-      case _: Unit | Unit => runRenderCallbacks(Success(actionResult))
+      case _: Unit => runRenderCallbacks(Success(actionResult))
       case a => loop(renderPipeline.lift(a).getOrElse(()))
     }
     try {
@@ -454,9 +454,9 @@ trait ScalatraBase
         in => zeroCopy(in, response.outputStream)
       }
     // If an action returns Unit, it assumes responsibility for the response
-    case _: Unit | Unit | null =>
+    case _: Unit | null =>
     // If an action returns Unit, it assumes responsibility for the response
-    case ActionResult(404, _: Unit | Unit, _) => doNotFound()
+    case ActionResult(404, _: Unit, _) => doNotFound()
     case actionResult: ActionResult =>
       response.status = actionResult.status
       actionResult.headers.foreach {
@@ -515,8 +515,8 @@ trait ScalatraBase
     try {
       var rendered = false
       e match {
-        case HaltException(Some(404), _, _: Unit | Unit) |
-          HaltException(_, _, ActionResult(404, _: Unit | Unit, _)) =>
+        case HaltException(Some(404), _, _: Unit) |
+          HaltException(_, _, ActionResult(404, _: Unit, _)) =>
           renderResponse(doNotFound())
           rendered = true
         case HaltException(Some(status), _, _) =>
