@@ -1,4 +1,3 @@
-resolvers += Opts.resolver.sonatypeReleases
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 
 addSbtPlugin("org.xerial.sbt"       % "sbt-sonatype"         % "2.4")
