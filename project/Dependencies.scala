@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.1"
+  lazy val parserCombinators        = Def.setting("org.scala-lang.modules"  %% "scala-parser-combinators"   % parserCombinatorVersion.value)
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.2.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
@@ -42,7 +42,7 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
   lazy val testng                   =  "org.testng"              %  "testng"                     % "6.14.3" exclude("junit", "junit")
-  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.0.4"
+  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.0.5"
   lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.0.5"
   lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.0.5"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
@@ -54,6 +54,15 @@ object Dependencies {
   private val jettyVersion            = "9.4.6.v20170531"
   private val json4sVersion           = "3.6.5"
   private val scalateVersion          = "1.9.3"
-  private val scalatestVersion        = "3.0.7"
+  private val scalatestVersion        = "3.0.8-RC2"
   private val specs2Version           = "4.5.1"
+  private val parserCombinatorVersion = Def.setting(
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) =>
+        // https://github.com/scala/scala-parser-combinators/issues/197
+        "1.1.1"
+      case _ =>
+        "1.1.2"
+    }
+  )
 }
