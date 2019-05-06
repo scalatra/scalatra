@@ -48,7 +48,7 @@ class ScalatraTestServlet extends ScalatraServlet {
   }
 
   get("/print_referrer") {
-    (request referrer) getOrElse ("NONE")
+    (request.referrer) getOrElse ("NONE")
   }
 
   get("/binary/test") {

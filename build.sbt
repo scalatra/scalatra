@@ -27,7 +27,6 @@ lazy val scalatraSettings = Seq(
     "-encoding", "utf8",
     "-feature",
     "-language:higherKinds",
-    "-language:postfixOps",
     "-language:implicitConversions",
     "-language:reflectiveCalls",
     "-language:existentials"

@@ -22,7 +22,7 @@ object MapQueryString {
   }
 
   private def readQsPair(pair: String, current: Map[String, List[String]] = Map.empty): Map[String, List[String]] = {
-    (pair split '=' toList).map { source =>
+    (pair.split('=').toList).map { source =>
       if (source != null && source.trim().nonEmpty) {
         UrlCodingUtils.urlDecode(source, StandardCharsets.UTF_8, plusIsSpace = true, skip = Set.empty[Int])
       } else {
@@ -48,7 +48,7 @@ case class MapQueryString(initialValues: Seq[(String, Seq[String])], rawValue: S
 
   def value: Value = Map(initialValues: _*)
 
-  def normalize: MapQueryString = copy(SortedMap(initialValues filter (k => !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1)): _*) toSeq)
+  def normalize: MapQueryString = copy(SortedMap(initialValues filter (k => !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1)): _*).toSeq)
 
   private def mkString(values: Value = value) = values map {
     case (k, v) => v.map(s => "%s=%s".format(UrlCodingUtils.queryPartEncode(k), UrlCodingUtils.queryPartEncode(s))).mkString("&")

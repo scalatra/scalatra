@@ -58,7 +58,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
       val is: Future[_] = Future {
         Thread.sleep((3.second).toMillis)
       }
-      override def timeout: Duration = 2 seconds
+      override def timeout: Duration = 2.seconds
     }
   }
 
