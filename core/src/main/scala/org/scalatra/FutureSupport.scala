@@ -22,7 +22,7 @@ abstract class AsyncResult(
   val servletContext: ServletContext = scalatraContext.servletContext
 
   // This is a Duration instead of a timeout because a duration has the concept of infinity
-  implicit def timeout: Duration = 30 seconds
+  implicit def timeout: Duration = 30.seconds
 
   val is: Future[_]
 

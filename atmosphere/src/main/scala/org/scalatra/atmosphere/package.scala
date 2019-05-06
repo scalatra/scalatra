@@ -37,7 +37,7 @@ package object atmosphere {
     if (javaFuture.isDone || javaFuture.isCancelled) {
       promise.complete(allCatch withTry { javaFuture.get }).future
     } else {
-      system.scheduler.scheduleOnce(10 milliseconds) {
+      system.scheduler.scheduleOnce(10.milliseconds) {
         pollJavaFutureUntilDoneOrCancelled(javaFuture, promise, maybeTimeout)
       }
     }
