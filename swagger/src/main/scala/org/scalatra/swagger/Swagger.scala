@@ -14,6 +14,7 @@ import scala.collection.JavaConverters._
 trait SwaggerEngine[T <: SwaggerApi[_]] {
   def swaggerVersion: String
   def apiVersion: String
+  def host: String
   def apiInfo: ApiInfo
 
   private[swagger] val _docs = new ConcurrentHashMap[String, T]().asScala
@@ -100,14 +101,17 @@ object Swagger {
   import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
 
-  private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "")(prop: PropertyDescriptor) = {
+  private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "", example: Option[String] = None, minimumValue: Option[Double] = None, maximumValue: Option[Double] = None)(prop: PropertyDescriptor) = {
     val ctorParam = descriptor.mostComprehensive.find(_.name == prop.name)
     val mp = ModelProperty(
       `type` = DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
       position = if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
       required = required && !prop.returnType.isOption,
       description = description.flatMap(_.blankOption),
-      allowableValues = convertToAllowableValues(allowableValues))
+      allowableValues = convertToAllowableValues(allowableValues),
+      example = example.flatMap(_.blankOption),
+      minimumValue = minimumValue,
+      maximumValue = maximumValue)
     prop.name -> mp
   }
   def modelToSwagger(klass: ScalaType): Option[Model] = {
@@ -121,7 +125,8 @@ object Swagger {
       val fields = klass.erasure.getDeclaredFields.toList collect {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
           val annotation = f.getAnnotation(classOf[ApiModelProperty])
-          val asModelProperty = toModelProperty(descriptor, Some(annotation.position()), annotation.required(), annotation.description().blankOption, annotation.allowableValues())_
+          val asModelProperty = toModelProperty(descriptor, Some(annotation.position()), annotation.required(), annotation.description().blankOption, annotation.allowableValues(),
+            annotation.example().blankOption, if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue()), if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue()))_
           descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
         case f: Field =>
@@ -198,7 +203,7 @@ object Swagger {
 /**
  * An instance of this class is used to hold the API documentation.
  */
-class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[Api] {
+class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "") extends SwaggerEngine[Api] {
   private[this] val logger = LoggerFactory.getLogger(getClass)
 
   /**
@@ -422,17 +427,23 @@ case class Parameter(
   description: Option[String] = None,
   paramType: ParamType.ParamType = ParamType.Query,
   defaultValue: Option[String] = None,
-  allowableValues: AllowableValues = AllowableValues.AnyValue, // TODO Generate maximum, minimum and so on for Swagger 2.0
+  allowableValues: AllowableValues = AllowableValues.AnyValue,
   required: Boolean = true,
   // TODO Add collectionFormat: Option[String] for Swagger 2.0
-  position: Int = 0)
+  position: Int = 0,
+  example: Option[String] = None,
+  minimumValue: Option[Double] = None,
+  maximumValue: Option[Double] = None)
 
 case class ModelProperty(
   `type`: DataType,
   position: Int = 0,
   required: Boolean = false,
   description: Option[String] = None,
-  allowableValues: AllowableValues = AllowableValues.AnyValue) // TODO Generate maximum, minimum and so on for Swagger 2.0
+  allowableValues: AllowableValues = AllowableValues.AnyValue,
+  example: Option[String] = None,
+  minimumValue: Option[Double] = None,
+  maximumValue: Option[Double] = None)
 
 case class Model(
   id: String,

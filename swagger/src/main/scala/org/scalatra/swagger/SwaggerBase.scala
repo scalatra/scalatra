@@ -5,7 +5,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
 import org.slf4j.LoggerFactory
-
+import scala.util.Try
 import scala.collection.immutable.ListMap
 
 /**
@@ -84,6 +84,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
   protected def renderSwagger2(docs: List[ApiType]): JValue = {
     ("swagger" -> "2.0") ~
       ("basePath" -> bathPath) ~
+      ("host" -> { if (swagger.host.isEmpty) JNothing else JString(swagger.host) }) ~
       ("info" ->
         ("title" -> swagger.apiInfo.title) ~
         ("version" -> swagger.apiVersion) ~
@@ -100,7 +101,7 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
               ListMap(docs.filter(_.apis.nonEmpty).flatMap { doc =>
                 doc.apis.collect {
                   case api: SwaggerEndpoint[_] =>
-                    (api.path -> api.operations.map { operation =>
+                    (api.path -> api.operations.sortBy(_.position).map { operation =>
                       (operation.method.toString.toLowerCase -> (
                         ("operationId" -> operation.operationId) ~
                         ("summary" -> operation.summary) ~!
@@ -110,9 +111,12 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
                         ("produces" -> operation.produces) ~!
                         ("tags" -> operation.tags) ~
                         ("deprecated" -> operation.deprecated) ~
-                        ("parameters" -> operation.parameters.map { parameter =>
+                        ("parameters" -> operation.parameters.sortBy(_.position).map { parameter =>
                           ("name" -> parameter.name) ~
                             ("description" -> parameter.description) ~
+                            ("default" -> parameter.defaultValue) ~
+                            ("minimum" -> parameter.minimumValue) ~
+                            ("maximum" -> parameter.maximumValue) ~
                             ("required" -> parameter.required) ~
                             ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
                             (if (parameter.paramType.toString.toLowerCase == "body") {
@@ -152,9 +156,12 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
                       ("type" -> "object") ~
                       ("description" -> model.description) ~
                       ("discriminator" -> model.discriminator) ~
-                      ("properties" -> model.properties.map {
+                      ("properties" -> model.properties.sortBy(_._2.position).map {
                         case (name, property) =>
                           (name ->
+                            ("example" -> toTypedAst(property.example, property.`type`)) ~
+                            ("minimum" -> property.minimumValue) ~
+                            ("maximum" -> property.maximumValue) ~
                             ("description" -> property.description) ~~
                             generateDataType(property.`type`))
                       }.toMap) ~!
@@ -193,6 +200,12 @@ trait SwaggerBaseBase extends Initializable with ScalatraBase { self: CorsSuppor
                     JField("in", a.passAs))))
                 })
               }).toMap)
+  }
+
+  private def toTypedAst(dataVal: Option[String], dataType: DataType): JValue = {
+    if (dataVal.isEmpty) { JNothing }
+    else if (!dataType.name.equalsIgnoreCase("string") && Try(dataVal.get.toDouble).isSuccess) { JDouble(dataVal.get.toDouble) }
+    else { JString(dataVal.get) }
   }
 
   private def swagger2ParamTypeMapping(paramTypeName: String): String = {

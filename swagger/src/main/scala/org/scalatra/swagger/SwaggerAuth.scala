@@ -6,7 +6,7 @@ import org.scalatra.auth.ScentrySupport
 import org.scalatra.swagger.DataType.ValueDataType
 import org.scalatra.util.NotNothing
 
-class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo) extends SwaggerEngine[AuthApi[AnyRef]] {
+class SwaggerWithAuth(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "") extends SwaggerEngine[AuthApi[AnyRef]] {
 
   /**
    * Registers the documentation for an API with the given path.

@@ -194,7 +194,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
             val mm = verifyFields(
               v,
               ef find (_ \ "name" == v \ "name") get,
-              "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess")
+              "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess", "example", "minimumValue", "maximumValue")
             mm setMessage (mm.message + " in parameter " + (v \ "name").extractOrElse("N/A"))
           }
 
@@ -231,7 +231,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
       summary "Find pet by ID"
       description "Returns a pet based on ID"
       responseMessages (ResponseMessage(400, "Invalid ID supplied").model[Error], ResponseMessage(404, "Pet not found"))
-      parameter pathParam[String]("petId").description("ID of pet that needs to be fetched")
+      parameter pathParam[String]("petId").description("ID of pet that needs to be fetched").example( "55" )
       produces ("application/json", "application/xml")
       authorizations ("oauth2"))
 
@@ -316,7 +316,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       description "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
       produces ("application/json", "application/xml")
       tags ("store")
-      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required
+      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched" ).example( "55" ).required
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),
         ResponseMessage(404, "Order not found")))

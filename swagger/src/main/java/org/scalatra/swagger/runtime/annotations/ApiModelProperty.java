@@ -42,4 +42,19 @@ public @interface ApiModelProperty {
     * ordering, you should specify property order to keep models consistent across different VM implementations and versions.
     */
     int position() default 0;
+
+    /**
+     * Example value of the property
+     */
+    String example() default "";
+
+    /**
+     * Minimum value of the property
+     */
+    double minimumValue() default Double.NaN;
+
+    /**
+     * Maximum value of the property
+     */
+    double maximumValue() default Double.NaN;
 }
