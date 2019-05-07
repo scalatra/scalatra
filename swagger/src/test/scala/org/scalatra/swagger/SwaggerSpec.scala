@@ -231,7 +231,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
       summary "Find pet by ID"
       description "Returns a pet based on ID"
       responseMessages (ResponseMessage(400, "Invalid ID supplied").model[Error], ResponseMessage(404, "Pet not found"))
-      parameter pathParam[String]("petId").description("ID of pet that needs to be fetched").example( "55" )
+      parameter pathParam[String]("petId").description("ID of pet that needs to be fetched")
       produces ("application/json", "application/xml")
       authorizations ("oauth2"))
 
@@ -316,7 +316,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       description "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
       produces ("application/json", "application/xml")
       tags ("store")
-      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched" ).example( "55" ).required
+      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched" ).required
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),
         ResponseMessage(404, "Order not found")))
