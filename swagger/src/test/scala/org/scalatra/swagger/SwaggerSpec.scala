@@ -194,7 +194,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
             val mm = verifyFields(
               v,
               ef find (_ \ "name" == v \ "name") get,
-              "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess")
+              "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess", "example", "minimumValue", "maximumValue")
             mm setMessage (mm.message + " in parameter " + (v \ "name").extractOrElse("N/A"))
           }
 

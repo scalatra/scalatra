@@ -171,6 +171,11 @@ object SwaggerSupportSyntax {
 
     def defaultValue: Option[String] = None
 
+    def minimumValue: Option[Double] = None
+    def maximumValue: Option[Double] = None
+    def example: Option[String] = None
+    def position: Option[Int] = None
+
     def name: String = _name
     def description: Option[String] = _description
     def paramType: ParamType.ParamType = _paramType
@@ -192,7 +197,7 @@ object SwaggerSupportSyntax {
     }
 
     def result =
-      Parameter(name, dataType, description, paramType, defaultValue, allowableValues, isRequired)
+      Parameter(name, dataType, description, paramType, defaultValue, allowableValues, isRequired, position.getOrElse(0), example, minimumValue, maximumValue)
   }
 
   class ParameterBuilder[T: Manifest](initialDataType: DataType) extends SwaggerParameterBuilder {
@@ -202,6 +207,34 @@ object SwaggerSupportSyntax {
     def defaultValue(value: T): this.type = {
       if (_required.isEmpty) optional
       _defaultValue = allCatch.withApply(_ => None) { value.toString.blankOption }
+      this
+    }
+
+    private[this] var _minimumValue: Option[Double] = None
+    override def minimumValue = _minimumValue
+    def minimumValue(value: Double): this.type = {
+      _minimumValue = Option(value)
+      this
+    }
+
+    private[this] var _maximumValue: Option[Double] = None
+    override def maximumValue = _maximumValue
+    def maximumValue(value: Double): this.type = {
+      _maximumValue = Option(value)
+      this
+    }
+
+    private[this] var _example: Option[String] = None
+    override def example = _example
+    def example(value: String): this.type = {
+      _example = Option(value)
+      this
+    }
+
+    private[this] var _position: Option[Int] = None
+    override def position = _position
+    def position(value: Int): this.type = {
+      _position = Option(value)
       this
     }
   }
