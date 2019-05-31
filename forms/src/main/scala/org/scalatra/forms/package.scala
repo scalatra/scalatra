@@ -81,7 +81,7 @@ package object forms {
   def long(constraints: Constraint*): SingleValueType[Long] = new SingleValueType[Long](constraints: _*) {
 
     def convert(value: String, messages: Messages): Long = value match {
-      case null | "" => 0l
+      case null | "" => 0L
       case x => x.toLong
     }
 
@@ -118,7 +118,7 @@ package object forms {
       val value = if (clazz == classOf[Int] || clazz == classOf[Short] || clazz == classOf[Char]) {
         0
       } else if (clazz == classOf[Long]) {
-        0l
+        0L
       } else if (clazz == classOf[Double]) {
         0d
       } else if (clazz == classOf[Float]) {
