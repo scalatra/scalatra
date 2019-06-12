@@ -104,7 +104,7 @@ object Swagger {
   private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "", example: Option[String] = None, minimumValue: Option[Double] = None, maximumValue: Option[Double] = None)(prop: PropertyDescriptor) = {
     val ctorParam = descriptor.mostComprehensive.find(_.name == prop.name)
     val mp = ModelProperty(
-      `type` = DataType.fromScalaType(if (prop.returnType.isOption) prop.returnType.typeArgs.head else prop.returnType),
+      `type` = DataType.fromScalaType(if (prop.returnType.isOption) ctorParam.map(_.argType.typeArgs.head).getOrElse(prop.returnType.typeArgs.head) else ctorParam.map(_.argType).getOrElse(prop.returnType)),
       position = if (position.isDefined && position.forall(_ >= 0)) position.get else ctorParam.map(_.argIndex).getOrElse(position.getOrElse(0)),
       required = required && !prop.returnType.isOption,
       description = description.flatMap(_.blankOption),
