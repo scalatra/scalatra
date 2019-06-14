@@ -20,6 +20,7 @@ object ModelSpec {
   case class WithOptionList(id: String, flags: Option[List[String]])
 
   case class WithOrder(id: String, name: String, title: Option[String], email: String, company: Option[String])
+  case class WithTypeParameter[T](id: String, results: List[T])
 
   def swaggerProperties[T](implicit mf: Manifest[T]) = swaggerProperty[T]("id")
   def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) = allSwaggerProperties[T].find(_._1 == name).get._2
@@ -58,9 +59,12 @@ class ModelSpec extends Specification {
     "convert an non-option to a required false" in {
       swaggerProperty[WithRequiredValue]("name").required must beTrue
     }
-    "conver an option list to a required false list of things" in {
+    "convert an option list to a required false list of things" in {
       swaggerProperty[WithOptionList]("flags").required must beFalse
       swaggerProperty[WithOptionList]("flags").`type` must_== DataType[List[String]]
+    }
+    "convert a case class with a type parameter to a model with the enclosed parameter" in {
+      swaggerProperty[WithTypeParameter[String]]("results").`type` must_== DataType[List[String]]
     }
     "preserves order of properties" in {
       allSwaggerProperties[WithOrder].map(_._1) must_== List("id", "name", "title", "email", "company")
