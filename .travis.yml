@@ -4,7 +4,8 @@ scala:
   - 2.12.8
   - 2.13.0-RC1
 jdk:
-  - oraclejdk8
+  - openjdk8
+dist: xenial
 sudo: false
 script:
 - sbt ++$TRAVIS_SCALA_VERSION test unidoc
@@ -15,6 +16,3 @@ matrix:
     scala: 2.12.8
     script:
     - sbt ++$TRAVIS_SCALA_VERSION test
-    before_install:
-      - rm "${JAVA_HOME}/lib/security/cacerts"
-      - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
