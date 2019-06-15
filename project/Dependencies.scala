@@ -42,19 +42,19 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
   lazy val testng                   =  "org.testng"              %  "testng"                     % "6.14.3" exclude("junit", "junit")
-  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.0.5"
+  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.0.7"
   lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.0"
   lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.0"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
-  lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.1"
+  lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.2"
 
-  private val akkaVersion             = "2.5.22"
+  private val akkaVersion             = "2.5.23"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.6.v20170531"
   private val json4sVersion           = "3.6.6"
-  private val scalateVersion          = "1.9.3"
-  private val scalatestVersion        = "3.0.8-RC2"
+  private val scalateVersion          = "1.9.4"
+  private val scalatestVersion        = "3.0.8"
   private val specs2Version           = "4.5.1"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
