@@ -272,7 +272,7 @@ package object forms {
     }
 
     private def extractMapParams(params: Map[String, Seq[String]]): Map[Int, Map[String, Seq[String]]] = {
-      params.toList.flatMap {
+      params.flatMap {
         case (key, value :: _) => key match {
           case IndexedMapParamPattern(_, i, s) => Some((i.toInt, s.replaceAll("\\]\\[", "."), value))
           case _ => None
