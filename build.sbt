@@ -14,6 +14,8 @@ val unusedOptions = Def.setting(
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
+  fork in Test := true,
+  baseDirectory in Test := file("."),
   crossScalaVersions := Seq("2.12.8", "2.11.12", "2.13.0"),
   scalaVersion := crossScalaVersions.value.head,
   scalacOptions ++= unusedOptions.value,

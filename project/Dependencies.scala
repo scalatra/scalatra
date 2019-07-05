@@ -55,7 +55,7 @@ object Dependencies {
   private val json4sVersion           = "3.6.7"
   private val scalateVersion          = "1.9.4"
   private val scalatestVersion        = "3.0.8"
-  private val specs2Version           = "4.5.1"
+  private val specs2Version           = "4.6.0"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
