@@ -17,15 +17,16 @@ trait SwaggerSupportBase {
   /**
    * Builds the documentation for all the endpoints discovered in an API.
    */
-  def endpoints(basePath: String): List[SwaggerEndpoint[_ <: SwaggerOperation]]
+  def endpoints(basePath: String): List[Endpoint]
 
   /**
    * Extract an operation from a route
    */
-  protected def extractOperation(route: Route, method: HttpMethod): SwaggerOperation
+  protected def extractOperation(route: Route, method: HttpMethod): Operation
 }
+
 object SwaggerSupportSyntax {
-  private[swagger] case class Entry[T <: SwaggerOperation](key: String, value: T)
+  private[swagger] case class Entry(key: String, value: Operation)
 
   class SinatraSwaggerGenerator(matcher: SinatraRouteMatcher) {
     def toSwaggerPath: String = BuilderGeneratorParser(matcher.toString)(Builder("")).get
@@ -243,8 +244,7 @@ object SwaggerSupportSyntax {
     dataType(initialDataType)
   }
 
-  abstract class SwaggerOperationBuilder[T <: SwaggerOperation] {
-
+  class OperationBuilder(val resultClass: DataType) {
     private[this] var _summary: String = ""
     private[this] var _description: String = ""
     private[this] var _deprecated: Boolean = false
@@ -257,8 +257,6 @@ object SwaggerSupportSyntax {
     private[this] var _authorizations: List[String] = Nil
     private[this] var _tags: List[String] = Nil
     private[this] var _position: Int = 0
-
-    def resultClass: DataType
 
     def summary(content: String): this.type = { _summary = content; this }
     def summary: String = _summary
@@ -288,10 +286,6 @@ object SwaggerSupportSyntax {
     def position(value: Int): this.type = { _position = value; this }
     def position: Int = _position
 
-    def result: T
-  }
-
-  class OperationBuilder(val resultClass: DataType) extends SwaggerOperationBuilder[Operation] {
     def result: Operation = Operation(
       null,
       operationId,
@@ -309,9 +303,10 @@ object SwaggerSupportSyntax {
       tags)
   }
 }
+
 trait SwaggerSupportSyntax extends Initializable with CorsSupport {
   this: ScalatraBase with SwaggerSupportBase =>
-  protected implicit def swagger: SwaggerEngine[_]
+  protected implicit def swagger: SwaggerEngine
 
   protected def applicationDescription: String
 
@@ -407,7 +402,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   import org.scalatra.swagger.SwaggerSupportSyntax._
 
-  protected def apiOperation[T: Manifest: NotNothing](nickname: String): SwaggerOperationBuilder[_ <: SwaggerOperation]
+  protected def apiOperation[T: Manifest: NotNothing](nickname: String): OperationBuilder
 
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
@@ -462,7 +457,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   protected def pathParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromPath
 
-  protected def operation(op: SwaggerOperation) = swaggerMeta(Symbols.Operation, op)
+  protected def operation(op: Operation) = swaggerMeta(Symbols.Operation, op)
 
   protected def swaggerMeta(s: Symbol, v: Any): RouteTransformer = { (route: Route) =>
     route.copy(metadata = route.metadata + (s -> v))
@@ -480,7 +475,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
     case _ => ""
   }
 
-  protected def swaggerEndpointEntries[T <: SwaggerOperation](extract: (Route, HttpMethod) => T) =
+  protected def swaggerEndpointEntries(extract: (Route, HttpMethod) => Operation) =
     for {
       (method, routes) <- routes.methodRoutes
       route <- routes if (route.metadata.keySet & Symbols.AllSymbols).nonEmpty
@@ -504,7 +499,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
 
   import org.scalatra.swagger.SwaggerSupportSyntax._
 
-  protected implicit def operationBuilder2operation[T](bldr: SwaggerOperationBuilder[Operation]): Operation = bldr.result
+  protected implicit def operationBuilder2operation[T](bldr: OperationBuilder): Operation = bldr.result
   protected def apiOperation[T: Manifest: NotNothing](operationId: String): OperationBuilder = {
     registerModel[T]()
     new OperationBuilder(DataType[T]).operationId(operationId)

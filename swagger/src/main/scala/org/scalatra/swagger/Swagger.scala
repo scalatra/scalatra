@@ -11,13 +11,13 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 
-trait SwaggerEngine[T <: SwaggerApi[_]] {
+trait SwaggerEngine {
   def swaggerVersion: String
   def apiVersion: String
   def host: String
   def apiInfo: ApiInfo
 
-  private[swagger] val _docs = new ConcurrentHashMap[String, T]().asScala
+  private[swagger] val _docs = new ConcurrentHashMap[String, Api]().asScala
 
   private[this] var _authorizations = List.empty[AuthorizationType]
   def authorizations = _authorizations
@@ -34,7 +34,7 @@ trait SwaggerEngine[T <: SwaggerApi[_]] {
   /**
    * Returns the documentation for the given path.
    */
-  def doc(path: String): Option[T] = _docs.get(path)
+  def doc(path: String): Option[Api] = _docs.get(path)
 
   /**
    * Registers the documentation for an API with the given path.
@@ -203,7 +203,7 @@ object Swagger {
 /**
  * An instance of this class is used to hold the API documentation.
  */
-class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "") extends SwaggerEngine[Api] {
+class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "") extends SwaggerEngine {
   private[this] val logger = LoggerFactory.getLogger(getClass)
 
   /**
@@ -227,23 +227,6 @@ class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: A
   }
 }
 
-trait SwaggerApi[T <: SwaggerEndpoint[_]] {
-
-  def apiVersion: String
-  def swaggerVersion: String
-  def resourcePath: String
-  def description: Option[String]
-  def produces: List[String]
-  def consumes: List[String]
-  def protocols: List[String]
-  def authorizations: List[String]
-  def position: Int
-  def apis: List[T]
-  def models: Map[String, Model]
-
-  def model(name: String) = models.get(name)
-}
-
 case class Api(
   apiVersion: String,
   swaggerVersion: String,
@@ -255,7 +238,8 @@ case class Api(
   apis: List[Endpoint] = Nil,
   models: Map[String, Model] = Map.empty,
   authorizations: List[String] = Nil,
-  position: Int = 0) extends SwaggerApi[Endpoint] {
+  position: Int = 0) {
+  def model(name: String) = models.get(name)
 }
 
 object ParamType extends Enumeration {
@@ -290,6 +274,7 @@ object ParamType extends Enumeration {
 sealed trait DataType {
   def name: String
 }
+
 object DataType {
 
   case class ValueDataType(name: String, format: Option[String] = None, qualifiedName: Option[String] = None) extends DataType
@@ -497,22 +482,7 @@ case class ApplicationGrant(
   tokenEndpoint: TokenEndpoint) extends GrantType {
   def `type` = "application"
 }
-trait SwaggerOperation {
-  def method: HttpMethod
-  def operationId: String
-  def responseClass: DataType
-  def summary: String
-  def description: Option[String]
-  def deprecated: Boolean
-  def produces: List[String]
-  def consumes: List[String]
-  def schemes: List[String]
-  def authorizations: List[String]
-  def parameters: List[Parameter]
-  def responseMessages: List[ResponseMessage]
-  def tags: List[String]
-  def position: Int
-}
+
 case class Operation(
   method: HttpMethod,
   operationId: String,
@@ -527,17 +497,11 @@ case class Operation(
   produces: List[String] = Nil,
   schemes: List[String] = Nil,
   authorizations: List[String] = Nil,
-  tags: List[String] = Nil) extends SwaggerOperation
-
-trait SwaggerEndpoint[T <: SwaggerOperation] {
-  def path: String
-  def description: Option[String]
-  def operations: List[T]
-}
+  tags: List[String] = Nil)
 
 case class Endpoint(
   path: String,
   description: Option[String] = None,
-  operations: List[Operation] = Nil) extends SwaggerEndpoint[Operation]
+  operations: List[Operation] = Nil)
 
 case class ResponseMessage(code: Int, message: String, responseModel: Option[String] = None)
