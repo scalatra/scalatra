@@ -94,7 +94,7 @@ class CookieSupportTest extends ScalatraFunSuite {
 
   test("cookie path defaults to context path") {
     post("/foo/setcookie", "cookieval" -> "whatever") {
-      response.getHeader("Set-Cookie") should include(";Path=/foo")
+      response.getHeader("Set-Cookie") should include("; Path=/foo")
     }
   }
 
@@ -102,7 +102,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/maplikeset", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
       hdr should startWith("""somecookie=whatever;""")
-      hdr should include(";Path=/foo")
+      hdr should include("; Path=/foo")
     }
   }
 
@@ -123,7 +123,7 @@ class CookieSupportTest extends ScalatraFunSuite {
   test("respects the HttpOnly option") {
     post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
       val hdr = response.getHeader("Set-Cookie")
-      hdr should include(";HttpOnly")
+      hdr should include("; HttpOnly")
     }
   }
 
@@ -131,7 +131,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/remove-cookie") {
       val hdr = response.getHeader("Set-Cookie")
       // Jetty turns Max-Age into Expires
-      hdr should include(";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+      hdr should include("; Expires=Thu, 01-Jan-1970 00:00:00 GMT")
     }
   }
 
@@ -139,8 +139,8 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/remove-cookie-with-path") {
       val hdr = response.getHeader("Set-Cookie")
       // Jetty turns Max-Age into Expires
-      hdr should include(";Expires=Thu, 01-Jan-1970 00:00:00 GMT")
-      hdr should include(";Path=/bar")
+      hdr should include("; Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+      hdr should include("; Path=/bar")
     }
   }
 
