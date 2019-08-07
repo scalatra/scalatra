@@ -35,7 +35,7 @@ object Dependencies {
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
-  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.26"
+  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.27"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-mock",
