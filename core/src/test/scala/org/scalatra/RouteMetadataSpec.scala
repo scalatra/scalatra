@@ -34,11 +34,11 @@ object RouteMetadataSpec {
       zero.metadata.size.toString
     }
 
-    val one: Route = get("/one/:key", meta('foo, "bar")) {
+    val one: Route = get("/one/:key", meta(Symbol("foo"), "bar")) {
       renderMeta(one, Symbol(params("key")))
     }
 
-    val two: Route = get("/two/:key", meta('foo, "bar"), meta('foo, "baz")) {
+    val two: Route = get("/two/:key", meta(Symbol("foo"), "bar"), meta(Symbol("foo"), "baz")) {
       renderMeta(two, Symbol(params("key")))
     }
 

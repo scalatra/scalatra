@@ -81,7 +81,7 @@ trait ApiFormats extends ScalatraBase {
   /**
    * The default format.
    */
-  def defaultFormat: Symbol = 'html
+  def defaultFormat: Symbol = Symbol("html")
 
   /**
    * A list of formats accepted by default.
