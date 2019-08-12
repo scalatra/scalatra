@@ -23,7 +23,7 @@ class FlashMap extends Serializable {
    * Removes an entry from the flash map.  It is no longer available for this
    * request or the next.
    */
-  @deprecated("FlashMap#+= has been deprecated, please use remove method instead", "2.7.0")
+  @deprecated("FlashMap#-= has been deprecated, please use remove method instead", "2.7.0")
   def -=(key: String): FlashMap.this.type = {
     m -= key
     this
