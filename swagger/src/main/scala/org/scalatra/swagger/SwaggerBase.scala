@@ -200,11 +200,9 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                     JField("name", a.keyName),
                     JField("in", a.passAs))))
                   case a: BasicAuth => Some(((a.keyName -> JObject(
-                    JField("type","basic"),
-                    JField("description",a.description),
-                    JField("name",a.keyName)
-                  )))
-                  )
+                    JField("type", "basic"),
+                    JField("description", a.description),
+                    JField("name", a.keyName)))))
                 })
               }).toMap)
   }
