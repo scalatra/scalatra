@@ -465,6 +465,10 @@ case class ApiKey(keyName: String, passAs: String = "header", description: Strin
   override val `type` = "apiKey"
 }
 
+case class BasicAuth(keyName: String, description: String = "") extends AuthorizationType {
+  override val `type` = "basic"
+}
+
 trait GrantType {
   def `type`: String
 }

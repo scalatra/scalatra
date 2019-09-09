@@ -35,6 +35,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
       name = "Apache 2.0",
       url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
   val swagger = new Swagger("2.0", "1.0.0", apiInfo)
+  swagger.addAuthorization(BasicAuth("basicAuth"))
   swagger.addAuthorization(ApiKey("apiKey"))
   swagger.addAuthorization(ApiKey("Authorization1", "query", "you must register your app to receive an apikey"))
   swagger.addAuthorization(OAuth(
@@ -243,7 +244,8 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
     (apiOperation[Unit]("addPet")
       summary "Add a new pet to the store"
       responseMessage ResponseMessage(405, "Invalid input")
-      parameter bodyParam[Pet].description("Pet object that needs to be added to the store"))
+      parameter bodyParam[Pet].description("Pet object that needs to be added to the store")
+      authorizations ("basicAuth"))
 
   post("/", operation(createPet)) {
     ApiResponse(ApiResponseType.OK, "pet added to store")

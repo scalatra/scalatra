@@ -295,7 +295,12 @@
           "405": {
             "description": "Invalid input"
           }
-        }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
       },
       "put": {
         "operationId": "updatePet",
@@ -445,6 +450,11 @@
     }
   },
   "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic",
+      "description": "",
+      "name": "basicAuth"
+    },
     "oauth2": {
       "type": "oauth2",
       "description": "",

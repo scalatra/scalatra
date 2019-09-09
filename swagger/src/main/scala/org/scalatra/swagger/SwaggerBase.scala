@@ -143,6 +143,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                             swagger.authorizations.find(_.keyName == requirement).map {
                               case a: OAuth => (requirement -> a.scopes)
                               case b: ApiKey => (requirement -> List.empty)
+                              case c: BasicAuth => (requirement -> List.empty)
                               case _ => (requirement -> List.empty)
                             }
                           }))))
@@ -198,6 +199,12 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                     JField("description", a.description),
                     JField("name", a.keyName),
                     JField("in", a.passAs))))
+                  case a: BasicAuth => Some(((a.keyName -> JObject(
+                    JField("type","basic"),
+                    JField("description",a.description),
+                    JField("name",a.keyName)
+                  )))
+                  )
                 })
               }).toMap)
   }
