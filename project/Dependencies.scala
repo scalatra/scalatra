@@ -53,7 +53,7 @@ object Dependencies {
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.21.v20190926"
   private val json4sVersion           = "3.6.7"
-  private val scalateVersion          = "1.9.4"
+  private val scalateVersion          = "1.9.5"
   private val scalatestVersion        = "3.0.8"
   private val specs2Version           = "4.7.1"
   private val parserCombinatorVersion = Def.setting(
