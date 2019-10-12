@@ -78,18 +78,23 @@
           "method": "POST",
           "summary": "Place an order for a pet",
           "notes": "",
-          "type": "void",
+          "type": "Order",
           "nickname": "placeOrder",
           "parameters": [
             {
               "name": "body",
               "description": "order placed for purchasing the pet",
-              "required": true
+              "required": true,
               "type": "Order",
               "paramType": "body"
             }
           ],
           "responseMessages": [
+            {
+              "code": 201,
+              "message": "Created",
+              "responseModel": "Order"
+            },
             {
               "code": 400,
               "message": "Invalid order"
