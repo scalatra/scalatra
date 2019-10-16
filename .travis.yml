@@ -1,21 +1,18 @@
 language: scala
 scala:
-  - 2.11.11
-  - 2.12.3
+  - 2.11.12
+  - 2.12.10
 jdk:
-  - oraclejdk8
+  - openjdk8
+dist: xenial
 sudo: false
 script:
 - sbt ++$TRAVIS_SCALA_VERSION test unidoc
 - git diff --exit-code
 matrix:
   include:
-  - jdk: oraclejdk9
-    scala: 2.12.3
+  - jdk: openjdk9
+    scala: 2.12.10
     script:
     - echo "sbt.version=1.0.2" > project/build.properties # https://github.com/sbt/sbt/issues/3684
     - sbt ++$TRAVIS_SCALA_VERSION test
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
