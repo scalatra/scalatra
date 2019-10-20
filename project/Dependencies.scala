@@ -6,9 +6,9 @@ object Dependencies {
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.2.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
-  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.4"
+  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.9"
   lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.21" artifacts(Artifact("jquery", "war", "war"))
-  lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.5"
+  lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.7"
   lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.5.2"
   lazy val atmosphereCompatJbossweb =  "org.atmosphere"          %  "atmosphere-compat-jbossweb" % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat   =  "org.atmosphere"          %  "atmosphere-compat-tomcat"   % atmosphereCompatVersion
@@ -41,21 +41,21 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-mock",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
-  lazy val testng                   =  "org.testng"              %  "testng"                     % "6.14.3" exclude("junit", "junit")
-  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.0.8"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.0"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.0"
+  lazy val testng                   =  "org.testng"              %  "testng"                     % "7.0.0" exclude("junit", "junit")
+  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.1"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.1"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.1"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.2"
 
-  private val akkaVersion             = "2.5.25"
+  private val akkaVersion             = "2.5.26"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.21.v20190926"
   private val json4sVersion           = "3.6.7"
   private val scalateVersion          = "1.9.5"
   private val scalatestVersion        = "3.0.8"
-  private val specs2Version           = "4.7.1"
+  private val specs2Version           = "4.8.0"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
