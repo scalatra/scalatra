@@ -84,7 +84,7 @@ class SinatraPathPatternParser extends RegexPathPatternParser {
   private def splat = "*" ^^^ PartialPathPattern("(.*?)", List("splat"))
 
   private def namedGroup = ":" ~> """\w+""".r ^^
-    { groupName => PartialPathPattern("([^/?#]+)", List(groupName)) }
+    { groupName => PartialPathPattern("([^/]+)", List(groupName)) }
 
   private def literal = metaChar | normalChar
 
@@ -122,7 +122,7 @@ class RailsPathPatternParser extends RegexPathPatternParser {
   private def token = param | glob | optional | static
 
   private def param = ":" ~> identifier ^^
-    { name => PartialPathPattern("([^#/.?]+)", List(name)) }
+    { name => PartialPathPattern("([^/.]+)", List(name)) }
 
   private def identifier = """[a-zA-Z_]\w*""".r
 
