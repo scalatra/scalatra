@@ -100,6 +100,13 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                 doc.apis.collect {
                   case api: Endpoint =>
                     (api.path -> api.operations.sortBy(_.position).map { operation =>
+                      val responses = operation.responseMessages.map { response =>
+                        (response.code.toString ->
+                          ("description", response.message) ~~
+                          response.responseModel.map { model =>
+                            List(JField("schema", JObject(JField("$ref", s"#/definitions/${model}"))))
+                          }.getOrElse(Nil))
+                      }.toMap
                       (operation.method.toString.toLowerCase -> (
                         ("operationId" -> operation.operationId) ~
                         ("summary" -> operation.summary) ~!
@@ -124,26 +131,21 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                             })
                         }) ~
                         ("responses" ->
-                          ("200" ->
-                            (if (operation.responseClass.name == "void") {
-                              List(JField("description", "No response"))
-                            } else {
-                              List(JField("description", "OK"), JField("schema", generateDataType(operation.responseClass)))
-                            })) ~
-                            operation.responseMessages.map { response =>
-                              (response.code.toString ->
-                                ("description", response.message) ~~
-                                response.responseModel.map { model =>
-                                  List(JField("schema", JObject(JField("$ref", s"#/definitions/${model}"))))
-                                }.getOrElse(Nil))
-                            }.toMap) ~!
-                            ("security" -> (operation.authorizations.flatMap { requirement =>
-                              swagger.authorizations.find(_.keyName == requirement).map {
-                                case a: OAuth => (requirement -> a.scopes)
-                                case b: ApiKey => (requirement -> List.empty)
-                                case _ => (requirement -> List.empty)
-                              }
-                            }))))
+                          (if (responses.nonEmpty && responses.keySet.exists(_.startsWith("2"))) responses else {
+                            responses + ("200" ->
+                              (if (operation.responseClass.name == "void") {
+                                JObject(JField("description", "No response"))
+                              } else {
+                                JObject(JField("description", "OK"), JField("schema", generateDataType(operation.responseClass)))
+                              }))
+                          })) ~!
+                          ("security" -> (operation.authorizations.flatMap { requirement =>
+                            swagger.authorizations.find(_.keyName == requirement).map {
+                              case a: OAuth => (requirement -> a.scopes)
+                              case b: ApiKey => (requirement -> List.empty)
+                              case _ => (requirement -> List.empty)
+                            }
+                          }))))
                     })
                 }
               }: _*)) ~
