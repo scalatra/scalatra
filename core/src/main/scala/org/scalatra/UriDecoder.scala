@@ -16,10 +16,4 @@ object UriDecoder {
       skip = pathReservedCharsSet)
   }
 
-  def secondStep(uri: String): String = {
-    uri.replace("%23", "#")
-      .replace("%2F", "/")
-      .replace("%3F", "?")
-  }
-
 }

@@ -287,22 +287,22 @@ class RouteTest extends ScalatraFunSuite {
 
     get("/encoded-uri/ac%2Fdc") {
       status should equal(200)
-      body should equal("ac/dc")
+      body should equal("ac%2Fdc")
     }
 
     get("/encoded-uri/%23toc") {
       status should equal(200)
-      body should equal("#toc")
+      body should equal("%23toc")
     }
 
     get("/encoded-uri/%3Fquery") {
       status should equal(200)
-      body should equal("?query")
+      body should equal("%3Fquery")
     }
 
     get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
       status should equal(200)
-      body should equal("Fußgängerübergänge/?#")
+      body should equal("Fußgängerübergänge%2F%3F%23")
     }
 
     get("/encoded-uri/ö%C3%B6%25C3%25B6") {
