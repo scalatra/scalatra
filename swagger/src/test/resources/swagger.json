@@ -32,8 +32,11 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "No response"
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
           },
           "400": {
             "description": "Invalid order"

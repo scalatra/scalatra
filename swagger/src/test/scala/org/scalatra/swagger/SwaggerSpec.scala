@@ -601,11 +601,14 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   }
 
   val placeOrderOperation =
-    (apiOperation[Unit]("placeOrder")
+    (apiOperation[Order]("placeOrder")
       summary "Place an order for a pet"
       tags ("store")
-      responseMessage ResponseMessage(400, "Invalid order")
-      parameter bodyParam[Order].description("order placed for purchasing the pet"))
+      responseMessages (
+        ResponseMessage(201, "Created", Some(Order.toString())),
+        ResponseMessage(400, "Invalid order"))
+        parameter bodyParam[Order].description("order placed for purchasing the pet"))
+
   post("/order", operation(placeOrderOperation)) {
     ""
   }
