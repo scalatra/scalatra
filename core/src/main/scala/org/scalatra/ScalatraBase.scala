@@ -818,4 +818,9 @@ trait ScalatraBase
 
   def params(implicit request: HttpServletRequest): Params = new ScalatraParams(multiParams)
 
+  /**
+   * Set whether to decode when the path returned by the `requestPath` method is
+   * Percent-Eoconding. Default is decode (true).
+   */
+  protected var decodePercentEncodedPath: Boolean = true
 }

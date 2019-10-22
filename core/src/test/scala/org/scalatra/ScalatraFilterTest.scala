@@ -40,6 +40,10 @@ class ScalatraFilterTestFilter extends ScalatraFilter {
     params("name")
   }
 
+  get("/encoded-uri/:name1/:name2") {
+    s"'${params("name1")}' & '${params("name2")}'"
+  }
+
   get("/encoded-uri-2/中国话不用彁字。") {
     "中国话不用彁字。"
   }
@@ -168,23 +172,26 @@ class ScalatraFilterTest extends ScalatraFunSuite {
   }
 
   test("handles encoded characters in uri") {
+
     get("/encoded-uri/ac/dc") {
-      status should equal(404)
+      status should equal(200)
+      body should equal("'ac' & 'dc'")
     }
 
+    // '%2F' cannot be distinguished from '/'
     get("/encoded-uri/ac%2Fdc") {
       status should equal(200)
-      body should equal("ac%2Fdc")
+      body should equal("'ac' & 'dc'")
     }
 
     get("/encoded-uri/%23toc") {
       status should equal(200)
-      body should equal("%23toc")
+      body should equal("#toc")
     }
 
     get("/encoded-uri/%3Fquery") {
       status should equal(200)
-      body should equal("%3Fquery")
+      body should equal("?query")
     }
 
     get("/encoded-uri/%3Bquery") {
@@ -197,9 +204,9 @@ class ScalatraFilterTest extends ScalatraFunSuite {
       body should equal(";query")
     }
 
-    get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
+    get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%3F%23") {
       status should equal(200)
-      body should equal("Fußgängerübergänge%2F%3F%23")
+      body should equal("Fußgängerübergänge?#")
     }
 
     get("/encoded-uri-2/中国话不用彁字。") {
