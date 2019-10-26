@@ -27,7 +27,7 @@ class SinatraPathPatternParserTest extends FunSuite with Matchers {
   test("should capture named groups") {
     val PathPattern(pattern, names) = SinatraPathPatternParser("/path/:group")
 
-    pattern.toString should equal("""^/path/([^/?#]+)$""")
+    pattern.toString should equal("""^/path/([^/]+)$""")
     names should equal(List("group"))
   }
 
@@ -41,14 +41,14 @@ class SinatraPathPatternParserTest extends FunSuite with Matchers {
   test("allow optional named groups") {
     val PathPattern(pattern, names) = SinatraPathPatternParser("/optional/?:stuff?")
 
-    pattern.toString should equal("""^/optional/?([^/?#]+)?$""")
+    pattern.toString should equal("""^/optional/?([^/]+)?$""")
     names should equal(List("stuff"))
   }
 
   test("should support seperate named params for filename and extension") {
     val PathPattern(pattern, names) = SinatraPathPatternParser("/path-with/:file.:extension")
 
-    pattern.toString should equal("""^/path-with/([^/?#]+)\.([^/?#]+)$""")
+    pattern.toString should equal("""^/path-with/([^/]+)\.([^/]+)$""")
     names should equal(List("file", "extension"))
   }
 }

@@ -15,13 +15,13 @@ class RailsPathPatternParserTest extends FunSuite with Matchers {
 
   test("dynamic segment") {
     val PathPattern(re, names) = RailsPathPatternParser(":foo.example.com")
-    re.toString should equal("""\A([^#/.?]+)\.example\.com\Z""")
+    re.toString should equal("""\A([^/.]+)\.example\.com\Z""")
     names should equal(List("foo"))
   }
 
   test("dynamic segment with leading underscore") {
     val PathPattern(re, names) = RailsPathPatternParser(":_foo.example.com")
-    re.toString should equal("""\A([^#/.?]+)\.example\.com\Z""")
+    re.toString should equal("""\A([^/.]+)\.example\.com\Z""")
     names should equal(List("_foo"))
   }
 
@@ -45,7 +45,7 @@ class RailsPathPatternParserTest extends FunSuite with Matchers {
 
   test("dynamic segment inside optional segment") {
     val PathPattern(re, names) = RailsPathPatternParser("foo(.:extension)")
-    re.toString should equal("""\Afoo(?:\.([^#/.?]+))?\Z""")
+    re.toString should equal("""\Afoo(?:\.([^/.]+))?\Z""")
     names should equal(List("extension"))
   }
 
