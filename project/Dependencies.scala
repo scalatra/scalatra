@@ -35,7 +35,7 @@ object Dependencies {
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
-  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.28"
+  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.29"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-mock",
@@ -51,11 +51,11 @@ object Dependencies {
   private val akkaVersion             = "2.5.26"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
-  private val jettyVersion            = "9.4.21.v20190926"
+  private val jettyVersion            = "9.4.24.v20191120"
   private val json4sVersion           = "3.6.7"
   private val scalateVersion          = "1.9.5"
   private val scalatestVersion        = "3.0.8"
-  private val specs2Version           = "4.8.0"
+  private val specs2Version           = "4.8.1"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
