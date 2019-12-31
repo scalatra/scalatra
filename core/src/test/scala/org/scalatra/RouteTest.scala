@@ -102,6 +102,10 @@ class RouteTestServlet extends ScalatraServlet {
     params("name")
   }
 
+  get("/encoded-uri/:name1/:name2") {
+    s"'${params("name1")}' & '${params("name2")}'"
+  }
+
   get("/encoded-uri-2/中国话不用彁字。") {
     "中国话不用彁字。"
   }
@@ -116,6 +120,18 @@ class RouteTestServlet extends ScalatraServlet {
 
   get("/semicolon/document") {
     "document"
+  }
+}
+
+class RouteTestNotDecodePathServlet extends ScalatraServlet {
+  decodePercentEncodedPath = false
+
+  get("/encoded-uri/:name") {
+    params("name")
+  }
+
+  get("/encoded-uri/:name1/:name2") {
+    s"'${params("name1")}' & '${params("name2")}'"
   }
 }
 
@@ -281,13 +297,16 @@ class RouteTest extends ScalatraFunSuite {
   }
 
   test("handles encoded characters in uri") {
+
     get("/encoded-uri/ac/dc") {
-      status should equal(405)
+      status should equal(200)
+      body should equal("'ac' & 'dc'")
     }
 
+    // '%2F' cannot be distinguished from '/'
     get("/encoded-uri/ac%2Fdc") {
       status should equal(200)
-      body should equal("ac/dc")
+      body should equal("'ac' & 'dc'")
     }
 
     get("/encoded-uri/%23toc") {
@@ -300,9 +319,9 @@ class RouteTest extends ScalatraFunSuite {
       body should equal("?query")
     }
 
-    get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%2F%3F%23") {
+    get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%3F%23") {
       status should equal(200)
-      body should equal("Fußgängerübergänge/?#")
+      body should equal("Fußgängerübergänge?#")
     }
 
     get("/encoded-uri/ö%C3%B6%25C3%25B6") {
@@ -344,5 +363,31 @@ class RouteTest extends ScalatraFunSuite {
       body should equal("document")
     }
   }
+}
 
+class RouteNotDecodePathTest extends ScalatraFunSuite {
+  addServlet(classOf[RouteTestNotDecodePathServlet], "/*")
+
+  test("handles encoded characters in uri but don't decode") {
+    get("/encoded-uri/ac/dc") {
+      status should equal(200)
+      body should equal("'ac' & 'dc'")
+    }
+
+    // '%2F' is distinguished from '/'
+    get("/encoded-uri/ac%2Fdc") {
+      status should equal(200)
+      body should equal("ac%2Fdc")
+    }
+
+    get("/encoded-uri/ö%C3%B6%25C3%25B6") {
+      status should equal(200)
+      body should equal("%C3%B6%C3%B6%25C3%25B6")
+    }
+
+    get("/encoded-uri/Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%3F%23") {
+      status should equal(200)
+      body should equal("Fu%C3%9Fg%C3%A4nger%C3%BCberg%C3%A4nge%3F%23")
+    }
+  }
 }

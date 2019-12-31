@@ -9,41 +9,6 @@ import org.scalatra.util.RicherString._
 
 import scala.util.control.Exception.catching
 
-object ScalatraServlet {
-
-  import org.scalatra.servlet.ServletApiImplicits._
-
-  val RequestPathKey = "org.scalatra.ScalatraServlet.requestPath"
-
-  def requestPath(request: HttpServletRequest): String = {
-    require(request != null, "The request can't be null for getting the request path")
-    def startIndex(r: HttpServletRequest) =
-      r.getContextPath.blankOption.map(_.length).getOrElse(0) + r.getServletPath.blankOption.map(_.length).getOrElse(0)
-    def getRequestPath(r: HttpServletRequest) = {
-      val u = (catching(classOf[NullPointerException]) opt { r.getRequestURI } getOrElse "/")
-      requestPath(u, startIndex(r))
-    }
-
-    request.get(RequestPathKey) map (_.toString) getOrElse {
-      val rp = getRequestPath(request)
-      request(RequestPathKey) = rp
-      rp
-    }
-  }
-
-  def requestPath(uri: String, idx: Int): String = {
-    if (uri.length == 0) {
-      "/"
-    } else {
-      val pos = uri.indexOf(';')
-      val u1 = if (pos >= 0) uri.substring(0, pos) else uri
-      val u2 = UriDecoder.firstStep(u1)
-      u2.substring(idx).blankOption.getOrElse("/")
-    }
-  }
-
-}
-
 /**
  * An implementation of the Scalatra DSL in a servlet.  This is the recommended
  * base trait for most Scalatra applications.  Use a servlet if:
@@ -76,7 +41,34 @@ trait ScalatraServlet
    * All other servlet mappings likely want to return request.getServletPath.
    * Custom implementations are allowed for unusual cases.
    */
-  def requestPath(implicit request: HttpServletRequest): String = ScalatraServlet.requestPath(request)
+  val RequestPathKey = "org.scalatra.ScalatraServlet.requestPath"
+
+  def requestPath(implicit request: HttpServletRequest): String = {
+    require(request != null, "The request can't be null for getting the request path")
+    def startIndex(r: HttpServletRequest) =
+      r.getContextPath.blankOption.map(_.length).getOrElse(0) + r.getServletPath.blankOption.map(_.length).getOrElse(0)
+    def getRequestPath(r: HttpServletRequest) = {
+      val u = (catching(classOf[NullPointerException]) opt { r.getRequestURI } getOrElse "/")
+      requestPath(u, startIndex(r))
+    }
+
+    request.get(RequestPathKey) map (_.toString) getOrElse {
+      val rp = getRequestPath(request)
+      request(RequestPathKey) = rp
+      rp
+    }
+  }
+
+  def requestPath(uri: String, idx: Int): String = {
+    if (uri.length == 0) {
+      "/"
+    } else {
+      val pos = uri.indexOf(';')
+      val u1 = if (pos >= 0) uri.substring(0, pos) else uri
+      val u2 = if (decodePercentEncodedPath) UriDecoder.decode(u1) else u1
+      u2.substring(idx).blankOption.getOrElse("/")
+    }
+  }
 
   protected def routeBasePath(implicit request: HttpServletRequest): String = {
     require(config != null, "routeBasePath requires the servlet to be initialized")

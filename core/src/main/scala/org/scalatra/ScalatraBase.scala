@@ -359,10 +359,7 @@ trait ScalatraBase
   protected def setMultiparams[S](matchedRoute: Option[MatchedRoute], originalParams: MultiParams)(
     implicit
     request: HttpServletRequest): Unit = {
-    val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
-      case (key, values) =>
-        key -> values.map(s => if (s.nonBlank) UriDecoder.secondStep(s) else s)
-    }
+    val routeParams = matchedRoute.map(_.multiParams).getOrElse(Map.empty)
     request(MultiParamsKey) = originalParams ++ routeParams
   }
 
@@ -821,4 +818,9 @@ trait ScalatraBase
 
   def params(implicit request: HttpServletRequest): Params = new ScalatraParams(multiParams)
 
+  /**
+   * Set whether to decode when the path returned by the `requestPath` method is
+   * Percent-Eoconding. Default is decode (true).
+   */
+  protected var decodePercentEncodedPath: Boolean = true
 }

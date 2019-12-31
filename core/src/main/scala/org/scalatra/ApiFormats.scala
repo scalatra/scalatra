@@ -170,12 +170,7 @@ trait ApiFormats extends ScalatraBase {
 
   protected[scalatra] override def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S)(implicit request: HttpServletRequest): S = {
     val originalParams: MultiParams = multiParams
-    val routeParams: Map[String, Seq[String]] = {
-      matchedRoute.map(_.multiParams).getOrElse(Map.empty).map {
-        case (key, values) =>
-          key -> values.map(s => if (s.nonBlank) UriDecoder.secondStep(s) else s)
-      }
-    }
+    val routeParams: Map[String, Seq[String]] = matchedRoute.map(_.multiParams).getOrElse(Map.empty)
     if (routeParams.contains("format")) {
       request(FormatKey) = routeParams.apply("format").head
     }
