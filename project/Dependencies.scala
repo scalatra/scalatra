@@ -29,6 +29,7 @@ object Dependencies {
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.12"
+  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-12"                 % "3.1.0.0"
   lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
   lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.1.0"
@@ -41,7 +42,6 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-mock",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
-  lazy val testng                   =  "org.testng"              %  "testng"                     % "7.0.0" exclude("junit", "junit")
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.1"
   lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.1"
   lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.1"
@@ -54,7 +54,7 @@ object Dependencies {
   private val jettyVersion            = "9.4.24.v20191120"
   private val json4sVersion           = "3.6.7"
   private val scalateVersion          = "1.9.5"
-  private val scalatestVersion        = "3.0.8"
+  private val scalatestVersion        = "3.1.0"
   private val specs2Version           = "4.8.1"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {

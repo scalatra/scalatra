@@ -1,11 +1,12 @@
 package org.scalatra
 
-import org.scalatest.{ FunSuite, Matchers }
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 /**
  * Test cases adapted from  https://github.com/josh/rack-mount/blob/d44e02ec8a6318fdda8ea53a30aac654e228e07b/test/test_strexp.rb
  */
-class RailsPathPatternParserTest extends FunSuite with Matchers {
+class RailsPathPatternParserTest extends AnyFunSuite with Matchers {
 
   test("static string") {
     val PathPattern(re, names) = RailsPathPatternParser("foo")

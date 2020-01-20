@@ -1,9 +1,9 @@
 package org.scalatra.forms
 
-import org.scalatest.FunSuite
 import org.scalatra.i18n.Messages
+import org.scalatest.funsuite.AnyFunSuite
 
-class FormSpec extends FunSuite {
+class FormSpec extends AnyFunSuite {
 
   case class UserInfo(
     id: Long,

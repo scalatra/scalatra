@@ -3,8 +3,10 @@ package org.scalatra
 import java.util.Date
 
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class CookieTest extends WordSpec with Matchers with BeforeAndAfterAll {
+class CookieTest extends AnyWordSpec with Matchers with BeforeAndAfterAll {
 
   "a Cookie" should {
 
