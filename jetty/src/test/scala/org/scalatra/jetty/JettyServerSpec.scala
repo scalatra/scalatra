@@ -4,11 +4,12 @@ import java.net.{ InetSocketAddress, URL }
 import javax.servlet.ServletContext
 
 import org.eclipse.jetty.server.ServerConnector
-import org.scalatest.{ BeforeAndAfterAll, WordSpec }
+import org.scalatest.BeforeAndAfterAll
 import org.scalatra.servlet.ScalatraListener
 import org.scalatra.{ LifeCycle, ScalatraServlet }
 
 import scala.io.Source
+import org.scalatest.wordspec.AnyWordSpec
 
 object JettyServerSpec {
   class HelloServlet extends ScalatraServlet {
@@ -22,7 +23,7 @@ object JettyServerSpec {
   }
 }
 
-class JettyServerSpec extends WordSpec with BeforeAndAfterAll {
+class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
   var jetty: JettyServer = _
   var port: Int = _
 

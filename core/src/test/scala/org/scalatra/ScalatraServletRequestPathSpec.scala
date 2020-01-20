@@ -1,8 +1,10 @@
 package org.scalatra
 
 import org.scalatest._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class ScalatraServletRequestPathSpec extends WordSpec with MustMatchers {
+class ScalatraServletRequestPathSpec extends AnyWordSpec with Matchers {
 
   "a requestPath" should {
 

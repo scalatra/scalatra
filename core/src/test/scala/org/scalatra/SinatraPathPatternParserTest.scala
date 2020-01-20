@@ -1,8 +1,9 @@
 package org.scalatra
 
-import org.scalatest.{ FunSuite, Matchers }
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SinatraPathPatternParserTest extends FunSuite with Matchers {
+class SinatraPathPatternParserTest extends AnyFunSuite with Matchers {
   test("should match exactly on a simple path") {
     val PathPattern(pattern, names) = SinatraPathPatternParser("/simple/path")
 

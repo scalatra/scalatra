@@ -7,6 +7,7 @@ import org.scalatest._
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 import scala.concurrent.{ ExecutionContext, Future }
+import org.scalatest.matchers.should.Matchers
 
 /**
  * Test servlet using ContentEncodingSupport.

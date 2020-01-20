@@ -3,11 +3,11 @@ package io
 
 import java.io._
 
-import org.scalatest.{ Matchers, WordSpec }
-
 import scala.io.Source
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class IoSpec extends WordSpec with Matchers {
+class IoSpec extends AnyWordSpec with Matchers {
   "copy" should {
     "copy an input stream smaller than the buffer size to the output stream" in {
       testCopy(100, 256)

@@ -1,8 +1,9 @@
 package org.scalatra
 
-import org.scalatest.{ FunSuite, Matchers }
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class SinatraLikeUrlGeneratorTest extends FunSuite with Matchers {
+class SinatraLikeUrlGeneratorTest extends AnyFunSuite with Matchers {
 
   def url(path: String, params: Tuple2[String, String]*): String =
     url(path, params.toMap)
