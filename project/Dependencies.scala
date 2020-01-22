@@ -6,7 +6,7 @@ object Dependencies {
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.2.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
-  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.10"
+  lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.5.13"
   lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.21" artifacts(Artifact("jquery", "war", "war"))
   lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.7"
   lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.5.2"
@@ -28,34 +28,34 @@ object Dependencies {
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
-  lazy val junit                    =  "junit"                   %  "junit"                      % "4.12"
+  lazy val junit                    =  "junit"                   %  "junit"                      % "4.13"
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-12"                 % "3.1.0.0"
   lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.1.0"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.2.4"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
-  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.29"
+  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.30"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-mock",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.1"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.1"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.1"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.2"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.2"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.2"
 
-  private val akkaVersion             = "2.5.26"
+  private val akkaVersion             = "2.5.27"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
-  private val jettyVersion            = "9.4.24.v20191120"
+  private val jettyVersion            = "9.4.26.v20200117"
   private val json4sVersion           = "3.6.7"
   private val scalateVersion          = "1.9.5"
   private val scalatestVersion        = "3.1.0"
-  private val specs2Version           = "4.8.1"
+  private val specs2Version           = "4.8.3"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
