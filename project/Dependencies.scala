@@ -48,7 +48,7 @@ object Dependencies {
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.2"
 
-  private val akkaVersion             = "2.5.28"
+  private val akkaVersion             = "2.5.29"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.26.v20200117"
