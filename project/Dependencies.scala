@@ -29,7 +29,7 @@ object Dependencies {
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.13"
-  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-12"                 % "3.1.0.0"
+  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-12"                 % "3.1.1.0"
   lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
   lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.2.4"
@@ -54,7 +54,7 @@ object Dependencies {
   private val jettyVersion            = "9.4.26.v20200117"
   private val json4sVersion           = "3.6.7"
   private val scalateVersion          = "1.9.5"
-  private val scalatestVersion        = "3.1.0"
+  private val scalatestVersion        = "3.1.1"
   private val specs2Version           = "4.8.3"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
