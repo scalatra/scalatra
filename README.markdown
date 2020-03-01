@@ -1,4 +1,4 @@
-## Scalatra [![Build Status](https://travis-ci.org/scalatra/scalatra.svg?branch=2.6.x)](https://travis-ci.org/scalatra/scalatra)
+## Scalatra [![Build Status](https://travis-ci.org/scalatra/scalatra.svg?branch=2.7.x)](https://travis-ci.org/scalatra/scalatra)
 
 [![Join the chat at https://gitter.im/scalatra/scalatra](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scalatra/scalatra?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -25,20 +25,20 @@ Once you've done that, take a look at the [Scalatra Guides](http://scalatra.org/
 
 ## Latest version
 
-The latest stable version of Scalatra is `2.6.+`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
+The latest stable version of Scalatra is `2.7.+`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.6.+"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.7.+"
 ```
 
 ### Development version
 
-The 2.5.x branch is published as `2.6.{x}-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra).
+The 2.7.x branch is published as `2.7.{x}-SNAPSHOT` to [OSSRH](http://oss.sonatype.org/content/repositories/snapshots/org/scalatra).
 
 ```scala
 resolvers += "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.6.{x}-SNAPSHOT"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.7.{x}-SNAPSHOT"
 ```
 
 ## Community
