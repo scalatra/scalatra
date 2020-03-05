@@ -529,7 +529,6 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
    */
   protected def extractOperation(route: Route, method: HttpMethod): Operation = {
     val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[Operation])
-    println(op)
     op map (_.copy(method = method)) getOrElse {
       val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
       val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
