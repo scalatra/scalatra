@@ -48,14 +48,14 @@ object Dependencies {
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "23.0"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.4.2"
 
-  private val akkaVersion             = "2.5.29"
+  private val akkaVersion             = "2.5.30"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.27.v20200227"
   private val json4sVersion           = "3.6.7"
   private val scalateVersion          = "1.9.5"
   private val scalatestVersion        = "3.1.1"
-  private val specs2Version           = "4.9.1"
+  private val specs2Version           = "4.9.2"
   private val parserCombinatorVersion = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 11)) =>
