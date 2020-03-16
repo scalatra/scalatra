@@ -1,7 +1,7 @@
 language: scala
 scala:
   - 2.11.12
-  - 2.12.10
+  - 2.12.11
   - 2.13.1
 jdk:
   - openjdk8
@@ -13,6 +13,6 @@ script:
 matrix:
   include:
   - jdk: openjdk11
-    scala: 2.12.10
+    scala: 2.12.11
     script:
     - sbt ++$TRAVIS_SCALA_VERSION test
