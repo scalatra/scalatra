@@ -7,7 +7,7 @@ import org.scalatra.auth.ScentryAuthStore.SessionAuthStore
 import org.specs2.mock.Mockito
 import org.specs2.mutable._
 
-object ScentrySpec extends Specification with Mockito {
+class ScentrySpec extends Specification with Mockito {
   sequential
   isolated
 
