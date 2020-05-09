@@ -89,7 +89,7 @@ lazy val scalatraCore = Project(
       servletApi % "provided;test",
       slf4jApi,
       jUniversalChardet,
-      commonsLang3,
+      commonsText,
       parserCombinators.value,
       xml,
       akkaActor % "test",
@@ -193,7 +193,6 @@ lazy val scalatraTest = Project(
       jettyWebapp,
       servletApi,
       mockitoAll,
-      commonsLang3,
       httpclient,
       httpmime
     ) ++ specs2.map(_ % "test"),
@@ -385,4 +384,3 @@ lazy val mavenCentralFrouFrou = Seq(
 )
 
 lazy val doNotPublish = Seq(publish := {}, publishLocal := {}, PgpKeys.publishSigned := {}, PgpKeys.publishLocalSigned := {})
-
