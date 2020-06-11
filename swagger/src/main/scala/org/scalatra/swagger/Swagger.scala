@@ -101,7 +101,7 @@ object Swagger {
   import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
 
-  private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "", example: Option[String] = None, minimumValue: Option[Double] = None, maximumValue: Option[Double] = None)(prop: PropertyDescriptor) = {
+  private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "", example: Option[String] = None, minimumValue: Option[Double] = None, maximumValue: Option[Double] = None, hidden: Boolean = false)(prop: PropertyDescriptor) = {
     val ctorParam = descriptor.mostComprehensive.find(_.name == prop.name)
     val mp = ModelProperty(
       `type` = DataType.fromScalaType(if (prop.returnType.isOption) ctorParam.map(_.argType.typeArgs.head).getOrElse(prop.returnType.typeArgs.head) else ctorParam.map(_.argType).getOrElse(prop.returnType)),
@@ -111,7 +111,8 @@ object Swagger {
       allowableValues = convertToAllowableValues(allowableValues),
       example = example.flatMap(_.blankOption),
       minimumValue = minimumValue,
-      maximumValue = maximumValue)
+      maximumValue = maximumValue,
+      hidden = hidden)
     prop.name -> mp
   }
   def modelToSwagger(klass: ScalaType): Option[Model] = {
@@ -126,7 +127,8 @@ object Swagger {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
           val annotation = f.getAnnotation(classOf[ApiModelProperty])
           val asModelProperty = toModelProperty(descriptor, Some(annotation.position()), annotation.required(), annotation.description().blankOption, annotation.allowableValues(),
-            annotation.example().blankOption, if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue()), if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue()))_
+            annotation.example().blankOption, if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue()), if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue()),
+            annotation.hidden())_
           descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
         case f: Field =>
@@ -418,7 +420,8 @@ case class Parameter(
   position: Int = 0,
   example: Option[String] = None,
   minimumValue: Option[Double] = None,
-  maximumValue: Option[Double] = None)
+  maximumValue: Option[Double] = None,
+  hidden: Boolean = false)
 
 case class ModelProperty(
   `type`: DataType,
@@ -428,7 +431,8 @@ case class ModelProperty(
   allowableValues: AllowableValues = AllowableValues.AnyValue,
   example: Option[String] = None,
   minimumValue: Option[Double] = None,
-  maximumValue: Option[Double] = None)
+  maximumValue: Option[Double] = None,
+  hidden: Boolean = false)
 
 case class Model(
   id: String,
@@ -443,6 +447,8 @@ case class Model(
     val prop = properties.find(_._1 == property).get
     copy(properties = (property -> prop._2.copy(required = required)) :: properties)
   }
+
+  def getVisibleProperties: Seq[(String, ModelProperty)] = properties.filter(!_._2.hidden)
 }
 
 case class LoginEndpoint(url: String)
@@ -501,7 +507,10 @@ case class Operation(
   produces: List[String] = Nil,
   schemes: List[String] = Nil,
   authorizations: List[String] = Nil,
-  tags: List[String] = Nil)
+  tags: List[String] = Nil) {
+
+  def getVisibleParameters: List[Parameter] = parameters.filter(!_.hidden)
+}
 
 case class Endpoint(
   path: String,

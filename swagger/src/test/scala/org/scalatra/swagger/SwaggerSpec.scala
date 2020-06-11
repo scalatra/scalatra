@@ -319,6 +319,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       produces ("application/json", "application/xml")
       tags ("store")
       parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required
+      parameter queryParam[String]("showCoolStuff").hidden
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),
         ResponseMessage(404, "Order not found")))
@@ -373,7 +374,8 @@ case class Order(
   @ApiModelProperty(position = 2, description = "Order Status", allowableValues = "placed,approved,delivered") status: String,
   @ApiModelProperty(position = 3) petId: Long,
   @ApiModelProperty(position = 4) quantity: Int,
-  @ApiModelProperty(position = 5) shipDate: OffsetDateTime)
+  @ApiModelProperty(position = 5) shipDate: OffsetDateTime,
+  @ApiModelProperty(hidden = true, required = true) shipped: Boolean)
 case class User(id: Long, username: String, password: String, email: String, firstName: String, lastName: String, phone: String, userStatus: Int)
 case class Pet(
   @ApiModelProperty(position = 3) id: Long,

@@ -57,4 +57,10 @@ public @interface ApiModelProperty {
      * Maximum value of the property
      */
     double maximumValue() default Double.NaN;
+
+    /**
+     * Whether or not the property should be hidden from the Swagger documentation.
+     * @return true if it should be hidden. Otherwise false
+     */
+    boolean hidden() default false;
 }

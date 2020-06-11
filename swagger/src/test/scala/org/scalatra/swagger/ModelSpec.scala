@@ -14,6 +14,9 @@ object ModelSpec {
   case class WithRequiredFalse(id: String, @ApiModelProperty(required = false) name: String)
   case class WithRequiredTrue(id: String, @ApiModelProperty(required = true) name: String)
 
+  case class WithHiddenFalse(id: String, @ApiModelProperty(hidden = false) name: String)
+  case class WithHiddenTrue(id: String, @ApiModelProperty(hidden = true) name: String)
+
   case class WithOption(id: String, name: Option[String])
   case class WithDefaultValue(id: String, name: String = "April")
   case class WithRequiredValue(id: String, name: String)
@@ -50,6 +53,15 @@ class ModelSpec extends Specification {
     "convert a required=true annotation of a model field" in {
       swaggerProperty[WithRequiredTrue]("name").required must beTrue
     }
+
+    "convert a hidden=false annotation of a model field" in {
+      swaggerProperty[WithHiddenFalse]("name").hidden must beFalse
+    }
+
+    "convert a hidden=true annotation of a model field" in {
+      swaggerProperty[WithHiddenTrue]("name").hidden must beTrue
+    }
+
     "convert an option to a required false" in {
       swaggerProperty[WithOption]("name").required must beFalse
     }

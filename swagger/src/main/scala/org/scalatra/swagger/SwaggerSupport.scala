@@ -140,6 +140,7 @@ object SwaggerSupportSyntax {
     private[this] var _paramType: ParamType.ParamType = ParamType.Query
     private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
     protected[this] var _required: Option[Boolean] = None
+    protected[this] var _hidden: Option[Boolean] = None
     private[this] var _paramAccess: Option[String] = None
 
     def dataType: DataType = _dataType
@@ -169,6 +170,7 @@ object SwaggerSupportSyntax {
     def allowableValues(values: Range): this.type = { _allowableValues = AllowableValues(values); this }
     def required: this.type = { _required = Some(true); this }
     def optional: this.type = { _required = Some(false); this }
+    def hidden: this.type = { _hidden = Some(true); this }
 
     def defaultValue: Option[String] = None
 
@@ -183,6 +185,7 @@ object SwaggerSupportSyntax {
     def paramAccess = _paramAccess
     def allowableValues: AllowableValues = _allowableValues
     def isRequired: Boolean = paramType == ParamType.Path || _required.forall(identity)
+    def isHidden: Boolean = _hidden.getOrElse(false)
 
     def multiValued: this.type = {
       dataType match {
@@ -198,7 +201,7 @@ object SwaggerSupportSyntax {
     }
 
     def result =
-      Parameter(name, dataType, description, paramType, defaultValue, allowableValues, isRequired, position.getOrElse(0), example, minimumValue, maximumValue)
+      Parameter(name, dataType, description, paramType, defaultValue, allowableValues, isRequired, position.getOrElse(0), example, minimumValue, maximumValue, isHidden)
   }
 
   class ParameterBuilder[T: Manifest](initialDataType: DataType) extends SwaggerParameterBuilder {
