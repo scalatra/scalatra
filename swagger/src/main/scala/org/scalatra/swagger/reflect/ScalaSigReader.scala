@@ -5,41 +5,43 @@ import org.json4s.scalap.scalasig._
 
 private[reflect] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
-    val cl = findClass(clazz)
+    val cl = findClass(clazz).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndex, argNames $argNames"))
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
   def readConstructor(argName: String, clazz: Class[_], typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
-    val cl = findClass(clazz)
+    val cl = findClass(clazz).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndexes, argNames $argNames"))
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[_] = {
-    val cl = findClass(clazz.erasure)
+    val cl = findClass(clazz.erasure).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndex, argNames $argNames"))
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndexes: List[Int], argNames: List[String]): Class[_] = {
-    val cl = findClass(clazz.erasure)
+    val cl = findClass(clazz.erasure).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndexes, argNames $argNames"))
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
 
   def readField(name: String, clazz: Class[_], typeArgIndex: Int): Class[_] = {
-    def read(current: Class[_]): MethodSymbol = {
+    def read(current: Class[_]): Option[MethodSymbol] = {
       if (current == null)
-        fail("Can't find field " + name + " from " + clazz)
+        None
       else
-        findField(findClass(current), name).getOrElse(read(current.getSuperclass))
+        findClass(current).flatMap(findField(_, name))
+          .orElse(read(current.getSuperclass))
+          .orElse(current.getInterfaces.toStream.map(read).collectFirst { case Some(m) => m })
     }
-    findArgTypeForField(read(clazz), typeArgIndex)
+    findArgTypeForField(read(clazz).getOrElse(fail("Can't find field " + name + " from " + clazz)), typeArgIndex)
   }
 
-  def findClass(clazz: Class[_]): ClassSymbol = {
-    val sig = findScalaSig(clazz).getOrElse(fail("Can't find ScalaSig for " + clazz))
-    findClass(sig, clazz).getOrElse(fail("Can't find " + clazz + " from parsed ScalaSig"))
+  def findClass(clazz: Class[_]): Option[ClassSymbol] = {
+    val sig = findScalaSig(clazz)
+    sig.flatMap(findClass(_, clazz))
   }
 
   def findClass(sig: ScalaSig, clazz: Class[_]): Option[ClassSymbol] = {
@@ -130,7 +132,7 @@ private[reflect] object ScalaSigReader {
   private[this] def isPrimitive(s: Symbol) = toClass(s) != classOf[AnyRef]
 
   def findScalaSig(clazz: Class[_]): Option[ScalaSig] =
-    parseClassFileFromByteCode(clazz).orElse(findScalaSig(clazz.getDeclaringClass))
+    parseClassFileFromByteCode(clazz).orElse(Option(clazz.getDeclaringClass).flatMap(findScalaSig))
 
   private[this] def parseClassFileFromByteCode(clazz: Class[_]): Option[ScalaSig] = try {
     // taken from ScalaSigParser parse method with the explicit purpose of walking away from NPE
