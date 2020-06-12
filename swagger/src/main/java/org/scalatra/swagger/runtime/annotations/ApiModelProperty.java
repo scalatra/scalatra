@@ -41,7 +41,7 @@ public @interface ApiModelProperty {
     * allows explicitly ordering the property in the model.  Since reflection has no guarantee on
     * ordering, you should specify property order to keep models consistent across different VM implementations and versions.
     */
-    int position() default 0;
+    int position() default Integer.MAX_VALUE;
 
     /**
      * Example value of the property

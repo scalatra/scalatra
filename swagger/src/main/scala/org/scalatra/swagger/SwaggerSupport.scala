@@ -142,12 +142,14 @@ object SwaggerSupportSyntax {
     protected[this] var _required: Option[Boolean] = None
     protected[this] var _hidden: Option[Boolean] = None
     private[this] var _paramAccess: Option[String] = None
+    private[this] var _position: Option[Int] = None
 
     def dataType: DataType = _dataType
     def dataType(dataType: DataType): this.type = { _dataType = dataType; this }
     def name(name: String): this.type = { _name = name; this }
     def description(description: String): this.type = { _description = description.blankOption; this }
     def description(description: Option[String]): this.type = { _description = description.flatMap(_.blankOption); this }
+    def position(position: Int): this.type = { _position = Some(position); this }
 
     def paramType(name: ParamType.ParamType): this.type = { _paramType = name; this }
 
@@ -177,7 +179,7 @@ object SwaggerSupportSyntax {
     def minimumValue: Option[Double] = None
     def maximumValue: Option[Double] = None
     def example: Option[String] = None
-    def position: Option[Int] = None
+    def position: Option[Int] = _position
 
     def name: String = _name
     def description: Option[String] = _description
@@ -232,13 +234,6 @@ object SwaggerSupportSyntax {
     override def example = _example
     def example(value: String): this.type = {
       _example = Option(value)
-      this
-    }
-
-    private[this] var _position: Option[Int] = None
-    override def position = _position
-    def position(value: Int): this.type = {
-      _position = Option(value)
       this
     }
   }
