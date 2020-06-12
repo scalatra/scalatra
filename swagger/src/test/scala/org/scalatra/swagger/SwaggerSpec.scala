@@ -154,7 +154,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   }
 
   def verifyProperty(actual: JValue, expected: JValue, propertyName: String) = {
-    val m = verifyFields(actual, expected, "type", "format", "$ref", "items", "description")
+    val m = verifyFields(actual, expected, "type", "format", "$ref", "items", "description", "minimum", "maximum", "enum")
     m setMessage (m.message + " of the property " + propertyName)
   }
 
@@ -373,9 +373,10 @@ case class Order(
   @ApiModelProperty(position = 1) id: Long,
   @ApiModelProperty(position = 2, description = "Order Status", allowableValues = "placed,approved,delivered") status: String,
   @ApiModelProperty(position = 3) petId: Long,
-  @ApiModelProperty(position = 4) quantity: Int,
+  @ApiModelProperty(position = 4, allowableValues = "range[0,10]") quantity: Int,
   @ApiModelProperty(position = 5) shipDate: OffsetDateTime,
-  @ApiModelProperty(hidden = true, required = true) shipped: Boolean)
+  @ApiModelProperty(hidden = true, required = true) shipped: Boolean,
+  @ApiModelProperty(position = 6, minimumValue = 0) price: Double)
 case class User(id: Long, username: String, password: String, email: String, firstName: String, lastName: String, phone: String, userStatus: Int)
 case class Pet(
   @ApiModelProperty(position = 3) id: Long,

@@ -119,9 +119,8 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                         ("parameters" -> operation.getVisibleParameters.sortBy(_.position).map { parameter =>
                           ("name" -> parameter.name) ~
                             ("description" -> parameter.description) ~
-                            ("default" -> parameter.defaultValue) ~
-                            ("minimum" -> parameter.minimumValue) ~
-                            ("maximum" -> parameter.maximumValue) ~
+                            ("default" -> parameter.defaultValue) ~~
+                            generateAllowableValues(parameter.allowableValues, parameter.maximumValue, parameter.maximumValue) ~
                             ("required" -> parameter.required) ~
                             ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
                             (if (parameter.paramType.toString.toLowerCase == "body") {
@@ -161,9 +160,8 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                         case (name, property) =>
                           (name ->
                             ("example" -> toTypedAst(property.example, property.`type`)) ~
-                            ("minimum" -> property.minimumValue) ~
-                            ("maximum" -> property.maximumValue) ~
                             ("description" -> property.description) ~~
+                            generateAllowableValues(property.allowableValues, property.minimumValue, property.maximumValue) ~
                             generateDataType(property.`type`))
                       }.toMap) ~!
                       ("required" -> model.getVisibleProperties.collect {
@@ -211,6 +209,19 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
     if (dataVal.isEmpty) { JNothing }
     else if (!dataType.name.equalsIgnoreCase("string") && Try(dataVal.get.toDouble).isSuccess) { JDouble(dataVal.get.toDouble) }
     else { JString(dataVal.get) }
+  }
+
+  private def generateAllowableValues(allowableValues: AllowableValues, minimum: Option[Double], maximum: Option[Double]): List[JField] = {
+    allowableValues match {
+      case x: AllowableValues.AllowableRangeValues =>
+        List(
+          "minimum" -> minimum.map(JDouble(_)).getOrElse(JLong(x.values.start)),
+          "maximum" -> maximum.map(JDouble(_)).getOrElse(JLong(x.values.end)))
+      case x: AllowableValues.AllowableValuesList[_] =>
+        List("enum" -> Extraction.decompose(x.values))
+      case _ =>
+        List("minimum" -> minimum, "maximum" -> maximum)
+    }
   }
 
   private def swagger2ParamTypeMapping(paramTypeName: String): String = {
