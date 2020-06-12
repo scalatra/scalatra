@@ -362,7 +362,13 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "default": [
+            "a","b","c"
+          ],
+          "example": [
+            "a"
+          ]
         },
         "id": {
           "type": "integer",
@@ -376,6 +382,12 @@
             "pending",
             "sold"
           ]
+        },
+        "isVegetarian": {
+          "default": true,
+          "type": "boolean",
+          "description": "Define if the animal is vegetarian",
+          "example": true
         },
         "category": {
           "$ref": "#/definitions/Category"
@@ -451,7 +463,9 @@
           "minimum": 0,
           "maximum": 10,
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "default": 1,
+          "example": 1
         },
         "petId": {
           "type": "integer",
@@ -473,7 +487,9 @@
         "price": {
           "type": "number",
           "format": "double",
-          "minimum": 0.0
+          "minimum": 0.0,
+          "default": 1.0,
+          "example": 2.99
         }
       }
     }

@@ -10,6 +10,7 @@ object ModelSpec {
   case class WithDescription(@ApiModelProperty(description = "a description", allowableValues = "item1,item2") id: String)
   case class WithAllowableValues(@ApiModelProperty(allowableValues = "item1,item2") id: String)
   case class WithAllowableRangeValues(@ApiModelProperty(allowableValues = "range[1,10]") id: String)
+  case class WithDefaultValueFromAnnotation(@ApiModelProperty(defaultValue = "default") id: String)
 
   case class WithRequiredFalse(id: String, @ApiModelProperty(required = false) name: String)
   case class WithRequiredTrue(id: String, @ApiModelProperty(required = true) name: String)
@@ -46,6 +47,9 @@ class ModelSpec extends Specification {
     }
     "convert a populated allowable values property of an ApiProperty annotation when it is a range" in {
       swaggerProperties[WithAllowableRangeValues].allowableValues must_== AllowableRangeValues(Range.inclusive(1, 10))
+    }
+    "convert a defaultValue=\"default\" to a model field" in {
+      swaggerProperties[WithDefaultValueFromAnnotation].default must beSome("default")
     }
     "convert a required=false annotation of a model field" in {
       swaggerProperty[WithRequiredFalse]("name").required must beFalse
