@@ -121,7 +121,8 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[_]
                         ("parameters" -> operation.getVisibleParameters.sortBy(_.position).map { parameter =>
                           ("name" -> parameter.name) ~
                             ("description" -> parameter.description) ~
-                            ("default" -> parameter.defaultValue) ~~
+                            ("default" -> parameter.defaultValue) ~
+                            ("example" -> toTypedAst(parameter.example, parameter.`type`)) ~~
                             generateAllowableValues(parameter.allowableValues, parameter.maximumValue, parameter.maximumValue) ~
                             ("required" -> parameter.required) ~
                             ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~

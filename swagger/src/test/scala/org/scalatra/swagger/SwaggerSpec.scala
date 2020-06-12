@@ -320,7 +320,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       description "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
       produces ("application/json", "application/xml")
       tags ("store")
-      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required
+      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required.example("1")
       parameter queryParam[String]("showCoolStuff").hidden
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),
