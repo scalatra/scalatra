@@ -507,7 +507,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   protected implicit def operationBuilder2operation[T](bldr: OperationBuilder): Operation = bldr.result
   protected def apiOperation[T: Manifest: NotNothing](operationId: String): OperationBuilder = {
     registerModel[T]()
-    makeOperationBuilder(operationId,DataType[T])
+    makeOperationBuilder(operationId, DataType[T])
   }
   protected def apiOperation(operationId: String, model: Model): OperationBuilder = {
     registerModel(model)
@@ -515,7 +515,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   }
 
   private def makeOperationBuilder(operationId: String, dataType: DataType): OperationBuilder = {
-    val builder =  new OperationBuilder(dataType).operationId(operationId)
+    val builder = new OperationBuilder(dataType).operationId(operationId)
     swaggerTag.foreach(builder.tags(_))
     builder
   }
