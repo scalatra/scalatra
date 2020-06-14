@@ -116,7 +116,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                         ("produces" -> operation.produces) ~!
                         ("tags" -> operation.tags) ~
                         ("deprecated" -> operation.deprecated) ~
-                        ("parameters" -> operation.parameters.sortBy(_.position).map { parameter =>
+                        ("parameters" -> operation.getVisibleParameters.sortBy(_.position).map { parameter =>
                           ("name" -> parameter.name) ~
                             ("description" -> parameter.description) ~
                             ("default" -> parameter.defaultValue) ~
@@ -157,7 +157,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                       ("type" -> "object") ~
                       ("description" -> model.description) ~
                       ("discriminator" -> model.discriminator) ~
-                      ("properties" -> model.properties.sortBy(_._2.position).map {
+                      ("properties" -> model.getVisibleProperties.sortBy(_._2.position).map {
                         case (name, property) =>
                           (name ->
                             ("example" -> toTypedAst(property.example, property.`type`)) ~
@@ -166,7 +166,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                             ("description" -> property.description) ~~
                             generateDataType(property.`type`))
                       }.toMap) ~!
-                      ("required" -> model.properties.collect {
+                      ("required" -> model.getVisibleProperties.collect {
                         case (name, property) if property.required => name
                       }))
                 }
