@@ -253,7 +253,12 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "enum": [
+                "available",
+                "pending",
+                "sold"
+            ]
           }
         ],
         "security": [
@@ -365,7 +370,12 @@
         },
         "status": {
           "type": "string",
-          "description": "pet status in the store"
+          "description": "pet status in the store",
+          "enum": [
+            "available",
+            "pending",
+            "sold"
+          ]
         },
         "category": {
           "$ref": "#/definitions/Category"
@@ -438,6 +448,8 @@
           "format": "date-time"
         },
         "quantity": {
+          "minimum": 0,
+          "maximum": 10,
           "type": "integer",
           "format": "int32"
         },
@@ -451,7 +463,17 @@
         },
         "status": {
           "type": "string",
-          "description": "Order Status"
+          "description": "Order Status",
+          "enum": [
+            "placed",
+            "approved",
+            "delivered"
+          ]
+        },
+        "price": {
+          "type": "number",
+          "format": "double",
+          "minimum": 0.0
         }
       }
     }
