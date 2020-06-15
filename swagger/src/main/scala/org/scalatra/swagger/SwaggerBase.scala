@@ -165,7 +165,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                             ("maximum" -> property.maximumValue) ~
                             ("description" -> property.description) ~~
                             generateDataType(property.`type`))
-                      }:_*)) ~!
+                      }: _*)) ~!
                       ("required" -> model.getVisibleProperties.collect {
                         case (name, property) if property.required => name
                       }))
