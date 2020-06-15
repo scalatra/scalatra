@@ -3,15 +3,17 @@ package swagger
 
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.scalatra.json.JsonSupport
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
 import org.slf4j.LoggerFactory
+
 import scala.util.Try
 import scala.collection.immutable.ListMap
 
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
+trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
@@ -119,7 +121,8 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                         ("parameters" -> operation.getVisibleParameters.sortBy(_.position).map { parameter =>
                           ("name" -> parameter.name) ~
                             ("description" -> parameter.description) ~
-                            ("default" -> parameter.defaultValue) ~~
+                            ("default" -> parameter.defaultValue) ~
+                            ("example" -> toTypedAst(parameter.example, parameter.`type`)) ~~
                             generateAllowableValues(parameter.allowableValues, parameter.maximumValue, parameter.maximumValue) ~
                             ("required" -> parameter.required) ~
                             ("in" -> swagger2ParamTypeMapping(parameter.paramType.toString.toLowerCase)) ~~
@@ -162,6 +165,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
                             ("example" -> toTypedAst(property.example, property.`type`)) ~
                             ("description" -> property.description) ~~
                             generateAllowableValues(property.allowableValues, property.minimumValue, property.maximumValue) ~
+                            ("default" -> toTypedAst(property.default, property.`type`)) ~~
                             generateDataType(property.`type`))
                       }: _*)) ~!
                       ("required" -> model.getVisibleProperties.collect {
@@ -206,9 +210,16 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with CorsSupport =>
   }
 
   private def toTypedAst(dataVal: Option[String], dataType: DataType): JValue = {
-    if (dataVal.isEmpty) { JNothing }
-    else if (!dataType.name.equalsIgnoreCase("string") && Try(dataVal.get.toDouble).isSuccess) { JDouble(dataVal.get.toDouble) }
-    else { JString(dataVal.get) }
+    dataVal.map { x =>
+      val parsingResult: Option[JValue] = dataType.name.toLowerCase match {
+        case "string" => Some(JString(x))
+        case "integer" => Try(x.toLong).map(JLong(_)).toOption
+        case "number" => Try(x.toDouble).map(JDouble(_)).toOption
+        case "boolean" => Try(x.toBoolean).map(JBool(_)).toOption
+        case _ => Try(parse(x)).toOption
+      }
+      parsingResult.getOrElse(JString(x))
+    }.getOrElse(JNothing)
   }
 
   private def generateAllowableValues(allowableValues: AllowableValues, minimum: Option[Double], maximum: Option[Double]): List[JField] = {

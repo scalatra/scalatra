@@ -49,6 +49,12 @@ public @interface ApiModelProperty {
     String example() default "";
 
     /**
+     * Default value of the property. It can be a integer, number, bool, string or JSON string representation of
+     * an array or object.
+     */
+    String defaultValue() default "";
+
+    /**
      * Minimum value of the property
      */
     double minimumValue() default Double.NaN;

@@ -101,7 +101,7 @@ object Swagger {
   import org.scalatra.util.RicherString._
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
 
-  private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "", example: Option[String] = None, minimumValue: Option[Double] = None, maximumValue: Option[Double] = None, hidden: Boolean = false)(prop: PropertyDescriptor) = {
+  private[this] def toModelProperty(descriptor: ClassDescriptor, position: Option[Int] = None, required: Boolean = true, description: Option[String] = None, allowableValues: String = "", example: Option[String] = None, minimumValue: Option[Double] = None, maximumValue: Option[Double] = None, default: Option[String] = None, hidden: Boolean = false)(prop: PropertyDescriptor) = {
     val ctorParam = descriptor.mostComprehensive.find(_.name == prop.name)
     val mp = ModelProperty(
       `type` = DataType.fromScalaType(if (prop.returnType.isOption) ctorParam.map(_.argType.typeArgs.head).getOrElse(prop.returnType.typeArgs.head) else ctorParam.map(_.argType).getOrElse(prop.returnType)),
@@ -110,6 +110,7 @@ object Swagger {
       description = description.flatMap(_.blankOption),
       allowableValues = convertToAllowableValues(allowableValues),
       example = example.flatMap(_.blankOption),
+      default = default.flatMap(_.blankOption),
       minimumValue = minimumValue,
       maximumValue = maximumValue,
       hidden = hidden)
@@ -130,8 +131,8 @@ object Swagger {
           val minimumValue = if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue())
           val maximumValue = if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue())
           val asModelProperty = toModelProperty(descriptor, position, annotation.required(), annotation.description().blankOption, annotation.allowableValues(),
-            annotation.example().blankOption, minimumValue, maximumValue,
-            annotation.hidden())_
+            annotation.example().blankOption, minimumValue, maximumValue, annotation.defaultValue().blankOption, annotation.hidden())_
+
           descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
         case f: Field =>
@@ -433,6 +434,7 @@ case class ModelProperty(
   description: Option[String] = None,
   allowableValues: AllowableValues = AllowableValues.AnyValue,
   example: Option[String] = None,
+  default: Option[String] = None,
   minimumValue: Option[Double] = None,
   maximumValue: Option[Double] = None,
   hidden: Boolean = false)

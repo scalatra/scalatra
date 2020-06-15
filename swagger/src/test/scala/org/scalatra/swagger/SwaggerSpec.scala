@@ -154,7 +154,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   }
 
   def verifyProperty(actual: JValue, expected: JValue, propertyName: String) = {
-    val m = verifyFields(actual, expected, "type", "format", "$ref", "items", "description", "minimum", "maximum", "enum")
+    val m = verifyFields(actual, expected, "type", "format", "$ref", "items", "description", "minimum", "maximum", "enum", "default", "example")
     m setMessage (m.message + " of the property " + propertyName)
   }
 
@@ -320,7 +320,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       description "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
       produces ("application/json", "application/xml")
       tags ("store")
-      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required
+      parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required.example("1")
       parameter queryParam[String]("showCoolStuff").hidden
       responseMessages (
         ResponseMessage(400, "Invalid ID supplied"),
@@ -377,18 +377,19 @@ case class Order(
   @ApiModelProperty(position = 1) id: Long,
   @ApiModelProperty(position = 2, description = "Order Status", allowableValues = "placed,approved,delivered") status: String,
   @ApiModelProperty(position = 3) petId: Long,
-  @ApiModelProperty(position = 4, allowableValues = "range[0,10]") quantity: Int,
+  @ApiModelProperty(position = 4, allowableValues = "range[0,10]", defaultValue = "1", example = "1") quantity: Int,
   @ApiModelProperty(position = 5) shipDate: OffsetDateTime,
   @ApiModelProperty(hidden = true, required = true) shipped: Boolean,
-  @ApiModelProperty(position = 6, minimumValue = 0) price: Double)
+  @ApiModelProperty(position = 6, minimumValue = 0, defaultValue = "1", example = "2.99") price: Double)
 case class User(id: Long, username: String, password: String, email: String, firstName: String, lastName: String, phone: String, userStatus: Int)
 case class Pet(
   @ApiModelProperty(position = 3) id: Long,
   @ApiModelProperty(position = 1) category: Category,
   @ApiModelProperty(position = 2) name: String,
-  @ApiModelProperty(position = 6) photoUrls: List[String],
+  @ApiModelProperty(position = 6, defaultValue = """["a","b","c"]""", example = """["a"]""") photoUrls: List[String],
   @ApiModelProperty(position = 4) tags: List[Tag],
-  @ApiModelProperty(position = 5, description = "pet status in the store", allowableValues = "available,pending,sold") status: String)
+  @ApiModelProperty(position = 5, description = "pet status in the store", allowableValues = "available,pending,sold") status: String,
+  @ApiModelProperty(position = 7, description = "Define if the animal is vegetarian", required = false, defaultValue = "true", example = "true") isVegetarian: Option[Boolean] = None)
 
 case class Tag(id: Long, name: String)
 case class Category(id: Long, name: String)
@@ -424,7 +425,7 @@ class PetData {
     Pet(8, categories(3), "Lion 1", List("url1", "url2"), List(Tag(1, "tag1"), Tag(2, "tag2")), "available"),
     Pet(9, categories(3), "Lion 1", List("url1", "url2"), List(Tag(1, "tag1"), Tag(2, "tag2")), "available"),
 
-    Pet(10, categories(2), "Rabbit 1", List("url1", "url2"), List(Tag(1, "tag1"), Tag(2, "tag2")), "available"))
+    Pet(10, categories(2), "Rabbit 1", List("url1", "url2"), List(Tag(1, "tag1"), Tag(2, "tag2")), "available", Some(false)))
 
   def getPetbyId(id: Long): Option[Pet] = pets.find(_.id == id)
 
