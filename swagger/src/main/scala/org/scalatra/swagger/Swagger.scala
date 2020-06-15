@@ -126,8 +126,11 @@ object Swagger {
       val fields = klass.erasure.getDeclaredFields.toList collect {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
           val annotation = f.getAnnotation(classOf[ApiModelProperty])
-          val asModelProperty = toModelProperty(descriptor, Some(annotation.position()), annotation.required(), annotation.description().blankOption, annotation.allowableValues(),
-            annotation.example().blankOption, if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue()), if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue()),
+          val position = if (annotation.position() == Integer.MAX_VALUE) None else Some(annotation.position())
+          val minimumValue = if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue())
+          val maximumValue = if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue())
+          val asModelProperty = toModelProperty(descriptor, position, annotation.required(), annotation.description().blankOption, annotation.allowableValues(),
+            annotation.example().blankOption, minimumValue, maximumValue,
             annotation.hidden())_
           descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
