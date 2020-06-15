@@ -221,6 +221,8 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
 
   protected override val swaggerConsumes: List[String] = Nil
 
+  override protected def swaggerTag: Option[String] = Some("Pet")
+
   val data = new PetData
 
   get("/undocumented") {
@@ -360,6 +362,8 @@ class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSuppo
   protected val applicationDescription = "Operations about user"
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat = DefaultJsonFormats.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+
+  override protected def swaggerTag: Option[String] = Some("User")
 
   val createUserOperation = apiOperation[User]("createUser")
   post("/", operation(createUserOperation)) {

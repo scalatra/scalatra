@@ -54,6 +54,7 @@
           "application/json",
           "application/xml"
         ],
+        "tags": ["Pet"],
         "deprecated": true,
         "parameters": [
           {
@@ -147,6 +148,7 @@
       "post": {
         "operationId": "createUser",
         "summary": "",
+        "tags": ["User"],
         "deprecated": false,
         "parameters": [],
         "responses": {
@@ -164,6 +166,7 @@
         "operationId": "deletePet",
         "summary": "Deletes a pet",
         "deprecated": false,
+        "tags": ["Pet"],
         "parameters": [
           {
             "name": "petId",
@@ -194,6 +197,7 @@
           "application/json",
           "application/xml"
         ],
+        "tags": ["Pet"],
         "deprecated": false,
         "parameters": [
           {
@@ -238,6 +242,7 @@
           "application/json",
           "application/xml"
         ],
+        "tags": ["Pet"],
         "deprecated": true,
         "parameters": [
           {
@@ -276,6 +281,7 @@
       "post": {
         "operationId": "addPet",
         "summary": "Add a new pet to the store",
+        "tags": ["Pet"],
         "deprecated": false,
         "parameters": [
           {
@@ -305,6 +311,7 @@
       "put": {
         "operationId": "updatePet",
         "summary": "Update an existing pet",
+        "tags": ["Pet"],
         "deprecated": false,
         "parameters": [
           {
