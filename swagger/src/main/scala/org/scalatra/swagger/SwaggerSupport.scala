@@ -493,6 +493,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
     }
   }
 
+  protected def swaggerTag: Option[String] = None
+
 }
 
 /**
@@ -505,11 +507,17 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   protected implicit def operationBuilder2operation[T](bldr: OperationBuilder): Operation = bldr.result
   protected def apiOperation[T: Manifest: NotNothing](operationId: String): OperationBuilder = {
     registerModel[T]()
-    new OperationBuilder(DataType[T]).operationId(operationId)
+    makeOperationBuilder(operationId, DataType[T])
   }
   protected def apiOperation(operationId: String, model: Model): OperationBuilder = {
     registerModel(model)
-    new OperationBuilder(ValueDataType(model.id)).operationId(operationId)
+    makeOperationBuilder(operationId, ValueDataType(model.id))
+  }
+
+  private def makeOperationBuilder(operationId: String, dataType: DataType): OperationBuilder = {
+    val builder = new OperationBuilder(dataType).operationId(operationId)
+    swaggerTag.foreach(builder.tags(_))
+    builder
   }
 
   /**
