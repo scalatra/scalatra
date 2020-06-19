@@ -2,7 +2,7 @@ package org.scalatra.servlet
 
 import java.io.File
 
-import org.scalatra.ScalatraServlet
+import org.scalatra.{ Ok, ScalatraServlet }
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.collection.JavaConverters._
@@ -84,6 +84,11 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
     document.write(tempFile)
     tempFile.deleteOnExit
     "file size: " + tempFile.length
+  }
+
+  post("/get-first-file-item-name") {
+    val document = fileParams.iterator().toSeq.headOption.getOrElse(halt(404))
+    document._1
   }
 
   error {
@@ -290,6 +295,25 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
 
       post("/file-item-write", params, files) {
         body must_== "file size: 651"
+      }
+    }
+  }
+
+  "GetFirsFileItemName" should {
+
+    "return the first file name" in {
+      val params = Map()
+      val filename = "core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"
+      val files = Map("doc1" -> new File(filename), "doc2" -> new File(filename))
+
+      post("/get-first-file-item-name", params, files) {
+        body must_== "doc1"
+      }
+    }
+
+    "return 404 if no files" in {
+      post("/get-first-file-item-name", Map(), Map()) {
+        status must_== 404
       }
     }
   }

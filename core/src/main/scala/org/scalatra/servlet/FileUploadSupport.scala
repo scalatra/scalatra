@@ -248,6 +248,9 @@ class FileSingleParams(wrapped: FileMultiParams = FileMultiParams()) {
 
   def foreach(f: ((String, FileItem)) => Unit): Unit =
     wrapped.foreach { case ((k, v)) => f((k, v.head)) }
+
+  def iterator(): Iterator[(String, Seq[FileItem])] = wrapped.iterator
+
 }
 
 case class FileItem(part: Part) {
