@@ -124,7 +124,7 @@ class ScalateSupportSpec extends ScalatraSpec {
     }
 
     get("/render-to-string") {
-      response.setHeader("X-Template-Output", layoutTemplate("simple"))
+      response.setHeader("X-Template-Output", layoutTemplate("simple.ssp"))
     }
   }, "/*")
 
