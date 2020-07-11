@@ -127,7 +127,7 @@ class ScalateFuturesSupportServlet(exec: ExecutorService) extends ScalatraServle
   }
 
   get("/render-to-string") {
-    new AsyncResult { val is = Future { response.setHeader("X-Template-Output", layoutTemplate("simple")) } }
+    new AsyncResult { val is = Future { response.setHeader("X-Template-Output", layoutTemplate("simple.ssp")) } }
   }
 }
 
