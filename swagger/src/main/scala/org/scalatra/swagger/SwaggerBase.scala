@@ -49,7 +49,11 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[_]
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     get("/swagger.json") {
-      renderSwagger2(swagger.docs.toList.asInstanceOf[List[Api]])
+      val renderedSwagger = renderSwagger2(swagger.docs.toList)
+
+      swagger.extraSwaggerDefinition.map {
+        renderedSwagger merge _
+      }.getOrElse(renderedSwagger)
     }
   }
 
