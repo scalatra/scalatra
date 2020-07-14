@@ -23,18 +23,17 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     "Swagger 2.0 integration should" ^
     "generate api definitions" ! generateApiDefinitions ^
     end
-  val apiInfo = ApiInfo(
-    title = "Swagger Sample App",
-    description = "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
-    termsOfServiceUrl = "http://helloreverb.com/terms/",
-    contact = ContactInfo(
-      name = "helloreverb apiteam",
-      url = "http://helloreverb.com/",
-      email = "apiteam@wordnik.com"),
-    license = LicenseInfo(
-      name = "Apache 2.0",
-      url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
-  val swagger = new Swagger("2.0", "1.0.0", apiInfo)
+  val extraSwagger: JValue = JsonMethods.parse("""{
+                                                 |  "definitions": {
+                                                 |    "Dog": {
+                                                 |      "properties": {
+                                                 |        "name": {"type":  "string"}
+                                                 |      }
+                                                 |    }
+                                                 |  }
+                                                 | }""".stripMargin)
+
+  val swagger = new Swagger("2.0", "1.0.0", TestFixtures.apiInfo, extraSwaggerDefinition = Some(extraSwagger))
   swagger.addAuthorization(BasicAuth("basicAuth"))
   swagger.addAuthorization(ApiKey("apiKey"))
   swagger.addAuthorization(ApiKey("Authorization1", "query", "you must register your app to receive an apikey"))
@@ -76,15 +75,17 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     JsonParser.parse(rdr)
   }
 
-  def generateApiDefinitions = get("/api-docs/swagger.json") {
-    val bd = JsonParser.parseOpt(body)
-    bd must beSome[JValue] and {
-      val j = bd.get
-      (j \ "version" must_== swaggerJsonJValue \ "version") and
-        verifyInfo(j \ "info") and
-        verifyPaths(j \ "paths") and
-        verifyDefinitions(j \ "definitions") and
-        verifySecurityDefinitions(j \ "securityDefinitions")
+  def generateApiDefinitions = {
+    get("/api-docs/swagger.json") {
+      val bd = JsonParser.parseOpt(body)
+      bd must beSome[JValue] and {
+        val j = bd.get
+        (j \ "version" must_== swaggerJsonJValue \ "version") and
+          verifyInfo(j \ "info") and
+          verifyPaths(j \ "paths") and
+          verifyDefinitions(j \ "definitions") and
+          verifySecurityDefinitions(j \ "securityDefinitions")
+      }
     }
   }
 
@@ -209,6 +210,65 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     fields map (verifyField(actual, expected, _)) reduce (_ and _)
   }
 
+}
+
+/**
+ * TestCase for Swagger 2.0 support when no extra definition are passed
+ */
+class SwaggerSpecWithoutCustom2 extends ScalatraSpec with JsonMatchers {
+  def is = sequential ^
+    "Swagger 2.0 integration should" ^
+    "generate api definitions" ! generateApiDefinitions ^
+    end
+  val apiInfo = TestFixtures.apiInfo
+
+  val swagger = new Swagger("2.0", "1.0.0", apiInfo)
+  addServlet(new SwaggerResourcesServlet(swagger), "/api-docs/*")
+  implicit val formats = DefaultFormats
+
+  /**
+   * Sets the port to listen on.  0 means listen on any available port.
+   */
+  override lazy val port: Int = { val s = new ServerSocket(0); try { s.getLocalPort } finally { s.close() } } //58468
+
+  val swaggerJsonJValue = readJson("swagger.json")
+
+  private def readJson(file: String) = {
+    val f = if (file startsWith "/") file else "/" + file
+    val rdr = Source.fromInputStream(getClass.getResourceAsStream(f)).bufferedReader()
+    JsonParser.parse(rdr)
+  }
+
+  def generateApiDefinitions = {
+    get("/api-docs/swagger.json") {
+      val bd = JsonParser.parseOpt(body)
+      bd must beSome[JValue] and {
+        val j = bd.get
+        (j \ "version" must_== swaggerJsonJValue \ "version") and
+          verifyInfo(j \ "info")
+      }
+    }
+  }
+
+  def parseInt(i: String): Option[Int] =
+    try {
+      Some(Integer.parseInt(i))
+    } catch {
+      case _: Throwable => None
+    }
+
+  def verifyInfo(j: JValue) = {
+    val info = swaggerJsonJValue \ "info"
+    (j \ "title" must_== info \ "title") and
+      (j \ "version" must_== info \ "version") and
+      (j \ "description" must_== info \ "description") and
+      (j \ "termsOfService" must_== info \ "termsOfService") and
+      (j \ "contact" \ "name" must_== info \ "contact" \ "name") and
+      (j \ "contact" \ "url" must_== info \ "contact" \ "url") and
+      (j \ "contact" \ "email" must_== info \ "contact" \ "email") and
+      (j \ "license" \ "name" must_== info \ "license" \ "name") and
+      (j \ "license" \ "url" must_== info \ "license" \ "url")
+  }
 }
 
 class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
@@ -443,4 +503,18 @@ class PetData {
     // remove any pets with same id
     pets = List(pet) ++ pets.filter(p => p.id == pet.id)
   }
+}
+
+object TestFixtures {
+  val apiInfo = ApiInfo(
+    title = "Swagger Sample App",
+    description = "This is a sample server Petstore server.  You can find out more about Swagger \n    at <a href=\"http://swagger.wordnik.com\">http://swagger.wordnik.com</a> or on irc.freenode.net, #swagger.",
+    termsOfServiceUrl = "http://helloreverb.com/terms/",
+    contact = ContactInfo(
+      name = "helloreverb apiteam",
+      url = "http://helloreverb.com/",
+      email = "apiteam@wordnik.com"),
+    license = LicenseInfo(
+      name = "Apache 2.0",
+      url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
 }

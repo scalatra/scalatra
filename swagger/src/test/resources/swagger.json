@@ -348,6 +348,11 @@
     }
   },
   "definitions": {
+    "Dog": {
+      "properties": {
+        "name": {"type":  "string"}
+      }
+    },
     "Pet": {
       "properties": {
         "name": {

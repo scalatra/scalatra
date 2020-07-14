@@ -5,6 +5,7 @@ import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{ Date => JDate }
 
+import org.json4s.JsonAST.JValue
 import org.scalatra.swagger.reflect._
 import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
 import org.slf4j.LoggerFactory
@@ -16,6 +17,7 @@ trait SwaggerEngine {
   def apiVersion: String
   def host: String
   def apiInfo: ApiInfo
+  def extraSwaggerDefinition: Option[JValue]
 
   private[swagger] val _docs = new ConcurrentHashMap[String, Api]().asScala
 
@@ -209,7 +211,7 @@ object Swagger {
 /**
  * An instance of this class is used to hold the API documentation.
  */
-class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "") extends SwaggerEngine {
+class Swagger(val swaggerVersion: String, val apiVersion: String, val apiInfo: ApiInfo, val host: String = "", val extraSwaggerDefinition: Option[JValue] = None) extends SwaggerEngine {
   private[this] val logger = LoggerFactory.getLogger(getClass)
 
   /**
