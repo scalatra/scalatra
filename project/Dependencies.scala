@@ -42,7 +42,7 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-mock",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
-  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.5"
+  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.14"
   lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.6"
   lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.6"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "29.0-jre"
