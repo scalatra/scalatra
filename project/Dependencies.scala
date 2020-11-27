@@ -32,7 +32,7 @@ object Dependencies {
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-12"                 % "3.1.4.0"
   lazy val jUniversalChardet        =  "com.googlecode.juniversalchardet" % "juniversalchardet"  % "1.0.3"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.3.3"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.6.28"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
