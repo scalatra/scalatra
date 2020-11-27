@@ -52,7 +52,7 @@ object Dependencies {
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.29.v20200521"
-  private val json4sVersion           = "3.6.8"
+  private val json4sVersion           = "3.6.10"
   private val scalateVersion          = "1.9.6"
   private val scalatestVersion        = "3.1.2"
   private val specs2Version           = "4.9.4"
