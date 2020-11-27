@@ -1,4 +1,4 @@
-## Scalatra [![Build Status](https://travis-ci.org/scalatra/scalatra.svg?branch=2.7.x)](https://travis-ci.org/scalatra/scalatra)![Scala CI](https://github.com/scalatra/scalatra/workflows/build/badge.svg?branch=2.7.x)
+## Scalatra ![Scala CI](https://github.com/scalatra/scalatra/workflows/build/badge.svg?branch=2.7.x)
 
 [![Join the chat at https://gitter.im/scalatra/scalatra](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scalatra/scalatra?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
