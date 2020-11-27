@@ -1,8 +1,0 @@
--Dfile.encoding=UTF8
--Xms512m
--Xmx2g
--Xss4m
--XX:ReservedCodeCacheSize=128m
--Djava.awt.headless=true
--XX:+CMSClassUnloadingEnabled
--XX:+UseConcMarkSweepGC
