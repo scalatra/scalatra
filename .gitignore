@@ -31,8 +31,9 @@ atlassian-ide-plugin.xml
 .lib
 
 # metals artifacts
+.vscode
 .metals
 .bloop
-project/metals.sbt
+**/metals.sbt
 
 .history
