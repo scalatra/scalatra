@@ -7,7 +7,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
 
   protected def app: ScalatraBase
 
-  def name: String = "NameMe"
+  def name: String = this.getClass.getName
 
   def registerWith(registrar: Scentry[UserType]): Unit = {
     if (name == "NameMe") throwOverrideException
