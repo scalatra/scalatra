@@ -26,7 +26,7 @@ object ScalatraBroadcasterFactory {
     cfg = None
   }
 
-  def getDefault() = broadcasterFactory
+  def getDefault = broadcasterFactory
 
 }
 /**
