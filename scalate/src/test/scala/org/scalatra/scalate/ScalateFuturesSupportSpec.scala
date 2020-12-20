@@ -176,7 +176,7 @@ class ScalateFuturesSupportSpec extends MutableScalatraSpec {
   val pool = DaemonThreadFactory.newPool()
   addServlet(new ScalateFuturesSupportServlet(pool), "/*")
 
-  override def afterAll = {
+  override def afterAll() = {
     super.afterAll()
     pool.shutdown()
   }
@@ -301,7 +301,7 @@ class ScalateFuturesWithErrorHandlerSupportSpec extends MutableScalatraSpec {
   val pool = DaemonThreadFactory.newPool()
   addServlet(new ScalateFuturesWithErrorHandlerSupportServlet(pool), "/*")
 
-  override def afterAll = {
+  override def afterAll() = {
     super.afterAll()
     pool.shutdown()
   }

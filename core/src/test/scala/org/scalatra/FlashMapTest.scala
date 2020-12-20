@@ -12,7 +12,7 @@ import org.scalatest.matchers.should.Matchers
 class FlashMapTest extends AnyFunSuite with Matchers with BeforeAndAfterEach {
   var flash: FlashMap = _
 
-  override def beforeEach = flash = new FlashMap()
+  override def beforeEach() = flash = new FlashMap()
 
   test("values are visible immmediately") {
     flash("foo") = "bar"
