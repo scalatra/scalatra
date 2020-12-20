@@ -36,7 +36,7 @@ case class HttpComponentsClientResponse(res: HttpResponse) extends ClientRespons
 
   def headers = {
     res.getAllHeaders.foldLeft(Map[String, Seq[String]]()) { (hmap, header) =>
-      val Array(name, value) = Array(header.getName, header.getValue)
+      val (name, value) = (header.getName, header.getValue)
       val values = hmap.getOrElse(name, Seq())
 
       hmap + (name -> (values :+ value))
