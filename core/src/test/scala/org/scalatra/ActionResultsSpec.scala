@@ -99,19 +99,19 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
 
     "set default reason" in {
       get("/bad") {
-        response.getReason mustEqual "Bad Request"
+        response.getReason() mustEqual "Bad Request"
       }
     }
 
     "infer contentType for String" in {
       get("/ok") {
-        response.getContentType mustEqual "text/plain;charset=utf-8"
+        response.getContentType() mustEqual "text/plain;charset=utf-8"
       }
     }
 
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
-        response.getContentType mustEqual "text/plain;charset=" + java.nio.charset.Charset.defaultCharset.displayName.toLowerCase
+        response.getContentType() mustEqual "text/plain;charset=" + java.nio.charset.Charset.defaultCharset.displayName.toLowerCase
       }
     }
 

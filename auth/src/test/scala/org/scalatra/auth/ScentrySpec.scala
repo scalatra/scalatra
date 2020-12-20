@@ -50,7 +50,7 @@ object ScentrySpec extends Specification with Mockito {
     var unauthenticatedSuccessCalled = false
     var defaultUnauthenticatedCalled = false
 
-    Scentry.clearGlobalStrategies
+    Scentry.clearGlobalStrategies()
     theScentry unauthenticated {
       defaultUnauthenticatedCalled = true
     }
@@ -119,7 +119,7 @@ object ScentrySpec extends Specification with Mockito {
     "run all logout callbacks" in {
       theScentry.register("LocalFoo", _ => s)
       req.getAttribute("scentry.auth.default.user") returns User("6789")
-      theScentry.logout
+      theScentry.logout()
       there was one(req).removeAttribute("scentry.auth.default.user")
       beforeLogoutCalled must beTrue
       afterLogoutCalled must beTrue

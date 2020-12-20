@@ -177,7 +177,7 @@ class ScalateFuturesSupportSpec extends MutableScalatraSpec {
   addServlet(new ScalateFuturesSupportServlet(pool), "/*")
 
   override def afterAll = {
-    super.afterAll
+    super.afterAll()
     pool.shutdown()
   }
 
@@ -302,7 +302,7 @@ class ScalateFuturesWithErrorHandlerSupportSpec extends MutableScalatraSpec {
   addServlet(new ScalateFuturesWithErrorHandlerSupportServlet(pool), "/*")
 
   override def afterAll = {
-    super.afterAll
+    super.afterAll()
     pool.shutdown()
   }
 

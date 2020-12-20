@@ -76,7 +76,7 @@ class FlashMapTest extends AnyFunSuite with Matchers with BeforeAndAfterEach {
     val keys = Set("1", "2")
     keys foreach { k => flash(k) = true }
     // Iteration order is unspecified
-    val (gottenKey, _) = flash.iterator.next
+    val (gottenKey, _) = flash.iterator.next()
     val ungottenKey = (keys - gottenKey).head
     flash.sweep()
     flash.get(gottenKey) should equal(None)

@@ -7,7 +7,7 @@ import javax.servlet.{ ServletContextEvent, ServletContextListener }
  */
 abstract class ScentryInitializer extends ServletContextListener {
   def contextDestroyed(e: ServletContextEvent): Unit = {
-    Scentry.globalStrategies.clear
+    Scentry.globalStrategies.clear()
   }
 
   def contextInitialized(e: ServletContextEvent): Unit

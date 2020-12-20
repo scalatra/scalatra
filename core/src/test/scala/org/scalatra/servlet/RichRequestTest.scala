@@ -39,7 +39,7 @@ class RichRequestTest extends AnyFunSuite with Matchers {
     when(request.getLocales).thenReturn(new java.util.Enumeration[Locale] {
       private[this] val iter = Seq("en", "ja").iterator
       override def hasMoreElements: Boolean = iter.hasNext
-      override def nextElement(): Locale = new Locale(iter.next)
+      override def nextElement(): Locale = new Locale(iter.next())
     })
     request
   }

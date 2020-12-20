@@ -57,7 +57,7 @@ class FilterTestFilter extends ScalatraFilter {
 
   post("/reset-counters") {
     beforeCount = 0
-    pass
+    pass()
   }
 
 }

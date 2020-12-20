@@ -26,7 +26,7 @@ trait ServletBase
 
   protected implicit def configWrapper(config: ConfigT) = new Config {
 
-    override def context: ServletContext = config.getServletContext
+    override def context: ServletContext = config.getServletContext()
 
     def getInitParameterOption(key: String): Option[String] = Option(config.getInitParameter(key))
 

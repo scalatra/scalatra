@@ -160,7 +160,7 @@ class AtmosphereSpec extends MutableScalatraSpec {
   }
 
   override def afterAll = {
-    super.afterAll
-    stopSystem
+    super.afterAll()
+    stopSystem()
   }
 }

@@ -69,9 +69,9 @@ trait ScalateSupport extends org.scalatra.servlet.ServletBase {
    */
   protected def createTemplateEngine(config: ConfigT): TemplateEngine = {
     def contextKey(config: ConfigT): String = {
-      val ctxId = config.getServletContext.hashCode.toString
+      val ctxId = config.getServletContext().hashCode.toString
 
-      val ctxKey = config.getServletContext.getContextPath match {
+      val ctxKey = config.getServletContext().getContextPath match {
         case "" => "ROOT"
         case path => path.substring(1)
       }
