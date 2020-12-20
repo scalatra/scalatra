@@ -6,20 +6,12 @@ import java.util
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 import javax.servlet.{ FilterConfig, ServletConfig, ServletContext, ServletException }
 
-import org.atmosphere.container.Tomcat7CometSupport
-import org.atmosphere.container.TomcatCometSupport
-import org.jboss.servlet.http.HttpEvent
-import org.atmosphere.container.JBossWebCometSupport
-import org.atmosphere.cpr._
-
 import collection.JavaConverters._
-import org.json4s._
 import org.atmosphere.cache.UUIDBroadcasterCache
 import org.scalatra.util.RicherString._
 import _root_.akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
 import org.apache.catalina.CometProcessor
-import org.atmosphere.cache.UUIDBroadcasterCache
 import org.atmosphere.client.TrackMessageSizeInterceptor
 import org.atmosphere.container.{ JBossWebCometSupport, Tomcat7CometSupport, TomcatCometSupport }
 import org.atmosphere.cpr._
@@ -27,10 +19,8 @@ import org.atmosphere.interceptor.SessionCreationInterceptor
 import org.jboss.servlet.http.{ HttpEvent, HttpEventServlet }
 import org.json4s._
 import org.scalatra.servlet.ScalatraAsyncSupport
-import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConverters._
 import scala.util.control.Exception.allCatch
 
 trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonMethods[_] =>
