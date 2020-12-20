@@ -158,7 +158,7 @@ class AtmosphereSpec extends MutableScalatraSpec {
     Await.result(f, Duration(1, TimeUnit.MINUTES))
   }
 
-  override def afterAll = {
+  override def afterAll() = {
     super.afterAll()
     stopSystem()
   }

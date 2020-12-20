@@ -15,8 +15,8 @@ class HttpComponentsClientSpec
   with EmbeddedJettyContainer
   with BeforeAfterAll {
 
-  def beforeAll = start()
-  def afterAll = stop()
+  def beforeAll() = start()
+  def afterAll() = stop()
 
   addServlet(new HttpServlet {
     override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {

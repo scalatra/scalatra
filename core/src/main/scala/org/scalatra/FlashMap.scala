@@ -64,7 +64,7 @@ class FlashMap extends Serializable {
 
     def hasNext = it.hasNext
 
-    def next = {
+    def next() = {
       val kv = it.next()
       flagged += kv._1
       kv
