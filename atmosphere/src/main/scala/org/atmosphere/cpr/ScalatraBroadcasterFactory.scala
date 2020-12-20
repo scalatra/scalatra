@@ -104,7 +104,7 @@ class ScalatraBroadcasterFactory(var cfg: AtmosphereConfig, bCfg: BroadcasterCon
     if (bc != null) bc.forceDestroy()
 
     store.clear()
-    ScalatraBroadcasterFactory.clearDefaults
+    ScalatraBroadcasterFactory.clearDefaults()
   }
 
   def get(): Broadcaster = lookup(UUID.randomUUID().toString)

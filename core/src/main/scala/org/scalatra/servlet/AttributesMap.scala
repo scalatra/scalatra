@@ -171,7 +171,7 @@ trait AttributesMap {
   /**
    * Returns an attributes keys
    */
-  def keys = attributes.getAttributeNames.asScala
+  def keys = attributes.getAttributeNames().asScala
 
   /**
    * dumps all keys and values
