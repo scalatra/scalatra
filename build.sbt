@@ -3,7 +3,7 @@ import scala.xml._
 import java.net.URL
 import Dependencies._
 
-val unusedOptions = Def.setting(Seq("-Ywarn-unused:imports"))
+val unusedOptions = Seq("-Ywarn-unused:imports")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
@@ -11,7 +11,7 @@ lazy val scalatraSettings = Seq(
   baseDirectory in Test := file("."),
   crossScalaVersions := Seq("2.12.11", "2.13.3"),
   scalaVersion := crossScalaVersions.value.head,
-  scalacOptions ++= unusedOptions.value,
+  scalacOptions ++= unusedOptions,
   scalacOptions ++= Seq(
     "-target:jvm-1.8",
     "-unchecked",
@@ -33,7 +33,7 @@ lazy val scalatraSettings = Seq(
     "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 ) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c =>
-  scalacOptions in (c, console) --= unusedOptions.value
+  scalacOptions in (c, console) --= unusedOptions
 )
 
 lazy val scalatraProject = Project(
