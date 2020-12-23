@@ -83,7 +83,7 @@ lazy val scalatraCore = Project(
       slf4jApi,
       jUniversalChardet,
       commonsText,
-      parserCombinators.value,
+      parserCombinators,
       xml,
       akkaActor % "test",
       akkaTestkit % "test"
@@ -221,7 +221,7 @@ lazy val scalatraSwagger = Project(
     scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       json4sExt,
-      parserCombinators.value,
+      parserCombinators,
       logbackClassic % "provided"
     ),
     description := "Scalatra integration with Swagger"

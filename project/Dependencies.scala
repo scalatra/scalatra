@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  lazy val parserCombinators        = Def.setting("org.scala-lang.modules"  %% "scala-parser-combinators"   % parserCombinatorVersion.value)
+  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.2"
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.3.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
@@ -56,13 +56,4 @@ object Dependencies {
   private val scalateVersion          = "1.9.6"
   private val scalatestVersion        = "3.2.3"
   private val specs2Version           = "4.10.5"
-  private val parserCombinatorVersion = Def.setting(
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
-        // https://github.com/scala/scala-parser-combinators/issues/197
-        "1.1.1"
-      case _ =>
-        "1.1.2"
-    }
-  )
 }
