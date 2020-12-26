@@ -9,7 +9,7 @@ If you can create a test case then your issue is likely to be resolved more quic
 suite so it is not recreated later.
 
 When reporting an issue please try to give us all the info you have: scalatra version, operating system, scala version, sbt version,
- jdk version, [phase of the moon](http://www.ist.rit.edu/~jxs/jargon/html/P/phase-of-the-moon.html).
+ jdk version, [phase of the moon](http://www.catb.org/jargon/html/P/phase-of-the-moon.html).
 
 
 ## The Git repository
@@ -19,14 +19,6 @@ As soon as you have something you want the core team to fix, just send a pull re
 quickly into the main repository. 
 
 There is no change too little to be merged in.
-
-### Working with Github
-
-  1. If you are not a github user, check out [their help page](http://help.github.com/) on how to get started, register and go  to step 2
-  2. fork us as described [here](http://help.github.com/forking/) 
-  3. hack hack hack
-  4. push to your own forked repository
-  5. send a [pull request](https://help.github.com/articles/using-pull-requests)
 
 ### Become a committer
 Do some good contributions and we'll give you a shiny commit bit!
@@ -38,24 +30,28 @@ Good documentation is core to a successful and healthy ecosystem, the more we  h
 Scaladoc lives inside the scala source code, if you want to contribute scaladoc patches, do the same thing described above:
 fork [the github project](https://github.com/scalatra/scalatra/) and write the documentation, then do a pull request. 
 
-The [scaladoc syntax](https://wiki.scala-lang.org/display/SW/Writing+Documentation) is a mix of javadoc and wiki.
+The [scaladoc syntax](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html) is a mix of javadoc and wiki.
 Rules for good code documentation are the same as in any other language/framework: why is better than what, compare
 
-    /**
-     * A trait representing a Foo
-     */
-    trait Foo { ... }
+```scala
+/**
+ * A trait representing a Foo
+ */
+trait Foo { ... }
+```
 
 
 and
 
-    /**
-     * A Foo is used for bar-ing a Baz
-     */
-    trait Foo { ... }
+```scala
+/**
+ * A Foo is used for bar-ing a Baz
+ */
+trait Foo { ... }
+```
 
 ### Site documentation / handbook
-You can open pull requests for the [Scalatra Documentation](http://scalatra.org/) website in its [GitHub repository]( https://github.com/scalatra/scalatra-website/)
+You can open pull requests for the [Scalatra Documentation](http://scalatra.org/) website in its [GitHub repository](https://github.com/scalatra/scalatra-website/)
 
 ## Code
 For the good of the community we should agree on some coding style and conventions, and try to be consistent, but scala itself and scalatra
@@ -92,34 +88,35 @@ Take a look at the existing files in `src/test/` to see examples of how to write
 
 Basically: test data structures as you would normally do, and test traits destined to be mixed in in ScalatraKernel with the pattern
 
-    // define a servlet mixing in your trait
-    class SomethingSupportTestServlet extends ScalatraServlet with SomethingSupport {
-      get("/foo") {
-        ... use support methods
-      }
+```scala
+// define a servlet mixing in your trait
+class SomethingSupportTestServlet extends ScalatraServlet with SomethingSupport {
+  get("/foo") {
+    ... use support methods
+  }
 
+  post("/bar") {
+    ... use support methods
+  }
+}
+
+// define a FunSuite for the servlet as if this was a normal scalatra app
+class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
+  addServlet(classOf[SomethingSupportTestServlet], "/*")
+
+  test("should use the support method sensibly") {
+    session {
       post("/bar") {
-        ... use support methods
+        header("xxx") should equal(null)
+        body should equal("bla bla");
       }
-    }
 
-    // define a FunSuite for the servlet as if this was a normal scalatra app
-    class FlashMapSupportTest extends ScalatraFunSuite with ShouldMatchers {
-      addServlet(classOf[SomethingSupportTestServlet], "/*")
-
-      test("should use the support method sensibly") {
-        session {
-          post("/bar") {
-            header("xxx") should equal(null)
-            body should equal("bla bla");
-          }
-
-          get("/foo") {
-            header("yyy") should equal("posted")
-            body should equal("bla bla");
-          }
-
-        }
+      get("/foo") {
+        header("yyy") should equal("posted")
+        body should equal("bla bla");
       }
-    }
 
+    }
+  }
+}
+```
