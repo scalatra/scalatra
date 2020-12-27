@@ -3,22 +3,15 @@ import scala.xml._
 import java.net.URL
 import Dependencies._
 
-val unusedOptions = Def.setting(
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 11)) =>
-      Seq("-Ywarn-unused-import")
-    case _ =>
-      Seq("-Ywarn-unused:imports")
-  }
-)
+val unusedOptions = Seq("-Ywarn-unused:imports")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
   fork in Test := true,
   baseDirectory in Test := file("."),
-  crossScalaVersions := Seq("2.12.12", "2.11.12", "2.13.4"),
+  crossScalaVersions := Seq("2.12.12", "2.13.4"),
   scalaVersion := crossScalaVersions.value.head,
-  scalacOptions ++= unusedOptions.value,
+  scalacOptions ++= unusedOptions,
   scalacOptions ++= Seq(
     "-target:jvm-1.8",
     "-unchecked",
@@ -40,7 +33,7 @@ lazy val scalatraSettings = Seq(
     "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 ) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c =>
-  scalacOptions in (c, console) --= unusedOptions.value
+  scalacOptions in (c, console) --= unusedOptions
 )
 
 lazy val scalatraProject = Project(
@@ -90,7 +83,7 @@ lazy val scalatraCore = Project(
       slf4jApi,
       jUniversalChardet,
       commonsText,
-      parserCombinators.value,
+      parserCombinators,
       xml,
       akkaActor % "test",
       akkaTestkit % "test"
@@ -228,7 +221,7 @@ lazy val scalatraSwagger = Project(
     scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
       json4sExt,
-      parserCombinators.value,
+      parserCombinators,
       logbackClassic % "provided"
     ),
     description := "Scalatra integration with Swagger"
