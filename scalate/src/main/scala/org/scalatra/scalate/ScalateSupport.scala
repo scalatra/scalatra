@@ -41,7 +41,7 @@ object ScalateSupport {
  * ScalateSupport creates and configures a template engine and provides
  * helper methods and bindings to integrate with the ServletBase.
  */
- @deprecated("Scalate support in Scalatra has been deprecated. It will be deprecated in the next major version.", "2.8.0")
+@deprecated("Scalate support in Scalatra has been deprecated. It will be deprecated in the next major version.", "2.8.0")
 trait ScalateSupport extends org.scalatra.servlet.ServletBase {
 
   /**
