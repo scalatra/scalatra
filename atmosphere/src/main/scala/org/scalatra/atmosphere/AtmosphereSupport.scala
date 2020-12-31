@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory
 
 import scala.util.control.Exception.allCatch
 
+
+@deprecated("Atmosphere support in Scalatra has been deprecated. It will be deprecated in the next major version.", "2.8.0")
 trait AtmosphereSupport extends Initializable with Handler with CometProcessor with HttpEventServlet with org.apache.catalina.comet.CometProcessor with ScalatraAsyncSupport { self: ScalatraBase with org.scalatra.SessionSupport with JsonMethods[_] =>
 
   private[this] val logger = LoggerFactory.getLogger(getClass)
