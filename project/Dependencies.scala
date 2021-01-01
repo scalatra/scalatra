@@ -13,7 +13,7 @@ object Dependencies {
   lazy val atmosphereCompatJbossweb =  "org.atmosphere"          %  "atmosphere-compat-jbossweb" % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat   =  "org.atmosphere"          %  "atmosphere-compat-tomcat"   % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat7  =  "org.atmosphere"          %  "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
-  lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.3.3"
+  lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.4"
   lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.5"
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.9"
   lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
