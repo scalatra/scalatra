@@ -20,9 +20,6 @@ trait JacksonJsonSupport extends JsonSupport[JValue] with JacksonJsonOutput with
   }
 }
 
-@deprecated("JacksonJsonValueReaderProperty is deprecated from Scalatra 2.7.0. It will be deleted in the next major version. Please use the query syntax of Json4s.", "2.7.0")
-trait JacksonJsonValueReaderProperty extends JsonValueReaderProperty[JValue] { self: jackson.JsonMethods => }
-
 trait JacksonJsonOutput extends JsonOutput[JValue] with jackson.JsonMethods {
   protected def writeJson(json: JValue, writer: Writer): Unit = {
     if (json != JNothing) mapper.writeValue(writer, json)
