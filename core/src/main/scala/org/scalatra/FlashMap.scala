@@ -20,26 +20,6 @@ class FlashMap extends Serializable {
   private[this] val flagged = new ConcurrentSkipListSet[String]().asScala
 
   /**
-   * Removes an entry from the flash map.  It is no longer available for this
-   * request or the next.
-   */
-  @deprecated("FlashMap#-= has been deprecated, please use remove method instead", "2.7.0")
-  def -=(key: String): FlashMap.this.type = {
-    m -= key
-    this
-  }
-
-  /**
-   * Adds an entry to the flash map.  Clears the sweep flag for the key.
-   */
-  @deprecated("FlashMap#+= has been deprecated, please use update method instead", "2.7.0")
-  def +=(kv: (String, Any)): FlashMap.this.type = {
-    flagged -= kv._1
-    m += kv
-    this
-  }
-
-  /**
    * Adds an entry to the flash map.  Clears the sweep flag for the key.
    */
   def update(key: String, value: Any): Unit = {
