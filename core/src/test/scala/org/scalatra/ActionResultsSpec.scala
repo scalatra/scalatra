@@ -5,6 +5,8 @@ import java.io.File
 
 import org.scalatra.test.specs2.MutableScalatraSpec
 
+import scala.io.Codec
+
 class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
 
 trait ActionResultTestBase {
@@ -111,7 +113,7 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
 
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
-        response.getContentType() mustEqual "text/plain;charset=" + java.nio.charset.Charset.defaultCharset.displayName.toLowerCase
+        response.getContentType() mustEqual "text/plain;charset=" + Codec.defaultCharsetCodec.charSet.displayName.toLowerCase
       }
     }
 

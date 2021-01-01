@@ -1,6 +1,6 @@
 package org.scalatra.util.io
 
-import java.io.{ File, FileInputStream }
+import java.io.File
 import java.nio.charset.Charset
 
 import org.mozilla.universalchardet.UniversalDetector
@@ -15,31 +15,22 @@ object FileCharset {
   private val CheckByteLength = 8192
 
   def apply(file: File): Charset = {
-    val buf = Array.ofDim[Byte](CheckByteLength)
-    val detector = new UniversalDetector(null)
     try {
-      using(new FileInputStream(file)) { fis =>
-        var idx = fis.read(buf)
-        while (idx > 0 && !detector.isDone) {
-          detector.handleData(buf, 0, idx)
-          idx = fis.read(buf)
-        }
-        detector.dataEnd()
-      }
-      getCharset(detector, Codec.fileEncodingCodec)
+      getCharset(UniversalDetector.detectCharset(file))
     } catch {
       case t: Throwable =>
         logger.warn("Failed to detect charset for file: " + file.getPath + ".", t)
         Codec.defaultCharsetCodec.charSet
-    } finally {
-      detector.reset()
     }
   }
 
-  private[this] def getCharset(detector: UniversalDetector, default: Codec): Charset = {
-    val cs = detector.getDetectedCharset
-    if (cs == null || cs.trim().isEmpty) {
-      default.charSet
+  private[this] def getCharset(cs: String): Charset = {
+    // US-ASCII is compatible with UTF-8, so if the result is US-ASCII, replace it with UTF-8.
+    if (cs == "US-ASCII" || cs == null || cs.trim().isEmpty) {
+
+      // Codec.fileEncodingCodec points to UTF-8
+      // unless explicitly specified in the form `JAVA_OPTS="-Dfile.encoding=Foo"`.
+      Codec.fileEncodingCodec.charSet
     } else {
       Charset.forName(cs)
     }
@@ -47,21 +38,14 @@ object FileCharset {
 
   def apply(barr: Array[Byte]): Charset = {
     val detector = new UniversalDetector(null)
-    try {
-      var idx = 0
-      while (idx < barr.length && idx < CheckByteLength && !detector.isDone) {
-        if (idx > 0) detector.handleData(barr, 0, idx)
-        idx += 1
-      }
-      detector.dataEnd()
-      getCharset(detector, Codec.defaultCharsetCodec)
-    } catch {
-      case t: Throwable =>
-        logger.warn("Failed to detect charset.", t)
-        Codec.defaultCharsetCodec.charSet
-    } finally {
-      detector.reset()
-    }
-  }
 
+    var idx = 0
+    while (idx < barr.length && idx < CheckByteLength && !detector.isDone) {
+      if (idx > 0) detector.handleData(barr, 0, idx)
+      idx += 1
+    }
+    detector.dataEnd()
+
+    getCharset(detector.getDetectedCharset)
+  }
 }
