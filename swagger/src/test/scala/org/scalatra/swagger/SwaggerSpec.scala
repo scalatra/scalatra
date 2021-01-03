@@ -293,9 +293,9 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
     (apiOperation[Pet]("getPetById")
       summary "Find pet by ID"
       description "Returns a pet based on ID"
-      responseMessages (ResponseMessage(400, "Invalid ID supplied").model[Error], ResponseMessage(404, "Pet not found"))
+      responseMessages(ResponseMessage(400, "Invalid ID supplied").model[Error], ResponseMessage(404, "Pet not found"))
       parameter pathParam[String]("petId").description("ID of pet that needs to be fetched")
-      produces ("application/json", "application/xml")
+      produces("application/json", "application/xml")
       authorizations ("oauth2"))
 
   get("/:petId", operation(getPet)) {
@@ -340,13 +340,13 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
     (apiOperation[List[Pet]]("findPetsByStatus").deprecate
       summary "Finds Pets by status"
       description "Multiple status values can be provided with comma separated strings"
-      produces ("application/json", "application/xml")
+      produces("application/json", "application/xml")
       responseMessage ResponseMessage(400, "Invalid status value")
       authorizations ("apiKey")
       parameter (queryParam[String]("status").required.multiValued
         description "Status values that need to be considered for filter"
         defaultValue "available"
-        allowableValues ("available", "pending", "sold")))
+        allowableValues("available", "pending", "sold")))
 
   get("/findByStatus", operation(findByStatus)) {
     data.findPetsByStatus(params("status"))
@@ -356,7 +356,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
     (apiOperation[Map[String, Pet]]("findPetsByTags").deprecate
       summary "Finds Pets by tags"
       description "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing."
-      produces ("application/json", "application/xml")
+      produces("application/json", "application/xml")
       authorizations ("AuthorizationN")
       responseMessage ResponseMessage(400, "Invalid tag value")
       parameter queryParam[String]("tags").description("Tags to filter by").multiValued)
@@ -378,11 +378,11 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
     (apiOperation[Order]("getOrderById")
       summary "Find purchase order by ID"
       description "For valid response try integer IDs with value <= 5. Anything above 5 or nonintegers will generate API errors"
-      produces ("application/json", "application/xml")
+      produces("application/json", "application/xml")
       tags ("store")
       parameter pathParam[String]("orderId").description("ID of pet that needs to be fetched").required.example("1")
       parameter queryParam[String]("showCoolStuff").hidden
-      responseMessages (
+      responseMessages(
         ResponseMessage(400, "Invalid ID supplied"),
         ResponseMessage(404, "Order not found")))
 
@@ -395,7 +395,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       summary "Delete purchase order by ID"
       description "For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors"
       tags ("store")
-      responseMessages (
+      responseMessages(
         ResponseMessage(400, "Invalid ID supplied"),
         ResponseMessage(404, "Order not found")))
 
@@ -408,7 +408,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
       summary "Place an order for a pet"
       tags ("store")
       responseMessage ResponseMessage(400, "Invalid order")
-      responseMessages (
+      responseMessages(
         ResponseMessage(201, "Created", Some(Order.toString())),
         ResponseMessage(400, "Invalid order"))
         parameter bodyParam[Order].description("order placed for purchasing the pet"))

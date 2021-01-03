@@ -64,17 +64,17 @@ object SwaggerSupportSyntax {
 
       private def prefixedOptional: Parser[Builder => Builder] =
         ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ {
-          case p ~ "?:" ~ o ~ "?" => builder => builder addPrefixedOptional (o, p)
+          case p ~ "?:" ~ o ~ "?" => builder => builder.addPrefixedOptional(o, p)
         }
 
       private def optional: Parser[Builder => Builder] =
-        "?:" ~> """\w+""".r <~ "?" ^^ { str => builder => builder addOptional str }
+        "?:" ~> """\w+""".r <~ "?" ^^ { str => builder => builder.addOptional(str) }
 
       private def named: Parser[Builder => Builder] =
-        ":" ~> """\w+""".r ^^ { str => builder => builder addNamed str }
+        ":" ~> """\w+""".r ^^ { str => builder => builder.addNamed(str) }
 
       private def literal: Parser[Builder => Builder] =
-        ("""[\.\+\(\)\$]""".r | ".".r) ^^ { str => builder => builder addLiteral str }
+        ("""[\.\+\(\)\$]""".r | ".".r) ^^ { str => builder => builder.addLiteral(str) }
     }
   }
 
