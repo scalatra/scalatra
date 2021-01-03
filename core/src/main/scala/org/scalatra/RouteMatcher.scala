@@ -55,7 +55,7 @@ final class SinatraRouteMatcher(pattern: String)
 
     def addNamed(name: String): Builder =
       if (params contains name) copy(path = path + params(name), params = params - name)
-      else throw new Exception("Builder \"%s\" requires param \"%s\"" format (pattern, name))
+      else throw new Exception("Builder \"%s\" requires param \"%s\"".format(pattern, name))
 
     def addOptional(name: String): Builder =
       if (params contains name) copy(path = path + params(name), params = params - name)
@@ -89,17 +89,17 @@ final class SinatraRouteMatcher(pattern: String)
 
     private def prefixedOptional: Parser[Builder => Builder] =
       ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ {
-        case p ~ "?:" ~ o ~ "?" => builder => builder addPrefixedOptional (o, p)
+        case p ~ "?:" ~ o ~ "?" => builder => builder.addPrefixedOptional(o, p)
       }
 
     private def optional: Parser[Builder => Builder] =
-      "?:" ~> """\w+""".r <~ "?" ^^ { str => builder => builder addOptional str }
+      "?:" ~> """\w+""".r <~ "?" ^^ { str => builder => builder.addOptional(str) }
 
     private def named: Parser[Builder => Builder] =
       ":" ~> """\w+""".r ^^ { str => builder => builder addNamed str }
 
     private def literal: Parser[Builder => Builder] =
-      ("""[\.\+\(\)\$]""".r | ".".r) ^^ { str => builder => builder addLiteral str }
+      ("""[\.\+\(\)\$]""".r | ".".r) ^^ { str => builder => builder.addLiteral(str) }
   }
 
   override def toString = pattern
@@ -128,7 +128,7 @@ final class RailsRouteMatcher(pattern: String)
 
     def addParam(name: String): Builder =
       if (params contains name) copy(path = path + params(name), params = params - name)
-      else throw new Exception("Builder \"%s\" requires param \"%s\"" format (pattern, name))
+      else throw new Exception("Builder \"%s\" requires param \"%s\"".format(pattern, name))
 
     def optional(builder: Builder => Builder): Builder =
       try builder(this)
