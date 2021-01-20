@@ -10,8 +10,8 @@ class EmbeddedJettyContainerSpec extends SpecificationLike
   with HttpComponentsClient
   with BeforeAfterAll {
 
-  def beforeAll = start()
-  def afterAll = stop()
+  def beforeAll() = start()
+  def afterAll() = stop()
 
   addServlet(new HttpServlet {
     override def doGet(req: HttpServletRequest, res: HttpServletResponse) = {

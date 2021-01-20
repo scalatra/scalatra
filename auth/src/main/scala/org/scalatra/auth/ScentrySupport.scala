@@ -44,10 +44,10 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
   }
 
   private[this] def createScentry() = {
-    initializeScentry
-    configureScentry
-    registerStrategiesFromConfig
-    registerAuthStrategies
+    initializeScentry()
+    configureScentry()
+    registerStrategiesFromConfig()
+    registerAuthStrategies()
   }
 
   protected def configureScentry() = {

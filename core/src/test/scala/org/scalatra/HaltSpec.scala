@@ -113,7 +113,7 @@ class HaltSpec extends ScalatraSpec {
 
   def reason(uri: String, reason: String) =
     get(uri) {
-      response.getReason must_== reason
+      response.getReason() must_== reason
     }
 
   def bodyContains(uri: String, text: String) =

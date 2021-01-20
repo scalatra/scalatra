@@ -54,7 +54,7 @@ class ContentTypeTestServlet(system: ActorSystem) extends ScalatraServlet {
 
     def receive = {
       case 1 =>
-        firstSender = sender
+        firstSender = sender()
         context.become(secondReceive)
     }
 
@@ -90,7 +90,7 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
   val system = ActorSystem()
   implicit val timeout: Timeout = 5.seconds
 
-  override def afterAll = system.terminate()
+  override def afterAll() = system.terminate()
 
   val servletHolder = new ServletHolder(new ContentTypeTestServlet(system))
   servletHolder.setInitOrder(1) // force load on startup
@@ -142,7 +142,7 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
       def receive = {
         case i: Int =>
           val res = get("/concurrent/" + i) { response }
-          sender ! Tuple2(i, res.mediaType)
+          sender() ! Tuple2(i, res.mediaType)
       }
     }
 

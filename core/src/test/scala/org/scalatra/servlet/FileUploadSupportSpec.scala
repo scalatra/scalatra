@@ -2,7 +2,7 @@ package org.scalatra.servlet
 
 import java.io.File
 
-import org.scalatra.{ Ok, ScalatraServlet }
+import org.scalatra.ScalatraServlet
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.collection.JavaConverters._

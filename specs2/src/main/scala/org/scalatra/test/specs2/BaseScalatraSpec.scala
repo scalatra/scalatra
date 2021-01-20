@@ -10,6 +10,6 @@ import org.specs2.specification.BeforeAfterAll
  * ScalatraSpec or MutableScalatraSpec.
  */
 trait BaseScalatraSpec extends BeforeAfterAll with ScalatraTests {
-  def beforeAll = start()
-  def afterAll = stop()
+  def beforeAll() = start()
+  def afterAll() = stop()
 }
