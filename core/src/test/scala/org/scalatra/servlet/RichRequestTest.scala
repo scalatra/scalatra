@@ -52,11 +52,37 @@ class RichRequestTest extends AnyFunSuite with Matchers {
     }
   }
 
-  def createStubRequestWithServletInputStreamThrowsIOException(): HttpServletRequest = {
+  private def createStubRequestWithServletInputStreamThrowsIOException(): HttpServletRequest = {
     val request = mock(classOf[HttpServletRequest])
     when(request.getInputStream).thenReturn(new ServletInputStreamThrowsIOException)
 
     request
+  }
+
+  test("remoteAddress for single address in X-Forwarded-For header") {
+    val request = mock(classOf[HttpServletRequest])
+    when(request.getHeader("X-FORWARDED-FOR")).thenReturn("1.2.3.4")
+    request.remoteAddress should equal("1.2.3.4")
+  }
+
+  test("remoteAddress for multiple addresses in X-Forwarded-For header") {
+    val request = mock(classOf[HttpServletRequest])
+    when(request.getHeader("X-FORWARDED-FOR")).thenReturn("1.2.3.4, 5.6.7.8")
+    request.remoteAddress should equal("1.2.3.4")
+  }
+
+  test("remoteAddress without X-Forwarded-For header") {
+    val request = mock(classOf[HttpServletRequest])
+    when(request.getHeader("X-FORWARDED-FOR")).thenReturn(null)
+    when(request.getRemoteAddr).thenReturn("0.0.0.0")
+    request.remoteAddress should equal("0.0.0.0")
+  }
+
+  test("remoteAddress for blank X-Forwarded-For header") {
+    val request = mock(classOf[HttpServletRequest])
+    when(request.getHeader("X-FORWARDED-FOR")).thenReturn("")
+    when(request.getRemoteAddr).thenReturn("0.0.0.0")
+    request.remoteAddress should equal("0.0.0.0")
   }
 }
 
