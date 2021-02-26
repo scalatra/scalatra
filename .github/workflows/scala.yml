@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         java: [8, 11]
-        Scala: ['2.11.12', '2.12.12', '2.13.4']
+        Scala: ['2.11.12', '2.12.13', '2.13.4']
 
     steps:
     - uses: actions/checkout@v2
