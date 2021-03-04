@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    branches: [ '2.7.x', 'main' ]
+    branches: [ 'main' ]
   pull_request:
-    branches: [ '2.7.x', 'main' ]
+    branches: [ 'main' ]
 
 jobs:
   build:
