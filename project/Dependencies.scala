@@ -28,11 +28,11 @@ object Dependencies {
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
-  lazy val junit                    =  "junit"                   %  "junit"                      % "4.13.1"
+  lazy val junit                    =  "junit"                   %  "junit"                      % "4.13.2"
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-12"                 % "3.2.2.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.6.28"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.8.0"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion
   lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
@@ -43,17 +43,17 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-matcher-extra"
                                                                                   ).map(_        % specs2Version)
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.14"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.16"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.16"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.18"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.18"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "30.1-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.5.0"
 
-  private val akkaVersion             = "2.5.32"
+  private val akkaVersion             = "2.6.13"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
-  private val jettyVersion            = "9.4.35.v20201120"
+  private val jettyVersion            = "9.4.38.v20210224"
   private val json4sVersion           = "3.6.10"
   private val scalateVersion          = "1.9.6"
   private val scalatestVersion        = "3.2.3"
-  private val specs2Version           = "4.10.5"
+  private val specs2Version           = "4.10.6"
 }
