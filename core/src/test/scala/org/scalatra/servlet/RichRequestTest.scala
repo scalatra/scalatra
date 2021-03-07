@@ -11,7 +11,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class RichRequestTest extends AnyFunSuite with Matchers {
-  implicit def requestWrapper(r: HttpServletRequest) = RichRequest(r)
+  implicit def requestWrapper(r: HttpServletRequest): RichRequest = RichRequest(r)
 
   test("decodes body according to the character encoding") {
     val encoding = "ISO-8859-5"
