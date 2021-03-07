@@ -9,7 +9,7 @@ import com.codahale.metrics.servlets._
 import org.scalatra.servlet.ServletApiImplicits
 
 object MetricsSupportExtensions extends ServletApiImplicits {
-  class MetricsSupportExtensions(context: ServletContext)(implicit healthCheckRegistry: HealthCheckRegistry, metricRegistry: MetricRegistry) {
+  implicit class MetricsSupportExtension(context: ServletContext)(implicit healthCheckRegistry: HealthCheckRegistry, metricRegistry: MetricRegistry) {
 
     def mountMetricsAdminServlet(path: String) = context.mount(classOf[AdminServlet], path)
 
@@ -33,6 +33,4 @@ object MetricsSupportExtensions extends ServletApiImplicits {
       context.setAttribute("com.codahale.metrics.servlet.InstrumentedFilter.registry", metricRegistry)
     }
   }
-
-  implicit def metricsSupportExtensions(context: ServletContext)(implicit healthCheckRegistry: HealthCheckRegistry, metricRegistry: MetricRegistry) = new MetricsSupportExtensions(context)
 }
