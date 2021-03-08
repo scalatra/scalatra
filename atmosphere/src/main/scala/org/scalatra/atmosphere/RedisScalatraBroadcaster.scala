@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import _root_.akka.actor._
 import org.atmosphere.cpr._
 import org.atmosphere.plugin.redis.RedisBroadcaster
+import org.json4s.Formats
 import org.json4s.ShortTypeHints
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{ read, write }
@@ -19,7 +20,7 @@ final class RedisScalatraBroadcaster()(implicit wireFormat: WireFormat, protecte
   private[this] val logger = LoggerFactory.getLogger(classOf[RedisScalatraBroadcaster])
   protected var _resources: ConcurrentLinkedQueue[AtmosphereResource] = resources
   protected var _wireFormat: WireFormat = wireFormat
-  implicit val formats = Serialization.formats(ShortTypeHints(List(classOf[Everyone], classOf[OnlySelf], classOf[SkipSelf])))
+  implicit val formats: Formats = Serialization.formats(ShortTypeHints(List(classOf[Everyone], classOf[OnlySelf], classOf[SkipSelf])))
 
   override def broadcast[T <: OutboundMessage](msg: T, clientFilter: ClientFilter)(implicit executionContext: ExecutionContext): Future[T] = {
     logger.info("Resource [%s] sending message to [%s] with contents:  [%s]".format(clientFilter.uuid, clientFilter, msg))

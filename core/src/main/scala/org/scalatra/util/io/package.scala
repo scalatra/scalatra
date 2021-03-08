@@ -4,6 +4,7 @@ import java.io._
 import java.nio.channels.Channels
 
 import scala.annotation.tailrec
+import scala.language.reflectiveCalls
 
 /**
  * A collection of I/O utility methods.
