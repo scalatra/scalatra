@@ -7,7 +7,7 @@ class ScalatraServletRequestPathSpec extends AnyWordSpec with Matchers {
 
   "a requestPath" should {
 
-    val servlet = new {} with ScalatraServlet {}
+    val servlet = new ScalatraServlet {}
 
     "be extracted properly when encoded url contains semicolon" in {
       servlet.requestPath("/test%3Btest/", 0) must equal("/test;test/")

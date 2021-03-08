@@ -23,7 +23,7 @@ class RemoveRouteSpec extends ScalatraWordSpec {
         get("/foo") {
           body should equal("foo")
         }
-        post("/remove") {}
+        post("/remove") { () }
         get("/foo") {
           body should equal("not found")
         }

@@ -55,7 +55,7 @@ class SessionTest extends ScalatraFunSuite {
 
   test("sessionOption should be Some when a session is active") {
     session {
-      post("/session") {}
+      post("/session") { () }
 
       get("/session-option") {
         body should equal("Some")
