@@ -77,7 +77,8 @@ abstract class BasicAuthStrategy[UserType <: AnyRef](protected val app: Scalatra
 
   private[this] val REMOTE_USER = "REMOTE_USER"
 
-  implicit def request2BasicAuthRequest(r: HttpServletRequest) = new BasicAuthStrategy.BasicAuthRequest(r)
+  implicit def request2BasicAuthRequest(r: HttpServletRequest): BasicAuthStrategy.BasicAuthRequest =
+    new BasicAuthStrategy.BasicAuthRequest(r)
 
   protected def challenge = "Basic realm=\"%s\"" format realm
 
