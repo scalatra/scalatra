@@ -91,7 +91,7 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
   addFilter(classOf[FilterTestFilter], "/*")
 
   override def beforeEach(): Unit = {
-    post("/reset-counters") {}
+    post("/reset-counters") { () }
   }
 
   test("before is called exactly once per request to a servlet") {
@@ -106,6 +106,7 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
 
   test("before is called when route is not found") {
     get("/this-route-does-not-exist") {
+      ()
       // Should be 1, but we can't see it yet
     }
     get("/before-counter") {
@@ -133,6 +134,7 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
 
   test("after is called when route is not found") {
     get("/this-route-does-not-exist") {
+      ()
       // Should be 1, but we can't see it yet
     }
     get("/after-counter") {
@@ -148,7 +150,7 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
   }
 
   test("after is called even if route handler throws exception") {
-    get("/demons-be-here") {}
+    get("/demons-be-here") { () }
     get("/after-counter") {
       body should equal("2")
     }

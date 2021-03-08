@@ -41,6 +41,7 @@ object CsrfTokenSpec extends MutableScalatraSpec {
   "the post should be invalid when it uses a different csrf token" in {
     session {
       get("/renderForm") {
+        ()
       }
       post("/renderForm", CsrfTokenSupport.DefaultKey -> "Hey I'm different") {
         status must be_==(403)

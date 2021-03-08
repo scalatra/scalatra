@@ -11,6 +11,16 @@ lazy val scalatraSettings = Seq(
   baseDirectory in Test := (ThisBuild / baseDirectory).value,
   crossScalaVersions := Seq("2.12.12", "2.13.4"),
   scalaVersion := crossScalaVersions.value.head,
+  testFrameworks --= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, _)) =>
+        Nil
+      case _ =>
+        // specs2 does not support Scala 3
+        // TODO remove this setting when specs2 for Scala 3 released
+        Seq(TestFrameworks.Specs2)
+    }
+  },
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
