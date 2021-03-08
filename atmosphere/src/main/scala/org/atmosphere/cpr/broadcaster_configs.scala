@@ -34,7 +34,7 @@ sealed case class ScalatraBroadcasterConfig(
  */
 sealed case class RedisScalatraBroadcasterConfig(uri: URI = URI.create("redis://127.0.0.1:6379"), auth: Option[String] = None) extends BroadcasterConf {
   final def broadcasterClass = classOf[RedisScalatraBroadcaster]
-  final def extraSetup = { b: Broadcaster =>
+  final def extraSetup = { (b: Broadcaster) =>
     auth.foreach(b.asInstanceOf[RedisScalatraBroadcaster].setAuth(_))
   }
 }

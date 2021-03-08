@@ -2,6 +2,7 @@ package org.scalatra
 package servlet
 
 import javax.servlet.ServletContext
+import scala.language.reflectiveCalls
 
 object HasMultipartConfig {
   val DefaultMultipartConfig = MultipartConfig()

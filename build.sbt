@@ -7,33 +7,39 @@ val unusedOptions = Seq("-Ywarn-unused:imports")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
-  fork in Test := true,
+  Test / fork := true,
   baseDirectory in Test := (ThisBuild / baseDirectory).value,
   crossScalaVersions := Seq("2.12.13", "2.13.4"),
   scalaVersion := crossScalaVersions.value.head,
-  scalacOptions ++= unusedOptions,
+  scalacOptions ++= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, _)) =>
+        unusedOptions ++ Seq(
+          "-target:jvm-1.8",
+          "-Xlint",
+          "-Xcheckinit",
+        )
+      case _ =>
+        Seq(
+          "-Xignore-scala2-macros",
+          "-source",
+          "3.0-migration",
+        )
+    }
+  },
   scalacOptions ++= Seq(
-    "-target:jvm-1.8",
     "-unchecked",
     "-deprecation",
-    "-Xlint",
     /*"-Yinline-warnings",*/
-    "-Xcheckinit",
     "-encoding", "utf8",
     "-feature",
     "-language:higherKinds",
     "-language:implicitConversions",
-    "-language:reflectiveCalls",
     "-language:existentials"
   ),
   manifestSetting,
-  dependencyOverrides := Seq(
-    "org.scala-lang" % "scala-library"  % scalaVersion.value,
-    "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
-    "org.scala-lang" % "scala-compiler" % scalaVersion.value
-  )
 ) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c =>
-  scalacOptions in (c, console) --= unusedOptions
+  c / console / scalacOptions --= unusedOptions
 )
 
 lazy val scalatraProject = Project(
@@ -41,14 +47,14 @@ lazy val scalatraProject = Project(
   base = file(".")).settings(
     scalatraSettings ++ Seq(
     name := "scalatra-unidoc",
-    artifacts := Classpaths.artifactDefs(Seq(packageDoc in Compile, makePom in Compile)).value,
-    packagedArtifacts := Classpaths.packaged(Seq(packageDoc in Compile, makePom in Compile)).value,
+    artifacts := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value,
+    packagedArtifacts := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value,
     description := "A tiny, Sinatra-like web framework for Scala",
     shellPrompt := { state =>
       s"sbt:${Project.extract(state).currentProject.id}" + Def.withColor("> ", Option(scala.Console.CYAN))
     }
   ) ++ Defaults.packageTaskSettings(
-    packageDoc in Compile, (unidoc in Compile).map(_.flatMap(Path.allSubpaths))
+    Compile / packageDoc, (Compile / unidoc).map(_.flatMap(Path.allSubpaths))
   )).aggregate(
     scalatraCore,
     scalatraAuth,

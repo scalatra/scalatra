@@ -50,7 +50,7 @@ trait UrlCodingUtils {
 
   def urlEncode(toEncode: String, charset: Charset = StandardCharsets.UTF_8, spaceIsPlus: Boolean = false, toSkip: BitSet = toSkip): String = {
     val in = charset.encode(ensureUppercasedEncodings(toEncode))
-    val out = CharBuffer.allocate((in.remaining() * 3).ceil.toInt)
+    val out = CharBuffer.allocate((in.remaining() * 3).toDouble.ceil.toInt)
     while (in.hasRemaining) {
       val b = in.get() & 0xFF
       if (toSkip.contains(b)) {

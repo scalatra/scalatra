@@ -77,21 +77,21 @@ class SinatraPathPatternParser extends RegexPathPatternParser {
         throw new IllegalArgumentException("Invalid path pattern: " + pattern)
     }
 
-  private def pathPattern = rep(token) ^^ { _.reduceLeft { _ + _ } }
+  private def pathPattern: Parser[PartialPathPattern] = rep(token) ^^ { _.reduceLeft { _ + _ } }
 
-  private def token = splat | namedGroup | literal
+  private def token: Parser[PartialPathPattern] = splat | namedGroup | literal
 
-  private def splat = "*" ^^^ PartialPathPattern("(.*?)", List("splat"))
+  private def splat: Parser[PartialPathPattern] = "*" ^^^ PartialPathPattern("(.*?)", List("splat"))
 
-  private def namedGroup = ":" ~> """\w+""".r ^^
+  private def namedGroup: Parser[PartialPathPattern] = ":" ~> """\w+""".r ^^
     { groupName => PartialPathPattern("([^/]+)", List(groupName)) }
 
-  private def literal = metaChar | normalChar
+  private def literal: Parser[PartialPathPattern] = metaChar | normalChar
 
-  private def metaChar = """[\.\+\(\)\$]""".r ^^
+  private def metaChar: Parser[PartialPathPattern] = """[\.\+\(\)\$]""".r ^^
     { c => PartialPathPattern("\\" + c) }
 
-  private def normalChar = ".".r ^^ { c => PartialPathPattern(c) }
+  private def normalChar: Parser[PartialPathPattern] = ".".r ^^ { c => PartialPathPattern(c) }
 
 }
 
@@ -116,23 +116,23 @@ class RailsPathPatternParser extends RegexPathPatternParser {
   private def target = expr ^^
     { e => PartialPathPattern("\\A" + e.regex + "\\Z", e.captureGroupNames).toPathPattern }
 
-  private def expr = rep1(token) ^^
+  private def expr: Parser[PartialPathPattern] = rep1(token) ^^
     { _.reduceLeft { _ + _ } }
 
-  private def token = param | glob | optional | static
+  private def token: Parser[PartialPathPattern] = param | glob | optional | static
 
-  private def param = ":" ~> identifier ^^
+  private def param: Parser[PartialPathPattern] = ":" ~> identifier ^^
     { name => PartialPathPattern("([^/.]+)", List(name)) }
 
   private def identifier = """[a-zA-Z_]\w*""".r
 
-  private def glob = "*" ~> identifier ^^
+  private def glob: Parser[PartialPathPattern] = "*" ~> identifier ^^
     { name => PartialPathPattern("(.+)", List(name)) }
 
   private def optional: Parser[PartialPathPattern] = "(" ~> expr <~ ")" ^^
     { e => PartialPathPattern("(?:" + e.regex + ")?", e.captureGroupNames) }
 
-  private def static = (escaped | char) ^^
+  private def static: Parser[PartialPathPattern] = (escaped | char) ^^
     { str => PartialPathPattern(str) }
 
   private def escaped = literal("\\") ~> (char | paren)

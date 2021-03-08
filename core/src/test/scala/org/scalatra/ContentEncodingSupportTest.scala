@@ -41,7 +41,7 @@ class GZipSupportServletTest extends ContentEncodingSupportTest(ContentEncoding.
 
 /** Abstract test suite, for any encoding. */
 abstract class ContentEncodingSupportTest(e: ContentEncoding) extends ScalatraFunSuite with Matchers {
-  implicit val encoding = e
+  implicit val encoding: ContentEncoding = e
 
   test("should decode request if Content-Encoding is supported") {
     post("/", Helper.compress(Helper.body), Map("Content-Encoding" -> encoding.name)) {
