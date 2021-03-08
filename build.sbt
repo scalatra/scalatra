@@ -11,6 +11,18 @@ lazy val scalatraSettings = Seq(
   baseDirectory in Test := (ThisBuild / baseDirectory).value,
   crossScalaVersions := Seq("2.12.12", "2.13.4"),
   scalaVersion := crossScalaVersions.value.head,
+  allDependencies := {
+    val values = allDependencies.value
+    // workaround for
+    // "Modules were resolved with conflicting cross-version suffixes"
+    // "   org.scala-lang.modules:scala-xml _3.0.0-RC1, _2.13"
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) =>
+        values.map(_.exclude("org.scala-lang.modules", "scala-xml_2.13"))
+      case _ =>
+        values
+    }
+  },
   testFrameworks --= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
