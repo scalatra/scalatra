@@ -221,7 +221,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * value of the map is the empty sequence.
    */
   def multiCookies: MultiParams = {
-    Option(r.getCookies).getOrElse(Array()).toSeq.
+    Option(r.getCookies).getOrElse(Array.empty[javax.servlet.http.Cookie]).toSeq.
       groupBy { _.getName }.
       transform { case (k, v) => v map { _.getValue } }.
       withDefaultValue(Seq.empty)
