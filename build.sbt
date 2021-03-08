@@ -35,7 +35,6 @@ lazy val scalatraSettings = Seq(
     "-feature",
     "-language:higherKinds",
     "-language:implicitConversions",
-    "-language:reflectiveCalls",
     "-language:existentials"
   ),
   manifestSetting,
