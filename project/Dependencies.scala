@@ -29,7 +29,7 @@ object Dependencies {
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.13.2"
-  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-12"                 % "3.2.2.0"
+  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.5.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
   lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.8.0"
