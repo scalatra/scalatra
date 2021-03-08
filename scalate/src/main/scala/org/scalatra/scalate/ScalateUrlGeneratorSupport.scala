@@ -58,7 +58,7 @@ trait ScalateUrlGeneratorSupport extends ScalateSupport {
         val pathForCurrentRequest = request.getServletPath
         val mappingsForServletContainingRoute = servletContext.getServletRegistration(servletName).getMappings.asScala
         val pathForServletContainingRoute = mappingsForServletContainingRoute.headOption.getOrElse("")
-        val pathReplacingFn = { req: HttpServletRequest =>
+        val pathReplacingFn = { (req: HttpServletRequest) =>
           route.contextPath(req)
             .replaceFirst(
               pathForCurrentRequest,
