@@ -4,8 +4,8 @@ import com.codahale.metrics.MetricRegistry
 import com.codahale.metrics.health.HealthCheckRegistry
 
 trait MetricsBootstrap {
-  implicit val healthCheckRegistry: HealthCheckRegistry = MetricsRegistries.healthCheckRegistry
-  implicit val metricRegistry: MetricRegistry = MetricsRegistries.metricRegistry
+  implicit def healthCheckRegistry: HealthCheckRegistry = MetricsRegistries.healthCheckRegistry
+  implicit def metricRegistry: MetricRegistry = MetricsRegistries.metricRegistry
 }
 
 object MetricsRegistries {

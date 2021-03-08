@@ -56,7 +56,7 @@ trait HttpComponentsClient extends Client {
   def submit[A](
     method: String,
     path: String,
-    queryParams: Iterable[(String, String)] = Map.empty,
+    queryParams: Iterable[(String, String)] = Seq.empty,
     headers: Iterable[(String, String)] = Seq.empty,
     body: Array[Byte] = null)(f: => A): A =
     {
