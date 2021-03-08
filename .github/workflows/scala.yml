@@ -31,7 +31,7 @@ jobs:
             sbt -v \
             "++ 3.0.0-RC1!" \
             update \
-            "all scalatra-common/test" # TODO add more sub projects
+            "all scalatra-common/test scalatra-auth/compile scalatra-cache/compile scalatra-forms/compile scalatra-jetty/compile scalatra-scalate/compile scalatra-twirl/compile" # TODO add more sub projects
             ;;
           *)
             echo "unknown scala version"
