@@ -11,14 +11,26 @@ lazy val scalatraSettings = Seq(
   baseDirectory in Test := (ThisBuild / baseDirectory).value,
   crossScalaVersions := Seq("2.12.12", "2.13.4"),
   scalaVersion := crossScalaVersions.value.head,
-  scalacOptions ++= unusedOptions,
+  scalacOptions ++= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, _)) =>
+        unusedOptions ++ Seq(
+          "-target:jvm-1.8",
+          "-Xlint",
+          "-Xcheckinit",
+        )
+      case _ =>
+        Seq(
+          "-Xignore-scala2-macros",
+          "-source",
+          "3.0-migration",
+        )
+    }
+  },
   scalacOptions ++= Seq(
-    "-target:jvm-1.8",
     "-unchecked",
     "-deprecation",
-    "-Xlint",
     /*"-Yinline-warnings",*/
-    "-Xcheckinit",
     "-encoding", "utf8",
     "-feature",
     "-language:higherKinds",
@@ -27,11 +39,6 @@ lazy val scalatraSettings = Seq(
     "-language:existentials"
   ),
   manifestSetting,
-  dependencyOverrides := Seq(
-    "org.scala-lang" % "scala-library"  % scalaVersion.value,
-    "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
-    "org.scala-lang" % "scala-compiler" % scalaVersion.value
-  )
 ) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c =>
   c / console / scalacOptions --= unusedOptions
 )

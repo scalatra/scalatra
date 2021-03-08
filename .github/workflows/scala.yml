@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         java: [8, 11]
-        Scala: ['2.12.12', '2.13.4']
+        scala: ['scala_2', 'scala_3']
 
     steps:
     - uses: actions/checkout@v2
@@ -23,5 +23,18 @@ jobs:
         java-version: ${{ matrix.java }}
     - name: Run tests
       run: |
-        sbt test ++${{matrix.Scala}} test unidoc
+        case ${{ matrix.scala }} in
+          "scala_2")
+            sbt -v "+test" "+unidoc"
+            ;;
+          "scala_3")
+            sbt -v \
+            "++ 3.0.0-RC1!" \
+            update \
+            "all scalatra-common/test" # TODO add more sub projects
+            ;;
+          *)
+            echo "unknown scala version"
+            exit 1
+        esac
         git diff --exit-code
