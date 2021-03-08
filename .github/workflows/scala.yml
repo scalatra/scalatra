@@ -11,6 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         java: [8, 11]
         scala: ['scala_2', 'scala_3']
