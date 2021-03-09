@@ -8,9 +8,31 @@ val unusedOptions = Seq("-Ywarn-unused:imports")
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
   Test / fork := true,
-  baseDirectory in Test := (ThisBuild / baseDirectory).value,
-  crossScalaVersions := Seq("2.12.12", "2.13.5"),
+  Test / baseDirectory := (ThisBuild / baseDirectory).value,
+  crossScalaVersions := Seq("2.12.12", "2.13.4"),
   scalaVersion := crossScalaVersions.value.head,
+  allDependencies := {
+    val values = allDependencies.value
+    // workaround for
+    // "Modules were resolved with conflicting cross-version suffixes"
+    // "   org.scala-lang.modules:scala-xml _3.0.0-RC1, _2.13"
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) =>
+        values.map(_.exclude("org.scala-lang.modules", "scala-xml_2.13"))
+      case _ =>
+        values
+    }
+  },
+  testFrameworks --= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, _)) =>
+        Nil
+      case _ =>
+        // specs2 does not support Scala 3
+        // TODO remove this setting when specs2 for Scala 3 released
+        Seq(TestFrameworks.Specs2)
+    }
+  },
   scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
@@ -203,8 +225,8 @@ lazy val scalatraScalatest = Project(
   id = "scalatra-scalatest",
   base = file("scalatest")).settings(
     scalatraSettings ++ Seq(
+    libraryDependencies ++= scalatest,
     libraryDependencies ++= Seq(
-      scalatest,
       scalatestJunit,
       junit
     ),
