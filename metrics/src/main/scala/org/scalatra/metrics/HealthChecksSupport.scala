@@ -4,7 +4,6 @@ import com.codahale.metrics.health.HealthCheckRegistry
 import nl.grons.metrics4.scala._
 
 trait HealthChecksSupport extends nl.grons.metrics4.scala.CheckedBuilder with MetricsBootstrap {
-  implicit def healthCheckRegistry: HealthCheckRegistry
   val registry = healthCheckRegistry
 
   private type ToMagnet[T] = ByName[T] => HealthCheckMagnet
