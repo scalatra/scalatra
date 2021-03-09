@@ -34,7 +34,16 @@ object Dependencies {
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
   lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.8.0"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion cross CrossVersion.for3Use2_13
-  lazy val scalatest                =  "org.scalatest"           %% "scalatest"                  % scalatestVersion
+  lazy val scalatest                =  Seq(
+                                         "funspec",
+                                         "wordspec",
+                                         "flatspec",
+                                         "freespec",
+                                         "featurespec",
+                                         "funsuite",
+                                         "shouldmatchers",
+                                         "mustmatchers",
+                                       ).map(x => "org.scalatest" %% s"scalatest-$x" % scalatestVersion)
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
   lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.30"
   lazy val specs2                   =  Seq(

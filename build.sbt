@@ -213,8 +213,8 @@ lazy val scalatraScalatest = Project(
   id = "scalatra-scalatest",
   base = file("scalatest")).settings(
     scalatraSettings ++ Seq(
+    libraryDependencies ++= scalatest,
     libraryDependencies ++= Seq(
-      scalatest,
       scalatestJunit,
       junit
     ),
