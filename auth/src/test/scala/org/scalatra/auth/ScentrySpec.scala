@@ -31,9 +31,9 @@ object ScentrySpec extends Specification with Mockito {
       }
     }
 
-    implicit val req = mock[HttpServletRequest]
+    implicit val req: HttpServletRequest = mock[HttpServletRequest]
 
-    implicit val res = mock[HttpServletResponse].smart
+    implicit val res: HttpServletResponse = mock[HttpServletResponse].smart
 
     val theScentry = new Scentry[User](context, { case User(id) => id }, { case s: String => User(s) }, new SessionAuthStore(context))
     var beforeFetchCalled = false

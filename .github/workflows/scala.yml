@@ -11,6 +11,7 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         java: [8, 11]
         scala: ['scala_2', 'scala_3']
@@ -31,7 +32,8 @@ jobs:
             sbt -v \
             "++ 3.0.0-RC1!" \
             update \
-            "all scalatra-common/test" # TODO add more sub projects
+            "all scalatra/test scalatra-auth/compile scalatra-cache/test scalatra-common/test scalatra-forms/test scalatra-jetty/test scalatra-metrics/compile scalatra-scalate/compile scalatra-scalatest/test scalatra-specs2/test scalatra-test/test scalatra-twirl/test"
+            # TODO add more sub projects
             ;;
           *)
             echo "unknown scala version"

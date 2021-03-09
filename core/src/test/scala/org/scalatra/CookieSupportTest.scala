@@ -146,7 +146,7 @@ class CookieSupportTest extends ScalatraFunSuite {
 
   test("removing a cookie removes it from the map view") {
     session {
-      post("/foo/setcookie") {}
+      post("/foo/setcookie") { () }
       post("/foo/remove-cookie") {
         header("Somecookie-Is-Defined") should be("false")
       }
