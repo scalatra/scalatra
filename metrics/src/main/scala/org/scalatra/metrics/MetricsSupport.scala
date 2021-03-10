@@ -6,7 +6,6 @@ import com.codahale.metrics._
 import nl.grons.metrics4.scala._
 
 trait MetricsSupport extends nl.grons.metrics4.scala.InstrumentedBuilder with MetricsBootstrap {
-  implicit def metricRegistry: MetricRegistry
 
   def metricName(name: String) = MetricName(name)
 

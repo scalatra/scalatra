@@ -5,7 +5,7 @@ import org.specs2.mutable._
 
 class ScalateUrlGeneratorSupportTest extends Specification {
 
-  val servlet = new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
+  private object servlet extends ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport {
 
     val cat: String = "meea"
 
