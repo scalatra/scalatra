@@ -31,7 +31,7 @@ object ContentNegotiation {
     def quotedString: Parser[String] = "\"" ~> (rep(quotedPair | qdtext) ^^ (_.mkString)) <~ "\""
     def content: Parser[String] = quotedString | token
     def content(value: String): String =
-      if (value.exists(mustEscape)) "\"%s\"" format value.replaceAllLiterally("\\", "\\\\").replaceAllLiterally("\"", "\\\"")
+      if (value.exists(mustEscape)) "\"%s\"" format value.replace("\\", "\\\\").replace("\"", "\\\"")
       else value
 
     private def mustEscape(c: Char): Boolean = {
