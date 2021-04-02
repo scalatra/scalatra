@@ -30,7 +30,7 @@ jobs:
             ;;
           "scala_3")
             sbt -v \
-            "++ 3.0.0-RC1!" \
+            "++ 3.0.0-RC2!" \
             update \
             "all scalatra/test scalatra-auth/compile scalatra-cache/test scalatra-common/test scalatra-forms/test scalatra-jetty/test scalatra-metrics/compile scalatra-scalate/compile scalatra-scalatest/test scalatra-specs2/test scalatra-test/test scalatra-twirl/test scalatra-scalate/test scalatra-metrics/test"
             # TODO add more sub projects
