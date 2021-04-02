@@ -3,7 +3,7 @@ import Keys._
 
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.2" cross CrossVersion.for3Use2_13
-  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.0.0-M5"
+  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.0.0-RC1"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion cross CrossVersion.for3Use2_13
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion cross CrossVersion.for3Use2_13
   lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.6.4"
@@ -29,7 +29,7 @@ object Dependencies {
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion cross CrossVersion.for3Use2_13
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion cross CrossVersion.for3Use2_13
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.13.2"
-  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.6.0"
+  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.7.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
   lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.8.0"
@@ -63,6 +63,6 @@ object Dependencies {
   private val jettyVersion            = "9.4.39.v20210325"
   private val json4sVersion           = "3.6.11"
   private val scalateVersion          = "1.9.6"
-  private val scalatestVersion        = "3.2.6"
+  private val scalatestVersion        = "3.2.7"
   private val specs2Version           = "4.10.6"
 }

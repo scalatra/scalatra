@@ -11,6 +11,7 @@ lazy val scalatraSettings = Seq(
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
   crossScalaVersions := Seq("2.12.12", "2.13.5"),
   scalaVersion := crossScalaVersions.value.head,
+  libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % "always",
   allDependencies := {
     val values = allDependencies.value
     // workaround for
