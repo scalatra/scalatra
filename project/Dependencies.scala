@@ -32,7 +32,7 @@ object Dependencies {
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.7.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.8.0"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.9.0"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion cross CrossVersion.for3Use2_13
   lazy val scalatest                =  Seq(
                                          "funspec",
