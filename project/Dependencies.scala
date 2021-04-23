@@ -52,8 +52,8 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-matcher-extra"
                                        ).map(_ % specs2Version cross CrossVersion.for3Use2_13)
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.19" cross CrossVersion.for3Use2_13
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.19"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.19"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.20"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.20"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "30.1.1-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.5.1" cross CrossVersion.for3Use2_13
 
