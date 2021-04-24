@@ -29,7 +29,7 @@ object Dependencies {
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion cross CrossVersion.for3Use2_13
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion cross CrossVersion.for3Use2_13
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.13.2"
-  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.7.0"
+  lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.8.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
   lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.9.0"
@@ -52,8 +52,8 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-matcher-extra"
                                        ).map(_ % specs2Version cross CrossVersion.for3Use2_13)
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.1.19" cross CrossVersion.for3Use2_13
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.19"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.19"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.1.20"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.1.20"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "30.1.1-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.5.1" cross CrossVersion.for3Use2_13
 
@@ -63,6 +63,6 @@ object Dependencies {
   private val jettyVersion            = "9.4.40.v20210413"
   private val json4sVersion           = "3.6.11"
   private val scalateVersion          = "1.9.6"
-  private val scalatestVersion        = "3.2.7"
   private val specs2Version           = "4.11.0"
+  private val scalatestVersion        = "3.2.8"
 }
