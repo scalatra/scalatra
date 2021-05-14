@@ -3,7 +3,7 @@ import Keys._
 
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.2" cross CrossVersion.for3Use2_13
-  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.0.0-RC1"
+  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.0.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion cross CrossVersion.for3Use2_13
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion cross CrossVersion.for3Use2_13
   lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.7.2"
