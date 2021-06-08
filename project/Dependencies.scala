@@ -60,7 +60,7 @@ object Dependencies {
   private val akkaVersion             = "2.6.14"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
-  private val jettyVersion            = "9.4.41.v20210516"
+  private val jettyVersion            = "9.4.42.v20210604"
   private val json4sVersion           = "3.6.11"
   private val scalateVersion          = "1.9.6"
   private val specs2Version           = "4.12.0"
