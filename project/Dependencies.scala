@@ -32,7 +32,7 @@ object Dependencies {
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.9.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.2.3"
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.10.0"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "3.11.0"
   lazy val scalate                  =  "org.scalatra.scalate"    %% "scalate-core"               % scalateVersion cross CrossVersion.for3Use2_13
   lazy val scalatest                =  Seq(
                                          "funspec",
@@ -60,8 +60,8 @@ object Dependencies {
   private val akkaVersion             = "2.6.14"
   private val atmosphereCompatVersion = "2.0.1"
   private val httpcomponentsVersion   = "4.5.6"
-  private val jettyVersion            = "9.4.41.v20210516"
-  private val json4sVersion           = "4.0.0"
+  private val jettyVersion            = "9.4.42.v20210604"
+  private val json4sVersion           = "3.6.11"
   private val scalateVersion          = "1.9.6"
   private val specs2Version           = "4.12.0"
   private val scalatestVersion        = "3.2.9"
