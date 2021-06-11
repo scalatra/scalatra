@@ -62,7 +62,12 @@ object Swagger {
 
   def collectModels[T: Manifest](alreadyKnown: Set[Model]): Set[Model] = collectModels(Reflector.scalaTypeOf[T], alreadyKnown)
   private[swagger] def collectModels(tpe: ScalaType, alreadyKnown: Set[Model], known: Set[ScalaType] = Set.empty): Set[Model] = {
-    if (tpe.isMap) {
+
+    if (excludes contains tpe.erasure) {
+      // Date classes only output 'date-time' in a uniform format, so there is no need to analyze the structure of the object.
+      // Therefore, the analysis of classes specified as excludes will be skipped.
+      Set.empty
+    } else if (tpe.isMap) {
       collectModels(tpe.typeArgs.head, alreadyKnown, tpe.typeArgs.toSet) ++ collectModels(tpe.typeArgs.last, alreadyKnown, tpe.typeArgs.toSet)
 
     } else if ((tpe.isCollection && tpe.typeArgs.nonEmpty) || (tpe.isOption && tpe.typeArgs.nonEmpty)) {
