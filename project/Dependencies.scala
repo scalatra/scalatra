@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.2" cross CrossVersion.for3Use2_13
+  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.0.0" cross CrossVersion.for3Use2_13
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.0.0"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion cross CrossVersion.for3Use2_13
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion cross CrossVersion.for3Use2_13
@@ -62,7 +62,7 @@ object Dependencies {
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.42.v20210604"
   private val json4sVersion           = "4.0.0"
-  private val scalateVersion          = "1.9.6"
+  private val scalateVersion          = "1.9.7"
   private val specs2Version           = "4.12.1"
   private val scalatestVersion        = "3.2.9"
 }
