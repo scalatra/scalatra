@@ -20,8 +20,7 @@ class EnvironmentFilterSpec extends ScalatraSpec {
       p ^
       "The prod filter should" ^
       "return 'production' as the environment" ! env("prod", "production") ^
-      "not be development mode" ! isDevMode("prod", expected = false) ^
-      end
+      "not be development mode" ! isDevMode("prod", expected = false) ^ end
 
   val devFilterHolder = addFilter(classOf[EnvironmentFilter], "/dev/*")
 

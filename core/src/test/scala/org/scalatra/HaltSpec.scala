@@ -61,34 +61,28 @@ class HaltSpec extends ScalatraSpec {
     "halt with no arguments should" ^
       "behave like a common halt" ^ commonHalt("/no-args") ^
       "not alter the status" ! status("/no-args", 501) ^
-      "retain the headers" ! retainsHeaders("/no-args") ^
-      end ^
+      "retain the headers" ! retainsHeaders("/no-args") ^ end ^
       "halt with only a status should" ^
       "behave like a common halt" ^ commonHalt("/status") ^
-      "set the status" ! status("/status-and-reason", 403) ^
-      end ^
+      "set the status" ! status("/status-and-reason", 403) ^ end ^
       "halt with only a body should" ^
       "behave like a common halt" ^ commonHalt("/body") ^
       "not alter the status" ! status("/body", 501) ^
-      "render the body" ! bodyEquals("/body", "<h1>Go away</h1>") ^
-      end ^
+      "render the body" ! bodyEquals("/body", "<h1>Go away</h1>") ^ end ^
       "halt with a status and body should" ^
       "behave like a common halt" ^ commonHalt("/status-and-body") ^
       "set the status" ! status("/status-and-body", 404) ^
-      "render the body" ! bodyEquals("/status-and-body", "<h1>Not Here</h1>") ^
-      end ^
+      "render the body" ! bodyEquals("/status-and-body", "<h1>Not Here</h1>") ^ end ^
       "halt with all arguments should" ^
       "behave like a common halt" ^ commonHalt("/all-args") ^
       "set the status" ! status("/all-args", 403) ^
       "set the headers" ! hasHeader("/all-args", "X-Your-Father-Smelt-Of", "elderberries") ^
-      "render the body" ! bodyEquals("/all-args", "<h1>Go away or I shall taunt you a second time!</h1>") ^
-      end ^
+      "render the body" ! bodyEquals("/all-args", "<h1>Go away or I shall taunt you a second time!</h1>") ^ end ^
       "halt with an ActionResult should" ^
       "behave like a common halt" ^ commonHalt("/action-result") ^
       "set the status" ! status("/action-result", 406) ^
       "set the headers" ! hasHeader("/action-result", "X-Action-Result", "present") ^
-      "render the body" ! bodyEquals("/action-result", "body sent using ActionResult") ^
-      end ^
+      "render the body" ! bodyEquals("/action-result", "body sent using ActionResult") ^ end ^
       "halt in a before filter should" ^
       "behave like a common halt" ^ commonHalt("/halt-before?haltBefore=true")
 
