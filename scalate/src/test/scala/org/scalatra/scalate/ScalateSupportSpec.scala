@@ -31,8 +31,7 @@ class ScalateSupportSpec extends ScalatraSpec {
       "set templateAttributes when creating a render context" ! e22 ^ br ^
       "render to a string instead of response" ! e23 ^ br ^
       "set status to 500 when rendering 500.scaml" ! e24 ^ br ^
-      "generate urls from all servlets extending ScalateUrlGeneratorSupport" ! e25 ^ br ^
-      end
+      "generate urls from all servlets extending ScalateUrlGeneratorSupport" ! e25 ^ br ^ end
 
   addServlet(new ScalatraServlet with ScalateSupport with ScalateUrlGeneratorSupport with FlashMapSupport {
 
