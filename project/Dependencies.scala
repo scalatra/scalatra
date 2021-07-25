@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.0.0" cross CrossVersion.for3Use2_13
+  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "1.1.2" cross CrossVersion.for3Use2_13
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "1.3.0" cross CrossVersion.for3Use2_13
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion cross CrossVersion.for3Use2_13
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion cross CrossVersion.for3Use2_13
@@ -43,7 +43,7 @@ object Dependencies {
                                          "funsuite",
                                          "shouldmatchers",
                                          "mustmatchers",
-                                       ).map(x => "org.scalatest" %% s"scalatest-$x" % scalatestVersion)
+                                       ).map(x => "org.scalatest" %% s"scalatest-$x" % scalatestVersion cross CrossVersion.for3Use2_13)
   lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "3.1.0"
   lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "1.7.32"
   lazy val specs2                   =  Seq(
@@ -62,7 +62,7 @@ object Dependencies {
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.43.v20210629"
   private val json4sVersion           = "4.0.1"
-  private val scalateVersion          = "1.9.7"
-  private val specs2Version           = "4.12.3"
+  private val scalateVersion          = "1.9.6"
+  private val specs2Version           = "4.10.6"
   private val scalatestVersion        = "3.2.9"
 }
