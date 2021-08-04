@@ -461,7 +461,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
     route.copy(metadata = route.metadata + (s -> v))
   }
 
-  implicit def dataType2string(dt: DataType) = dt.name
+  implicit def dataType2string(dt: DataType): String = dt.name
 
   protected def inferSwaggerEndpoint(route: Route): String = route match {
     case rev if rev.isReversible =>

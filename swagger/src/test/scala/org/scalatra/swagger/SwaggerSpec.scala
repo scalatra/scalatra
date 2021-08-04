@@ -21,8 +21,8 @@ import scala.io.Source
 class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   def is = sequential ^
     "Swagger 2.0 integration should" ^
-    "generate api definitions" ! generateApiDefinitions ^
-    end
+    "generate api definitions" ! generateApiDefinitions ^ end
+
   val extraSwagger: JValue = JsonMethods.parse("""{
                                                  |  "definitions": {
                                                  |    "Dog": {
@@ -60,7 +60,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   addServlet(new StoreApi(swagger), "/store/*")
   addServlet(new UserApi(swagger), "/user/*")
   addServlet(new SwaggerResourcesServlet(swagger), "/api-docs/*")
-  implicit val formats = DefaultFormats
+  implicit val formats: Formats = DefaultFormats
 
   /**
    * Sets the port to listen on.  0 means listen on any available port.
@@ -195,7 +195,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
           val r = af map { v =>
             val mm = verifyFields(
               v,
-              ef find (_ \ "name" == v \ "name") get,
+              ef.find(_ \ "name" == v \ "name").get,
               "allowableValues", "type", "$ref", "items", "paramType", "defaultValue", "description", "name", "required", "paramAccess", "example", "minimumValue", "maximumValue")
             mm setMessage (mm.message + " in parameter " + (v \ "name").extractOrElse("N/A"))
           }
@@ -218,13 +218,13 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
 class SwaggerSpecWithoutCustom2 extends ScalatraSpec with JsonMatchers {
   def is = sequential ^
     "Swagger 2.0 integration should" ^
-    "generate api definitions" ! generateApiDefinitions ^
-    end
+    "generate api definitions" ! generateApiDefinitions ^ end
+
   val apiInfo = TestFixtures.apiInfo
 
   val swagger = new Swagger("2.0", "1.0.0", apiInfo)
   addServlet(new SwaggerResourcesServlet(swagger), "/api-docs/*")
-  implicit val formats = DefaultFormats
+  implicit val formats: Formats = DefaultFormats
 
   /**
    * Sets the port to listen on.  0 means listen on any available port.
@@ -275,7 +275,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
 
   protected val applicationDescription = "Operations about pets"
   protected implicit val jsonFormats: Formats = DefaultFormats
-  implicit val StringFormat = JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+  implicit val StringFormat: JsonFormat[String] = JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
   protected override val swaggerProduces: List[String] = "application/json" :: "application/xml" :: "text/plain" :: "text/html" :: Nil
 
@@ -369,7 +369,7 @@ class SwaggerTestServlet(protected val swagger: Swagger) extends ScalatraServlet
 class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
   protected val applicationDescription = "Operations about store"
   protected implicit val jsonFormats: Formats = DefaultFormats
-  implicit val StringFormat = JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+  implicit val StringFormat: JsonFormat[String] = JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
   protected override val swaggerProduces: List[String] = "application/json" :: "application/xml" :: Nil
 
   protected override val swaggerConsumes: List[String] = Nil
@@ -421,7 +421,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
 class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
   protected val applicationDescription = "Operations about user"
   protected implicit val jsonFormats: Formats = DefaultFormats
-  implicit val StringFormat = JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+  implicit val StringFormat: JsonFormat[String] = JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
   override protected def swaggerTag: Option[String] = Some("User")
 
