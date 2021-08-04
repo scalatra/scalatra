@@ -12,13 +12,14 @@ import org.json4s.{ DefaultFormats, Formats, _ }
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem: ActorSystem)
   extends ScalatraServlet with jackson.JsonMethods with SessionSupport with AtmosphereSupport {
 
   implicit protected def jsonFormats: Formats = DefaultFormats
-  implicit val system = scalatraActorSystem.dispatcher
+  implicit val system: ExecutionContext = scalatraActorSystem.dispatcher
 
   get("/echo") {
     "echo ok"
@@ -104,11 +105,11 @@ class AtmosphereSpecServlet(implicit override protected val scalatraActorSystem:
 
 class AtmosphereSpec extends MutableScalatraSpec {
 
-  implicit val system = ActorSystem("scalatra")
+  implicit val system: ActorSystem = ActorSystem("scalatra")
 
   mount(new AtmosphereSpecServlet, "/*")
 
-  implicit val formats = DefaultFormats
+  implicit val formats: Formats = DefaultFormats
 
   sequential
 

@@ -20,7 +20,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[_]
   implicit protected def jsonFormats: Formats = DefaultFormats
   implicit protected def docToJson(doc: Api): JValue = Extraction.decompose(doc)
 
-  implicit override def string2RouteMatcher(path: String) = new RailsRouteMatcher(path)
+  implicit override def string2RouteMatcher(path: String): RailsRouteMatcher = new RailsRouteMatcher(path)
 
   implicit class JsonAssocNonEmpty(left: JObject) {
     def ~!(right: JObject): JObject = {
