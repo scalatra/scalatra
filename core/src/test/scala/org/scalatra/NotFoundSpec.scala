@@ -1,26 +1,66 @@
 package org.scalatra
 
-import org.scalatra.test.specs2.ScalatraSpec
+import org.scalatra.test.scalatest.ScalatraWordSpec
 
-class NotFoundSpec extends ScalatraSpec {
-  def is = s2"""
-  The notFound block
-    should run when no route matches $customNotFound
-    should not result in a 404 if the block doesn't $customNotFoundStatus
-    in ScalatraServlet
-      should send a 404 $servletNotFoundSends404
-    in ScalatraFilter
-      should invoke the chain $filterNotFoundInvokesChain
+class NotFoundSpec extends ScalatraWordSpec {
+  "The notFound block" should {
+    "run when no route matches" in {
+      get("/custom/matches-nothing") {
+        assert(body == "custom not found")
+      }
+    }
+    "not result in a 404 if the block doesn't" in {
+      get("/custom/matches-nothing") {
+        assert(status == 200)
+      }
+    }
+    "ScalatraServlet" should {
+      "send a 404" in {
+        get("/default/matches-nothing") {
+          assert(status == 404)
+        }
+      }
+    }
+    "ScalatraFilter" should {
+      "should invoke the chain" in {
+        get("/filtered/fall-through") {
+          assert(body == "fell through")
+        }
+      }
+    }
+  }
 
-  The methodNotAllowed block
-    should run when a route matches other methods $customMethodNotAllowed
-    should support pass $passFromNotAllowed
-    by default
-      should send a 405 $defaultMethodNotAllowedSends405
-      should set the allow header $allowHeader
-    HEAD should be implied by GET
-      should pass in a filter by default $methodNotAllowedFilterPass
-  """
+  "The methodNotAllowed block" should {
+    "run when a route matches other methods" in {
+      get("/custom/no-get") {
+        assert(body == "custom method not allowed")
+      }
+    }
+    "support pass" in {
+      get("/pass-from-not-allowed/no-get") {
+        assert(body == "fell through")
+      }
+    }
+    "by default" should {
+      "send a 405 " in {
+        get("/default/no-get") {
+          assert(status == 405)
+        }
+      }
+      "set the allow header" in {
+        get("/default/no-get") {
+          assert(header("Allow").split(", ").toSet == Set("POST", "PUT"))
+        }
+      }
+    }
+    "HEAD should be implied by GET" should {
+      "pass in a filter by default" in {
+        get("/filtered/get") {
+          assert(body == "servlet get")
+        }
+      }
+    }
+  }
 
   addFilter(new ScalatraFilter {
     post("/filtered/get") { "wrong method" }
@@ -55,43 +95,4 @@ class NotFoundSpec extends ScalatraSpec {
     methodNotAllowed { _ => pass() }
   }, "/pass-from-not-allowed/*")
 
-  def customNotFound = get("/custom/matches-nothing") {
-    body must_== "custom not found"
-  }
-
-  def customNotFoundStatus = get("/custom/matches-nothing") {
-    status must_== 200
-  }
-
-  def servletNotFoundSends404 = get("/default/matches-nothing") {
-    status must_== 404
-  }
-
-  def filterNotFoundInvokesChain = get("/filtered/fall-through") {
-    body must_== "fell through"
-  }
-
-  def customMethodNotAllowed = get("/custom/no-get") {
-    body must_== "custom method not allowed"
-  }
-
-  def defaultMethodNotAllowedSends405 = get("/default/no-get") {
-    status must_== 405
-  }
-
-  def allowHeader = get("/default/no-get") {
-    header("Allow").split(", ").toSet must_== Set("POST", "PUT")
-  }
-
-  def getImpliesHead = post("/default/get") {
-    header("Allow").split(", ").toSet must_== Set("GET", "HEAD")
-  }
-
-  def passFromNotAllowed = get("/pass-from-not-allowed/no-get") {
-    body must_== "fell through"
-  }
-
-  def methodNotAllowedFilterPass = get("/filtered/get") {
-    body must_== "servlet get"
-  }
 }
