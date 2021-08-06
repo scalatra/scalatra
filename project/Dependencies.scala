@@ -23,11 +23,11 @@ object Dependencies {
   lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
   lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
   lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
-  lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion cross CrossVersion.for3Use2_13
-  lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion cross CrossVersion.for3Use2_13
-  lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion cross CrossVersion.for3Use2_13
-  lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion cross CrossVersion.for3Use2_13
-  lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion cross CrossVersion.for3Use2_13
+  lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
+  lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion
+  lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
+  lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
+  lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.13.2"
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.9.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
