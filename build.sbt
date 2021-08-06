@@ -24,14 +24,19 @@ lazy val scalatraSettings = Seq(
         values
     }
   },
-  testFrameworks --= {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, _)) =>
-        Nil
-      case _ =>
-        // specs2 does not support Scala 3
-        // TODO remove this setting when specs2 for Scala 3 released
-        Seq(TestFrameworks.Specs2)
+  Test / testOptions ++= {
+    if (scalaBinaryVersion.value == "3") {
+      Seq(
+        Tests.Exclude(Set(
+          "org.scalatra.test.specs2.ScalatraSpecSpec",
+          "org.scalatra.NotFoundSpec", // https://github.com/scalatra/scalatra/pull/1254
+          "org.scalatra.swagger.ModelSpec",
+          "org.scalatra.swagger.SwaggerSpec2",
+          "org.scalatra.swagger.ModelCollectionSpec",
+        )),
+      )
+    } else {
+      Nil
     }
   },
   scalacOptions ++= {
@@ -160,6 +165,14 @@ lazy val scalatraScalate = Project(
   base = file("scalate")).settings(
     scalatraSettings ++ Seq(
     libraryDependencies += scalate,
+    Test / test := {
+      if (scalaBinaryVersion.value == "3") {
+        // scalate does not work with Scala 3
+        ()
+      } else {
+        (Test / test).value
+      }
+    },
     description := "Scalate integration with Scalatra"
   )
 ) dependsOn(scalatraCore  % "compile;test->test;provided->provided")
