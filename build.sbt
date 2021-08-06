@@ -29,7 +29,6 @@ lazy val scalatraSettings = Seq(
       Seq(
         Tests.Exclude(Set(
           "org.scalatra.test.specs2.ScalatraSpecSpec",
-          "org.scalatra.NotFoundSpec", // https://github.com/scalatra/scalatra/pull/1254
           "org.scalatra.swagger.ModelSpec",
           "org.scalatra.swagger.SwaggerSpec2",
           "org.scalatra.swagger.ModelCollectionSpec",
