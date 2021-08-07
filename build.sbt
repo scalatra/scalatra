@@ -267,7 +267,6 @@ lazy val scalatraSwagger = Project(
   base = file("swagger")).settings(
     scalatraSettings ++ Seq(
     libraryDependencies ++= Seq(
-      json4sExt,
       parserCombinators,
       logbackClassic % "provided"
     ),
