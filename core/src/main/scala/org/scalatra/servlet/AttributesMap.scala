@@ -37,7 +37,7 @@ trait AttributesMap {
    * Returns the attribute associated with the key or default value
    *
    * @param key The key to find
-   * @param dafault The default value, it will be returned when the key does not exist
+   * @param default The default value, it will be returned when the key does not exist
    * @return an value for the attributed associated with the key in the underlying servlet object,
    *         or the default value if the key doesn't exist
    */
@@ -70,7 +70,7 @@ trait AttributesMap {
    * Updates the attribute associated with the key
    *
    * @param key The key to update
-   * @param valule The value to update
+   * @param value The value to update
    */
   def update(key: String, value: Any): Unit = {
     if (attributes != null)
@@ -114,7 +114,7 @@ trait AttributesMap {
    * Returns the attribute associated with the key or default value
    *
    * @param key The key to find
-   * @param dafault The default value, it will be returned when the key does not exist
+   * @param default The default value, it will be returned when the key does not exist
    * @tparam T The type of the value
    * @return an value for the attributed associated with the key in the underlying servlet object,
    *         or the default value if the key doesn't exist
@@ -135,7 +135,7 @@ trait AttributesMap {
   }
 
   /**
-   * Appllies a function f to add attribute elements
+   * Applies a function f to add attribute elements
    */
   def foreach[U](f: ((String, Any)) => U): Unit = {
     attributes.getAttributeNames().asScala foreach { name =>
