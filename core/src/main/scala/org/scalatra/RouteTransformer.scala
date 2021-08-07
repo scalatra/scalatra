@@ -2,9 +2,8 @@ package org.scalatra
 
 object RouteTransformer {
 
-  implicit def fn2transformer(fn: Route => Route): RouteTransformer = new RouteTransformer {
-    override def apply(route: Route): Route = fn(route)
-  }
+  implicit def fn2transformer(fn: Route => Route): RouteTransformer =
+    (route: Route) => fn(route)
 }
 
 trait RouteTransformer {
