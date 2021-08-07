@@ -189,7 +189,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * so it may be already consumed according to the servlet specification 3.1.1.
    *
    * @return the message body as a string according to the request's encoding
-   * (defult ISO-8859-1).
+   * (default ISO-8859-1).
    */
   def body: String = {
     cachedBody getOrElse {

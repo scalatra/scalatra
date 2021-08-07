@@ -762,7 +762,7 @@ trait ScalatraBase
   protected def contextPath: String = servletContext.contextPath
 
   /**
-   * Gets an init paramter from the config.
+   * Gets an init parameter from the config.
    *
    * @param name the name of the key
    *
