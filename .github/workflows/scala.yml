@@ -10,7 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         java: [8, 11]
-        scala: ['scala_2', 'scala_3']
 
     steps:
     - uses: actions/checkout@v2
@@ -19,18 +18,5 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - name: Run tests
-      run: |
-        case ${{ matrix.scala }} in
-          "scala_2")
-            sbt -v "+test" "+unidoc"
-            ;;
-          "scala_3")
-            sbt -v \
-            "++ 3.0.3-RC1-bin-20210803-010f8de-NIGHTLY!" \
-            test
-            ;;
-          *)
-            echo "unknown scala version"
-            exit 1
-        esac
-        git diff --exit-code
+      run: sbt -v "+test" "+unidoc"
+    - run: git diff --exit-code
