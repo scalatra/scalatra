@@ -25,10 +25,10 @@ Once you've done that, take a look at the [Scalatra Guides](http://scalatra.org/
 
 ## Latest version
 
-The latest version of Scalatra is `2.7.+`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
+The latest version of Scalatra is `2.8.+`, and is published to [Maven Central](http://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.7.+"
+libraryDependencies += "org.scalatra" %% "scalatra" % "2.8.+"
 ```
 
 ## Community
