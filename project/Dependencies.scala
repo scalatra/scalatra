@@ -2,8 +2,8 @@ import sbt._
 import Keys._
 
 object Dependencies {
+  lazy val xml                      =  Def.setting("org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion.value)
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.0.0" cross CrossVersion.for3Use2_13
-  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.0.1"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion cross CrossVersion.for3Use2_13
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion cross CrossVersion.for3Use2_13
   lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.7.2"
@@ -65,4 +65,10 @@ object Dependencies {
   private val scalateVersion          = "1.9.7"
   private val specs2Version           = "4.12.3"
   private val scalatestVersion        = "3.2.9"
+  private val scalaXmlVersion         = Def.setting(
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => "2.0.1"
+      case _            => "1.2.0"
+    }
+  )
 }
