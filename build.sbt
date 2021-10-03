@@ -116,7 +116,7 @@ lazy val scalatraCore = Project(
       jUniversalChardet,
       commonsText,
       parserCombinators,
-      xml,
+      xml.value,
       akkaActor % "test",
       akkaTestkit % "test"
     ),
