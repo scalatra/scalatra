@@ -2,8 +2,8 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.1.0" cross CrossVersion.for3Use2_13
-  lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.0.1"
+  lazy val xml                      =  Def.setting("org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion.value)
+  lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.0.0" cross CrossVersion.for3Use2_13
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion cross CrossVersion.for3Use2_13
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion cross CrossVersion.for3Use2_13
   lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.7.2"
@@ -23,10 +23,14 @@ object Dependencies {
   lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
   lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
   lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
-  lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
-  lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
-  lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
-  lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
+  lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion cross CrossVersion.for3Use2_13
+  lazy val json4sExt                =  "org.json4s"              %% "json4s-ext"                 % json4sVersion cross CrossVersion.for3Use2_13
+  lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion cross CrossVersion.for3Use2_13
+  lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion cross CrossVersion.for3Use2_13
+  lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion cross CrossVersion.for3Use2_13 excludeAll (
+    ExclusionRule(organization = "org.scala-lang.modules", name = "scala-xml_2.12"),
+    ExclusionRule(organization = "org.scala-lang.modules", name = "scala-xml_2.13")
+  )
   lazy val junit                    =  "junit"                   %  "junit"                      % "4.13.2"
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.10.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
@@ -64,4 +68,10 @@ object Dependencies {
   private val scalateVersion          = "1.9.7"
   private val specs2Version           = "4.12.12"
   private val scalatestVersion        = "3.2.10"
+  private val scalaXmlVersion         = Def.setting(
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _)) => "2.0.1"
+      case _            => "1.2.0"
+    }
+  )
 }
