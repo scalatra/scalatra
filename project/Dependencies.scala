@@ -9,7 +9,7 @@ object Dependencies {
   lazy val atmosphereRuntime        =  "org.atmosphere"          %  "atmosphere-runtime"         % "2.7.2"
   lazy val atmosphereJQuery         =  "org.atmosphere.client"   %  "jquery"                     % "2.2.21" artifacts(Artifact("jquery", "war", "war"))
   lazy val atmosphereClient         =  "org.atmosphere"          %  "wasync"                     % "2.1.7"
-  lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.6.4"
+  lazy val atmosphereRedis          =  "org.atmosphere"          %  "atmosphere-redis"           % "2.6.5"
   lazy val atmosphereCompatJbossweb =  "org.atmosphere"          %  "atmosphere-compat-jbossweb" % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat   =  "org.atmosphere"          %  "atmosphere-compat-tomcat"   % atmosphereCompatVersion
   lazy val atmosphereCompatTomcat7  =  "org.atmosphere"          %  "atmosphere-compat-tomcat7"  % atmosphereCompatVersion
