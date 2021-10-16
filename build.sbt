@@ -85,7 +85,6 @@ lazy val scalatraProject = Project(
     scalatraCore,
     scalatraAuth,
     scalatraForms,
-    scalatraScalate,
     scalatraTwirl,
     scalatraJson,
     scalatraTest,
@@ -134,23 +133,6 @@ lazy val scalatraAuth = Project(
     description := "Scalatra authentication module"
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-lazy val scalatraScalate = Project(
-  id = "scalatra-scalate",
-  base = file("scalate")).settings(
-    scalatraSettings ++ Seq(
-    libraryDependencies += scalate,
-    Test / test := {
-      if (scalaBinaryVersion.value == "3") {
-        // scalate does not work with Scala 3
-        ()
-      } else {
-        (Test / test).value
-      }
-    },
-    description := "Scalate integration with Scalatra"
-  )
-) dependsOn(scalatraCore  % "compile;test->test;provided->provided")
 
 lazy val scalatraTwirl = Project(
   id = "scalatra-twirl",
