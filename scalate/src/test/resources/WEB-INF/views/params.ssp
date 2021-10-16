@@ -1,2 +1,0 @@
-<%@ var foo: String %>
-<div><%= foo %> template</div>
