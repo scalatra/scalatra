@@ -88,7 +88,6 @@ lazy val scalatraProject = Project(
     scalatraScalate,
     scalatraTwirl,
     scalatraJson,
-    scalatraAtmosphere,
     scalatraTest,
     scalatraScalatest,
     scalatraSpecs2,
@@ -133,28 +132,6 @@ lazy val scalatraAuth = Project(
   base = file("auth")).settings(
     scalatraSettings ++ Seq(
     description := "Scalatra authentication module"
-  )
-) dependsOn(scalatraCore % "compile;test->test;provided->provided")
-
-lazy val scalatraAtmosphere = Project(
-  id = "scalatra-atmosphere",
-  base = file("atmosphere")).settings(
-    scalatraSettings ++ Seq(
-    libraryDependencies ++= Seq(
-      atmosphereRuntime,
-      atmosphereRedis,
-      atmosphereCompatJbossweb,
-      atmosphereCompatTomcat,
-      atmosphereCompatTomcat7,
-      json4sCore,
-      json4sJackson,
-      json4sNative,
-      atmosphereClient % "test",
-      jettyWebsocket % "test",
-      akkaActor,
-      akkaTestkit % "test",
-    ),
-    description := "Atmosphere integration for scalatra"
   )
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
