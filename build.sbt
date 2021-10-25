@@ -73,6 +73,14 @@ lazy val scalatraProject = Project(
   base = file(".")).settings(
     scalatraSettings ++ Seq(
     name := "scalatra-unidoc",
+    ScalaUnidoc / unidoc / unidocProjectFilter := {
+      if (scalaBinaryVersion.value == "3") {
+        // TODO enable
+        inAnyProject -- inProjects(scalatraSpecs2)
+      } else {
+        (ScalaUnidoc / unidoc / unidocProjectFilter).value
+      }
+    },
     artifacts := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value,
     packagedArtifacts := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value,
     description := "A tiny, Sinatra-like web framework for Scala",
