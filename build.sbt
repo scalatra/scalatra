@@ -19,7 +19,10 @@ lazy val scalatraSettings = Seq(
     // "   org.scala-lang.modules:scala-xml _3.0.0-RC1, _2.13"
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((3, _)) =>
-        values.map(_.exclude("org.scala-lang.modules", "scala-xml_2.13"))
+        values.map(
+          _.exclude("org.scala-lang.modules", "scala-xml_2.13")
+           .exclude("org.scala-lang.modules", "scala-parser-combinators_2.13")
+        )
       case _ =>
         values
     }
