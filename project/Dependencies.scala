@@ -48,7 +48,7 @@ object Dependencies {
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "31.0.1-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.5.1" cross CrossVersion.for3Use2_13
 
-  private val akkaVersion             = "2.6.17"
+  private val akkaVersion             = "2.6.18"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.44.v20210927"
   private val json4sVersion           = "4.0.3"
