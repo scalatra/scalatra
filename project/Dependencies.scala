@@ -53,5 +53,5 @@ object Dependencies {
   private val jettyVersion            = "9.4.44.v20210927"
   private val json4sVersion           = "4.0.3"
   private val specs2Version           = "4.13.2"
-  private val scalatestVersion        = "3.2.10"
+  private val scalatestVersion        = "3.2.11"
 }
