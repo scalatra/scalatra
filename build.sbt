@@ -31,7 +31,6 @@ lazy val scalatraSettings = Seq(
     if (scalaBinaryVersion.value == "3") {
       Seq(
         Tests.Exclude(Set(
-          "org.scalatra.test.specs2.ScalatraSpecSpec",
           "org.scalatra.swagger.ModelSpec",
           "org.scalatra.swagger.SwaggerSpec2",
           "org.scalatra.swagger.ModelCollectionSpec",
@@ -76,14 +75,6 @@ lazy val scalatraProject = Project(
   base = file(".")).settings(
     scalatraSettings ++ Seq(
     name := "scalatra-unidoc",
-    ScalaUnidoc / unidoc / unidocProjectFilter := {
-      if (scalaBinaryVersion.value == "3") {
-        // TODO enable
-        inAnyProject -- inProjects(scalatraSpecs2)
-      } else {
-        (ScalaUnidoc / unidoc / unidocProjectFilter).value
-      }
-    },
     artifacts := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value,
     packagedArtifacts := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value,
     description := "A tiny, Sinatra-like web framework for Scala",
@@ -221,13 +212,6 @@ lazy val scalatraSpecs2 = Project(
   base = file("specs2")).settings(
     scalatraSettings ++ Seq(
     libraryDependencies ++= specs2,
-    Test / scalacOptions ++= {
-      if (scalaBinaryVersion.value == "3") {
-        Seq("-Xignore-scala2-macros")
-      } else {
-        Nil
-      }
-    },
     description := "Specs2 support for the Scalatra test framework"
   )
 ) dependsOn(scalatraTest % "compile;test->test;provided->provided")

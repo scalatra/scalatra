@@ -32,7 +32,7 @@ object XsrfTokenSpec extends MutableScalatraSpec {
   "the get request should include the CSRF token" in {
     get("/renderForm") {
       tokenFromCookie must not be null
-      tokenFromCookie must not be empty
+      tokenFromCookie must not be ""
       body must beMatching("GO")
     }
   }
