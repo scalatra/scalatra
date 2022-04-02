@@ -86,9 +86,14 @@ class FileUploadSupportSpecServlet extends ScalatraServlet with FileUploadSuppor
     "file size: " + tempFile.length
   }
 
-  post("/get-first-file-item-name") {
-    val document = fileParams.iterator().toSeq.headOption.getOrElse(halt(404))
-    document._1
+  post("/get-all-file-items") {
+    val documents = fileParams.iterator().toSeq
+
+    if (documents.isEmpty) {
+      halt(404)
+    } else {
+      documents.map { _._1 }.mkString(":")
+    }
   }
 
   error {
@@ -299,20 +304,20 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
     }
   }
 
-  "GetFirsFileItemName" should {
+  "GetAllFileItems" should {
 
-    "return the first file name" in {
+    "return all file number" in {
       val params = Map()
       val filename = "core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"
       val files = Map("doc1" -> new File(filename), "doc2" -> new File(filename))
 
-      post("/get-first-file-item-name", params, files) {
-        body must_== "doc1"
+      post("/get-all-file-items", params, files) {
+        body.split(':').toList.sorted must_== List("doc1", "doc2")
       }
     }
 
     "return 404 if no files" in {
-      post("/get-first-file-item-name", Map(), Map()) {
+      post("/get-all-file-items", Map(), Map()) {
         status must_== 404
       }
     }
