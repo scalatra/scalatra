@@ -12,21 +12,6 @@ lazy val scalatraSettings = Seq(
   crossScalaVersions := Seq("2.12.15", "2.13.8", "3.1.2"),
   scalaVersion := crossScalaVersions.value.head,
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % "always",
-  allDependencies := {
-    val values = allDependencies.value
-    // workaround for
-    // "Modules were resolved with conflicting cross-version suffixes"
-    // "   org.scala-lang.modules:scala-xml _3.0.0-RC1, _2.13"
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) =>
-        values.map(
-          _.exclude("org.scala-lang.modules", "scala-xml_2.13")
-           .exclude("org.scala-lang.modules", "scala-parser-combinators_2.13")
-        )
-      case _ =>
-        values
-    }
-  },
   Test / testOptions ++= {
     if (scalaBinaryVersion.value == "3") {
       Seq(
