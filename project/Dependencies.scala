@@ -45,7 +45,7 @@ object Dependencies {
   lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.9"
   lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.9"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "31.1-jre"
-  lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.5.1" cross CrossVersion.for3Use2_13
+  lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.6.0-M6"
 
   private val akkaVersion             = "2.6.19"
   private val httpcomponentsVersion   = "4.5.6"
