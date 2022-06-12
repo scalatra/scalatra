@@ -51,6 +51,6 @@ object Dependencies {
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "9.4.46.v20220331"
   private val json4sVersion           = "4.0.5"
-  private val specs2Version           = "4.15.0"
+  private val specs2Version           = "4.16.0"
   private val scalatestVersion        = "3.2.12"
 }
