@@ -55,12 +55,7 @@ trait RequestLogging extends ScalatraBase with Handler {
     MDC.put(RequestPath, requestPath)
     MDC.put(RequestApp, getClass.getSimpleName)
     MDC.put(RequestParams, multiParams map { case (k, vl) => vl.map(v => "%s=%s".format(%-(k), %-(v))) } mkString "&")
-    this match {
-      case a: SessionSupport =>
-        MDC.put(SessionParams, a.session.dumpAll)
-      case _ =>
-    }
-
+    MDC.put(SessionParams, session.dumpAll)
     MDC.put(CgiParams, cgiParams map { case (k, v) => "%s=%s".format(%-(k), %-(v)) } mkString "&")
   }
 
