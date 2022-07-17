@@ -1,9 +1,8 @@
 package org.scalatra.metrics
 
-import com.codahale.metrics.health.HealthCheckRegistry
 import nl.grons.metrics4.scala._
 
-trait HealthChecksSupport extends nl.grons.metrics4.scala.CheckedBuilder with MetricsBootstrap {
+trait HealthChecksSupport extends CheckedBuilder with MetricsBootstrap {
   val registry = healthCheckRegistry
 
   private type ToMagnet[T] = ByName[T] => HealthCheckMagnet
