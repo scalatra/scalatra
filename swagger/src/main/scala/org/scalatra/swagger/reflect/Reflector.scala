@@ -81,7 +81,7 @@ object Reflector {
       def properties: Seq[PropertyDescriptor] = {
         def fields(clazz: Class[_]): List[PropertyDescriptor] = {
           val lb = new ArrayBuffer[PropertyDescriptor]()
-          val ls = clazz.getDeclaredFields.toIterator
+          val ls = clazz.getDeclaredFields.iterator
           while (ls.hasNext) {
             val f = ls.next()
             val mod = f.getModifiers
