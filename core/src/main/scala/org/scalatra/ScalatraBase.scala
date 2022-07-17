@@ -16,6 +16,8 @@ import scala.util.control.Exception._
 import scala.util.matching.Regex
 import scala.util.{ Failure, Success, Try }
 
+import scala.collection.compat.immutable._
+
 object ScalatraBase {
 
   import org.scalatra.servlet.ServletApiImplicits._
@@ -240,11 +242,11 @@ trait ScalatraBase
 
   /**
    * Lazily invokes routes with `invoke`.  The results of the routes
-   * are returned as a stream.
+   * are returned as a LazyList.
    */
-  protected def runRoutes(routes: Iterable[Route]): Stream[Any] = {
+  protected def runRoutes(routes: Iterable[Route]): LazyList[Any] = {
     for {
-      route <- routes.toStream // toStream makes it lazy so we stop after match
+      route <- routes.to(LazyList) // to(LazyList) makes it lazy so we stop after match
       matchedRoute <- route.apply(requestPath)
       saved = saveMatchedRoute(matchedRoute)
       actionResult <- invoke(saved)
