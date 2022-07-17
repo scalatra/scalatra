@@ -102,6 +102,7 @@ lazy val scalatraCore = Project(
       commonsText,
       parserCombinators,
       xml,
+      collectionCompact,
       akkaActor % "test",
       akkaTestkit % "test"
     ),

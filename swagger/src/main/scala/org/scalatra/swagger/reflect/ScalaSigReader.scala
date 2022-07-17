@@ -3,6 +3,8 @@ package org.scalatra.swagger.reflect
 import scala.annotation.tailrec
 import org.json4s.scalap.scalasig._
 
+import scala.collection.compat.immutable._
+
 private[reflect] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[_], typeArgIndex: Int, argNames: List[String]): Class[_] = {
     val cl = findClass(clazz).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndex, argNames $argNames"))
@@ -34,7 +36,7 @@ private[reflect] object ScalaSigReader {
       else
         findClass(current).flatMap(findField(_, name))
           .orElse(read(current.getSuperclass))
-          .orElse(current.getInterfaces.toStream.map(read).collectFirst { case Some(m) => m })
+          .orElse(current.getInterfaces.to(LazyList).map(read).collectFirst { case Some(m) => m })
     }
     findArgTypeForField(read(clazz).getOrElse(fail("Can't find field " + name + " from " + clazz)), typeArgIndex)
   }
