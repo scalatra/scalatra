@@ -14,15 +14,15 @@ object SessionSerializingListener extends HttpSessionAttributeListener {
   //val oos = new ObjectOutputStream(System.out)
   val oos = new ObjectOutputStream(NullOut)
 
-  def attributeAdded(event: HttpSessionBindingEvent): Unit = {
+  override def attributeAdded(event: HttpSessionBindingEvent): Unit = {
     serializeSession(event)
   }
 
-  def attributeRemoved(event: HttpSessionBindingEvent): Unit = {
+  override def attributeRemoved(event: HttpSessionBindingEvent): Unit = {
     serializeSession(event)
   }
 
-  def attributeReplaced(event: HttpSessionBindingEvent): Unit = {
+  override def attributeReplaced(event: HttpSessionBindingEvent): Unit = {
     serializeSession(event)
   }
 

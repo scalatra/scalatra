@@ -27,7 +27,7 @@ class ScalatraListener extends ServletContextListener {
     }
   }
 
-  def contextDestroyed(sce: ServletContextEvent): Unit = {
+  override def contextDestroyed(sce: ServletContextEvent): Unit = {
     if (cycle != null) {
       logger.info("Destroying life cycle class: %s".format(cycle.getClass.getName))
       cycle.destroy(servletContext)
