@@ -84,11 +84,11 @@ trait ScalatraFilter extends Filter with ServletBase {
   type ConfigT = FilterConfig
 
   // see Initializable.initialize for why
-  def init(filterConfig: FilterConfig): Unit = {
+  override def init(filterConfig: FilterConfig): Unit = {
     initialize(filterConfig)
   }
 
-  def destroy: Unit = {
+  override def destroy: Unit = {
     shutdown()
   }
 
