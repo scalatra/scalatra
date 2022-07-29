@@ -4,7 +4,7 @@ import Keys._
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.1.1"
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.1.0"
-  lazy val collectionCompact        =  "org.scala-lang.modules"  %% "scala-collection-compat"    % "2.8.0"
+  lazy val collectionCompact        =  "org.scala-lang.modules"  %% "scala-collection-compat"    % "2.8.1"
   lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
   lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
   lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.4"
