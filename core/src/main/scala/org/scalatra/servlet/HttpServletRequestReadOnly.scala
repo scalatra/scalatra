@@ -1,6 +1,6 @@
 package org.scalatra.servlet
 
-import javax.servlet.http.{ HttpServletRequestWrapper, HttpServletRequest }
+import jakarta.servlet.http.{ HttpServletRequestWrapper, HttpServletRequest }
 
 /**
  * Read-only immutable wrapper for an [[HttpServletRequest]] that can, for the most part, be
@@ -47,7 +47,7 @@ case class HttpServletRequestReadOnly(private val originalRequest: HttpServletRe
 
   // Since isRequestedSessionIdFromUrl of HttpServletRequest is deprecated,
   // use isRequestedSessionIdFromURL.
-  // see http://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html
+  // see http://docs.oracle.com/javaee/7/api/jakarta.servlet/http/HttpServletRequest.html
   override val isRequestedSessionIdFromUrl: Boolean = originalRequest.isRequestedSessionIdFromURL
 
   override val getCharacterEncoding: String = originalRequest.getCharacterEncoding

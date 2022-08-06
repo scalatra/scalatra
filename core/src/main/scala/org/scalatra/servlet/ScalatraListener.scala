@@ -1,7 +1,7 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.{ ServletContext, ServletContextEvent, ServletContextListener }
+import jakarta.servlet.{ ServletContext, ServletContextEvent, ServletContextListener }
 
 import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory

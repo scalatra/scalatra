@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.ServletContext
+import jakarta.servlet.ServletContext
 
 import org.scalatra.servlet.ServletApiImplicits
 

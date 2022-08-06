@@ -2,7 +2,7 @@ package org.scalatra
 package test
 package scalatest
 
-import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 
 class ScalatraTestSpec extends ScalatraFunSuite {
 

@@ -1,7 +1,7 @@
 package org.scalatra
 
-import javax.servlet._
-import javax.servlet.http._
+import jakarta.servlet._
+import jakarta.servlet.http._
 
 import org.apache.commons.text.StringEscapeUtils
 import org.scalatra.servlet.ServletBase

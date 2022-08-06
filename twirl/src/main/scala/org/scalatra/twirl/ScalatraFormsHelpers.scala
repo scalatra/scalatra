@@ -1,6 +1,6 @@
 package org.scalatra.twirl
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 import org.scalatra.MultiParams
 import play.twirl.api.Html
@@ -104,7 +104,7 @@ trait ScalatraFormsHelpers {
  * Use helper methods defined in `ScalatraFormsHelpers` in Twirl templates as follows:
  *
  * {{{
- * @()(implicit request: javax.servlet.http.HttpServletRequest)
+ * @()(implicit request: jakarta.servlet.http.HttpServletRequest)
  * @import org.scalatra.twirl.forms._
  *
  * <form action="/login" method="POST">

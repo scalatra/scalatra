@@ -46,7 +46,7 @@ class FilterTestServlet extends ScalatraServlet {
 }
 
 // Ugh... what should we call this?  Sinatra calls before/after "filter", which is not related to a
-// javax.servlet.Filter.
+// jakarta.servlet.Filter.
 class FilterTestFilter extends ScalatraFilter {
   var beforeCount = 0
 

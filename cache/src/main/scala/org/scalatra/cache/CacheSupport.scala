@@ -1,6 +1,6 @@
 package org.scalatra.cache
 
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.ScalatraBase
 
