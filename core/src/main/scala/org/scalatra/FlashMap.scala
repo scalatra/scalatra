@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.util.concurrent.{ ConcurrentHashMap, ConcurrentSkipListSet }
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import scala.collection.JavaConverters._
 

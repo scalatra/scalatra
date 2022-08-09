@@ -1,8 +1,8 @@
 package org.scalatra
 
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import javax.servlet.{ AsyncEvent, AsyncListener, ServletContext }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.{ AsyncEvent, AsyncListener, ServletContext }
 
 import org.scalatra.servlet.AsyncSupport
 

@@ -3,8 +3,8 @@ package servlet
 
 import java.net.{ MalformedURLException, URL }
 import java.{ util => jutil }
-import javax.servlet.http.{ HttpServlet, HttpServletRequest }
-import javax.servlet.{ DispatcherType, Filter, ServletContext }
+import jakarta.servlet.http.{ HttpServlet, HttpServletRequest }
+import jakarta.servlet.{ DispatcherType, Filter, ServletContext }
 
 /**
  * Extension methods to the standard ServletContext.

@@ -1,7 +1,7 @@
 package org.scalatra
 package swagger
 
-import javax.servlet.{ Filter, Servlet }
+import jakarta.servlet.{ Filter, Servlet }
 
 import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
 import org.scalatra.swagger.reflect.Reflector
