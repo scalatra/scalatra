@@ -1,7 +1,7 @@
 package org.scalatra
 package util
 
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.util.RicherString._
 import org.slf4j.{ LoggerFactory, MDC }

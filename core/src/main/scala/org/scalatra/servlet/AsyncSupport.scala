@@ -1,8 +1,8 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.AsyncEvent
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.AsyncEvent
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 object AsyncSupport {
   val ExecutionContextKey = "org.scalatra.ExecutionContext"
@@ -23,7 +23,7 @@ trait AsyncSupport extends ServletBase with ScalatraAsyncSupport {
     }
   }
 
-  protected def withinAsyncContext(context: javax.servlet.AsyncContext)(thunk: => Any): Unit = {
+  protected def withinAsyncContext(context: jakarta.servlet.AsyncContext)(thunk: => Any): Unit = {
     withRequest(context.getRequest.asInstanceOf[HttpServletRequest]) {
       withResponse(context.getResponse.asInstanceOf[HttpServletResponse]) {
         thunk

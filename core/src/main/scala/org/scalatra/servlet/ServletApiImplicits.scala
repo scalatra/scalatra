@@ -1,8 +1,8 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.ServletContext
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse, HttpSession }
+import jakarta.servlet.ServletContext
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse, HttpSession }
 
 trait ServletApiImplicits {
 

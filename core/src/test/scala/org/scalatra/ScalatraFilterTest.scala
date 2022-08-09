@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
