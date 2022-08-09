@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A route is a set of matchers and an action.  A route is considered to match

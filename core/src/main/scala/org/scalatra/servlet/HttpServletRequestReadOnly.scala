@@ -1,6 +1,6 @@
 package org.scalatra.servlet
 
-import javax.servlet.http.{ HttpServletRequestWrapper, HttpServletRequest }
+import jakarta.servlet.http.{ HttpServletRequestWrapper, HttpServletRequest }
 
 /**
  * Read-only immutable wrapper for an [[HttpServletRequest]] that can, for the most part, be

@@ -27,19 +27,19 @@ object Dependencies {
                                          "shouldmatchers",
                                          "mustmatchers",
                                        ).map(x => "org.scalatest" %% s"scalatest-$x" % scalatestVersion)
-  lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "4.0.1"
+  lazy val servletApi               =  "jakarta.servlet"         %  "jakarta.servlet-api"        % "5.0.0"
   lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "2.0.7"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                        ).map(_ % specs2Version)
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.2.9"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.19"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.19"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlets"   % "4.2.11"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlet"    % "4.2.11"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "32.0.0-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.6.0-RC3"
 
-  private val jettyVersion            = "10.0.15"
+  private val jettyVersion            = "11.0.11"
   private val json4sVersion           = "4.0.6"
   private val specs2Version           = "4.20.0"
   private val scalatestVersion        = "3.2.16"

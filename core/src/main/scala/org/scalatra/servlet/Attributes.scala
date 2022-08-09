@@ -1,7 +1,7 @@
 package org.scalatra.servlet
 
-import javax.servlet.ServletContext
-import javax.servlet.http.{ HttpServletRequest, HttpSession }
+import jakarta.servlet.ServletContext
+import jakarta.servlet.http.{ HttpServletRequest, HttpSession }
 
 /**
  * type class for the various Servlet API objects that have attributes.

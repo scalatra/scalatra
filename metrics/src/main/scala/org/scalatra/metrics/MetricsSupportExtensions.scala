@@ -1,11 +1,11 @@
 package org.scalatra.metrics
 
-import javax.servlet.ServletContext
+import jakarta.servlet.ServletContext
 
 import com.codahale.metrics.MetricRegistry
 import com.codahale.metrics.health.HealthCheckRegistry
-import com.codahale.metrics.servlet._
-import com.codahale.metrics.servlets._
+import io.dropwizard.metrics.servlet._
+import io.dropwizard.metrics.servlets._
 import org.scalatra.servlet.ServletApiImplicits
 
 object MetricsSupportExtensions extends ServletApiImplicits {
@@ -21,16 +21,16 @@ object MetricsSupportExtensions extends ServletApiImplicits {
 
     def installInstrumentedFilter(path: String) = context.mount(classOf[InstrumentedFilter], path)
 
-    if (context.getAttribute("com.codahale.metrics.servlets.HealthCheckServlet.registry") == null) {
-      context.setAttribute("com.codahale.metrics.servlets.HealthCheckServlet.registry", healthCheckRegistry)
+    if (context.getAttribute("io.dropwizard.metrics.servlets.HealthCheckServlet.registry") == null) {
+      context.setAttribute("io.dropwizard.metrics.servlets.HealthCheckServlet.registry", healthCheckRegistry)
     }
 
-    if (context.getAttribute("com.codahale.metrics.servlets.MetricsServlet.registry") == null) {
-      context.setAttribute("com.codahale.metrics.servlets.MetricsServlet.registry", metricRegistry)
+    if (context.getAttribute("io.dropwizard.metrics.servlets.MetricsServlet.registry") == null) {
+      context.setAttribute("io.dropwizard.metrics.servlets.MetricsServlet.registry", metricRegistry)
     }
 
-    if (context.getAttribute("com.codahale.metrics.servlet.InstrumentedFilter.registry") == null) {
-      context.setAttribute("com.codahale.metrics.servlet.InstrumentedFilter.registry", metricRegistry)
+    if (context.getAttribute("io.dropwizard.metrics.servlet.InstrumentedFilter.registry") == null) {
+      context.setAttribute("io.dropwizard.metrics.servlet.InstrumentedFilter.registry", metricRegistry)
     }
   }
 }

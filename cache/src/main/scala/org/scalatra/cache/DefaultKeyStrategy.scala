@@ -1,6 +1,6 @@
 package org.scalatra.cache
 
-import javax.servlet.http.{ HttpServletResponse, HttpServletRequest }
+import jakarta.servlet.http.{ HttpServletResponse, HttpServletRequest }
 import scala.util.hashing.MurmurHash3
 
 object DefaultKeyStrategy extends KeyStrategy {

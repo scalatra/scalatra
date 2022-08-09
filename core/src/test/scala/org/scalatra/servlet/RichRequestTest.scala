@@ -4,8 +4,8 @@ package servlet
 import java.io.{ ByteArrayInputStream, IOException }
 import java.util.Locale
 
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.{ ReadListener, ServletInputStream }
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.{ ReadListener, ServletInputStream }
 import org.mockito.Mockito._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

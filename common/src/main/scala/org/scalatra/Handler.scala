@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 /**
  * A `Handler` is the Scalatra abstraction for an object that operates on
