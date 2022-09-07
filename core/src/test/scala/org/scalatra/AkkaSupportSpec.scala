@@ -2,7 +2,6 @@ package org.scalatra
 
 import java.util.concurrent.Executors
 
-import _root_.akka.actor._
 import org.eclipse.jetty.server.{ Connector, ServerConnector, Server }
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 import org.scalatra.test.HttpComponentsClient
@@ -11,10 +10,12 @@ import org.scalatra.test.specs2.MutableScalatraSpec
 import scala.concurrent._
 import scala.concurrent.duration._
 
+// TODO rename file and class
+// https://github.com/scalatra/scalatra/pull/1410
+// https://github.com/akka/akka/pull/31561
+// https://www.lightbend.com/blog/why-we-are-changing-the-license-for-akka
 class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
-  val system = ActorSystem()
-  protected implicit val executor = system.dispatcher
-  //  override def asyncTimeout = 2 seconds
+  protected implicit val executor = scala.concurrent.ExecutionContext.global
 
   private val futureEC = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(1))
 
@@ -92,7 +93,6 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
 
   override def destroy(): Unit = {
     super.destroy()
-    system.terminate()
   }
 }
 

@@ -1,16 +1,18 @@
 package org.scalatra
 
-import _root_.akka.actor.ActorSystem
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 import scala.concurrent.Future
 
+// TODO rename file and class
+// https://github.com/scalatra/scalatra/pull/1410
+// https://github.com/akka/akka/pull/31561
+// https://www.lightbend.com/blog/why-we-are-changing-the-license-for-akka
 class AkkaSupportAfterFilterFilter extends ScalatraFilter with FutureSupport {
-  val system = ActorSystem()
   var actionTime: Long = _
   var afterTime: Long = _
   var afterCount: Long = _
-  protected implicit lazy val executor = system.dispatcher
+  protected override implicit val executor = scala.concurrent.ExecutionContext.global
 
   asyncGet("/async") {
     Thread.sleep(2000)
@@ -52,7 +54,6 @@ class AkkaSupportAfterFilterFilter extends ScalatraFilter with FutureSupport {
 
   override def destroy(): Unit = {
     super.destroy()
-    system.terminate()
   }
 }
 

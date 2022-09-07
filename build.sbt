@@ -103,8 +103,6 @@ lazy val scalatraCore = Project(
       parserCombinators,
       xml,
       collectionCompact,
-      akkaActor % "test",
-      akkaTestkit % "test"
     ),
     description := "The core Scalatra framework"
   )

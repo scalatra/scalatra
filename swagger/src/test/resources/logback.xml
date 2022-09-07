@@ -4,7 +4,7 @@
     <!-- encoders are assigned the type
          ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
     <encoder>
-      <pattern>[%4level] [%d{HH:mm:ss.SSS}] [%thread] %logger{4} %X{akkaSource}: %m%n</pattern>
+      <pattern>[%4level] [%d{HH:mm:ss.SSS}] [%thread] %logger{4}: %m%n</pattern>
     </encoder>
   </appender>
 
