@@ -5,8 +5,6 @@ object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.1.1"
   lazy val xml                      =  "org.scala-lang.modules"  %% "scala-xml"                  % "2.1.0"
   lazy val collectionCompact        =  "org.scala-lang.modules"  %% "scala-collection-compat"    % "2.8.1"
-  lazy val akkaActor                =  "com.typesafe.akka"       %% "akka-actor"                 % akkaVersion
-  lazy val akkaTestkit              =  "com.typesafe.akka"       %% "akka-testkit"               % akkaVersion
   lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.4"
   lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.8"
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.9"
@@ -48,7 +46,6 @@ object Dependencies {
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "31.1-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.6.0-M6"
 
-  private val akkaVersion             = "2.6.20"
   private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "11.0.11"
   private val json4sVersion           = "4.0.5"
