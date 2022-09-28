@@ -7,7 +7,7 @@ object Dependencies {
   lazy val collectionCompact        =  "org.scala-lang.modules"  %% "scala-collection-compat"    % "2.8.1"
   lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.4"
   lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.8"
-  lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.9"
+  lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.10.0"
   lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
   lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
   lazy val jettyServer              =  "org.eclipse.jetty"       %  "jetty-server"               % jettyVersion
