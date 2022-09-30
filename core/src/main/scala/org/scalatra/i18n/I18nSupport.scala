@@ -2,7 +2,7 @@ package org.scalatra
 package i18n
 
 import java.util.Locale
-import jakarta.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletRequest
 
 object I18nSupport {
 

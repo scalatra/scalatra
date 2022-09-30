@@ -1,6 +1,6 @@
 package org.scalatra
 
-import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import scala.util.DynamicVariable
 

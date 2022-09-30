@@ -1,6 +1,6 @@
 package org.scalatra
 
-import jakarta.servlet.http.{ HttpServletRequest, HttpSession }
+import javax.servlet.http.{ HttpServletRequest, HttpSession }
 
 import org.scalatra.servlet.ServletApiImplicits
 

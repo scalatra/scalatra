@@ -1,6 +1,6 @@
 package org.scalatra
 
-import jakarta.servlet.ServletContext
+import javax.servlet.ServletContext
 
 /**
  * Trait representing an object that can't be fully initialized by its

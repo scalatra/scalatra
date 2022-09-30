@@ -1,6 +1,6 @@
 package org.scalatra.servlet
 
-import jakarta.servlet.{ MultipartConfigElement, ServletContext }
+import javax.servlet.{ MultipartConfigElement, ServletContext }
 
 case class MultipartConfig(
   location: Option[String] = None,

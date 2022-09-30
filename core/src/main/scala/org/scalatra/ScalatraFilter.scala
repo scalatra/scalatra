@@ -1,7 +1,7 @@
 package org.scalatra
 
-import jakarta.servlet._
-import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet._
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.servlet.ServletBase
 import org.scalatra.util.RicherString._

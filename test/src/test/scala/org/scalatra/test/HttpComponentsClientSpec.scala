@@ -1,7 +1,7 @@
 package org.scalatra.test
 
 import java.io.{ InputStream, OutputStream }
-import jakarta.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
+import javax.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 
 import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeAfterAll

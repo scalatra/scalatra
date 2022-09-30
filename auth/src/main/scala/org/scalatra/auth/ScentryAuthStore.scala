@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.servlet.ServletApiImplicits._
 

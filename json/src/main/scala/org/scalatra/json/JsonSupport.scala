@@ -1,7 +1,7 @@
 package org.scalatra
 package json
 
-import jakarta.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletRequest
 import javax.xml.XMLConstants
 
 import org.json4s.Xml._

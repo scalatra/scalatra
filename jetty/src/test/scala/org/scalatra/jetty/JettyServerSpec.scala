@@ -1,7 +1,7 @@
 package org.scalatra.jetty
 
 import java.net.{ InetSocketAddress, URL }
-import jakarta.servlet.ServletContext
+import javax.servlet.ServletContext
 
 import org.eclipse.jetty.server.ServerConnector
 import org.scalatest.BeforeAndAfterAll

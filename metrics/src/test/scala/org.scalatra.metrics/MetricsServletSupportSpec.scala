@@ -1,6 +1,6 @@
 package org.scalatra.metrics
 
-import jakarta.servlet.{ ServletContextEvent, ServletContextListener }
+import javax.servlet.{ ServletContextEvent, ServletContextListener }
 
 import org.scalatra.metrics.MetricsSupportExtensions._
 import org.scalatra.test.scalatest.ScalatraFlatSpec
