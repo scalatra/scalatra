@@ -1,6 +1,6 @@
 package org.scalatra.auth
 
-import jakarta.servlet.{ ServletContextEvent, ServletContextListener }
+import javax.servlet.{ ServletContextEvent, ServletContextListener }
 
 /**
  * This seems like an ideal place to register global strategies

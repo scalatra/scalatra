@@ -2,7 +2,7 @@ package org.scalatra
 package auth
 package strategy
 
-import jakarta.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletRequest
 import org.mockito.Mockito
 import org.scalatra.test.specs2._
 

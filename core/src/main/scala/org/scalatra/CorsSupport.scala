@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.util.Locale.ENGLISH
-import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory

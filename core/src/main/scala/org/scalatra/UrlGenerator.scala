@@ -1,6 +1,6 @@
 package org.scalatra
 
-import jakarta.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletRequest
 
 /**
  * Adds support for generating URIs from routes and their params.

@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.nio.charset.Charset
-import jakarta.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletRequest
 
 import scala.util.Try
 import scala.util.parsing.combinator.RegexParsers

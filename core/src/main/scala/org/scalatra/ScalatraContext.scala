@@ -1,7 +1,7 @@
 package org.scalatra
 
-import jakarta.servlet.ServletContext
-import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import javax.servlet.ServletContext
+import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.servlet.{ HttpServletRequestReadOnly, ServletApiImplicits }
 
