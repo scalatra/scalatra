@@ -4,7 +4,6 @@ import java.io._
 import java.nio.channels.Channels
 
 import scala.annotation.tailrec
-import scala.language.reflectiveCalls
 
 /**
  * A collection of I/O utility methods.
@@ -19,7 +18,7 @@ package object io {
    * @param closeable the closeable resource
    * @param f the block
    */
-  def using[A, B <: { def close(): Unit }](closeable: B)(f: B => A): A = {
+  def using[A, B <: AutoCloseable](closeable: B)(f: B => A): A = {
     try {
       f(closeable)
     } finally {
