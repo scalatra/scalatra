@@ -442,14 +442,13 @@ trait ScalatraBase
       if (contentType != null && contentType.startsWith("text")) response.setCharacterEncoding(FileCharset(bytes).name)
       response.outputStream.write(bytes)
     case is: java.io.InputStream =>
-      util.io.copy(is, response.outputStream)
+      using(is) {
+        util.io.copy(_, response.outputStream)
+      }
     case file: File =>
       if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(file).name)
-      val in = new FileInputStream(file)
-      try {
-        zeroCopy(in, response.outputStream)
-      } finally {
-        in.close()
+      using(new FileInputStream(file)) {
+        in => zeroCopy(in, response.outputStream)
       }
     // If an action returns Unit, it assumes responsibility for the response
     case _: Unit | null =>

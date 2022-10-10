@@ -2,6 +2,7 @@ package org.scalatra.util
 
 import java.io._
 import java.nio.channels.Channels
+
 import scala.annotation.tailrec
 import scala.language.reflectiveCalls
 
@@ -18,7 +19,6 @@ package object io {
    * @param closeable the closeable resource
    * @param f the block
    */
-  @deprecated("Use Using.resource() since Scala 2.13", "2.8.3")
   def using[A, B <: { def close(): Unit }](closeable: B)(f: B => A): A = {
     try {
       f(closeable)
@@ -38,9 +38,8 @@ package object io {
    * @param bufferSize the size of buffer to use for each read
    */
   def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
-    try {
+    using(in) { in =>
       val buf = new Array[Byte](bufferSize)
-
       @tailrec
       def loop(): Unit = {
         val n = in.read(buf)
@@ -49,22 +48,17 @@ package object io {
           loop()
         }
       }
-
       loop()
-    } finally {
-      in.close()
     }
   }
 
   def zeroCopy(in: FileInputStream, out: OutputStream): Unit = {
-    val ch = in.getChannel
-    try {
-      var start = 0L
-      while (start < ch.size) {
-        start += ch.transferTo(start, ch.size, Channels.newChannel(out))
-      }
-    } finally {
-      ch.close()
+    using(in.getChannel) {
+      ch =>
+        var start = 0L
+        while (start < ch.size) {
+          start += ch.transferTo(start, ch.size, Channels.newChannel(out))
+        }
     }
   }
 
@@ -93,12 +87,9 @@ package object io {
     directory: Option[File] = None)(f: File => A): A = {
     val tmp = File.createTempFile(prefix, suffix, directory.orNull)
     try {
-      val out = new BufferedWriter(new FileWriter(tmp))
-      try {
+      using(new BufferedWriter(new FileWriter(tmp))) { out =>
         out.write(content)
         out.flush()
-      } finally {
-        out.close()
       }
       f(tmp)
     } finally {
