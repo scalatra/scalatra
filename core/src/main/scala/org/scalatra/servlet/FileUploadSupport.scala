@@ -272,8 +272,11 @@ case class FileItem(part: Part) {
   def getCharset: Option[String] = charset.orElse(null)
 
   def write(file: File): Unit = {
-    using(new FileOutputStream(file)) { out =>
+    val out = new FileOutputStream(file)
+    try {
       io.copy(getInputStream, out)
+    } finally {
+      out.close()
     }
   }
 
