@@ -1,9 +1,8 @@
 package org.scalatra
 
-import java.io.{ File, FileInputStream }
+import java.io.{ File, FileInputStream, OutputStreamWriter, PrintWriter }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import javax.servlet.{ ServletRegistration, ServletContext }
-
+import javax.servlet.{ ServletContext, ServletRegistration }
 import org.scalatra.ScalatraBase._
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.RicherString._
@@ -11,6 +10,7 @@ import org.scalatra.util._
 import org.scalatra.util.io._
 import org.scalatra.util.conversion.DefaultImplicitConversions
 
+import java.nio.charset.StandardCharsets
 import scala.annotation.tailrec
 import scala.util.control.Exception._
 import scala.util.matching.Regex
@@ -223,7 +223,7 @@ trait ScalatraBase
     status = 500
     if (isDevelopmentMode) {
       contentType = "text/plain"
-      e.printStackTrace(response.getWriter)
+      e.printStackTrace(new PrintWriter(new OutputStreamWriter(response.getOutputStream, StandardCharsets.UTF_8)))
     }
   }
 
