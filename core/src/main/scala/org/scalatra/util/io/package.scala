@@ -18,7 +18,7 @@ package object io {
    * @param closeable the closeable resource
    * @param f the block
    */
-  @deprecated("Use Using.resource() since Scala 2.13", "2.8.2")
+  @deprecated("Use Using.resource() since Scala 2.13", "2.8.3")
   def using[A, B <: { def close(): Unit }](closeable: B)(f: B => A): A = {
     try {
       f(closeable)
@@ -57,12 +57,14 @@ package object io {
   }
 
   def zeroCopy(in: FileInputStream, out: OutputStream): Unit = {
-    using(in.getChannel) {
-      ch =>
-        var start = 0L
-        while (start < ch.size) {
-          start += ch.transferTo(start, ch.size, Channels.newChannel(out))
-        }
+    val ch = in.getChannel
+    try {
+      var start = 0L
+      while (start < ch.size) {
+        start += ch.transferTo(start, ch.size, Channels.newChannel(out))
+      }
+    } finally {
+      ch.close()
     }
   }
 
@@ -91,9 +93,12 @@ package object io {
     directory: Option[File] = None)(f: File => A): A = {
     val tmp = File.createTempFile(prefix, suffix, directory.orNull)
     try {
-      using(new BufferedWriter(new FileWriter(tmp))) { out =>
+      val out = new BufferedWriter(new FileWriter(tmp))
+      try {
         out.write(content)
         out.flush()
+      } finally {
+        out.close()
       }
       f(tmp)
     } finally {
