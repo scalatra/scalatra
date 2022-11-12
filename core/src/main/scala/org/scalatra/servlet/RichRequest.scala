@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils
 import org.scalatra.util.RicherString._
 import org.scalatra.util.MultiMapHeadView
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.io.Source
 
 object RichRequest {

@@ -9,7 +9,7 @@ import org.scalatra.util.RicherString._
 import org.scalatra.util._
 import org.scalatra.util.io._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]]

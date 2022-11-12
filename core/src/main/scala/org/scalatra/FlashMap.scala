@@ -3,7 +3,7 @@ package org.scalatra
 import java.util.concurrent.{ ConcurrentHashMap, ConcurrentSkipListSet }
 import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]]

@@ -21,7 +21,7 @@ import scala.collection.compat.immutable._
 object ScalatraBase {
 
   import org.scalatra.servlet.ServletApiImplicits._
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   /**
    * A key for request attribute that contains any exception

@@ -3,7 +3,7 @@ package servlet
 
 import org.scalatra.util.conversion.TypeConverter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import Attributes._
 
 /**
