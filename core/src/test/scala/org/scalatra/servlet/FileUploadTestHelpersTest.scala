@@ -5,7 +5,7 @@ import java.io.File
 import org.scalatra.ScalatraServlet
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
   configureMultipartHandling(HasMultipartConfig.DefaultMultipartConfig)

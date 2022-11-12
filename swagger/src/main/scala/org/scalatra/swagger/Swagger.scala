@@ -10,7 +10,7 @@ import org.scalatra.swagger.reflect._
 import org.scalatra.swagger.runtime.annotations.{ ApiModel, ApiModelProperty }
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait SwaggerEngine {
   def swaggerVersion: String

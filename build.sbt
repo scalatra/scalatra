@@ -172,7 +172,8 @@ lazy val scalatraTest = Project(
       servletApi,
       mockitoAll,
       httpclient,
-      httpmime
+      httpmime,
+      collectionCompact
     ) ++ specs2.map(_ % "test"),
     description := "The abstract Scalatra test framework"
   )

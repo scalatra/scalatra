@@ -8,7 +8,7 @@ import org.scalatra.swagger.reflect.Reflector
 import org.scalatra.util.NotNothing
 import org.scalatra.util.RicherString._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.control.Exception.allCatch
 import scala.util.parsing.combinator.RegexParsers
