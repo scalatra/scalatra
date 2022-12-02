@@ -100,6 +100,13 @@ trait HttpComponentsClient extends Client {
     builder.build()
   }
 
+  /**
+   * Can be overridden to, eg: `setNormalizeUri(false)` if using HttpComponents HttpClient v4.5.8
+   * or later.
+   */
+  protected val httpComponentsRequestConfig: RequestConfig =
+    RequestConfig.custom().setCookieSpec("compatibility").build()
+
   private def attachHeaders(req: HttpRequestBase, headers: Iterable[(String, String)]): Unit = {
     headers.foreach { case (name, value) => req.addHeader(name, value) }
   }
@@ -116,7 +123,7 @@ trait HttpComponentsClient extends Client {
       case "PATCH" => new HttpPatch(url)
     }
 
-    req.setConfig(RequestConfig.custom().setCookieSpec("compatibility").build())
+    req.setConfig(httpComponentsRequestConfig)
 
     req
   }
