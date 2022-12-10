@@ -47,7 +47,7 @@ object Dependencies {
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.6.0-M7"
 
   private val httpcomponentsVersion   = "4.5.6"
-  private val jettyVersion            = "10.0.12"
+  private val jettyVersion            = "10.0.13"
   private val json4sVersion           = "4.0.6"
   private val specs2Version           = "4.19.0"
   private val scalatestVersion        = "3.2.14"
