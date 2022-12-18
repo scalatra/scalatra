@@ -53,6 +53,10 @@ trait HttpComponentsClient extends Client {
     _cookieStore.withValue(new BasicCookieStore) { f }
   }
 
+  // non-empty path must begin with a slash
+  private def buildUrl(baseUrl: String, path: String): String =
+    if (!path.startsWith("/")) baseUrl + "/" + path else baseUrl + path
+
   def submit[A](
     method: String,
     path: String,
@@ -63,9 +67,9 @@ trait HttpComponentsClient extends Client {
       val client = createClient
       val queryString = toQueryString(queryParams)
       val url = if (queryString == "")
-        "%s/%s".format(baseUrl, path)
+        buildUrl(baseUrl, path)
       else
-        "%s/%s?%s".format(baseUrl, path, queryString)
+        s"${buildUrl(baseUrl, path)}?$queryString"
 
       val req = createMethod(method.toUpperCase, url)
       attachBody(req, body)
@@ -82,8 +86,7 @@ trait HttpComponentsClient extends Client {
     files: Iterable[(String, Any)])(f: => A): A =
     {
       val client = createClient
-      val url = "%s/%s".format(baseUrl, path)
-      val req = createMethod(method.toUpperCase, url)
+      val req = createMethod(method.toUpperCase, buildUrl(baseUrl, path))
 
       attachMultipartBody(req, params, files)
       attachHeaders(req, headers)
