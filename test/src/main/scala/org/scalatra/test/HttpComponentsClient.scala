@@ -108,7 +108,7 @@ trait HttpComponentsClient extends Client {
    * or later.
    */
   protected val httpComponentsRequestConfig: RequestConfig =
-    RequestConfig.custom().setCookieSpec("compatibility").build()
+    RequestConfig.custom().build()
 
   private def attachHeaders(req: HttpRequestBase, headers: Iterable[(String, String)]): Unit = {
     headers.foreach { case (name, value) => req.addHeader(name, value) }
