@@ -10,10 +10,7 @@ object Dependencies {
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.10.0"
   lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
   lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
-  lazy val jettyServer              =  "org.eclipse.jetty"       %  "jetty-server"               % jettyVersion
-  lazy val jettyPlus                =  "org.eclipse.jetty"       %  "jetty-plus"                 % jettyVersion
   lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
-  lazy val jettyWebsocket           =  "org.eclipse.jetty.websocket" %"websocket-server"         % jettyVersion
   lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
