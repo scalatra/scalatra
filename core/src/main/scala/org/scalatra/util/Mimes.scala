@@ -19,7 +19,7 @@ trait Mimes {
    * Detects the mime type of a given Byte array.
    *
    * When inappropriate MIME Type can not be inferred,
-   * "text/pain" is returned.
+   * "text/plain" is returned.
    *
    * @param content The Byte array for which to detect the mime type
    * @param fallback A fallback value in case no mime type can be found
