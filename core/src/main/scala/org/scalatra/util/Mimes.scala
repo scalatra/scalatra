@@ -16,38 +16,38 @@ trait Mimes {
   import org.scalatra.util.Mimes._
 
   /**
-   * Detects the mime type of a given Byte array.
+   * Detects the MIME type of a given Byte array.
    *
-   * When inappropriate MIME Type can not be inferred,
-   * "text/plain" is returned.
+   * When appropriate MIME Type can not be inferred,
+   * "text/pain" is returned.
    *
-   * @param content The Byte array for which to detect the mime type
-   * @param fallback A fallback value in case no mime type can be found
+   * @param content The Byte array for which to detect the MIME type
+   * @param fallback A fallback value in case no MIME type can be found
    */
   def bytesMime(content: Array[Byte], fallback: String = DefaultMime): String = {
     // for backward compatibility...even when it is empty, "text/plain" may be good.
-    if (content.isEmpty == true) {
-      return fallback
+    if (content.isEmpty) {
+      fallback
+    } else {
+      val is = new ByteArrayInputStream(content)
+      val mimeType = URLConnection.guessContentTypeFromStream(is)
+
+      if (mimeType != null) mimeType else "text/plain"
     }
-
-    val is = new ByteArrayInputStream(content)
-    val mimeType = URLConnection.guessContentTypeFromStream(is)
-
-    if (mimeType != null) mimeType else "text/plain"
   }
 
   /**
-   * Detects the mime type of a given File.
+   * Detects the MIME type of a given File.
    *
-   * When inappropriate MIME Type can not be inferred,
+   * When appropriate MIME Type can not be inferred,
    * "application/octet-stream" is returned.
    *
    * This method guesses the MIME type using `java.net.URLConnection.guessContentTypeFromName`.
    * Therefore, by defining an arbitrary MIME type in the configuration file specified by
    * the `content.types.user.table` property, an arbitrary MIME type can be guessed.
    *
-   * @param file The File for which to detect the mime type
-   * @param fallback A fallback value in case no mime type can be found
+   * @param file The File for which to detect the MIME type
+   * @param fallback A fallback value in case no MIME type can be found
    */
   def fileMime(file: File, fallback: String = DefaultMime): String = {
     val mimeType = URLConnection.guessContentTypeFromName(file.getName)
@@ -56,13 +56,13 @@ trait Mimes {
   }
 
   /**
-   * Detects the mime type of a given InputStream.
+   * Detects the MIME type of a given InputStream.
    *
-   * When inappropriate MIME Type can not be inferred,
+   * When appropriate MIME Type can not be inferred,
    * "application/octet-stream" is returned.
    *
-   * @param input The InputStream for which to detect the mime type
-   * @param fallback A fallback value in case no mime type can be found
+   * @param input The InputStream for which to detect the MIME type
+   * @param fallback A fallback value in case no MIME type can be found
    */
   def inputStreamMime(input: InputStream, fallback: String = DefaultMime): String = {
     val mimeType = URLConnection.guessContentTypeFromStream(input)
@@ -71,7 +71,7 @@ trait Mimes {
   }
 
   /**
-   * Detects the mime type of a given url.
+   * Detects the MIME type of a given url.
    *
    * When inappropriate MIME Type can not be inferred,
    * "application/octet-stream" is returned.
