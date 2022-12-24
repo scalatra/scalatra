@@ -2,7 +2,8 @@ package org.scalatra
 
 import java.io._
 
-import org.apache.http.impl.client.{ CloseableHttpClient, HttpClientBuilder }
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 import scala.concurrent.{ ExecutionContext, Future }

@@ -8,8 +8,7 @@ object Dependencies {
   lazy val commonsFileupload        =  "commons-fileupload"      %  "commons-fileupload"         % "1.4"
   lazy val commonsIo                =  "commons-io"              %  "commons-io"                 % "2.8"
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.10.0"
-  lazy val httpclient               =  "org.apache.httpcomponents" % "httpclient"                % httpcomponentsVersion
-  lazy val httpmime                 =  "org.apache.httpcomponents" % "httpmime"                  % httpcomponentsVersion
+  lazy val httpclient               =  "org.apache.httpcomponents.client5" % "httpclient5"       % "5.2.1"
   lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
   lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
@@ -38,12 +37,11 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-matcher-extra"
                                        ).map(_ % specs2Version)
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.2.9"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.14"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.14"
+  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.15"
+  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.15"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "31.1-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.6.0-RC1"
 
-  private val httpcomponentsVersion   = "4.5.6"
   private val jettyVersion            = "10.0.13"
   private val json4sVersion           = "4.0.6"
   private val specs2Version           = "4.19.0"

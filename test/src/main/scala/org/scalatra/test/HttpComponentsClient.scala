@@ -2,19 +2,20 @@ package org.scalatra.test
 
 import java.io.{ ByteArrayOutputStream, File, OutputStream }
 
-import org.apache.http.HttpResponse
-import org.apache.http.client.CookieStore
-import org.apache.http.client.config.RequestConfig
-import org.apache.http.client.methods._
-import org.apache.http.entity.ByteArrayEntity
-import org.apache.http.entity.ContentType
-import org.apache.http.entity.mime.content.{ ContentBody, StringBody }
-import org.apache.http.entity.mime.{ FormBodyPartBuilder, HttpMultipartMode, MultipartEntityBuilder }
-import org.apache.http.impl.client.{ BasicCookieStore, HttpClientBuilder }
+import org.apache.hc.core5.http.ClassicHttpResponse
+import org.apache.hc.core5.http.ContentType
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity
+import org.apache.hc.client5.http.config.RequestConfig
+import org.apache.hc.client5.http.cookie.BasicCookieStore
+import org.apache.hc.client5.http.cookie.CookieStore
+import org.apache.hc.client5.http.classic.methods._
+import org.apache.hc.client5.http.entity.mime.{ ContentBody, StringBody }
+import org.apache.hc.client5.http.entity.mime.{ FormBodyPartBuilder, HttpMultipartMode, MultipartEntityBuilder }
+import org.apache.hc.client5.http.impl.classic.HttpClients
 
 import scala.util.DynamicVariable
 
-case class HttpComponentsClientResponse(res: HttpResponse) extends ClientResponse {
+case class HttpComponentsClientResponse(res: ClassicHttpResponse) extends ClientResponse {
   lazy val bodyBytes: Array[Byte] = {
     Option(res.getEntity) match {
       case Some(entity) =>
@@ -29,13 +30,10 @@ case class HttpComponentsClientResponse(res: HttpResponse) extends ClientRespons
 
   def inputStream = res.getEntity.getContent
 
-  def statusLine = {
-    val sl = res.getStatusLine
-    ResponseStatus(sl.getStatusCode, sl.getReasonPhrase)
-  }
+  def statusLine = ResponseStatus(res.getCode(), res.getReasonPhrase())
 
   def headers = {
-    res.getAllHeaders.foldLeft(Map[String, Seq[String]]()) { (hmap, header) =>
+    res.getHeaders.foldLeft(Map[String, Seq[String]]()) { (hmap, header) =>
       val (name, value) = (header.getName, header.getValue)
       val values = hmap.getOrElse(name, Seq())
 
@@ -95,7 +93,7 @@ trait HttpComponentsClient extends Client {
     }
 
   protected def createClient = {
-    val builder = HttpClientBuilder.create()
+    val builder = HttpClients.custom()
     builder.disableRedirectHandling()
     if (_cookieStore.value != null) {
       builder.setDefaultCookieStore(_cookieStore.value)
@@ -104,13 +102,12 @@ trait HttpComponentsClient extends Client {
   }
 
   /**
-   * Can be overridden to, eg: `setNormalizeUri(false)` if using HttpComponents HttpClient v4.5.8
-   * or later.
+   * Can be overridden RequestConfig
    */
   protected val httpComponentsRequestConfig: RequestConfig =
     RequestConfig.custom().build()
 
-  private def attachHeaders(req: HttpRequestBase, headers: Iterable[(String, String)]): Unit = {
+  private def attachHeaders(req: HttpUriRequestBase, headers: Iterable[(String, String)]): Unit = {
     headers.foreach { case (name, value) => req.addHeader(name, value) }
   }
 
@@ -131,12 +128,19 @@ trait HttpComponentsClient extends Client {
     req
   }
 
-  private def attachBody(req: HttpRequestBase, body: Array[Byte]): Unit = {
+  private def attachBody(req: HttpUriRequestBase, body: Array[Byte]): Unit = {
     if (body == null) return
 
     req match {
-      case r: HttpEntityEnclosingRequestBase =>
-        r.setEntity(new ByteArrayEntity(body))
+      case _: HttpPatch | _: HttpPost | _: HttpPut => {
+        val contentType = if (req.containsHeader("Content-Type"))
+
+          ContentType.parse(req.getHeader("Content-Type").getValue)
+        else
+          ContentType.TEXT_PLAIN
+
+        req.setEntity(new ByteArrayEntity(body, contentType))
+      }
 
       case _ =>
         if (body.length > 0) {
@@ -149,7 +153,7 @@ trait HttpComponentsClient extends Client {
   }
 
   private def attachMultipartBody(
-    req: HttpRequestBase,
+    req: HttpUriRequestBase,
     params: Iterable[(String, String)],
     files: Iterable[(String, Any)]): Unit = {
 
@@ -158,9 +162,9 @@ trait HttpComponentsClient extends Client {
     }
 
     req match {
-      case r: HttpEntityEnclosingRequestBase =>
+      case _: HttpPatch | _: HttpPost | _: HttpPut => {
         val builder = MultipartEntityBuilder.create()
-        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+        builder.setMode(HttpMultipartMode.STRICT)
         params.foreach {
           case (name, value) =>
             builder.addPart(FormBodyPartBuilder.create(name, new StringBody(value, ContentType.TEXT_PLAIN)).build())
@@ -171,7 +175,8 @@ trait HttpComponentsClient extends Client {
             builder.addPart(name, createBody(name, file))
         }
 
-        r.setEntity(builder.build())
+        req.setEntity(builder.build())
+      }
 
       case _ =>
         throw new IllegalArgumentException(
