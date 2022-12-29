@@ -184,7 +184,6 @@ lazy val scalatraScalatest = Project(
     libraryDependencies ++= scalatest,
     libraryDependencies ++= Seq(
       scalatestJunit,
-      junit
     ),
     description := "ScalaTest support for the Scalatra test framework"
   )
