@@ -9,7 +9,7 @@ lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
   Test / fork := true,
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
-  crossScalaVersions := Seq("2.12.17", "2.13.10", "3.2.1"),
+  crossScalaVersions := Seq("2.12.17", "2.13.10", "3.2.2"),
   scalaVersion := crossScalaVersions.value.head,
   Test / testOptions ++= {
     if (scalaBinaryVersion.value == "3") {
