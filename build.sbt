@@ -28,7 +28,7 @@ lazy val scalatraSettings = Seq(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         unusedOptions ++ Seq(
-          "-target:jvm-1.8",
+          "-release:8",
           "-Xlint",
           "-Xcheckinit",
         )
