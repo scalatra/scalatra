@@ -5,6 +5,18 @@ import Dependencies._
 
 val unusedOptions = Seq("-Ywarn-unused:imports")
 
+val scala3migaration = Def.settings(
+  scalacOptions ++= {
+    if (scalaBinaryVersion.value == "3") {
+      Seq(
+        "-source:3.0-migration",
+      )
+    } else {
+      Nil
+    }
+  }
+)
+
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
   Test / fork := true,
@@ -33,10 +45,7 @@ lazy val scalatraSettings = Seq(
           "-Xcheckinit",
         )
       case _ =>
-        Seq(
-          "-source",
-          "3.0-migration",
-        )
+        Nil
     }
   },
   scalacOptions ++= Seq(
@@ -114,9 +123,9 @@ lazy val scalatraCore = Project(
 lazy val scalatraAuth = Project(
   id = "scalatra-auth",
   base = file("auth")).settings(
-    scalatraSettings ++ Seq(
-    description := "Scalatra authentication module"
-  )
+    scalatraSettings,
+    description := "Scalatra authentication module",
+    scala3migaration,
 ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
 
 lazy val scalatraTwirl = Project(
@@ -201,13 +210,13 @@ lazy val scalatraSpecs2 = Project(
 lazy val scalatraSwagger = Project(
   id = "scalatra-swagger",
   base = file("swagger")).settings(
-    scalatraSettings ++ Seq(
+    scalatraSettings,
     libraryDependencies ++= Seq(
       parserCombinators,
       logbackClassic % "provided"
     ),
+    scala3migaration,
     description := "Scalatra integration with Swagger"
-  )
 ) dependsOn(
   scalatraCore % "compile;test->test;provided->provided",
   scalatraJson % "compile;test->test;provided->provided",
