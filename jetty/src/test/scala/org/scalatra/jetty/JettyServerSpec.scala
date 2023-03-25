@@ -1,6 +1,6 @@
 package org.scalatra.jetty
 
-import java.net.{ InetSocketAddress, URL }
+import java.net.{ InetSocketAddress, URI }
 import javax.servlet.ServletContext
 
 import org.eclipse.jetty.server.ServerConnector
@@ -42,7 +42,7 @@ class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
   "A JettyServer" should {
     "return hello" in {
-      val stream = Source.fromInputStream(new URL("http://localhost:" + port + "/").openStream())
+      val stream = Source.fromInputStream(new URI("http://localhost:" + port + "/").toURL.openStream())
       try {
         assert(stream.getLines().mkString === "hello")
       } finally {
