@@ -279,9 +279,9 @@ lazy val manifestSetting = packageOptions += {
 
 // Things we care about primarily because Maven Central demands them
 lazy val mavenCentralFrouFrou = Seq(
-  homepage := Some(new URL("http://www.scalatra.org/")),
+  homepage := Some(url("http://www.scalatra.org/")),
   startYear := Some(2009),
-  licenses := Seq(("BSD", new URL("http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
+  licenses := Seq(("BSD", url("http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
   pomExtra := pomExtra.value ++ Group(
     <scm>
       <url>http://github.com/scalatra/scalatra</url>
