@@ -1,5 +1,5 @@
 /*
- * Most of these test cases are ported from http://github.com/sinatra/sinatra/tree master/test/routing_test.rb
+ * Most of these test cases are ported from https://github.com/sinatra/sinatra/tree master/test/routing_test.rb
  */
 package org.scalatra
 

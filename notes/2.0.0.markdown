@@ -3,10 +3,10 @@
 * Add crossbuild for Scala 2.9.1 
 
 ### scalatra-fileupload
-* Support implicit `[]`-suffix convention in `fileMultiParams` as with `multiParams`. [(GH-128)](http://github.com/scalatra/scalatra/issues/128)
+* Support implicit `[]`-suffix convention in `fileMultiParams` as with `multiParams`. [(GH-128)](https://github.com/scalatra/scalatra/issues/128)
 
 ### scalatra-test
-* Fix NoSuchMethodError in Jetty8. [(GH-129)](http://github.com/scalatra/scalatra/issues/129) 
+* Fix NoSuchMethodError in Jetty8. [(GH-129)](https://github.com/scalatra/scalatra/issues/129) 
 
 ### scalatra-scalate
 * Upgrade to Scalate-1.5.2

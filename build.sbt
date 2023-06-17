@@ -283,12 +283,12 @@ lazy val manifestSetting = packageOptions += {
 
 // Things we care about primarily because Maven Central demands them
 lazy val mavenCentralFrouFrou = Seq(
-  homepage := Some(url("http://www.scalatra.org/")),
+  homepage := Some(url("https://www.scalatra.org/")),
   startYear := Some(2009),
-  licenses := Seq(("BSD", url("http://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
+  licenses := Seq(("BSD", url("https://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
   pomExtra := pomExtra.value ++ Group(
     <scm>
-      <url>http://github.com/scalatra/scalatra</url>
+      <url>https://github.com/scalatra/scalatra</url>
       <connection>scm:git:git://github.com/scalatra/scalatra.git</connection>
     </scm>
     <developers>
@@ -330,32 +330,32 @@ lazy val mavenCentralFrouFrou = Seq(
       <developer>
         <id>dozed</id>
         <name>Stefan Ollinger</name>
-        <url>http://github.com/dozed/</url>
+        <url>https://github.com/dozed/</url>
       </developer>
       <developer>
         <id>sdb</id>
         <name>Stefan De Boey</name>
-        <url>http://github.com/sdb/</url>
+        <url>https://github.com/sdb/</url>
       </developer>
       <developer>
         <id>ymasory</id>
         <name>Yuvi Masory</name>
-        <url>http://github.com/ymasory/</url>
+        <url>https://github.com/ymasory/</url>
       </developer>
       <developer>
         <id>jfarcand</id>
         <name>Jean-François Arcand</name>
-        <url>http://github.com/jfarcand/</url>
+        <url>https://github.com/jfarcand/</url>
       </developer>
       <developer>
         <id>ceedubs</id>
         <name>Cody Alen</name>
-        <url>http://github.com/ceedubs/</url>
+        <url>https://github.com/ceedubs/</url>
       </developer>
       <developer>
         <id>BowlingX</id>
         <name>David Heidrich</name>
-        <url>http://github.com/BowlingX/</url>
+        <url>https://github.com/BowlingX/</url>
       </developer>
       <developer>
         <id>ayush</id>

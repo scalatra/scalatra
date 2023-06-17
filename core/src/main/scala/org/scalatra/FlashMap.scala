@@ -155,8 +155,8 @@ trait FlashMapSupport extends Handler {
 
       ScalatraBase onCompleted { _ =>
         /*
-         * http://github.com/scalatra/scalatra/issues/41
-         * http://github.com/scalatra/scalatra/issues/57
+         * https://github.com/scalatra/scalatra/issues/41
+         * https://github.com/scalatra/scalatra/issues/57
          *
          * Only the outermost FlashMapSupport sweeps it at the end.
          * This deals with both nested filters and redirects to other servlets.

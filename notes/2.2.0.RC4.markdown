@@ -11,7 +11,7 @@
 * *BREAKING* Do not require ActorSystem.  Use implicit executor parameter. [GH-250](https://github.com/scalatra/scalatra/pull/250)
 
 ### scalatra-test
-* Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
+* Fix issue testing static resources with default servlet. [GH-248](https://github.com/scalatra/scalatra/issues/248)
 
 ### scalatra-atmosphere
 * Upgrade to atmosphere 1.0.9

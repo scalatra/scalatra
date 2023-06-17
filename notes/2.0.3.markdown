@@ -1,7 +1,7 @@
 * Add support for Scala 2.8.2.
 
 ### scalatra-auth
-* Fix crash in BasicAuthStrategy when no auth header is present. [(GH-143)](http://github.com/scalatra/scalatra/issues/143)
+* Fix crash in BasicAuthStrategy when no auth header is present. [(GH-143)](https://github.com/scalatra/scalatra/issues/143)
 
 ### scalatra-fileupload
 * Create hook to customize `ServletFileUpload`, for instance to set maximum upload size.

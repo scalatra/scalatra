@@ -9,6 +9,6 @@
 * Make FlashMap entries available to current request, like Rack::Flash.
 * Allow CSRFTokenSupport-derived traits to redefine the forgery test.
 * multiparams now also understands Ruby-style multiparams (suffixed with [])
-* [GH-46](http://github.com/scalatra/scalatra/issues/46): Scentry says an invalid request is authenticated but fails with 500 later
-* [GH-41](http://github.com/scalatra/scalatra/issues/41), [GH-57](http://github.com/scalatra/scalatra/issues/57): FlashMap misbehavior with nested filters or multiple servlets
-* [GH-64](http://github.com/scalatra/scalatra/issues/64): fix thread-safety issue in route parsers.
+* [GH-46](https://github.com/scalatra/scalatra/issues/46): Scentry says an invalid request is authenticated but fails with 500 later
+* [GH-41](https://github.com/scalatra/scalatra/issues/41), [GH-57](https://github.com/scalatra/scalatra/issues/57): FlashMap misbehavior with nested filters or multiple servlets
+* [GH-64](https://github.com/scalatra/scalatra/issues/64): fix thread-safety issue in route parsers.

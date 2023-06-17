@@ -1,14 +1,14 @@
-* [GH-16](http://github.com/scalatra/scalatra/issues/16): Dealing with multiple servlets/filters which have FileUploadSupport.
-* [GH-18](http://github.com/scalatra/scalatra/issues/18): ScalatraTests doesn't track the session cookie correctly across more than 2 requests
+* [GH-16](https://github.com/scalatra/scalatra/issues/16): Dealing with multiple servlets/filters which have FileUploadSupport.
+* [GH-18](https://github.com/scalatra/scalatra/issues/18): ScalatraTests doesn't track the session cookie correctly across more than 2 requests
 * Generate CSRF token once per session instead of once per request.
-* [GH-19](http://github.com/scalatra/scalatra/issues/19): Render a File when returned by an action
-* [GH-20](http://github.com/scalatra/scalatra/issues/20): Add support for the HTTP HEAD method.  ScalatraTests support still pending.
+* [GH-19](https://github.com/scalatra/scalatra/issues/19): Render a File when returned by an action
+* [GH-20](https://github.com/scalatra/scalatra/issues/20): Add support for the HTTP HEAD method.  ScalatraTests support still pending.
 * Upgrade to Jetty 7.
 * Concurrency support for dynamic route addition and deletion.
-* [GH-25](http://github.com/scalatra/scalatra/issues/25): Decode request body with content encoding
+* [GH-25](https://github.com/scalatra/scalatra/issues/25): Decode request body with content encoding
 * New socketio module. _API subject to change before 2.0.0_
-* [GH-26](http://github.com/scalatra/scalatra/issues/26): Support options request
+* [GH-26](https://github.com/scalatra/scalatra/issues/26): Support options request
 * Support for Rails-style path patterns.
-* [GH-29](http://github.com/scalatra/scalatra/issues/29): FlashMap should be serializable
-* [GH-34](http://github.com/scalatra/scalatra/issues/34): ScalatraTests.addFilter not compatible with Jetty 8
-* [GH-35](http://github.com/scalatra/scalatra/issues/35): Support for POST in ScalatraTests
+* [GH-29](https://github.com/scalatra/scalatra/issues/29): FlashMap should be serializable
+* [GH-34](https://github.com/scalatra/scalatra/issues/34): ScalatraTests.addFilter not compatible with Jetty 8
+* [GH-35](https://github.com/scalatra/scalatra/issues/35): Support for POST in ScalatraTests
