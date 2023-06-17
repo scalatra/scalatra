@@ -1,6 +1,6 @@
 package org.scalatra.test
 
-import javax.servlet.http._
+import org.scalatra.ServletCompat.http._
 
 import org.specs2.mutable._
 import org.specs2.specification.BeforeAfterAll

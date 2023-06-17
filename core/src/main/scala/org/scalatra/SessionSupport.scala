@@ -1,6 +1,6 @@
 package org.scalatra
 
-import javax.servlet.http.{ HttpServletRequest, HttpSession }
+import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpSession }
 
 import org.scalatra.servlet.ServletApiImplicits
 

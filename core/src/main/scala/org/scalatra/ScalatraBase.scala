@@ -1,8 +1,8 @@
 package org.scalatra
 
 import java.io.{ File, FileInputStream, OutputStreamWriter, PrintWriter }
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
-import javax.servlet.{ ServletContext, ServletRegistration }
+import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.{ ServletContext, ServletRegistration }
 import org.scalatra.ScalatraBase._
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.RicherString._

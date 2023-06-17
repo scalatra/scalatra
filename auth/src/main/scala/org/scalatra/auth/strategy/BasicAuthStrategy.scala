@@ -4,7 +4,7 @@ package strategy
 
 import java.util.Base64
 import java.util.Locale
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.util.RicherString._
 

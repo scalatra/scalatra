@@ -1,7 +1,7 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.http.HttpSession
+import org.scalatra.ServletCompat.http.HttpSession
 
 /**
  * Extension methods to the standard HttpSession.
