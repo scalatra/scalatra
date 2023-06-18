@@ -2,8 +2,8 @@ package org.scalatra
 package servlet
 
 import java.{ util => ju }
-import javax.servlet.ServletContext
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.ServletContext
+import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
 import scala.language.reflectiveCalls
 
 /**

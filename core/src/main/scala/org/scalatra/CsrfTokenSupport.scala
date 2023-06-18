@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.security.SecureRandom
-import javax.servlet.http.HttpServletRequest
+import org.scalatra.ServletCompat.http.HttpServletRequest
 
 object GenerateId {
 

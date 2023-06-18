@@ -1,7 +1,7 @@
 package org.scalatra
 package servlet
 
-import javax.servlet.ServletContext
+import org.scalatra.ServletCompat.ServletContext
 import scala.language.reflectiveCalls
 
 object HasMultipartConfig {

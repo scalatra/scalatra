@@ -19,5 +19,5 @@ jobs:
         distribution: "temurin"
         java-version: ${{ matrix.java }}
     - name: Run tests
-      run: sbt -v "+test" "+unidoc"
+      run: sbt -v test unidoc
     - run: git diff --exit-code

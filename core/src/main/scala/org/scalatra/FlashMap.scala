@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.util.concurrent.{ ConcurrentHashMap, ConcurrentSkipListSet }
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
 
 import scala.jdk.CollectionConverters._
 

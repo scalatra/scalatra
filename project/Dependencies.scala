@@ -7,8 +7,10 @@ object Dependencies {
   lazy val collectionCompact        =  "org.scala-lang.modules"  %% "scala-collection-compat"    % "2.11.0"
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.10.0"
   lazy val httpclient               =  "org.apache.httpcomponents.client5" % "httpclient5"       % "5.2.1"
-  lazy val jettyServlet             =  "org.eclipse.jetty"       %  "jetty-servlet"              % jettyVersion
-  lazy val jettyWebapp              =  "org.eclipse.jetty"       %  "jetty-webapp"               % jettyVersion
+  lazy val jettyServletJavax        =  "org.eclipse.jetty"       %  "jetty-servlet"              % "10.0.15"
+  lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.15"
+  lazy val jettyServletJakarta      =  "org.eclipse.jetty"       %  "jetty-servlet"              % "11.0.15"
+  lazy val jettyWebappJakarta       =  "org.eclipse.jetty"       %  "jetty-webapp"               % "11.0.15"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion
@@ -27,19 +29,21 @@ object Dependencies {
                                          "shouldmatchers",
                                          "mustmatchers",
                                        ).map(x => "org.scalatest" %% s"scalatest-$x" % scalatestVersion)
-  lazy val servletApi               =  "javax.servlet"           %  "javax.servlet-api"          % "4.0.1"
+  lazy val servletApiJavax          =  "javax.servlet"           %  "javax.servlet-api"          % "4.0.1"
+  lazy val servletApiJakarta        =  "jakarta.servlet"         %  "jakarta.servlet-api"        % "5.0.0"
   lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "2.0.7"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                        ).map(_ % specs2Version)
   lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.2.9"
-  lazy val metricsServlets          =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.19"
-  lazy val metricsServlet           =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.19"
+  lazy val metricsServletsJavax     =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.19"
+  lazy val metricsServletJavax      =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.19"
+  lazy val metricsServletsJakarta   =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlets"   % "4.2.19"
+  lazy val metricsServletJakarta    =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlet"    % "4.2.19"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "32.0.1-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.6.0-RC4"
 
-  private val jettyVersion            = "10.0.15"
   private val json4sVersion           = "4.0.6"
   private val specs2Version           = "4.20.0"
   private val scalatestVersion        = "3.2.16"

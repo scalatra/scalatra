@@ -2,7 +2,7 @@ package org.scalatra
 
 import java.util.Locale.ENGLISH
 import java.util.concurrent.ConcurrentHashMap
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.util.RicherString._
 

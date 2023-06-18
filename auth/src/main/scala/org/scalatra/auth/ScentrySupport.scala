@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import javax.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.util.RicherString._
 
