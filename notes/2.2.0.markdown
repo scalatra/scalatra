@@ -182,7 +182,7 @@
 
 ### Testing
 * Added a method `ensureSessionIsSerializable` method which will try to serialize every session value.
-* Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
+* Fix issue testing static resources with default servlet. [GH-248](https://github.com/scalatra/scalatra/issues/248)
 
 ### Specs
 * Deprecate scalatra-specs in anticipation of Scala 2.10 support.

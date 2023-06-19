@@ -107,7 +107,7 @@ class CookieSupportTest extends ScalatraFunSuite {
   }
 
   // This is as much a test of ScalatraTests as it is of CookieSupport.
-  // http://github.com/scalatra/scalatra/issue/84
+  // https://github.com/scalatra/scalatra/issue/84
   test("handles multiple cookies") {
     session {
       post("/foo/setcookie", Map("cookieval" -> "value", "anothercookieval" -> "another")) {

@@ -1,39 +1,39 @@
 ### scalatra
-* Fix dynamic variables leaking memory on redeploy. [(GH-74)](http://github.com/scalatra/scalatra/issues/74) 
-* Send 405 and Allow header if other methods match. [(GH-50)](http://github.com/scalatra/scalatra/issues/50) 
-* Support bodies and headers in halt. [(GH-79)](http://github.com/scalatra/scalatra/issues/79) 
-* Support PATCH requests. [(GH-51)](http://github.com/scalatra/scalatra/issues/51) 
-* Error handler is now a pattern matcher. [(GH-93)](http://github.com/scalatra/scalatra/issues/93) 
-* Generate URLs from route and params (aka reverse routing). [(GH-108)](http://github.com/scalatra/scalatra/issues/108) 
-* Make trailing slash optional on non-root path-mapped servlets. [(GH-98)](http://github.com/scalatra/scalatra/issues/98) 
-* Servlets try to serve static resource if no route matches. [(GH-109)](http://github.com/scalatra/scalatra/issues/109) 
-* request.body is cached so subsequent calls don't return "". [(GH-73)](http://github.com/scalatra/scalatra/issues/73) 
+* Fix dynamic variables leaking memory on redeploy. [(GH-74)](https://github.com/scalatra/scalatra/issues/74) 
+* Send 405 and Allow header if other methods match. [(GH-50)](https://github.com/scalatra/scalatra/issues/50) 
+* Support bodies and headers in halt. [(GH-79)](https://github.com/scalatra/scalatra/issues/79) 
+* Support PATCH requests. [(GH-51)](https://github.com/scalatra/scalatra/issues/51) 
+* Error handler is now a pattern matcher. [(GH-93)](https://github.com/scalatra/scalatra/issues/93) 
+* Generate URLs from route and params (aka reverse routing). [(GH-108)](https://github.com/scalatra/scalatra/issues/108) 
+* Make trailing slash optional on non-root path-mapped servlets. [(GH-98)](https://github.com/scalatra/scalatra/issues/98) 
+* Servlets try to serve static resource if no route matches. [(GH-109)](https://github.com/scalatra/scalatra/issues/109) 
+* request.body is cached so subsequent calls don't return "". [(GH-73)](https://github.com/scalatra/scalatra/issues/73) 
 
 ### scalatra-anti-xml
-* New module adds support for rendering Elem responses. [(GH-75)](http://github.com/scalatra/scalatra/issues/75)
+* New module adds support for rendering Elem responses. [(GH-75)](https://github.com/scalatra/scalatra/issues/75)
 
 ### scalatra-fileupload
-* Keep query parameters available on multipart requests. [(GH-80)](http://github.com/scalatra/scalatra/issues/80)
-* Improve character decoding of form fields in multipart requests. [(GH-83)](http://github.com/scalatra/scalatra/issues/83)
+* Keep query parameters available on multipart requests. [(GH-80)](https://github.com/scalatra/scalatra/issues/80)
+* Improve character decoding of form fields in multipart requests. [(GH-83)](https://github.com/scalatra/scalatra/issues/83)
 
 ### scalatra-scalate
-* Find templates and layouts by convention. [(GH-87)](http://github.com/scalatra/scalatra/issues/87)
+* Find templates and layouts by convention. [(GH-87)](https://github.com/scalatra/scalatra/issues/87)
 
 ### scalatra-socketio
-* Change interface to socket io to something that allows to keep state per client. [(GH-72)](http://github.com/scalatra/scalatra/issues/72)
+* Change interface to socket io to something that allows to keep state per client. [(GH-72)](https://github.com/scalatra/scalatra/issues/72)
 * Deprecated in favor of Atmosphere.
 
 ### scalatra-scalatest
-* Support for testing arbitrary requests. Explicit support for HEAD, TRACE, CONNECT, and PATCH. [(GH-51)](http://github.com/scalatra/scalatra/issues/51)
-* Receive and send multiple cookies. [(GH-84)](http://github.com/scalatra/scalatra/issues/84)
+* Support for testing arbitrary requests. Explicit support for HEAD, TRACE, CONNECT, and PATCH. [(GH-51)](https://github.com/scalatra/scalatra/issues/51)
+* Receive and send multiple cookies. [(GH-84)](https://github.com/scalatra/scalatra/issues/84)
 
 #### scalatra-specs2
-* Support mutable (unit)specifications. [(GH-123)](http://github.com/scalatra/scalatra/issues/123)
+* Support mutable (unit)specifications. [(GH-123)](https://github.com/scalatra/scalatra/issues/123)
 
 #### scalatra-scalatest
-* New convenience traits for Suites other than FunSuite. [(GH-21)](http://github.com/scalatra/scalatra/issues/21)
+* New convenience traits for Suites other than FunSuite. [(GH-21)](https://github.com/scalatra/scalatra/issues/21)
 * For convenience, ScalatraSuite now extends MustMatchers and ShouldMatchers.
 
 ### scalatra-website
-* The website now has it's own project. [scalatra-website](http://github.com/scalatra/scalatra-website)
-* The scalatra book has also been seperated into it's own project. [scalatra-book](http://github.com/scalatra/scalatra-book)
+* The website now has it's own project. [scalatra-website](https://github.com/scalatra/scalatra-website)
+* The scalatra book has also been seperated into it's own project. [scalatra-book](https://github.com/scalatra/scalatra-book)

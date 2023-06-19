@@ -19,33 +19,33 @@
 - [Gregg Carrier](http://janxspirit.blogspot.com/)
 - [Robbie Clutton](http://blog.iclutton.com/)
 - [Thibault Duplessis](http://ornicar.github.com/)
-- [David Heidrich](http://github.com/BowlingX)
-- [Dave Hrycyszyn](http://github.com/futurechimp)
+- [David Heidrich](https://github.com/BowlingX)
+- [Dave Hrycyszyn](https://github.com/futurechimp)
 - [Tuomas Kareinen](http://www.iki.fi/kareinen/)
-- [Miso Korkiakoski](http://github.com/mwing)
+- [Miso Korkiakoski](https://github.com/mwing)
 - [Yusuke Kuoka](http://d.hatena.ne.jp/mumoshu/)
 - [Yung-Luen Lan](http://yllan.org/)
 - [Paul Lambert](http://paulitex.com/)
-- [Dag Liodden](http://github.com/daggerrz)
-- [Massimiliano Mazzarolo](http://github.com/m20o)
-- [Mikko Nylén](http://github.com/mnylen)
-- [Ted Nyman](http://github.com/tnm)
+- [Dag Liodden](https://github.com/daggerrz)
+- [Massimiliano Mazzarolo](https://github.com/m20o)
+- [Mikko Nylén](https://github.com/mnylen)
+- [Ted Nyman](https://github.com/tnm)
 - [Șeyi Ogunyẹ́mi](http://www.micrypt.com)
-- [Stefan Ollinger](http://github.com/dozed)
-- [Adam Rosien](http://github.com/arosien)
-- [Erik Rozendaal](http://github.com/erikrozendaal)
-- [Kazuhiro Sera](http://github.com/seratch)
+- [Stefan Ollinger](https://github.com/dozed)
+- [Adam Rosien](https://github.com/arosien)
+- [Erik Rozendaal](https://github.com/erikrozendaal)
+- [Kazuhiro Sera](https://github.com/seratch)
 - [Srirangan](http://srirangan.net)
 - [Eric Torreborre](http://etorreborre.blogspot.com/)
-- [Lucas Torri](http://github.com/lucastorri)
-- [Leif Warner](http://github.com/LeifW)
-- [Ivan Willig](http://github.com/iwillig)
-- [Phil Wills](http://github.com/philwills)
+- [Lucas Torri](https://github.com/lucastorri)
+- [Leif Warner](https://github.com/LeifW)
+- [Ivan Willig](https://github.com/iwillig)
+- [Phil Wills](https://github.com/philwills)
 
 ## Special thanks
 
-- [The Sinatra Project](http://www.sinatrarb.com/), whose excellent framework,
+- [The Sinatra Project](https://sinatrarb.com/), whose excellent framework,
   test suite, and documentation we've shamelessly copied.
-- [Mark Harrah](http://github.com/harrah) for his support on the [sbt mailing
-  list](http://groups.google.com/group/simple-build-tool)
+- [Mark Harrah](https://github.com/harrah) for his support on the [sbt mailing
+  list](https://groups.google.com/group/simple-build-tool)
 

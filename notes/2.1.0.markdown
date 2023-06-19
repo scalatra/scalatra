@@ -1,7 +1,7 @@
 ### scalatra-scalate
-* Request-scoped `templateAttributes` map lets you set common render context variables prior to the layout call. [GH-134](http://github.com/scalatra/scalatra/issues/134)
-* Respect HttpOnly option on CookieOptions. [GH-136](http://github.com/scalatra/scalatra/issues/136)
-* Support deleting cookies with paths. [GH-138](http://github.com/scalatra/scalatra/issues/138)
+* Request-scoped `templateAttributes` map lets you set common render context variables prior to the layout call. [GH-134](https://github.com/scalatra/scalatra/issues/134)
+* Respect HttpOnly option on CookieOptions. [GH-136](https://github.com/scalatra/scalatra/issues/136)
+* Support deleting cookies with paths. [GH-138](https://github.com/scalatra/scalatra/issues/138)
 
 ### scalatra-test
 * Log requests and responses to debug.
@@ -31,7 +31,7 @@ Like the lift-json module but uses jerkson instead of lift-json
 * MethodOverrideSupport now also takes headers into account when deciding on the overload.
 * Adds support for X-XSRF-Token header as described in the [angular js docs](http://docs.angularjs.org/api/ng.$http).
 * Cookie serialization now converts Max-Age to Expires to appease IE
-* I18nSupport is not thread-safe. [GH-200](http://github.com/scalatra/scalatra/issues/200)
+* I18nSupport is not thread-safe. [GH-200](https://github.com/scalatra/scalatra/issues/200)
 * Improved handling of encoded uris, so that encoded /?# characters are supported
 * Allow usage of the ActionResult instances with halt (thanks igstan)
 * Support `X-Http-Method-Override` header.
@@ -54,7 +54,7 @@ Like the lift-json module but uses jerkson instead of lift-json
 * XML deserialization to jvalue now skips the root element
 
 ### scalatra-akka
-* After filters run now asynchronously on asynchronous requests. [GH-148](http://github.com/scalatra/scalatra/issues/148)
+* After filters run now asynchronously on asynchronous requests. [GH-148](https://github.com/scalatra/scalatra/issues/148)
 
 ### scalatra-fileupload
 * Deprecated in favor of native servlet handling.  (Jetty users:

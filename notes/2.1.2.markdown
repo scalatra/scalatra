@@ -6,4 +6,4 @@
 * Let asyncTimeout be overridden outside the Scalatra framework.
 
 ### scalatra-test
-* Fix issue testing static resources with default servlet. [GH-248](http://github.com/scalatra/scalatra/issues/248)
+* Fix issue testing static resources with default servlet. [GH-248](https://github.com/scalatra/scalatra/issues/248)

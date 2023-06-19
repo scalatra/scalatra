@@ -3,4 +3,4 @@
 * Return Unit instead of Nothing from redirect.
 
 ### scalatra-scalate
-* ScalateSupport helpers render to return value instead of directly to response. [(GH-139)](http://github.com/scalatra/scalatra/issues/139)
+* ScalateSupport helpers render to return value instead of directly to response. [(GH-139)](https://github.com/scalatra/scalatra/issues/139)
