@@ -2,15 +2,16 @@ package org.scalatra
 package servlet
 
 import org.scalatra.ServletCompat.ServletContext
-import scala.language.reflectiveCalls
 
 object HasMultipartConfig {
   val DefaultMultipartConfig = MultipartConfig()
   val MultipartConfigKey = "org.scalatra.MultipartConfigKey"
 }
-trait HasMultipartConfig extends Initializable { self: { def servletContext: ServletContext } =>
+trait HasMultipartConfig extends Initializable {
 
   import org.scalatra.servlet.HasMultipartConfig._
+
+  def servletContext: ServletContext
 
   private[this] def multipartConfigFromContext: Option[MultipartConfig] = {
     // hack to support the tests without changes
