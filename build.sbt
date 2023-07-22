@@ -87,6 +87,8 @@ lazy val scalatraSettings = Seq(
     "-language:existentials"
   ),
   manifestSetting,
+  publishConfiguration := publishConfiguration.value.withOverwrite(true),
+  publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
 ) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c =>
   c / console / scalacOptions --= unusedOptions
 )
