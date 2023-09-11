@@ -204,7 +204,7 @@ case class UploadableBody(uploadable: Uploadable) extends ContentBody {
 
   def getSubType = "FORM-DATA"
 
-  def getCharset = null
+  def getCharset: String = null
 
   def getTransferEncoding = "binary"
 

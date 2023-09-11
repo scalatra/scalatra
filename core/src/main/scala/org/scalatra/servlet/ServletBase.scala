@@ -25,7 +25,7 @@ trait ServletBase
 
   }
 
-  protected implicit def configWrapper(config: ConfigT) = new Config {
+  protected implicit def configWrapper(config: ConfigT): Config = new Config {
 
     override def context: ServletContext = config.getServletContext()
 
