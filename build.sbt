@@ -38,25 +38,15 @@ lazy val scalatraSettings = Seq(
       Nil
     }
   },
-  version := {
+  name := {
     if (baseDirectory.value == (LocalRootProject / baseDirectory).value) {
-      version.value
+      name.value
     } else {
-      val v = version.value
-      val snapshotSuffix = "-SNAPSHOT"
       val axes = virtualAxes.?.value.getOrElse(Nil)
-      val suffix = (axes.contains(javax), axes.contains(jakarta)) match {
-        case (true, false) =>
-          "-javax"
-        case (false, true) =>
-          "-jakarta"
-        case _ =>
-          sys.error(axes.toString)
-      }
-      if (v.endsWith(snapshotSuffix)) {
-        v.dropRight(snapshotSuffix.length) + suffix + snapshotSuffix
-      } else {
-        v + suffix
+      (axes.contains(javax), axes.contains(jakarta)) match {
+        case (true, false) => s"${name.value}-javax"
+        case (false, true) => s"${name.value}-jakarta"
+        case _ => sys.error(axes.toString)
       }
     }
   },
@@ -126,7 +116,7 @@ enablePlugins(ScalaUnidocPlugin)
 
 lazy val `scalatra-common` = projectMatrix.in(file("common"))
   .settings(
-    scalatraSettings,
+    scalatraSettings
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
