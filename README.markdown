@@ -26,10 +26,14 @@ Once you've done that, take a look at the [Scalatra Guides](https://scalatra.org
 
 ## Latest version
 
-The latest version of Scalatra is `2.8.+`, and is published to [Maven Central](https://repo1.maven.org/maven2/org/scalatra).
+The latest version of Scalatra is `3.0.+`, and is published to [Maven Central](https://repo1.maven.org/maven2/org/scalatra).
 
 ```scala
-libraryDependencies += "org.scalatra" %% "scalatra" % "2.8.+"
+// for javax
+libraryDependencies += "org.scalatra" %% "scalatra-javax" % "3.0.+"
+
+// for jakarta
+libraryDependencies += "org.scalatra" %% "scalatra-jakarta" % "3.0.+"
 ```
 
 ## Community
