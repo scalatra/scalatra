@@ -23,6 +23,9 @@ val scalaVersions = Seq("2.12.18", Scala213, "3.3.1")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
+  mimaPreviousArtifacts ++= Set("3.0.0").map(
+    organization.value %% moduleName.value % _
+  ),
   Test / fork := true,
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
   Test / testOptions ++= {
@@ -86,6 +89,8 @@ lazy val scalatraSettings = Seq(
 scalatraSettings
 scalaVersion := Scala213
 name := "scalatra-unidoc"
+mimaPreviousArtifacts := Set.empty
+mimaFailOnNoPrevious := false
 artifacts := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value
 packagedArtifacts := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value
 description := "A tiny, Sinatra-like web framework for Scala"
