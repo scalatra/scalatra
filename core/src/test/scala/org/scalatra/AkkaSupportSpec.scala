@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 // https://github.com/akka/akka/pull/31561
 // https://www.lightbend.com/blog/why-we-are-changing-the-license-for-akka
 class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
-  protected implicit val executor = scala.concurrent.ExecutionContext.global
+  protected implicit val executor: ExecutionContext = scala.concurrent.ExecutionContext.global
 
   private val futureEC = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(1))
 
@@ -29,7 +29,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
 
   get("/async-oh-noes") {
     new AsyncResult {
-      val is = Future {
+      val is: Future[_] = Future {
         Thread.sleep(100) // To get the container to give up the request
         Ok(body = s"${request.getContextPath}")
       }
@@ -39,7 +39,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   get("/async-attributes/:mockSessionId") {
     request.setAttribute("sessionId", params("mockSessionId"))
     new AsyncResult {
-      val is = Future {
+      val is: Future[_] = Future {
         Thread.sleep(200)
         Ok(body = request.getAttribute("sessionId"))
       }(futureEC)

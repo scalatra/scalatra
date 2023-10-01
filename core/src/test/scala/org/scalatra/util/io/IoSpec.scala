@@ -40,7 +40,7 @@ class IoSpec extends AnyWordSpec with Matchers {
     "close the input stream even if copying throws" in {
       var isClosed = false
       val in = new InputStream {
-        def read() = throw new RuntimeException
+        def read(): Int = throw new RuntimeException
         override def close() = isClosed = true
       }
       try {
@@ -52,7 +52,7 @@ class IoSpec extends AnyWordSpec with Matchers {
     "throw any exception during copy" in {
       val e = new RuntimeException
       val in = new InputStream {
-        def read() = throw e
+        def read(): Int = throw e
       }
       val caught = try {
         copy(in, new ByteArrayOutputStream)
