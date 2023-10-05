@@ -98,7 +98,7 @@ private[scalatra] class FakeServletInputStream(data: Array[Byte]) extends Servle
 }
 
 private[scalatra] class ServletInputStreamThrowsIOException() extends ServletInputStream {
-  def read = throw new IOException("Something totally bad happened!")
+  def read: Int = throw new IOException("Something totally bad happened!")
 
   def setReadListener(readListener: ReadListener): Unit = {}
 

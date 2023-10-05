@@ -5,7 +5,7 @@ import org.scalatra.test.scalatest.ScalatraFlatSpec
 
 class CacheSupportSpec extends ScalatraFlatSpec {
   class TestServlet extends ScalatraServlet with CacheSupport {
-    implicit val cacheBackend = new MapCache
+    implicit val cacheBackend: Cache = new MapCache
 
     get("/") {
       cached(None) {

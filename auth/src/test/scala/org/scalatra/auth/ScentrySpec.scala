@@ -64,8 +64,8 @@ object ScentrySpec extends Specification {
     }
 
     val s = new ScentryStrategy[User] {
-      protected val app = context
-      def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+      protected val app: ScalatraBase = context
+      def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[User] = {
         successStrategyCalled = true
         Some(User("12345"))
       }
@@ -81,8 +81,8 @@ object ScentrySpec extends Specification {
     }
 
     val sUnsuccess = new ScentryStrategy[User] {
-      protected val app = context
-      def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+      protected val app: ScalatraBase = context
+      def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[User] = {
         failingStrategyCalled = true
         None
       }
