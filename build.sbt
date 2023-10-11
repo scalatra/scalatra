@@ -6,7 +6,7 @@ val unusedOptions = Seq("-Ywarn-unused:imports")
 val javax = ServletCross("-javax", "-javax")
 val jakarta = ServletCross("-jakarta", "-jakarta")
 
-val scala3migaration = Def.settings(
+val scala3migration = Def.settings(
   scalacOptions ++= {
     if (scalaBinaryVersion.value == "3") {
       Seq(
@@ -175,7 +175,7 @@ lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
   .settings(
     scalatraSettings,
     description := "Scalatra authentication module",
-    scala3migaration,
+    scala3migration,
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
@@ -368,7 +368,7 @@ lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
       parserCombinators,
       logbackClassic % "provided"
     ),
-    scala3migaration,
+    scala3migration,
     description := "Scalatra integration with Swagger"
   )
   .jvmPlatform(
