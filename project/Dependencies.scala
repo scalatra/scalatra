@@ -7,8 +7,8 @@ object Dependencies {
   lazy val collectionCompact        =  "org.scala-lang.modules"  %% "scala-collection-compat"    % "2.11.0"
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.10.0"
   lazy val httpclient               =  "org.apache.httpcomponents.client5" % "httpclient5"       % "5.2.1"
-  lazy val jettyServletJavax        =  "org.eclipse.jetty"       %  "jetty-servlet"              % "10.0.16"
-  lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.16"
+  lazy val jettyServletJavax        =  "org.eclipse.jetty"       %  "jetty-servlet"              % "10.0.17"
+  lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.17"
   lazy val jettyServletJakarta      =  "org.eclipse.jetty"       %  "jetty-servlet"              % "11.0.16"
   lazy val jettyWebappJakarta       =  "org.eclipse.jetty"       %  "jetty-webapp"               % "11.0.16"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
@@ -41,7 +41,7 @@ object Dependencies {
   lazy val metricsServletJavax      =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.21"
   lazy val metricsServletsJakarta   =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlets"   % "4.2.21"
   lazy val metricsServletJakarta    =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlet"    % "4.2.21"
-  lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "32.1.2-jre"
+  lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "32.1.3-jre"
   lazy val twirlApi                 =  "com.typesafe.play"       %% "twirl-api"                  % "1.6.1"
 
   private val json4sVersion           = "4.0.6"
