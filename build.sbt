@@ -54,9 +54,20 @@ lazy val scalatraSettings = Seq(
     }
   },
   scalacOptions ++= {
+    if (scalaBinaryVersion.value == "2.13") {
+      Seq(
+        // TODO fix warnings ?
+        "-Wconf:msg=Unicode escapes in triple quoted strings are ignored:warning",
+      )
+    } else {
+      Nil
+    }
+  },
+  scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         unusedOptions ++ Seq(
+          "-Xsource:3",
           "-release:8",
           "-Xlint",
           "-Xcheckinit",
@@ -87,6 +98,7 @@ lazy val scalatraSettings = Seq(
 )
 
 scalatraSettings
+scalacOptions -= "-Xsource:3"
 scalaVersion := Scala213
 name := "scalatra-unidoc"
 mimaPreviousArtifacts := Set.empty
@@ -142,6 +154,16 @@ lazy val `scalatra-common` = projectMatrix.in(file("common"))
 lazy val scalatra = projectMatrix.in(file("core"))
   .settings(
     scalatraSettings,
+    scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.13") {
+        Seq(
+          // TODO fix warnings ?
+          "-Wconf:msg=package object inheritance is deprecated:warning",
+        )
+      } else {
+        Nil
+      }
+    },
     libraryDependencies ++= Seq(
       slf4jApi,
       jUniversalChardet,
@@ -364,6 +386,7 @@ lazy val `scalatra-specs2` = projectMatrix.in(file("specs2"))
 lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
   .settings(
     scalatraSettings,
+    scalacOptions -= "-Xsource:3", // TODO
     libraryDependencies ++= Seq(
       parserCombinators,
       logbackClassic % "provided"
