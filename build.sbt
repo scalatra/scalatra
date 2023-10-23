@@ -54,16 +54,6 @@ lazy val scalatraSettings = Seq(
     }
   },
   scalacOptions ++= {
-    if (scalaBinaryVersion.value == "2.13") {
-      Seq(
-        // TODO fix warnings ?
-        "-Wconf:msg=Unicode escapes in triple quoted strings are ignored:warning",
-      )
-    } else {
-      Nil
-    }
-  },
-  scalacOptions ++= {
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         unusedOptions ++ Seq(
