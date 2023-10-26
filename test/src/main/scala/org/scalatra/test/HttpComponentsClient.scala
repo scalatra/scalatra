@@ -12,6 +12,7 @@ import org.apache.hc.client5.http.classic.methods._
 import org.apache.hc.client5.http.entity.mime.{ ContentBody, StringBody }
 import org.apache.hc.client5.http.entity.mime.{ FormBodyPartBuilder, HttpMultipartMode, MultipartEntityBuilder }
 import org.apache.hc.client5.http.impl.classic.HttpClients
+import org.apache.hc.core5.http.io.HttpClientResponseHandler
 
 import scala.util.DynamicVariable
 
@@ -73,7 +74,8 @@ trait HttpComponentsClient extends Client {
       attachBody(req, body)
       attachHeaders(req, headers)
 
-      withResponse(HttpComponentsClientResponse(client.execute(req))) { f }
+      val handler: HttpClientResponseHandler[A] = res => withResponse(HttpComponentsClientResponse(res))(f)
+      client.execute[A](req, handler)
     }
 
   protected def submitMultipart[A](
@@ -89,7 +91,8 @@ trait HttpComponentsClient extends Client {
       attachMultipartBody(req, params, files)
       attachHeaders(req, headers)
 
-      withResponse(HttpComponentsClientResponse(client.execute(req))) { f }
+      val handler: HttpClientResponseHandler[A] = res => withResponse(HttpComponentsClientResponse(res))(f)
+      client.execute[A](req, handler)
     }
 
   protected def createClient = {
