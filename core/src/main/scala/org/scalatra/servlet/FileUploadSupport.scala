@@ -86,10 +86,9 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
         wrapRequest(req, mergedFormParams)
       } else req
     } catch {
-      case e: Exception => {
+      case e: Exception =>
         req.setAttribute(ScalatraBase.PrehandleExceptionKey, e)
         req
-      }
     }
 
     super.handle(req2, res)
@@ -108,12 +107,12 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
       case Some(bodyParams) =>
         bodyParams
 
-      case None => {
+      case None =>
         val bodyParams = getParts(req).foldRight(BodyParams(FileMultiParams(), Map.empty)) {
           (part, params) =>
             val item = FileItem(part)
 
-            if (!(item.isFormField)) {
+            if (!item.isFormField) {
               BodyParams(params.fileParams + ((
                 item.getFieldName, item +: params.fileParams.getOrElse(item.getFieldName, List[FileItem]()))), params.formParams)
             } else {
@@ -123,7 +122,6 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
         req.setAttribute(BodyParamsKey, bodyParams)
         bodyParams
-      }
     }
   }
 
@@ -247,7 +245,7 @@ class FileSingleParams(wrapped: FileMultiParams = FileMultiParams()) {
   }
 
   def foreach(f: ((String, FileItem)) => Unit): Unit =
-    wrapped.foreach { case ((k, v)) => f((k, v.head)) }
+    wrapped.foreach { case (k, v) => f((k, v.head)) }
 
   def iterator(): Iterator[(String, Seq[FileItem])] = wrapped.iterator
 
@@ -283,7 +281,7 @@ case class FileItem(part: Part) {
 
   def get(): Array[Byte] = org.scalatra.util.io.readBytes(getInputStream)
 
-  def isFormField: Boolean = (name == null)
+  def isFormField: Boolean = name == null
 
   def getInputStream: InputStream = part.getInputStream
 }
@@ -295,12 +293,11 @@ private object FileItemUtil {
     headerName: String, attributeName: String,
     defaultValue: String = null): String = {
     Option(part.getHeader(headerName)) match {
-      case Some(value) => {
+      case Some(value) =>
         value.split(";").find(_.trim().startsWith(attributeName)) match {
           case Some(attributeValue) => attributeValue.substring(attributeValue.indexOf('=') + 1).trim().replace("\"", "")
           case _ => defaultValue
         }
-      }
       case _ => defaultValue
     }
   }

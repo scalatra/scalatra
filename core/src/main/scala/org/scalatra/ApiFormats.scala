@@ -161,7 +161,7 @@ trait ApiFormats extends ScalatraBase {
       if (accepted.isEmpty) defaultAcceptedFormats.map(_.name)
       else accepted.map(_.name).toList
     }
-    conditions.isEmpty || (conditions filter { s => formats.get(s).isDefined } contains contentType)
+    conditions.isEmpty || (conditions filter { s => formats.contains(s) } contains contentType)
   }
 
   private def getFormat(implicit request: HttpServletRequest, response: HttpServletResponse): String = {

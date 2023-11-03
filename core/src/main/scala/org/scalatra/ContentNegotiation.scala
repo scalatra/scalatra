@@ -1,5 +1,7 @@
 package org.scalatra
 
+import org.scalatra.ContentNegotiation.CharsetFormat
+
 import java.nio.charset.Charset
 import org.scalatra.ServletCompat.http.HttpServletRequest
 
@@ -122,7 +124,7 @@ object ContentNegotiation {
   val AcceptCharset: String = "Accept-Charset"
 
   implicit object CharsetFormat extends Format[Charset] {
-    override def entry = token ^^ { s => Try(Charset.forName(s)).toOption }
+    override def entry: CharsetFormat.Parser[Option[Charset]] = token ^^ { s => Try(Charset.forName(s)).toOption }
   }
 
   def preferredCharset(implicit req: HttpServletRequest): Option[Charset] = preferredValue[Charset](AcceptCharset)

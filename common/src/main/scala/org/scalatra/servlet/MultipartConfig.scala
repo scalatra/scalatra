@@ -8,7 +8,7 @@ case class MultipartConfig(
   maxRequestSize: Option[Long] = None,
   fileSizeThreshold: Option[Int] = None) extends MountConfig {
 
-  def toMultipartConfigElement = {
+  def toMultipartConfigElement: MultipartConfigElement = {
     new MultipartConfigElement(
       location.getOrElse(""),
       maxFileSize.getOrElse(-1),

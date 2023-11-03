@@ -31,7 +31,7 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
     try {
       Some(bundle.getString(key))
     } catch {
-      case e: MissingResourceException => None
+      case _: MissingResourceException => None
     }
   }
 
@@ -44,7 +44,7 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
     try {
       bundle.getString(key)
     } catch {
-      case e: MissingResourceException => default
+      case _: MissingResourceException => default
     }
   }
 
@@ -55,7 +55,7 @@ class Messages(locale: Locale, bundlePath: String = "i18n/messages") {
     try {
       bundle.getString(key)
     } catch {
-      case e: MissingResourceException => default
+      case _: MissingResourceException => default
     }
   }
 

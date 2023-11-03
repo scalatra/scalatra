@@ -11,7 +11,7 @@ package org.scalatra.util
 object NotEmpty {
 
   def unapply(s: String): Option[String] = {
-    if (s != null && !s.isEmpty) Some(s)
+    if (s != null && s.nonEmpty) Some(s)
     else None
   }
 

@@ -39,7 +39,7 @@ object ScalatraBase {
   val RenderCallbacks: String = s"$KeyPrefix.renderCallbacks"
   val IsAsyncKey: String = s"$KeyPrefix.isAsync"
 
-  def isAsyncResponse(implicit request: HttpServletRequest): Boolean = request.get(IsAsyncKey).exists(_ => true)
+  def isAsyncResponse(implicit request: HttpServletRequest): Boolean = request.get(IsAsyncKey).isDefined
 
   def onSuccess(fn: Any => Unit)(implicit request: HttpServletRequest): Unit = addCallback(_.foreach(fn))
 

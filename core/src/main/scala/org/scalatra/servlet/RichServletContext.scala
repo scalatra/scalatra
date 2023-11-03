@@ -12,7 +12,7 @@ import org.scalatra.ServletCompat.{ DispatcherType, Filter, ServletContext }
 case class RichServletContext(sc: ServletContext) extends AttributesMap {
 
   protected[this] type A = ServletContext
-  protected[this] override def attributes = sc
+  protected[this] override def attributes: ServletContext = sc
   protected[this] override def attributesTypeClass: Attributes[A] = Attributes[A]
 
   /**

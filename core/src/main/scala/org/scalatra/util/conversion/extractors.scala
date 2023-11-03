@@ -16,7 +16,7 @@ object Extractors extends DefaultImplicitConversions {
   sealed abstract class TypeExtractorImpl[T](implicit val converter: TypeConverter[String, T]) extends TypeExtractor[T]
 
   sealed case class DateExtractor(format: String) extends TypeExtractor[Date] {
-    val converter = Conversions.stringToDate(format)
+    val converter: TypeConverter[String, Date] = Conversions.stringToDate(format)
   }
 
   case object asBoolean extends TypeExtractorImpl[Double]

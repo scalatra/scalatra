@@ -6,15 +6,15 @@ import collection.{ SortedMap, immutable }
 
 object MapQueryString {
 
-  val DEFAULT_EXCLUSIONS = List("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sms_ss", "awesm")
+  val DEFAULT_EXCLUSIONS: List[String] = List("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sms_ss", "awesm")
 
   def parseString(rw: String): Map[String, List[String]] = {
     // this is probably an accident waiting to happen when people do actually mix stuff
     val semiColon = if (rw.indexOf(';') > -1) {
-      rw.split(';').foldRight(Map[String, List[String]]()) { readQsPair _ }
+      rw.split(';').foldRight(Map[String, List[String]]())(readQsPair)
     } else readQsPair(rw)
     val ampersand = if (rw.indexOf('&') > -1) {
-      rw.split('&').foldRight(Map[String, List[String]]()) { readQsPair _ }
+      rw.split('&').foldRight(Map[String, List[String]]())(readQsPair)
     } else {
       readQsPair(rw)
     }
