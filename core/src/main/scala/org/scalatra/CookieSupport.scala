@@ -55,7 +55,7 @@ case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOpt
       sb append "; Path=" append (if (!pth.startsWith("/")) "/" + pth else pth)
     }
     if (cookieOptions.comment.nonBlank) {
-      sb append "; Comment=" append(cookieOptions.comment)
+      sb append "; Comment=" append cookieOptions.comment
     }
 
     appendMaxAge(sb, cookieOptions.maxAge, cookieOptions.version)

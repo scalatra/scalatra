@@ -2,7 +2,7 @@ package org.scalatra
 package util
 package conversion
 
-import java.text.{DateFormat, SimpleDateFormat}
+import java.text.{ DateFormat, SimpleDateFormat }
 import java.util.Date
 import scala.language.implicitConversions
 import scala.util.control.Exception.allCatch

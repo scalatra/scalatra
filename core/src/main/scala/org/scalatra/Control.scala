@@ -1,6 +1,6 @@
 package org.scalatra
 
-import java.lang.{Integer => JInteger}
+import java.lang.{ Integer => JInteger }
 
 import scala.util.control.NoStackTrace
 
