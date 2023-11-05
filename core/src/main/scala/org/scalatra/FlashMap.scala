@@ -39,12 +39,12 @@ class FlashMap extends Serializable {
    * Creates a new iterator over the values of the flash map.  These are the
    * values that were added during the last request.
    */
-  def iterator = new Iterator[(String, Any)] {
+  def iterator: Iterator[(String, Any)] = new Iterator[(String, Any)] {
     private[this] val it = m.iterator
 
-    def hasNext = it.hasNext
+    def hasNext: Boolean = it.hasNext
 
-    def next() = {
+    def next(): (String, Any) = {
       val kv = it.next()
       flagged += kv._1
       kv
@@ -119,11 +119,11 @@ class FlashMap extends Serializable {
 
 object FlashMapSupport {
 
-  val SessionKey = FlashMapSupport.getClass.getName + ".flashMap"
+  val SessionKey: String = FlashMapSupport.getClass.getName + ".flashMap"
 
-  val LockKey = FlashMapSupport.getClass.getName + ".lock"
+  val LockKey: String = FlashMapSupport.getClass.getName + ".lock"
 
-  val FlashMapKey = "org.scalatra.FlashMap"
+  val FlashMapKey: String = "org.scalatra.FlashMap"
 
 }
 

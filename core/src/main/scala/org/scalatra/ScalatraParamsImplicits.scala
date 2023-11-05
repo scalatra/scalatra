@@ -1,9 +1,10 @@
 package org.scalatra
 
 import java.util.Date
-
 import org.scalatra.ScalatraParamsImplicits.{ TypedMultiParams, TypedParams }
 import org.scalatra.util.conversion._
+
+import scala.language.implicitConversions
 
 /**
  * Add some implicits
@@ -45,7 +46,7 @@ object ScalatraParamsImplicits
 
     def getAs[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] = {
       multiParams.get(name) map {
-        s => s.flatMap(tc.apply(_))
+        s => s.flatMap(tc.apply)
       }
     }
 

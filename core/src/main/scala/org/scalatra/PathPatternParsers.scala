@@ -10,7 +10,7 @@ import scala.util.parsing.combinator.RegexParsers
 case class PathPattern(regex: Regex, captureGroupNames: List[String] = Nil) {
 
   def apply(path: String): Option[MultiParams] = {
-    // This is a performance hotspot.  Hideous mutatations ahead.
+    // This is a performance hotspot.  Hideous mutations ahead.
     val m = regex.pattern.matcher(path)
     var multiParams = Map[String, Seq[String]]()
     if (m.matches) {

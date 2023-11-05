@@ -60,7 +60,7 @@ trait ScalatraServlet
   }
 
   def requestPath(uri: String, idx: Int): String = {
-    if (uri.length == 0) {
+    if (uri.isEmpty) {
       "/"
     } else {
       val pos = uri.indexOf(';')

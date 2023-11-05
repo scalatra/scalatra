@@ -15,8 +15,8 @@ import scala.annotation.tailrec
 import scala.util.control.Exception._
 import scala.util.matching.Regex
 import scala.util.{ Failure, Success, Try }
-
 import scala.collection.compat.immutable._
+import scala.language.implicitConversions
 
 object ScalatraBase {
 
@@ -822,7 +822,7 @@ trait ScalatraBase
 
   /**
    * Set whether to decode when the path returned by the `requestPath` method is
-   * Percent-Eoconding. Default is decode (true).
+   * Percent-Encoding. Default is decode (true).
    */
   protected var decodePercentEncodedPath: Boolean = true
 }
