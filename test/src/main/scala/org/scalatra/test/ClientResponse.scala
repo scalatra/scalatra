@@ -12,7 +12,12 @@ abstract class ClientResponse {
   def statusLine: ResponseStatus
   def headers: Map[String, Seq[String]]
 
-  def body = new String(bodyBytes, charset.getOrElse("ISO-8859-1"))
+  def body: String = {
+    val charsetName = charset.orElse {
+      if(mediaType.contains("application/json")) Some("UTF-8") else None
+    }.getOrElse("ISO-8859-1")
+    new String(bodyBytes, charsetName)
+  }
 
   def mediaType: Option[String] = {
     header.get("Content-Type") match {
@@ -21,7 +26,7 @@ abstract class ClientResponse {
     }
   }
 
-  def status = statusLine.code
+  def status: Int = statusLine.code
 
   object header {
 
@@ -47,26 +52,26 @@ abstract class ClientResponse {
     }
   }
 
-  def charset = {
+  def charset: Option[String] = {
     header.getOrElse("Content-Type", "").split(";").map(_.trim).find(_.startsWith("charset=")) match {
       case Some(attr) => Some(attr.split("=")(1))
       case _ => None
     }
   }
 
-  def getReason() = statusLine.message
+  def getReason(): String = statusLine.message
 
-  def getHeader(name: String) = header.getOrElse(name, null)
+  def getHeader(name: String): String = header.getOrElse(name, null)
 
-  def getLongHeader(name: String) = header.getOrElse(name, "-1").toLong
+  def getLongHeader(name: String): Long = header.getOrElse(name, "-1").toLong
 
   def getHeaderNames(): java.util.Enumeration[String] = headers.keysIterator.asJavaEnumeration
 
   def getHeaderValues(name: String): java.util.Enumeration[String] = headers.getOrElse(name, Seq()).iterator.asJavaEnumeration
 
-  def getContentBytes() = bodyBytes
+  def getContentBytes(): Array[Byte] = bodyBytes
 
-  def getContent() = body
+  def getContent(): String = body
 
-  def getContentType() = header.getOrElse("Content-Type", null)
+  def getContentType(): String = header.getOrElse("Content-Type", null)
 }
