@@ -14,7 +14,7 @@ abstract class ClientResponse {
 
   def body: String = {
     val charsetName = charset.orElse {
-      if(mediaType.contains("application/json")) Some("UTF-8") else None
+      if (mediaType.contains("application/json")) Some("UTF-8") else None
     }.getOrElse("ISO-8859-1")
     new String(bodyBytes, charsetName)
   }
