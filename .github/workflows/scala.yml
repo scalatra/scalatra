@@ -4,12 +4,14 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         java: [11, 21]
+    env:
+      # define Java options for both official sbt and sbt-extras
+      JAVA_OPTS: -Xmx2048M
 
     steps:
     - uses: actions/checkout@v4
