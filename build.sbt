@@ -282,7 +282,8 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJavax,
-        jettyServletJavax
+        jettyServletJavax,
+        jettyWebappJavax
       ),
     ),
   )
@@ -292,11 +293,12 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJakarta,
-        jettyServletJakarta
+        jettyServletJakarta,
+        jettyWebappJakarta
       ),
     ),
   )
-  .dependsOn(scalatra % "compile;test->test;provided->provided")
+  .dependsOn(`scalatra-common` % "compile;test->test;provided->provided")
 
 lazy val `scalatra-test` = projectMatrix.in(file("test"))
   .settings(
@@ -311,24 +313,14 @@ lazy val `scalatra-test` = projectMatrix.in(file("test"))
   .jvmPlatform(
     scalaVersions = scalaVersions,
     axisValues = Seq(javax),
-    settings = Def.settings(
-      libraryDependencies ++= Seq(
-        jettyWebappJavax,
-        servletApiJavax,
-      )
-    )
+    settings = Def.settings()
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
     axisValues = Seq(jakarta),
-    settings = Def.settings(
-      libraryDependencies ++= Seq(
-        jettyWebappJakarta,
-        servletApiJakarta,
-      )
-    )
+    settings = Def.settings()
   )
-  .dependsOn(`scalatra-common` % "compile;test->test;provided->provided")
+  .dependsOn(`scalatra-jetty` % "compile;test->test;provided->provided")
 
 lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
   .settings(

@@ -1,7 +1,7 @@
 package org.scalatra.test
 
 import org.eclipse.jetty.server.{ Server, ServerConnector }
-import org.eclipse.jetty.servlet.ServletContextHandler
+import org.scalatra.JettyCompat
 
 trait EmbeddedJettyContainer extends JettyContainer {
   /**
@@ -23,9 +23,8 @@ trait EmbeddedJettyContainer extends JettyContainer {
   lazy val server = new Server(port)
 
   lazy val servletContextHandler = {
-    val handler = new ServletContextHandler(ServletContextHandler.SESSIONS)
+    val handler = JettyCompat.createServletContextHandler(resourceBasePath)
     handler.setContextPath(contextPath)
-    handler.setResourceBase(resourceBasePath)
     handler
   }
 
@@ -45,4 +44,3 @@ trait EmbeddedJettyContainer extends JettyContainer {
         "http://%s:%d".format(host, port)
     } getOrElse sys.error("can't calculate base URL: no connector")
 }
-

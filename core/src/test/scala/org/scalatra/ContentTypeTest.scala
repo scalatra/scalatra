@@ -2,8 +2,8 @@ package org.scalatra
 
 import java.nio.charset.Charset
 
-import org.eclipse.jetty.servlet.ServletHolder
 import org.scalatest.BeforeAndAfterAll
+import org.scalatra.JettyCompat.ServletHolder
 import org.scalatra.test.scalatest.ScalatraFunSuite
 import org.scalatra.util.RicherString._
 
@@ -115,4 +115,3 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
       }
   }
 }
-
