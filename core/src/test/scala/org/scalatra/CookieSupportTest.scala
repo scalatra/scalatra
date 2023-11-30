@@ -131,7 +131,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/remove-cookie") {
       val hdr = response.getHeader("Set-Cookie")
       // Jetty turns Max-Age into Expires
-      hdr should include("; Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+      hdr should include("; Expires=Thu, 01 Jan 1970 00:00:00 GMT")
     }
   }
 
@@ -139,7 +139,7 @@ class CookieSupportTest extends ScalatraFunSuite {
     post("/foo/remove-cookie-with-path") {
       val hdr = response.getHeader("Set-Cookie")
       // Jetty turns Max-Age into Expires
-      hdr should include("; Expires=Thu, 01-Jan-1970 00:00:00 GMT")
+      hdr should include("; Expires=Thu, 01 Jan 1970 00:00:00 GMT")
       hdr should include("; Path=/bar")
     }
   }
