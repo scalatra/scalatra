@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.util.Locale.ENGLISH
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
@@ -227,4 +227,3 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
   }
 
 }
-

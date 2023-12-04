@@ -2,7 +2,7 @@ package org.scalatra
 package test
 package specs2
 
-import org.scalatra.ServletCompat.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
 
 class ScalatraSpecSpec extends ScalatraSpec {
   def is =

@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.security.SecureRandom
-import org.scalatra.ServletCompat.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 object GenerateId {
 
@@ -149,4 +149,3 @@ object XsrfTokenSupport {
   val CookieKey = "XSRF-TOKEN"
 
 }
-

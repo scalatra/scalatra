@@ -3,8 +3,8 @@ package test
 
 import java.util
 import java.util.EnumSet
-import org.scalatra.ServletCompat.http.HttpServlet
-import org.scalatra.ServletCompat.{ DispatcherType, Filter }
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.{ DispatcherType, Filter }
 
 import org.eclipse.jetty.servlet._
 import org.scalatra.servlet.{ HasMultipartConfig, ScalatraAsyncSupport }

@@ -45,4 +45,3 @@ trait EmbeddedJettyContainer extends JettyContainer {
         "http://%s:%d".format(host, port)
     } getOrElse sys.error("can't calculate base URL: no connector")
 }
-

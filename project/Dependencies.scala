@@ -1,5 +1,5 @@
-import sbt._
-import Keys._
+import sbt.*
+import sbt.Keys.*
 
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.3.0"

@@ -1,13 +1,14 @@
 package org.scalatra
 package servlet
 
-import org.scalatra.ServletCompat.ServletContext
+import jakarta.servlet.ServletContext
+import scala.language.reflectiveCalls
 
 object HasMultipartConfig {
   val DefaultMultipartConfig = MultipartConfig()
   val MultipartConfigKey = "org.scalatra.MultipartConfigKey"
 }
-trait HasMultipartConfig extends Initializable {
+trait HasMultipartConfig extends Initializable { self: { def servletContext: ServletContext } =>
 
   import org.scalatra.servlet.HasMultipartConfig._
 

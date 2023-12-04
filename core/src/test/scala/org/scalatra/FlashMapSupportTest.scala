@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.ServletCompat.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
 

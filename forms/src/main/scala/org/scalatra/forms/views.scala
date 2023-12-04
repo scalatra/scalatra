@@ -1,6 +1,6 @@
 package org.scalatra.forms
 
-import org.scalatra.ServletCompat.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 import org.scalatra.MultiParams
 

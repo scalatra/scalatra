@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.auth.ScentryAuthStore.ScentryAuthStore
 import org.scalatra.servlet.ServletApiImplicits._
@@ -155,4 +155,3 @@ class Scentry[UserType <: AnyRef](
     }
   }
 }
-

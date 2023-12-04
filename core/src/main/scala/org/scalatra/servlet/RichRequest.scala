@@ -5,7 +5,7 @@ import java.io.InputStream
 import java.net.URI
 import java.util.Locale
 
-import org.scalatra.ServletCompat.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.lang3.StringUtils
 import org.scalatra.util.RicherString._
 import org.scalatra.util.MultiMapHeadView
@@ -221,7 +221,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * value of the map is the empty sequence.
    */
   def multiCookies: MultiParams = {
-    Option(r.getCookies).getOrElse(Array.empty[ServletCompat.http.Cookie]).toSeq.
+    Option(r.getCookies).getOrElse(Array.empty[jakarta.servlet.http.Cookie]).toSeq.
       groupBy { _.getName }.
       transform { case (k, v) => v map { _.getValue } }.
       withDefaultValue(Seq.empty)
@@ -266,4 +266,3 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   }
 
 }
-

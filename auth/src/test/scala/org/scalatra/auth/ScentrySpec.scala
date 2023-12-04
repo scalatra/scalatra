@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import org.scalatra.ServletCompat.http._
+import jakarta.servlet.http._
 
 import org.scalatra.auth.ScentryAuthStore.SessionAuthStore
 import org.specs2.mutable._

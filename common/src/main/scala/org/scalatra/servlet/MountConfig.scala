@@ -1,6 +1,6 @@
 package org.scalatra.servlet
 
-import org.scalatra.ServletCompat.ServletContext
+import jakarta.servlet.ServletContext
 
 trait MountConfig {
   def apply(ctxt: ServletContext): Unit

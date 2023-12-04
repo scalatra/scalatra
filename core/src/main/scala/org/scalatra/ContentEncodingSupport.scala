@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 /**
  * Scalatra handler for gzipped responses.

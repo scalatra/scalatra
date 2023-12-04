@@ -3,8 +3,8 @@ package servlet
 
 import java.net.{ MalformedURLException, URL }
 import java.{ util => jutil }
-import org.scalatra.ServletCompat.http.{ HttpServlet, HttpServletRequest }
-import org.scalatra.ServletCompat.{ DispatcherType, Filter, ServletContext }
+import jakarta.servlet.http.{ HttpServlet, HttpServletRequest }
+import jakarta.servlet.{ DispatcherType, Filter, ServletContext }
 
 /**
  * Extension methods to the standard ServletContext.
@@ -193,4 +193,3 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
   def contextPath: String = sc.getContextPath
 
 }
-

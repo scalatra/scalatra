@@ -1,7 +1,7 @@
 package org.scalatra
 package util
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.util.RicherString._
 import org.slf4j.{ LoggerFactory, MDC }
@@ -104,4 +104,3 @@ trait RequestLogging extends ScalatraBase with Handler {
     route
   }
 }
-

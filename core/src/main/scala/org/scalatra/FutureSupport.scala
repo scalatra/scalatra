@@ -1,8 +1,8 @@
 package org.scalatra
 
 import java.util.concurrent.atomic.AtomicBoolean
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
-import org.scalatra.ServletCompat.{ AsyncEvent, AsyncListener, ServletContext }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.{ AsyncEvent, AsyncListener, ServletContext }
 
 import org.scalatra.servlet.AsyncSupport
 
@@ -128,4 +128,3 @@ trait FutureSupport extends AsyncSupport {
   }
 
 }
-

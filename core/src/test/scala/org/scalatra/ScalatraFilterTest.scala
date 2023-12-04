@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.ServletCompat.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
@@ -283,4 +283,3 @@ class ScalatraFilterWithoutServletMappingTest extends ScalatraFunSuite {
     }
   }
 }
-

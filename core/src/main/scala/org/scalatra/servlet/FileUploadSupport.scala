@@ -2,7 +2,7 @@ package org.scalatra.servlet
 
 import java.io.{ InputStream, File, FileOutputStream }
 import java.util.{ Map => JMap, HashMap => JHashMap }
-import org.scalatra.ServletCompat.http._
+import jakarta.servlet.http._
 
 import org.scalatra.ScalatraBase
 import org.scalatra.util.RicherString._
@@ -306,4 +306,3 @@ private object FileItemUtil {
   }
 
 }
-

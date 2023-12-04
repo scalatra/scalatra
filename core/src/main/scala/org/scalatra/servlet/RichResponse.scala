@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import java.io.{ OutputStream, PrintWriter }
-import org.scalatra.ServletCompat.http.{ HttpServletResponse, Cookie => ServletCookie }
+import jakarta.servlet.http.{ HttpServletResponse, Cookie => ServletCookie }
 
 import org.scalatra.util.RicherString._
 

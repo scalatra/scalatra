@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.util.{ Date, Locale }
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletResponse }
 
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.DateUtil

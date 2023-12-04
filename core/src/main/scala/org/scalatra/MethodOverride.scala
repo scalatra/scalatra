@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse }
+import jakarta.servlet.http.{ HttpServletRequest, HttpServletRequestWrapper, HttpServletResponse }
 
 import org.scalatra.servlet.ServletApiImplicits
 
