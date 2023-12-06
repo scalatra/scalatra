@@ -1,10 +1,11 @@
 package org.scalatra.test
 
-import org.eclipse.jetty.server.{ Server, ServerConnector }
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler
+import org.eclipse.jetty.http.UriCompliance
+import org.eclipse.jetty.server.{ HttpConnectionFactory, Server, ServerConnector }
 import org.eclipse.jetty.util.resource.ResourceFactory
 
-import java.nio.file.Paths
+import java.nio.file.{ Files, Paths }
 
 trait EmbeddedJettyContainer extends JettyContainer {
   /**
@@ -30,11 +31,18 @@ trait EmbeddedJettyContainer extends JettyContainer {
     handler.setContextPath(contextPath)
     handler.setBaseResource(
       ResourceFactory.of(handler).newResource(Paths.get(resourceBasePath)))
+    handler.getServletHandler.setDecodeAmbiguousURIs(true)
+    handler.setTempDirectory(Files.createTempDirectory("jetty").toFile)
     handler
   }
 
   def start(): Unit = {
     server.setHandler(servletContextHandler)
+    server.getConnectors
+      .head
+      .getConnectionFactory(classOf[HttpConnectionFactory])
+      .getHttpConfiguration
+      .setUriCompliance(UriCompliance.LEGACY)
     server.start()
   }
 
