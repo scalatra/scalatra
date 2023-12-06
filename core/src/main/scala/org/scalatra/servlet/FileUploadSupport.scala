@@ -2,6 +2,7 @@ package org.scalatra.servlet
 
 import java.io.{ InputStream, File, FileOutputStream }
 import java.util.{ Map => JMap, HashMap => JHashMap }
+import jakarta.servlet.ServletException
 import jakarta.servlet.http._
 
 import org.scalatra.ScalatraBase
@@ -73,6 +74,7 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
    * `IllegalStateException` for some other reason.
    */
   protected def isSizeConstraintException(e: Exception): Boolean = e match {
+    case exc: ServletException => exc.getRootCause.getMessage == "400: bad multipart"
     case _: IllegalStateException => true
     case _ => false
   }
