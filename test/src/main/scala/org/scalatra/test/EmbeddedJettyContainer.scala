@@ -1,7 +1,10 @@
 package org.scalatra.test
 
 import org.eclipse.jetty.server.{ Server, ServerConnector }
-import org.eclipse.jetty.servlet.ServletContextHandler
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler
+import org.eclipse.jetty.util.resource.ResourceFactory
+
+import java.nio.file.Paths
 
 trait EmbeddedJettyContainer extends JettyContainer {
   /**
@@ -25,7 +28,8 @@ trait EmbeddedJettyContainer extends JettyContainer {
   lazy val servletContextHandler = {
     val handler = new ServletContextHandler(ServletContextHandler.SESSIONS)
     handler.setContextPath(contextPath)
-    handler.setResourceBase(resourceBasePath)
+    handler.setBaseResource(
+      ResourceFactory.of(handler).newResource(Paths.get(resourceBasePath)))
     handler
   }
 

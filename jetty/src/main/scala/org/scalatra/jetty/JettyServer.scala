@@ -2,10 +2,12 @@ package org.scalatra
 package jetty
 
 import java.net.InetSocketAddress
-
 import org.eclipse.jetty.server.Server
-import org.eclipse.jetty.servlet.ServletContextHandler
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler
+import org.eclipse.jetty.util.resource.ResourceFactory
 import org.scalatra.servlet.ScalatraListener
+
+import java.nio.file.Paths
 
 /**
  * Runs a Servlet or a Filter on an embedded Jetty server.
@@ -16,7 +18,8 @@ class JettyServer(
   val context = new ServletContextHandler(ServletContextHandler.SESSIONS)
   context.setContextPath("/")
   context.addEventListener(new ScalatraListener)
-  context.setResourceBase(resourceBase)
+  context.setBaseResource(
+    ResourceFactory.of(context).newResource(Paths.get(resourceBase)))
 
   val server = new Server(socketAddress)
   server.setHandler(context)

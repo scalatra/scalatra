@@ -6,7 +6,7 @@ import java.util.EnumSet
 import jakarta.servlet.http.HttpServlet
 import jakarta.servlet.{ DispatcherType, Filter }
 
-import org.eclipse.jetty.servlet._
+import org.eclipse.jetty.ee10.servlet._
 import org.scalatra.servlet.{ HasMultipartConfig, ScalatraAsyncSupport }
 
 object JettyContainer {
