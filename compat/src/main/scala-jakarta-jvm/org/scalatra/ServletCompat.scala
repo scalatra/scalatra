@@ -15,6 +15,7 @@ private[scalatra] object ServletCompat {
   type ServletContext = jakarta.servlet.ServletContext
   type ServletContextEvent = jakarta.servlet.ServletContextEvent
   type ServletContextListener = jakarta.servlet.ServletContextListener
+  type ServletException = jakarta.servlet.ServletException
   type ServletInputStream = jakarta.servlet.ServletInputStream
   type ServletOutputStream = jakarta.servlet.ServletOutputStream
   type ServletRegistration = jakarta.servlet.ServletRegistration
