@@ -58,7 +58,14 @@ lazy val scalatraSettings = Seq(
       case Some((2, _)) =>
         unusedOptions ++ Seq(
           "-Xsource:3",
-          "-release:8",
+          "-release:" + {
+            val axes = virtualAxes.?.value.getOrElse(Nil)
+            (axes.contains(javax), axes.contains(jakarta)) match {
+              case (true, false) => "8"
+              case (false, true) => "17"
+              case _ => "8"
+            }
+          },
           "-Xlint",
           "-Xcheckinit",
         )
@@ -66,10 +73,6 @@ lazy val scalatraSettings = Seq(
         Nil
     }
   },
-  javacOptions ++= Seq(
-    "-source", "11",
-    "-target", "11",
-  ),
   scalacOptions ++= Seq(
     "-unchecked",
     "-deprecation",
