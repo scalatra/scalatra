@@ -117,6 +117,7 @@ ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
     `scalatra-common`,
     `scalatra-metrics`,
     `scalatra-cache`,
+    `scalatra-compat`,
   ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference): _*
 )
 enablePlugins(ScalaUnidocPlugin)
@@ -129,17 +130,17 @@ lazy val `scalatra-common` = projectMatrix.in(file("common"))
     scalaVersions = scalaVersions,
     axisValues = Seq(javax),
     settings = Def.settings(
-      libraryDependencies ++= Seq(servletApiJavax % "provided,test")
-    )
+    ),
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
     axisValues = Seq(jakarta),
     settings = Def.settings(
-      libraryDependencies ++= Seq(servletApiJakarta % "provided,test")
-    )
+    ),
   )
-
+  .dependsOn(
+    `scalatra-compat` % "compile;test->test;provided->provided"
+  )
 
 lazy val scalatra = projectMatrix.in(file("core"))
   .settings(
@@ -180,7 +181,8 @@ lazy val scalatra = projectMatrix.in(file("core"))
   ).dependsOn(
     `scalatra-specs2` % "test->compile",
     `scalatra-scalatest` % "test->compile",
-    `scalatra-common` % "compile;test->test"
+    `scalatra-common` % "compile;test->test",
+    `scalatra-compat` % "compile;test->test"
   )
 
 lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
@@ -298,7 +300,9 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
       ),
     ),
   )
-  .dependsOn(`scalatra-common` % "compile;test->test;provided->provided")
+  .dependsOn(
+    `scalatra` % "compile;test->test;provided->provided"
+  )
 
 lazy val `scalatra-test` = projectMatrix.in(file("test"))
   .settings(
@@ -320,7 +324,10 @@ lazy val `scalatra-test` = projectMatrix.in(file("test"))
     axisValues = Seq(jakarta),
     settings = Def.settings()
   )
-  .dependsOn(`scalatra-jetty` % "compile;test->test;provided->provided")
+  .dependsOn(
+    `scalatra-common` % "compile;test->test;provided->provided",
+    `scalatra-compat` % "compile;test->test;provided->provided",
+  )
 
 lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
   .settings(
@@ -445,6 +452,34 @@ lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
     ),
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
+
+lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
+  .settings(
+    scalatraSettings,
+    description := "Scalatra Compatibility module"
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(javax),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        servletApiJavax,
+        jettyServletJavax,
+        jettyWebappJavax,
+      ),
+    ),
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        servletApiJakarta,
+        jettyServletJakarta,
+        jettyWebappJakarta
+      ),
+    ),
+  )
 
 lazy val manifestSetting = packageOptions += {
   Package.ManifestAttributes(
