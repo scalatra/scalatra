@@ -2,6 +2,7 @@ package org.scalatra.test
 
 import org.eclipse.jetty.server.{ Server, ServerConnector }
 import org.scalatra.JettyCompat
+import org.scalatra.test.EmbeddedJettyContainerCompat.{ configureServer, configureServletContextHandler }
 
 trait EmbeddedJettyContainer extends JettyContainer {
   /**
@@ -24,11 +25,13 @@ trait EmbeddedJettyContainer extends JettyContainer {
 
   lazy val servletContextHandler = {
     val handler = JettyCompat.createServletContextHandler(resourceBasePath)
+    configureServletContextHandler(handler)
     handler.setContextPath(contextPath)
     handler
   }
 
   def start(): Unit = {
+    configureServer(server)
     server.setHandler(servletContextHandler)
     server.start()
   }
