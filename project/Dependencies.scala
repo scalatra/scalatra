@@ -1,5 +1,5 @@
-import sbt._
-import Keys._
+import sbt.*
+import sbt.Keys.*
 
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.3.0"
@@ -7,8 +7,8 @@ object Dependencies {
   lazy val collectionCompact        =  "org.scala-lang.modules"  %% "scala-collection-compat"    % "2.11.0"
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.11.0"
   lazy val httpclient               =  "org.apache.httpcomponents.client5" % "httpclient5"       % "5.3"
-  lazy val jettyServletJavax        =  "org.eclipse.jetty"       %  "jetty-servlet"              % "10.0.18"
-  lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.18"
+  lazy val jettyServletJavax        =  "org.eclipse.jetty"       %  "jetty-servlet"              % "10.0.19"
+  lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.19"
   lazy val jettyServletJakarta      =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-servlet"         % "12.0.5"
   lazy val jettyWebappJakarta       =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-webapp"          % "12.0.5"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
@@ -31,7 +31,7 @@ object Dependencies {
                                        ).map(x => "org.scalatest" %% s"scalatest-$x" % scalatestVersion)
   lazy val servletApiJavax          =  "javax.servlet"           %  "javax.servlet-api"          % "4.0.1"
   lazy val servletApiJakarta        =  "jakarta.servlet"         %  "jakarta.servlet-api"        % "5.0.0"
-  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "2.0.9"
+  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "2.0.10"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-matcher-extra"
@@ -41,7 +41,7 @@ object Dependencies {
   lazy val metricsServletJavax      =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.23"
   lazy val metricsServletsJakarta   =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlets"   % "4.2.23"
   lazy val metricsServletJakarta    =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlet"    % "4.2.23"
-  lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "32.1.3-jre"
+  lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "33.0.0-jre"
   lazy val twirlApi                 =  "org.playframework.twirl"       %% "twirl-api"                  % "2.0.3"
 
   private val json4sVersion           = "4.0.7"
