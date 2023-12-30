@@ -58,14 +58,6 @@ lazy val scalatraSettings = Seq(
       case Some((2, _)) =>
         unusedOptions ++ Seq(
           "-Xsource:3",
-          "-release:" + {
-            val axes = virtualAxes.?.value.getOrElse(Nil)
-            (axes.contains(javax), axes.contains(jakarta)) match {
-              case (true, false) => "8"
-              case (false, true) => "17"
-              case _ => "8"
-            }
-          },
           "-Xlint",
           "-Xcheckinit",
         )
@@ -85,7 +77,8 @@ lazy val scalatraSettings = Seq(
     "-feature",
     "-language:higherKinds",
     "-language:implicitConversions",
-    "-language:existentials"
+    "-language:existentials",
+    "-release:11",
   ),
   manifestSetting,
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
