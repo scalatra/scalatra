@@ -4,7 +4,7 @@ import java.lang.reflect.{ Field, TypeVariable }
 
 sealed trait Descriptor
 object ManifestScalaType {
-  private val types = new Memo[Manifest[_], ScalaType]
+  private val types = new Memo[Manifest[?], ScalaType]
 
   def apply[T](mf: Manifest[T]): ScalaType = {
     /* optimization */
@@ -29,7 +29,7 @@ object ManifestScalaType {
     }
   }
 
-  def apply(erasure: Class[_], typeArgs: Seq[ScalaType] = Seq.empty): ScalaType = {
+  def apply(erasure: Class[?], typeArgs: Seq[ScalaType] = Seq.empty): ScalaType = {
     val mf = ManifestFactory.manifestOf(erasure, typeArgs.map(ManifestFactory.manifestOf(_)))
     ManifestScalaType(mf)
   }
@@ -49,26 +49,26 @@ object ManifestScalaType {
   private val DateType: ScalaType = new PrimitiveManifestScalaType(manifest[java.util.Date])
   private val TimestampType: ScalaType = new PrimitiveManifestScalaType(manifest[java.sql.Timestamp])
 
-  private class PrimitiveManifestScalaType(mf: Manifest[_]) extends ManifestScalaType(mf) {
+  private class PrimitiveManifestScalaType(mf: Manifest[?]) extends ManifestScalaType(mf) {
     override val isPrimitive = true
   }
   private class CopiedManifestScalaType(
-    mf: Manifest[_],
-    private[this] var _typeVars: Map[TypeVariable[_], ScalaType],
+    mf: Manifest[?],
+    private[this] var _typeVars: Map[TypeVariable[?], ScalaType],
     override val isPrimitive: Boolean) extends ManifestScalaType(mf) {
     override def typeVars = {
       if (_typeVars == null)
-        _typeVars = Map.empty[TypeVariable[_], ScalaType] ++
-          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ManifestScalaType(_)))
+        _typeVars = Map.empty[TypeVariable[?], ScalaType] ++
+          erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[?]]).toList.zip(manifest.typeArguments map (ManifestScalaType(_)))
       _typeVars
     }
   }
 }
 
 trait ScalaType extends Equals {
-  def erasure: Class[_]
+  def erasure: Class[?]
   def typeArgs: Seq[ScalaType]
-  def typeVars: Map[TypeVariable[_], ScalaType]
+  def typeVars: Map[TypeVariable[?], ScalaType]
   def isArray: Boolean
   def rawFullName: String
   def rawSimpleName: String
@@ -78,22 +78,22 @@ trait ScalaType extends Equals {
   def isMap: Boolean
   def isCollection: Boolean
   def isOption: Boolean
-  def copy(erasure: Class[_] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = typeVars): ScalaType
+  def copy(erasure: Class[?] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[?], ScalaType] = typeVars): ScalaType
 }
 
-class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
+class ManifestScalaType(val manifest: Manifest[?]) extends ScalaType {
 
   import org.scalatra.swagger.reflect.ManifestScalaType.{ CopiedManifestScalaType, types }
-  val erasure: Class[_] = manifest.runtimeClass
+  val erasure: Class[?] = manifest.runtimeClass
 
   val typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil)
 
-  private[this] var _typeVars: Map[TypeVariable[_], ScalaType] = null
+  private[this] var _typeVars: Map[TypeVariable[?], ScalaType] = null
   def typeVars = {
     if (_typeVars == null)
       _typeVars = Map.empty ++
-        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[_]]).toList.zip(manifest.typeArguments map (ManifestScalaType(_)))
+        erasure.getTypeParameters.map(_.asInstanceOf[TypeVariable[?]]).toList.zip(manifest.typeArguments map (ManifestScalaType(_)))
     _typeVars
   }
 
@@ -121,9 +121,9 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
 
   val isPrimitive = false
 
-  def isMap = classOf[Map[_, _]].isAssignableFrom(erasure)
-  def isCollection = erasure.isArray || classOf[Iterable[_]].isAssignableFrom(erasure)
-  def isOption = classOf[Option[_]].isAssignableFrom(erasure)
+  def isMap = classOf[Map[?, ?]].isAssignableFrom(erasure)
+  def isCollection = erasure.isArray || classOf[Iterable[?]].isAssignableFrom(erasure)
+  def isOption = classOf[Option[?]].isAssignableFrom(erasure)
 
   override def hashCode(): Int = manifest.##
 
@@ -137,7 +137,7 @@ class ManifestScalaType(val manifest: Manifest[_]) extends ScalaType {
     case _ => false
   }
 
-  def copy(erasure: Class[_] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[_], ScalaType] = _typeVars): ScalaType = {
+  def copy(erasure: Class[?] = erasure, typeArgs: Seq[ScalaType] = typeArgs, typeVars: Map[TypeVariable[?], ScalaType] = _typeVars): ScalaType = {
     /* optimization */
     if (erasure == classOf[Int] || erasure == classOf[java.lang.Integer]) ManifestScalaType.IntType
     else if (erasure == classOf[Long] || erasure == classOf[java.lang.Long]) ManifestScalaType.LongType
@@ -178,7 +178,7 @@ case class ConstructorParamDescriptor(name: String, mangledName: String, argInde
   def isOption = argType.isOption
   def isCustom = !(isPrimitive || isMap || isCollection || isOption)
 }
-case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Constructor[_], isPrimary: Boolean) extends Descriptor
+case class ConstructorDescriptor(params: Seq[ConstructorParamDescriptor], constructor: java.lang.reflect.Constructor[?], isPrimary: Boolean) extends Descriptor
 case class SingletonDescriptor(simpleName: String, fullName: String, erasure: ScalaType, instance: AnyRef, properties: Seq[PropertyDescriptor]) extends Descriptor
 
 trait ObjectDescriptor extends Descriptor

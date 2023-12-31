@@ -328,15 +328,15 @@ object DataType {
     new ValueDataType(name, format, qualifiedName)
   def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](mf)
 
-  private[this] val StringTypes = Set[Class[_]](classOf[String], classOf[java.lang.String])
-  private[this] def isString(klass: Class[_]) = StringTypes contains klass
-  private[this] val BoolTypes = Set[Class[_]](classOf[Boolean], classOf[java.lang.Boolean])
-  private[this] def isBool(klass: Class[_]) = BoolTypes contains klass
+  private[this] val StringTypes = Set[Class[?]](classOf[String], classOf[java.lang.String])
+  private[this] def isString(klass: Class[?]) = StringTypes contains klass
+  private[this] val BoolTypes = Set[Class[?]](classOf[Boolean], classOf[java.lang.Boolean])
+  private[this] def isBool(klass: Class[?]) = BoolTypes contains klass
 
   private[swagger] def fromManifest[T](implicit mf: Manifest[T]): DataType = {
     fromScalaType(Reflector.scalaTypeOf[T])
   }
-  private[swagger] def fromClass(klass: Class[_]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
+  private[swagger] def fromClass(klass: Class[?]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
   private[swagger] def fromScalaType(st: ScalaType): DataType = {
     val klass = if (st.isOption && st.typeArgs.nonEmpty) st.typeArgs.head.erasure else st.erasure
     if (classOf[Unit].isAssignableFrom(klass) || classOf[Void].isAssignableFrom(klass)) this.Void
@@ -349,10 +349,10 @@ object DataType {
     else if (isDate(klass)) this.Date
     else if (isDateTime(klass)) this.DateTime
     else if (isBool(klass)) this.Boolean
-    else if (classOf[scala.collection.Set[_]].isAssignableFrom(klass) || classOf[java.util.Set[_]].isAssignableFrom(klass)) {
+    else if (classOf[scala.collection.Set[?]].isAssignableFrom(klass) || classOf[java.util.Set[?]].isAssignableFrom(klass)) {
       if (st.typeArgs.nonEmpty) GenSet(fromScalaType(st.typeArgs.head))
       else GenSet()
-    } else if (classOf[collection.Seq[_]].isAssignableFrom(klass) || classOf[java.util.List[_]].isAssignableFrom(klass)) {
+    } else if (classOf[collection.Seq[?]].isAssignableFrom(klass) || classOf[java.util.List[?]].isAssignableFrom(klass)) {
       if (st.typeArgs.nonEmpty) GenList(fromScalaType(st.typeArgs.head))
       else GenList()
     } else if (st.isMap) {
@@ -368,24 +368,24 @@ object DataType {
   }
 
   private[this] val IntTypes =
-    Set[Class[_]](classOf[Int], classOf[java.lang.Integer], classOf[Short], classOf[java.lang.Short], classOf[BigInt], classOf[java.math.BigInteger])
-  private[this] def isInt(klass: Class[_]) = IntTypes.contains(klass)
+    Set[Class[?]](classOf[Int], classOf[java.lang.Integer], classOf[Short], classOf[java.lang.Short], classOf[BigInt], classOf[java.math.BigInteger])
+  private[this] def isInt(klass: Class[?]) = IntTypes.contains(klass)
 
   private[this] val DecimalTypes =
-    Set[Class[_]](classOf[Double], classOf[java.lang.Double], classOf[BigDecimal], classOf[java.math.BigDecimal])
-  private[this] def isDecimal(klass: Class[_]) = DecimalTypes contains klass
+    Set[Class[?]](classOf[Double], classOf[java.lang.Double], classOf[BigDecimal], classOf[java.math.BigDecimal])
+  private[this] def isDecimal(klass: Class[?]) = DecimalTypes contains klass
 
   private[this] val DateTypes =
-    Set[Class[_]](classOf[java.time.LocalDate])
-  private[this] def isDate(klass: Class[_]) = DateTypes.exists(_.isAssignableFrom(klass))
+    Set[Class[?]](classOf[java.time.LocalDate])
+  private[this] def isDate(klass: Class[?]) = DateTypes.exists(_.isAssignableFrom(klass))
   private[this] val DateTimeTypes =
-    Set[Class[_]](classOf[JDate], classOf[java.time.LocalDateTime], classOf[java.time.ZonedDateTime], classOf[java.time.OffsetDateTime],
+    Set[Class[?]](classOf[JDate], classOf[java.time.LocalDateTime], classOf[java.time.ZonedDateTime], classOf[java.time.OffsetDateTime],
       classOf[java.time.Instant])
-  private[this] def isDateTime(klass: Class[_]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
+  private[this] def isDateTime(klass: Class[?]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
 
-  private[this] def isCollection(klass: Class[_]) =
-    classOf[collection.Traversable[_]].isAssignableFrom(klass) ||
-      classOf[java.util.Collection[_]].isAssignableFrom(klass)
+  private[this] def isCollection(klass: Class[?]) =
+    classOf[collection.Traversable[?]].isAssignableFrom(klass) ||
+      classOf[java.util.Collection[?]].isAssignableFrom(klass)
 
 }
 

@@ -10,7 +10,7 @@ import scala.xml.NodeSeq
 /**
  * Responsible for passing a JValue further in the render pipeline.
  */
-trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
+trait JValueResult extends ScalatraBase { self: JsonSupport[?] =>
 
   implicit protected def jsonFormats: Formats
 
@@ -45,7 +45,7 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[_] =>
     case x: NodeSeq =>
       response.writer.write(x.toString)
     case p: Product if isJValueResponse => Extraction.decompose(p)
-    case p: TraversableOnce[_] if isJValueResponse => Extraction.decompose(p)
+    case p: TraversableOnce[?] if isJValueResponse => Extraction.decompose(p)
   }
 
 }

@@ -10,7 +10,7 @@ import org.scalatra.util.RicherString._
 
 import scala.io.Codec
 
-trait RemoteAddress { self: ScentryStrategy[_] =>
+trait RemoteAddress { self: ScentryStrategy[?] =>
 
   protected def remoteAddress(implicit request: HttpServletRequest) = {
     val proxied = request.getHeader("X-FORWARDED-FOR")
