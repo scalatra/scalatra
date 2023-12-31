@@ -78,7 +78,12 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
     // Jetty 10: see "org.eclipse.jetty.server.MultiPartFormInputStream.MultiPart::write".
     case exc: IllegalStateException => exc.getMessage.matches("^Multipart Mime part .+ exceeds max filesize$")
     // Jetty 12: see "org.eclipse.jetty.ee10.servlet.ServletApiRequest::getParts".
-    case exc: ServletException => exc.getRootCause.getMessage == "400: bad multipart"
+    case exc: ServletException =>
+      val rootCause = exc.getRootCause
+      rootCause.getMessage == "400: bad multipart" && (rootCause.getCause match {
+        case exc: IllegalStateException => exc.getMessage.matches("^max file size exceeded: \\d+$")
+        case _ => false
+      })
     case _ => false
   }
 
