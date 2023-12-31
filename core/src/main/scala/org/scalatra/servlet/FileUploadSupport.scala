@@ -69,13 +69,16 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
    * to detect whether it signifies a too large file being
    * uploaded or a too large request in general.
    *
-   * This can be overriden for the container being used if it
-   * doesn't throw `IllegalStateException` or if it throws
-   * `IllegalStateException` for some other reason.
+   * This can be overriden if the container being used has an
+   * different behavior than Jetty, which throws either
+   * `IllegalStateException` (Jetty 10) or
+   * `ServletException` (Jetty 12) in case of an error.
    */
   protected def isSizeConstraintException(e: Exception): Boolean = e match {
-    case exc: ServletException => exc.getRootCause.getMessage == "400: bad multipart"
+    // Jetty 10: see "org.eclipse.jetty.server.MultiPartFormInputStream.MultiPart::write".
     case _: IllegalStateException => true
+    // Jetty 12: see "org.eclipse.jetty.ee10.servlet.ServletApiRequest::getParts".
+    case exc: ServletException => exc.getRootCause.getMessage == "400: bad multipart"
     case _ => false
   }
 
