@@ -124,8 +124,6 @@ ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
 )
 enablePlugins(ScalaUnidocPlugin)
 
-def runningOnJvm17AndAbove(): Boolean = sys.props("java.specification.version").toInt >= 17
-
 lazy val `scalatra-common` = projectMatrix.in(file("common"))
   .settings(
     scalatraSettings
@@ -138,12 +136,13 @@ lazy val `scalatra-common` = projectMatrix.in(file("common"))
   .dependsOn(
     `scalatra-compat` % "compile;test->test;provided->provided"
   )
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
       settings = Def.settings(),
-    ))
+    )
+  )
 
 lazy val scalatra = projectMatrix.in(file("core"))
   .settings(
@@ -179,7 +178,7 @@ lazy val scalatra = projectMatrix.in(file("core"))
     `scalatra-scalatest` % "test->compile",
     `scalatra-common` % "compile;test->test",
     `scalatra-compat` % "compile;test->test"
-  ).when(_ => runningOnJvm17AndAbove())(
+  ).whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -202,7 +201,7 @@ lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
   )
   .dependsOn(
     scalatra % "compile;test->test;provided->provided"
-  ).when(_ => runningOnJvm17AndAbove())(
+  ).whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -223,7 +222,7 @@ lazy val `scalatra-twirl` = projectMatrix.in(file("twirl"))
   )
   .dependsOn(
     scalatra % "compile;test->test;provided->provided"
-  ).when(_ => runningOnJvm17AndAbove())(
+  ).whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -248,7 +247,7 @@ lazy val `scalatra-json` = projectMatrix.in(file("json"))
     settings = Def.settings(),
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -267,7 +266,7 @@ lazy val `scalatra-forms` = projectMatrix.in(file("forms"))
     settings = Def.settings(),
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -293,7 +292,7 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
   )
   .dependsOn(
     `scalatra` % "compile;test->test;provided->provided"
-  ).when(_ => runningOnJvm17AndAbove())(
+  ).whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -325,7 +324,7 @@ lazy val `scalatra-test` = projectMatrix.in(file("test"))
   .dependsOn(
     `scalatra-common` % "compile;test->test;provided->provided",
     `scalatra-compat` % "compile;test->test;provided->provided",
-  ).when(_ => runningOnJvm17AndAbove())(
+  ).whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -348,7 +347,7 @@ lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
     settings = Def.settings(),
   )
   .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -368,7 +367,7 @@ lazy val `scalatra-specs2` = projectMatrix.in(file("specs2"))
     settings = Def.settings(),
   )
   .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -397,7 +396,7 @@ lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
     `scalatra-json` % "compile;test->test;provided->provided",
     `scalatra-auth` % "compile;test->test"
   )
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -424,7 +423,7 @@ lazy val `scalatra-metrics` = projectMatrix.in(file("metrics"))
     ),
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -451,7 +450,7 @@ lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
     settings = Def.settings(),
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
@@ -475,7 +474,7 @@ lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
       ),
     ),
   )
-  .when(_ => runningOnJvm17AndAbove())(
+  .whenRunningOnJvm17OrAbove(
     _.jvmPlatform(
       scalaVersions = scalaVersions,
       axisValues = Seq(jakarta),
