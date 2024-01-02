@@ -23,8 +23,6 @@ val scala3migration = Def.settings(
 def Scala213 = "2.13.12"
 val scalaVersions = Seq("2.12.18", Scala213, "3.3.1")
 
-def javaTargetRelease(axes: Seq[VirtualAxis]) = if (axes.contains(jakarta)) "17" else "11"
-
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
   mimaPreviousArtifacts ++= Set("3.0.0").map(
@@ -71,7 +69,7 @@ lazy val scalatraSettings = Seq(
   },
   javacOptions ++= Seq(
     "-source", "11",
-    "-target", javaTargetRelease(virtualAxes.?.value.getOrElse(Nil)),
+    "-target", "11",
   ),
   scalacOptions ++= Seq(
     "-unchecked",
@@ -82,7 +80,7 @@ lazy val scalatraSettings = Seq(
     "-language:higherKinds",
     "-language:implicitConversions",
     "-language:existentials",
-    "-release:" + javaTargetRelease(virtualAxes.?.value.getOrElse(Nil)),
+    "-release:11",
   ),
   manifestSetting,
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
