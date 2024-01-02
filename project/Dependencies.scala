@@ -9,6 +9,8 @@ object Dependencies {
   lazy val httpclient               =  "org.apache.httpcomponents.client5" % "httpclient5"       % "5.3"
   lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.19"
   lazy val jettyWebappJakarta       =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-webapp"          % "12.0.5"
+  lazy val tomcatEmbedCoreJavax     =  "org.apache.tomcat.embed" %  "tomcat-embed-core"          % "9.0.84"
+  lazy val tomcatEmbedCoreJakarta   =  "org.apache.tomcat.embed" %  "tomcat-embed-core"          % "10.1.17"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion

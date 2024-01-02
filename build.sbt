@@ -116,6 +116,7 @@ ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
     `scalatra-specs2`,
     `scalatra-swagger`,
     `scalatra-jetty`,
+    `scalatra-tomcat`,
     `scalatra-common`,
     `scalatra-metrics`,
     `scalatra-cache`,
@@ -133,15 +134,13 @@ lazy val `scalatra-common` = projectMatrix.in(file("common"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
+  )
   .dependsOn(
     `scalatra-compat` % "compile;test->test;provided->provided"
-  )
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
   )
 
 lazy val scalatra = projectMatrix.in(file("core"))
@@ -173,19 +172,19 @@ lazy val scalatra = projectMatrix.in(file("core"))
     settings = Def.settings(
       libraryDependencies += servletApiJavax % "provided;test",
     ),
-  ).dependsOn(
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(
+      libraryDependencies += servletApiJakarta % "provided;test",
+    ),
+  )
+  .dependsOn(
     `scalatra-specs2` % "test->compile",
     `scalatra-scalatest` % "test->compile",
     `scalatra-common` % "compile;test->test",
     `scalatra-compat` % "compile;test->test"
-  ).whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(
-        libraryDependencies += servletApiJakarta % "provided;test",
-      ),
-    )
   )
 
 lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
@@ -199,14 +198,13 @@ lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
+  )
   .dependsOn(
     scalatra % "compile;test->test;provided->provided"
-  ).whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
   )
 
 lazy val `scalatra-twirl` = projectMatrix.in(file("twirl"))
@@ -220,14 +218,13 @@ lazy val `scalatra-twirl` = projectMatrix.in(file("twirl"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
+  )
   .dependsOn(
     scalatra % "compile;test->test;provided->provided"
-  ).whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
   )
 
 lazy val `scalatra-json` = projectMatrix.in(file("json"))
@@ -246,14 +243,12 @@ lazy val `scalatra-json` = projectMatrix.in(file("json"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
-  .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
   )
+  .dependsOn(scalatra % "compile;test->test;provided->provided")
 
 lazy val `scalatra-forms` = projectMatrix.in(file("forms"))
   .settings(
@@ -265,14 +260,12 @@ lazy val `scalatra-forms` = projectMatrix.in(file("forms"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
-  .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
   )
+  .dependsOn(scalatra % "compile;test->test;provided->provided")
 
 lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
   .settings(
@@ -304,6 +297,35 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     )
   )
 
+lazy val `scalatra-tomcat` = projectMatrix.in(file("tomcat"))
+  .settings(
+    scalatraSettings,
+    description := "Embedded Tomcat server for Scalatra apps"
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(javax),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        servletApiJavax,
+        tomcatEmbedCoreJavax
+      ),
+    ),
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        servletApiJakarta,
+        tomcatEmbedCoreJakarta
+      ),
+    ),
+  )
+  .dependsOn(
+    `scalatra` % "compile;test->test;provided->provided"
+  )
+
 lazy val `scalatra-test` = projectMatrix.in(file("test"))
   .settings(
     scalatraSettings,
@@ -319,15 +341,14 @@ lazy val `scalatra-test` = projectMatrix.in(file("test"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
+  )
   .dependsOn(
     `scalatra-common` % "compile;test->test;provided->provided",
     `scalatra-compat` % "compile;test->test;provided->provided",
-  ).whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
   )
 
 lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
@@ -344,14 +365,12 @@ lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
-  .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
   )
+  .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
 
 lazy val `scalatra-specs2` = projectMatrix.in(file("specs2"))
   .settings(
@@ -364,14 +383,12 @@ lazy val `scalatra-specs2` = projectMatrix.in(file("specs2"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
-  .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
   )
+  .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
 
 lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
   .settings(
@@ -389,17 +406,15 @@ lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
+  )
   .dependsOn(
     scalatra % "compile;test->test;provided->provided",
     `scalatra-json` % "compile;test->test;provided->provided",
     `scalatra-auth` % "compile;test->test"
-  )
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
   )
 
 lazy val `scalatra-metrics` = projectMatrix.in(file("metrics"))
@@ -420,19 +435,17 @@ lazy val `scalatra-metrics` = projectMatrix.in(file("metrics"))
       ),
     ),
   )
-  .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(
-        libraryDependencies ++= Seq(
-          metricsServletsJakarta,
-          metricsServletJakarta
-        ),
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        metricsServletsJakarta,
+        metricsServletJakarta
       ),
-    )
+    ),
   )
+  .dependsOn(scalatra % "compile;test->test;provided->provided")
 
 lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
   .settings(
@@ -447,14 +460,12 @@ lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
     axisValues = Seq(javax),
     settings = Def.settings(),
   )
-  .dependsOn(scalatra % "compile;test->test;provided->provided")
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(),
-    )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(),
   )
+  .dependsOn(scalatra % "compile;test->test;provided->provided")
 
 lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
   .settings(
@@ -471,17 +482,15 @@ lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
       ),
     ),
   )
-  .whenRunningOnJvm17OrAbove(
-    _.jvmPlatform(
-      scalaVersions = scalaVersions,
-      axisValues = Seq(jakarta),
-      settings = Def.settings(
-        libraryDependencies ++= Seq(
-          servletApiJakarta,
-          jettyWebappJakarta
-        ),
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        servletApiJakarta,
+        jettyWebappJakarta
       ),
-    )
+    ),
   )
 
 lazy val manifestSetting = packageOptions += {
