@@ -284,7 +284,6 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJavax,
-        jettyServletJavax,
         jettyWebappJavax
       ),
     ),
@@ -295,7 +294,6 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJakarta,
-        jettyServletJakarta,
         jettyWebappJakarta
       ),
     ),
@@ -464,7 +462,6 @@ lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJavax,
-        jettyServletJavax,
         jettyWebappJavax,
       ),
     ),
@@ -475,7 +472,6 @@ lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJakarta,
-        jettyServletJakarta,
         jettyWebappJakarta
       ),
     ),
