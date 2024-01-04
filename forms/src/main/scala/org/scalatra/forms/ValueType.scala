@@ -74,7 +74,7 @@ private[forms] class VerifyingValueType[T](
  */
 abstract class MappingValueType[T] extends ValueType[T] {
 
-  def fields: Seq[(String, ValueType[_])]
+  def fields: Seq[(String, ValueType[?])]
 
   def validate(name: String, params: Map[String, Seq[String]], messages: Messages): Seq[(String, String)] = {
     fields.flatMap {

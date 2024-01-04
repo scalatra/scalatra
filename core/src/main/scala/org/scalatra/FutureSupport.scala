@@ -24,7 +24,7 @@ abstract class AsyncResult(
   // This is a Duration instead of a timeout because a duration has the concept of infinity
   implicit def timeout: Duration = 30.seconds
 
-  val is: Future[_]
+  val is: Future[?]
 
 }
 
@@ -35,28 +35,28 @@ trait FutureSupport extends AsyncSupport {
   override def asynchronously(f: => Any): Action = () => Future(f)
 
   override protected def isAsyncExecutable(result: Any): Boolean =
-    classOf[Future[_]].isAssignableFrom(result.getClass) ||
+    classOf[Future[?]].isAssignableFrom(result.getClass) ||
       classOf[AsyncResult].isAssignableFrom(result.getClass)
 
   override protected def renderResponse(actionResult: Any): Unit = {
     actionResult match {
       case r: AsyncResult => handleFuture(r.is, Some(r.timeout))
-      case f: Future[_] => handleFuture(f, None)
+      case f: Future[?] => handleFuture(f, None)
       case a => super.renderResponse(a)
     }
   }
 
-  private[this] def handleFuture(f: Future[_], timeout: Option[Duration]): Unit = {
+  private[this] def handleFuture(f: Future[?], timeout: Option[Duration]): Unit = {
     val gotResponseAlready = new AtomicBoolean(false)
     val context = request.startAsync(request, response)
     timeout.foreach { timeout =>
       if (timeout.isFinite) context.setTimeout(timeout.toMillis) else context.setTimeout(-1)
     }
 
-    def renderFutureResult(f: Future[_]): Unit = {
+    def renderFutureResult(f: Future[?]): Unit = {
       f onComplete {
         // Loop until we have a non-future result
-        case Success(f2: Future[_]) => renderFutureResult(f2)
+        case Success(f2: Future[?]) => renderFutureResult(f2)
         case Success(r: AsyncResult) => renderFutureResult(r.is)
         case t => {
 

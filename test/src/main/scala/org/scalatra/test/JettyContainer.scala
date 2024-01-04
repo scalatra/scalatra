@@ -20,11 +20,11 @@ trait JettyContainer extends Container {
   def servletContextHandler: ServletContextHandler
   def skipDefaultServlet: Boolean = false
 
-  def mount(klass: Class[_], path: String) = klass match {
+  def mount(klass: Class[?], path: String) = klass match {
     case servlet if classOf[HttpServlet].isAssignableFrom(servlet) =>
-      addServlet(servlet.asInstanceOf[Class[_ <: HttpServlet]], path)
+      addServlet(servlet.asInstanceOf[Class[? <: HttpServlet]], path)
     case filter if classOf[Filter].isAssignableFrom(filter) =>
-      addFilter(filter.asInstanceOf[Class[_ <: Filter]], path)
+      addFilter(filter.asInstanceOf[Class[? <: Filter]], path)
     case _ =>
       throw new IllegalArgumentException(klass.toString + " is not assignable to either HttpServlet or Filter")
   }
@@ -53,7 +53,7 @@ trait JettyContainer extends Container {
 
   }
 
-  def addServlet(servlet: Class[_ <: HttpServlet], path: String) =
+  def addServlet(servlet: Class[? <: HttpServlet], path: String) =
     servletContextHandler.addServlet(servlet, path)
 
   def addFilter(filter: Filter, path: String, dispatches: util.EnumSet[DispatcherType] = DefaultDispatcherTypes): FilterHolder = {
@@ -62,10 +62,10 @@ trait JettyContainer extends Container {
     holder
   }
 
-  def addFilter(filter: Class[_ <: Filter], path: String): FilterHolder =
+  def addFilter(filter: Class[? <: Filter], path: String): FilterHolder =
     addFilter(filter, path, DefaultDispatcherTypes)
 
-  def addFilter(filter: Class[_ <: Filter], path: String, dispatches: util.EnumSet[DispatcherType]): FilterHolder =
+  def addFilter(filter: Class[? <: Filter], path: String, dispatches: util.EnumSet[DispatcherType]): FilterHolder =
     servletContextHandler.addFilter(filter, path, dispatches)
 
   // Add a default servlet.  If there is no underlying servlet, then

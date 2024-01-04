@@ -30,7 +30,7 @@ object ScentrySpec extends Specification {
         sessionMap.getOrElse(a.getArgument(0).asInstanceOf[String], null).asInstanceOf[AnyRef]
       }
       when(mockSession.setAttribute(ArgumentMatchers.anyString, ArgumentMatchers.any)).thenAnswer { a =>
-        val Array(k: String, v: Any) = a.getArgument(0).asInstanceOf[Array[_]]
+        val Array(k: String, v: Any) = a.getArgument(0).asInstanceOf[Array[?]]
         sessionMap(k) = v
       }
       when(mockSession.invalidate()).thenAnswer { a =>

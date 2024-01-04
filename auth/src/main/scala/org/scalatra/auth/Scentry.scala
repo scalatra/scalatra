@@ -14,7 +14,7 @@ object Scentry {
 
   type StrategyFactory[UserType <: AnyRef] = ScalatraBase => ScentryStrategy[UserType]
 
-  private val _globalStrategies = new mutable.HashMap[String, StrategyFactory[_ <: AnyRef]]()
+  private val _globalStrategies = new mutable.HashMap[String, StrategyFactory[? <: AnyRef]]()
 
   def register[UserType <: AnyRef](name: String, strategyFactory: StrategyFactory[UserType]): Unit = {
     _globalStrategies += (name -> strategyFactory)

@@ -9,7 +9,7 @@ import scala.util.control.Exception._
 
 object Reflector {
 
-  private[this] val rawClasses = new Memo[Type, Class[_]]
+  private[this] val rawClasses = new Memo[Type, Class[?]]
   private[this] val unmangledNames = new Memo[String, String]
   private[this] val descriptors = new Memo[ScalaType, ObjectDescriptor]
 
@@ -29,7 +29,7 @@ object Reflector {
   def isExcluded(t: Type, excludes: Seq[Type] = Nil) = (defaultExcluded ++ excludes) contains t
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ManifestScalaType(mf)
-  def scalaTypeOf(clazz: Class[_]): ScalaType = ManifestScalaType(ManifestFactory.manifestOf(clazz))
+  def scalaTypeOf(clazz: Class[?]): ScalaType = ManifestScalaType(ManifestFactory.manifestOf(clazz))
   def scalaTypeOf(t: Type): ScalaType = ManifestScalaType(ManifestFactory.manifestOf(t))
 
   private[this] val stringTypes = new Memo[String, Option[ScalaType]]
@@ -37,7 +37,7 @@ object Reflector {
     stringTypes(name, resolveClass[AnyRef](_, ClassLoaders) map (c => scalaTypeOf(c)))
 
   def describe[T](implicit mf: Manifest[T]): ObjectDescriptor = describe(scalaTypeOf[T])
-  def describe(clazz: Class[_]): ObjectDescriptor = describe(scalaTypeOf(clazz))
+  def describe(clazz: Class[?]): ObjectDescriptor = describe(scalaTypeOf(clazz))
   def describe(fqn: String): Option[ObjectDescriptor] =
     scalaTypeOf(fqn) map (describe(_))
   def describe(st: ScalaType, paranamer: ParameterNameReader = ParanamerReader): ObjectDescriptor =
@@ -48,7 +48,7 @@ object Reflector {
     case List(cl) => Some(Class.forName(c, true, cl).asInstanceOf[Class[X]])
     case many => {
       try {
-        var clazz: Class[_] = null
+        var clazz: Class[?] = null
         val iter = many.iterator
         while (clazz == null && iter.hasNext) {
           try {
@@ -79,7 +79,7 @@ object Reflector {
       }
 
       def properties: Seq[PropertyDescriptor] = {
-        def fields(clazz: Class[_]): List[PropertyDescriptor] = {
+        def fields(clazz: Class[?]): List[PropertyDescriptor] = {
           val lb = new ArrayBuffer[PropertyDescriptor]()
           val ls = clazz.getDeclaredFields.iterator
           while (ls.hasNext) {
@@ -108,7 +108,7 @@ object Reflector {
       def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
         val idxes = container.map(_._2.reverse)
         t match {
-          case v: TypeVariable[_] =>
+          case v: TypeVariable[?] =>
             val a = owner.typeVars.getOrElse(v, scalaTypeOf(v))
             if (a.erasure == classOf[java.lang.Object]) {
               val r = ScalaSigReader.readConstructor(name, owner, index, ctorParameterNames)
@@ -160,15 +160,15 @@ object Reflector {
     }
   }
 
-  def defaultValue(compClass: Class[_], compObj: AnyRef, argIndex: Int) = {
+  def defaultValue(compClass: Class[?], compObj: AnyRef, argIndex: Int) = {
     allCatch.withApply(_ => None) {
       Option(compClass.getMethod("%s$%d".format(ConstructorDefault, argIndex + 1))) map { meth => () => meth.invoke(compObj)
       }
     }
   }
 
-  def rawClassOf(t: Type): Class[_] = rawClasses(t, {
-    case c: Class[_] => c
+  def rawClassOf(t: Type): Class[?] = rawClasses(t, {
+    case c: Class[?] => c
     case p: ParameterizedType => rawClassOf(p.getRawType)
     case x => sys.error("Raw type of " + x + " not known")
   })

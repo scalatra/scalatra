@@ -13,7 +13,7 @@ import scala.collection.immutable.ListMap
 /**
  * Trait that serves the resource and operation listings, as specified by the Swagger specification.
  */
-trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[_] with CorsSupport =>
+trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?] with CorsSupport =>
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
@@ -232,7 +232,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[_]
         List(
           "minimum" -> minimum.map(JDouble(_)).getOrElse(JLong(x.values.start)),
           "maximum" -> maximum.map(JDouble(_)).getOrElse(JLong(x.values.end)))
-      case x: AllowableValues.AllowableValuesList[_] =>
+      case x: AllowableValues.AllowableValuesList[?] =>
         List("enum" -> Extraction.decompose(x.values))
       case _ =>
         List("minimum" -> minimum, "maximum" -> maximum)

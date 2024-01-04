@@ -21,7 +21,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
 
   get("/redirect") {
     new AsyncResult {
-      val is: Future[_] = Future {
+      val is: Future[?] = Future {
         redirect("redirected")
       }
     }
@@ -29,7 +29,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
 
   get("/async-oh-noes") {
     new AsyncResult {
-      val is: Future[_] = Future {
+      val is: Future[?] = Future {
         Thread.sleep(100) // To get the container to give up the request
         Ok(body = s"${request.getContextPath}")
       }
@@ -39,7 +39,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
   get("/async-attributes/:mockSessionId") {
     request.setAttribute("sessionId", params("mockSessionId"))
     new AsyncResult {
-      val is: Future[_] = Future {
+      val is: Future[?] = Future {
         Thread.sleep(200)
         Ok(body = request.getAttribute("sessionId"))
       }(futureEC)
@@ -56,7 +56,7 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
 
   get("/timeout") {
     new AsyncResult {
-      val is: Future[_] = Future {
+      val is: Future[?] = Future {
         Thread.sleep((3.second).toMillis)
       }
       override def timeout: Duration = 2.seconds
