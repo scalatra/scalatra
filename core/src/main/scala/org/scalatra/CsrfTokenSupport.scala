@@ -24,9 +24,9 @@ object GenerateId {
 
 object CsrfTokenSupport {
 
-  val DefaultKey = "org.scalatra.CsrfTokenSupport.key"
+  val DefaultKey: String = "org.scalatra.CsrfTokenSupport.key"
 
-  val HeaderNames = Vector("X-CSRF-TOKEN")
+  val HeaderNames: Vector[String] = Vector("X-CSRF-TOKEN")
 
 }
 
@@ -142,11 +142,11 @@ trait XsrfTokenSupport { this: ScalatraBase =>
 
 object XsrfTokenSupport {
 
-  val DefaultKey = "org.scalatra.XsrfTokenSupport.key"
+  val DefaultKey: String = "org.scalatra.XsrfTokenSupport.key"
 
-  val HeaderNames = Vector("X-XSRF-TOKEN")
+  val HeaderNames: Vector[String] = Vector("X-XSRF-TOKEN")
 
-  val CookieKey = "XSRF-TOKEN"
+  val CookieKey: String = "XSRF-TOKEN"
 
 }
 

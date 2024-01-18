@@ -11,7 +11,7 @@ package object RicherString {
   implicit final class RicherStringImplicitClass(private val orig: String) extends AnyVal {
 
     def blankOption: Option[String] = if (StringUtils.isBlank(orig)) None else Some(orig)
-    def nonBlank: Boolean = !(StringUtils.isBlank(orig))
+    def nonBlank: Boolean = !StringUtils.isBlank(orig)
 
     def urlEncode: String = UrlCodingUtils.urlEncode(orig)
     def formEncode: String = UrlCodingUtils.urlEncode(orig, spaceIsPlus = true)

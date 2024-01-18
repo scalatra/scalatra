@@ -2,6 +2,7 @@ package org.scalatra
 package util
 
 import scala.collection.immutable
+import scala.language.implicitConversions
 import scala.util.control.Exception.allCatch
 
 trait ValueReader[S, U] extends Any {

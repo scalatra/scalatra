@@ -83,7 +83,7 @@ trait I18nSupport { this: ScalatraBase =>
         cookies.set(LocaleKey, localeValue)
         Some(localeValue)
       case _ => cookies.get(LocaleKey)
-    }).map(localeFromString(_)) orElse resolveHttpLocaleFromUserAgent
+    }).map(localeFromString) orElse resolveHttpLocaleFromUserAgent
   }
 
   /**

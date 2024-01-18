@@ -2,6 +2,7 @@ package org.scalatra.util
 
 import java.util.Locale.ENGLISH
 import annotation.tailrec
+import scala.language.implicitConversions
 import scala.util.matching.Regex
 
 trait Inflector {
@@ -58,7 +59,7 @@ trait Inflector {
 
     private val regex = ("""(?i)%s""" format pattern).r
 
-    def apply(word: String) = {
+    def apply(word: String): Option[String] = {
       if (regex.findFirstIn(word).isEmpty) {
         None
       } else {
@@ -92,9 +93,9 @@ trait Inflector {
     plurals ::= (("(" + singular(0) + ")" + singular.substring(1) + "$") -> ("$1" + plural.substring(1)))
     singulars ::= (("(" + plural(0) + ")" + plural.substring(1) + "$") -> ("$1" + singular.substring(1)))
   }
-  def addUncountable(word: String) = uncountables ::= word
+  def addUncountable(word: String): Unit = uncountables ::= word
 
-  def interpolate(text: String, vars: Map[String, String]) =
+  def interpolate(text: String, vars: Map[String, String]): String =
     """\#\{([^}]+)\}""".r.replaceAllIn(text, (_: Regex.Match) match {
       case Regex.Groups(v) => vars.getOrElse(v, "")
     })
@@ -113,21 +114,21 @@ object InflectorImports extends InflectorImports
 object Inflector extends Inflector {
 
   class InflectorString(private val word: String) extends AnyVal {
-    def titleize = Inflector.titleize(word)
-    def humanize = Inflector.humanize(word)
-    def camelize = Inflector.camelize(word)
-    def pascalize = Inflector.pascalize(word)
-    def underscore = Inflector.underscore(word)
-    def dasherize = Inflector.dasherize(word)
-    def uncapitalize = Inflector.uncapitalize(word)
-    def ordinalize = Inflector.ordinalize(word)
-    def pluralize = Inflector.pluralize(word)
-    def singularize = Inflector.singularize(word)
-    def fill(values: (String, String)*) = Inflector.interpolate(word, Map(values: _*))
+    def titleize: String = Inflector.titleize(word)
+    def humanize: String = Inflector.humanize(word)
+    def camelize: String = Inflector.camelize(word)
+    def pascalize: String = Inflector.pascalize(word)
+    def underscore: String = Inflector.underscore(word)
+    def dasherize: String = Inflector.dasherize(word)
+    def uncapitalize: String = Inflector.uncapitalize(word)
+    def ordinalize: String = Inflector.ordinalize(word)
+    def pluralize: String = Inflector.pluralize(word)
+    def singularize: String = Inflector.singularize(word)
+    def fill(values: (String, String)*): String = Inflector.interpolate(word, Map(values: _*))
   }
 
   class InflectorInt(private val number: Int) extends AnyVal {
-    def ordinalize = Inflector.ordinalize(number)
+    def ordinalize: String = Inflector.ordinalize(number)
   }
 
   addPlural("$", "s")

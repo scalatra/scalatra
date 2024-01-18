@@ -4,7 +4,8 @@ package servlet
 import java.{ util => ju }
 import org.scalatra.ServletCompat.ServletContext
 import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
-import scala.language.reflectiveCalls
+
+import scala.language.{ implicitConversions, reflectiveCalls }
 
 /**
  * ServletBase implements the Scalatra DSL with the Servlet API, and can be

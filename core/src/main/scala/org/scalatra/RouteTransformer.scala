@@ -1,5 +1,7 @@
 package org.scalatra
 
+import scala.language.implicitConversions
+
 object RouteTransformer {
 
   implicit def fn2transformer(fn: Route => Route): RouteTransformer =

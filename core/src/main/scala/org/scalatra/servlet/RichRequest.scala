@@ -194,7 +194,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
   def body: String = {
     cachedBody getOrElse {
       val encoding = r.getCharacterEncoding
-      val enc = if (encoding == null || encoding.trim.length == 0) {
+      val enc = if (encoding == null || encoding.trim.isEmpty) {
         if (contentType.exists(_ equalsIgnoreCase "application/json")) "UTF-8" else "ISO-8859-1"
       } else encoding
       val body: String = Source.fromInputStream(inputStream, enc).mkString
@@ -233,12 +233,12 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    */
   def cookies: MultiMapHeadView[String, String] = {
     new MultiMapHeadView[String, String] {
-      override protected def multiMap = multiCookies
+      override protected def multiMap: MultiParams = multiCookies
     }
   }
 
   protected[this] type A = HttpServletRequest
-  protected[this] override def attributes = r
+  protected[this] override def attributes: HttpServletRequest = r
   protected[this] override def attributesTypeClass: Attributes[A] = Attributes[A]
 
   /**

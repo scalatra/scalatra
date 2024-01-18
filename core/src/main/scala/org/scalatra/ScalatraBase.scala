@@ -15,8 +15,8 @@ import scala.annotation.tailrec
 import scala.util.control.Exception._
 import scala.util.matching.Regex
 import scala.util.{ Failure, Success, Try }
-
 import scala.collection.compat.immutable._
+import scala.language.implicitConversions
 
 object ScalatraBase {
 
@@ -39,7 +39,7 @@ object ScalatraBase {
   val RenderCallbacks: String = s"$KeyPrefix.renderCallbacks"
   val IsAsyncKey: String = s"$KeyPrefix.isAsync"
 
-  def isAsyncResponse(implicit request: HttpServletRequest): Boolean = request.get(IsAsyncKey).exists(_ => true)
+  def isAsyncResponse(implicit request: HttpServletRequest): Boolean = request.get(IsAsyncKey).isDefined
 
   def onSuccess(fn: Any => Unit)(implicit request: HttpServletRequest): Unit = addCallback(_.foreach(fn))
 
@@ -822,7 +822,7 @@ trait ScalatraBase
 
   /**
    * Set whether to decode when the path returned by the `requestPath` method is
-   * Percent-Eoconding. Default is decode (true).
+   * Percent-Encoding. Default is decode (true).
    */
   protected var decodePercentEncodedPath: Boolean = true
 }

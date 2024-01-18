@@ -4,9 +4,8 @@ package conversion
 
 import java.text.{ DateFormat, SimpleDateFormat }
 import java.util.Date
-
+import scala.language.implicitConversions
 import scala.util.control.Exception.allCatch
-
 import scala.reflect.ClassTag
 
 /**
@@ -140,7 +139,7 @@ trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 
   def stringToDate(format: => String): TypeConverter[String, Date] = stringToDateFormat(new SimpleDateFormat(format))
 
-  def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] = safe(format.parse(_))
+  def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] = safe(format.parse)
 
   implicit def defaultStringToSeq[T: ClassTag](implicit elementConverter: TypeConverter[String, T]): TypeConverter[String, Seq[T]] =
     stringToSeq[T](elementConverter)

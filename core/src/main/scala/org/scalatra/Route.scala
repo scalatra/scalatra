@@ -40,7 +40,7 @@ case class Route(
   /**
    * Determines whether this is a reversible route.
    */
-  lazy val isReversible: Boolean = !reversibleMatcher.isEmpty
+  lazy val isReversible: Boolean = reversibleMatcher.isDefined
 
   override def toString: String = routeMatchers mkString " "
 }

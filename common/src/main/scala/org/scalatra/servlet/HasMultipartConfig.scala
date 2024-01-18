@@ -4,7 +4,7 @@ package servlet
 import org.scalatra.ServletCompat.ServletContext
 
 object HasMultipartConfig {
-  val DefaultMultipartConfig = MultipartConfig()
+  val DefaultMultipartConfig: MultipartConfig = MultipartConfig()
   val MultipartConfigKey = "org.scalatra.MultipartConfigKey"
 }
 trait HasMultipartConfig extends Initializable {

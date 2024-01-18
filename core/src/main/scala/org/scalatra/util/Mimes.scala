@@ -89,10 +89,10 @@ trait Mimes {
     if (mimeType != null) mimeType else fallback
   }
 
-  def apply(input: InputStream) = inputStreamMime(input)
-  def apply(file: File) = fileMime(file)
-  def apply(bytes: Array[Byte]) = bytesMime(bytes)
-  def apply(uri: URI) = urlMime(uri.toASCIIString)
+  def apply(input: InputStream): String = inputStreamMime(input)
+  def apply(file: File): String = fileMime(file)
+  def apply(bytes: Array[Byte]): String = bytesMime(bytes)
+  def apply(uri: URI): String = urlMime(uri.toASCIIString)
 }
 
 object MimeTypes extends Mimes

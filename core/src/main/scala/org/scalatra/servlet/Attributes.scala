@@ -3,6 +3,8 @@ package org.scalatra.servlet
 import org.scalatra.ServletCompat.ServletContext
 import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpSession }
 
+import java.util
+
 /**
  * type class for the various Servlet API objects that have attributes.
  */
@@ -29,37 +31,37 @@ private[servlet] object Attributes {
 
   implicit val httpServletRequestAttributes: Attributes[HttpServletRequest] =
     new Attributes[HttpServletRequest] {
-      override def getAttribute(self: HttpServletRequest, name: String) =
+      override def getAttribute(self: HttpServletRequest, name: String): AnyRef =
         self.getAttribute(name)
-      override def getAttributeNames(self: HttpServletRequest) =
+      override def getAttributeNames(self: HttpServletRequest): util.Enumeration[String] =
         self.getAttributeNames()
-      override def setAttribute(self: HttpServletRequest, name: String, value: AnyRef) =
+      override def setAttribute(self: HttpServletRequest, name: String, value: AnyRef): Unit =
         self.setAttribute(name, value)
-      override def removeAttribute(self: HttpServletRequest, name: String) =
+      override def removeAttribute(self: HttpServletRequest, name: String): Unit =
         self.removeAttribute(name)
     }
 
   implicit val servletContextAttributes: Attributes[ServletContext] =
     new Attributes[ServletContext] {
-      override def getAttribute(self: ServletContext, name: String) =
+      override def getAttribute(self: ServletContext, name: String): AnyRef =
         self.getAttribute(name)
-      override def getAttributeNames(self: ServletContext) =
+      override def getAttributeNames(self: ServletContext): util.Enumeration[String] =
         self.getAttributeNames()
-      override def setAttribute(self: ServletContext, name: String, value: AnyRef) =
+      override def setAttribute(self: ServletContext, name: String, value: AnyRef): Unit =
         self.setAttribute(name, value)
-      override def removeAttribute(self: ServletContext, name: String) =
+      override def removeAttribute(self: ServletContext, name: String): Unit =
         self.removeAttribute(name)
     }
 
   implicit val httpSessionAttributes: Attributes[HttpSession] =
     new Attributes[HttpSession] {
-      override def getAttribute(self: HttpSession, name: String) =
+      override def getAttribute(self: HttpSession, name: String): AnyRef =
         self.getAttribute(name)
-      override def getAttributeNames(self: HttpSession) =
+      override def getAttributeNames(self: HttpSession): util.Enumeration[String] =
         self.getAttributeNames()
-      override def setAttribute(self: HttpSession, name: String, value: AnyRef) =
+      override def setAttribute(self: HttpSession, name: String, value: AnyRef): Unit =
         self.setAttribute(name, value)
-      override def removeAttribute(self: HttpSession, name: String) =
+      override def removeAttribute(self: HttpSession, name: String): Unit =
         self.removeAttribute(name)
     }
 }

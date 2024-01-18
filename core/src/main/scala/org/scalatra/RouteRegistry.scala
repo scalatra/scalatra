@@ -53,8 +53,8 @@ class RouteRegistry {
    */
   def matchingMethodsExcept(method: HttpMethod, requestPath: String): Set[HttpMethod] = {
     val p: HttpMethod => Boolean = method match {
-      case Get | Head => { m => m == Get || m == Head }
-      case _ => { _ == method }
+      case Get | Head => m => m == Get || m == Head
+      case _ => _ == method
     }
     matchingMethodsExcept(requestPath)(p)
   }
@@ -73,7 +73,7 @@ class RouteRegistry {
   /**
    * Add a route that explicitly matches one or more response codes.
    */
-  def addStatusRoute(codes: Range, route: Route) = codes.foreach { code => _statusRoutes.put(code, route) }
+  def addStatusRoute(codes: Range, route: Route): Unit = codes.foreach { code => _statusRoutes.put(code, route) }
 
   /**
    * Prepends a route to the method's route sequence.
@@ -107,7 +107,7 @@ class RouteRegistry {
    */
   def appendAfterFilter(route: Route): Unit = _afterFilters :+= route
 
-  @tailrec private def modifyRoutes(method: HttpMethod, f: (Seq[Route] => Seq[Route])): Unit = {
+  @tailrec private def modifyRoutes(method: HttpMethod, f: Seq[Route] => Seq[Route]): Unit = {
     if (_methodRoutes.putIfAbsent(method, f(Vector.empty)).isDefined) {
       val oldRoutes = _methodRoutes(method)
       if (!_methodRoutes.replace(method, oldRoutes, f(oldRoutes)))

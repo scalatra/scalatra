@@ -53,7 +53,7 @@ trait UrlGeneratorSupport {
       case Some(matcher: ReversibleRouteMatcher) =>
         route.contextPath(req) + matcher.reverse(params, splats.toList)
       case _ =>
-        throw new Exception("Route \"%s\" is not reversible" format (route))
+        throw new Exception("Route \"%s\" is not reversible".format(route))
     }
 }
 

@@ -82,7 +82,7 @@ trait AttributesMap {
    * @return whether the specified key exists
    */
   def contains(key: String): Boolean = get(key) match {
-    case Some(v) => true
+    case Some(_) => true
     case None => false
   }
 
@@ -171,7 +171,7 @@ trait AttributesMap {
   /**
    * Returns an attributes keys
    */
-  def keys = attributes.getAttributeNames().asScala
+  def keys: Iterator[String] = attributes.getAttributeNames().asScala
 
   /**
    * dumps all keys and values
