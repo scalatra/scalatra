@@ -58,7 +58,6 @@ lazy val scalatraSettings = Seq(
       case Some((2, _)) =>
         unusedOptions ++ Seq(
           "-Xsource:3",
-          "-release:8",
           "-Xlint",
           "-Xcheckinit",
         )
@@ -67,8 +66,8 @@ lazy val scalatraSettings = Seq(
     }
   },
   javacOptions ++= Seq(
-    "-source", "11",
-    "-target", "11",
+    "-source", "17",
+    "-target", "17",
   ),
   scalacOptions ++= Seq(
     "-unchecked",
@@ -78,7 +77,8 @@ lazy val scalatraSettings = Seq(
     "-feature",
     "-language:higherKinds",
     "-language:implicitConversions",
-    "-language:existentials"
+    "-language:existentials",
+    "-release:17"
   ),
   manifestSetting,
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
