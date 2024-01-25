@@ -1,5 +1,6 @@
 import scala.xml._
 import Dependencies._
+import com.typesafe.tools.mima.core._
 
 val unusedOptions = Seq("-Ywarn-unused:imports")
 
@@ -25,6 +26,20 @@ lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
   mimaPreviousArtifacts ++= Set("3.0.0").map(
     organization.value %% moduleName.value % _
+  ),
+  mimaBinaryIssueFilters ++= Seq(
+    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat"),
+    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat$"),
+    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat$DispatcherType$"),
+    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat$http$"),
+    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.jetty.JettyServer.context"),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.servlet.HttpServletRequestReadOnly.isRequestedSessionIdFromUrl"),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.EmbeddedJettyContainer.servletContextHandler"),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addFilter"),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addServlet"),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.mount"),
+    ProblemFilters.exclude[ReversedMissingMethodProblem]("org.scalatra.test.JettyContainer.servletContextHandler"),
+    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.test.JettyContainer.servletContextHandler"),
   ),
   Test / fork := true,
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
@@ -58,7 +73,6 @@ lazy val scalatraSettings = Seq(
       case Some((2, _)) =>
         unusedOptions ++ Seq(
           "-Xsource:3",
-          "-release:8",
           "-Xlint",
           "-Xcheckinit",
         )
@@ -67,8 +81,8 @@ lazy val scalatraSettings = Seq(
     }
   },
   javacOptions ++= Seq(
-    "-source", "11",
-    "-target", "11",
+    "-source", "17",
+    "-target", "17",
   ),
   scalacOptions ++= Seq(
     "-unchecked",
@@ -78,7 +92,8 @@ lazy val scalatraSettings = Seq(
     "-feature",
     "-language:higherKinds",
     "-language:implicitConversions",
-    "-language:existentials"
+    "-language:existentials",
+    "-release:17"
   ),
   manifestSetting,
   publishConfiguration := publishConfiguration.value.withOverwrite(true),
@@ -117,6 +132,7 @@ ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
     `scalatra-common`,
     `scalatra-metrics`,
     `scalatra-cache`,
+    `scalatra-compat`,
   ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference): _*
 )
 enablePlugins(ScalaUnidocPlugin)
@@ -129,17 +145,17 @@ lazy val `scalatra-common` = projectMatrix.in(file("common"))
     scalaVersions = scalaVersions,
     axisValues = Seq(javax),
     settings = Def.settings(
-      libraryDependencies ++= Seq(servletApiJavax % "provided,test")
-    )
+    ),
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
     axisValues = Seq(jakarta),
     settings = Def.settings(
-      libraryDependencies ++= Seq(servletApiJakarta % "provided,test")
-    )
+    ),
   )
-
+  .dependsOn(
+    `scalatra-compat` % "compile;test->test;provided->provided"
+  )
 
 lazy val scalatra = projectMatrix.in(file("core"))
   .settings(
@@ -180,7 +196,8 @@ lazy val scalatra = projectMatrix.in(file("core"))
   ).dependsOn(
     `scalatra-specs2` % "test->compile",
     `scalatra-scalatest` % "test->compile",
-    `scalatra-common` % "compile;test->test"
+    `scalatra-common` % "compile;test->test",
+    `scalatra-compat` % "compile;test->test"
   )
 
 lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
@@ -282,7 +299,7 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJavax,
-        jettyServletJavax
+        jettyWebappJavax
       ),
     ),
   )
@@ -292,11 +309,13 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     settings = Def.settings(
       libraryDependencies ++= Seq(
         servletApiJakarta,
-        jettyServletJakarta
+        jettyWebappJakarta
       ),
     ),
   )
-  .dependsOn(scalatra % "compile;test->test;provided->provided")
+  .dependsOn(
+    `scalatra` % "compile;test->test;provided->provided"
+  )
 
 lazy val `scalatra-test` = projectMatrix.in(file("test"))
   .settings(
@@ -311,24 +330,17 @@ lazy val `scalatra-test` = projectMatrix.in(file("test"))
   .jvmPlatform(
     scalaVersions = scalaVersions,
     axisValues = Seq(javax),
-    settings = Def.settings(
-      libraryDependencies ++= Seq(
-        jettyWebappJavax,
-        servletApiJavax,
-      )
-    )
+    settings = Def.settings()
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
     axisValues = Seq(jakarta),
-    settings = Def.settings(
-      libraryDependencies ++= Seq(
-        jettyWebappJakarta,
-        servletApiJakarta,
-      )
-    )
+    settings = Def.settings()
   )
-  .dependsOn(`scalatra-common` % "compile;test->test;provided->provided")
+  .dependsOn(
+    `scalatra-common` % "compile;test->test;provided->provided",
+    `scalatra-compat` % "compile;test->test;provided->provided",
+  )
 
 lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
   .settings(
@@ -453,6 +465,33 @@ lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
     ),
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
+
+lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
+  .settings(
+    scalatraSettings,
+    mimaPreviousArtifacts := Set.empty,
+    description := "Scalatra Compatibility module"
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(javax),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        servletApiJavax,
+        jettyWebappJavax,
+      ),
+    ),
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    axisValues = Seq(jakarta),
+    settings = Def.settings(
+      libraryDependencies ++= Seq(
+        servletApiJakarta,
+        jettyWebappJakarta
+      ),
+    ),
+  )
 
 lazy val manifestSetting = packageOptions += {
   Package.ManifestAttributes(

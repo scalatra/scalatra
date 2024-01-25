@@ -2,6 +2,7 @@ package org.scalatra.servlet
 
 import java.io.{ InputStream, File, FileOutputStream }
 import java.util.{ Map => JMap, HashMap => JHashMap }
+import org.scalatra.ServletCompat._
 import org.scalatra.ServletCompat.http._
 
 import org.scalatra.ScalatraBase
@@ -68,12 +69,21 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
    * to detect whether it signifies a too large file being
    * uploaded or a too large request in general.
    *
-   * This can be overriden for the container being used if it
-   * doesn't throw `IllegalStateException` or if it throws
-   * `IllegalStateException` for some other reason.
+   * This can be overriden if the container being used has an
+   * different behavior than Jetty, which throws either
+   * `IllegalStateException` (Jetty 10) or
+   * `ServletException` (Jetty 12) in case of an error.
    */
   protected def isSizeConstraintException(e: Exception): Boolean = e match {
-    case _: IllegalStateException => true
+    // Jetty 10: see "org.eclipse.jetty.server.MultiPartFormInputStream.MultiPart::write".
+    case exc: IllegalStateException => exc.getMessage.matches("^Multipart Mime part .+ exceeds max filesize$")
+    // Jetty 12: see "org.eclipse.jetty.ee10.servlet.ServletApiRequest::getParts".
+    case exc: ServletException =>
+      val rootCause = exc.getRootCause
+      rootCause.getMessage == "400: bad multipart" && (rootCause.getCause match {
+        case exc: IllegalStateException => exc.getMessage.matches("^max file size exceeded: \\d+$")
+        case _ => false
+      })
     case _ => false
   }
 
@@ -306,4 +316,3 @@ private object FileItemUtil {
   }
 
 }
-
