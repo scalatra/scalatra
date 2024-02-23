@@ -3,7 +3,7 @@ package org.scalatra
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class RailsLikeRouteTestServlet extends ScalatraServlet {
-  implicit override def string2RouteMatcher(path: String) =
+  implicit override def string2RouteMatcher(path: String): RouteMatcher =
     RailsPathPatternParser(path)
 
   // This syntax wouldn't work in Sinatra
