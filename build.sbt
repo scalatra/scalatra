@@ -19,8 +19,8 @@ val scala3migration = Def.settings(
   }
 )
 
-def Scala213 = "2.13.12"
-val scalaVersions = Seq("2.12.19", Scala213, "3.4.0")
+def Scala213 = "2.13.13"
+val scalaVersions = Seq("2.12.18", Scala213, "3.4.0")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
