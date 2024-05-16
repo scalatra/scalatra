@@ -2,7 +2,6 @@ package org.scalatra.jetty
 
 import java.net.{ InetSocketAddress, URI }
 import org.scalatra.ServletCompat.ServletContext
-
 import org.eclipse.jetty.server.ServerConnector
 import org.scalatest.BeforeAndAfterAll
 import org.scalatra.servlet.ScalatraListener
@@ -10,6 +9,8 @@ import org.scalatra.{ LifeCycle, ScalatraServlet }
 
 import scala.io.Source
 import org.scalatest.wordspec.AnyWordSpec
+
+import java.nio.file.Path
 
 object JettyServerSpec {
   class HelloServlet extends ScalatraServlet {
@@ -29,7 +30,9 @@ class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-    jetty = new JettyServer(InetSocketAddress.createUnresolved("localhost", 0))
+    jetty = new JettyServer(
+      InetSocketAddress.createUnresolved("localhost", 0),
+      Path.of(getClass.getClassLoader.getResource("").toURI))
     jetty.context.setInitParameter(ScalatraListener.LifeCycleKey, classOf[JettyServerSpec.ScalatraBootstrap].getName)
     jetty.start()
     port = jetty.server.getConnectors.head.asInstanceOf[ServerConnector].getLocalPort

@@ -1,5 +1,5 @@
-import sbt._
-import Keys._
+import sbt.*
+import sbt.Keys.*
 
 object Dependencies {
   lazy val parserCombinators        =  "org.scala-lang.modules"  %% "scala-parser-combinators"   % "2.4.0"
@@ -9,8 +9,8 @@ object Dependencies {
   lazy val httpclient               =  "org.apache.httpcomponents.client5" % "httpclient5"       % "5.3.1"
   lazy val jettyServletJavax        =  "org.eclipse.jetty"       %  "jetty-servlet"              % "10.0.20"
   lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.20"
-  lazy val jettyServletJakarta      =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-servlet"         % "12.0.5"
-  lazy val jettyWebappJakarta       =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-webapp"          % "12.0.7"
+  lazy val jettyServletJakarta      =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-servlet"         % "12.0.9"
+  lazy val jettyWebappJakarta       =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-webapp"          % "12.0.9"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
   lazy val json4sJackson            =  "org.json4s"              %% "json4s-jackson"             % json4sVersion
   lazy val json4sNative             =  "org.json4s"              %% "json4s-native"              % json4sVersion

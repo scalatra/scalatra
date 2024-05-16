@@ -7,13 +7,15 @@ import org.scalatra.JettyCompat
 import org.scalatra.JettyCompat.ServletContextHandler
 import org.scalatra.servlet.ScalatraListener
 
+import java.nio.file.Path
+
 /**
  * Runs a Servlet or a Filter on an embedded Jetty server.
  */
 class JettyServer(
   socketAddress: InetSocketAddress = new InetSocketAddress(8080),
-  resourceBase: String = "src/main/webapp") {
-  val context: ServletContextHandler = JettyCompat.createServletContextHandler(resourceBase)
+  resourceBasePath: Path = Path.of("src/main/webapp")) {
+  val context: ServletContextHandler = JettyCompat.createServletContextHandler(resourceBasePath)
   context.setContextPath("/")
   context.addEventListener(new ScalatraListener)
 

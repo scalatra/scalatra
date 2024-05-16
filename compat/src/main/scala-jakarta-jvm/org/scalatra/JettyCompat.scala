@@ -1,7 +1,8 @@
 package org.scalatra
 
-import java.nio.file.Paths
 import org.eclipse.jetty.util.resource.ResourceFactory
+
+import java.nio.file.Path
 
 private[scalatra] object JettyCompat {
   type DefaultServlet = org.eclipse.jetty.ee10.servlet.DefaultServlet
@@ -9,9 +10,9 @@ private[scalatra] object JettyCompat {
   type ServletContextHandler = org.eclipse.jetty.ee10.servlet.ServletContextHandler
   type ServletHolder = org.eclipse.jetty.ee10.servlet.ServletHolder
 
-  def createServletContextHandler(resourceBase: String): ServletContextHandler = {
+  def createServletContextHandler(resourceBasePath: Path): ServletContextHandler = {
     val servletContextHandler = new org.eclipse.jetty.ee10.servlet.ServletContextHandler(org.eclipse.jetty.ee10.servlet.ServletContextHandler.SESSIONS)
-    servletContextHandler.setBaseResource(ResourceFactory.of(servletContextHandler).newResource(Paths.get(resourceBase)))
+    servletContextHandler.setBaseResource(ResourceFactory.of(servletContextHandler).newResource(resourceBasePath))
     servletContextHandler
   }
 }
