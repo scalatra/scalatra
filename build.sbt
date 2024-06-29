@@ -24,28 +24,8 @@ val scalaVersions = Seq("2.12.19", Scala213, "3.3.3")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
-  mimaPreviousArtifacts ++= Set("3.0.0").map(
+  mimaPreviousArtifacts ++= Set("3.1.0").map(
     organization.value %% moduleName.value % _
-  ),
-  mimaBinaryIssueFilters ++= Seq(
-    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat"),
-    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat$"),
-    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat$DispatcherType$"),
-    ProblemFilters.exclude[MissingClassProblem]("org.scalatra.ServletCompat$http$"),
-    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.jetty.JettyServer.context"),
-    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.jetty.JettyServer.<init>$default$2"),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem]("org.scalatra.jetty.JettyServer.this"),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.servlet.HttpServletRequestReadOnly.isRequestedSessionIdFromUrl"),
-    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.test.Container.resourceBasePath"),
-    ProblemFilters.exclude[ReversedMissingMethodProblem]("org.scalatra.test.Container.resourceBasePath"),
-    ProblemFilters.exclude[IncompatibleMethTypeProblem]("org.scalatra.test.Container.resourceBasePath_="),
-    ProblemFilters.exclude[ReversedMissingMethodProblem]("org.scalatra.test.Container.resourceBasePath_="),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.EmbeddedJettyContainer.servletContextHandler"),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addFilter"),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addServlet"),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.mount"),
-    ProblemFilters.exclude[ReversedMissingMethodProblem]("org.scalatra.test.JettyContainer.servletContextHandler"),
-    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.test.JettyContainer.servletContextHandler"),
   ),
   Test / fork := true,
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
@@ -475,7 +455,6 @@ lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
 lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
   .settings(
     scalatraSettings,
-    mimaPreviousArtifacts := Set.empty,
     description := "Scalatra Compatibility module"
   )
   .jvmPlatform(
