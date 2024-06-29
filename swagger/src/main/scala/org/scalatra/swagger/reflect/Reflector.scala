@@ -45,7 +45,6 @@ object Reflector {
 
   def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = classLoaders match {
     case Nil => sys.error("resolveClass: expected 1+ classloaders but received empty list")
-    case List(cl) => Some(Class.forName(c, true, cl).asInstanceOf[Class[X]])
     case many => {
       try {
         var clazz: Class[?] = null
