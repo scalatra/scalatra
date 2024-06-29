@@ -86,7 +86,7 @@ class ManifestScalaType(val manifest: Manifest[?]) extends ScalaType {
   import org.scalatra.swagger.reflect.ManifestScalaType.{ CopiedManifestScalaType, types }
   val erasure: Class[?] = manifest.runtimeClass
 
-  val typeArgs = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
+  val typeArgs: Seq[ScalaType] = manifest.typeArguments.map(ta => Reflector.scalaTypeOf(ta)) ++ (
     if (erasure.isArray) List(Reflector.scalaTypeOf(erasure.getComponentType)) else Nil)
 
   private[this] var _typeVars: Map[TypeVariable[?], ScalaType] = null
