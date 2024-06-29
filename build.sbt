@@ -399,7 +399,6 @@ lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
       parserCombinators,
       logbackClassic % "provided"
     ),
-    scala3migration,
     description := "Scalatra integration with Swagger"
   )
   .jvmPlatform(
