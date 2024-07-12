@@ -3,11 +3,11 @@ package org.scalatra
 import java.util.Locale.ENGLISH
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.util.RicherString.*
 
-import org.scalatra.util.RicherString._
-
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.collection.concurrent
+import scala.util.Try
 
 object ApiFormats {
 
@@ -113,7 +113,7 @@ trait ApiFormats extends ScalatraBase {
 
   private def parseAcceptHeader(implicit request: HttpServletRequest): List[String] = {
     def isValidQPair(a: Array[String]) = {
-      a.length == 2 && a(0) == "q" && validRange.contains(a(1).toDouble)
+      a.length == 2 && a(0) == "q" && Try(a(1).toDouble).toOption.exists(validRange.contains)
     }
 
     request.headers.get("Accept") map { s =>

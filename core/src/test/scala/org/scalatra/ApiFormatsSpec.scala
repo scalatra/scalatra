@@ -84,6 +84,13 @@ class ApiFormatsSpec extends MutableScalatraSpec {
           body must_== "txt"
         }
       }
+
+      "when the priory value is not a double the parser should ignore the broken priority" in {
+        get("/hello", headers = Map("Accept" -> "application/json; q=0.8 oops, text/plain, */*")) {
+          response.getContentType() must startWith("text/plain")
+          body must_== "txt"
+        }
+      }
     }
   }
 }
