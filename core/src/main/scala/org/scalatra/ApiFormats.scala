@@ -3,9 +3,10 @@ package org.scalatra
 import java.util.Locale.ENGLISH
 import java.util.concurrent.ConcurrentHashMap
 import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
-import org.scalatra.util.RicherString.*
+import org.scalatra.util.RicherString._
 
-import scala.jdk.CollectionConverters.*
+
+import scala.jdk.CollectionConverters._
 import scala.collection.concurrent
 import scala.util.Try
 
