@@ -2,7 +2,6 @@ package org.scalatra.util
 
 import java.nio.charset.{ Charset, StandardCharsets }
 import java.util.regex.Pattern
-import org.apache.commons.lang3.StringUtils
 
 package object RicherString {
 
@@ -10,8 +9,8 @@ package object RicherString {
 
   implicit final class RicherStringImplicitClass(private val orig: String) extends AnyVal {
 
-    def blankOption: Option[String] = if (StringUtils.isBlank(orig)) None else Some(orig)
-    def nonBlank: Boolean = !(StringUtils.isBlank(orig))
+    def blankOption: Option[String] = if (orig == null || orig.isBlank) None else Some(orig)
+    def nonBlank: Boolean = if (orig == null || orig.isBlank) false else true
 
     def urlEncode: String = UrlCodingUtils.urlEncode(orig)
     def formEncode: String = UrlCodingUtils.urlEncode(orig, spaceIsPlus = true)
