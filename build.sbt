@@ -27,6 +27,9 @@ lazy val scalatraSettings = Seq(
   mimaPreviousArtifacts ++= Set("3.1.0").map(
     organization.value %% moduleName.value % _
   ),
+  mimaBinaryIssueFilters ++= Seq(
+    ProblemFilters.exclude[MissingTypesProblem]("org.scalatra.package$"),
+  ),
   mimaBinaryIssueFilters ++= {
     scalaBinaryVersion.value match {
       case "2.13" =>
@@ -304,16 +307,6 @@ lazy val `scalatra-common` = projectMatrix.in(file("common"))
 lazy val scalatra = projectMatrix.in(file("core"))
   .settings(
     scalatraSettings,
-    scalacOptions ++= {
-      if (scalaBinaryVersion.value == "2.13") {
-        Seq(
-          // TODO fix warnings ?
-          "-Wconf:msg=package object inheritance is deprecated:warning",
-        )
-      } else {
-        Nil
-      }
-    },
     libraryDependencies ++= Seq(
       slf4jApi,
       jUniversalChardet,
