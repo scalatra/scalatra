@@ -6,7 +6,6 @@ import java.net.URI
 import java.util.Locale
 
 import org.scalatra.ServletCompat.http.HttpServletRequest
-import org.apache.commons.lang3.StringUtils
 import org.scalatra.util.RicherString._
 import org.scalatra.util.MultiMapHeadView
 
@@ -254,7 +253,7 @@ case class RichRequest(r: HttpServletRequest) extends AttributesMap {
    * This takes the load balancing header X-Forwarded-For into account
    * @return the client ip address
    */
-  def remoteAddress: String = header("X-FORWARDED-FOR").flatMap(_.split(",").map(_.trim).filterNot(StringUtils.isBlank).headOption).getOrElse(r.getRemoteAddr)
+  def remoteAddress: String = header("X-FORWARDED-FOR").flatMap(_.split(",").map(_.trim).filterNot(_.isBlank).headOption).getOrElse(r.getRemoteAddr)
 
   def locale: Locale = r.getLocale
 
