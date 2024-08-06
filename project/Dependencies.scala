@@ -31,7 +31,7 @@ object Dependencies {
                                        ).map(x => "org.scalatest" %% s"scalatest-$x" % scalatestVersion)
   lazy val servletApiJavax          =  "javax.servlet"           %  "javax.servlet-api"          % "4.0.1"
   lazy val servletApiJakarta        =  "jakarta.servlet"         %  "jakarta.servlet-api"        % "6.0.0"
-  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "2.0.13"
+  lazy val slf4jApi                 =  "org.slf4j"               %  "slf4j-api"                  % "2.0.14"
   lazy val specs2                   =  Seq(
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-matcher-extra"
