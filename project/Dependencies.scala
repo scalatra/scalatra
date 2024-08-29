@@ -8,7 +8,7 @@ object Dependencies {
   lazy val commonsText              =  "org.apache.commons"      %  "commons-text"               % "1.12.0"
   lazy val httpclient               =  "org.apache.httpcomponents.client5" % "httpclient5"       % "5.3.1"
   lazy val jettyServletJavax        =  "org.eclipse.jetty"       %  "jetty-servlet"              % "10.0.21"
-  lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.22"
+  lazy val jettyWebappJavax         =  "org.eclipse.jetty"       %  "jetty-webapp"               % "10.0.23"
   lazy val jettyServletJakarta      =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-servlet"         % "12.0.9"
   lazy val jettyWebappJakarta       =  "org.eclipse.jetty.ee10"  %  "jetty-ee10-webapp"          % "12.0.12"
   lazy val json4sCore               =  "org.json4s"              %% "json4s-core"                % json4sVersion
@@ -17,7 +17,7 @@ object Dependencies {
   lazy val json4sXml                =  "org.json4s"              %% "json4s-xml"                 % json4sVersion
   lazy val scalatestJunit           =  "org.scalatestplus"       %% "junit-4-13"                 % "3.2.19.0"
   lazy val jUniversalChardet        =  "com.github.albfernandez" %  "juniversalchardet"          % "2.4.0"
-  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "5.12.0"
+  lazy val mockitoAll               =  "org.mockito"             %  "mockito-core"               % "5.13.0"
   lazy val logbackClassic           =  "ch.qos.logback"          %  "logback-classic"            % "1.5.6"
   lazy val scalatest                =  Seq(
                                          "funspec",
@@ -36,11 +36,11 @@ object Dependencies {
                                        "org.specs2"              %% "specs2-core",
                                        "org.specs2"              %% "specs2-matcher-extra"
                                        ).map(_ % specs2Version)
-  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.2.9"
-  lazy val metricsServletsJavax     =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.26"
-  lazy val metricsServletJavax      =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.26"
-  lazy val metricsServletsJakarta   =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlets"   % "4.2.26"
-  lazy val metricsServletJakarta    =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlet"    % "4.2.26"
+  lazy val metricsScala             =  "nl.grons"                %% "metrics4-scala"             % "4.3.2"
+  lazy val metricsServletsJavax     =  "io.dropwizard.metrics"   %  "metrics-servlets"           % "4.2.27"
+  lazy val metricsServletJavax      =  "io.dropwizard.metrics"   %  "metrics-servlet"            % "4.2.27"
+  lazy val metricsServletsJakarta   =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlets"   % "4.2.27"
+  lazy val metricsServletJakarta    =  "io.dropwizard.metrics"   %  "metrics-jakarta-servlet"    % "4.2.27"
   lazy val googleGuava              =  "com.google.guava"        %  "guava"                      % "33.3.0-jre"
   lazy val twirlApi                 =  "org.playframework.twirl"       %% "twirl-api"                  % "2.0.7"
 
