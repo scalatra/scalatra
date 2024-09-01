@@ -101,7 +101,7 @@ trait XsrfTokenSupport { this: ScalatraBase =>
     request.getSession.getAttribute(xsrfKey).asInstanceOf[String]
 
   def xsrfGuard(only: RouteTransformer*): Unit = {
-    before((only.toSeq ++ Seq[RouteTransformer](isForged)): _*) { handleForgery() }
+    before(((only.toSeq ++ Seq[RouteTransformer](isForged))) *) { handleForgery() }
   }
 
   before() { prepareXsrfToken() }

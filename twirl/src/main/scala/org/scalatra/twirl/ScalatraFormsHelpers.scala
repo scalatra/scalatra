@@ -14,21 +14,21 @@ trait ScalatraFormsHelpers {
    * Render a text field.
    */
   def text(name: String, attributes: (String, String)*)(implicit request: HttpServletRequest): Html = {
-    Html(s"""<input type="text" name="${escape(name)}" value="${escape(param(name))}" ${attrs(attributes: _*)}>""")
+    Html(s"""<input type="text" name="${escape(name)}" value="${escape(param(name))}" ${attrs(attributes *)}>""")
   }
 
   /**
    * Render a password field.
    */
   def password(name: String, attributes: (String, String)*)(implicit request: HttpServletRequest): Html = {
-    Html(s"""<input type="password" name="${escape(name)}" ${attrs(attributes: _*)}>""")
+    Html(s"""<input type="password" name="${escape(name)}" ${attrs(attributes *)}>""")
   }
 
   /**
    * Render a textarea.
    */
   def textarea(name: String, attributes: (String, String)*)(implicit request: HttpServletRequest): Html = {
-    Html(s"""<textarea name="${escape(name)}" ${attrs(attributes: _*)}>${escape(param(name))}</textarea>""")
+    Html(s"""<textarea name="${escape(name)}" ${attrs(attributes *)}>${escape(param(name))}</textarea>""")
   }
 
   /**
@@ -36,7 +36,7 @@ trait ScalatraFormsHelpers {
    */
   def checkbox(name: String, value: String, attributes: (String, String)*)(implicit request: HttpServletRequest): Html = {
     val checked = if (params(name).contains(value)) "checked" else ""
-    Html(s"""<input type="checkbox" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes: _*)}>""")
+    Html(s"""<input type="checkbox" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes *)}>""")
   }
 
   /**
@@ -44,7 +44,7 @@ trait ScalatraFormsHelpers {
    */
   def radio(name: String, value: String, attributes: (String, String)*)(implicit request: HttpServletRequest): Html = {
     val checked = if (param(name) == value) "checked" else ""
-    Html(s"""<input type="radio" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes: _*)}>""")
+    Html(s"""<input type="radio" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes *)}>""")
   }
 
   /**

@@ -30,7 +30,7 @@ abstract class SingleValueType[T](constraints: Constraint*) extends ValueType[T]
     validate(name, getSingleParam(params, name).orNull, params, messages)
 
   def validate(name: String, value: String, params: Map[String, Seq[String]], messages: Messages): Seq[(String, String)] =
-    validaterec(name, value, params, Seq(constraints: _*), messages)
+    validaterec(name, value, params, Seq(constraints *), messages)
 
   @scala.annotation.tailrec
   private def validaterec(name: String, value: String, params: Map[String, Seq[String]],

@@ -160,7 +160,7 @@ object SwaggerSupportSyntax {
     def fromForm: this.type = paramType(ParamType.Form)
 
     def allowableValues[V](values: V*): this.type = {
-      _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values: _*)
+      _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values *)
       this
     }
     def allowableValues[V](values: List[V]): this.type = {

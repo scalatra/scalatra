@@ -13,21 +13,21 @@ object views {
    * Render a text field.
    */
   def text(name: String, attributes: (String, String)*)(implicit request: HttpServletRequest): String = {
-    s"""<input type="text" name="${escape(name)}" value="${escape(param(name))}" ${attrs(attributes: _*)}>"""
+    s"""<input type="text" name="${escape(name)}" value="${escape(param(name))}" ${attrs(attributes *)}>"""
   }
 
   /**
    * Render a password field.
    */
   def password(name: String, attributes: (String, String)*)(implicit request: HttpServletRequest): String = {
-    s"""<input type="password" name="${escape(name)}" ${attrs(attributes: _*)}>"""
+    s"""<input type="password" name="${escape(name)}" ${attrs(attributes *)}>"""
   }
 
   /**
    * Render a textarea.
    */
   def textarea(name: String, attributes: (String, String)*)(implicit request: HttpServletRequest): String = {
-    s"""<textarea name="${escape(name)}" ${attrs(attributes: _*)}>${escape(param(name))}</textarea>"""
+    s"""<textarea name="${escape(name)}" ${attrs(attributes *)}>${escape(param(name))}</textarea>"""
   }
 
   /**
@@ -35,7 +35,7 @@ object views {
    */
   def checkbox(name: String, value: String, attributes: (String, String)*)(implicit request: HttpServletRequest): String = {
     val checked = if (params(name).contains(value)) "checked" else ""
-    s"""<input type="checkbox" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes: _*)}>"""
+    s"""<input type="checkbox" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes *)}>"""
   }
 
   /**
@@ -43,7 +43,7 @@ object views {
    */
   def radio(name: String, value: String, attributes: (String, String)*)(implicit request: HttpServletRequest): String = {
     val checked = if (param(name) == value) "checked" else ""
-    s"""<input type="radio" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes: _*)}>"""
+    s"""<input type="radio" name="${escape(name)}" value="${escape(value)}" $checked ${attrs(attributes *)}>"""
   }
 
   /**

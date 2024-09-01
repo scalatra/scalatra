@@ -110,7 +110,7 @@ class Scentry[UserType <: AnyRef](
   }
 
   def authenticate(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] = {
-    val r = runAuthentication(names: _*) map {
+    val r = runAuthentication(names *) map {
       case (stratName, usr) =>
         runCallbacks() { _.afterAuthenticate(stratName, usr) }
         user_=(usr)

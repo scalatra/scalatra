@@ -15,14 +15,14 @@ package object forms {
   /**
    * ValueType for the String property.
    */
-  def text(constraints: Constraint*): SingleValueType[String] = new SingleValueType[String](constraints: _*) {
+  def text(constraints: Constraint*): SingleValueType[String] = new SingleValueType[String](constraints *) {
     def convert(value: String, messages: Messages): String = value
   }
 
   /**
    * ValueType for the Boolean property.
    */
-  def boolean(constraints: Constraint*): SingleValueType[Boolean] = new SingleValueType[Boolean](constraints: _*) {
+  def boolean(constraints: Constraint*): SingleValueType[Boolean] = new SingleValueType[Boolean](constraints *) {
     def convert(value: String, messages: Messages): Boolean = value match {
       case null | "" | "false" | "FALSE" => false
       case _ => true
@@ -32,7 +32,7 @@ package object forms {
   /**
    * ValueType for the Int property.
    */
-  def number(constraints: Constraint*): SingleValueType[Int] = new SingleValueType[Int](constraints: _*) {
+  def number(constraints: Constraint*): SingleValueType[Int] = new SingleValueType[Int](constraints *) {
 
     def convert(value: String, messages: Messages): Int = value match {
       case null | "" => 0
@@ -55,7 +55,7 @@ package object forms {
   /**
    * ValueType for the Double property.
    */
-  def double(constraints: Constraint*): SingleValueType[Double] = new SingleValueType[Double](constraints: _*) {
+  def double(constraints: Constraint*): SingleValueType[Double] = new SingleValueType[Double](constraints *) {
 
     def convert(value: String, messages: Messages): Double = value match {
       case null | "" => 0d
@@ -78,7 +78,7 @@ package object forms {
   /**
    * ValueType for the Long property.
    */
-  def long(constraints: Constraint*): SingleValueType[Long] = new SingleValueType[Long](constraints: _*) {
+  def long(constraints: Constraint*): SingleValueType[Long] = new SingleValueType[Long](constraints *) {
 
     def convert(value: String, messages: Messages): Long = value match {
       case null | "" => 0L
@@ -102,7 +102,7 @@ package object forms {
    * ValueType for the java.util.Date property.
    */
   def date(pattern: String, constraints: Constraint*): SingleValueType[java.util.Date] =
-    new SingleValueType[java.util.Date]((datePattern(pattern) +: constraints): _*) {
+    new SingleValueType[java.util.Date](((datePattern(pattern) +: constraints)) *) {
       def convert(value: String, messages: Messages): java.util.Date = value match {
         case null | "" => null
         case value => new java.text.SimpleDateFormat(pattern).parse(value)

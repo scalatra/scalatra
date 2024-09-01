@@ -14,7 +14,7 @@ private[swagger] object ManifestFactory {
       if (pt.getOwnerType == null) {
         manifestOf(clazz, typeArgs.toIndexedSeq)
       } else {
-        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs.toIndexedSeq: _*)
+        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs.toIndexedSeq *)
       }
 
     case at: GenericArrayType =>
@@ -46,7 +46,7 @@ private[swagger] object ManifestFactory {
         else
           erasure
 
-      Manifest.classType(normalizedErasure, typeArgs.head, typeArgs.tail: _*)
+      Manifest.classType(normalizedErasure, typeArgs.head, typeArgs.tail *)
     }
   }
 

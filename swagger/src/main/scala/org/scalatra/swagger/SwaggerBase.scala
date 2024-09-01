@@ -171,7 +171,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?]
                             generateAllowableValues(property.allowableValues, property.minimumValue, property.maximumValue) ~
                             ("default" -> toTypedAst(property.default, property.`type`)) ~~
                             generateDataType(property.`type`))
-                      }: _*)) ~!
+                      } *)) ~!
                       ("required" -> model.getVisibleProperties.collect {
                         case (name, property) if property.required => name
                       }))

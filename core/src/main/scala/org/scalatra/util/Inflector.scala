@@ -123,7 +123,7 @@ object Inflector extends Inflector {
     def ordinalize = Inflector.ordinalize(word)
     def pluralize = Inflector.pluralize(word)
     def singularize = Inflector.singularize(word)
-    def fill(values: (String, String)*) = Inflector.interpolate(word, Map(values: _*))
+    def fill(values: (String, String)*) = Inflector.interpolate(word, Map(values *))
   }
 
   class InflectorInt(private val number: Int) extends AnyVal {
