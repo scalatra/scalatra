@@ -10,8 +10,8 @@ import scala.util.matching.Regex.Match
 
 trait UrlCodingUtils {
 
-  private val toSkip = BitSet((('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') ++ "!$&'()*+,;=:/?@-._~".toSet).map(_.toInt): _*)
-  private val toSkipEncoding = BitSet((('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') ++ ":@-._~".toSet).map(_.toInt): _*)
+  private val toSkip = BitSet((('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') ++ "!$&'()*+,;=:/?@-._~".toSet).map(_.toInt) *)
+  private val toSkipEncoding = BitSet((('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') ++ ":@-._~".toSet).map(_.toInt) *)
   private val toSkipQueryEncoding = toSkipEncoding ++ BitSet('/', '?')
   private val space = ' '.toInt
   private val PctEncoded = """%([0-9a-fA-F][0-9a-fA-F])""".r
