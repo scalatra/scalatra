@@ -21,7 +21,7 @@ jobs:
         distribution: "temurin"
         java-version: ${{ matrix.java }}
     - name: Setup SBT
-        uses: sbt/setup-sbt@v1
+      uses: sbt/setup-sbt@v1
     - name: Run tests
       run: sbt -v mimaReportBinaryIssues test unidoc
     - run: git diff --exit-code
