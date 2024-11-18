@@ -81,7 +81,10 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
     case exc: ServletException =>
       val rootCause = exc.getRootCause
       rootCause.getMessage == "400: bad multipart" && (rootCause.getCause match {
-        case exc: IllegalStateException => exc.getMessage.matches("^max file size exceeded: \\d+$")
+        case exc2: java.util.concurrent.CompletionException => exc2.getCause match {
+          case exc3: IllegalStateException => exc3.getMessage.matches("^max file size exceeded: \\d+$")
+          case _ => false
+        }
         case _ => false
       })
     case _ => false
