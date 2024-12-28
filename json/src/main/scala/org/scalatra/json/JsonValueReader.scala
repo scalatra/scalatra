@@ -17,11 +17,13 @@ class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
   import JsonValueReader._
 
   def read(key: String): Either[String, Option[JValue]] =
-    allCatch.withApply(t => Left(t.getMessage)) { Right(readPath(key)) }
+    allCatch.withApply(t => Left(t.getMessage))(Right(readPath(key)))
 
   protected def readPath(path: String, subj: JValue = data): Option[JValue] = {
     val partIndex = path.indexOf(separatorBeginning)
-    val (part, rest) = if (path.indexOf(separatorBeginning) > -1) path.splitAt(partIndex) else (path, "")
+    val (part, rest) =
+      if (path.indexOf(separatorBeginning) > -1) path.splitAt(partIndex)
+      else (path, "")
     val realRest = if (rest.nonEmpty) {
       if (separatorEnd.nonBlank) {
         if (rest.size > 1) rest.substring(2) else rest.substring(1)
@@ -38,13 +40,13 @@ class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
     val jv = subj \ path
     jv match {
       case JNothing => None
-      case o => Some(o)
+      case o        => Some(o)
     }
   }
 }
 trait JsonValueReaderProperty[T] { self: JsonMethods[T] =>
 
   implicit protected def jsonFormats: Formats
-  protected implicit def jsonValueReader(d: JValue): JsonValueReader = new JsonValueReader(d)
+  protected implicit def jsonValueReader(d: JValue): JsonValueReader =
+    new JsonValueReader(d)
 }
-

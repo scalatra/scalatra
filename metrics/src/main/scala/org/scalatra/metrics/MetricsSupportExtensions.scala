@@ -12,17 +12,25 @@ import org.scalatra.metrics.MetricsCompat.servlets._
 import org.scalatra.servlet.ServletApiImplicits
 
 object MetricsSupportExtensions extends ServletApiImplicits {
-  implicit class MetricsSupportExtension(context: ServletContext)(implicit healthCheckRegistry: HealthCheckRegistry, metricRegistry: MetricRegistry) {
+  implicit class MetricsSupportExtension(context: ServletContext)(implicit
+      healthCheckRegistry: HealthCheckRegistry,
+      metricRegistry: MetricRegistry
+  ) {
 
-    def mountMetricsAdminServlet(path: String) = context.mount(classOf[AdminServlet], path)
+    def mountMetricsAdminServlet(path: String) =
+      context.mount(classOf[AdminServlet], path)
 
-    def mountMetricsServlet(path: String) = context.mount(classOf[MetricsServlet], path)
+    def mountMetricsServlet(path: String) =
+      context.mount(classOf[MetricsServlet], path)
 
-    def mountThreadDumpServlet(path: String) = context.mount(classOf[ThreadDumpServlet], path)
+    def mountThreadDumpServlet(path: String) =
+      context.mount(classOf[ThreadDumpServlet], path)
 
-    def mountHealthCheckServlet(path: String) = context.mount(classOf[HealthCheckServlet], path)
+    def mountHealthCheckServlet(path: String) =
+      context.mount(classOf[HealthCheckServlet], path)
 
-    def installInstrumentedFilter(path: String) = context.mount(classOf[InstrumentedFilter], path)
+    def installInstrumentedFilter(path: String) =
+      context.mount(classOf[InstrumentedFilter], path)
 
     if (context.getAttribute(HealthCheckServletRegistryName) == null) {
       context.setAttribute(HealthCheckServletRegistryName, healthCheckRegistry)

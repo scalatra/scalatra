@@ -5,20 +5,24 @@ import org.scalatra.test.scalatest._
 class UrlSupportTest extends ScalatraFunSuite {
   override def contextPath = "/context"
 
-  addServlet(new ScalatraServlet {
-    get("/") {
-      if (params.contains("session")) session // trigger a jsessionid
-      this.url(params("url"), params - "url", absolutize = false)
-    }
+  addServlet(
+    new ScalatraServlet {
+      get("/") {
+        if (params.contains("session")) session // trigger a jsessionid
+        this.url(params("url"), params - "url", absolutize = false)
+      }
 
-    get("/option") {
-      this.url(params("url"), Seq("id" -> params.get("id")), absolutize = false)
-    }
+      get("/option") {
+        this
+          .url(params("url"), Seq("id" -> params.get("id")), absolutize = false)
+      }
 
-    get("/strip-context") {
-      this.url(params("url")) //, includeContextPath = false)
-    }
-  }, "/*")
+      get("/strip-context") {
+        this.url(params("url")) // , includeContextPath = false)
+      }
+    },
+    "/*"
+  )
 
   def url(url: String, params: Map[String, String] = Map.empty) =
     get("/context/", params + ("url" -> url)) { response.body }
@@ -28,7 +32,9 @@ class UrlSupportTest extends ScalatraFunSuite {
   }
 
   test("a should expand an option") {
-    url("page-relative", Map("id" -> "the-id")) should equal("page-relative?id=the-id")
+    url("page-relative", Map("id" -> "the-id")) should equal(
+      "page-relative?id=the-id"
+    )
   }
 
   test("a context-relative URL should have the context path prepended") {
@@ -60,7 +66,9 @@ class UrlSupportTest extends ScalatraFunSuite {
   }
 
   test("params should url encode both keys and values in UTF-8") {
-    url("de-to-ru", Map("fünf" -> "пять")) should equal("de-to-ru?f%C3%BCnf=%D0%BF%D1%8F%D1%82%D1%8C")
+    url("de-to-ru", Map("fünf" -> "пять")) should equal(
+      "de-to-ru?f%C3%BCnf=%D0%BF%D1%8F%D1%82%D1%8C"
+    )
   }
 
   test("encodes URL through response") {

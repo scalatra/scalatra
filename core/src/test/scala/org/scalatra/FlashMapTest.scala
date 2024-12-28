@@ -1,6 +1,6 @@
 package org.scalatra
 
-import java.io.{ ByteArrayOutputStream, ObjectOutputStream }
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner

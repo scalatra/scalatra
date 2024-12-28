@@ -17,25 +17,27 @@ object JsonOutput {
 trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
   import org.scalatra.json.JsonOutput._
-  /**
-   * If a request is made with a parameter in jsonpCallbackParameterNames it will
-   * be assumed that it is a JSONP request and the json will be returned as the
-   * argument to a function with the name specified in the corresponding parameter.
-   *
-   * By default no parameterNames will be checked
-   */
+
+  /** If a request is made with a parameter in jsonpCallbackParameterNames it
+    * will be assumed that it is a JSONP request and the json will be returned
+    * as the argument to a function with the name specified in the corresponding
+    * parameter.
+    *
+    * By default no parameterNames will be checked
+    */
   def jsonpCallbackParameterNames: Iterable[String] = Nil
 
-  /**
-   * Whether or not to apply the jsonVulnerabilityGuard when rendering json.
-   * @see http://haacked.com/archive/2008/11/20/anatomy-of-a-subtle-json-vulnerability.aspx
-   */
+  /** Whether or not to apply the jsonVulnerabilityGuard when rendering json.
+    * @see
+    *   http://haacked.com/archive/2008/11/20/anatomy-of-a-subtle-json-vulnerability.aspx
+    */
   protected def jsonVulnerabilityGuard = false
 
-  /**
-   * Whether or not to apply the rosetta flash guard when rendering jsonp callbacks.
-   * @see http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
-   */
+  /** Whether or not to apply the rosetta flash guard when rendering jsonp
+    * callbacks.
+    * @see
+    *   http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
+    */
   protected def rosettaFlashGuard = true
 
   protected lazy val xmlRootNode = <resp></resp>
@@ -67,7 +69,9 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
           // Status must always be 200 on JSONP, since it's loaded in a <script> tag.
           status = 200
           if (rosettaFlashGuard) writer.write("/**/")
-          writer.write("%s(%s);".format(some, compact(render(transformResponseBody(jv)))))
+          writer.write(
+            "%s(%s);".format(some, compact(render(transformResponseBody(jv))))
+          )
         case _ =>
           contentType = formats("json")
           if (jsonVulnerabilityGuard) writer.write(VulnerabilityPrelude)
@@ -76,15 +80,15 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
       }
   }: RenderPipeline) orElse super.renderPipeline
 
-  protected def writeJsonAsXml(json: JValue, writer: Writer): Unit = {
+  protected def writeJsonAsXml(json: JValue, writer: Writer): Unit =
     if (json != JNothing)
       XML.write(
         response.writer,
         xmlRootNode.copy(child = toXml(json)),
         response.characterEncoding.get,
         xmlDecl = true,
-        doctype = null)
-  }
+        doctype = null
+      )
 
   protected def writeJson(json: JValue, writer: Writer): Unit
 }

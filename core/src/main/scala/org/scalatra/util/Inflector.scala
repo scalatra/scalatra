@@ -7,7 +7,10 @@ import scala.util.matching.Regex
 trait Inflector {
 
   def titleize(word: String): String =
-    """\b([a-z])""".r.replaceAllIn(humanize(underscore(word)), _.group(0).toUpperCase(ENGLISH))
+    """\b([a-z])""".r.replaceAllIn(
+      humanize(underscore(word)),
+      _.group(0).toUpperCase(ENGLISH)
+    )
   def humanize(word: String): String = capitalize(word.replace("_", " "))
   def camelize(word: String): String = {
     val w = pascalize(word)
@@ -15,22 +18,32 @@ trait Inflector {
   }
   def pascalize(word: String): String = {
     val lst = word.split("_").toList
-    (lst.headOption.map(s => s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1)).get ::
-      lst.tail.map(s => s.substring(0, 1).toUpperCase + s.substring(1))).mkString("")
+    (lst.headOption
+      .map(s => s.substring(0, 1).toUpperCase(ENGLISH) + s.substring(1))
+      .get ::
+      lst.tail.map(s => s.substring(0, 1).toUpperCase + s.substring(1)))
+      .mkString("")
   }
   def underscore(word: String): String = {
     val spacesPattern = "[-\\s]".r
     val firstPattern = "([A-Z]+)([A-Z][a-z])".r
     val secondPattern = "([a-z\\d])([A-Z])".r
     val replacementPattern = "$1_$2"
-    spacesPattern.replaceAllIn(
-      secondPattern.replaceAllIn(
-        firstPattern.replaceAllIn(
-          word, replacementPattern), replacementPattern), "_").toLowerCase
+    spacesPattern
+      .replaceAllIn(
+        secondPattern.replaceAllIn(
+          firstPattern.replaceAllIn(word, replacementPattern),
+          replacementPattern
+        ),
+        "_"
+      )
+      .toLowerCase
   }
 
   def capitalize(word: String): String =
-    word.substring(0, 1).toUpperCase(ENGLISH) + word.substring(1).toLowerCase(ENGLISH)
+    word.substring(0, 1).toUpperCase(ENGLISH) + word
+      .substring(1)
+      .toLowerCase(ENGLISH)
   def uncapitalize(word: String): String =
     word.substring(0, 1).toLowerCase(ENGLISH) + word.substring(1)
   def ordinalize(word: String): String = ordanize(word.toInt, word)
@@ -58,7 +71,7 @@ trait Inflector {
 
     private val regex = ("""(?i)%s""" format pattern).r
 
-    def apply(word: String) = {
+    def apply(word: String) =
       if (regex.findFirstIn(word).isEmpty) {
         None
       } else {
@@ -66,45 +79,55 @@ trait Inflector {
         if (m == null || m.trim.isEmpty) None
         else Some(m)
       }
-    }
   }
   private implicit def tuple2Rule(pair: (String, String)): Rule = Rule(pair)
 
   @tailrec
-  private def applyRules(collection: List[Rule], word: String): String = {
+  private def applyRules(collection: List[Rule], word: String): String =
     if (uncountables.contains(word.toLowerCase(ENGLISH))) word
     else {
       if (collection.isEmpty) return word
       val m = collection.head(word)
-      if (m.isDefined) m.get // using getOrElse doesn't allow for @tailrec optimization
+      if (m.isDefined)
+        m.get // using getOrElse doesn't allow for @tailrec optimization
       else applyRules(collection.tail, word)
     }
-  }
 
   private var plurals = List[Rule]()
 
   private var singulars = List[Rule]()
   private var uncountables = List[String]()
 
-  def addPlural(pattern: String, replacement: String): Unit = { plurals ::= pattern -> replacement }
-  def addSingular(pattern: String, replacement: String): Unit = { singulars ::= pattern -> replacement }
+  def addPlural(pattern: String, replacement: String): Unit =
+    plurals ::= pattern -> replacement
+  def addSingular(pattern: String, replacement: String): Unit =
+    singulars ::= pattern -> replacement
   def addIrregular(singular: String, plural: String): Unit = {
-    plurals ::= (("(" + singular(0) + ")" + singular.substring(1) + "$") -> ("$1" + plural.substring(1)))
-    singulars ::= (("(" + plural(0) + ")" + plural.substring(1) + "$") -> ("$1" + singular.substring(1)))
+    plurals ::= (("(" + singular(0) + ")" + singular.substring(
+      1
+    ) + "$") -> ("$1" + plural.substring(1)))
+    singulars ::= (("(" + plural(0) + ")" + plural.substring(
+      1
+    ) + "$") -> ("$1" + singular.substring(1)))
   }
   def addUncountable(word: String) = uncountables ::= word
 
   def interpolate(text: String, vars: Map[String, String]) =
-    """\#\{([^}]+)\}""".r.replaceAllIn(text, (_: Regex.Match) match {
-      case Regex.Groups(v) => vars.getOrElse(v, "")
-    })
+    """\#\{([^}]+)\}""".r.replaceAllIn(
+      text,
+      (_: Regex.Match) match {
+        case Regex.Groups(v) => vars.getOrElse(v, "")
+      }
+    )
 
 }
 
 trait InflectorImports {
 
-  implicit def string2InflectorString(word: String): Inflector.InflectorString = new Inflector.InflectorString(word)
-  implicit def int2InflectorInt(number: Int): Inflector.InflectorInt = new Inflector.InflectorInt(number)
+  implicit def string2InflectorString(word: String): Inflector.InflectorString =
+    new Inflector.InflectorString(word)
+  implicit def int2InflectorInt(number: Int): Inflector.InflectorInt =
+    new Inflector.InflectorInt(number)
 
 }
 
@@ -123,7 +146,8 @@ object Inflector extends Inflector {
     def ordinalize = Inflector.ordinalize(word)
     def pluralize = Inflector.pluralize(word)
     def singularize = Inflector.singularize(word)
-    def fill(values: (String, String)*) = Inflector.interpolate(word, Map(values *))
+    def fill(values: (String, String)*) =
+      Inflector.interpolate(word, Map(values*))
   }
 
   class InflectorInt(private val number: Int) extends AnyVal {
@@ -151,7 +175,10 @@ object Inflector extends Inflector {
   addSingular("s$", "")
   addSingular("(n)ews$", "$1ews")
   addSingular("([ti])a$", "$1um")
-  addSingular("((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$", "$1$2sis")
+  addSingular(
+    "((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$",
+    "$1$2sis"
+  )
   addSingular("(^analy)ses$", "$1sis")
   addSingular("([^f])ves$", "$1fe")
   addSingular("(hive)s$", "$1")
@@ -192,4 +219,3 @@ object Inflector extends Inflector {
   addUncountable("deer")
   addUncountable("aircraft")
 }
-

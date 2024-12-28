@@ -69,7 +69,8 @@ class ScalatraFilterTestExtensionMappedServlet extends ScalatraServlet {
   }
 
   // Non path-mapped servlets need this to work
-  override def requestPath(implicit request: HttpServletRequest) = request.getServletPath
+  override def requestPath(implicit request: HttpServletRequest) =
+    request.getServletPath
 }
 
 class ScalatraFilterTestDefaultServlet extends ScalatraServlet {
@@ -82,7 +83,8 @@ class ScalatraFilterTestDefaultServlet extends ScalatraServlet {
   }
 
   // Non path-mapped servlets need this to work
-  override def requestPath(implicit request: HttpServletRequest) = request.getServletPath
+  override def requestPath(implicit request: HttpServletRequest) =
+    request.getServletPath
 }
 
 class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
@@ -95,7 +97,8 @@ class ScalatraFilterTestExactMatchServlet extends ScalatraServlet {
   }
 
   // Non path-mapped servlets need this to work
-  override def requestPath(implicit request: HttpServletRequest) = request.getServletPath
+  override def requestPath(implicit request: HttpServletRequest) =
+    request.getServletPath
 }
 
 class FilterTestNotDecodePathFilter extends ScalatraFilter {
@@ -122,8 +125,14 @@ class ScalatraFilterTest extends ScalatraFunSuite {
   override def skipDefaultServlet = true
   addServlet(classOf[ScalatraFilterTestPathMappedServlet], "/path-mapped/*")
   addServlet(classOf[ScalatraFilterTestExtensionMappedServlet], "*.do")
-  addServlet(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/filtered")
-  addServlet(classOf[ScalatraFilterTestExactMatchServlet], "/exact-match/unfiltered")
+  addServlet(
+    classOf[ScalatraFilterTestExactMatchServlet],
+    "/exact-match/filtered"
+  )
+  addServlet(
+    classOf[ScalatraFilterTestExactMatchServlet],
+    "/exact-match/unfiltered"
+  )
   addServlet(classOf[ScalatraFilterTestDefaultServlet], "/")
 
   test("should filter matching request to path-mapped servlet") {
@@ -230,12 +239,16 @@ class ScalatraFilterTest extends ScalatraFunSuite {
       status should equal(200)
     }
 
-    get("/encoded-uri-2/%E4%B8%AD%E5%9B%BD%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
+    get(
+      "/encoded-uri-2/%E4%B8%AD%E5%9B%BD%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82"
+    ) {
       status should equal(200)
     }
 
     // mixing encoded with decoded characters
-    get("/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82") {
+    get(
+      "/encoded-uri-2/中国%E8%AF%9D%E4%B8%8D%E7%94%A8%E5%BD%81%E5%AD%97%E3%80%82"
+    ) {
       status should equal(200)
     }
   }
@@ -283,4 +296,3 @@ class ScalatraFilterWithoutServletMappingTest extends ScalatraFunSuite {
     }
   }
 }
-

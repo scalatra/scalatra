@@ -11,7 +11,8 @@ class ParamsExtensionSpec extends Specification {
 
   import org.scalatra.ScalatraParamsImplicits._
 
-  case class FakeParams(params: Map[String, String]) extends MultiMapHeadView[String, String] {
+  case class FakeParams(params: Map[String, String])
+      extends MultiMapHeadView[String, String] {
     protected def multiMap = params.map(e => (e._1, Seq(e._2)))
   }
 
@@ -50,13 +51,16 @@ class ParamsExtensionSpec extends Specification {
 
     "implicitly find TypeConverter(s) for a custom type" in {
 
-      implicit val bogusConverter: TypeConverter[String, Bogus] = (s: String) => Some(Bogus(s))
+      implicit val bogusConverter: TypeConverter[String, Bogus] =
+        (s: String) => Some(Bogus(s))
 
       val params: Params = FakeParams(Map("a" -> "buffybuffy"))
 
       params.getAs[Bogus]("a") must beSome
 
-      params.getAs[Bogus]("a").get aka "The bogus value" must_== Bogus("buffybuffy")
+      params.getAs[Bogus]("a").get aka "The bogus value" must_== Bogus(
+        "buffybuffy"
+      )
 
     }
 
@@ -64,7 +68,9 @@ class ParamsExtensionSpec extends Specification {
 
       val params: Params = FakeParams(Map("a" -> "buffybuffy"))
 
-      params.getAs[Bogus]("a")((s: String) => Some(Bogus(s.toUpperCase))) must beSome(Bogus("BUFFYBUFFY"))
+      params.getAs[Bogus]("a")((s: String) =>
+        Some(Bogus(s.toUpperCase))
+      ) must beSome(Bogus("BUFFYBUFFY"))
 
     }
   }
@@ -73,7 +79,8 @@ class ParamsExtensionSpec extends Specification {
 
     "add a getAs[T] method" in {
 
-      val multiParams: MultiParams = Map("CODES" -> Seq("1", "2"), "invalids" -> Seq("a", "b"))
+      val multiParams: MultiParams =
+        Map("CODES" -> Seq("1", "2"), "invalids" -> Seq("a", "b"))
 
       multiParams.getAs[Int]("CODES") must beSome[Seq[Int]]
       multiParams.getAs[Int]("CODES").get must containAllOf(Seq(1, 2)).inOrder
@@ -96,7 +103,8 @@ class ParamsExtensionSpec extends Specification {
 
     "add a getAs[Date] method" in {
 
-      val (format, datesAsText) = ("dd/MM/yyyy", Seq("20/12/2012", "10/02/2001"))
+      val (format, datesAsText) =
+        ("dd/MM/yyyy", Seq("20/12/2012", "10/02/2001"))
 
       val multiParams: MultiParams = Map("DATES" -> datesAsText)
 
@@ -105,8 +113,9 @@ class ParamsExtensionSpec extends Specification {
       }
 
       multiParams.getAs[Date]("DATES" -> format) must beSome[Seq[Date]]
-      multiParams.getAs[Date]("DATES" -> format).get must containAllOf(expectedDates).inOrder
+      multiParams.getAs[Date]("DATES" -> format).get must containAllOf(
+        expectedDates
+      ).inOrder
     }
   }
 }
-

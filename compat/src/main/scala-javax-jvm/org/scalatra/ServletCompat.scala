@@ -32,11 +32,14 @@ private[scalatra] object ServletCompat {
     type Cookie = javax.servlet.http.Cookie
     type HttpServlet = javax.servlet.http.HttpServlet
     type HttpServletRequest = javax.servlet.http.HttpServletRequest
-    type HttpServletRequestWrapper = javax.servlet.http.HttpServletRequestWrapper
+    type HttpServletRequestWrapper =
+      javax.servlet.http.HttpServletRequestWrapper
     type HttpServletResponse = javax.servlet.http.HttpServletResponse
-    type HttpServletResponseWrapper = javax.servlet.http.HttpServletResponseWrapper
+    type HttpServletResponseWrapper =
+      javax.servlet.http.HttpServletResponseWrapper
     type HttpSession = javax.servlet.http.HttpSession
-    type HttpSessionAttributeListener = javax.servlet.http.HttpSessionAttributeListener
+    type HttpSessionAttributeListener =
+      javax.servlet.http.HttpSessionAttributeListener
     type HttpSessionBindingEvent = javax.servlet.http.HttpSessionBindingEvent
     type Part = javax.servlet.http.Part
   }

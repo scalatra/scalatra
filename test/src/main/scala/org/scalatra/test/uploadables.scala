@@ -1,6 +1,6 @@
 package org.scalatra.test
 
-import java.io.{ ByteArrayOutputStream, File, FileInputStream }
+import java.io.{ByteArrayOutputStream, File, FileInputStream}
 
 import scala.annotation.tailrec
 
@@ -12,9 +12,9 @@ abstract class Uploadable {
 }
 
 case class FilePart(
-  file: File,
-  contentType: String = "application/octet-stream")
-  extends Uploadable {
+    file: File,
+    contentType: String = "application/octet-stream"
+) extends Uploadable {
 
   lazy val content = {
     val fin = new FileInputStream(file)
@@ -33,9 +33,8 @@ case class FilePart(
     try {
       copyStream()
       bos.toByteArray
-    } finally {
+    } finally
       fin.close()
-    }
   }
 
   def contentLength = file.length()
@@ -44,10 +43,10 @@ case class FilePart(
 }
 
 case class BytesPart(
-  fileName: String,
-  content: Array[Byte],
-  contentType: String = "application/octet-stream")
-  extends Uploadable {
+    fileName: String,
+    content: Array[Byte],
+    contentType: String = "application/octet-stream"
+) extends Uploadable {
 
   def contentLength = content.length.toLong
 }

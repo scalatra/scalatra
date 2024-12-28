@@ -5,7 +5,10 @@ import org.json4s._
 import native._
 import org.scalatra.test.specs2.MutableScalatraSpec
 
-trait JsonSupportServlet[T] extends ScalatraBase with JsonSupport[T] with JValueResult {
+trait JsonSupportServlet[T]
+    extends ScalatraBase
+    with JsonSupport[T]
+    with JValueResult {
 
   post("/json") {
     parsedBody match {
@@ -28,7 +31,14 @@ trait JsonRequestSpec extends MutableScalatraSpec {
 
     "parse the json body of a request" in {
       val rbody = """{"name": "hello world"}"""
-      post("/json", headers = Map("Accept" -> "application/json", "Content-Type" -> "application/json"), body = rbody) {
+      post(
+        "/json",
+        headers = Map(
+          "Accept" -> "application/json",
+          "Content-Type" -> "application/json"
+        ),
+        body = rbody
+      ) {
         status must_== 200
         body must_== "hello world"
       }
@@ -36,7 +46,14 @@ trait JsonRequestSpec extends MutableScalatraSpec {
 
     "parse the xml body of a request" in {
       val rbody = """<req><name>hello world</name></req>"""
-      post("/json", headers = Map("Accept" -> "application/xml", "Content-Type" -> "application/xml"), body = rbody) {
+      post(
+        "/json",
+        headers = Map(
+          "Accept" -> "application/xml",
+          "Content-Type" -> "application/xml"
+        ),
+        body = rbody
+      ) {
         status must_== 200
         body must_== "hello world"
       }
@@ -49,7 +66,14 @@ trait JsonRequestSpec extends MutableScalatraSpec {
 <!ENTITY pass SYSTEM "/etc/passwd">
 ]>
 <req><name>&pass;</name></req>"""
-      post("/json", headers = Map("Accept" -> "application/xml", "Content-Type" -> "application/xml"), body = rbody) {
+      post(
+        "/json",
+        headers = Map(
+          "Accept" -> "application/xml",
+          "Content-Type" -> "application/xml"
+        ),
+        body = rbody
+      ) {
         status must_== 200
         body must_== ""
       }
@@ -57,7 +81,14 @@ trait JsonRequestSpec extends MutableScalatraSpec {
 
     "parse number as double" in {
       val rbody = """{"number":3.14159265358979323846}"""
-      post("/decimal", headers = Map("Accept" -> "application/json", "Content-Type" -> "application/json"), body = rbody) {
+      post(
+        "/decimal",
+        headers = Map(
+          "Accept" -> "application/json",
+          "Content-Type" -> "application/json"
+        ),
+        body = rbody
+      ) {
         status must_== 200
         body must_== "3.141592653589793"
       }
@@ -65,7 +96,14 @@ trait JsonRequestSpec extends MutableScalatraSpec {
 
     "don't parse when content-type is 'application/x-www-form-urlencoded'" in {
       val rbody = """{"name": "hello world"}"""
-      post("/json", headers = Map("Accept" -> "application/json", "Content-Type" -> "application/x-www-form-urlencoded"), body = rbody) {
+      post(
+        "/json",
+        headers = Map(
+          "Accept" -> "application/json",
+          "Content-Type" -> "application/x-www-form-urlencoded"
+        ),
+        body = rbody
+      ) {
         status must_== 400
         body must_== "invalid json"
       }
@@ -78,7 +116,14 @@ trait BigDecimalJsonRequestSpec extends MutableScalatraSpec {
 
     "parse number as bigdecimal" in {
       val rbody = """{"number":3.14159265358979323846}"""
-      post("/decimal", headers = Map("Accept" -> "application/json", "Content-Type" -> "application/json"), body = rbody) {
+      post(
+        "/decimal",
+        headers = Map(
+          "Accept" -> "application/json",
+          "Content-Type" -> "application/json"
+        ),
+        body = rbody
+      ) {
         status must_== 200
         body must_== "3.14159265358979323846"
       }
@@ -89,16 +134,22 @@ trait BigDecimalJsonRequestSpec extends MutableScalatraSpec {
 
 // servlets
 class NativeJsonSupportServlet(val withBigDecimal: Boolean)
-  extends ScalatraServlet with JsonSupportServlet[Document] with NativeJsonSupport {
+    extends ScalatraServlet
+    with JsonSupportServlet[Document]
+    with NativeJsonSupport {
 
-  protected implicit val jsonFormats: Formats = if (withBigDecimal) DefaultFormats.withBigDecimal else DefaultFormats
+  protected implicit val jsonFormats: Formats =
+    if (withBigDecimal) DefaultFormats.withBigDecimal else DefaultFormats
 
 }
 
 class JacksonSupportServlet(val withBigDecimal: Boolean)
-  extends ScalatraServlet with JsonSupportServlet[JValue] with JacksonJsonSupport {
+    extends ScalatraServlet
+    with JsonSupportServlet[JValue]
+    with JacksonJsonSupport {
 
-  protected implicit val jsonFormats: Formats = if (withBigDecimal) DefaultFormats.withBigDecimal else DefaultFormats
+  protected implicit val jsonFormats: Formats =
+    if (withBigDecimal) DefaultFormats.withBigDecimal else DefaultFormats
 
 }
 
@@ -118,4 +169,3 @@ class JacksonBigDecimalRequestBodySpec extends BigDecimalJsonRequestSpec {
 class NativeBigDecimalJsonRequestBodySpec extends BigDecimalJsonRequestSpec {
   addServlet(new NativeJsonSupportServlet(true), "/*")
 }
-

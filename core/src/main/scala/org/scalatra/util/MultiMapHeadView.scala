@@ -2,11 +2,10 @@ package org.scalatra.util
 
 object MultiMapHeadView {
 
-  def empty[A, B]: MultiMapHeadView[A, B] = {
+  def empty[A, B]: MultiMapHeadView[A, B] =
     new MultiMapHeadView[A, B] {
       override protected val multiMap = Map.empty[A, Seq[B]]
     }
-  }
 
 }
 
@@ -16,7 +15,7 @@ trait MultiMapHeadView[A, B] {
 
   def apply(key: A): B = multiMap.get(key) match {
     case Some(v) => v.head
-    case None => throw new NoSuchElementException(s"Key ${key} not found")
+    case None    => throw new NoSuchElementException(s"Key ${key} not found")
   }
 
   def get(key: A): Option[B] = multiMap.get(key) flatMap { _.headOption }
@@ -25,10 +24,12 @@ trait MultiMapHeadView[A, B] {
 
   def size: Int = multiMap.size
 
-  def foreach[U](f: ((A, B)) => U): Unit = multiMap foreach { case (k, v) => f((k, v.head)) }
+  def foreach[U](f: ((A, B)) => U): Unit = multiMap foreach { case (k, v) =>
+    f((k, v.head))
+  }
 
-  def iterator: Iterator[(A, B)] = multiMap.iterator.flatMap {
-    case (k, v) => v.headOption.map { _v => (k, _v) }
+  def iterator: Iterator[(A, B)] = multiMap.iterator.flatMap { case (k, v) =>
+    v.headOption.map(_v => (k, _v))
   }
 
   def toMap: Map[A, B] = multiMap map { case (k, v) => (k -> v.head) }
@@ -39,13 +40,12 @@ trait MultiMapHeadView[A, B] {
 
   def isDefinedAt(key: A): Boolean = get(key) match {
     case Some(_) => true
-    case None => false
+    case None    => false
   }
 
   def contains(key: A): Boolean = get(key) match {
     case Some(_) => true
-    case None => false
+    case None    => false
   }
 
 }
-

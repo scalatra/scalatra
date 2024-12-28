@@ -33,7 +33,9 @@ class SessionTest extends ScalatraFunSuite {
     }
   }
 
-  test("GET /session with the session should return the data set in POST /session") {
+  test(
+    "GET /session with the session should return the data set in POST /session"
+  ) {
     val data = "some data going in as symbol"
     session {
       post("/session", "val" -> data) {
@@ -63,4 +65,3 @@ class SessionTest extends ScalatraFunSuite {
     }
   }
 }
-

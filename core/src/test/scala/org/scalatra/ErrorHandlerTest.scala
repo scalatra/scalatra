@@ -14,8 +14,8 @@ class ErrorHandlerTest extends ScalatraFunSuite {
       throw new Exception1
     }
     get("/uncaught") { throw new RuntimeException }
-    error {
-      case e: TestException => "base"
+    error { case e: TestException =>
+      "base"
     }
   }
 

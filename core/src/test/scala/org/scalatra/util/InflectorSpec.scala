@@ -140,8 +140,9 @@ class InflectorSpec extends Specification with DataTables {
       "sometitle" !! "Sometitle" |
       "some-title: The begining" !! "Some Title: The Begining" |
       "some_title:_the_begining" !! "Some Title: The Begining" |
-      "some title: The_begining" !! "Some Title: The Begining" |> { (src, tgt) =>
-        Inflector.titleize(src) must_== tgt
+      "some title: The_begining" !! "Some Title: The Begining" |> {
+        (src, tgt) =>
+          Inflector.titleize(src) must_== tgt
       }
   }
 
@@ -162,13 +163,18 @@ class InflectorSpec extends Specification with DataTables {
       "SomeTitle" !! "some_title" |
       "some title" !! "some_title" |
       "some title that will be underscored" !! "some_title_that_will_be_underscored" |
-      "SomeTitleThatWillBeUnderscored" !! "some_title_that_will_be_underscored" |> { (src, tgt) =>
-        Inflector.underscore(src) must_== tgt
+      "SomeTitleThatWillBeUnderscored" !! "some_title_that_will_be_underscored" |> {
+        (src, tgt) =>
+          Inflector.underscore(src) must_== tgt
       }
   }
 
-  def pluralization = pluralAndSingular { (left, right) => Inflector.pluralize(left) must_== right }
-  def singularization = pluralAndSingular { (left, right) => Inflector.singularize(right) must_== left }
+  def pluralization = pluralAndSingular { (left, right) =>
+    Inflector.pluralize(left) must_== right
+  }
+  def singularization = pluralAndSingular { (left, right) =>
+    Inflector.singularize(right) must_== left
+  }
 
   def pluralAndSingular(execFn: (String, String) => Result) = {
     "singular" || "plural" |

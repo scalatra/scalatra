@@ -1,22 +1,27 @@
 package org.scalatra.test
 
-import org.eclipse.jetty.server.{ Server, ServerConnector }
+import org.eclipse.jetty.server.{Server, ServerConnector}
 import org.scalatra.JettyCompat
-import org.scalatra.test.EmbeddedJettyContainerCompat.{ configureServer, configureServletContextHandler }
+import org.scalatra.test.EmbeddedJettyContainerCompat.{
+  configureServer,
+  configureServletContextHandler
+}
 
 trait EmbeddedJettyContainer extends JettyContainer {
-  /**
-   * Sets the port to listen on.  0 means listen on any available port.
-   */
+
+  /** Sets the port to listen on. 0 means listen on any available port.
+    */
   def port: Int = 0
 
-  /**
-   * The port of the currently running Jetty.  May differ from port if port is 0.
-   *
-   * @return Some port if Jetty is currently listening, or None if it is not.
-   */
+  /** The port of the currently running Jetty. May differ from port if port is
+    * 0.
+    *
+    * @return
+    *   Some port if Jetty is currently listening, or None if it is not.
+    */
   def localPort: Option[Int] = server.getConnectors collectFirst {
-    case x: ServerConnector => x.getLocalPort
+    case x: ServerConnector =>
+      x.getLocalPort
   }
 
   def contextPath = "/"
@@ -39,11 +44,10 @@ trait EmbeddedJettyContainer extends JettyContainer {
   def stop(): Unit = server.stop()
 
   def baseUrl: String =
-    server.getConnectors collectFirst {
-      case conn: ServerConnector =>
-        val host = Option(conn.getHost) getOrElse "localhost"
-        val port = conn.getLocalPort
-        require(port > 0, "The detected local port is < 1, that's not allowed")
-        "http://%s:%d".format(host, port)
+    server.getConnectors collectFirst { case conn: ServerConnector =>
+      val host = Option(conn.getHost) getOrElse "localhost"
+      val port = conn.getLocalPort
+      require(port > 0, "The detected local port is < 1, that's not allowed")
+      "http://%s:%d".format(host, port)
     } getOrElse sys.error("can't calculate base URL: no connector")
 }

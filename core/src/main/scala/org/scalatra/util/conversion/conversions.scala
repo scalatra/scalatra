@@ -2,24 +2,24 @@ package org.scalatra
 package util
 package conversion
 
-import java.text.{ DateFormat, SimpleDateFormat }
+import java.text.{DateFormat, SimpleDateFormat}
 import java.util.Date
 
 import scala.util.control.Exception.allCatch
 
 import scala.reflect.ClassTag
 
-/**
- * Support types and implicits for [[org.scalatra.util.conversion.TypeConverter]].
- */
+/** Support types and implicits for
+  * [[org.scalatra.util.conversion.TypeConverter]].
+  */
 trait TypeConverterSupport {
 
   implicit def safe[S, T](f: S => T): TypeConverter[S, T] =
     (s: S) => allCatch opt f(s)
 
-  /**
-   * Implicit convert a `(String) => Option[T]` function into a `TypeConverter[T]`
-   */
+  /** Implicit convert a `(String) => Option[T]` function into a
+    * `TypeConverter[T]`
+    */
   implicit def safeOption[S, T](f: S => Option[T]): TypeConverter[S, T] =
     (v1: S) => allCatch.withApply(_ => None)(f(v1))
 
@@ -29,7 +29,9 @@ object TypeConverterSupport extends TypeConverterSupport
 
 trait LowestPriorityImplicitConversions extends TypeConverterSupport {
   implicit def lowestPriorityAny2T[T: ClassTag]: TypeConverter[Any, T] = safe {
-    case a if implicitly[ClassTag[T]].runtimeClass.isAssignableFrom(a.getClass) => a.asInstanceOf[T]
+    case a
+        if implicitly[ClassTag[T]].runtimeClass.isAssignableFrom(a.getClass) =>
+      a.asInstanceOf[T]
   }
 }
 
@@ -37,68 +39,70 @@ trait LowPriorityImplicitConversions extends LowestPriorityImplicitConversions {
 
   implicit val anyToBoolean: TypeConverter[Any, Boolean] = safe {
     case b: Boolean => b
-    case "ON" | "TRUE" | "OK" | "1" | "CHECKED" | "YES" | "ENABLE" | "ENABLED" => true
+    case "ON" | "TRUE" | "OK" | "1" | "CHECKED" | "YES" | "ENABLE" |
+        "ENABLED" =>
+      true
     case n: Number => n != 0
-    case _ => false
+    case _         => false
   }
 
   implicit val anyToFloat: TypeConverter[Any, Float] = safe {
-    case i: Byte => i.toFloat
-    case i: Short => i.toFloat
-    case i: Int => i.toFloat
-    case i: Long => i.toFloat
+    case i: Byte   => i.toFloat
+    case i: Short  => i.toFloat
+    case i: Int    => i.toFloat
+    case i: Long   => i.toFloat
     case i: Double => i.toFloat
-    case i: Float => i
+    case i: Float  => i
     case i: String => i.toFloat
   }
 
   implicit val anyToDouble: TypeConverter[Any, Double] = safe {
-    case i: Byte => i.toDouble
-    case i: Short => i.toDouble
-    case i: Int => i.toDouble
-    case i: Long => i.toDouble
+    case i: Byte   => i.toDouble
+    case i: Short  => i.toDouble
+    case i: Int    => i.toDouble
+    case i: Long   => i.toDouble
     case i: Double => i
-    case i: Float => i.toDouble
+    case i: Float  => i.toDouble
     case i: String => i.toDouble
   }
 
   implicit val anyToByte: TypeConverter[Any, Byte] = safe {
-    case i: Byte => i
-    case i: Short => i.toByte
-    case i: Int => i.toByte
-    case i: Long => i.toByte
+    case i: Byte   => i
+    case i: Short  => i.toByte
+    case i: Int    => i.toByte
+    case i: Long   => i.toByte
     case i: Double => i.toByte
-    case i: Float => i.toByte
+    case i: Float  => i.toByte
     case i: String => i.toByte
   }
 
   implicit val anyToShort: TypeConverter[Any, Short] = safe {
-    case i: Byte => i.toShort
-    case i: Short => i
-    case i: Int => i.toShort
-    case i: Long => i.toShort
+    case i: Byte   => i.toShort
+    case i: Short  => i
+    case i: Int    => i.toShort
+    case i: Long   => i.toShort
     case i: Double => i.toShort
-    case i: Float => i.toShort
+    case i: Float  => i.toShort
     case i: String => i.toShort
   }
 
   implicit val anyToInt: TypeConverter[Any, Int] = safe {
-    case i: Byte => i.toInt
-    case i: Short => i.toInt
-    case i: Int => i
-    case i: Long => i.toInt
+    case i: Byte   => i.toInt
+    case i: Short  => i.toInt
+    case i: Int    => i
+    case i: Long   => i.toInt
     case i: Double => i.toInt
-    case i: Float => i.toInt
+    case i: Float  => i.toInt
     case i: String => i.toInt
   }
 
   implicit val anyToLong: TypeConverter[Any, Long] = safe {
-    case i: Byte => i.toLong
-    case i: Short => i.toLong
-    case i: Int => i.toLong
-    case i: Long => i
+    case i: Byte   => i.toLong
+    case i: Short  => i.toLong
+    case i: Int    => i.toLong
+    case i: Long   => i
     case i: Double => i.toLong
-    case i: Float => i.toLong
+    case i: Float  => i.toLong
     case i: String => i.toLong
   }
 
@@ -107,19 +111,23 @@ trait LowPriorityImplicitConversions extends LowestPriorityImplicitConversions {
 }
 
 trait BigDecimalImplicitConversions { self: DefaultImplicitConversions =>
-  implicit val stringToBigDecimal: TypeConverter[String, BigDecimal] = safe(BigDecimal(_))
-  implicit val stringToSeqBigDecimal: TypeConverter[String, Seq[BigDecimal]] = stringToSeq(stringToBigDecimal)
+  implicit val stringToBigDecimal: TypeConverter[String, BigDecimal] = safe(
+    BigDecimal(_)
+  )
+  implicit val stringToSeqBigDecimal: TypeConverter[String, Seq[BigDecimal]] =
+    stringToSeq(stringToBigDecimal)
 }
 
-/**
- * Implicit TypeConverter values for value types and some factory method for
- * dates and seqs.
- */
+/** Implicit TypeConverter values for value types and some factory method for
+  * dates and seqs.
+  */
 trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 
   implicit val stringToBoolean: TypeConverter[String, Boolean] = safe { s =>
     s.toUpperCase match {
-      case "ON" | "TRUE" | "OK" | "1" | "CHECKED" | "YES" | "ENABLE" | "ENABLED" => true
+      case "ON" | "TRUE" | "OK" | "1" | "CHECKED" | "YES" | "ENABLE" |
+          "ENABLED" =>
+        true
       case _ => false
     }
   }
@@ -138,20 +146,31 @@ trait DefaultImplicitConversions extends LowPriorityImplicitConversions {
 
   implicit val stringToSelf: TypeConverter[String, String] = safe(identity)
 
-  def stringToDate(format: => String): TypeConverter[String, Date] = stringToDateFormat(new SimpleDateFormat(format))
+  def stringToDate(format: => String): TypeConverter[String, Date] =
+    stringToDateFormat(new SimpleDateFormat(format))
 
-  def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] = safe(format.parse(_))
+  def stringToDateFormat(format: => DateFormat): TypeConverter[String, Date] =
+    safe(format.parse(_))
 
-  implicit def defaultStringToSeq[T: ClassTag](implicit elementConverter: TypeConverter[String, T]): TypeConverter[String, Seq[T]] =
+  implicit def defaultStringToSeq[T: ClassTag](implicit
+      elementConverter: TypeConverter[String, T]
+  ): TypeConverter[String, Seq[T]] =
     stringToSeq[T](elementConverter)
 
-  def stringToSeq[T: ClassTag](elementConverter: TypeConverter[String, T], separator: String = ","): TypeConverter[String, Seq[T]] =
+  def stringToSeq[T: ClassTag](
+      elementConverter: TypeConverter[String, T],
+      separator: String = ","
+  ): TypeConverter[String, Seq[T]] =
     safe(s => s.split(separator).toSeq.flatMap(e => elementConverter(e.trim)))
 
-  implicit def seqHead[T: ClassTag](implicit elementConverter: TypeConverter[String, T]): TypeConverter[Seq[String], T] =
+  implicit def seqHead[T: ClassTag](implicit
+      elementConverter: TypeConverter[String, T]
+  ): TypeConverter[Seq[String], T] =
     safeOption(_.headOption.flatMap(elementConverter(_)))
 
-  implicit def seqToSeq[T: ClassTag](implicit elementConverter: TypeConverter[String, T]): TypeConverter[Seq[String], Seq[T]] =
+  implicit def seqToSeq[T: ClassTag](implicit
+      elementConverter: TypeConverter[String, T]
+  ): TypeConverter[Seq[String], Seq[T]] =
     safe(_.flatMap(elementConverter(_)))
 
 }
@@ -160,15 +179,19 @@ object Conversions extends DefaultImplicitConversions {
 
   private type StringTypeConverter[T] = TypeConverter[String, T]
   implicit class ValConversion(private val source: String) extends AnyVal {
-    def as[T: StringTypeConverter]: Option[T] = implicitly[TypeConverter[String, T]].apply(source)
+    def as[T: StringTypeConverter]: Option[T] =
+      implicitly[TypeConverter[String, T]].apply(source)
   }
 
   implicit class DateConversion(private val source: String) extends AnyVal {
-    def asDate(format: String): Option[Date] = stringToDate(format).apply(source)
+    def asDate(format: String): Option[Date] =
+      stringToDate(format).apply(source)
   }
 
   implicit class SeqConversion(private val source: String) extends AnyVal {
-    def asSeq[T: ClassTag](separator: String)(implicit tc: TypeConverter[String, T]): Option[Seq[T]] =
+    def asSeq[T: ClassTag](separator: String)(implicit
+        tc: TypeConverter[String, T]
+    ): Option[Seq[T]] =
       stringToSeq[T](tc, separator).apply(source)
   }
 }

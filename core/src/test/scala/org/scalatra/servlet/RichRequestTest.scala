@@ -1,17 +1,19 @@
 package org.scalatra
 package servlet
 
-import java.io.{ ByteArrayInputStream, IOException }
+import java.io.{ByteArrayInputStream, IOException}
 import java.util.Locale
 
 import org.scalatra.ServletCompat.http.HttpServletRequest
-import org.scalatra.ServletCompat.{ ReadListener, ServletInputStream }
+import org.scalatra.ServletCompat.{ReadListener, ServletInputStream}
 import org.mockito.Mockito._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class RichRequestTest extends AnyFunSuite with Matchers {
-  implicit def requestWrapper(r: HttpServletRequest): RichRequest = RichRequest(r)
+  implicit def requestWrapper(r: HttpServletRequest): RichRequest = RichRequest(
+    r
+  )
 
   test("decodes body according to the character encoding") {
     val encoding = "ISO-8859-5"
@@ -22,7 +24,10 @@ class RichRequestTest extends AnyFunSuite with Matchers {
     request.body should equal(message)
   }
 
-  def createStubRequestWithContent(content: Array[Byte], encoding: String): HttpServletRequest = {
+  def createStubRequestWithContent(
+      content: Array[Byte],
+      encoding: String
+  ): HttpServletRequest = {
     val request = mock(classOf[HttpServletRequest])
     when(request.getInputStream).thenReturn(new FakeServletInputStream(content))
     when(request.getCharacterEncoding).thenReturn(encoding)
@@ -52,9 +57,12 @@ class RichRequestTest extends AnyFunSuite with Matchers {
     }
   }
 
-  private def createStubRequestWithServletInputStreamThrowsIOException(): HttpServletRequest = {
+  private def createStubRequestWithServletInputStreamThrowsIOException()
+      : HttpServletRequest = {
     val request = mock(classOf[HttpServletRequest])
-    when(request.getInputStream).thenReturn(new ServletInputStreamThrowsIOException)
+    when(request.getInputStream).thenReturn(
+      new ServletInputStreamThrowsIOException
+    )
 
     request
   }
@@ -86,7 +94,8 @@ class RichRequestTest extends AnyFunSuite with Matchers {
   }
 }
 
-private[scalatra] class FakeServletInputStream(data: Array[Byte]) extends ServletInputStream {
+private[scalatra] class FakeServletInputStream(data: Array[Byte])
+    extends ServletInputStream {
   private[this] val backend = new ByteArrayInputStream(data)
   def read = backend.read
 
@@ -97,7 +106,8 @@ private[scalatra] class FakeServletInputStream(data: Array[Byte]) extends Servle
   def isReady: Boolean = true
 }
 
-private[scalatra] class ServletInputStreamThrowsIOException() extends ServletInputStream {
+private[scalatra] class ServletInputStreamThrowsIOException()
+    extends ServletInputStream {
   def read: Int = throw new IOException("Something totally bad happened!")
 
   def setReadListener(readListener: ReadListener): Unit = {}

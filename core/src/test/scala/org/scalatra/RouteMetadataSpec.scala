@@ -38,9 +38,10 @@ object RouteMetadataSpec {
       renderMeta(one, Symbol(params("key")))
     }
 
-    val two: Route = get("/two/:key", meta(Symbol("foo"), "bar"), meta(Symbol("foo"), "baz")) {
-      renderMeta(two, Symbol(params("key")))
-    }
+    val two: Route =
+      get("/two/:key", meta(Symbol("foo"), "bar"), meta(Symbol("foo"), "baz")) {
+        renderMeta(two, Symbol(params("key")))
+      }
 
     def renderMeta(route: Route, key: Symbol) =
       route.metadata.getOrElse(key, "None")

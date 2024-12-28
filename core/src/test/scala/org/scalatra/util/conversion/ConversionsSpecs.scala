@@ -2,7 +2,7 @@ package org.scalatra
 package util
 package conversion
 
-import java.util.{ Calendar, Date }
+import java.util.{Calendar, Date}
 
 import org.specs2.mutable.Specification
 
@@ -54,7 +54,9 @@ class ConversionsSpecs extends Specification {
 
     object Impl extends DefaultImplicitConversions {
 
-      def testFor[T](source: String, expected: Option[T])(implicit t: TypeConverter[String, T]) = {
+      def testFor[T](source: String, expected: Option[T])(implicit
+          t: TypeConverter[String, T]
+      ) = {
         t(source) must_== expected
       }
     }
@@ -82,23 +84,30 @@ class ConversionsSpecs extends Specification {
 
       cal.setTime(converted.get)
 
-      cal.get(Calendar.MILLISECOND) aka "The extracted milliseconds from converted Date" must_== currentMs
+      cal.get(
+        Calendar.MILLISECOND
+      ) aka "The extracted milliseconds from converted Date" must_== currentMs
     }
 
     "provide DEF conversion for Seq" in {
 
       import Impl._
 
-      def testConversion[T: ClassTag](args: (String, Seq[T]))(implicit t: TypeConverter[String, T]) = {
+      def testConversion[T: ClassTag](args: (String, Seq[T]))(implicit
+          t: TypeConverter[String, T]
+      ) = {
         val (source, expected) = args
-        Impl.stringToSeq(t).apply(source).get must containAllOf(expected).inOrder
+        Impl.stringToSeq(t).apply(source).get must containAllOf(
+          expected
+        ).inOrder
       }
 
       testConversion("1,2,3" -> List(1, 2, 3))
       testConversion("a,b,c,,e" -> List("a", "b", "c", "", "e"))
 
       case class B(v: Int)
-      implicit val bConv: TypeConverter[String, B] = (s: String) => Some(B(s.toInt * 2))
+      implicit val bConv: TypeConverter[String, B] =
+        (s: String) => Some(B(s.toInt * 2))
 
       testConversion("1,2,3" -> List(B(2), B(4), B(6)))
     }
@@ -122,7 +131,8 @@ class ConversionsSpecs extends Specification {
 
       // A type and its type converter
       case class B(v: Int)
-      implicit val bConv: TypeConverter[String, B] = (s: String) => Some(B(s.toInt * 2))
+      implicit val bConv: TypeConverter[String, B] =
+        (s: String) => Some(B(s.toInt * 2))
 
       "10".as[B] should beSome(B(20))
     }

@@ -13,7 +13,9 @@ trait TypeExtractor[T] {
 
 object Extractors extends DefaultImplicitConversions {
 
-  sealed abstract class TypeExtractorImpl[T](implicit val converter: TypeConverter[String, T]) extends TypeExtractor[T]
+  sealed abstract class TypeExtractorImpl[T](implicit
+      val converter: TypeConverter[String, T]
+  ) extends TypeExtractor[T]
 
   sealed case class DateExtractor(format: String) extends TypeExtractor[Date] {
     val converter = Conversions.stringToDate(format)

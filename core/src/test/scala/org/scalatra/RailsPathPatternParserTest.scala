@@ -3,9 +3,9 @@ package org.scalatra
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-/**
- * Test cases adapted from  https://github.com/josh/rack-mount/blob/d44e02ec8a6318fdda8ea53a30aac654e228e07b/test/test_strexp.rb
- */
+/** Test cases adapted from
+  * https://github.com/josh/rack-mount/blob/d44e02ec8a6318fdda8ea53a30aac654e228e07b/test/test_strexp.rb
+  */
 class RailsPathPatternParserTest extends AnyFunSuite with Matchers {
 
   test("static string") {
@@ -69,7 +69,8 @@ class RailsPathPatternParserTest extends AnyFunSuite with Matchers {
   }
 
   test("multiple glob segments") {
-    val PathPattern(re, names) = RailsPathPatternParser("src/*files/dir/*morefiles/foo.txt")
+    val PathPattern(re, names) =
+      RailsPathPatternParser("src/*files/dir/*morefiles/foo.txt")
     re.toString should equal("""\Asrc/(.+)/dir/(.+)/foo\.txt\Z""")
     names should equal(List("files", "morefiles"))
   }

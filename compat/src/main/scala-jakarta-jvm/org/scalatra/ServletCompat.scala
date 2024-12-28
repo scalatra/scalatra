@@ -32,11 +32,14 @@ private[scalatra] object ServletCompat {
     type Cookie = jakarta.servlet.http.Cookie
     type HttpServlet = jakarta.servlet.http.HttpServlet
     type HttpServletRequest = jakarta.servlet.http.HttpServletRequest
-    type HttpServletRequestWrapper = jakarta.servlet.http.HttpServletRequestWrapper
+    type HttpServletRequestWrapper =
+      jakarta.servlet.http.HttpServletRequestWrapper
     type HttpServletResponse = jakarta.servlet.http.HttpServletResponse
-    type HttpServletResponseWrapper = jakarta.servlet.http.HttpServletResponseWrapper
+    type HttpServletResponseWrapper =
+      jakarta.servlet.http.HttpServletResponseWrapper
     type HttpSession = jakarta.servlet.http.HttpSession
-    type HttpSessionAttributeListener = jakarta.servlet.http.HttpSessionAttributeListener
+    type HttpSessionAttributeListener =
+      jakarta.servlet.http.HttpSessionAttributeListener
     type HttpSessionBindingEvent = jakarta.servlet.http.HttpSessionBindingEvent
     type Part = jakarta.servlet.http.Part
   }

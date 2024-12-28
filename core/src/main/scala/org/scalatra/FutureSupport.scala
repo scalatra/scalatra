@@ -1,19 +1,18 @@
 package org.scalatra
 
 import java.util.concurrent.atomic.AtomicBoolean
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
-import org.scalatra.ServletCompat.{ AsyncEvent, AsyncListener, ServletContext }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
+import org.scalatra.ServletCompat.{AsyncEvent, AsyncListener, ServletContext}
 
 import org.scalatra.servlet.AsyncSupport
 
 import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.{ Failure, Success }
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
-abstract class AsyncResult(
-  implicit
-  override val scalatraContext: ScalatraContext)
-  extends ScalatraContext {
+abstract class AsyncResult(implicit
+    override val scalatraContext: ScalatraContext
+) extends ScalatraContext {
 
   implicit val request: HttpServletRequest = scalatraContext.request
 
@@ -38,40 +37,42 @@ trait FutureSupport extends AsyncSupport {
     classOf[Future[?]].isAssignableFrom(result.getClass) ||
       classOf[AsyncResult].isAssignableFrom(result.getClass)
 
-  override protected def renderResponse(actionResult: Any): Unit = {
+  override protected def renderResponse(actionResult: Any): Unit =
     actionResult match {
       case r: AsyncResult => handleFuture(r.is, Some(r.timeout))
-      case f: Future[?] => handleFuture(f, None)
-      case a => super.renderResponse(a)
+      case f: Future[?]   => handleFuture(f, None)
+      case a              => super.renderResponse(a)
     }
-  }
 
-  private[this] def handleFuture(f: Future[?], timeout: Option[Duration]): Unit = {
+  private[this] def handleFuture(
+      f: Future[?],
+      timeout: Option[Duration]
+  ): Unit = {
     val gotResponseAlready = new AtomicBoolean(false)
     val context = request.startAsync(request, response)
     timeout.foreach { timeout =>
-      if (timeout.isFinite) context.setTimeout(timeout.toMillis) else context.setTimeout(-1)
+      if (timeout.isFinite) context.setTimeout(timeout.toMillis)
+      else context.setTimeout(-1)
     }
 
-    def renderFutureResult(f: Future[?]): Unit = {
+    def renderFutureResult(f: Future[?]): Unit =
       f onComplete {
         // Loop until we have a non-future result
-        case Success(f2: Future[?]) => renderFutureResult(f2)
+        case Success(f2: Future[?])  => renderFutureResult(f2)
         case Success(r: AsyncResult) => renderFutureResult(r.is)
-        case t => {
-
+        case t =>
           if (gotResponseAlready.compareAndSet(false, true)) {
             withinAsyncContext(context) {
-              try {
+              try
                 t map { result =>
                   renderResponse(result)
                 } recover {
                   case e: HaltException =>
                     renderHaltException(e)
                   case e =>
-                    try {
+                    try
                       renderResponse(errorHandler(e))
-                    } catch {
+                    catch {
                       case e: HaltException =>
                         renderHaltException(e)
                       case e: Throwable =>
@@ -80,37 +81,35 @@ trait FutureSupport extends AsyncSupport {
                         ScalatraBase.runRenderCallbacks(Failure(e))
                     }
                 }
-              } finally {
+              finally
                 context.complete()
-              }
             }
           }
-        }
       }
-    }
 
     context addListener new AsyncListener {
 
-      def onTimeout(event: AsyncEvent): Unit = {
+      def onTimeout(event: AsyncEvent): Unit =
         onAsyncEvent(event) {
           if (gotResponseAlready.compareAndSet(false, true)) {
-            renderHaltException(HaltException(Some(504), Map.empty, "Gateway timeout"))
+            renderHaltException(
+              HaltException(Some(504), Map.empty, "Gateway timeout")
+            )
             event.getAsyncContext.complete()
           }
         }
-      }
 
       def onComplete(event: AsyncEvent): Unit = {}
 
-      def onError(event: AsyncEvent): Unit = {
+      def onError(event: AsyncEvent): Unit =
         onAsyncEvent(event) {
           if (gotResponseAlready.compareAndSet(false, true)) {
             event.getThrowable match {
               case e: HaltException => renderHaltException(e)
               case e =>
-                try {
+                try
                   renderResponse(errorHandler(e))
-                } catch {
+                catch {
                   case e: Throwable =>
                     ScalatraBase.runCallbacks(Failure(e))
                     renderUncaughtException(e)
@@ -119,7 +118,6 @@ trait FutureSupport extends AsyncSupport {
             }
           }
         }
-      }
 
       def onStartAsync(event: AsyncEvent): Unit = {}
     }
@@ -128,4 +126,3 @@ trait FutureSupport extends AsyncSupport {
   }
 
 }
-

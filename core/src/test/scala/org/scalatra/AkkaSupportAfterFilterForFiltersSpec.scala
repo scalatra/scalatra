@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.scalatra.test.specs2.MutableScalatraSpec
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 // TODO rename file and class
 // https://github.com/scalatra/scalatra/pull/1410
@@ -12,7 +12,8 @@ class AkkaSupportAfterFilterFilter extends ScalatraFilter with FutureSupport {
   var actionTime: Long = _
   var afterTime: Long = _
   var afterCount: Long = _
-  protected override implicit val executor: ExecutionContext = scala.concurrent.ExecutionContext.global
+  protected override implicit val executor: ExecutionContext =
+    scala.concurrent.ExecutionContext.global
 
   asyncGet("/async") {
     Thread.sleep(2000)

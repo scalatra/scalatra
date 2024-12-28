@@ -11,8 +11,8 @@ class ActionResultServlet extends ScalatraServlet with ActionResultTestBase
 
 trait ActionResultTestBase {
   self: ScalatraBase =>
-  error {
-    case e => BadRequest("something went wrong")
+  error { case e =>
+    BadRequest("something went wrong")
   }
 
   get("/ok") {
@@ -50,8 +50,7 @@ trait ActionResultTestBase {
       else
         "Content-Type"
 
-    Ok("Hello, world!", headers = Map(
-      headerName -> "application/vnd.ms-excel"))
+    Ok("Hello, world!", headers = Map(headerName -> "application/vnd.ms-excel"))
   }
 
   get("/input-stream") {
@@ -113,7 +112,8 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
 
     "infer contentType for Array[Byte]" in {
       get("/bytes") {
-        response.getContentType() mustEqual "text/plain;charset=" + Codec.defaultCharsetCodec.charSet.displayName.toLowerCase
+        response
+          .getContentType() mustEqual "text/plain;charset=" + Codec.defaultCharsetCodec.charSet.displayName.toLowerCase
       }
     }
 
@@ -145,13 +145,17 @@ abstract class ActionResultsSpec extends MutableScalatraSpec {
 
     "set the Content-Type header if it exists in the headers map" in {
       get("/contentType") {
-        header("Content-Type") mustEqual "application/vnd.ms-excel;charset=utf-8"
+        header(
+          "Content-Type"
+        ) mustEqual "application/vnd.ms-excel;charset=utf-8"
       }
     }
 
     "set the Content-Type header if it's in lowercase in the headers map" in {
       get("/contentType?lcase=true") {
-        header("Content-Type") mustEqual "application/vnd.ms-excel;charset=utf-8"
+        header(
+          "Content-Type"
+        ) mustEqual "application/vnd.ms-excel;charset=utf-8"
       }
     }
   }

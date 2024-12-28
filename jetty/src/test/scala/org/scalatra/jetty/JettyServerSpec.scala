@@ -1,11 +1,11 @@
 package org.scalatra.jetty
 
-import java.net.{ InetSocketAddress, URI }
+import java.net.{InetSocketAddress, URI}
 import org.scalatra.ServletCompat.ServletContext
 import org.eclipse.jetty.server.ServerConnector
 import org.scalatest.BeforeAndAfterAll
 import org.scalatra.servlet.ScalatraListener
-import org.scalatra.{ LifeCycle, ScalatraServlet }
+import org.scalatra.{LifeCycle, ScalatraServlet}
 
 import scala.io.Source
 import org.scalatest.wordspec.AnyWordSpec
@@ -32,10 +32,15 @@ class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
     super.beforeAll()
     jetty = new JettyServer(
       InetSocketAddress.createUnresolved("localhost", 0),
-      Path.of(getClass.getClassLoader.getResource("").toURI))
-    jetty.context.setInitParameter(ScalatraListener.LifeCycleKey, classOf[JettyServerSpec.ScalatraBootstrap].getName)
+      Path.of(getClass.getClassLoader.getResource("").toURI)
+    )
+    jetty.context.setInitParameter(
+      ScalatraListener.LifeCycleKey,
+      classOf[JettyServerSpec.ScalatraBootstrap].getName
+    )
     jetty.start()
-    port = jetty.server.getConnectors.head.asInstanceOf[ServerConnector].getLocalPort
+    port =
+      jetty.server.getConnectors.head.asInstanceOf[ServerConnector].getLocalPort
   }
 
   override protected def afterAll(): Unit = {
@@ -45,7 +50,9 @@ class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
   "A JettyServer" should {
     "return hello" in {
-      val stream = Source.fromInputStream(new URI("http://localhost:" + port + "/").toURL.openStream())
+      val stream = Source.fromInputStream(
+        new URI("http://localhost:" + port + "/").toURL.openStream()
+      )
       try {
         assert(stream.getLines().mkString === "hello")
       } finally {

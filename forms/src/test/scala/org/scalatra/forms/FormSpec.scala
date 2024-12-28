@@ -6,17 +6,17 @@ import org.scalatest.funsuite.AnyFunSuite
 class FormSpec extends AnyFunSuite {
 
   case class UserInfo(
-    id: Long,
-    age: Int,
-    name: String,
-    email: String,
-    remark: Option[String],
-    options: Seq[String],
-    agreement: Boolean,
-    address: Address)
+      id: Long,
+      age: Int,
+      name: String,
+      email: String,
+      remark: Option[String],
+      options: Seq[String],
+      agreement: Boolean,
+      address: Address
+  )
 
-  case class Address(
-    country: String)
+  case class Address(country: String)
 
   val form = mapping(
     "id" -> long(required),
@@ -26,8 +26,10 @@ class FormSpec extends AnyFunSuite {
     "remark" -> optional(text()),
     "options" -> list(text()),
     "agreement" -> boolean(),
-    "address" -> mapping(
-      "country" -> label("Country", text(required)))(Address.apply))(UserInfo.apply)
+    "address" -> mapping("country" -> label("Country", text(required)))(
+      Address.apply
+    )
+  )(UserInfo.apply)
 
   val messages = Messages()
 
@@ -41,21 +43,25 @@ class FormSpec extends AnyFunSuite {
       "options[0]" -> Seq("Java"), // Indexed parameter
       "options[1]" -> Seq("Scala"), // Indexed parameter
       "agreement" -> Seq("true"), // true
-      "address.country" -> Seq("Japan"))
+      "address.country" -> Seq("Japan")
+    )
 
     val errors = form.validate("", params, messages)
     assert(errors.isEmpty)
 
     val result = form.convert("", params, messages)
-    assert(result == UserInfo(
-      id = 1,
-      age = 20,
-      name = "Scalatra",
-      email = "sample@scalatra.org",
-      remark = None,
-      options = Seq("Java", "Scala"),
-      agreement = true,
-      address = Address("Japan")))
+    assert(
+      result == UserInfo(
+        id = 1,
+        age = 20,
+        name = "Scalatra",
+        email = "sample@scalatra.org",
+        remark = None,
+        options = Seq("Java", "Scala"),
+        agreement = true,
+        address = Address("Japan")
+      )
+    )
   }
 
   test("Multi parameter for a list property") {
@@ -67,21 +73,25 @@ class FormSpec extends AnyFunSuite {
       "remark" -> Seq("Remark"), // Some
       "options" -> Seq("Java", "Scala"), // Multi parameter
       "agreement" -> Seq("false"), // false
-      "address.country" -> Seq("Japan"))
+      "address.country" -> Seq("Japan")
+    )
 
     val errors = form.validate("", params, messages)
     assert(errors.isEmpty)
 
     val result = form.convert("", params, messages)
-    assert(result == UserInfo(
-      id = 1,
-      age = 20,
-      name = "Scalatra",
-      email = "sample@scalatra.org",
-      remark = Some("Remark"),
-      options = Seq("Java", "Scala"),
-      agreement = false,
-      address = Address("Japan")))
+    assert(
+      result == UserInfo(
+        id = 1,
+        age = 20,
+        name = "Scalatra",
+        email = "sample@scalatra.org",
+        remark = Some("Remark"),
+        options = Seq("Java", "Scala"),
+        agreement = false,
+        address = Address("Japan")
+      )
+    )
   }
 
   test("Validation error") {
@@ -91,7 +101,8 @@ class FormSpec extends AnyFunSuite {
       "name" -> Seq("Scalatra User"),
       "email" -> Seq("test"),
       "remark" -> Seq(""),
-      "agreement" -> Seq(""))
+      "agreement" -> Seq("")
+    )
 
     val errors = form.validate("", params, messages).toMap
     assert(errors("id") == "id must be a number.")

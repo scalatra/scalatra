@@ -12,7 +12,14 @@ private[metrics] object MetricsCompat {
     type InstrumentedFilter = com.codahale.metrics.servlet.InstrumentedFilter
   }
 
-  val HealthCheckServletRegistryName: String = classOf[com.codahale.metrics.servlets.HealthCheckServlet].getName + ".registry"
-  val MetricsServletRegistryName: String = classOf[com.codahale.metrics.servlets.MetricsServlet].getName + ".registry"
-  val InstrumentedFilterRegistryName: String = classOf[com.codahale.metrics.servlet.InstrumentedFilter].getName + ".registry"
+  val HealthCheckServletRegistryName: String =
+    classOf[
+      com.codahale.metrics.servlets.HealthCheckServlet
+    ].getName + ".registry"
+  val MetricsServletRegistryName: String =
+    classOf[com.codahale.metrics.servlets.MetricsServlet].getName + ".registry"
+  val InstrumentedFilterRegistryName: String =
+    classOf[
+      com.codahale.metrics.servlet.InstrumentedFilter
+    ].getName + ".registry"
 }

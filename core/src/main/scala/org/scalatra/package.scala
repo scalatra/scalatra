@@ -2,7 +2,7 @@ package org
 
 import org.scalatra.servlet.FileUploadSupport
 import org.scalatra.util.MultiMapHeadView
-import java.lang.{ Integer => JInteger }
+import java.lang.{Integer => JInteger}
 
 package object scalatra {
 
@@ -35,31 +35,34 @@ package object scalatra {
   type CoreStackWithXsrf = CoreStack with XsrfTokenSupport
 
   type FullCoreStack = CoreStack with FileUploadSupport
-  type FileUploadStack = FutureSupport with FlashMapSupport with FileUploadSupport
+  type FileUploadStack = FutureSupport
+    with FlashMapSupport
+    with FileUploadSupport
 
-  /**
-   * Immediately halts processing of a request.  Can be called from either a
-   * before filter or a route.
-   *
-   * @param status the status to set on the response, or null to leave
-   *        the status unchanged.
-   * @param body a result to render through the render pipeline as the body
-   * @param headers headers to add to the response
-   */
+  /** Immediately halts processing of a request. Can be called from either a
+    * before filter or a route.
+    *
+    * @param status
+    *   the status to set on the response, or null to leave the status
+    *   unchanged.
+    * @param body
+    *   a result to render through the render pipeline as the body
+    * @param headers
+    *   headers to add to the response
+    */
   def halt[T](
-    status: JInteger = null,
-    body: T = (),
-    headers: Map[String, String] = Map.empty): Nothing = {
+      status: JInteger = null,
+      body: T = (),
+      headers: Map[String, String] = Map.empty
+  ): Nothing = {
     val statusOpt = if (status == null) None else Some(status.intValue)
     throw new HaltException(statusOpt, headers, body)
   }
 
-  def halt(result: ActionResult): Nothing = {
+  def halt(result: ActionResult): Nothing =
     halt(result.status, result.body, result.headers)
-  }
 
-  /**
-   * Immediately exits from the current route.
-   */
+  /** Immediately exits from the current route.
+    */
   def pass(): Nothing = throw new PassException
 }

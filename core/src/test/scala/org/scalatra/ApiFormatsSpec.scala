@@ -3,7 +3,9 @@ package org.scalatra
 import org.scalatra.test.specs2.MutableScalatraSpec
 
 class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
-  override protected implicit def string2RouteMatcher(path: String): RouteMatcher = RailsPathPatternParser(path)
+  override protected implicit def string2RouteMatcher(
+      path: String
+  ): RouteMatcher = RailsPathPatternParser(path)
 
   get("/hello(.:format)") {
     format
@@ -58,35 +60,59 @@ class ApiFormatsSpec extends MutableScalatraSpec {
       }
 
       "when there are multiple formats take the first match" in {
-        get("/hello", headers = Map("Accept" -> "application/json, application/xml, text/plain, */*")) {
+        get(
+          "/hello",
+          headers = Map(
+            "Accept" -> "application/json, application/xml, text/plain, */*"
+          )
+        ) {
           response.getContentType() must startWith("application/json")
           body must_== "json"
         }
       }
 
       "when there are multiple formats with priority take the first one with the highest weight" in {
-        get("/hello", headers = Map("Accept" -> "application/json; q=0.4, application/xml; q=0.8, text/plain, */*")) {
+        get(
+          "/hello",
+          headers = Map(
+            "Accept" -> "application/json; q=0.4, application/xml; q=0.8, text/plain, */*"
+          )
+        ) {
           response.getContentType() must startWith("text/plain")
           body must_== "txt"
         }
       }
 
       "when there is a content type which contains the default format, it should match" in {
-        get("/hello", headers = Map("Content-Type" -> "application/xml,application/xhtml+xml,text/html")) {
+        get(
+          "/hello",
+          headers = Map(
+            "Content-Type" -> "application/xml,application/xhtml+xml,text/html"
+          )
+        ) {
           response.getContentType() must startWith("text/html")
           body must startWith("html")
         }
       }
 
       "(#406) when there are multiple formats with malformed priority the parser should ignore the broken priority " in {
-        get("/hello", headers = Map("Accept" -> "application/json; q=, application/xml; q=, text/plain, */*")) {
+        get(
+          "/hello",
+          headers = Map(
+            "Accept" -> "application/json; q=, application/xml; q=, text/plain, */*"
+          )
+        ) {
           response.getContentType() must startWith("text/plain")
           body must_== "txt"
         }
       }
 
       "when the priory value is not a double the parser should ignore the broken priority" in {
-        get("/hello", headers = Map("Accept" -> "application/json; q=0.8 oops, text/plain, */*")) {
+        get(
+          "/hello",
+          headers =
+            Map("Accept" -> "application/json; q=0.8 oops, text/plain, */*")
+        ) {
           response.getContentType() must startWith("text/plain")
           body must_== "txt"
         }

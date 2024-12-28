@@ -10,7 +10,9 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   }
 
   get("/message") {
-    flash.get("message") foreach { x => response.setHeader("message", x.toString) }
+    flash.get("message") foreach { x =>
+      response.setHeader("message", x.toString)
+    }
   }
 
   post("/commit") {
@@ -23,12 +25,14 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   override def sweepUnusedFlashEntries(req: HttpServletRequest) = {
     req.getParameter("sweep") match {
       case null => false
-      case x => x.toBoolean
+      case x    => x.toBoolean
     }
   }
 }
 
-class FlashMapSupportSecondTestServlet extends ScalatraServlet with FlashMapSupport {
+class FlashMapSupportSecondTestServlet
+    extends ScalatraServlet
+    with FlashMapSupport {
   post("/redirect") {
     flash("message") = "redirected"
     redirect("/first/message")
@@ -37,13 +41,16 @@ class FlashMapSupportSecondTestServlet extends ScalatraServlet with FlashMapSupp
 
 class FlashMapSupportTestFilter extends ScalatraFilter with FlashMapSupport {
   get("/filter") {
-    flash.get("message") foreach { x => response.setHeader("message", x.toString) }
+    flash.get("message") foreach { x =>
+      response.setHeader("message", x.toString)
+    }
   }
 
-  override def sweepUnusedFlashEntries(req: HttpServletRequest) = req.getParameter("sweep") match {
-    case null => false
-    case x => x.toBoolean
-  }
+  override def sweepUnusedFlashEntries(req: HttpServletRequest) =
+    req.getParameter("sweep") match {
+      case null => false
+      case x    => x.toBoolean
+    }
 }
 
 class FlashMapSupportTest extends ScalatraFunSuite {
@@ -82,7 +89,9 @@ class FlashMapSupportTest extends ScalatraFunSuite {
     }
   }
 
-  test("messages should be available in outer filter when flash map supports are nested") {
+  test(
+    "messages should be available in outer filter when flash map supports are nested"
+  ) {
     session {
       post("/message") { () }
       get("/filter") {

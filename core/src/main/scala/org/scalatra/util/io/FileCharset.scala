@@ -14,17 +14,19 @@ object FileCharset {
 
   private val CheckByteLength = 8192
 
-  def apply(file: File): Charset = {
-    try {
+  def apply(file: File): Charset =
+    try
       getCharset(UniversalDetector.detectCharset(file))
-    } catch {
+    catch {
       case t: Throwable =>
-        logger.warn("Failed to detect charset for file: " + file.getPath + ".", t)
+        logger.warn(
+          "Failed to detect charset for file: " + file.getPath + ".",
+          t
+        )
         Codec.defaultCharsetCodec.charSet
     }
-  }
 
-  private[this] def getCharset(cs: String): Charset = {
+  private[this] def getCharset(cs: String): Charset =
     // US-ASCII is compatible with UTF-8, so if the result is US-ASCII, replace it with UTF-8.
     if (cs == "US-ASCII" || cs == null || cs.trim().isEmpty) {
 
@@ -34,7 +36,6 @@ object FileCharset {
     } else {
       Charset.forName(cs)
     }
-  }
 
   def apply(barr: Array[Byte]): Charset = {
     val detector = new UniversalDetector(null)

@@ -41,10 +41,11 @@ class MethodOverrideTest extends ScalatraFunSuite {
     }
   }
 
-  test("should not override method for methods other than POST with X-HTTP-METHOD header") {
+  test(
+    "should not override method for methods other than POST with X-HTTP-METHOD header"
+  ) {
     get("/foo", headers = Map(MethodOverride.HeaderName.toList(1) -> "put")) {
       body should equal("GET")
     }
   }
 }
-

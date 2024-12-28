@@ -12,7 +12,7 @@ class FilterTestServlet extends ScalatraServlet {
     beforeCount += 1
     params.get("before") match {
       case Some(x) => response.getWriter.write(x)
-      case None =>
+      case None    =>
     }
   }
 
@@ -156,4 +156,3 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
     }
   }
 }
-

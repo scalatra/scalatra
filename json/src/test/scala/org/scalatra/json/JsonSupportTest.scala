@@ -7,25 +7,29 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 class JsonSupportTest extends json.JsonSupportTestBase {
   addServlet(new JsonSupportTestServlet, "/*")
   addServlet(new JsonPTestServlet, "/p/*")
-  addServlet(new ScalatraServlet with NativeJsonSupport {
+  addServlet(
+    new ScalatraServlet with NativeJsonSupport {
 
-    implicit protected def jsonFormats: Formats = DefaultFormats
+      implicit protected def jsonFormats: Formats = DefaultFormats
 
-    override protected lazy val jsonVulnerabilityGuard: Boolean = true
-    override val jsonpCallbackParameterNames: Iterable[String] = Some("callback")
-    get("/json") {
-      import org.json4s.JsonDSL._
-      ("k1" -> "v1") ~
-        ("k2" -> "v2")
-    }
+      override protected lazy val jsonVulnerabilityGuard: Boolean = true
+      override val jsonpCallbackParameterNames: Iterable[String] =
+        Some("callback")
+      get("/json") {
+        import org.json4s.JsonDSL._
+        ("k1" -> "v1") ~
+          ("k2" -> "v2")
+      }
 
-    get("/jsonp") {
-      import org.json4s.JsonDSL._
-      ("k1" -> "v1") ~
-        ("k2" -> "v2")
-    }
+      get("/jsonp") {
+        import org.json4s.JsonDSL._
+        ("k1" -> "v1") ~
+          ("k2" -> "v2")
+      }
 
-  }, "/g/*")
+    },
+    "/g/*"
+  )
 
 }
 

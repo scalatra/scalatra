@@ -38,13 +38,23 @@ class ParamsTest extends ScalatraFunSuite {
   addServlet(classOf[ParamsTestServlet], "/*")
 
   test("supports multiple parameters") {
-    get("/multiParams/numbers", "numbers" -> "one", "numbers" -> "two", "numbers" -> "three") {
+    get(
+      "/multiParams/numbers",
+      "numbers" -> "one",
+      "numbers" -> "two",
+      "numbers" -> "three"
+    ) {
       body should equal("[one,two,three]")
     }
   }
 
   test("supports multiple parameters with ruby like syntax") {
-    get("/multiParams/numbers_ruby", "numbers_ruby[]" -> "one", "numbers_ruby[]" -> "two", "numbers_ruby[]" -> "three") {
+    get(
+      "/multiParams/numbers_ruby",
+      "numbers_ruby[]" -> "one",
+      "numbers_ruby[]" -> "two",
+      "numbers_ruby[]" -> "three"
+    ) {
       body should equal("[one,two,three]")
     }
   }
@@ -57,7 +67,12 @@ class ParamsTest extends ScalatraFunSuite {
   }
 
   test("params returns first value when multiple values present") {
-    get("/params/numbers", "numbers" -> "one", "numbers" -> "two", "numbers" -> "three") {
+    get(
+      "/params/numbers",
+      "numbers" -> "one",
+      "numbers" -> "two",
+      "numbers" -> "three"
+    ) {
       body should equal("one")
     }
   }

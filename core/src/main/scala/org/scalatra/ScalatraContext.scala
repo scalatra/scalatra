@@ -1,23 +1,23 @@
 package org.scalatra
 
 import org.scalatra.ServletCompat.ServletContext
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
-import org.scalatra.servlet.{ HttpServletRequestReadOnly, ServletApiImplicits }
+import org.scalatra.servlet.{HttpServletRequestReadOnly, ServletApiImplicits}
 
 object ScalatraContext {
 
-  private class StableValuesContext(
-    implicit
-    val request: HttpServletRequest,
-    val response: HttpServletResponse,
-    val servletContext: ServletContext) extends ScalatraContext
+  private class StableValuesContext(implicit
+      val request: HttpServletRequest,
+      val response: HttpServletResponse,
+      val servletContext: ServletContext
+  ) extends ScalatraContext
 }
 
 trait ScalatraContext
-  extends ServletApiImplicits
-  with SessionSupport
-  with CookieContext {
+    extends ServletApiImplicits
+    with SessionSupport
+    with CookieContext {
 
   import org.scalatra.ScalatraContext.StableValuesContext
 
@@ -27,46 +27,40 @@ trait ScalatraContext
 
   def servletContext: ServletContext
 
-  /**
-   * Gets the content type of the current response.
-   */
+  /** Gets the content type of the current response.
+    */
   def contentType: String = response.contentType.orNull
 
-  /**
-   * Gets the status code of the current response.
-   */
+  /** Gets the status code of the current response.
+    */
   def status: Int = response.status
 
-  /**
-   * Sets the content type of the current response.
-   */
-  def contentType_=(contentType: String): Unit = {
+  /** Sets the content type of the current response.
+    */
+  def contentType_=(contentType: String): Unit =
     response.contentType = Option(contentType)
-  }
 
-  /**
-   * Sets the status code of the current response.
-   */
-  def status_=(code: Int): Unit = { response.status = code }
+  /** Sets the status code of the current response.
+    */
+  def status_=(code: Int): Unit = response.status = code
 
-  /**
-   * Explicitly sets the request-scoped format.  This takes precedence over
-   * whatever was inferred from the request.
-   */
-  def format_=(formatValue: Symbol): Unit = {
+  /** Explicitly sets the request-scoped format. This takes precedence over
+    * whatever was inferred from the request.
+    */
+  def format_=(formatValue: Symbol): Unit =
     request(ApiFormats.FormatKey) = formatValue.name
-  }
 
-  /**
-   * Explicitly sets the request-scoped format.  This takes precedence over
-   * whatever was inferred from the request.
-   */
-  def format_=(formatValue: String): Unit = {
+  /** Explicitly sets the request-scoped format. This takes precedence over
+    * whatever was inferred from the request.
+    */
+  def format_=(formatValue: String): Unit =
     request(ApiFormats.FormatKey) = formatValue
-  }
 
-  protected[this] implicit def scalatraContext: ScalatraContext = {
-    new StableValuesContext()(HttpServletRequestReadOnly(request), response, servletContext)
-  }
+  protected[this] implicit def scalatraContext: ScalatraContext =
+    new StableValuesContext()(
+      HttpServletRequestReadOnly(request),
+      response,
+      servletContext
+    )
 
 }

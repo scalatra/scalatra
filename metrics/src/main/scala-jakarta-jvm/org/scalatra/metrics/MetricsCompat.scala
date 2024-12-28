@@ -12,7 +12,14 @@ private[metrics] object MetricsCompat {
     type InstrumentedFilter = io.dropwizard.metrics.servlet.InstrumentedFilter
   }
 
-  val HealthCheckServletRegistryName: String = classOf[io.dropwizard.metrics.servlets.HealthCheckServlet].getName + ".registry"
-  val MetricsServletRegistryName: String = classOf[io.dropwizard.metrics.servlets.MetricsServlet].getName + ".registry"
-  val InstrumentedFilterRegistryName: String = classOf[io.dropwizard.metrics.servlet.InstrumentedFilter].getName + ".registry"
+  val HealthCheckServletRegistryName: String =
+    classOf[
+      io.dropwizard.metrics.servlets.HealthCheckServlet
+    ].getName + ".registry"
+  val MetricsServletRegistryName: String =
+    classOf[io.dropwizard.metrics.servlets.MetricsServlet].getName + ".registry"
+  val InstrumentedFilterRegistryName: String =
+    classOf[
+      io.dropwizard.metrics.servlet.InstrumentedFilter
+    ].getName + ".registry"
 }

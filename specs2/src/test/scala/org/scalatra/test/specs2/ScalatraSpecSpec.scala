@@ -2,7 +2,11 @@ package org.scalatra
 package test
 package specs2
 
-import org.scalatra.ServletCompat.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{
+  HttpServlet,
+  HttpServletRequest,
+  HttpServletResponse
+}
 
 class ScalatraSpecSpec extends ScalatraSpec {
   def is =
@@ -13,11 +17,17 @@ get / should
 
   // scalatra-specs2 does not depend on Scalatra, so we'll create our own
   // simple servlet for a sanity check
-  addServlet(new HttpServlet {
-    override def doGet(req: HttpServletRequest, res: HttpServletResponse): Unit = {
-      res.getWriter.write("Hello, world.")
-    }
-  }, "/*")
+  addServlet(
+    new HttpServlet {
+      override def doGet(
+          req: HttpServletRequest,
+          res: HttpServletResponse
+      ): Unit = {
+        res.getWriter.write("Hello, world.")
+      }
+    },
+    "/*"
+  )
 
   def e1 = get("/") {
     body must_== "Hello, world."

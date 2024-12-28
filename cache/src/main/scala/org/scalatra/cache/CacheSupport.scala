@@ -1,6 +1,6 @@
 package org.scalatra.cache
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.ScalatraBase
 
@@ -11,18 +11,18 @@ trait CacheSupport { self: ScalatraBase =>
   implicit val keyStrategy: KeyStrategy = DefaultKeyStrategy
   implicit val headerStrategy: HeaderStrategy = DefaultHeaderStrategy
 
-  def cache[A](key: String, ttl: Option[Duration])(value: => A): A = {
+  def cache[A](key: String, ttl: Option[Duration])(value: => A): A =
     cacheBackend.get[A](key) match {
       case Some(v) => v
-      case None => cacheBackend.put(key, value, ttl)
+      case None    => cacheBackend.put(key, value, ttl)
     }
-  }
 
   def cached[A](ttl: Option[Duration])(result: => A)(implicit
-    keyStrategy: KeyStrategy,
-    headerStrategy: HeaderStrategy,
-    request: HttpServletRequest,
-    response: HttpServletResponse): A = {
+      keyStrategy: KeyStrategy,
+      headerStrategy: HeaderStrategy,
+      request: HttpServletRequest,
+      response: HttpServletResponse
+  ): A = {
 
     val key = keyStrategy.key
 

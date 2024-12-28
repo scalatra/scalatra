@@ -19,7 +19,10 @@ class ScalatraServletRequestPathSpec extends AnyWordSpec with Matchers {
 
     "be extracted properly from encoded url" in {
       servlet.requestPath("/%D1%82%D0%B5%D1%81%D1%82/", 5) must equal("/")
-      servlet.requestPath("/%D1%82%D0%B5%D1%81%D1%82/%D1%82%D0%B5%D1%81%D1%82/", 5) must equal("/тест/")
+      servlet.requestPath(
+        "/%D1%82%D0%B5%D1%81%D1%82/%D1%82%D0%B5%D1%81%D1%82/",
+        5
+      ) must equal("/тест/")
     }
 
     "be extracted properly from decoded url" in {

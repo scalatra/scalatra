@@ -13,26 +13,27 @@ trait HasMultipartConfig extends Initializable {
 
   def servletContext: ServletContext
 
-  private[this] def multipartConfigFromContext: Option[MultipartConfig] = {
+  private[this] def multipartConfigFromContext: Option[MultipartConfig] =
     // hack to support the tests without changes
     providedConfig orElse {
-      try {
+      try
         (Option(servletContext)
           flatMap (sc => Option(sc.getAttribute(MultipartConfigKey)))
           filterNot (_ == null)
           map (_.asInstanceOf[MultipartConfig]))
-      } catch {
+      catch {
         case _: NullPointerException => Some(DefaultMultipartConfig)
       }
 
     }
-  }
 
-  def multipartConfig: MultipartConfig = try {
+  def multipartConfig: MultipartConfig = try
     multipartConfigFromContext getOrElse DefaultMultipartConfig
-  } catch {
+  catch {
     case e: Throwable =>
-      System.err.println("Couldn't get the multipart config from the servlet context because: ")
+      System.err.println(
+        "Couldn't get the multipart config from the servlet context because: "
+      )
       e.printStackTrace()
       DefaultMultipartConfig
   }
@@ -45,7 +46,6 @@ trait HasMultipartConfig extends Initializable {
     providedConfig foreach { _ apply config.context }
   }
 
-  def configureMultipartHandling(config: MultipartConfig): Unit = {
+  def configureMultipartHandling(config: MultipartConfig): Unit =
     providedConfig = Some(config)
-  }
 }

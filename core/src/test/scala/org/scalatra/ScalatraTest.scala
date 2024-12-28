@@ -15,12 +15,12 @@ class ScalatraTestServlet extends ScalatraServlet {
   }
 
   get("/xml/:must/:val") {
-    <h1>{ params("must") + params("val") }</h1>
+    <h1>{params("must") + params("val")}</h1>
   }
 
   post("/post/test") {
     params.get("posted_value") match {
-      case None => "posted_value is null"
+      case None    => "posted_value is null"
       case Some(s) => s
     }
   }
@@ -108,7 +108,9 @@ class ScalatraTest extends ScalatraFunSuite {
     }
   }
 
-  test("POST /post/something/val with posted_value=yes should return 'yessomething'") {
+  test(
+    "POST /post/something/val with posted_value=yes should return 'yessomething'"
+  ) {
     post("/post/something/val", "posted_value" -> "yes") {
       body should equal("yessomething")
     }
@@ -135,7 +137,9 @@ class ScalatraTest extends ScalatraFunSuite {
     }
   }
 
-  test("POST /post/test with posted_value=<multi-byte str> should return the multi-byte str") {
+  test(
+    "POST /post/test with posted_value=<multi-byte str> should return the multi-byte str"
+  ) {
     post("/post/test", "posted_value" -> "こんにちは") {
       body should equal("こんにちは")
     }
@@ -143,7 +147,11 @@ class ScalatraTest extends ScalatraFunSuite {
 
   test("GET /print_referrer should return Referer") {
     val referer = "Referer" // Misspelling intentional; it's the standard
-    get("/print_referrer", Map.empty[String, String], Map(referer -> "somewhere")) {
+    get(
+      "/print_referrer",
+      Map.empty[String, String],
+      Map(referer -> "somewhere")
+    ) {
       body should equal("somewhere")
     }
   }

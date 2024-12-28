@@ -12,7 +12,7 @@ class CookieSupportServlet extends ScalatraServlet {
     }
     cookies.get("somecookie") match {
       case Some(v) => v
-      case _ => "None"
+      case _       => "None"
     }
   }
 
@@ -23,11 +23,15 @@ class CookieSupportServlet extends ScalatraServlet {
   }
 
   post("/setexpiringcookie") {
-    cookies.update("thecookie", params("cookieval"))(CookieOptions(maxAge = params("maxAge").toInt))
+    cookies.update("thecookie", params("cookieval"))(
+      CookieOptions(maxAge = params("maxAge").toInt)
+    )
   }
 
   post("/set-http-only-cookie") {
-    cookies.update("thecookie", params("cookieval"))(CookieOptions(httpOnly = true))
+    cookies.update("thecookie", params("cookieval"))(
+      CookieOptions(httpOnly = true)
+    )
   }
 
   post("/maplikeset") {
@@ -39,7 +43,8 @@ class CookieSupportServlet extends ScalatraServlet {
     cookies -= "somecookie"
     response.setHeader(
       "Somecookie-Is-Defined",
-      cookies.get("somecookie").isDefined.toString)
+      cookies.get("somecookie").isDefined.toString
+    )
   }
 
   post("/remove-cookie-with-path") {
@@ -78,7 +83,11 @@ class CookieSupportTest extends ScalatraFunSuite {
   }
 
   test("POST /setexpiringcookie should set the max age of the cookie") {
-    post("/foo/setexpiringcookie", "cookieval" -> "value", "maxAge" -> oneWeek.toString) {
+    post(
+      "/foo/setexpiringcookie",
+      "cookieval" -> "value",
+      "maxAge" -> oneWeek.toString
+    ) {
       val cookie = HttpCookie.parse(response.getHeader("Set-Cookie")).get(0)
 
       // Allow some slop, since it's a new call to currentTimeMillis
@@ -86,7 +95,9 @@ class CookieSupportTest extends ScalatraFunSuite {
     }
   }
 
-  test("POST /set-http-only-cookie should set the HttpOnly flag of the cookie") {
+  test(
+    "POST /set-http-only-cookie should set the HttpOnly flag of the cookie"
+  ) {
     post("/foo/set-http-only-cookie", "cookieval" -> "whatever") {
       response.getHeader("Set-Cookie") should include("HttpOnly")
     }
@@ -110,7 +121,10 @@ class CookieSupportTest extends ScalatraFunSuite {
   // https://github.com/scalatra/scalatra/issue/84
   test("handles multiple cookies") {
     session {
-      post("/foo/setcookie", Map("cookieval" -> "value", "anothercookieval" -> "another")) {
+      post(
+        "/foo/setcookie",
+        Map("cookieval" -> "value", "anothercookieval" -> "another")
+      ) {
         body should equal("OK")
       }
       get("/foo/getcookie") {

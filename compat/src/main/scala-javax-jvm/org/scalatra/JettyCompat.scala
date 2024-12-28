@@ -10,8 +10,13 @@ private[scalatra] object JettyCompat {
   type ServletContextHandler = org.eclipse.jetty.servlet.ServletContextHandler
   type ServletHolder = org.eclipse.jetty.servlet.ServletHolder
 
-  def createServletContextHandler(resourceBasePath: Path): ServletContextHandler = {
-    val servletContextHandler = new org.eclipse.jetty.servlet.ServletContextHandler(org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS)
+  def createServletContextHandler(
+      resourceBasePath: Path
+  ): ServletContextHandler = {
+    val servletContextHandler =
+      new org.eclipse.jetty.servlet.ServletContextHandler(
+        org.eclipse.jetty.servlet.ServletContextHandler.SESSIONS
+      )
     servletContextHandler.setBaseResource(new PathResource(resourceBasePath))
     servletContextHandler
   }

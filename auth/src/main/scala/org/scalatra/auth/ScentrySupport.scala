@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.util.RicherString._
 
@@ -30,17 +30,26 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
 
   private def initializeScentry() = {
     val store = new ScentryAuthStore.SessionAuthStore(this)
-    request.setAttribute(Scentry.ScentryRequestKey, new Scentry[UserType](self, toSession, fromSession, store))
+    request.setAttribute(
+      Scentry.ScentryRequestKey,
+      new Scentry[UserType](self, toSession, fromSession, store)
+    )
   }
 
   private def readStrategiesFromConfig(config: ConfigT) =
-    _strategiesFromConfig = {
-      config.context.getInitParameter("scentry.strategies").blankOption map (s => (s split ";").toList) getOrElse Nil
-    }
+    _strategiesFromConfig =
+      config.context.getInitParameter("scentry.strategies").blankOption map (
+        s => (s split ";").toList
+      ) getOrElse Nil
 
-  private def registerStrategiesFromConfig() = _strategiesFromConfig foreach { strategyClassName =>
-    val strategy = Class.forName(strategyClassName).getDeclaredConstructor().newInstance().asInstanceOf[ScentryStrategy[UserType]]
-    strategy registerWith scentry
+  private def registerStrategiesFromConfig() = _strategiesFromConfig foreach {
+    strategyClassName =>
+      val strategy = Class
+        .forName(strategyClassName)
+        .getDeclaredConstructor()
+        .newInstance()
+        .asInstanceOf[ScentryStrategy[UserType]]
+      strategy registerWith scentry
   }
 
   private[this] def createScentry() = {
@@ -50,32 +59,47 @@ trait ScentrySupport[UserType <: AnyRef] extends Initializable {
     registerAuthStrategies()
   }
 
-  protected def configureScentry() = {
+  protected def configureScentry() = {}
 
-  }
+  /** Override this method to register authentication strategies specific to
+    * this servlet. registerAuthStrategy('UserPassword, app => new
+    * UserPasswordStrategy(app))
+    */
+  protected def registerAuthStrategies() = {}
 
-  /**
-   * Override this method to register authentication strategies specific to this servlet.
-   *     registerAuthStrategy('UserPassword, app => new UserPasswordStrategy(app))
-   */
-  protected def registerAuthStrategies() = {
-
-  }
-
-  protected def scentry(implicit request: HttpServletRequest): Scentry[UserType] = {
+  protected def scentry(implicit
+      request: HttpServletRequest
+  ): Scentry[UserType] = {
     if (!request.contains(Scentry.ScentryRequestKey))
       createScentry()
     request(Scentry.ScentryRequestKey).asInstanceOf[Scentry[UserType]]
   }
-  protected def scentryOption(implicit request: HttpServletRequest): Option[Scentry[UserType]] = Option(request(Scentry.ScentryRequestKey)).map(_.asInstanceOf[Scentry[UserType]])
-  protected def userOption(implicit request: HttpServletRequest): Option[UserType] = scentry.userOption
-  implicit protected def user(implicit request: HttpServletRequest): UserType = scentry.user
-  protected def user_=(user: UserType)(implicit request: HttpServletRequest) = scentry.user = user
-  protected def isAuthenticated(implicit request: HttpServletRequest): Boolean = scentry.isAuthenticated
-  protected def isAnonymous(implicit request: HttpServletRequest): Boolean = !isAuthenticated
+  protected def scentryOption(implicit
+      request: HttpServletRequest
+  ): Option[Scentry[UserType]] =
+    Option(request(Scentry.ScentryRequestKey))
+      .map(_.asInstanceOf[Scentry[UserType]])
+  protected def userOption(implicit
+      request: HttpServletRequest
+  ): Option[UserType] = scentry.userOption
+  implicit protected def user(implicit request: HttpServletRequest): UserType =
+    scentry.user
+  protected def user_=(user: UserType)(implicit request: HttpServletRequest) =
+    scentry.user = user
+  protected def isAuthenticated(implicit request: HttpServletRequest): Boolean =
+    scentry.isAuthenticated
+  protected def isAnonymous(implicit request: HttpServletRequest): Boolean =
+    !isAuthenticated
 
-  protected def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse) = scentry.authenticate()
+  protected def authenticate()(implicit
+      request: HttpServletRequest,
+      response: HttpServletResponse
+  ) =
+    scentry.authenticate()
 
-  protected def logOut()(implicit request: HttpServletRequest, response: HttpServletResponse) = scentry.logout()
+  protected def logOut()(implicit
+      request: HttpServletRequest,
+      response: HttpServletResponse
+  ) = scentry.logout()
 
 }

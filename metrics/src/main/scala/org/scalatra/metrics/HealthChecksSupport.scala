@@ -9,10 +9,14 @@ trait HealthChecksSupport extends CheckedBuilder with MetricsBootstrap {
 
   def healthCheckName(name: String) = MetricName(name)
 
-  def checkHealth[T](name: String)(checker: => T)(implicit toMagnet: ToMagnet[T]) =
-    healthCheck(name) { checker }
-  def checkHealth[T](name: String, unhealthyMessage: String)(checker: => T)(implicit toMagnet: ToMagnet[T]) =
-    healthCheck(name, unhealthyMessage) { checker }
+  def checkHealth[T](name: String)(checker: => T)(implicit
+      toMagnet: ToMagnet[T]
+  ) =
+    healthCheck(name)(checker)
+  def checkHealth[T](name: String, unhealthyMessage: String)(checker: => T)(
+      implicit toMagnet: ToMagnet[T]
+  ) =
+    healthCheck(name, unhealthyMessage)(checker)
 
   def runHealthCheck(name: String) = healthCheckRegistry.runHealthCheck(name)
   def runHealthChecks() = healthCheckRegistry.runHealthChecks()

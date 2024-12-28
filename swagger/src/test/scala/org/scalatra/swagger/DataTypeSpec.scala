@@ -71,19 +71,38 @@ class DataTypeSpec extends Specification {
       DataType[Traversable[String]] must_== DataType.GenArray(DataType.String)
       DataType[Array[String]] must_== DataType.GenArray(DataType.String)
       DataType[java.util.List[String]] must_== DataType.GenList(DataType.String)
-      DataType[java.util.Collection[String]] must_== DataType.GenArray(DataType.String)
+      DataType[java.util.Collection[String]] must_== DataType.GenArray(
+        DataType.String
+      )
       DataType[java.util.Set[String]] must_== DataType.GenSet(DataType.String)
-      DataType[collection.immutable.Seq[String]] must_== DataType.GenList(DataType.String)
-      DataType[collection.immutable.List[String]] must_== DataType.GenList(DataType.String)
-      DataType[collection.immutable.Set[String]] must_== DataType.GenSet(DataType.String)
-      DataType[collection.mutable.Seq[String]] must_== DataType.GenList(DataType.String)
-      DataType[collection.mutable.Buffer[String]] must_== DataType.GenList(DataType.String)
-      DataType[collection.mutable.ListBuffer[String]] must_== DataType.GenList(DataType.String)
-      DataType[collection.mutable.Set[String]] must_== DataType.GenSet(DataType.String)
+      DataType[collection.immutable.Seq[String]] must_== DataType.GenList(
+        DataType.String
+      )
+      DataType[collection.immutable.List[String]] must_== DataType.GenList(
+        DataType.String
+      )
+      DataType[collection.immutable.Set[String]] must_== DataType.GenSet(
+        DataType.String
+      )
+      DataType[collection.mutable.Seq[String]] must_== DataType.GenList(
+        DataType.String
+      )
+      DataType[collection.mutable.Buffer[String]] must_== DataType.GenList(
+        DataType.String
+      )
+      DataType[collection.mutable.ListBuffer[String]] must_== DataType.GenList(
+        DataType.String
+      )
+      DataType[collection.mutable.Set[String]] must_== DataType.GenSet(
+        DataType.String
+      )
     }
 
     "return a correct model datatype" in {
-      DataType[Person] must_== DataType("Person", qualifiedName = Some(classOf[Person].getName))
+      DataType[Person] must_== DataType(
+        "Person",
+        qualifiedName = Some(classOf[Person].getName)
+      )
     }
 
   }

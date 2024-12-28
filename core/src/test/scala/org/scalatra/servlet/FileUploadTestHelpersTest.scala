@@ -7,20 +7,27 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 
 import scala.jdk.CollectionConverters._
 
-class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSupport {
+class FileUploadTestHelpersTestServlet
+    extends ScalatraServlet
+    with FileUploadSupport {
   configureMultipartHandling(HasMultipartConfig.DefaultMultipartConfig)
 
   def handleRequest(): Unit = {
     response.setHeader("Request-Method", request.getMethod)
     params.foreach(p => response.setHeader("Param-" + p._1, p._2))
 
-    request.getHeaderNames.asScala.filter(header => header.startsWith("Test-")).foreach(header =>
-      response.setHeader(header, request.getHeader(header)))
+    request.getHeaderNames.asScala
+      .filter(header => header.startsWith("Test-"))
+      .foreach(header => response.setHeader(header, request.getHeader(header)))
 
     fileParams.foreach(fileParam => {
       response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
-      response.setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
-      response.setHeader("File-" + fileParam._1 + "-SHA", DigestUtils.shaHex(fileParam._2.get()))
+      response
+        .setHeader("File-" + fileParam._1 + "-Size", fileParam._2.size.toString)
+      response.setHeader(
+        "File-" + fileParam._1 + "-SHA",
+        DigestUtils.shaHex(fileParam._2.get())
+      )
     })
   }
 
@@ -48,8 +55,8 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
     "OK"
   }
 
-  error {
-    case e => e.printStackTrace()
+  error { case e =>
+    e.printStackTrace()
   }
 }
 
@@ -57,8 +64,13 @@ class FileUploadTestHelpersTest extends ScalatraFunSuite {
   mount(new FileUploadTestHelpersTestServlet, "/*")
 
   val files = Map(
-    "textFile" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
-    "binaryFile" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))
+    "textFile" -> new File(
+      "core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"
+    ),
+    "binaryFile" -> new File(
+      "core/src/test/resources/org/scalatra/servlet/smiley.png"
+    )
+  )
 
   val params = Map("one" -> "1", "two" -> "2")
   val headers = Map("Test-Something" -> "lorem ipsum")
@@ -81,11 +93,19 @@ class FileUploadTestHelpersTest extends ScalatraFunSuite {
     post("/", params, files, headers) {
       assert(header("File-textFile-Name") === "lorem_ipsum.txt")
       assert(header("File-textFile-Size") === "651")
-      assert(header("File-textFile-SHA") === "b3572a890c5005aed6409cf81d13fd19f6d004f0")
+      assert(
+        header(
+          "File-textFile-SHA"
+        ) === "b3572a890c5005aed6409cf81d13fd19f6d004f0"
+      )
 
       assert(header("File-binaryFile-Name") === "smiley.png")
       assert(header("File-binaryFile-Size") === "3432")
-      assert(header("File-binaryFile-SHA") === "0e777b71581c631d056ee810b4550c5dcd9eb856")
+      assert(
+        header(
+          "File-binaryFile-SHA"
+        ) === "0e777b71581c631d056ee810b4550c5dcd9eb856"
+      )
     }
   }
 
@@ -107,11 +127,19 @@ class FileUploadTestHelpersTest extends ScalatraFunSuite {
     put("/", params, files, headers) {
       assert(header("File-textFile-Name") === "lorem_ipsum.txt")
       assert(header("File-textFile-Size") === "651")
-      assert(header("File-textFile-SHA") === "b3572a890c5005aed6409cf81d13fd19f6d004f0")
+      assert(
+        header(
+          "File-textFile-SHA"
+        ) === "b3572a890c5005aed6409cf81d13fd19f6d004f0"
+      )
 
       assert(header("File-binaryFile-Name") === "smiley.png")
       assert(header("File-binaryFile-Size") === "3432")
-      assert(header("File-binaryFile-SHA") === "0e777b71581c631d056ee810b4550c5dcd9eb856")
+      assert(
+        header(
+          "File-binaryFile-SHA"
+        ) === "0e777b71581c631d056ee810b4550c5dcd9eb856"
+      )
     }
   }
 
@@ -123,7 +151,12 @@ class FileUploadTestHelpersTest extends ScalatraFunSuite {
   }
 
   test("post with empty files and params map works") {
-    post("/no-files-or-params", Map[String, String](), Map[String, File](), Map[String, String]()) {
+    post(
+      "/no-files-or-params",
+      Map[String, String](),
+      Map[String, File](),
+      Map[String, String]()
+    ) {
       assert(status === 200)
       assert(body === "/no-files-or-params")
     }

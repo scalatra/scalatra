@@ -24,13 +24,15 @@ package object swagger {
       Operation,
       Description,
       Consumes,
-      Produces)
+      Produces
+    )
   }
 
   object annotations {
     import scala.annotation.meta.field
 
-    type ApiModelProperty = org.scalatra.swagger.runtime.annotations.ApiModelProperty @field
+    type ApiModelProperty =
+      org.scalatra.swagger.runtime.annotations.ApiModelProperty @field
     type ApiModel = org.scalatra.swagger.runtime.annotations.ApiModel
   }
 }
