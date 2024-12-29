@@ -7,24 +7,45 @@ import scala.collection.compat.immutable._
 
 private[reflect] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[?], typeArgIndex: Int, argNames: List[String]): Class[?] = {
-    val cl = findClass(clazz).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndex, argNames $argNames"))
+    val cl = findClass(clazz).getOrElse(
+      fail(
+        s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndex, argNames $argNames"
+      )
+    )
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
   def readConstructor(argName: String, clazz: Class[?], typeArgIndexes: List[Int], argNames: List[String]): Class[?] = {
-    val cl = findClass(clazz).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndexes, argNames $argNames"))
+    val cl = findClass(clazz).getOrElse(
+      fail(
+        s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndexes, argNames $argNames"
+      )
+    )
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
 
   def readConstructor(argName: String, clazz: ScalaType, typeArgIndex: Int, argNames: List[String]): Class[?] = {
-    val cl = findClass(clazz.erasure).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndex, argNames $argNames"))
+    val cl = findClass(clazz.erasure).getOrElse(
+      fail(
+        s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndex, argNames $argNames"
+      )
+    )
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndex)
   }
 
-  def readConstructor(argName: String, clazz: ScalaType, typeArgIndexes: List[Int], argNames: List[String]): Class[?] = {
-    val cl = findClass(clazz.erasure).getOrElse(fail(s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndexes, argNames $argNames"))
+  def readConstructor(
+      argName: String,
+      clazz: ScalaType,
+      typeArgIndexes: List[Int],
+      argNames: List[String]
+  ): Class[?] = {
+    val cl = findClass(clazz.erasure).getOrElse(
+      fail(
+        s"Can't find class symbol for argName $argName, class $clazz, typeArgIndex $typeArgIndexes, argNames $argNames"
+      )
+    )
     val cstr = findConstructor(cl, argNames).getOrElse(fail("Can't find constructor for " + clazz))
     findArgType(cstr, argNames.indexOf(argName), typeArgIndexes)
   }
@@ -34,7 +55,8 @@ private[reflect] object ScalaSigReader {
       if (current == null)
         None
       else
-        findClass(current).flatMap(findField(_, name))
+        findClass(current)
+          .flatMap(findField(_, name))
           .orElse(read(current.getSuperclass))
           .orElse(current.getInterfaces.to(LazyList).map(read).collectFirst { case Some(m) => m })
     }
@@ -70,16 +92,16 @@ private[reflect] object ScalaSigReader {
   def findArgType(s: MethodSymbol, argIdx: Int, typeArgIndex: Int): Class[?] = {
     def findPrimitive(t: Type): Symbol = {
       t match {
-        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
+        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol)   => symbol
         case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: xs) => symbol
-        case TypeRefType(_, symbol, Nil) => symbol
+        case TypeRefType(_, symbol, Nil)                                  => symbol
         case TypeRefType(_, _, args) if typeArgIndex >= args.length =>
           findPrimitive(args(0))
         case TypeRefType(_, _, args) =>
           val ta = args(typeArgIndex)
           ta match {
             case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
-            case x => fail("Unexpected type info " + x)
+            case x                          => fail("Unexpected type info " + x)
           }
         case x => fail("Unexpected type info " + x)
       }
@@ -92,14 +114,14 @@ private[reflect] object ScalaSigReader {
       val ii = (typeArgIndexes.length - 1) min curr
       t match {
         case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
-        case TypeRefType(_, symbol, Nil) => symbol
+        case TypeRefType(_, symbol, Nil)                                => symbol
         case TypeRefType(_, _, args) if typeArgIndexes(ii) >= args.length =>
           findPrimitive(args(0 max args.length - 1), curr + 1)
         case TypeRefType(_, _, args) =>
           val ta = args(typeArgIndexes(ii))
           ta match {
             case ref @ TypeRefType(_, _, _) => findPrimitive(ref, curr + 1)
-            case x => fail("Unexpected type info " + x)
+            case x                          => fail("Unexpected type info " + x)
           }
         case x => fail("Unexpected type info " + x)
       }
@@ -114,21 +136,21 @@ private[reflect] object ScalaSigReader {
 
     def findPrimitive(t: Type): Symbol = t match {
       case TypeRefType(ThisType(_), symbol, _) => symbol
-      case ref @ TypeRefType(_, _, _) => findPrimitive(ref)
-      case x => fail("Unexpected type info " + x)
+      case ref @ TypeRefType(_, _, _)          => findPrimitive(ref)
+      case x                                   => fail("Unexpected type info " + x)
     }
     toClass(findPrimitive(t))
   }
 
   private def toClass(s: Symbol) = s.path match {
-    case "scala.Short" => classOf[Short]
-    case "scala.Int" => classOf[Int]
-    case "scala.Long" => classOf[Long]
+    case "scala.Short"   => classOf[Short]
+    case "scala.Int"     => classOf[Int]
+    case "scala.Long"    => classOf[Long]
     case "scala.Boolean" => classOf[Boolean]
-    case "scala.Float" => classOf[Float]
-    case "scala.Double" => classOf[Double]
-    case "scala.Byte" => classOf[Byte]
-    case _ => classOf[AnyRef]
+    case "scala.Float"   => classOf[Float]
+    case "scala.Double"  => classOf[Double]
+    case "scala.Byte"    => classOf[Byte]
+    case _               => classOf[AnyRef]
   }
 
   private[this] def isPrimitive(s: Symbol) = toClass(s) != classOf[AnyRef]
@@ -145,11 +167,11 @@ private[reflect] object ScalaSigReader {
   }
 
   val ModuleFieldName = "MODULE$"
-  val ClassLoaders = Vector(this.getClass.getClassLoader)
+  val ClassLoaders    = Vector(this.getClass.getClassLoader)
 
   def companionClass(clazz: Class[?], classLoaders: Iterable[ClassLoader]) = {
     val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
-    val c = resolveClass(path, classLoaders)
+    val c    = resolveClass(path, classLoaders)
     if (c.isDefined) c.get else sys.error("Could not resolve clazz='%s'".format(path))
   }
 
@@ -157,7 +179,7 @@ private[reflect] object ScalaSigReader {
     companionClass(clazz, classLoaders).getField(ModuleFieldName).get(null)
 
   def companions(t: java.lang.reflect.Type) = {
-    val k = Reflector.rawClassOf(t)
+    val k  = Reflector.rawClassOf(t)
     val cc = companionClass(k, ClassLoaders)
     (cc, cc.getField(ModuleFieldName).get(null))
   }
@@ -167,7 +189,7 @@ private[reflect] object ScalaSigReader {
     case many => {
       try {
         var clazz: Class[?] = null
-        val iter = many.iterator
+        val iter            = many.iterator
         while (clazz == null && iter.hasNext) {
           try {
             clazz = Class.forName(c, true, iter.next())

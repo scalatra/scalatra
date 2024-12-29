@@ -6,7 +6,8 @@ import com.google.common.cache.CacheBuilder
 import org.scalatra.cache.Cache
 
 object GuavaCache extends Cache {
-  private[this] val cache = CacheBuilder.newBuilder()
+  private[this] val cache = CacheBuilder
+    .newBuilder()
     .maximumSize(10000L)
     .build[String, Object]
 
@@ -17,7 +18,8 @@ object GuavaCache extends Cache {
         None
       } else {
         Some(e.value)
-      })
+      }
+    )
 
   override def put[V](key: String, value: V, ttl: Option[Duration]): V = {
     cache.put(key, new Entry(value.asInstanceOf[Object], ttl.map(t => LocalDateTime.now.plus(t))))

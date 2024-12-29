@@ -1,7 +1,7 @@
 package org.scalatra.test
 
-import java.io.{ NotSerializableException, ObjectOutputStream, OutputStream }
-import org.scalatra.ServletCompat.http.{ HttpSessionAttributeListener, HttpSessionBindingEvent }
+import java.io.{NotSerializableException, ObjectOutputStream, OutputStream}
+import org.scalatra.ServletCompat.http.{HttpSessionAttributeListener, HttpSessionBindingEvent}
 
 object NullOut extends OutputStream {
   def write(b: Int): Unit = {}
@@ -11,7 +11,7 @@ object NullOut extends OutputStream {
  * Taken from https://gist.github.com/3485500, Thanks @LeifWarner
  */
 object SessionSerializingListener extends HttpSessionAttributeListener {
-  //val oos = new ObjectOutputStream(System.out)
+  // val oos = new ObjectOutputStream(System.out)
   val oos = new ObjectOutputStream(NullOut)
 
   override def attributeAdded(event: HttpSessionBindingEvent): Unit = {

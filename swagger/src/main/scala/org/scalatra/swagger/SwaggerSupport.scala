@@ -1,9 +1,9 @@
 package org.scalatra
 package swagger
 
-import org.scalatra.ServletCompat.{ Filter, Servlet }
+import org.scalatra.ServletCompat.{Filter, Servlet}
 
-import org.scalatra.swagger.DataType.{ ContainerDataType, ValueDataType }
+import org.scalatra.swagger.DataType.{ContainerDataType, ValueDataType}
 import org.scalatra.swagger.reflect.Reflector
 import org.scalatra.util.NotNothing
 import org.scalatra.util.RicherString._
@@ -14,14 +14,13 @@ import scala.util.control.Exception.allCatch
 import scala.util.parsing.combinator.RegexParsers
 
 trait SwaggerSupportBase {
-  /**
-   * Builds the documentation for all the endpoints discovered in an API.
-   */
+
+  /** Builds the documentation for all the endpoints discovered in an API.
+    */
   def endpoints(basePath: String): List[Endpoint]
 
-  /**
-   * Extract an operation from a route
-   */
+  /** Extract an operation from a route
+    */
   protected def extractOperation(route: Route, method: HttpMethod): Operation
 }
 
@@ -54,8 +53,8 @@ object SwaggerSupportSyntax {
 
       def apply(pattern: String): (Builder => Builder) = parseAll(tokens, pattern).get
 
-      private def tokens: Parser[Builder => Builder] = rep(token) ^^ {
-        tokens => tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
+      private def tokens: Parser[Builder => Builder] = rep(token) ^^ { tokens =>
+        tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
       }
 
       private def token: Parser[Builder => Builder] = splat | prefixedOptional | optional | named | literal
@@ -63,8 +62,8 @@ object SwaggerSupportSyntax {
       private def splat: Parser[Builder => Builder] = "*" ^^^ { builder => builder.addSplat }
 
       private def prefixedOptional: Parser[Builder => Builder] =
-        ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ {
-          case p ~ "?:" ~ o ~ "?" => builder => builder.addPrefixedOptional(o, p)
+        ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ { case p ~ "?:" ~ o ~ "?" =>
+          builder => builder.addPrefixedOptional(o, p)
         }
 
       private def optional: Parser[Builder => Builder] =
@@ -100,11 +99,11 @@ object SwaggerSupportSyntax {
 
       def apply(pattern: String): (Builder => Builder) = parseAll(tokens, pattern).get
 
-      private def tokens: Parser[Builder => Builder] = rep(token) ^^ {
-        tokens => tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
+      private def tokens: Parser[Builder => Builder] = rep(token) ^^ { tokens =>
+        tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
       }
 
-      //private def token = param | glob | optional | static
+      // private def token = param | glob | optional | static
       private def token: Parser[Builder => Builder] = param | glob | optional | static
 
       private def param: Parser[Builder => Builder] =
@@ -134,33 +133,35 @@ object SwaggerSupportSyntax {
   }
 
   trait SwaggerParameterBuilder {
-    private[this] var _dataType: DataType = _
-    private[this] var _name: String = _
-    private[this] var _description: Option[String] = None
-    private[this] var _paramType: ParamType.ParamType = ParamType.Query
+    private[this] var _dataType: DataType               = _
+    private[this] var _name: String                     = _
+    private[this] var _description: Option[String]      = None
+    private[this] var _paramType: ParamType.ParamType   = ParamType.Query
     private[this] var _allowableValues: AllowableValues = AllowableValues.AnyValue
-    protected[this] var _required: Option[Boolean] = None
-    protected[this] var _hidden: Option[Boolean] = None
-    private[this] var _paramAccess: Option[String] = None
-    private[this] var _position: Option[Int] = None
+    protected[this] var _required: Option[Boolean]      = None
+    protected[this] var _hidden: Option[Boolean]        = None
+    private[this] var _paramAccess: Option[String]      = None
+    private[this] var _position: Option[Int]            = None
 
-    def dataType: DataType = _dataType
-    def dataType(dataType: DataType): this.type = { _dataType = dataType; this }
-    def name(name: String): this.type = { _name = name; this }
+    def dataType: DataType                          = _dataType
+    def dataType(dataType: DataType): this.type     = { _dataType = dataType; this }
+    def name(name: String): this.type               = { _name = name; this }
     def description(description: String): this.type = { _description = description.blankOption; this }
-    def description(description: Option[String]): this.type = { _description = description.flatMap(_.blankOption); this }
+    def description(description: Option[String]): this.type = {
+      _description = description.flatMap(_.blankOption); this
+    }
     def position(position: Int): this.type = { _position = Some(position); this }
 
     def paramType(name: ParamType.ParamType): this.type = { _paramType = name; this }
 
-    def fromBody: this.type = paramType(ParamType.Body)
-    def fromPath: this.type = paramType(ParamType.Path)
-    def fromQuery: this.type = paramType(ParamType.Query)
+    def fromBody: this.type   = paramType(ParamType.Body)
+    def fromPath: this.type   = paramType(ParamType.Path)
+    def fromQuery: this.type  = paramType(ParamType.Query)
     def fromHeader: this.type = paramType(ParamType.Header)
-    def fromForm: this.type = paramType(ParamType.Form)
+    def fromForm: this.type   = paramType(ParamType.Form)
 
     def allowableValues[V](values: V*): this.type = {
-      _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values *)
+      _allowableValues = if (values.isEmpty) AllowableValues.empty else AllowableValues(values*)
       this
     }
     def allowableValues[V](values: List[V]): this.type = {
@@ -168,48 +169,61 @@ object SwaggerSupportSyntax {
       this
     }
 
-    def accessibleBy(value: String) = { _paramAccess = value.blankOption; this }
+    def accessibleBy(value: String)               = { _paramAccess = value.blankOption; this }
     def allowableValues(values: Range): this.type = { _allowableValues = AllowableValues(values); this }
-    def required: this.type = { _required = Some(true); this }
-    def optional: this.type = { _required = Some(false); this }
-    def hidden: this.type = { _hidden = Some(true); this }
+    def required: this.type                       = { _required = Some(true); this }
+    def optional: this.type                       = { _required = Some(false); this }
+    def hidden: this.type                         = { _hidden = Some(true); this }
 
     def defaultValue: Option[String] = None
 
     def minimumValue: Option[Double] = None
     def maximumValue: Option[Double] = None
-    def example: Option[String] = None
-    def position: Option[Int] = _position
+    def example: Option[String]      = None
+    def position: Option[Int]        = _position
 
-    def name: String = _name
-    def description: Option[String] = _description
-    def paramType: ParamType.ParamType = _paramType
-    def paramAccess = _paramAccess
+    def name: String                     = _name
+    def description: Option[String]      = _description
+    def paramType: ParamType.ParamType   = _paramType
+    def paramAccess                      = _paramAccess
     def allowableValues: AllowableValues = _allowableValues
-    def isRequired: Boolean = paramType == ParamType.Path || _required.forall(identity)
-    def isHidden: Boolean = _hidden.getOrElse(false)
+    def isRequired: Boolean              = paramType == ParamType.Path || _required.forall(identity)
+    def isHidden: Boolean                = _hidden.getOrElse(false)
 
     def multiValued: this.type = {
       dataType match {
         case dt: ValueDataType => dataType(ContainerDataType("List", Some(dt), uniqueItems = false))
-        case _ => this
+        case _                 => this
       }
     }
     def singleValued: this.type = {
       dataType match {
         case ContainerDataType(_, Some(dataType), _) => this.dataType(dataType)
-        case _ => this
+        case _                                       => this
       }
     }
 
     def result =
-      Parameter(name, dataType, description, paramType, defaultValue, allowableValues, isRequired, position.getOrElse(0), example, minimumValue, maximumValue, isHidden)
+      Parameter(
+        name,
+        dataType,
+        description,
+        paramType,
+        defaultValue,
+        allowableValues,
+        isRequired,
+        position.getOrElse(0),
+        example,
+        minimumValue,
+        maximumValue,
+        isHidden
+      )
   }
 
   class ParameterBuilder[T: Manifest](initialDataType: DataType) extends SwaggerParameterBuilder {
     dataType(initialDataType)
     private[this] var _defaultValue: Option[String] = None
-    override def defaultValue = _defaultValue
+    override def defaultValue                       = _defaultValue
     def defaultValue(value: T): this.type = {
       if (_required.isEmpty) optional
       _defaultValue = allCatch.withApply(_ => None) { value.toString.blankOption }
@@ -217,21 +231,21 @@ object SwaggerSupportSyntax {
     }
 
     private[this] var _minimumValue: Option[Double] = None
-    override def minimumValue = _minimumValue
+    override def minimumValue                       = _minimumValue
     def minimumValue(value: Double): this.type = {
       _minimumValue = Option(value)
       this
     }
 
     private[this] var _maximumValue: Option[Double] = None
-    override def maximumValue = _maximumValue
+    override def maximumValue                       = _maximumValue
     def maximumValue(value: Double): this.type = {
       _maximumValue = Option(value)
       this
     }
 
     private[this] var _example: Option[String] = None
-    override def example = _example
+    override def example                       = _example
     def example(value: String): this.type = {
       _example = Option(value)
       this
@@ -243,46 +257,46 @@ object SwaggerSupportSyntax {
   }
 
   class OperationBuilder(val resultClass: DataType) {
-    private[this] var _summary: String = ""
-    private[this] var _description: String = ""
-    private[this] var _deprecated: Boolean = false
-    private[this] var _operationId: String = _
-    private[this] var _parameters: List[Parameter] = Nil
+    private[this] var _summary: String                         = ""
+    private[this] var _description: String                     = ""
+    private[this] var _deprecated: Boolean                     = false
+    private[this] var _operationId: String                     = _
+    private[this] var _parameters: List[Parameter]             = Nil
     private[this] var _responseMessages: List[ResponseMessage] = Nil
-    private[this] var _produces: List[String] = Nil
-    private[this] var _consumes: List[String] = Nil
-    private[this] var _schemes: List[String] = Nil
-    private[this] var _authorizations: List[String] = Nil
-    private[this] var _tags: List[String] = Nil
-    private[this] var _position: Int = 0
+    private[this] var _produces: List[String]                  = Nil
+    private[this] var _consumes: List[String]                  = Nil
+    private[this] var _schemes: List[String]                   = Nil
+    private[this] var _authorizations: List[String]            = Nil
+    private[this] var _tags: List[String]                      = Nil
+    private[this] var _position: Int                           = 0
 
-    def summary(content: String): this.type = { _summary = content; this }
-    def summary: String = _summary
-    def description(content: String): this.type = { _description = content; this }
-    def description: Option[String] = _description.blankOption
-    def deprecated(value: Boolean): this.type = { _deprecated = value; this }
-    def deprecated: Boolean = _deprecated
-    def deprecate: this.type = { _deprecated = true; this }
-    def operationId(value: String): this.type = { _operationId = value; this }
-    def operationId: String = _operationId
-    def parameters(params: Parameter*): this.type = { _parameters :::= params.toList; this }
-    def parameter(param: Parameter): this.type = parameters(param)
-    def parameters: List[Parameter] = _parameters
-    def responseMessages: List[ResponseMessage] = _responseMessages
+    def summary(content: String): this.type                 = { _summary = content; this }
+    def summary: String                                     = _summary
+    def description(content: String): this.type             = { _description = content; this }
+    def description: Option[String]                         = _description.blankOption
+    def deprecated(value: Boolean): this.type               = { _deprecated = value; this }
+    def deprecated: Boolean                                 = _deprecated
+    def deprecate: this.type                                = { _deprecated = true; this }
+    def operationId(value: String): this.type               = { _operationId = value; this }
+    def operationId: String                                 = _operationId
+    def parameters(params: Parameter*): this.type           = { _parameters :::= params.toList; this }
+    def parameter(param: Parameter): this.type              = parameters(param)
+    def parameters: List[Parameter]                         = _parameters
+    def responseMessages: List[ResponseMessage]             = _responseMessages
     def responseMessages(errs: ResponseMessage*): this.type = { _responseMessages :::= errs.toList; this }
-    def responseMessage(err: ResponseMessage): this.type = responseMessages(err)
-    def produces(values: String*): this.type = { _produces :::= values.toList; this }
-    def produces: List[String] = _produces
-    def consumes: List[String] = _consumes
-    def consumes(values: String*): this.type = { _consumes :::= values.toList; this }
-    def schemes: List[String] = _schemes
-    def schemes(values: String*): this.type = { _schemes :::= values.toList; this }
-    def authorizations: List[String] = _authorizations
-    def authorizations(values: String*): this.type = { _authorizations :::= values.toList; this }
-    def tags: List[String] = _tags
-    def tags(values: String*): this.type = { _tags :::= values.toList; this }
-    def position(value: Int): this.type = { _position = value; this }
-    def position: Int = _position
+    def responseMessage(err: ResponseMessage): this.type    = responseMessages(err)
+    def produces(values: String*): this.type                = { _produces :::= values.toList; this }
+    def produces: List[String]                              = _produces
+    def consumes: List[String]                              = _consumes
+    def consumes(values: String*): this.type                = { _consumes :::= values.toList; this }
+    def schemes: List[String]                               = _schemes
+    def schemes(values: String*): this.type                 = { _schemes :::= values.toList; this }
+    def authorizations: List[String]                        = _authorizations
+    def authorizations(values: String*): this.type          = { _authorizations :::= values.toList; this }
+    def tags: List[String]                                  = _tags
+    def tags(values: String*): this.type                    = { _tags :::= values.toList; this }
+    def position(value: Int): this.type                     = { _position = value; this }
+    def position: Int                                       = _position
 
     def result: Operation = Operation(
       null,
@@ -298,7 +312,8 @@ object SwaggerSupportSyntax {
       produces,
       schemes,
       authorizations,
-      tags)
+      tags
+    )
   }
 }
 
@@ -328,23 +343,31 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
     }
     val listingPath = resourcePath.drop(1) // drop the leading slash
 
-    swagger.register(listingPath, resourcePath, applicationDescription.blankOption, this, swaggerConsumes, swaggerProduces, swaggerProtocols, swaggerAuthorizations)
+    swagger.register(
+      listingPath,
+      resourcePath,
+      applicationDescription.blankOption,
+      this,
+      swaggerConsumes,
+      swaggerProduces,
+      swaggerProtocols,
+      swaggerAuthorizations
+    )
   }
 
-  /**
-   * Initializes the kernel.  Used to provide context that is unavailable
-   * when the instance is constructed, for example the servlet lifecycle.
-   * Should set the `config` variable to the parameter.
-   *
-   * @param config the configuration.
-   */
+  /** Initializes the kernel. Used to provide context that is unavailable when the instance is constructed, for example
+    * the servlet lifecycle. Should set the `config` variable to the parameter.
+    *
+    * @param config
+    *   the configuration.
+    */
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     try {
       this match {
         case _: Filter =>
           val registrations = servletContext.getFilterRegistrations.asScala.values
-          val registration = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
+          val registration  = registrations.find(_.getClassName == getClass.getName) getOrElse throwAFit
           registration.getServletNameMappings.asScala foreach { name =>
             Option(servletContext.getServletRegistration(name)) foreach { reg =>
               reg.getMappings.asScala foreach registerInSwagger
@@ -366,30 +389,30 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   private[swagger] val _models: mutable.Map[String, Model] = mutable.Map.empty
 
-  /**
-   * Registers a model for swagger
-   *
-   * @param model the model to add to the swagger definition
-   */
+  /** Registers a model for swagger
+    *
+    * @param model
+    *   the model to add to the swagger definition
+    */
   protected def registerModel(model: Model): Unit = {
     _models.getOrElseUpdate(model.id, model)
   }
 
-  /**
-   * Registers a model for swagger, this method reflects over the class and collects all
-   * non-primitive classes and adds those to the swagger defintion
-   *
-   * @tparam T the class of the model to register
-   */
+  /** Registers a model for swagger, this method reflects over the class and collects all non-primitive classes and adds
+    * those to the swagger defintion
+    *
+    * @tparam T
+    *   the class of the model to register
+    */
   protected def registerModel[T: Manifest: NotNothing](): Unit = {
     Swagger.collectModels[T](_models.values.toSet) foreach registerModel
   }
 
-  /**
-   * The currently registered model descriptions for swagger
-   *
-   * @return a map of swagger models
-   */
+  /** The currently registered model descriptions for swagger
+    *
+    * @return
+    *   a map of swagger models
+    */
   def models = _models
 
   private[swagger] var _description: PartialFunction[String, String] = Map.empty
@@ -405,12 +428,18 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
   implicit def parameterBuilder2parameter(pmb: SwaggerParameterBuilder): Parameter = pmb.result
 
   private[this] def swaggerParam[T: Manifest](
-    name: String, liftCollection: Boolean = false, allowsCollection: Boolean = true, allowsOption: Boolean = true): ParameterBuilder[T] = {
+      name: String,
+      liftCollection: Boolean = false,
+      allowsCollection: Boolean = true,
+      allowsOption: Boolean = true
+  ): ParameterBuilder[T] = {
     val st = Reflector.scalaTypeOf[T]
     if (st.isCollection && !allowsCollection) sys.error("Parameter [" + name + "] does not allow for a collection.")
     if (st.isOption && !allowsOption) sys.error("Parameter [" + name + "] does not allow optional values.")
-    if (st.isCollection && st.typeArgs.isEmpty) sys.error("A collection needs to have a type for swagger parameter [" + name + "].")
-    if (st.isOption && st.typeArgs.isEmpty) sys.error("An Option needs to have a type for swagger parameter [" + name + "].")
+    if (st.isCollection && st.typeArgs.isEmpty)
+      sys.error("A collection needs to have a type for swagger parameter [" + name + "].")
+    if (st.isOption && st.typeArgs.isEmpty)
+      sys.error("An Option needs to have a type for swagger parameter [" + name + "].")
     Swagger.collectModels(st, models.values.toSet) foreach registerModel
     val dt =
       if (liftCollection && (st.isCollection || st.isOption)) DataType.fromScalaType(st.typeArgs.head)
@@ -437,11 +466,13 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   protected def bodyParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromBody
 
-  protected def queryParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true)
+  protected def queryParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] =
+    swaggerParam[T](name, liftCollection = true)
 
   protected def queryParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model)
 
-  protected def formParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] = swaggerParam[T](name, liftCollection = true).fromForm
+  protected def formParam[T: Manifest: NotNothing](name: String): ParameterBuilder[T] =
+    swaggerParam[T](name, liftCollection = true).fromForm
 
   protected def formParam(name: String, model: Model): ModelParameterBuilder = swaggerParam(name, model).fromForm
 
@@ -466,8 +497,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
   protected def inferSwaggerEndpoint(route: Route): String = route match {
     case rev if rev.isReversible =>
       rev.routeMatchers collectFirst {
-        case sin: SinatraRouteMatcher => new SinatraSwaggerGenerator(sin).toSwaggerPath
-        case rails: RailsRouteMatcher => new RailsSwaggerGenerator(rails).toSwaggerPath
+        case sin: SinatraRouteMatcher      => new SinatraSwaggerGenerator(sin).toSwaggerPath
+        case rails: RailsRouteMatcher      => new RailsSwaggerGenerator(rails).toSwaggerPath
         case path: PathPatternRouteMatcher => path.toString
       } getOrElse ""
     case _ => ""
@@ -476,7 +507,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
   protected def swaggerEndpointEntries(extract: (Route, HttpMethod) => Operation) =
     for {
       (method, routes) <- routes.methodRoutes
-      route <- routes if (route.metadata.keySet & Symbols.AllSymbols).nonEmpty
+      route            <- routes if (route.metadata.keySet & Symbols.AllSymbols).nonEmpty
       endpoint = route.metadata.get(Symbols.Endpoint) map (_.asInstanceOf[String]) getOrElse inferSwaggerEndpoint(route)
       operation = extract(route, method)
     } yield Entry(endpoint, operation)
@@ -492,9 +523,8 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
 }
 
-/**
- * Provides the necessary support for adding documentation to your routes.
- */
+/** Provides the necessary support for adding documentation to your routes.
+  */
 trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax {
 
   import org.scalatra.swagger.SwaggerSupportSyntax._
@@ -515,35 +545,33 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
     builder
   }
 
-  /**
-   * Builds the documentation for all the endpoints discovered in an API.
-   */
+  /** Builds the documentation for all the endpoints discovered in an API.
+    */
   def endpoints(basePath: String): List[Endpoint] = {
-    (swaggerEndpointEntries(extractOperation) groupBy (_.key)).toList map {
-      case (name, entries) =>
-        val desc = _description lift name getOrElse ""
-        val pth = if (basePath endsWith "/") basePath else basePath + "/"
-        val nm = if (name startsWith "/") name.substring(1) else name
-        new Endpoint(pth + nm, desc.blankOption, entries.toList map (_.value))
+    (swaggerEndpointEntries(extractOperation) groupBy (_.key)).toList map { case (name, entries) =>
+      val desc = _description lift name getOrElse ""
+      val pth  = if (basePath endsWith "/") basePath else basePath + "/"
+      val nm   = if (name startsWith "/") name.substring(1) else name
+      new Endpoint(pth + nm, desc.blankOption, entries.toList map (_.value))
     } sortBy (_.path)
 
   }
 
-  /**
-   * Returns a list of operations based on the given route. The default implementation returns a list with only 1
-   * operation.
-   */
+  /** Returns a list of operations based on the given route. The default implementation returns a list with only 1
+    * operation.
+    */
   protected def extractOperation(route: Route, method: HttpMethod): Operation = {
     val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[Operation])
     op map (_.copy(method = method)) getOrElse {
       val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
-      val errors = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
-      val responseClass = route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[DataType]) getOrElse DataType.Void
-      val summary = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
+      val errors    = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
+      val responseClass =
+        route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[DataType]) getOrElse DataType.Void
+      val summary     = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
       val description = route.metadata.get(Symbols.Description) map (_.asInstanceOf[String])
       val operationId = route.metadata.get(Symbols.OperationId) map (_.asInstanceOf[String]) getOrElse ""
-      val produces = route.metadata.get(Symbols.Produces) map (_.asInstanceOf[List[String]]) getOrElse Nil
-      val consumes = route.metadata.get(Symbols.Consumes) map (_.asInstanceOf[List[String]]) getOrElse Nil
+      val produces    = route.metadata.get(Symbols.Produces) map (_.asInstanceOf[List[String]]) getOrElse Nil
+      val consumes    = route.metadata.get(Symbols.Consumes) map (_.asInstanceOf[List[String]]) getOrElse Nil
       Operation(
         method = method,
         operationId = operationId,
@@ -554,7 +582,8 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
         parameters = theParams,
         responseMessages = (errors ::: swaggerDefaultMessages).distinct,
         produces = produces,
-        consumes = consumes)
+        consumes = consumes
+      )
     }
   }
 

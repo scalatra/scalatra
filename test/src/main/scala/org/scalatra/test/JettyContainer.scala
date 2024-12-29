@@ -4,10 +4,10 @@ package test
 import java.util
 import java.util.EnumSet
 import org.scalatra.ServletCompat.http.HttpServlet
-import org.scalatra.ServletCompat.{ DispatcherType, Filter }
+import org.scalatra.ServletCompat.{DispatcherType, Filter}
 
-import org.scalatra.JettyCompat.{ DefaultServlet, FilterHolder, ServletContextHandler, ServletHolder }
-import org.scalatra.servlet.{ HasMultipartConfig, ScalatraAsyncSupport }
+import org.scalatra.JettyCompat.{DefaultServlet, FilterHolder, ServletContextHandler, ServletHolder}
+import org.scalatra.servlet.{HasMultipartConfig, ScalatraAsyncSupport}
 
 object JettyContainer {
   private val DefaultDispatcherTypes: EnumSet[DispatcherType] =
@@ -29,7 +29,7 @@ trait JettyContainer extends Container {
       throw new IllegalArgumentException(klass.toString + " is not assignable to either HttpServlet or Filter")
   }
 
-  def mount(servlet: HttpServlet, path: String): Unit = { addServlet(servlet, path) }
+  def mount(servlet: HttpServlet, path: String): Unit               = { addServlet(servlet, path) }
   def mount(servlet: HttpServlet, path: String, name: String): Unit = { addServlet(servlet, path, name) }
 
   def mount(app: Filter, path: String, dispatches: EnumSet[DispatcherType] = DefaultDispatcherTypes) =
@@ -41,8 +41,7 @@ trait JettyContainer extends Container {
 
     servlet match {
       case s: HasMultipartConfig => {
-        holder.getRegistration.setMultipartConfig(
-          s.multipartConfig.toMultipartConfigElement)
+        holder.getRegistration.setMultipartConfig(s.multipartConfig.toMultipartConfigElement)
       }
       case s: ScalatraAsyncSupport =>
         holder.getRegistration.setAsyncSupported(true)
@@ -56,7 +55,11 @@ trait JettyContainer extends Container {
   def addServlet(servlet: Class[? <: HttpServlet], path: String) =
     servletContextHandler.addServlet(servlet, path)
 
-  def addFilter(filter: Filter, path: String, dispatches: util.EnumSet[DispatcherType] = DefaultDispatcherTypes): FilterHolder = {
+  def addFilter(
+      filter: Filter,
+      path: String,
+      dispatches: util.EnumSet[DispatcherType] = DefaultDispatcherTypes
+  ): FilterHolder = {
     val holder = new FilterHolder(filter)
     servletContextHandler.addFilter(holder, path, dispatches)
     holder

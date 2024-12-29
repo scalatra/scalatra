@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.servlet.ServletApiImplicits._
 
@@ -13,9 +13,11 @@ object ScentryAuthStore {
     def invalidate()(implicit request: HttpServletRequest, response: HttpServletResponse): Unit
   }
 
-  class CookieAuthStore(app: ScalatraContext)(implicit cookieOptions: CookieOptions = CookieOptions(path = "/")) extends ScentryAuthStore {
+  class CookieAuthStore(app: ScalatraContext)(implicit cookieOptions: CookieOptions = CookieOptions(path = "/"))
+      extends ScentryAuthStore {
 
-    def get(implicit request: HttpServletRequest, response: HttpServletResponse) = app.cookies.get(Scentry.scentryAuthKey) getOrElse ""
+    def get(implicit request: HttpServletRequest, response: HttpServletResponse) =
+      app.cookies.get(Scentry.scentryAuthKey) getOrElse ""
 
     def set(value: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
       app.cookies.update(Scentry.scentryAuthKey, value)(cookieOptions)

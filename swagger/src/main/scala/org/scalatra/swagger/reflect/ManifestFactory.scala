@@ -1,6 +1,6 @@
 package org.scalatra.swagger.reflect
 
-import java.lang.reflect.{ GenericArrayType, ParameterizedType, Type, TypeVariable, WildcardType }
+import java.lang.reflect.{GenericArrayType, ParameterizedType, Type, TypeVariable, WildcardType}
 
 import scala.reflect.Manifest
 
@@ -8,18 +8,18 @@ private[swagger] object ManifestFactory {
   def manifestOf(t: Type): Manifest[?] = t match {
 
     case pt: ParameterizedType =>
-      val clazz = manifestOf(pt.getRawType).runtimeClass
+      val clazz    = manifestOf(pt.getRawType).runtimeClass
       val typeArgs = pt.getActualTypeArguments map manifestOf
 
       if (pt.getOwnerType == null) {
         manifestOf(clazz, typeArgs.toIndexedSeq)
       } else {
-        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs.toIndexedSeq *)
+        Manifest.classType(manifestOf(pt.getOwnerType), clazz, typeArgs.toIndexedSeq*)
       }
 
     case at: GenericArrayType =>
       val componentManifest = manifestOf(at.getGenericComponentType)
-      val arrayManifest = componentManifest.arrayManifest // strips component type args off
+      val arrayManifest     = componentManifest.arrayManifest // strips component type args off
       Manifest.classType(arrayManifest.runtimeClass, componentManifest)
 
     case wt: WildcardType =>
@@ -46,7 +46,7 @@ private[swagger] object ManifestFactory {
         else
           erasure
 
-      Manifest.classType(normalizedErasure, typeArgs.head, typeArgs.tail *)
+      Manifest.classType(normalizedErasure, typeArgs.head, typeArgs.tail*)
     }
   }
 
@@ -58,15 +58,15 @@ private[swagger] object ManifestFactory {
   }
 
   private def fromClass(clazz: Class[?]): Manifest[?] = clazz match {
-    case java.lang.Byte.TYPE => Manifest.Byte
-    case java.lang.Short.TYPE => Manifest.Short
+    case java.lang.Byte.TYPE      => Manifest.Byte
+    case java.lang.Short.TYPE     => Manifest.Short
     case java.lang.Character.TYPE => Manifest.Char
-    case java.lang.Integer.TYPE => Manifest.Int
-    case java.lang.Long.TYPE => Manifest.Long
-    case java.lang.Float.TYPE => Manifest.Float
-    case java.lang.Double.TYPE => Manifest.Double
-    case java.lang.Boolean.TYPE => Manifest.Boolean
-    case java.lang.Void.TYPE => Manifest.Unit
-    case _ => Manifest.classType(clazz)
+    case java.lang.Integer.TYPE   => Manifest.Int
+    case java.lang.Long.TYPE      => Manifest.Long
+    case java.lang.Float.TYPE     => Manifest.Float
+    case java.lang.Double.TYPE    => Manifest.Double
+    case java.lang.Boolean.TYPE   => Manifest.Boolean
+    case java.lang.Void.TYPE      => Manifest.Unit
+    case _                        => Manifest.classType(clazz)
   }
 }

@@ -11,31 +11,31 @@ import scala.xml.XML
 
 object JsonOutput {
   val VulnerabilityPrelude = ")]}',\n"
-  val RosettaPrelude = "/**/"
+  val RosettaPrelude       = "/**/"
 }
 
 trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
   import org.scalatra.json.JsonOutput._
-  /**
-   * If a request is made with a parameter in jsonpCallbackParameterNames it will
-   * be assumed that it is a JSONP request and the json will be returned as the
-   * argument to a function with the name specified in the corresponding parameter.
-   *
-   * By default no parameterNames will be checked
-   */
+
+  /** If a request is made with a parameter in jsonpCallbackParameterNames it will be assumed that it is a JSONP request
+    * and the json will be returned as the argument to a function with the name specified in the corresponding
+    * parameter.
+    *
+    * By default no parameterNames will be checked
+    */
   def jsonpCallbackParameterNames: Iterable[String] = Nil
 
-  /**
-   * Whether or not to apply the jsonVulnerabilityGuard when rendering json.
-   * @see http://haacked.com/archive/2008/11/20/anatomy-of-a-subtle-json-vulnerability.aspx
-   */
+  /** Whether or not to apply the jsonVulnerabilityGuard when rendering json.
+    * @see
+    *   http://haacked.com/archive/2008/11/20/anatomy-of-a-subtle-json-vulnerability.aspx
+    */
   protected def jsonVulnerabilityGuard = false
 
-  /**
-   * Whether or not to apply the rosetta flash guard when rendering jsonp callbacks.
-   * @see http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
-   */
+  /** Whether or not to apply the rosetta flash guard when rendering jsonp callbacks.
+    * @see
+    *   http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/
+    */
   protected def rosettaFlashGuard = true
 
   protected lazy val xmlRootNode = <resp></resp>
@@ -57,7 +57,7 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
       val jsonpCallback = for {
         paramName <- jsonpCallbackParameterNames
-        callback <- params.get(paramName)
+        callback  <- params.get(paramName)
       } yield callback
 
       jsonpCallback match {
@@ -83,7 +83,8 @@ trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
         xmlRootNode.copy(child = toXml(json)),
         response.characterEncoding.get,
         xmlDecl = true,
-        doctype = null)
+        doctype = null
+      )
   }
 
   protected def writeJson(json: JValue, writer: Writer): Unit

@@ -1,6 +1,6 @@
 package org.scalatra.test
 
-import java.nio.file.{ Path, Paths }
+import java.nio.file.{Path, Paths}
 
 trait Container {
   protected def ensureSessionIsSerializable(): Unit
@@ -8,7 +8,7 @@ trait Container {
   protected def stop(): Unit
   var resourceBasePath: Path = {
     val projectPath = Paths.get(getClass.getClassLoader.getResource("").toURI.resolve("../../.."))
-    val webAppPath = projectPath.resolve("src/main/webapp")
+    val webAppPath  = projectPath.resolve("src/main/webapp")
     if (webAppPath.toFile.isDirectory) {
       webAppPath
     } else {

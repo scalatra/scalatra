@@ -5,10 +5,10 @@ import com.codahale.metrics.health.HealthCheckRegistry
 
 trait MetricsBootstrap {
   implicit def healthCheckRegistry: HealthCheckRegistry = MetricsRegistries.healthCheckRegistry
-  implicit def metricRegistry: MetricRegistry = MetricsRegistries.metricRegistry
+  implicit def metricRegistry: MetricRegistry           = MetricsRegistries.metricRegistry
 }
 
 object MetricsRegistries {
   val healthCheckRegistry = new HealthCheckRegistry()
-  val metricRegistry = new MetricRegistry()
+  val metricRegistry      = new MetricRegistry()
 }

@@ -1,9 +1,6 @@
 package org.scalatra
 
-case class ActionResult(
-  status: Int,
-  body: Any,
-  headers: Map[String, String])
+case class ActionResult(status: Int, body: Any, headers: Map[String, String])
 
 object Ok {
   def apply(body: Any = (), headers: Map[String, String] = Map.empty) =
@@ -274,4 +271,3 @@ object NetworkAuthenticationRequired {
   def apply(body: Any = (), headers: Map[String, String] = Map.empty) =
     ActionResult(511, body, headers)
 }
-

@@ -2,7 +2,7 @@ package org.scalatra
 
 import java.util.Locale.ENGLISH
 import java.util.concurrent.ConcurrentHashMap
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.util.RicherString._
 
@@ -12,87 +12,84 @@ import scala.util.Try
 
 object ApiFormats {
 
-  /**
-   * The request attribute key in which the format is stored.
-   */
+  /** The request attribute key in which the format is stored.
+    */
   val FormatKey: String = "org.scalatra.FormatKey"
 
 }
 
-/**
- * Adds support for mapping and inferring formats to content types.
- *
- * $ - Provides a request-scoped format variable
- * $ - Maps formats to content types and vice versa
- * $ - Augments the content-type inferrer to use the format
- */
+/** Adds support for mapping and inferring formats to content types.
+  *
+  * $ - Provides a request-scoped format variable $ - Maps formats to content types and vice versa $ - Augments the
+  * content-type inferrer to use the format
+  */
 trait ApiFormats extends ScalatraBase {
 
   import org.scalatra.ApiFormats.FormatKey
 
-  /**
-   * A map of suffixes to content types.
-   */
-  val formats: concurrent.Map[String, String] = new ConcurrentHashMap[String, String](Map(
-    "atom" -> "application/atom+xml",
-    "css" -> "text/css",
-    "flv" -> "video/x-flv",
-    "html" -> "text/html",
-    "html5" -> "text/html",
-    "js" -> "text/javascript",
-    "json" -> "application/json",
-    "pdf" -> "application/pdf",
-    "rss" -> "application/rss+xml",
-    "svg" -> "application/svg+xml",
-    "swf" -> "application/x-shockwave-flash",
-    "txt" -> "text/plain",
-    "xhtml" -> "application/xhtml+xml",
-    "xml" -> "application/xml",
-    "xslt" -> "application/xslt+xml").asJava).asScala
+  /** A map of suffixes to content types.
+    */
+  val formats: concurrent.Map[String, String] = new ConcurrentHashMap[String, String](
+    Map(
+      "atom"  -> "application/atom+xml",
+      "css"   -> "text/css",
+      "flv"   -> "video/x-flv",
+      "html"  -> "text/html",
+      "html5" -> "text/html",
+      "js"    -> "text/javascript",
+      "json"  -> "application/json",
+      "pdf"   -> "application/pdf",
+      "rss"   -> "application/rss+xml",
+      "svg"   -> "application/svg+xml",
+      "swf"   -> "application/x-shockwave-flash",
+      "txt"   -> "text/plain",
+      "xhtml" -> "application/xhtml+xml",
+      "xml"   -> "application/xml",
+      "xslt"  -> "application/xslt+xml"
+    ).asJava
+  ).asScala
 
-  /**
-   * A map of content types to suffixes.  Not strictly a reverse of `formats`.
-   */
-  val mimeTypes: concurrent.Map[String, String] = new ConcurrentHashMap[String, String](Map(
-    "application/atom+xml" -> "atom",
-    "application/ecmascript" -> "json",
-    "application/javascript" -> "json",
-    "application/json" -> "json",
-    "application/pdf" -> "pdf",
-    "application/rss+xml" -> "rss",
-    "application/svg+xml" -> "svg",
-    "application/x-ecmascript" -> "json",
-    "application/x-shockwave-flash" -> "swf",
-    "application/x-www-form-urlencoded" -> "html",
-    "application/xhtml+xml" -> "html",
-    "application/xml" -> "xml",
-    "application/xslt+xml" -> "xslt",
-    "multipart/form-data" -> "html",
-    "text/html" -> "html",
-    "text/javascript" -> "json",
-    "text/plain" -> "txt",
-    "text/css" -> "css",
-    "video/x-flv" -> "flv").asJava).asScala
+  /** A map of content types to suffixes. Not strictly a reverse of `formats`.
+    */
+  val mimeTypes: concurrent.Map[String, String] = new ConcurrentHashMap[String, String](
+    Map(
+      "application/atom+xml"              -> "atom",
+      "application/ecmascript"            -> "json",
+      "application/javascript"            -> "json",
+      "application/json"                  -> "json",
+      "application/pdf"                   -> "pdf",
+      "application/rss+xml"               -> "rss",
+      "application/svg+xml"               -> "svg",
+      "application/x-ecmascript"          -> "json",
+      "application/x-shockwave-flash"     -> "swf",
+      "application/x-www-form-urlencoded" -> "html",
+      "application/xhtml+xml"             -> "html",
+      "application/xml"                   -> "xml",
+      "application/xslt+xml"              -> "xslt",
+      "multipart/form-data"               -> "html",
+      "text/html"                         -> "html",
+      "text/javascript"                   -> "json",
+      "text/plain"                        -> "txt",
+      "text/css"                          -> "css",
+      "video/x-flv"                       -> "flv"
+    ).asJava
+  ).asScala
 
   protected def addMimeMapping(mime: String, extension: String): Unit = {
-    mimeTypes += mime -> extension
+    mimeTypes += mime    -> extension
     formats += extension -> mime
   }
 
-  /**
-   * The default format.
-   */
+  /** The default format.
+    */
   def defaultFormat: Symbol = Symbol("html")
 
-  /**
-   * A list of formats accepted by default.
-   */
+  /** A list of formats accepted by default.
+    */
   def defaultAcceptedFormats: List[Symbol] = List.empty
 
-  /**
-   * The list of media types accepted by the current request.  Parsed from the
-   * `Accept` header.
-   */
+  /** The list of media types accepted by the current request. Parsed from the `Accept` header.
+    */
   def acceptHeader(implicit request: HttpServletRequest): List[String] = parseAcceptHeader
 
   private[this] def getFromParams(implicit request: HttpServletRequest): Option[String] = {
@@ -100,9 +97,8 @@ trait ApiFormats extends ScalatraBase {
   }
 
   private[this] def getFromAcceptHeader(implicit request: HttpServletRequest): Option[String] = {
-    val hdrs = request.contentType.fold(acceptHeader)(contentType =>
-      (acceptHeader ::: List(contentType)).distinct)
-    formatForMimeTypes(hdrs *)
+    val hdrs = request.contentType.fold(acceptHeader)(contentType => (acceptHeader ::: List(contentType)).distinct)
+    formatForMimeTypes(hdrs*)
   }
 
   private[this] def getFromResponseHeader(implicit response: HttpServletResponse): Option[String] = {
@@ -143,12 +139,9 @@ trait ApiFormats extends ScalatraBase {
     }
   }
 
-  /**
-   * A content type inferrer based on the `format` variable.  Looks up the media
-   * type from the `formats` map.  If not found, returns
-   * `application/octet-stream`.  This inferrer is prepended to the inherited
-   * one.
-   */
+  /** A content type inferrer based on the `format` variable. Looks up the media type from the `formats` map. If not
+    * found, returns `application/octet-stream`. This inferrer is prepended to the inherited one.
+    */
   protected def inferFromFormats: ContentTypeInferrer = {
     case _ if format.nonBlank => formats.getOrElse(format, "application/octet-stream")
   }
@@ -169,8 +162,10 @@ trait ApiFormats extends ScalatraBase {
     getFromResponseHeader orElse getFromParams orElse getFromAcceptHeader getOrElse defaultFormat.name
   }
 
-  protected[scalatra] override def withRouteMultiParams[S](matchedRoute: Option[MatchedRoute])(thunk: => S)(implicit request: HttpServletRequest): S = {
-    val originalParams: MultiParams = multiParams
+  protected[scalatra] override def withRouteMultiParams[S](
+      matchedRoute: Option[MatchedRoute]
+  )(thunk: => S)(implicit request: HttpServletRequest): S = {
+    val originalParams: MultiParams           = multiParams
     val routeParams: Map[String, Seq[String]] = matchedRoute.map(_.multiParams).getOrElse(Map.empty)
     if (routeParams.contains("format")) {
       request(FormatKey) = routeParams.apply("format").head
@@ -190,19 +185,18 @@ trait ApiFormats extends ScalatraBase {
       .getOrElse(format)
   }
 
-  /**
-   * Returns the request-scoped format.  If not explicitly set, the format is:
-   * $ - the `format` request parameter, if present in `formatParams`
-   * $ - the first match from `Accept` header, looked up in `mimeTypes`
-   * $ - the format from the `Content-Type` header, as looked up in `mimeTypes`
-   * $ - the default format
-   */
+  /** Returns the request-scoped format. If not explicitly set, the format is: $ - the `format` request parameter, if
+    * present in `formatParams` $ - the first match from `Accept` header, looked up in `mimeTypes` $ - the format from
+    * the `Content-Type` header, as looked up in `mimeTypes` $ - the default format
+    */
   def format(implicit request: HttpServletRequest, response: HttpServletResponse): String = {
-    request.get(FormatKey).fold({
-      val fmt = getFormat
-      request(FormatKey) = fmt
-      fmt
-    })(_.asInstanceOf[String])
+    request
+      .get(FormatKey)
+      .fold({
+        val fmt = getFormat
+        request(FormatKey) = fmt
+        fmt
+      })(_.asInstanceOf[String])
   }
 
 }

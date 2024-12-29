@@ -1,8 +1,7 @@
 package org.scalatra.util
 
-/**
- * Nice trick from Miles Sabin using ambiguity in implicit resolution to disallow Nothing
- */
+/** Nice trick from Miles Sabin using ambiguity in implicit resolution to disallow Nothing
+  */
 sealed trait NotNothing[A] {
   type B
 }

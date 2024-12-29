@@ -53,17 +53,18 @@ trait I18nSupport { this: ScalatraBase =>
     }
   }
 
-  /**
-   * Provides a default Message resolver
-   *
-   * @param locale Locale used to create instance
-   * @return a new instance of Messages, override to provide own implementation
-   */
+  /** Provides a default Message resolver
+    *
+    * @param locale
+    *   Locale used to create instance
+    * @return
+    *   a new instance of Messages, override to provide own implementation
+    */
   def provideMessages(locale: Locale): Messages = Messages(locale)
 
   /*
-  * Resolve Locale based on HTTP request parameter or Cookie
-  */
+   * Resolve Locale based on HTTP request parameter or Cookie
+   */
   private def resolveLocale: Locale = resolveHttpLocale getOrElse defaultLocale
 
   /*
@@ -86,31 +87,33 @@ trait I18nSupport { this: ScalatraBase =>
     }).map(localeFromString(_)) orElse resolveHttpLocaleFromUserAgent
   }
 
-  /**
-   * Accept-Language header looks like "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4"
-   * Specification see [[http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html]]
-   *
-   * @return first preferred found locale or None
-   */
+  /** Accept-Language header looks like "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4" Specification see
+    * [[http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html]]
+    *
+    * @return
+    *   first preferred found locale or None
+    */
   private def resolveHttpLocaleFromUserAgent: Option[Locale] = {
     request.headers.get("Accept-Language") map { s =>
-      val locales = s.split(",").map(s => {
-        def splitLanguageCountry(s: String): Locale = {
-          val langCountry = s.split("-")
-          if (langCountry.length > 1) {
-            new Locale(langCountry.head, langCountry.last)
-          } else {
-            new Locale(langCountry.head)
+      val locales = s
+        .split(",")
+        .map(s => {
+          def splitLanguageCountry(s: String): Locale = {
+            val langCountry = s.split("-")
+            if (langCountry.length > 1) {
+              new Locale(langCountry.head, langCountry.last)
+            } else {
+              new Locale(langCountry.head)
+            }
           }
-        }
-        // If this language has a quality index:
-        if (s.indexOf(";") > 0) {
-          val qualityLocale = s.split(";")
-          splitLanguageCountry(qualityLocale.head)
-        } else {
-          splitLanguageCountry(s)
-        }
-      })
+          // If this language has a quality index:
+          if (s.indexOf(";") > 0) {
+            val qualityLocale = s.split(";")
+            splitLanguageCountry(qualityLocale.head)
+          } else {
+            splitLanguageCountry(s)
+          }
+        })
       // save all found locales for later user
       request.setAttribute(UserLocalesKey, locales)
       // We assume that all accept-languages are stored in order of quality
@@ -119,10 +122,10 @@ trait I18nSupport { this: ScalatraBase =>
     }
   }
 
-  /**
-   * Reads a locale from a String
-   * @param in a string like en_GB or de_DE
-   */
+  /** Reads a locale from a String
+    * @param in
+    *   a string like en_GB or de_DE
+    */
   private def localeFromString(in: String): Locale = {
     val token = in.split("_")
     new Locale(token.head, token.last)

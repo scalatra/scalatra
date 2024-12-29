@@ -9,7 +9,7 @@ import scala.util.control.Exception.allCatch
 
 object JsonValueReader {
   private val separatorBeginning = "."
-  private val separatorEnd = ""
+  private val separatorEnd       = ""
 }
 
 class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
@@ -20,7 +20,7 @@ class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
     allCatch.withApply(t => Left(t.getMessage)) { Right(readPath(key)) }
 
   protected def readPath(path: String, subj: JValue = data): Option[JValue] = {
-    val partIndex = path.indexOf(separatorBeginning)
+    val partIndex    = path.indexOf(separatorBeginning)
     val (part, rest) = if (path.indexOf(separatorBeginning) > -1) path.splitAt(partIndex) else (path, "")
     val realRest = if (rest.nonEmpty) {
       if (separatorEnd.nonBlank) {
@@ -38,7 +38,7 @@ class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
     val jv = subj \ path
     jv match {
       case JNothing => None
-      case o => Some(o)
+      case o        => Some(o)
     }
   }
 }
@@ -47,4 +47,3 @@ trait JsonValueReaderProperty[T] { self: JsonMethods[T] =>
   implicit protected def jsonFormats: Formats
   protected implicit def jsonValueReader(d: JValue): JsonValueReader = new JsonValueReader(d)
 }
-

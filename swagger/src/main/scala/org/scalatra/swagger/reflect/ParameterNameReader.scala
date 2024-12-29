@@ -1,7 +1,7 @@
 package org.scalatra.swagger.reflect
 
-import java.lang.reflect.{ Constructor => JConstructor }
-import com.thoughtworks.paranamer.{ BytecodeReadingParanamer, CachingParanamer }
+import java.lang.reflect.{Constructor => JConstructor}
+import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
 
 trait ParameterNameReader {
   def lookupParameterNames(constructor: JConstructor[?]): Seq[String]

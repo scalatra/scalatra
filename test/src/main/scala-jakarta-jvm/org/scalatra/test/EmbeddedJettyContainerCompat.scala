@@ -1,7 +1,7 @@
 package org.scalatra.test
 
 import org.eclipse.jetty.http.UriCompliance
-import org.eclipse.jetty.server.{ HttpConnectionFactory, Server }
+import org.eclipse.jetty.server.{HttpConnectionFactory, Server}
 import org.scalatra.JettyCompat.ServletContextHandler
 
 import java.nio.file.Files
@@ -13,8 +13,7 @@ private[scalatra] object EmbeddedJettyContainerCompat {
   }
 
   def configureServer(server: Server) = {
-    server.getConnectors
-      .head
+    server.getConnectors.head
       .getConnectionFactory(classOf[HttpConnectionFactory])
       .getHttpConfiguration
       .setUriCompliance(UriCompliance.LEGACY)

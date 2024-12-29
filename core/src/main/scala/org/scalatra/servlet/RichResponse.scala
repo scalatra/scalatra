@@ -1,17 +1,16 @@
 package org.scalatra
 package servlet
 
-import java.io.{ OutputStream, PrintWriter }
-import org.scalatra.ServletCompat.http.{ HttpServletResponse, Cookie => ServletCookie }
+import java.io.{OutputStream, PrintWriter}
+import org.scalatra.ServletCompat.http.{HttpServletResponse, Cookie => ServletCookie}
 
 import org.scalatra.util.RicherString._
 
 case class RichResponse(res: HttpServletResponse) {
 
-  /**
-   * Note: the servlet API doesn't remember the reason.  If a custom
-   * reason was set, it will be returned incorrectly here,
-   */
+  /** Note: the servlet API doesn't remember the reason. If a custom reason was set, it will be returned incorrectly
+    * here,
+    */
   def status: Int = res.getStatus
 
   def status_=(status: Int): Unit = {
