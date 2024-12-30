@@ -1,23 +1,24 @@
 package org.scalatra.servlet
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletRequestWrapper }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletRequestWrapper}
 
-/**
- * Read-only immutable wrapper for an [[HttpServletRequest]] that can, for the most part, be
- * passed around to different threads.
- *
- * This is necessary because ServletContainers will "recycle" a request once the original HTTP
- * thread is returned, meaning that a lot of attributes are set to null (in the case of Jetty).
- *
- * Limitations of this class include the following:
- *
- *   - it is mostly immutable (methods on the original request are not given stable values,
- *     nor are methods that return non-primitive types)
- *   - changes made to the original object or this object may not be reflected across threads
- *
- * @param originalRequest the original HttpServletRequest to wrap
- */
-case class HttpServletRequestReadOnly(private val originalRequest: HttpServletRequest) extends HttpServletRequestWrapper(originalRequest) {
+/** Read-only immutable wrapper for an [[HttpServletRequest]] that can, for the most part, be passed around to different
+  * threads.
+  *
+  * This is necessary because ServletContainers will "recycle" a request once the original HTTP thread is returned,
+  * meaning that a lot of attributes are set to null (in the case of Jetty).
+  *
+  * Limitations of this class include the following:
+  *
+  *   - it is mostly immutable (methods on the original request are not given stable values, nor are methods that return
+  *     non-primitive types)
+  *   - changes made to the original object or this object may not be reflected across threads
+  *
+  * @param originalRequest
+  *   the original HttpServletRequest to wrap
+  */
+case class HttpServletRequestReadOnly(private val originalRequest: HttpServletRequest)
+    extends HttpServletRequestWrapper(originalRequest) {
 
   override val getAuthType: String = originalRequest.getAuthType
 

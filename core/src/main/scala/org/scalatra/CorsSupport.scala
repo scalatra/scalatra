@@ -1,7 +1,7 @@
 package org.scalatra
 
 import java.util.Locale.ENGLISH
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
@@ -10,18 +10,20 @@ import scala.jdk.CollectionConverters._
 
 object CorsSupport {
 
-  val OriginHeader: String = "Origin"
-  val AccessControlRequestMethodHeader: String = "Access-Control-Request-Method"
-  val AccessControlRequestHeadersHeader: String = "Access-Control-Request-Headers"
-  val AccessControlAllowOriginHeader: String = "Access-Control-Allow-Origin"
-  val AccessControlAllowMethodsHeader: String = "Access-Control-Allow-Methods"
-  val AccessControlAllowHeadersHeader: String = "Access-Control-Allow-Headers"
-  val AccessControlMaxAgeHeader: String = "Access-Control-Max-Age"
+  val OriginHeader: String                        = "Origin"
+  val AccessControlRequestMethodHeader: String    = "Access-Control-Request-Method"
+  val AccessControlRequestHeadersHeader: String   = "Access-Control-Request-Headers"
+  val AccessControlAllowOriginHeader: String      = "Access-Control-Allow-Origin"
+  val AccessControlAllowMethodsHeader: String     = "Access-Control-Allow-Methods"
+  val AccessControlAllowHeadersHeader: String     = "Access-Control-Allow-Headers"
+  val AccessControlMaxAgeHeader: String           = "Access-Control-Max-Age"
   val AccessControlAllowCredentialsHeader: String = "Access-Control-Allow-Credentials"
 
   private val AnyOrigin: String = "*"
-  private val SimpleHeaders: Seq[String] = List(OriginHeader.toUpperCase(ENGLISH), "ACCEPT", "ACCEPT-LANGUAGE", "CONTENT-LANGUAGE")
-  private val SimpleContentTypes: Seq[String] = List("APPLICATION/X-WWW-FORM-URLENCODED", "MULTIPART/FORM-DATA", "TEXT/PLAIN")
+  private val SimpleHeaders: Seq[String] =
+    List(OriginHeader.toUpperCase(ENGLISH), "ACCEPT", "ACCEPT-LANGUAGE", "CONTENT-LANGUAGE")
+  private val SimpleContentTypes: Seq[String] =
+    List("APPLICATION/X-WWW-FORM-URLENCODED", "MULTIPART/FORM-DATA", "TEXT/PLAIN")
 
   val CorsHeaders: Seq[String] = List(
     OriginHeader,
@@ -31,25 +33,27 @@ object CorsSupport {
     AccessControlAllowOriginHeader,
     AccessControlMaxAgeHeader,
     AccessControlRequestHeadersHeader,
-    AccessControlRequestMethodHeader)
+    AccessControlRequestMethodHeader
+  )
 
   case class CORSConfig(
-    allowedOrigins: Seq[String],
-    allowedMethods: Seq[String],
-    allowedHeaders: Seq[String],
-    allowCredentials: Boolean,
-    preflightMaxAge: Int = 0,
-    enabled: Boolean)
+      allowedOrigins: Seq[String],
+      allowedMethods: Seq[String],
+      allowedHeaders: Seq[String],
+      allowCredentials: Boolean,
+      preflightMaxAge: Int = 0,
+      enabled: Boolean
+  )
 
   private[this] def configKey(name: String): String = "org.scalatra.cors." + name
 
-  val AllowedOriginsKey: String = configKey("allowedOrigins")
-  val AllowedMethodsKey: String = configKey("allowedMethods")
-  val AllowedHeadersKey: String = configKey("allowedHeaders")
+  val AllowedOriginsKey: String   = configKey("allowedOrigins")
+  val AllowedMethodsKey: String   = configKey("allowedMethods")
+  val AllowedHeadersKey: String   = configKey("allowedHeaders")
   val AllowCredentialsKey: String = configKey("allowCredentials")
-  val PreflightMaxAgeKey: String = configKey("preflightMaxAge")
-  val EnableKey: String = configKey("enable")
-  val CorsConfigKey: String = configKey("corsConfig")
+  val PreflightMaxAgeKey: String  = configKey("preflightMaxAge")
+  val EnableKey: String           = configKey("enable")
+  val CorsConfigKey: String       = configKey("corsConfig")
 
   private val DefaultMethods: String = "GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH"
 
@@ -69,7 +73,8 @@ object CorsSupport {
     "X-Requested-With",
     "Authorization",
     "Accept",
-    "Content-Type").mkString(",")
+    "Content-Type"
+  ).mkString(",")
 
 }
 trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
@@ -81,20 +86,31 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
   abstract override def initialize(config: ConfigT): Unit = {
     super.initialize(config)
     def createDefault: CORSConfig = CORSConfig(
-      Option(config.context.getInitParameter(AllowedOriginsKey)).getOrElse(AnyOrigin).split(",").toIndexedSeq.map(_.trim),
-      Option(config.context.getInitParameter(AllowedMethodsKey)).getOrElse(DefaultMethods).split(",").toIndexedSeq.map(_.trim),
-      Option(config.context.getInitParameter(AllowedHeadersKey)).getOrElse(DefaultHeaders).split(",").toIndexedSeq.map(_.trim),
+      Option(config.context.getInitParameter(AllowedOriginsKey))
+        .getOrElse(AnyOrigin)
+        .split(",")
+        .toIndexedSeq
+        .map(_.trim),
+      Option(config.context.getInitParameter(AllowedMethodsKey))
+        .getOrElse(DefaultMethods)
+        .split(",")
+        .toIndexedSeq
+        .map(_.trim),
+      Option(config.context.getInitParameter(AllowedHeadersKey))
+        .getOrElse(DefaultHeaders)
+        .split(",")
+        .toIndexedSeq
+        .map(_.trim),
       Option(config.context.getInitParameter(AllowCredentialsKey)).map(_.toBoolean).getOrElse(true),
       Option(config.context.getInitParameter(PreflightMaxAgeKey)).map(_.toInt).getOrElse(1800),
-      Option(config.context.getInitParameter(EnableKey)).map(_.toBoolean).getOrElse(true))
+      Option(config.context.getInitParameter(EnableKey)).map(_.toBoolean).getOrElse(true)
+    )
 
     val corsCfg = config.context.getOrElseUpdate(CorsConfigKey, createDefault).asInstanceOf[CORSConfig]
     import corsCfg._
     if (enabled) {
-      logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s".format(
-        allowedOrigins mkString ", ",
-        allowedMethods mkString ", ",
-        allowedHeaders mkString ", ")
+      logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s"
+        .format(allowedOrigins mkString ", ", allowedMethods mkString ", ", allowedHeaders mkString ", ")
     } else {
       logger debug "Cors support is disabled"
     }
@@ -105,11 +121,13 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
     // 5.2.7
     augmentSimpleRequest()
     // 5.2.8
-    if (corsConfig.preflightMaxAge > 0) response.headers(AccessControlMaxAgeHeader) = corsConfig.preflightMaxAge.toString
+    if (corsConfig.preflightMaxAge > 0)
+      response.headers(AccessControlMaxAgeHeader) = corsConfig.preflightMaxAge.toString
     // 5.2.9
     response.headers(AccessControlAllowMethodsHeader) = corsConfig.allowedMethods mkString ","
     // 5.2.10
-    val rh = corsConfig.allowedHeaders ++ request.getHeaders(AccessControlRequestHeadersHeader).asScala.flatMap(_ split (","))
+    val rh =
+      corsConfig.allowedHeaders ++ request.getHeaders(AccessControlRequestHeadersHeader).asScala.flatMap(_ split (","))
     response.headers(AccessControlAllowHeadersHeader) = rh mkString ","
     response.end()
 
@@ -117,10 +135,11 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
 
   protected def augmentSimpleRequest(): Unit = {
     val anyOriginAllowed: Boolean = corsConfig.allowedOrigins.contains(AnyOrigin)
-    val hdr = if (anyOriginAllowed && !corsConfig.allowCredentials)
-      Some(AnyOrigin)
-    else
-      request.headers.get(OriginHeader).filter(corsConfig.allowedOrigins.contains)
+    val hdr =
+      if (anyOriginAllowed && !corsConfig.allowCredentials)
+        Some(AnyOrigin)
+      else
+        request.headers.get(OriginHeader).filter(corsConfig.allowedOrigins.contains)
 
     hdr.foreach(value => response.headers(AccessControlAllowOriginHeader) = value)
     if (corsConfig.allowCredentials) response.headers(AccessControlAllowCredentialsHeader) = "true"
@@ -142,10 +161,10 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
 
   private[this] def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty
   private[this] def isPreflightRequest: Boolean = {
-    val isCors = isCORSRequest
-    val validRoute = isValidRoute
-    val isPreflight = request.headers.get(AccessControlRequestMethodHeader).flatMap(_.blankOption).isDefined
-    val enabled = isEnabled
+    val isCors        = isCORSRequest
+    val validRoute    = isValidRoute
+    val isPreflight   = request.headers.get(AccessControlRequestMethodHeader).flatMap(_.blankOption).isDefined
+    val enabled       = isEnabled
     val matchesOrigin = originMatches
     val methodAllowed = allowsMethod
     val allowsHeaders = headersAreAllowed
@@ -172,10 +191,10 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
   }
 
   private[this] def isSimpleRequest: Boolean = {
-    val isCors = isCORSRequest
-    val enabled = isEnabled
+    val isCors     = isCORSRequest
+    val enabled    = isEnabled
     val allOrigins = allOriginsMatch
-    val res = isCors && enabled && allOrigins && request.headers.names.forall(isSimpleHeader)
+    val res        = isCors && enabled && allOrigins && request.headers.names.forall(isSimpleHeader)
     //    logger debug "This is a simple request: %s, because: %s, %s, %s".format(res, isCors, enabled, allOrigins)
     res
   }
@@ -189,16 +208,16 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
     }
     val result: Boolean = {
       accessControlRequestMethod.nonBlank &&
-        corsConfig.allowedMethods.contains(accessControlRequestMethod.toUpperCase(ENGLISH))
+      corsConfig.allowedMethods.contains(accessControlRequestMethod.toUpperCase(ENGLISH))
     }
     result
   }
 
   private[this] def headersAreAllowed: Boolean = { // 5.2.4 and 5.2.6
     val allowedHeaders = corsConfig.allowedHeaders.map(_.trim.toUpperCase(ENGLISH))
-    val requestedHeaders = for (
-      header <- request.headers.getMulti(AccessControlRequestHeadersHeader) if header.nonBlank
-    ) yield header.toUpperCase(ENGLISH)
+    val requestedHeaders =
+      for (header <- request.headers.getMulti(AccessControlRequestHeadersHeader) if header.nonBlank)
+        yield header.toUpperCase(ENGLISH)
 
     requestedHeaders.forall(h => isSimpleHeader(h) || allowedHeaders.contains(h))
   }
@@ -227,4 +246,3 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
   }
 
 }
-

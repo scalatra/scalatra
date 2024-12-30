@@ -2,11 +2,12 @@ package org.scalatra.util
 
 import java.nio.charset.StandardCharsets
 
-import collection.{ SortedMap, immutable }
+import collection.{SortedMap, immutable}
 
 object MapQueryString {
 
-  val DEFAULT_EXCLUSIONS = List("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sms_ss", "awesm")
+  val DEFAULT_EXCLUSIONS =
+    List("utm_source", "utm_medium", "utm_term", "utm_content", "utm_campaign", "sms_ss", "awesm")
 
   def parseString(rw: String): Map[String, List[String]] = {
     // this is probably an accident waiting to happen when people do actually mix stuff
@@ -46,12 +47,14 @@ case class MapQueryString(initialValues: Seq[(String, Seq[String])], rawValue: S
 
   val empty = Map.empty[String, List[String]]
 
-  def value: Value = Map(initialValues *)
+  def value: Value = Map(initialValues*)
 
-  def normalize: MapQueryString = copy(SortedMap((initialValues filter (k => !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1))) *).toSeq)
+  def normalize: MapQueryString = copy(
+    SortedMap((initialValues filter (k => !MapQueryString.DEFAULT_EXCLUSIONS.contains(k._1)))*).toSeq
+  )
 
-  private def mkString(values: Value = value) = values map {
-    case (k, v) => v.map(s => "%s=%s".format(UrlCodingUtils.queryPartEncode(k), UrlCodingUtils.queryPartEncode(s))).mkString("&")
+  private def mkString(values: Value = value) = values map { case (k, v) =>
+    v.map(s => "%s=%s".format(UrlCodingUtils.queryPartEncode(k), UrlCodingUtils.queryPartEncode(s))).mkString("&")
   } mkString "&"
 
   type Value = immutable.Map[String, Seq[String]]

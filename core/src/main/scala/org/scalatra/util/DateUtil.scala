@@ -1,7 +1,7 @@
 package org.scalatra.util
 
 import java.text.SimpleDateFormat
-import java.util.{ Date, Locale, TimeZone }
+import java.util.{Date, Locale, TimeZone}
 
 object DateUtil {
 
@@ -16,10 +16,11 @@ object DateUtil {
   def unfreezeTime(): Unit = _currentTimeMillis = None
 
   def formatDate(
-    date: Date,
-    format: String,
-    timeZone: TimeZone = TimeZone.getTimeZone("GMT"),
-    locale: Locale = Locale.ENGLISH): String = {
+      date: Date,
+      format: String,
+      timeZone: TimeZone = TimeZone.getTimeZone("GMT"),
+      locale: Locale = Locale.ENGLISH
+  ): String = {
     val df = new SimpleDateFormat(format, locale)
     df.setTimeZone(timeZone)
     df.format(date)

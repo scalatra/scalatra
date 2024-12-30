@@ -1,7 +1,7 @@
 package org.scalatra
 package auth
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.auth.ScentryAuthStore.ScentryAuthStore
 import org.scalatra.servlet.ServletApiImplicits._
@@ -20,21 +20,22 @@ object Scentry {
     _globalStrategies += (name -> strategyFactory)
   }
 
-  def globalStrategies = _globalStrategies
+  def globalStrategies              = _globalStrategies
   def clearGlobalStrategies(): Unit = { _globalStrategies.clear() }
 
-  val scentryAuthKey = "scentry.auth.default.user"
+  val scentryAuthKey    = "scentry.auth.default.user"
   val ScentryRequestKey = "org.scalatra.auth.Scentry"
 }
 
 class Scentry[UserType <: AnyRef](
-  app: ScalatraBase,
-  serialize: PartialFunction[UserType, String],
-  deserialize: PartialFunction[String, UserType],
-  private[this] var _store: ScentryAuthStore) {
+    app: ScalatraBase,
+    serialize: PartialFunction[UserType, String],
+    deserialize: PartialFunction[String, UserType],
+    private[this] var _store: ScentryAuthStore
+) {
 
   private[this] lazy val logger = LoggerFactory.getLogger(getClass)
-  type StrategyType = ScentryStrategy[UserType]
+  type StrategyType    = ScentryStrategy[UserType]
   type StrategyFactory = ScalatraBase => StrategyType
 
   import org.scalatra.auth.Scentry._
@@ -52,7 +53,7 @@ class Scentry[UserType <: AnyRef](
     userOption.isDefined
   }
 
-  //def session = app.session
+  // def session = app.session
   def params(implicit request: HttpServletRequest): Params = app.params(request)
   def redirect(uri: String)(implicit request: HttpServletRequest, response: HttpServletResponse): Unit = {
     app.redirect(uri)(request, response)
@@ -101,37 +102,43 @@ class Scentry[UserType <: AnyRef](
 
   def toSession: PartialFunction[UserType, String] = serialize orElse missingSerializer
 
-  private def missingSerializer: PartialFunction[UserType, String] = {
-    case _ => throw new RuntimeException("You need to provide a session serializer for Scentry")
+  private def missingSerializer: PartialFunction[UserType, String] = { case _ =>
+    throw new RuntimeException("You need to provide a session serializer for Scentry")
   }
 
-  private def missingDeserializer: PartialFunction[String, UserType] = {
-    case _ => throw new RuntimeException("You need to provide a session deserializer for Scentry")
+  private def missingDeserializer: PartialFunction[String, UserType] = { case _ =>
+    throw new RuntimeException("You need to provide a session deserializer for Scentry")
   }
 
-  def authenticate(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] = {
-    val r = runAuthentication(names *) map {
-      case (stratName, usr) =>
-        runCallbacks() { _.afterAuthenticate(stratName, usr) }
-        user_=(usr)
-        user
+  def authenticate(
+      names: String*
+  )(implicit request: HttpServletRequest, response: HttpServletResponse): Option[UserType] = {
+    val r = runAuthentication(names*) map { case (stratName, usr) =>
+      runCallbacks() { _.afterAuthenticate(stratName, usr) }
+      user_=(usr)
+      user
     }
     if (names.isEmpty) r orElse { defaultUnauthenticated foreach (_.apply()); None }
     else r
   }
 
-  private[this] def runAuthentication(names: String*)(implicit request: HttpServletRequest, response: HttpServletResponse) = {
+  private[this] def runAuthentication(
+      names: String*
+  )(implicit request: HttpServletRequest, response: HttpServletResponse) = {
     val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
-    subset.withFilter(_.isValid).flatMap { strat =>
-      logger.debug("Authenticating with: %s" format strat.name)
-      runCallbacks(_.isValid) { _.beforeAuthenticate }
-      strat.authenticate() match {
-        case Some(usr) => Some(strat.name -> usr)
-        case _ =>
-          strat.unauthenticated()
-          None
+    subset
+      .withFilter(_.isValid)
+      .flatMap { strat =>
+        logger.debug("Authenticating with: %s" format strat.name)
+        runCallbacks(_.isValid) { _.beforeAuthenticate }
+        strat.authenticate() match {
+          case Some(usr) => Some(strat.name -> usr)
+          case _ =>
+            strat.unauthenticated()
+            None
+        }
       }
-    }.headOption
+      .headOption
   }
 
   private[this] var defaultUnauthenticated: Option[() => Unit] = None
@@ -151,8 +158,7 @@ class Scentry[UserType <: AnyRef](
   private[this] def runCallbacks(guard: StrategyType => Boolean = s => true)(which: StrategyType => Unit): Unit = {
     strategies foreach {
       case (_, v) if guard(v) => which(v)
-      case _ => // guard failed
+      case _                  => // guard failed
     }
   }
 }
-

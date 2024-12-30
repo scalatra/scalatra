@@ -1,19 +1,14 @@
 package org.scalatra
 package servlet
 
-import java.{ util => ju }
+import java.{util => ju}
 import org.scalatra.ServletCompat.ServletContext
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 import scala.language.reflectiveCalls
 
-/**
- * ServletBase implements the Scalatra DSL with the Servlet API, and can be
- * a base trait of a Servlet or a Filter.
- */
-trait ServletBase
-  extends ScalatraBase
-  with SessionSupport
-  with Initializable {
+/** ServletBase implements the Scalatra DSL with the Servlet API, and can be a base trait of a Servlet or a Filter.
+  */
+trait ServletBase extends ScalatraBase with SessionSupport with Initializable {
 
   type ConfigT <: {
 

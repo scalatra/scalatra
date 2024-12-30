@@ -10,7 +10,7 @@ import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
 
 import javax.xml.parsers.SAXParserFactory
-import scala.xml.{ Elem, XML }
+import scala.xml.{Elem, XML}
 import scala.xml.factory.XMLLoader
 
 object JsonSupport {
@@ -58,13 +58,15 @@ trait JsonSupport[T] extends JsonOutput[T] {
 
   protected def transformRequestBody(body: JValue) = body
 
-  def parsedBody(implicit request: HttpServletRequest): JValue = request.get(ParsedBodyKey).fold({
-    val fmt = requestFormat
-    var bd: JValue = JNothing
-    if (fmt == "json" || fmt == "xml") {
-      bd = parseRequestBody(fmt)
-      request(ParsedBodyKey) = bd.asInstanceOf[AnyRef]
-    }
-    bd
-  })(_.asInstanceOf[JValue])
+  def parsedBody(implicit request: HttpServletRequest): JValue = request
+    .get(ParsedBodyKey)
+    .fold({
+      val fmt        = requestFormat
+      var bd: JValue = JNothing
+      if (fmt == "json" || fmt == "xml") {
+        bd = parseRequestBody(fmt)
+        request(ParsedBodyKey) = bd.asInstanceOf[AnyRef]
+      }
+      bd
+    })(_.asInstanceOf[JValue])
 }

@@ -5,10 +5,9 @@ import org.scalatra.util.RicherString._
 import scala.util.matching.Regex
 import scala.util.parsing.combinator._
 
-/**
- * A route matcher is evaluated in the context it was created and returns a
- * a (possibly empty) multi-map of parameters if the route is deemed to match.
- */
+/** A route matcher is evaluated in the context it was created and returns a a (possibly empty) multi-map of parameters
+  * if the route is deemed to match.
+  */
 trait RouteMatcher extends RouteTransformer {
 
   def apply(requestPath: String): Option[MultiParams]
@@ -17,28 +16,26 @@ trait RouteMatcher extends RouteTransformer {
 
 }
 
-/**
- * A route matcher from which a URI can be generated from route parameters.
- */
+/** A route matcher from which a URI can be generated from route parameters.
+  */
 trait ReversibleRouteMatcher {
 
-  /**
-   * Generates a URI from a route matcher.
-   *
-   * @param params a map of named params extractable by the route
-   * @param splats a list of splats extractable by the route
-   * @return a String that would match the route with the given params and splats
-   */
+  /** Generates a URI from a route matcher.
+    *
+    * @param params
+    *   a map of named params extractable by the route
+    * @param splats
+    *   a list of splats extractable by the route
+    * @return
+    *   a String that would match the route with the given params and splats
+    */
   def reverse(params: Map[String, String], splats: List[String]): String
 
 }
 
-/**
- * An implementation of Sinatra's path pattern syntax.
- */
-final class SinatraRouteMatcher(pattern: String)
-  extends RouteMatcher
-  with ReversibleRouteMatcher {
+/** An implementation of Sinatra's path pattern syntax.
+  */
+final class SinatraRouteMatcher(pattern: String) extends RouteMatcher with ReversibleRouteMatcher {
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
@@ -69,7 +66,7 @@ final class SinatraRouteMatcher(pattern: String)
     // strips optional trailing slash from path
     def get: String = {
       if (splats.nonEmpty) throw new Exception("Too many splats for builder \"%s\"" format pattern)
-      val pairs = params map { case (key, value) => key.urlEncode + "=" + value.urlEncode }
+      val pairs       = params map { case (key, value) => key.urlEncode + "=" + value.urlEncode }
       val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
       path.replaceFirst("""/\?$""", "") + queryString
     }
@@ -79,8 +76,8 @@ final class SinatraRouteMatcher(pattern: String)
 
     def apply(pattern: String): (Builder => Builder) = parseAll(tokens, pattern).get
 
-    private def tokens: Parser[Builder => Builder] = rep(token) ^^ {
-      tokens => tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
+    private def tokens: Parser[Builder => Builder] = rep(token) ^^ { tokens =>
+      tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
     }
 
     private def token: Parser[Builder => Builder] = splat | prefixedOptional | optional | named | literal
@@ -88,8 +85,8 @@ final class SinatraRouteMatcher(pattern: String)
     private def splat: Parser[Builder => Builder] = "*" ^^^ { builder => builder.addSplat }
 
     private def prefixedOptional: Parser[Builder => Builder] =
-      ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ {
-        case p ~ "?:" ~ o ~ "?" => builder => builder.addPrefixedOptional(o, p)
+      ("." | "/") ~ "?:" ~ """\w+""".r ~ "?" ^^ { case p ~ "?:" ~ o ~ "?" =>
+        builder => builder.addPrefixedOptional(o, p)
       }
 
     private def optional: Parser[Builder => Builder] =
@@ -106,12 +103,9 @@ final class SinatraRouteMatcher(pattern: String)
 
 }
 
-/**
- * An implementation of Rails' path pattern syntax
- */
-final class RailsRouteMatcher(pattern: String)
-  extends RouteMatcher
-  with ReversibleRouteMatcher {
+/** An implementation of Rails' path pattern syntax
+  */
+final class RailsRouteMatcher(pattern: String) extends RouteMatcher with ReversibleRouteMatcher {
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
@@ -136,7 +130,7 @@ final class RailsRouteMatcher(pattern: String)
 
     // appends additional params as a query string
     def get: String = {
-      val pairs = params map { case (key, value) => key.urlEncode + "=" + value.urlEncode }
+      val pairs       = params map { case (key, value) => key.urlEncode + "=" + value.urlEncode }
       val queryString = if (pairs.isEmpty) "" else pairs.mkString("?", "&", "")
       path + queryString
     }
@@ -147,11 +141,11 @@ final class RailsRouteMatcher(pattern: String)
 
     def apply(pattern: String): (Builder => Builder) = parseAll(tokens, pattern).get
 
-    private def tokens: Parser[Builder => Builder] = rep(token) ^^ {
-      tokens => tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
+    private def tokens: Parser[Builder => Builder] = rep(token) ^^ { tokens =>
+      tokens reduceLeft ((acc, fun) => builder => fun(acc(builder)))
     }
 
-    //private def token = param | glob | optional | static
+    // private def token = param | glob | optional | static
     private def token: Parser[Builder => Builder] = param | glob | optional | static
 
     private def param: Parser[Builder => Builder] =
@@ -181,8 +175,7 @@ final class RailsRouteMatcher(pattern: String)
   }
 }
 
-final class PathPatternRouteMatcher(pattern: PathPattern)
-  extends RouteMatcher {
+final class PathPatternRouteMatcher(pattern: PathPattern) extends RouteMatcher {
 
   def apply(requestPath: String): Option[MultiParams] = pattern(requestPath)
 
@@ -190,23 +183,21 @@ final class PathPatternRouteMatcher(pattern: PathPattern)
 
 }
 
-/**
- * A route matcher for regular expressions.  Useful for cases that are
- * more complex than are supported by Sinatra- or Rails-style routes.
- */
-final class RegexRouteMatcher(regex: Regex)
-  extends RouteMatcher {
+/** A route matcher for regular expressions. Useful for cases that are more complex than are supported by Sinatra- or
+  * Rails-style routes.
+  */
+final class RegexRouteMatcher(regex: Regex) extends RouteMatcher {
 
-  /**
-   * Evaluates the request path against the regular expression.
-   *
-   * @return If the regex matches the request path, returns a list of all
-   * captured groups in a "captures" variable.  Otherwise, returns None.
-   */
+  /** Evaluates the request path against the regular expression.
+    *
+    * @return
+    *   If the regex matches the request path, returns a list of all captured groups in a "captures" variable.
+    *   Otherwise, returns None.
+    */
   def apply(requestPath: String): Option[MultiParams] = regex.findFirstMatchIn(requestPath) map {
     _.subgroups match {
       case Nil => Map.empty
-      case xs => Map("captures" -> xs)
+      case xs  => Map("captures" -> xs)
     }
   }
 
@@ -214,16 +205,15 @@ final class RegexRouteMatcher(regex: Regex)
 
 }
 
-/**
- * A route matcher on a boolean condition.  Does not extract any route parameters.
- */
+/** A route matcher on a boolean condition. Does not extract any route parameters.
+  */
 final class BooleanBlockRouteMatcher(block: => Boolean) extends RouteMatcher {
 
-  /**
-   * Evaluates the block.
-   *
-   * @return Some empty map if the block evaluates to true, or else None.
-   */
+  /** Evaluates the block.
+    *
+    * @return
+    *   Some empty map if the block evaluates to true, or else None.
+    */
   def apply(requestPath: String): Option[MultiParams] = if (block) Some(Map.empty) else None
 
   override def toString: String = "[Boolean Guard]"

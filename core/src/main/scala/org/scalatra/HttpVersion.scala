@@ -1,10 +1,11 @@
 package org.scalatra
 
 abstract class HttpVersion(
-  val protocolName: String,
-  val majorVersion: Int,
-  val minorVersion: Int,
-  val keepAliveDefault: Boolean) extends Ordered[HttpVersion] {
+    val protocolName: String,
+    val majorVersion: Int,
+    val minorVersion: Int,
+    val keepAliveDefault: Boolean
+) extends Ordered[HttpVersion] {
 
   val text: String = protocolName + '/' + majorVersion + '.' + minorVersion
 
@@ -15,8 +16,8 @@ abstract class HttpVersion(
   override def equals(obj: Any): Boolean = obj match {
     case m: HttpVersion =>
       protocolName == m.protocolName &&
-        majorVersion == m.majorVersion &&
-        minorVersion == m.minorVersion
+      majorVersion == m.majorVersion &&
+      minorVersion == m.minorVersion
     case _ => false
   }
 

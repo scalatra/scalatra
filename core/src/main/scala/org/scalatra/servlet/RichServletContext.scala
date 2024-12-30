@@ -1,28 +1,26 @@
 package org.scalatra
 package servlet
 
-import java.net.{ MalformedURLException, URL }
-import java.{ util => jutil }
-import org.scalatra.ServletCompat.http.{ HttpServlet, HttpServletRequest }
-import org.scalatra.ServletCompat.{ DispatcherType, Filter, ServletContext }
+import java.net.{MalformedURLException, URL}
+import java.{util => jutil}
+import org.scalatra.ServletCompat.http.{HttpServlet, HttpServletRequest}
+import org.scalatra.ServletCompat.{DispatcherType, Filter, ServletContext}
 
-/**
- * Extension methods to the standard ServletContext.
- */
+/** Extension methods to the standard ServletContext.
+  */
 case class RichServletContext(sc: ServletContext) extends AttributesMap {
 
   protected[this] type A = ServletContext
-  protected[this] override def attributes = sc
+  protected[this] override def attributes                         = sc
   protected[this] override def attributesTypeClass: Attributes[A] = Attributes[A]
 
-  /**
-   * Optionally returns a URL to the resource mapped to the given path.  This
-   * is a wrapper around `getResource`.
-   *
-   * @param path the path to the resource
-   * @return the resource located at the path, or None if there is no resource
-   * at that path.
-   */
+  /** Optionally returns a URL to the resource mapped to the given path. This is a wrapper around `getResource`.
+    *
+    * @param path
+    *   the path to the resource
+    * @return
+    *   the resource located at the path, or None if there is no resource at that path.
+    */
   def resource(path: String): Option[URL] = {
     try {
       Option(sc.getResource(path))
@@ -31,13 +29,14 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     }
   }
 
-  /**
-   * Optionally returns the resource mapped to the request's path.
-   *
-   * @param req the request
-   * @return the resource located at the result of concatenating the request's
-   * servlet path and its path info, or None if there is no resource at that path.
-   */
+  /** Optionally returns the resource mapped to the request's path.
+    *
+    * @param req
+    *   the request
+    * @return
+    *   the resource located at the result of concatenating the request's servlet path and its path info, or None if
+    *   there is no resource at that path.
+    */
   def resource(req: HttpServletRequest): Option[URL] = {
     val path = req.getServletPath + (Option(req.getPathInfo) getOrElse "")
     resource(path)
@@ -45,44 +44,44 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
 
   private[this] def pathMapping(urlPattern: String): String = urlPattern match {
     case s if s.endsWith("/*") => s
-    case s if s.endsWith("/") => s + "*"
-    case s => s + "/*"
+    case s if s.endsWith("/")  => s + "*"
+    case s                     => s + "/*"
   }
 
-  /**
-   * Mounts a handler to the servlet context.  Must be an HttpServlet or a
-   * Filter.
-   *
-   * @param handler the handler to mount
-   *
-   * @param urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
-   * not already, as path-mapping is the most natural fit for Scalatra.
-   * If you don't want path mapping, use the native Servlet API.
-   *
-   * @param name the name of the handler
-   */
+  /** Mounts a handler to the servlet context. Must be an HttpServlet or a Filter.
+    *
+    * @param handler
+    *   the handler to mount
+    *
+    * @param urlPattern
+    *   the URL pattern to mount. Will be appended with `\/\*` if not already, as path-mapping is the most natural fit
+    *   for Scalatra. If you don't want path mapping, use the native Servlet API.
+    *
+    * @param name
+    *   the name of the handler
+    */
   def mount(handler: Handler, urlPattern: String, name: String): Unit = {
     mount(handler, urlPattern, name, 1)
   }
 
-  /**
-   * Mounts a handler to the servlet context.  Must be an HttpServlet or a
-   * Filter.
-   *
-   * @param handler the handler to mount
-   *
-   * @param urlPattern the URL pattern to mount.  Will be appended with `\/\*` if
-   * not already, as path-mapping is the most natural fit for Scalatra.
-   * If you don't want path mapping, use the native Servlet API.
-   *
-   * @param name the name of the handler
-   */
+  /** Mounts a handler to the servlet context. Must be an HttpServlet or a Filter.
+    *
+    * @param handler
+    *   the handler to mount
+    *
+    * @param urlPattern
+    *   the URL pattern to mount. Will be appended with `\/\*` if not already, as path-mapping is the most natural fit
+    *   for Scalatra. If you don't want path mapping, use the native Servlet API.
+    *
+    * @param name
+    *   the name of the handler
+    */
   def mount(handler: Handler, urlPattern: String, name: String, loadOnStartup: Int): Unit = {
     val pathMap = pathMapping(urlPattern)
 
     handler match {
       case servlet: HttpServlet => mountServlet(servlet, pathMap, name, loadOnStartup)
-      case filter: Filter => mountFilter(filter, pathMap, name)
+      case filter: Filter       => mountFilter(filter, pathMap, name)
       case _ => sys.error("Don't know how to mount this service to a servletContext: " + handler.getClass)
     }
   }
@@ -93,11 +92,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     mount(handler, urlPattern, handler.getClass.getName, loadOnStartup)
   }
 
-  def mount[T](
-    handlerClass: Class[T],
-    urlPattern: String,
-    name: String,
-    loadOnStartup: Int = 1): Unit = {
+  def mount[T](handlerClass: Class[T], urlPattern: String, name: String, loadOnStartup: Int = 1): Unit = {
     val pathMap = pathMapping(urlPattern)
 
     if (classOf[HttpServlet].isAssignableFrom(handlerClass)) {
@@ -115,11 +110,7 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     mount(handlerClass, urlPattern, handlerClass.getName, loadOnStartup)
   }
 
-  private def mountServlet(
-    servlet: HttpServlet,
-    urlPattern: String,
-    name: String,
-    loadOnStartup: Int): Unit = {
+  private def mountServlet(servlet: HttpServlet, urlPattern: String, name: String, loadOnStartup: Int): Unit = {
     val reg = Option(sc.getServletRegistration(name)) getOrElse {
       val r = sc.addServlet(name, servlet)
       servlet match {
@@ -137,10 +128,11 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
   }
 
   private def mountServlet(
-    servletClass: Class[HttpServlet],
-    urlPattern: String,
-    name: String,
-    loadOnStartup: Int): Unit = {
+      servletClass: Class[HttpServlet],
+      urlPattern: String,
+      name: String,
+      loadOnStartup: Int
+  ): Unit = {
     val reg = Option(sc.getServletRegistration(name)) getOrElse {
       val r = sc.addServlet(name, servletClass)
       // since we only have a Class[_] here, we can't access the MultipartConfig value
@@ -181,11 +173,9 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
     reg.addMappingForUrlPatterns(dispatchers, true, urlPattern)
   }
 
-  /**
-   * A free form string representing the environment.
-   * `org.scalatra.Environment` is looked up as a system property, and if
-   * absent, as an init parameter.  The default value is `DEVELOPMENT`.
-   */
+  /** A free form string representing the environment. `org.scalatra.Environment` is looked up as a system property, and
+    * if absent, as an init parameter. The default value is `DEVELOPMENT`.
+    */
   def environment: String = {
     sys.props.get(EnvironmentKey) orElse Option(sc.getInitParameter(EnvironmentKey)) getOrElse ("DEVELOPMENT")
   }
@@ -193,4 +183,3 @@ case class RichServletContext(sc: ServletContext) extends AttributesMap {
   def contextPath: String = sc.getContextPath
 
 }
-

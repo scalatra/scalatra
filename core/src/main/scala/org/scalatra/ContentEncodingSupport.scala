@@ -1,10 +1,9 @@
 package org.scalatra
 
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpServletResponse }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
-/**
- * Scalatra handler for gzipped responses.
- */
+/** Scalatra handler for gzipped responses.
+  */
 trait ContentEncodingSupport extends Handler { self: ScalatraBase =>
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
@@ -15,18 +14,20 @@ trait ContentEncodingSupport extends Handler { self: ScalatraBase =>
 
   /** Encodes the response if necessary. */
   private def encodedResponse(req: HttpServletRequest, res: HttpServletResponse): HttpServletResponse = {
-    ContentNegotiation.preferredEncoding.map { encoding =>
-      val encoded = encoding(res)
-      ScalatraBase.onRenderedCompleted { _ => encoded.end() }
-      encoded
-    }.getOrElse(res)
+    ContentNegotiation.preferredEncoding
+      .map { encoding =>
+        val encoded = encoding(res)
+        ScalatraBase.onRenderedCompleted { _ => encoded.end() }
+        encoded
+      }
+      .getOrElse(res)
   }
 
   /** Decodes the request if necessary. */
   private def decodedRequest(req: HttpServletRequest): HttpServletRequest = {
     (for {
       name <- Option(req.getHeader("Content-Encoding"))
-      enc <- ContentEncoding.forName(name)
+      enc  <- ContentEncoding.forName(name)
     } yield enc(req)).getOrElse(req)
   }
 

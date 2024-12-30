@@ -10,7 +10,8 @@ object UriDecoder {
     UrlCodingUtils.urlDecode(
       toDecode = UrlCodingUtils.ensureUrlEncoding(uri),
       charset = StandardCharsets.UTF_8,
-      plusIsSpace = false)
+      plusIsSpace = false
+    )
   }
 
 }

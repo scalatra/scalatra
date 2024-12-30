@@ -1,11 +1,10 @@
 package org.scalatra.servlet
 
 import org.scalatra.ServletCompat.ServletContext
-import org.scalatra.ServletCompat.http.{ HttpServletRequest, HttpSession }
+import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpSession}
 
-/**
- * type class for the various Servlet API objects that have attributes.
- */
+/** type class for the various Servlet API objects that have attributes.
+  */
 private[servlet] trait Attributes[A] {
   def getAttribute(self: A, name: String): AnyRef
   def getAttributeNames(self: A): java.util.Enumeration[String]

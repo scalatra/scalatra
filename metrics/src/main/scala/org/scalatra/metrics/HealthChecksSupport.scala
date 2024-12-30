@@ -15,5 +15,5 @@ trait HealthChecksSupport extends CheckedBuilder with MetricsBootstrap {
     healthCheck(name, unhealthyMessage) { checker }
 
   def runHealthCheck(name: String) = healthCheckRegistry.runHealthCheck(name)
-  def runHealthChecks() = healthCheckRegistry.runHealthChecks()
+  def runHealthChecks()            = healthCheckRegistry.runHealthChecks()
 }

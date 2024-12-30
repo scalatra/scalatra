@@ -9,17 +9,36 @@ import scala.util.control.Exception._
 
 object Reflector {
 
-  private[this] val rawClasses = new Memo[Type, Class[?]]
+  private[this] val rawClasses     = new Memo[Type, Class[?]]
   private[this] val unmangledNames = new Memo[String, String]
-  private[this] val descriptors = new Memo[ScalaType, ObjectDescriptor]
+  private[this] val descriptors    = new Memo[ScalaType, ObjectDescriptor]
 
   private[this] val primitives = {
-    Set[Type](classOf[String], classOf[Char], classOf[Int], classOf[Long], classOf[Double],
-      classOf[Float], classOf[Byte], classOf[BigInt], classOf[Boolean],
-      classOf[Short], classOf[java.lang.Integer], classOf[java.lang.Long],
-      classOf[java.lang.Double], classOf[java.lang.Float], classOf[java.lang.Character],
-      classOf[java.lang.Byte], classOf[java.lang.Boolean], classOf[Number],
-      classOf[java.lang.Short], classOf[Date], classOf[Timestamp], classOf[Symbol], classOf[Unit])
+    Set[Type](
+      classOf[String],
+      classOf[Char],
+      classOf[Int],
+      classOf[Long],
+      classOf[Double],
+      classOf[Float],
+      classOf[Byte],
+      classOf[BigInt],
+      classOf[Boolean],
+      classOf[Short],
+      classOf[java.lang.Integer],
+      classOf[java.lang.Long],
+      classOf[java.lang.Double],
+      classOf[java.lang.Float],
+      classOf[java.lang.Character],
+      classOf[java.lang.Byte],
+      classOf[java.lang.Boolean],
+      classOf[Number],
+      classOf[java.lang.Short],
+      classOf[Date],
+      classOf[Timestamp],
+      classOf[Symbol],
+      classOf[Unit]
+    )
   }
 
   private[this] val defaultExcluded = Set(classOf[Nothing], classOf[Null])
@@ -29,15 +48,15 @@ object Reflector {
   def isExcluded(t: Type, excludes: Seq[Type] = Nil) = (defaultExcluded ++ excludes) contains t
 
   def scalaTypeOf[T](implicit mf: Manifest[T]): ScalaType = ManifestScalaType(mf)
-  def scalaTypeOf(clazz: Class[?]): ScalaType = ManifestScalaType(ManifestFactory.manifestOf(clazz))
-  def scalaTypeOf(t: Type): ScalaType = ManifestScalaType(ManifestFactory.manifestOf(t))
+  def scalaTypeOf(clazz: Class[?]): ScalaType             = ManifestScalaType(ManifestFactory.manifestOf(clazz))
+  def scalaTypeOf(t: Type): ScalaType                     = ManifestScalaType(ManifestFactory.manifestOf(t))
 
   private[this] val stringTypes = new Memo[String, Option[ScalaType]]
   def scalaTypeOf(name: String): Option[ScalaType] =
     stringTypes(name, resolveClass[AnyRef](_, ClassLoaders) map (c => scalaTypeOf(c)))
 
   def describe[T](implicit mf: Manifest[T]): ObjectDescriptor = describe(scalaTypeOf[T])
-  def describe(clazz: Class[?]): ObjectDescriptor = describe(scalaTypeOf(clazz))
+  def describe(clazz: Class[?]): ObjectDescriptor             = describe(scalaTypeOf(clazz))
   def describe(fqn: String): Option[ObjectDescriptor] =
     scalaTypeOf(fqn) map (describe(_))
   def describe(st: ScalaType, paranamer: ParameterNameReader = ParanamerReader): ObjectDescriptor =
@@ -48,7 +67,7 @@ object Reflector {
     case many => {
       try {
         var clazz: Class[?] = null
-        val iter = many.iterator
+        val iter            = many.iterator
         while (clazz == null && iter.hasNext) {
           try {
             clazz = Class.forName(c, true, iter.next())
@@ -64,16 +83,25 @@ object Reflector {
     }
   }
 
-  private[reflect] def createDescriptor(tpe: ScalaType, paramNameReader: ParameterNameReader = ParanamerReader): ObjectDescriptor = {
+  private[reflect] def createDescriptor(
+      tpe: ScalaType,
+      paramNameReader: ParameterNameReader = ParanamerReader
+  ): ObjectDescriptor = {
     if (tpe.isPrimitive) {
       PrimitiveDescriptor(tpe.simpleName, tpe.fullName, tpe)
     } else {
 
       val path = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
-      val c = resolveClass(path, Vector(getClass.getClassLoader))
+      val c    = resolveClass(path, Vector(getClass.getClassLoader))
       val companion = c flatMap { cl =>
         allCatch opt {
-          SingletonDescriptor(cl.getSimpleName, cl.getName, scalaTypeOf(cl), cl.getField(ModuleFieldName).get(null), Seq.empty)
+          SingletonDescriptor(
+            cl.getSimpleName,
+            cl.getName,
+            scalaTypeOf(cl),
+            cl.getField(ModuleFieldName).get(null),
+            Seq.empty
+          )
         }
       }
 
@@ -82,17 +110,21 @@ object Reflector {
           val lb = new ArrayBuffer[PropertyDescriptor]()
           val ls = clazz.getDeclaredFields.iterator
           while (ls.hasNext) {
-            val f = ls.next()
+            val f   = ls.next()
             val mod = f.getModifiers
             if (!(Modifier.isStatic(mod) || Modifier.isTransient(mod) || Modifier.isVolatile(mod) || f.isSynthetic)) {
-              val st = ManifestScalaType(f.getType, f.getGenericType match {
-                case p: ParameterizedType => p.getActualTypeArguments.toSeq.zipWithIndex map {
-                  case (cc, i) =>
-                    if (cc == classOf[java.lang.Object]) Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
-                    else Reflector.scalaTypeOf(cc)
+              val st = ManifestScalaType(
+                f.getType,
+                f.getGenericType match {
+                  case p: ParameterizedType =>
+                    p.getActualTypeArguments.toSeq.zipWithIndex map { case (cc, i) =>
+                      if (cc == classOf[java.lang.Object])
+                        Reflector.scalaTypeOf(ScalaSigReader.readField(f.getName, clazz, i))
+                      else Reflector.scalaTypeOf(cc)
+                    }
+                  case _ => Nil
                 }
-                case _ => Nil
-              })
+              )
               val decoded = unmangleName(f.getName)
               f.setAccessible(true)
               lb += PropertyDescriptor(decoded, f.getName, st, f)
@@ -104,7 +136,14 @@ object Reflector {
         fields(tpe.erasure)
       }
 
-      def ctorParamType(name: String, index: Int, owner: ScalaType, ctorParameterNames: List[String], t: Type, container: Option[(ScalaType, List[Int])] = None): ScalaType = {
+      def ctorParamType(
+          name: String,
+          index: Int,
+          owner: ScalaType,
+          ctorParameterNames: List[String],
+          t: Type,
+          container: Option[(ScalaType, List[Int])] = None
+      ): ScalaType = {
         val idxes = container.map(_._2.reverse)
         t match {
           case v: TypeVariable[?] =>
@@ -115,10 +154,9 @@ object Reflector {
             } else a
           case v: ParameterizedType =>
             val st = scalaTypeOf(v)
-            val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map {
-              case (ct, idx) =>
-                val prev = container.map(_._2).getOrElse(Nil)
-                ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
+            val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map { case (ct, idx) =>
+              val prev = container.map(_._2).getOrElse(Nil)
+              ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
             }
             st.copy(typeArgs = actualArgs)
           case v: WildcardType =>
@@ -134,24 +172,22 @@ object Reflector {
       }
 
       def constructors: Seq[ConstructorDescriptor] = {
-        tpe.erasure.getConstructors.toSeq map {
-          ctor =>
-            val ctorParameterNames = if (Modifier.isPublic(ctor.getModifiers) && ctor.getParameterTypes.length > 0)
+        tpe.erasure.getConstructors.toSeq map { ctor =>
+          val ctorParameterNames =
+            if (Modifier.isPublic(ctor.getModifiers) && ctor.getParameterTypes.length > 0)
               allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
             else
               Nil
-            val genParams = ctor.getGenericParameterTypes
-            val ctorParams = ctorParameterNames.zipWithIndex map {
-              case (paramName, index) =>
-                val decoded = unmangleName(paramName)
-                val default = companion flatMap {
-                  comp =>
-                    defaultValue(comp.erasure.erasure, comp.instance, index)
-                }
-                val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
-                ConstructorParamDescriptor(decoded, paramName, index, theType, default)
+          val genParams = ctor.getGenericParameterTypes
+          val ctorParams = ctorParameterNames.zipWithIndex map { case (paramName, index) =>
+            val decoded = unmangleName(paramName)
+            val default = companion flatMap { comp =>
+              defaultValue(comp.erasure.erasure, comp.instance, index)
             }
-            ConstructorDescriptor(ctorParams, ctor, isPrimary = false)
+            val theType = ctorParamType(paramName, index, tpe, ctorParameterNames.toList, genParams(index))
+            ConstructorParamDescriptor(decoded, paramName, index, theType, default)
+          }
+          ConstructorDescriptor(ctorParams, ctor, isPrimary = false)
         }
       }
 
@@ -161,16 +197,20 @@ object Reflector {
 
   def defaultValue(compClass: Class[?], compObj: AnyRef, argIndex: Int) = {
     allCatch.withApply(_ => None) {
-      Option(compClass.getMethod("%s$%d".format(ConstructorDefault, argIndex + 1))) map { meth => () => meth.invoke(compObj)
+      Option(compClass.getMethod("%s$%d".format(ConstructorDefault, argIndex + 1))) map { meth => () =>
+        meth.invoke(compObj)
       }
     }
   }
 
-  def rawClassOf(t: Type): Class[?] = rawClasses(t, {
-    case c: Class[?] => c
-    case p: ParameterizedType => rawClassOf(p.getRawType)
-    case x => sys.error("Raw type of " + x + " not known")
-  })
+  def rawClassOf(t: Type): Class[?] = rawClasses(
+    t,
+    {
+      case c: Class[?]          => c
+      case p: ParameterizedType => rawClassOf(p.getRawType)
+      case x                    => sys.error("Raw type of " + x + " not known")
+    }
+  )
 
   def unmangleName(name: String) =
     unmangledNames(name, scala.reflect.NameTransformer.decode)

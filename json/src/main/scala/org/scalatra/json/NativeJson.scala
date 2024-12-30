@@ -19,4 +19,3 @@ trait NativeJsonOutput extends JsonOutput[Document] with native.JsonMethods {
     if (json != JNothing) native.Printer.compact(render(json), writer)
   }
 }
-

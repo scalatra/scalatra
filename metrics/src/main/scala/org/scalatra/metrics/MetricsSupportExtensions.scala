@@ -12,7 +12,10 @@ import org.scalatra.metrics.MetricsCompat.servlets._
 import org.scalatra.servlet.ServletApiImplicits
 
 object MetricsSupportExtensions extends ServletApiImplicits {
-  implicit class MetricsSupportExtension(context: ServletContext)(implicit healthCheckRegistry: HealthCheckRegistry, metricRegistry: MetricRegistry) {
+  implicit class MetricsSupportExtension(context: ServletContext)(implicit
+      healthCheckRegistry: HealthCheckRegistry,
+      metricRegistry: MetricRegistry
+  ) {
 
     def mountMetricsAdminServlet(path: String) = context.mount(classOf[AdminServlet], path)
 

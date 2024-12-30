@@ -9,38 +9,30 @@ import org.scalatra.util.RicherString._
 
 import scala.util.control.Exception.catching
 
-/**
- * An implementation of the Scalatra DSL in a servlet.  This is the recommended
- * base trait for most Scalatra applications.  Use a servlet if:
- *
- * $ - your Scalatra routes run in a subcontext of your web application.
- * $ - you want Scalatra to have complete control of unmatched requests.
- * $ - you think you want a filter just for serving static content with the
- *     default servlet; ScalatraServlet can do this too
- * $ - you don't know the difference
- *
- * @see ScalatraFilter
- */
-trait ScalatraServlet
-  extends HttpServlet
-  with ServletBase
-  with Initializable {
+/** An implementation of the Scalatra DSL in a servlet. This is the recommended base trait for most Scalatra
+  * applications. Use a servlet if:
+  *
+  * $ - your Scalatra routes run in a subcontext of your web application. $ - you want Scalatra to have complete control
+  * of unmatched requests. $ - you think you want a filter just for serving static content with the default servlet;
+  * ScalatraServlet can do this too $ - you don't know the difference
+  *
+  * @see
+  *   ScalatraFilter
+  */
+trait ScalatraServlet extends HttpServlet with ServletBase with Initializable {
 
   override def service(request: HttpServletRequest, response: HttpServletResponse): Unit = {
     handle(request, response)
   }
 
-  /**
-   * Defines the request path to be matched by routers.  The default
-   * definition is optimized for `path mapped` servlets (i.e., servlet
-   * mapping ends in `&#47;*`).  The route should match everything matched by
-   * the `&#47;*`.  In the event that the request URI equals the servlet path
-   * with no trailing slash (e.g., mapping = `/admin&#47;*`, request URI =
-   * '/admin'), a '/' is returned.
-   *
-   * All other servlet mappings likely want to return request.getServletPath.
-   * Custom implementations are allowed for unusual cases.
-   */
+  /** Defines the request path to be matched by routers. The default definition is optimized for `path mapped` servlets
+    * (i.e., servlet mapping ends in `&#47;*`). The route should match everything matched by the `&#47;*`. In the event
+    * that the request URI equals the servlet path with no trailing slash (e.g., mapping = `/admin&#47;*`, request URI =
+    * '/admin'), a '/' is returned.
+    *
+    * All other servlet mappings likely want to return request.getServletPath. Custom implementations are allowed for
+    * unusual cases.
+    */
   val RequestPathKey = "org.scalatra.ScalatraServlet.requestPath"
 
   def requestPath(implicit request: HttpServletRequest): String = {
@@ -64,8 +56,8 @@ trait ScalatraServlet
       "/"
     } else {
       val pos = uri.indexOf(';')
-      val u1 = if (pos >= 0) uri.substring(0, pos) else uri
-      val u2 = if (decodePercentEncodedPath) UriDecoder.decode(u1) else u1
+      val u1  = if (pos >= 0) uri.substring(0, pos) else uri
+      val u2  = if (decodePercentEncodedPath) UriDecoder.decode(u1) else u1
       u2.substring(idx).blankOption.getOrElse("/")
     }
   }
@@ -77,30 +69,28 @@ trait ScalatraServlet
     servletContext.getContextPath + request.getServletPath
   }
 
-  /**
-   * Invoked when no route matches.  By default, calls `serveStaticResource()`,
-   * and if that fails, calls `resourceNotFound()`.
-   *
-   * This action can be overridden by a notFound block.
-   */
+  /** Invoked when no route matches. By default, calls `serveStaticResource()`, and if that fails, calls
+    * `resourceNotFound()`.
+    *
+    * This action can be overridden by a notFound block.
+    */
   protected var doNotFound: Action = () => {
     serveStaticResource() getOrElse resourceNotFound()
   }
 
-  /**
-   * Attempts to find a static resource matching the request path.  Override
-   * to return None to stop this.
-   */
-  protected def serveStaticResource()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[Any] = {
+  /** Attempts to find a static resource matching the request path. Override to return None to stop this.
+    */
+  protected def serveStaticResource()(implicit
+      request: HttpServletRequest,
+      response: HttpServletResponse
+  ): Option[Any] = {
     servletContext.resource(request) map { _ =>
       servletContext.getNamedDispatcher("default").forward(request, response)
     }
   }
 
-  /**
-   * Called by default notFound if no routes matched and no static resource
-   * could be found.
-   */
+  /** Called by default notFound if no routes matched and no static resource could be found.
+    */
   protected def resourceNotFound()(implicit request: HttpServletRequest, response: HttpServletResponse): Any = {
     response.setStatus(404)
     if (isDevelopmentMode) {
@@ -109,7 +99,8 @@ trait ScalatraServlet
         request.getMethod,
         Option(StringEscapeUtils.escapeHtml4(request.getPathInfo)) getOrElse "/",
         request.getServletPath,
-        routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>"))
+        routes.entryPoints.mkString("<ul><li>", "</li><li>", "</li></ul>")
+      )
     }
   }
 

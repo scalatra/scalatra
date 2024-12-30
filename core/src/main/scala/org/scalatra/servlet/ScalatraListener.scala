@@ -1,7 +1,7 @@
 package org.scalatra
 package servlet
 
-import org.scalatra.ServletCompat.{ ServletContext, ServletContextEvent, ServletContextListener }
+import org.scalatra.ServletCompat.{ServletContext, ServletContextEvent, ServletContextListener}
 
 import org.scalatra.util.RicherString._
 import org.slf4j.LoggerFactory
@@ -34,16 +34,18 @@ class ScalatraListener extends ServletContextListener {
     }
   }
 
-  protected def configureExecutionContext(sce: ServletContextEvent): Unit = {
-  }
+  protected def configureExecutionContext(sce: ServletContextEvent): Unit = {}
 
   protected def probeForCycleClass(classLoader: ClassLoader): (String, LifeCycle) = {
     val cycleClassName =
       Option(servletContext.getInitParameter(LifeCycleKey)).flatMap(_.blankOption) getOrElse DefaultLifeCycle
     logger info ("The cycle class name from the config: " + (if (cycleClassName == null) "null" else cycleClassName))
 
-    val lifeCycleClass: Class[?] = try { Class.forName(cycleClassName, true, classLoader) } catch { case _: ClassNotFoundException => null; case t: Throwable => throw t }
-    def oldLifeCycleClass: Class[?] = try { Class.forName(OldDefaultLifeCycle, true, classLoader) } catch { case _: ClassNotFoundException => null; case t: Throwable => throw t }
+    val lifeCycleClass: Class[?] =
+      try { Class.forName(cycleClassName, true, classLoader) }
+      catch { case _: ClassNotFoundException => null; case t: Throwable => throw t }
+    def oldLifeCycleClass: Class[?] = try { Class.forName(OldDefaultLifeCycle, true, classLoader) }
+    catch { case _: ClassNotFoundException => null; case t: Throwable => throw t }
     val cycleClass: Class[?] = if (lifeCycleClass != null) lifeCycleClass else oldLifeCycleClass
 
     assert(cycleClass != null, "No lifecycle class found!")
@@ -51,7 +53,9 @@ class ScalatraListener extends ServletContextListener {
     logger debug "Loaded lifecycle class: %s".format(cycleClass)
 
     if (cycleClass.getName == OldDefaultLifeCycle)
-      logger.warn("The Scalatra name for a boot class will be removed eventually. Please use ScalatraBootstrap instead as class name.")
+      logger.warn(
+        "The Scalatra name for a boot class will be removed eventually. Please use ScalatraBootstrap instead as class name."
+      )
     (cycleClass.getSimpleName, cycleClass.getDeclaredConstructor().newInstance().asInstanceOf[LifeCycle])
   }
 
@@ -72,8 +76,8 @@ object ScalatraListener {
   // DO NOT RENAME THIS CLASS NAME AS IT BREAKS THE ENTIRE WORLD
   // TOGETHER WITH THE WORLD IT WILL BREAK ALL EXISTING SCALATRA APPS
   // RENAMING THIS CLASS WILL RESULT IN GETTING SHOT, IF YOU SURVIVE YOU WILL BE SHOT AGAIN
-  val DefaultLifeCycle: String = "ScalatraBootstrap"
+  val DefaultLifeCycle: String    = "ScalatraBootstrap"
   val OldDefaultLifeCycle: String = "Scalatra"
-  val LifeCycleKey: String = "org.scalatra.LifeCycle"
+  val LifeCycleKey: String        = "org.scalatra.LifeCycle"
 
 }
