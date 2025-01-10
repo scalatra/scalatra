@@ -4,7 +4,7 @@ import com.typesafe.tools.mima.core._
 
 val unusedOptions = Seq("-Ywarn-unused:imports")
 
-val javax = ServletCross("-javax", "-javax")
+val javax   = ServletCross("-javax", "-javax")
 val jakarta = ServletCross("-jakarta", "-jakarta")
 
 val scala3migration = Def.settings(
@@ -19,7 +19,7 @@ val scala3migration = Def.settings(
   }
 )
 
-def Scala213 = "2.13.15"
+def Scala213      = "2.13.16"
 val scalaVersions = Seq("2.12.20", Scala213, "3.3.4")
 
 lazy val scalatraSettings = Seq(
@@ -27,16 +27,18 @@ lazy val scalatraSettings = Seq(
   mimaPreviousArtifacts ++= Set("3.1.1").map(
     organization.value %% moduleName.value % _
   ),
-  Test / fork := true,
+  Test / fork          := true,
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
   Test / testOptions ++= {
     if (scalaBinaryVersion.value == "3") {
       Seq(
-        Tests.Exclude(Set(
-          "org.scalatra.swagger.ModelSpec",
-          "org.scalatra.swagger.SwaggerSpec2",
-          "org.scalatra.swagger.ModelCollectionSpec",
-        )),
+        Tests.Exclude(
+          Set(
+            "org.scalatra.swagger.ModelSpec",
+            "org.scalatra.swagger.SwaggerSpec2",
+            "org.scalatra.swagger.ModelCollectionSpec",
+          )
+        ),
       )
     } else {
       Nil
@@ -50,7 +52,7 @@ lazy val scalatraSettings = Seq(
       (axes.contains(javax), axes.contains(jakarta)) match {
         case (true, false) => s"${name.value}-javax"
         case (false, true) => s"${name.value}-jakarta"
-        case _ => sys.error(axes.toString)
+        case _             => sys.error(axes.toString)
       }
     }
   },
@@ -76,14 +78,17 @@ lazy val scalatraSettings = Seq(
     }
   },
   javacOptions ++= Seq(
-    "-source", "17",
-    "-target", "17",
+    "-source",
+    "17",
+    "-target",
+    "17",
   ),
   scalacOptions ++= Seq(
     "-unchecked",
     "-deprecation",
     /*"-Yinline-warnings",*/
-    "-encoding", "utf8",
+    "-encoding",
+    "utf8",
     "-feature",
     "-language:higherKinds",
     "-language:implicitConversions",
@@ -91,25 +96,24 @@ lazy val scalatraSettings = Seq(
     "-release:17"
   ),
   manifestSetting,
-  publishConfiguration := publishConfiguration.value.withOverwrite(true),
+  publishConfiguration      := publishConfiguration.value.withOverwrite(true),
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
-) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c =>
-  c / console / scalacOptions --= unusedOptions
-)
+) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c => c / console / scalacOptions --= unusedOptions)
 
 scalatraSettings
-scalaVersion := Scala213
-name := "scalatra-unidoc"
+scalaVersion          := Scala213
+name                  := "scalatra-unidoc"
 mimaPreviousArtifacts := Set.empty
-mimaFailOnNoPrevious := false
-artifacts := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value
-packagedArtifacts := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value
-description := "A tiny, Sinatra-like web framework for Scala"
+mimaFailOnNoPrevious  := false
+artifacts             := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value
+packagedArtifacts     := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value
+description           := "A tiny, Sinatra-like web framework for Scala"
 shellPrompt := { state =>
   s"sbt:${Project.extract(state).currentProject.id}" + Def.withColor("> ", Option(scala.Console.CYAN))
 }
 Defaults.packageTaskSettings(
-  Compile / packageDoc, (Compile / unidoc).map(_.flatMap(Path.allSubpaths))
+  Compile / packageDoc,
+  (Compile / unidoc).map(_.flatMap(Path.allSubpaths))
 )
 ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
   Seq(
@@ -131,7 +135,8 @@ ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
 )
 enablePlugins(ScalaUnidocPlugin)
 
-lazy val `scalatra-common` = projectMatrix.in(file("common"))
+lazy val `scalatra-common` = projectMatrix
+  .in(file("common"))
   .settings(
     scalatraSettings
   )
@@ -151,7 +156,8 @@ lazy val `scalatra-common` = projectMatrix.in(file("common"))
     `scalatra-compat` % "compile;test->test;provided->provided"
   )
 
-lazy val scalatra = projectMatrix.in(file("core"))
+lazy val scalatra = projectMatrix
+  .in(file("core"))
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -177,14 +183,16 @@ lazy val scalatra = projectMatrix.in(file("core"))
     settings = Def.settings(
       libraryDependencies += servletApiJakarta % "provided;test",
     )
-  ).dependsOn(
-    `scalatra-specs2` % "test->compile",
+  )
+  .dependsOn(
+    `scalatra-specs2`    % "test->compile",
     `scalatra-scalatest` % "test->compile",
-    `scalatra-common` % "compile;test->test",
-    `scalatra-compat` % "compile;test->test"
+    `scalatra-common`    % "compile;test->test",
+    `scalatra-compat`    % "compile;test->test"
   )
 
-lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
+lazy val `scalatra-auth` = projectMatrix
+  .in(file("auth"))
   .settings(
     scalatraSettings,
     description := "Scalatra authentication module",
@@ -206,7 +214,8 @@ lazy val `scalatra-auth` = projectMatrix.in(file("auth"))
     scalatra % "compile;test->test;provided->provided"
   )
 
-lazy val `scalatra-twirl` = projectMatrix.in(file("twirl"))
+lazy val `scalatra-twirl` = projectMatrix
+  .in(file("twirl"))
   .settings(
     scalatraSettings,
     libraryDependencies += twirlApi,
@@ -228,13 +237,14 @@ lazy val `scalatra-twirl` = projectMatrix.in(file("twirl"))
     scalatra % "compile;test->test;provided->provided"
   )
 
-lazy val `scalatra-json` = projectMatrix.in(file("json"))
+lazy val `scalatra-json` = projectMatrix
+  .in(file("json"))
   .settings(
     scalatraSettings,
     description := "JSON support for Scalatra",
     libraryDependencies ++= Seq(
       json4sJackson % "provided",
-      json4sNative % "provided",
+      json4sNative  % "provided",
       json4sCore,
       json4sXml
     )
@@ -253,7 +263,8 @@ lazy val `scalatra-json` = projectMatrix.in(file("json"))
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
 
-lazy val `scalatra-forms` = projectMatrix.in(file("forms"))
+lazy val `scalatra-forms` = projectMatrix
+  .in(file("forms"))
   .settings(
     scalatraSettings,
     description := "Data binding and validation for Scalatra"
@@ -272,7 +283,8 @@ lazy val `scalatra-forms` = projectMatrix.in(file("forms"))
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
 
-lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
+lazy val `scalatra-jetty` = projectMatrix
+  .in(file("jetty"))
   .settings(
     scalatraSettings,
     description := "Embedded Jetty server for Scalatra apps"
@@ -301,7 +313,8 @@ lazy val `scalatra-jetty` = projectMatrix.in(file("jetty"))
     `scalatra` % "compile;test->test;provided->provided"
   )
 
-lazy val `scalatra-test` = projectMatrix.in(file("test"))
+lazy val `scalatra-test` = projectMatrix
+  .in(file("test"))
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -326,7 +339,8 @@ lazy val `scalatra-test` = projectMatrix.in(file("test"))
     `scalatra-compat` % "compile;test->test;provided->provided",
   )
 
-lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
+lazy val `scalatra-scalatest` = projectMatrix
+  .in(file("scalatest"))
   .settings(
     scalatraSettings,
     libraryDependencies ++= scalatest,
@@ -349,7 +363,8 @@ lazy val `scalatra-scalatest` = projectMatrix.in(file("scalatest"))
   )
   .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
 
-lazy val `scalatra-specs2` = projectMatrix.in(file("specs2"))
+lazy val `scalatra-specs2` = projectMatrix
+  .in(file("specs2"))
   .settings(
     scalatraSettings,
     libraryDependencies ++= specs2,
@@ -369,7 +384,8 @@ lazy val `scalatra-specs2` = projectMatrix.in(file("specs2"))
   )
   .dependsOn(`scalatra-test` % "compile;test->test;provided->provided")
 
-lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
+lazy val `scalatra-swagger` = projectMatrix
+  .in(file("swagger"))
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -391,12 +407,13 @@ lazy val `scalatra-swagger` = projectMatrix.in(file("swagger"))
     ),
   )
   .dependsOn(
-    scalatra % "compile;test->test;provided->provided",
+    scalatra        % "compile;test->test;provided->provided",
     `scalatra-json` % "compile;test->test;provided->provided",
     `scalatra-auth` % "compile;test->test"
   )
 
-lazy val `scalatra-metrics` = projectMatrix.in(file("metrics"))
+lazy val `scalatra-metrics` = projectMatrix
+  .in(file("metrics"))
   .settings(
     scalatraSettings,
     description := "Scalatra integration with Metrics",
@@ -426,7 +443,8 @@ lazy val `scalatra-metrics` = projectMatrix.in(file("metrics"))
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
 
-lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
+lazy val `scalatra-cache` = projectMatrix
+  .in(file("cache"))
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -448,7 +466,8 @@ lazy val `scalatra-cache` = projectMatrix.in(file("cache"))
   )
   .dependsOn(scalatra % "compile;test->test;provided->provided")
 
-lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
+lazy val `scalatra-compat` = projectMatrix
+  .in(file("compat"))
   .settings(
     scalatraSettings,
     description := "Scalatra Compatibility module"
@@ -476,24 +495,24 @@ lazy val `scalatra-compat` = projectMatrix.in(file("compat"))
 
 lazy val manifestSetting = packageOptions += {
   Package.ManifestAttributes(
-    "Created-By" -> "Simple Build Tool",
-    "Built-By" -> System.getProperty("user.name"),
-    "Build-Jdk" -> System.getProperty("java.version"),
-    "Specification-Title" -> name.value,
-    "Specification-Version" -> version.value,
-    "Specification-Vendor" -> organization.value,
-    "Implementation-Title" -> name.value,
-    "Implementation-Version" -> version.value,
+    "Created-By"               -> "Simple Build Tool",
+    "Built-By"                 -> System.getProperty("user.name"),
+    "Build-Jdk"                -> System.getProperty("java.version"),
+    "Specification-Title"      -> name.value,
+    "Specification-Version"    -> version.value,
+    "Specification-Vendor"     -> organization.value,
+    "Implementation-Title"     -> name.value,
+    "Implementation-Version"   -> version.value,
     "Implementation-Vendor-Id" -> organization.value,
-    "Implementation-Vendor" -> organization.value
+    "Implementation-Vendor"    -> organization.value
   )
 }
 
 // Things we care about primarily because Maven Central demands them
 lazy val mavenCentralFrouFrou = Seq(
-  homepage := Some(url("https://www.scalatra.org/")),
+  homepage  := Some(url("https://www.scalatra.org/")),
   startYear := Some(2009),
-  licenses := Seq(("BSD", url("https://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
+  licenses  := Seq(("BSD", url("https://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
   pomExtra := pomExtra.value ++ Group(
     <scm>
       <url>https://github.com/scalatra/scalatra</url>
