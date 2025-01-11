@@ -23,7 +23,7 @@ class FlashMapSupportTestServlet extends ScalatraServlet with FlashMapSupport {
   override def sweepUnusedFlashEntries(req: HttpServletRequest) = {
     req.getParameter("sweep") match {
       case null => false
-      case x => x.toBoolean
+      case x    => x.toBoolean
     }
   }
 }
@@ -42,7 +42,7 @@ class FlashMapSupportTestFilter extends ScalatraFilter with FlashMapSupport {
 
   override def sweepUnusedFlashEntries(req: HttpServletRequest) = req.getParameter("sweep") match {
     case null => false
-    case x => x.toBoolean
+    case x    => x.toBoolean
   }
 }
 

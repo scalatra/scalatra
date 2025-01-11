@@ -23,5 +23,4 @@ jobs:
     - name: Setup SBT
       uses: sbt/setup-sbt@v1
     - name: Run tests
-      run: sbt -v mimaReportBinaryIssues test unidoc
-    - run: git diff --exit-code
+      run: sbt -v scalafmtCheckAll scalafmtSbtCheck mimaReportBinaryIssues test unidoc

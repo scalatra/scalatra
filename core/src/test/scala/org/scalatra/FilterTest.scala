@@ -6,13 +6,13 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 class ScalatraExpectedFilterException extends RuntimeException
 class FilterTestServlet extends ScalatraServlet {
   var beforeCount = 0
-  var afterCount = 0
+  var afterCount  = 0
 
   before() {
     beforeCount += 1
     params.get("before") match {
       case Some(x) => response.getWriter.write(x)
-      case None =>
+      case None    =>
     }
   }
 
@@ -156,4 +156,3 @@ class FilterTest extends ScalatraFunSuite with BeforeAndAfterEach {
     }
   }
 }
-

@@ -7,9 +7,7 @@ class MetricsSupportSpec extends ScalatraFlatSpec {
 
   class TestServlet extends ScalatraServlet with MetricsSupport {
     get("/") {
-      timer("test") {
-
-      }
+      timer("test") {}
 
       counter("testCounter") += 1
     }

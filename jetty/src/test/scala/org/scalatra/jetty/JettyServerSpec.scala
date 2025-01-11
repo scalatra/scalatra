@@ -1,11 +1,11 @@
 package org.scalatra.jetty
 
-import java.net.{ InetSocketAddress, URI }
+import java.net.{InetSocketAddress, URI}
 import org.scalatra.ServletCompat.ServletContext
 import org.eclipse.jetty.server.ServerConnector
 import org.scalatest.BeforeAndAfterAll
 import org.scalatra.servlet.ScalatraListener
-import org.scalatra.{ LifeCycle, ScalatraServlet }
+import org.scalatra.{LifeCycle, ScalatraServlet}
 
 import scala.io.Source
 import org.scalatest.wordspec.AnyWordSpec
@@ -26,13 +26,14 @@ object JettyServerSpec {
 
 class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
   var jetty: JettyServer = _
-  var port: Int = _
+  var port: Int          = _
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
     jetty = new JettyServer(
       InetSocketAddress.createUnresolved("localhost", 0),
-      Path.of(getClass.getClassLoader.getResource("").toURI))
+      Path.of(getClass.getClassLoader.getResource("").toURI)
+    )
     jetty.context.setInitParameter(ScalatraListener.LifeCycleKey, classOf[JettyServerSpec.ScalatraBootstrap].getName)
     jetty.start()
     port = jetty.server.getConnectors.head.asInstanceOf[ServerConnector].getLocalPort
