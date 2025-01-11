@@ -2,7 +2,7 @@ package org.scalatra
 
 import java.util.concurrent.Executors
 
-import org.eclipse.jetty.server.{ Connector, ServerConnector, Server }
+import org.eclipse.jetty.server.{Connector, ServerConnector, Server}
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 import org.scalatra.test.HttpComponentsClient
 import org.scalatra.test.specs2.MutableScalatraSpec
@@ -83,12 +83,12 @@ class AkkaSupportServlet extends ScalatraServlet with FutureSupport {
     "jpeg"
   }
 
-  override protected def contentTypeInferrer = ({
-    case "jpeg" => "image/jpeg"
+  override protected def contentTypeInferrer = ({ case "jpeg" =>
+    "image/jpeg"
   }: ContentTypeInferrer) orElse super.contentTypeInferrer
 
-  error {
-    case _: FailException => "caught"
+  error { case _: FailException =>
+    "caught"
   }
 
   override def destroy(): Unit = {
@@ -104,9 +104,9 @@ class AkkaSupportSpec extends MutableScalatraSpec {
      Min threads for Jetty is 6 because: acceptors=1 + selectors=4 + request=1
 
      so 16 max and 6 min -> 10 worker threads
-      */
-    val threadPool = new QueuedThreadPool(16, 6)
-    val server = new Server(threadPool)
+     */
+    val threadPool                 = new QueuedThreadPool(16, 6)
+    val server                     = new Server(threadPool)
     val connector: ServerConnector = new ServerConnector(server)
     connector.setPort(port)
     server.setConnectors(Array[Connector](connector))
@@ -169,8 +169,8 @@ class AkkaSupportSpec extends MutableScalatraSpec {
 
     "should not leak attributes between requests" in {
       implicit val multiClentEc = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(50))
-      val ids = (1 to 50).map(_ => scala.util.Random.nextInt())
-      val serverBaseUrl = baseUrl
+      val ids                   = (1 to 50).map(_ => scala.util.Random.nextInt())
+      val serverBaseUrl         = baseUrl
       val idsToResponseFs = ids.map { id =>
         val client = new HttpComponentsClient {
           override val baseUrl: String = serverBaseUrl
@@ -184,7 +184,7 @@ class AkkaSupportSpec extends MutableScalatraSpec {
         }(multiClentEc)
       }
       val fIdsToresponses = Future.sequence(idsToResponseFs)
-      val idsToResponses = Await.result(fIdsToresponses, 60.seconds)
+      val idsToResponses  = Await.result(fIdsToresponses, 60.seconds)
       foreachWhen(idsToResponses) {
         case (expected, actual) => {
           expected must_== actual

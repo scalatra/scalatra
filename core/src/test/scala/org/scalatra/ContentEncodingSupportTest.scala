@@ -6,12 +6,11 @@ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 import org.scalatest.matchers.should.Matchers
 
-/**
- * Test servlet using ContentEncodingSupport.
- */
+/** Test servlet using ContentEncodingSupport.
+  */
 class ContentEncodingSupportTestServlet extends ScalatraServlet with ContentEncodingSupportAppBase {
   implicit protected def executor: ExecutionContext = ExecutionContext.global
 }
@@ -93,9 +92,8 @@ abstract class ContentEncodingSupportTest(e: ContentEncoding) extends ScalatraFu
   }
 }
 
-/**
- * Helper object for usage by tests.
- */
+/** Helper object for usage by tests.
+  */
 private object Helper {
   val body = "this is the body"
 
@@ -109,16 +107,14 @@ private object Helper {
     out.toByteArray
   }
 
-  /**
-   * Uncompresses an array to a string with gzip.
-   */
+  /** Uncompresses an array to a string with gzip.
+    */
   def uncompress(bytes: Array[Byte])(implicit encoding: ContentEncoding): String = {
     convertStreamToString(encoding.decode(new ByteArrayInputStream(bytes)))
   }
 
-  /**
-   * Returns a string with the content from the input stream.
-   */
+  /** Returns a string with the content from the input stream.
+    */
   private def convertStreamToString(is: InputStream): String = {
     val scanner = new java.util.Scanner(is, "UTF-8").useDelimiter("\\A")
     if (scanner.hasNext) {
