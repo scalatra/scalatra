@@ -587,12 +587,12 @@ lazy val mavenCentralFrouFrou = Seq(
       <developer>
         <id>ayush</id>
         <name>Ayush Gupta</name>
-        <url>hhttps://github.com/ayush</url>
+        <url>https://github.com/ayush</url>
       </developer>
       <developer>
         <id>seratch</id>
         <name>Kazuhiro Sera</name>
-        <url>hhttps://github.com/seratch</url>
+        <url>https://github.com/seratch</url>
       </developer>
     </developers>
   )
