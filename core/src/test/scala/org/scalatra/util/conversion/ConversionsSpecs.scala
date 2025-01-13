@@ -2,7 +2,7 @@ package org.scalatra
 package util
 package conversion
 
-import java.util.{ Calendar, Date }
+import java.util.{Calendar, Date}
 
 import org.specs2.mutable.Specification
 
@@ -74,8 +74,8 @@ class ConversionsSpecs extends Specification {
 
       val dateConverter = Impl.stringToDate("S") // milliseconds
 
-      val cal = Calendar.getInstance
-      val currentMs = cal.get(Calendar.MILLISECOND)
+      val cal                     = Calendar.getInstance
+      val currentMs               = cal.get(Calendar.MILLISECOND)
       val converted: Option[Date] = dateConverter(currentMs.toString)
 
       converted aka "The converted Date value" must beSome[Date]
@@ -94,7 +94,7 @@ class ConversionsSpecs extends Specification {
         Impl.stringToSeq(t).apply(source).get must containAllOf(expected).inOrder
       }
 
-      testConversion("1,2,3" -> List(1, 2, 3))
+      testConversion("1,2,3"    -> List(1, 2, 3))
       testConversion("a,b,c,,e" -> List("a", "b", "c", "", "e"))
 
       case class B(v: Int)

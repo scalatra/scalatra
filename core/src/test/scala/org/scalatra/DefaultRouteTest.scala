@@ -3,7 +3,7 @@ package org.scalatra
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 object DefaultRouteTest {
-  val existingRoute = "/existing-route"
+  val existingRoute    = "/existing-route"
   val nonExistentRoute = "/no-such-route"
 }
 

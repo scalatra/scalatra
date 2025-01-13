@@ -6,7 +6,7 @@ import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class RequestBodyTestServlet extends ScalatraServlet {
   post("/request-body") {
-    val body = request.body
+    val body  = request.body
     val body2 = request.body
     response.setHeader("X-Idempotent", (body == body2).toString)
     body
