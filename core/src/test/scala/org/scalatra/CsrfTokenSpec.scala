@@ -6,7 +6,7 @@ class CsrfTokenServlet extends ScalatraServlet with CsrfTokenSupport {
   get("/renderForm") {
     <html>
       <body>
-        <form method="post"><input type="hidden" name={ csrfKey } value={ csrfToken }/></form>
+        <form method="post"><input type="hidden" name={csrfKey} value={csrfToken}/></form>
       </body>
     </html>
   }

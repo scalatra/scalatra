@@ -12,7 +12,7 @@ class CookieSupportServlet extends ScalatraServlet {
     }
     cookies.get("somecookie") match {
       case Some(v) => v
-      case _ => "None"
+      case _       => "None"
     }
   }
 
@@ -37,9 +37,7 @@ class CookieSupportServlet extends ScalatraServlet {
 
   post("/remove-cookie") {
     cookies -= "somecookie"
-    response.setHeader(
-      "Somecookie-Is-Defined",
-      cookies.get("somecookie").isDefined.toString)
+    response.setHeader("Somecookie-Is-Defined", cookies.get("somecookie").isDefined.toString)
   }
 
   post("/remove-cookie-with-path") {
@@ -48,7 +46,7 @@ class CookieSupportServlet extends ScalatraServlet {
 }
 
 class CookieSupportTest extends ScalatraFunSuite {
-  val oneWeek = 7 * 24 * 3600
+  val oneWeek              = 7 * 24 * 3600
   override def contextPath = "/foo"
 
   addServlet(classOf[CookieSupportServlet], "/*")

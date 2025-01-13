@@ -44,7 +44,12 @@ class ParamsTest extends ScalatraFunSuite {
   }
 
   test("supports multiple parameters with ruby like syntax") {
-    get("/multiParams/numbers_ruby", "numbers_ruby[]" -> "one", "numbers_ruby[]" -> "two", "numbers_ruby[]" -> "three") {
+    get(
+      "/multiParams/numbers_ruby",
+      "numbers_ruby[]" -> "one",
+      "numbers_ruby[]" -> "two",
+      "numbers_ruby[]" -> "three"
+    ) {
       body should equal("[one,two,three]")
     }
   }

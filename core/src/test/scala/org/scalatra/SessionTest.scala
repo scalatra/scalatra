@@ -63,4 +63,3 @@ class SessionTest extends ScalatraFunSuite {
     }
   }
 }
-

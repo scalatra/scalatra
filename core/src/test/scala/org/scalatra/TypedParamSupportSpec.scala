@@ -7,7 +7,7 @@ class MyScalatraServlet extends ScalatraServlet {
   get("/render/:aNumber") {
     val intValue: Option[Int] = params.getAs[Int]("aNumber")
 
-    <p>Value is { intValue getOrElse (-1) }</p>
+    <p>Value is {intValue getOrElse (-1)}</p>
   }
 }
 

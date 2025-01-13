@@ -283,4 +283,3 @@ class ScalatraFilterWithoutServletMappingTest extends ScalatraFunSuite {
     }
   }
 }
-

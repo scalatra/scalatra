@@ -14,8 +14,9 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
     response.setHeader("Request-Method", request.getMethod)
     params.foreach(p => response.setHeader("Param-" + p._1, p._2))
 
-    request.getHeaderNames.asScala.filter(header => header.startsWith("Test-")).foreach(header =>
-      response.setHeader(header, request.getHeader(header)))
+    request.getHeaderNames.asScala
+      .filter(header => header.startsWith("Test-"))
+      .foreach(header => response.setHeader(header, request.getHeader(header)))
 
     fileParams.foreach(fileParam => {
       response.setHeader("File-" + fileParam._1 + "-Name", fileParam._2.name)
@@ -48,8 +49,8 @@ class FileUploadTestHelpersTestServlet extends ScalatraServlet with FileUploadSu
     "OK"
   }
 
-  error {
-    case e => e.printStackTrace()
+  error { case e =>
+    e.printStackTrace()
   }
 }
 
@@ -57,10 +58,11 @@ class FileUploadTestHelpersTest extends ScalatraFunSuite {
   mount(new FileUploadTestHelpersTestServlet, "/*")
 
   val files = Map(
-    "textFile" -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
-    "binaryFile" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png"))
+    "textFile"   -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
+    "binaryFile" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
+  )
 
-  val params = Map("one" -> "1", "two" -> "2")
+  val params  = Map("one" -> "1", "two" -> "2")
   val headers = Map("Test-Something" -> "lorem ipsum")
 
   test("post with files does POST request") {

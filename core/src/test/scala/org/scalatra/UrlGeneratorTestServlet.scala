@@ -41,5 +41,6 @@ class UrlGeneratorTestServlet extends ScalatraServlet {
     def apply(requestPath: String): Option[MultiParams] = None
   }) {}
 
-  val stringAndCustomMatcher = get("/fail", new RouteMatcher { def apply(requestPath: String): Option[MultiParams] = None }) {}
+  val stringAndCustomMatcher =
+    get("/fail", new RouteMatcher { def apply(requestPath: String): Option[MultiParams] = None }) {}
 }

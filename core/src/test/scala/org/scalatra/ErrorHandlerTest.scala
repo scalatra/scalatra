@@ -2,7 +2,7 @@ package org.scalatra
 
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
-trait TestException extends RuntimeException
+trait TestException     extends RuntimeException
 case class Exception1() extends TestException
 case class Exception2() extends TestException
 case class Exception3() extends TestException
@@ -14,8 +14,8 @@ class ErrorHandlerTest extends ScalatraFunSuite {
       throw new Exception1
     }
     get("/uncaught") { throw new RuntimeException }
-    error {
-      case e: TestException => "base"
+    error { case e: TestException =>
+      "base"
     }
   }
 

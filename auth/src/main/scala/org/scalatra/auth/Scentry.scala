@@ -118,8 +118,7 @@ class Scentry[UserType <: AnyRef](
       user_=(usr)
       user
     }
-    if (names.isEmpty) r orElse { defaultUnauthenticated foreach (_.apply()); None }
-    else r
+    if (names.isEmpty) r orElse { defaultUnauthenticated foreach (_.apply()); None } else r
   }
 
   private[this] def runAuthentication(

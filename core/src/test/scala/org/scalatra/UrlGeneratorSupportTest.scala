@@ -84,4 +84,3 @@ class UrlGeneratorNonRootContextSupportTest extends ScalatraFunSuite {
     }
   }
 }
-

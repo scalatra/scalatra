@@ -15,12 +15,12 @@ class ScalatraTestServlet extends ScalatraServlet {
   }
 
   get("/xml/:must/:val") {
-    <h1>{ params("must") + params("val") }</h1>
+    <h1>{params("must") + params("val")}</h1>
   }
 
   post("/post/test") {
     params.get("posted_value") match {
-      case None => "posted_value is null"
+      case None    => "posted_value is null"
       case Some(s) => s
     }
   }
