@@ -14,9 +14,14 @@ object ModelCollectionSpec {
   case class TaggedThing(id: Long, tag: Tag, created: Date)
   case class Asset(name: String, filename: String, id: Option[Int], relatedAsset: Asset)
 
-  val taggedThingModels = Set(Swagger.modelToSwagger[Tag], Swagger.modelToSwagger[Name], Swagger.modelToSwagger[Sequence], Swagger.modelToSwagger[TaggedThing])
+  val taggedThingModels = Set(
+    Swagger.modelToSwagger[Tag],
+    Swagger.modelToSwagger[Name],
+    Swagger.modelToSwagger[Sequence],
+    Swagger.modelToSwagger[TaggedThing]
+  )
   val onlyPrimitivesModel = Swagger.modelToSwagger[OnlyPrimitives].get
-  val assetModel = Swagger.modelToSwagger(Reflector.scalaTypeOf[Asset]).get
+  val assetModel          = Swagger.modelToSwagger(Reflector.scalaTypeOf[Asset]).get
 
   case class Things(id: Long, taggedThings: List[TaggedThing], visits: List[Date], created: Date)
   val thingsModels = taggedThingModels + Swagger.modelToSwagger[Things]
@@ -84,7 +89,7 @@ class ModelCollectionSpec extends Specification {
 
     "collect models when provided as a list inside an option" in {
       val collected = Swagger.collectModels[OptionListThing](Set.empty)
-      val r = collected.find(_.id == "OptionListThing")
+      val r         = collected.find(_.id == "OptionListThing")
       r.flatMap(_.properties.find(_._1 == "things").map(_._2.`type`)) must beSome(DataType[List[TaggedThing]])
       r.flatMap(_.properties.find(_._1 == "things").map(_._2.required)) must beSome(false)
     }
@@ -92,7 +97,9 @@ class ModelCollectionSpec extends Specification {
     "collect models when hiding in an option" in {
       val collected = Swagger.collectModels[Thing](Set.empty)
       collected must containTheSameElementsAs(thingModels.flatten.toSeq)
-      collected.find(_.id == "Thing").flatMap(_.properties.find(_._1 == "thing").map(_._2.`type`)) must beSome(DataType[TaggedThing])
+      collected.find(_.id == "Thing").flatMap(_.properties.find(_._1 == "thing").map(_._2.`type`)) must beSome(
+        DataType[TaggedThing]
+      )
     }
 
     "collect Asset model" in {
