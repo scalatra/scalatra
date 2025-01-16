@@ -1,7 +1,7 @@
 package org.scalatra.test
 
-import java.io.{ InputStream, OutputStream }
-import org.scalatra.ServletCompat.http.{ HttpServlet, HttpServletRequest, HttpServletResponse }
+import java.io.{InputStream, OutputStream}
+import org.scalatra.ServletCompat.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 
 import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeAfterAll
@@ -10,43 +10,46 @@ import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 class HttpComponentsClientSpec
-  extends Specification
-  with HttpComponentsClient
-  with EmbeddedJettyContainer
-  with BeforeAfterAll {
+    extends Specification
+    with HttpComponentsClient
+    with EmbeddedJettyContainer
+    with BeforeAfterAll {
 
   def beforeAll() = start()
-  def afterAll() = stop()
+  def afterAll()  = stop()
 
-  addServlet(new HttpServlet {
-    override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
-      def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
-        val buf = new Array[Byte](bufferSize)
-        @tailrec
-        def loop(): Unit = {
-          val n = in.read(buf)
-          if (n >= 0) {
-            out.write(buf, 0, n)
-            loop()
+  addServlet(
+    new HttpServlet {
+      override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
+        def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
+          val buf = new Array[Byte](bufferSize)
+          @tailrec
+          def loop(): Unit = {
+            val n = in.read(buf)
+            if (n >= 0) {
+              out.write(buf, 0, n)
+              loop()
+            }
           }
+          loop()
         }
-        loop()
-      }
 
-      resp.setHeader("Request-Method", req.getMethod.toUpperCase)
-      resp.setHeader("Request-URI", req.getRequestURI)
-      req.getHeaderNames.asScala.foreach(headerName =>
-        resp.setHeader("Request-Header-%s".format(headerName), req.getHeader(headerName)))
+        resp.setHeader("Request-Method", req.getMethod.toUpperCase)
+        resp.setHeader("Request-URI", req.getRequestURI)
+        req.getHeaderNames.asScala.foreach(headerName =>
+          resp.setHeader("Request-Header-%s".format(headerName), req.getHeader(headerName))
+        )
 
-      req.getParameterMap.asScala.foreach {
-        case (name, values) =>
+        req.getParameterMap.asScala.foreach { case (name, values) =>
           resp.setHeader("Request-Param-%s".format(name), values.mkString(", "))
-      }
+        }
 
-      resp.getOutputStream.write("received: ".getBytes)
-      copy(req.getInputStream, resp.getOutputStream)
-    }
-  }, "/*")
+        resp.getOutputStream.write("received: ".getBytes)
+        copy(req.getInputStream, resp.getOutputStream)
+      }
+    },
+    "/*"
+  )
 
   "client" should {
     "support all HTTP methods" in {

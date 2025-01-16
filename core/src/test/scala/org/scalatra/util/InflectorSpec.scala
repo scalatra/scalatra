@@ -167,7 +167,7 @@ class InflectorSpec extends Specification with DataTables {
       }
   }
 
-  def pluralization = pluralAndSingular { (left, right) => Inflector.pluralize(left) must_== right }
+  def pluralization   = pluralAndSingular { (left, right) => Inflector.pluralize(left) must_== right }
   def singularization = pluralAndSingular { (left, right) => Inflector.singularize(right) must_== left }
 
   def pluralAndSingular(execFn: (String, String) => Result) = {

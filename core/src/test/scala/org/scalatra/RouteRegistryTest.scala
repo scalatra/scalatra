@@ -15,11 +15,14 @@ object RouteRegistryTestServlet extends ScalatraServlet {
 class RouteRegistryTest extends ScalatraFunSuite {
 
   test("route registry string representation contains the entry points") {
-    RouteRegistryTestServlet.renderRouteRegistry should equal(List(
-      "GET /foo",
-      "GET /nothing [Boolean Guard]",
-      "GET [Boolean Guard]",
-      "POST /foo/:bar",
-      "PUT ^/foo.../bar$") mkString ", ")
+    RouteRegistryTestServlet.renderRouteRegistry should equal(
+      List(
+        "GET /foo",
+        "GET /nothing [Boolean Guard]",
+        "GET [Boolean Guard]",
+        "POST /foo/:bar",
+        "PUT ^/foo.../bar$"
+      ) mkString ", "
+    )
   }
 }

@@ -31,4 +31,3 @@ class RailsLikeRouteTest extends ScalatraFunSuite {
     }
   }
 }
-

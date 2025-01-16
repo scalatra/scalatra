@@ -1,13 +1,15 @@
 package org.scalatra.swagger
 
-import org.scalatra.swagger.AllowableValues.{ AllowableRangeValues, AllowableValuesList }
+import org.scalatra.swagger.AllowableValues.{AllowableRangeValues, AllowableValuesList}
 import org.scalatra.swagger.annotations._
 import org.scalatra.swagger.reflect.Reflector
 import org.specs2.mutable.Specification
 
 object ModelSpec {
 
-  case class WithDescription(@ApiModelProperty(description = "a description", allowableValues = "item1,item2") id: String)
+  case class WithDescription(
+      @ApiModelProperty(description = "a description", allowableValues = "item1,item2") id: String
+  )
   case class WithAllowableValues(@ApiModelProperty(allowableValues = "item1,item2") id: String)
   case class WithAllowableRangeValues(@ApiModelProperty(allowableValues = "range[1,10]") id: String)
   case class WithDefaultValueFromAnnotation(@ApiModelProperty(defaultValue = "default") id: String)
@@ -26,7 +28,7 @@ object ModelSpec {
   case class WithOrder(id: String, name: String, title: Option[String], email: String, company: Option[String])
   case class WithTypeParameter[T](id: String, results: List[T])
 
-  def swaggerProperties[T](implicit mf: Manifest[T]) = swaggerProperty[T]("id")
+  def swaggerProperties[T](implicit mf: Manifest[T])             = swaggerProperty[T]("id")
   def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) = allSwaggerProperties[T].find(_._1 == name).get._2
   def allSwaggerProperties[T](implicit mf: Manifest[T]) =
     Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties

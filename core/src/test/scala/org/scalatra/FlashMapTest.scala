@@ -1,6 +1,6 @@
 package org.scalatra
 
-import java.io.{ ByteArrayOutputStream, ObjectOutputStream }
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 
 import org.junit.runner.RunWith
 import org.scalatestplus.junit.JUnitRunner
@@ -77,7 +77,7 @@ class FlashMapTest extends AnyFunSuite with Matchers with BeforeAndAfterEach {
     keys foreach { k => flash(k) = true }
     // Iteration order is unspecified
     val (gottenKey, _) = flash.iterator.next()
-    val ungottenKey = (keys - gottenKey).head
+    val ungottenKey    = (keys - gottenKey).head
     flash.sweep()
     flash.get(gottenKey) should equal(None)
     flash.get(ungottenKey) should equal(Some(true))
