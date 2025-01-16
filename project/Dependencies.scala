@@ -37,10 +37,10 @@ object Dependencies {
     "org.specs2" %% "specs2-matcher-extra"
   ).map(_ % specs2Version)
   lazy val metricsScala           = "nl.grons"                %% "metrics4-scala"           % "4.3.3"
-  lazy val metricsServletsJavax   = "io.dropwizard.metrics"    % "metrics-servlets"         % "4.2.29"
-  lazy val metricsServletJavax    = "io.dropwizard.metrics"    % "metrics-servlet"          % "4.2.29"
-  lazy val metricsServletsJakarta = "io.dropwizard.metrics"    % "metrics-jakarta-servlets" % "4.2.29"
-  lazy val metricsServletJakarta  = "io.dropwizard.metrics"    % "metrics-jakarta-servlet"  % "4.2.29"
+  lazy val metricsServletsJavax   = "io.dropwizard.metrics"    % "metrics-servlets"         % "4.2.30"
+  lazy val metricsServletJavax    = "io.dropwizard.metrics"    % "metrics-servlet"          % "4.2.30"
+  lazy val metricsServletsJakarta = "io.dropwizard.metrics"    % "metrics-jakarta-servlets" % "4.2.30"
+  lazy val metricsServletJakarta  = "io.dropwizard.metrics"    % "metrics-jakarta-servlet"  % "4.2.30"
   lazy val googleGuava            = "com.google.guava"         % "guava"                    % "33.4.0-jre"
   lazy val twirlApi               = "org.playframework.twirl" %% "twirl-api"                % "2.0.7"
 
