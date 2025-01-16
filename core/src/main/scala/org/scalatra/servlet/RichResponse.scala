@@ -2,9 +2,9 @@ package org.scalatra
 package servlet
 
 import java.io.{OutputStream, PrintWriter}
-import org.scalatra.ServletCompat.http.{HttpServletResponse, Cookie => ServletCookie}
+import org.scalatra.ServletCompat.http.{HttpServletResponse, Cookie as ServletCookie}
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 
 case class RichResponse(res: HttpServletResponse) {
 
@@ -26,7 +26,7 @@ case class RichResponse(res: HttpServletResponse) {
   }
 
   def addCookie(cookie: Cookie): Unit = {
-    import cookie._
+    import cookie.*
 
     val sCookie = new ServletCookie(name, value)
     if (options.domain.nonBlank) sCookie.setDomain(options.domain)

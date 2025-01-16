@@ -1,6 +1,6 @@
 package org.scalatra
 
-import java.io._
+import java.io.*
 
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient

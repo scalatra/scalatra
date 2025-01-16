@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.test.scalatest._
+import org.scalatra.test.scalatest.*
 
 class UrlSupportTest extends ScalatraFunSuite {
   override def contextPath = "/context"

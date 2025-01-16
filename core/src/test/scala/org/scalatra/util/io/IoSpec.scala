@@ -1,7 +1,7 @@
 package org.scalatra.util
 package io
 
-import java.io._
+import java.io.*
 
 import scala.io.Source
 import org.scalatest.matchers.should.Matchers

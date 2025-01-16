@@ -1,10 +1,10 @@
 package org.scalatra
 package auth
 
-import org.scalatra.ServletCompat.http._
+import org.scalatra.ServletCompat.http.*
 
 import org.scalatra.auth.ScentryAuthStore.SessionAuthStore
-import org.specs2.mutable._
+import org.specs2.mutable.*
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.mockito.Mockito.when

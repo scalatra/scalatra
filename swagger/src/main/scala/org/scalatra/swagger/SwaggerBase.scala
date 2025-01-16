@@ -1,8 +1,8 @@
 package org.scalatra
 package swagger
 
-import org.json4s.JsonDSL._
-import org.json4s._
+import org.json4s.JsonDSL.*
+import org.json4s.*
 import org.scalatra.json.JsonSupport
 import org.scalatra.swagger.DataType.{ContainerDataType, ValueDataType}
 import org.slf4j.LoggerFactory
@@ -161,7 +161,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?]
                 }))))
             })
           }
-        }: _*)) ~
+        }*)) ~
       ("definitions" -> docs.flatMap { doc =>
         doc.models.map { case (name, model) =>
           (name ->

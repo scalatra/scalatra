@@ -1,16 +1,16 @@
 package org.scalatra.servlet
 
 import java.io.{InputStream, File, FileOutputStream}
-import java.util.{Map => JMap, HashMap => JHashMap}
-import org.scalatra.ServletCompat._
-import org.scalatra.ServletCompat.http._
+import java.util.{Map as JMap, HashMap as JHashMap}
+import org.scalatra.ServletCompat.*
+import org.scalatra.ServletCompat.http.*
 
 import org.scalatra.ScalatraBase
-import org.scalatra.util.RicherString._
-import org.scalatra.util._
-import org.scalatra.util.io._
+import org.scalatra.util.RicherString.*
+import org.scalatra.util.*
+import org.scalatra.util.io.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide
   * easy access to data submitted as part of a multipart HTTP request. Commonly this is used for retrieving uploaded
@@ -55,7 +55,7 @@ import scala.jdk.CollectionConverters._
   */
 trait FileUploadSupport extends ServletBase with HasMultipartConfig {
 
-  import org.scalatra.servlet.FileUploadSupport._
+  import org.scalatra.servlet.FileUploadSupport.*
 
   /* Called for any exceptions thrown by handling file uploads
    * to detect whether it signifies a too large file being

@@ -4,8 +4,8 @@ package json
 import java.text.{DateFormat, SimpleDateFormat}
 import java.util.Date
 
-import org.json4s._
-import org.scalatra.util.conversion._
+import org.json4s.*
+import org.scalatra.util.conversion.*
 
 trait JsonImplicitConversions extends TypeConverterSupport {
   implicit protected def jsonFormats: Formats
@@ -49,7 +49,7 @@ trait JsonImplicitConversions extends TypeConverterSupport {
     safe(_.extract[List[T]])
   }
 
-  import org.scalatra.json.JsonConversions._
+  import org.scalatra.json.JsonConversions.*
   implicit def jsonToValTypeConversion(source: JValue): JsonValConversion = new JsonValConversion(source)
 
   implicit def jsonToDateConversion(source: JValue): JsonDateConversion = new JsonDateConversion(source, jsonToDate(_))

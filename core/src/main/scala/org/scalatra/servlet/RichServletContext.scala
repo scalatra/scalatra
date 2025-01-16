@@ -2,7 +2,7 @@ package org.scalatra
 package servlet
 
 import java.net.{MalformedURLException, URL}
-import java.{util => jutil}
+import java.util as jutil
 import org.scalatra.ServletCompat.http.{HttpServlet, HttpServletRequest}
 import org.scalatra.ServletCompat.{DispatcherType, Filter, ServletContext}
 

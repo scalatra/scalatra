@@ -2,8 +2,8 @@ package org.scalatra.test
 package scalatest
 
 import org.junit.runner.RunWith
-import org.scalatest._
-import org.scalatestplus.junit._
+import org.scalatest.*
+import org.scalatestplus.junit.*
 import org.scalatest.featurespec.AnyFeatureSpecLike
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.freespec.AnyFreeSpecLike

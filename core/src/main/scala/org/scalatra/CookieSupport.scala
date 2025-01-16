@@ -5,9 +5,9 @@ import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.servlet.ServletApiImplicits
 import org.scalatra.util.DateUtil
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 
-import scala.collection._
+import scala.collection.*
 
 case class CookieOptions(
     domain: String = "",
@@ -36,7 +36,7 @@ object Cookie {
 
 }
 case class Cookie(name: String, value: String)(implicit cookieOptions: CookieOptions = CookieOptions()) {
-  import org.scalatra.Cookie._
+  import org.scalatra.Cookie.*
 
   val options: CookieOptions = cookieOptions
 
@@ -136,7 +136,7 @@ object CookieSupport {
 
 trait CookieContext { self: ScalatraContext =>
 
-  import org.scalatra.CookieSupport._
+  import org.scalatra.CookieSupport.*
 
   implicit def cookieOptions: CookieOptions = {
     servletContext.get(CookieOptionsKey).orNull.asInstanceOf[CookieOptions]

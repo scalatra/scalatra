@@ -1,6 +1,6 @@
 package org.scalatra.swagger.reflect
 
-import java.lang.reflect.{Constructor => JConstructor}
+import java.lang.reflect.Constructor as JConstructor
 import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
 
 trait ParameterNameReader {

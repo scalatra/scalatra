@@ -16,7 +16,7 @@ class ConversionsSpecs extends Specification {
 
     "provide an exception-safe TypeConverter that return None in case of exceptions" in {
 
-      import WithImplicit._
+      import WithImplicit.*
 
       val converter = safe[String, String]((s) => throw new Exception(s))
 
@@ -25,7 +25,7 @@ class ConversionsSpecs extends Specification {
 
     "implicitly convert a (String)=>T function into a TypeConveter[T]" in {
 
-      import WithImplicit._
+      import WithImplicit.*
 
       case class A(i: Int)
 
@@ -60,7 +60,7 @@ class ConversionsSpecs extends Specification {
     }
 
     "provide implicit VALs for basic types" in {
-      import Impl._
+      import Impl.*
       testFor("Hello", Some("Hello"))
       testFor("1.34d", Some(1.34d))
       testFor("1.23f", Some(1.23f))
@@ -87,7 +87,7 @@ class ConversionsSpecs extends Specification {
 
     "provide DEF conversion for Seq" in {
 
-      import Impl._
+      import Impl.*
 
       def testConversion[T: ClassTag](args: (String, Seq[T]))(implicit t: TypeConverter[String, T]) = {
         val (source, expected) = args
@@ -106,7 +106,7 @@ class ConversionsSpecs extends Specification {
 
   "The Conversions object" should {
 
-    import org.scalatra.util.conversion.Conversions._
+    import org.scalatra.util.conversion.Conversions.*
 
     "Pimp String type with as[T]" in {
 

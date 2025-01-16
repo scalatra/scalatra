@@ -1,6 +1,6 @@
 package org.scalatra.cache
 
-import java.time._
+import java.time.*
 
 class MapCache extends Cache {
   var cache = new scala.collection.mutable.HashMap[String, Any]

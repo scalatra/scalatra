@@ -4,7 +4,7 @@ import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.ScalatraBase
 
-import java.time._
+import java.time.*
 
 trait CacheSupport { self: ScalatraBase =>
   implicit val cacheBackend: Cache

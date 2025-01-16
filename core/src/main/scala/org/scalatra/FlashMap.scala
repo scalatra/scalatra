@@ -3,7 +3,7 @@ package org.scalatra
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentSkipListSet}
 import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** A FlashMap is the data structure used by [[org.scalatra.FlashMapSupport]] to allow passing temporary values between
   * sequential actions.
@@ -135,7 +135,7 @@ object FlashMapSupport {
 trait FlashMapSupport extends Handler {
   this: ScalatraBase =>
 
-  import org.scalatra.FlashMapSupport._
+  import org.scalatra.FlashMapSupport.*
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     withRequest(req) {

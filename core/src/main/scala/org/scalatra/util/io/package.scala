@@ -1,6 +1,6 @@
 package org.scalatra.util
 
-import java.io._
+import java.io.*
 import java.nio.channels.Channels
 
 import scala.annotation.tailrec

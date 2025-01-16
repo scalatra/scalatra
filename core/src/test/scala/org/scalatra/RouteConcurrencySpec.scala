@@ -3,9 +3,9 @@ package org.scalatra
 import org.scalatra.test.scalatest.ScalatraWordSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
-import scala.concurrent.duration._
-import org.scalatest.concurrent.Eventually._
+import scala.concurrent.*
+import scala.concurrent.duration.*
+import org.scalatest.concurrent.Eventually.*
 
 class RouteConcurrencyServlet extends ScalatraServlet {
   private[this] val gets = for {

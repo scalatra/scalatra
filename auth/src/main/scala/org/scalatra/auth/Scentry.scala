@@ -4,8 +4,8 @@ package auth
 import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.auth.ScentryAuthStore.ScentryAuthStore
-import org.scalatra.servlet.ServletApiImplicits._
-import org.scalatra.util.RicherString._
+import org.scalatra.servlet.ServletApiImplicits.*
+import org.scalatra.util.RicherString.*
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
@@ -38,7 +38,7 @@ class Scentry[UserType <: AnyRef](
   type StrategyType    = ScentryStrategy[UserType]
   type StrategyFactory = ScalatraBase => StrategyType
 
-  import org.scalatra.auth.Scentry._
+  import org.scalatra.auth.Scentry.*
 
   private[this] val _strategies = new mutable.HashMap[String, StrategyFactory]()
   private[this] def _user(implicit request: HttpServletRequest): UserType =

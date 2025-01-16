@@ -3,9 +3,9 @@ package json
 
 import java.io.Writer
 
-import org.json4s._
-import native._
-import org.scalatra.util.RicherString._
+import org.json4s.*
+import native.*
+import org.scalatra.util.RicherString.*
 
 trait NativeJsonSupport extends JsonSupport[Document] with NativeJsonOutput with JValueResult {
   protected def readJsonFromBody(bd: String): JValue = {

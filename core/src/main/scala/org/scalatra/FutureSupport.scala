@@ -6,7 +6,7 @@ import org.scalatra.ServletCompat.{AsyncEvent, AsyncListener, ServletContext}
 
 import org.scalatra.servlet.AsyncSupport
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 

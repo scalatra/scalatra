@@ -9,7 +9,7 @@ import org.specs2.mutable.Specification
 
 class ParamsExtensionSpec extends Specification {
 
-  import org.scalatra.ScalatraParamsImplicits._
+  import org.scalatra.ScalatraParamsImplicits.*
 
   case class FakeParams(params: Map[String, String]) extends MultiMapHeadView[String, String] {
     protected def multiMap = params.map(e => (e._1, Seq(e._2)))

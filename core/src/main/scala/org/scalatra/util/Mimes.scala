@@ -12,7 +12,7 @@ object Mimes {
 
 trait Mimes {
 
-  import org.scalatra.util.Mimes._
+  import org.scalatra.util.Mimes.*
 
   /** Detects the MIME type of a given Byte array.
     *

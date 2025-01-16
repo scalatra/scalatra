@@ -8,7 +8,7 @@ object DefaultRouteTest {
 }
 
 class DefaultRouteTestServlet extends ScalatraServlet {
-  import org.scalatra.DefaultRouteTest._
+  import org.scalatra.DefaultRouteTest.*
 
   get(existingRoute) {
     "get"
@@ -32,7 +32,7 @@ class DefaultRouteTestServlet extends ScalatraServlet {
 }
 
 class DefaultRouteTest extends ScalatraFunSuite {
-  import org.scalatra.DefaultRouteTest._
+  import org.scalatra.DefaultRouteTest.*
 
   addServlet(classOf[DefaultRouteTestServlet], "/*")
 

@@ -7,8 +7,8 @@ import com.codahale.metrics.health.HealthCheckRegistry
 import org.scalatra.metrics.MetricsCompat.HealthCheckServletRegistryName
 import org.scalatra.metrics.MetricsCompat.MetricsServletRegistryName
 import org.scalatra.metrics.MetricsCompat.InstrumentedFilterRegistryName
-import org.scalatra.metrics.MetricsCompat.servlet._
-import org.scalatra.metrics.MetricsCompat.servlets._
+import org.scalatra.metrics.MetricsCompat.servlet.*
+import org.scalatra.metrics.MetricsCompat.servlets.*
 import org.scalatra.servlet.ServletApiImplicits
 
 object MetricsSupportExtensions extends ServletApiImplicits {

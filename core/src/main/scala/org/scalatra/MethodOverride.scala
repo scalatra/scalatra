@@ -32,7 +32,7 @@ trait MethodOverride extends Handler with ServletApiImplicits {
   }
 
   private[this] def methodOverride(req: HttpServletRequest) = {
-    import org.scalatra.MethodOverride._
+    import org.scalatra.MethodOverride.*
     val methodOpt = req.parameters get ParamName
     methodOpt orElse {
       val headers      = req.headers

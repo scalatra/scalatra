@@ -2,7 +2,7 @@ package org.scalatra.metrics
 
 import org.scalatra.ServletCompat.{ServletContextEvent, ServletContextListener}
 
-import org.scalatra.metrics.MetricsSupportExtensions._
+import org.scalatra.metrics.MetricsSupportExtensions.*
 import org.scalatra.test.scalatest.ScalatraFlatSpec
 
 class MetricsServletSupportSpec extends ScalatraFlatSpec {

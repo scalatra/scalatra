@@ -1,6 +1,6 @@
 package org.scalatra.forms
 
-import org.scalatra.i18n._
+import org.scalatra.i18n.*
 import org.scalatra.servlet.ServletBase
 
 trait FormSupport { self: ServletBase with I18nSupport =>

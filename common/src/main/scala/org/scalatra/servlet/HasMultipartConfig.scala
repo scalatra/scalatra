@@ -9,7 +9,7 @@ object HasMultipartConfig {
 }
 trait HasMultipartConfig extends Initializable {
 
-  import org.scalatra.servlet.HasMultipartConfig._
+  import org.scalatra.servlet.HasMultipartConfig.*
 
   def servletContext: ServletContext
 

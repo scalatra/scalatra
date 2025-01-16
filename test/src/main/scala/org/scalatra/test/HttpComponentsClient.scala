@@ -8,7 +8,7 @@ import org.apache.hc.core5.http.io.entity.ByteArrayEntity
 import org.apache.hc.client5.http.config.RequestConfig
 import org.apache.hc.client5.http.cookie.BasicCookieStore
 import org.apache.hc.client5.http.cookie.CookieStore
-import org.apache.hc.client5.http.classic.methods._
+import org.apache.hc.client5.http.classic.methods.*
 import org.apache.hc.client5.http.entity.mime.{ContentBody, StringBody}
 import org.apache.hc.client5.http.entity.mime.{FormBodyPartBuilder, HttpMultipartMode, MultipartEntityBuilder}
 import org.apache.hc.client5.http.impl.classic.HttpClients

@@ -2,7 +2,7 @@ package org.scalatra
 
 import java.util.Date
 
-import org.scalatest._
+import org.scalatest.*
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
