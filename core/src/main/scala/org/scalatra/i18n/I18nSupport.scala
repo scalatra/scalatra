@@ -16,7 +16,7 @@ object I18nSupport {
 
 trait I18nSupport { this: ScalatraBase =>
 
-  import org.scalatra.i18n.I18nSupport._
+  import org.scalatra.i18n.I18nSupport.*
 
   before() {
     if (!request.contains(LocaleKey)) {

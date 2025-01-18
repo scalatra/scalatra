@@ -3,8 +3,8 @@ package servlet
 
 import org.scalatra.util.conversion.TypeConverter
 
-import scala.jdk.CollectionConverters._
-import Attributes._
+import scala.jdk.CollectionConverters.*
+import Attributes.*
 
 /** Adapts for handling servlet objects (e.g., ServletRequest, HttpSession, ServletContext) as mutable map.
   */

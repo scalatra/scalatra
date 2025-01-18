@@ -3,7 +3,7 @@ package org.scalatra
 import java.util.Date
 
 import org.scalatra.ScalatraParamsImplicits.{TypedMultiParams, TypedParams}
-import org.scalatra.util.conversion._
+import org.scalatra.util.conversion.*
 
 /** Add some implicits
   */

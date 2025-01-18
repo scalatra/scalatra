@@ -1,6 +1,6 @@
 package org.scalatra
 
-import java.io._
+import java.io.*
 import java.nio.charset.Charset
 import java.util.zip.{DeflaterOutputStream, GZIPInputStream, GZIPOutputStream, InflaterInputStream}
 import org.scalatra.ServletCompat.http.{

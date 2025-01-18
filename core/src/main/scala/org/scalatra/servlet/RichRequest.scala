@@ -6,10 +6,10 @@ import java.net.URI
 import java.util.Locale
 
 import org.scalatra.ServletCompat.http.HttpServletRequest
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 import org.scalatra.util.MultiMapHeadView
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.io.Source
 
 object RichRequest {

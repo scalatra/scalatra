@@ -7,8 +7,8 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool
 import org.scalatra.test.HttpComponentsClient
 import org.scalatra.test.specs2.MutableScalatraSpec
 
-import scala.concurrent._
-import scala.concurrent.duration._
+import scala.concurrent.*
+import scala.concurrent.duration.*
 
 // TODO rename file and class
 // https://github.com/scalatra/scalatra/pull/1410

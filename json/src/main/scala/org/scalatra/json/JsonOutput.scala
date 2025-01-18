@@ -3,8 +3,8 @@ package json
 
 import java.io.Writer
 
-import org.json4s.Xml._
-import org.json4s._
+import org.json4s.Xml.*
+import org.json4s.*
 
 import scala.io.Codec
 import scala.xml.XML
@@ -16,7 +16,7 @@ object JsonOutput {
 
 trait JsonOutput[T] extends ApiFormats with JsonMethods[T] {
 
-  import org.scalatra.json.JsonOutput._
+  import org.scalatra.json.JsonOutput.*
 
   /** If a request is made with a parameter in jsonpCallbackParameterNames it will be assumed that it is a JSONP request
     * and the json will be returned as the argument to a function with the name specified in the corresponding

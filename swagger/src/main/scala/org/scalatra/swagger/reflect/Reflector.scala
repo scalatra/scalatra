@@ -1,11 +1,11 @@
 package org.scalatra.swagger.reflect
 
-import java.lang.reflect._
+import java.lang.reflect.*
 import java.sql.Timestamp
 import java.util.Date
 
 import scala.collection.mutable.ArrayBuffer
-import scala.util.control.Exception._
+import scala.util.control.Exception.*
 
 object Reflector {
 

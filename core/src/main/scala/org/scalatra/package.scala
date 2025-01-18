@@ -2,7 +2,7 @@ package org
 
 import org.scalatra.servlet.FileUploadSupport
 import org.scalatra.util.MultiMapHeadView
-import java.lang.{Integer => JInteger}
+import java.lang.Integer as JInteger
 
 package object scalatra {
 

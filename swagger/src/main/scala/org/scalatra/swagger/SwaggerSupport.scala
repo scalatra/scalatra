@@ -6,9 +6,9 @@ import org.scalatra.ServletCompat.{Filter, Servlet}
 import org.scalatra.swagger.DataType.{ContainerDataType, ValueDataType}
 import org.scalatra.swagger.reflect.Reflector
 import org.scalatra.util.NotNothing
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.collection.mutable
 import scala.util.control.Exception.allCatch
 import scala.util.parsing.combinator.RegexParsers
@@ -421,7 +421,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
 
   protected def endpoint(value: String) = swaggerMeta(Symbols.Endpoint, value)
 
-  import org.scalatra.swagger.SwaggerSupportSyntax._
+  import org.scalatra.swagger.SwaggerSupportSyntax.*
 
   protected def apiOperation[T: Manifest: NotNothing](nickname: String): OperationBuilder
 
@@ -527,7 +527,7 @@ trait SwaggerSupportSyntax extends Initializable with CorsSupport {
   */
 trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSupportSyntax {
 
-  import org.scalatra.swagger.SwaggerSupportSyntax._
+  import org.scalatra.swagger.SwaggerSupportSyntax.*
 
   protected implicit def operationBuilder2operation[T](bldr: OperationBuilder): Operation = bldr.result
   protected def apiOperation[T: Manifest: NotNothing](operationId: String): OperationBuilder = {

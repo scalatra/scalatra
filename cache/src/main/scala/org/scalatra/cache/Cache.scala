@@ -1,6 +1,6 @@
 package org.scalatra.cache
 
-import java.time._
+import java.time.*
 
 trait Cache {
   def get[V](key: String): Option[V]

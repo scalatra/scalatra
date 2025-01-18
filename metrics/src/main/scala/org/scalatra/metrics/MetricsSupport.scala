@@ -2,7 +2,7 @@ package org.scalatra.metrics
 
 import java.util.concurrent.Callable
 
-import nl.grons.metrics4.scala._
+import nl.grons.metrics4.scala.*
 
 trait MetricsSupport extends InstrumentedBuilder with MetricsBootstrap {
 

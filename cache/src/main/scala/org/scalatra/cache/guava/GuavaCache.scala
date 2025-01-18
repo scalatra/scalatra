@@ -1,6 +1,6 @@
 package org.scalatra.cache.guava
 
-import java.time._
+import java.time.*
 
 import com.google.common.cache.CacheBuilder
 import org.scalatra.cache.Cache

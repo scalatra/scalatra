@@ -3,12 +3,12 @@ package servlet
 
 import org.scalatra.ServletCompat.{ServletContext, ServletContextEvent, ServletContextListener}
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 import org.slf4j.LoggerFactory
 
 class ScalatraListener extends ServletContextListener {
 
-  import org.scalatra.servlet.ScalatraListener._
+  import org.scalatra.servlet.ScalatraListener.*
 
   private[this] val logger = LoggerFactory.getLogger(getClass)
 

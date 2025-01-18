@@ -1,6 +1,6 @@
 package org.scalatra
 
-import org.scalatra.test.specs2._
+import org.scalatra.test.specs2.*
 
 class MyScalatraServlet extends ScalatraServlet {
 

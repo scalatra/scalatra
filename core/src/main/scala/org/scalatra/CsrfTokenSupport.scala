@@ -79,7 +79,7 @@ trait CsrfTokenSupport { this: ScalatraBase =>
 
 trait XsrfTokenSupport { this: ScalatraBase =>
 
-  import org.scalatra.XsrfTokenSupport._
+  import org.scalatra.XsrfTokenSupport.*
 
   /** The key used to store the token on the session, as well as the parameter of the request.
     */

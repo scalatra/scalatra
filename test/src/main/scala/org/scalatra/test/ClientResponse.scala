@@ -4,7 +4,7 @@ import java.io.InputStream
 
 case class ResponseStatus(code: Int, message: String)
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 abstract class ClientResponse {
   def bodyBytes: Array[Byte]

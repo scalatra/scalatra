@@ -3,10 +3,10 @@ package org.scalatra
 import java.util.Locale.ENGLISH
 import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 import org.slf4j.LoggerFactory
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object CorsSupport {
 
@@ -79,7 +79,7 @@ object CorsSupport {
 }
 trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
 
-  import org.scalatra.CorsSupport._
+  import org.scalatra.CorsSupport.*
 
   private[this] lazy val logger = LoggerFactory.getLogger(getClass)
 
@@ -107,7 +107,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
     )
 
     val corsCfg = config.context.getOrElseUpdate(CorsConfigKey, createDefault).asInstanceOf[CORSConfig]
-    import corsCfg._
+    import corsCfg.*
     if (enabled) {
       logger debug "Enabled CORS Support with:\nallowedOrigins:\n\t%s\nallowedMethods:\n\t%s\nallowedHeaders:\n\t%s"
         .format(allowedOrigins mkString ", ", allowedMethods mkString ", ", allowedHeaders mkString ", ")

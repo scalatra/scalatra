@@ -1,6 +1,6 @@
 package org.scalatra.cache.guava
 
-import java.time._
+import java.time.*
 
 import org.scalatra.test.scalatest.ScalatraFlatSpec
 

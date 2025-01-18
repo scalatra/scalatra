@@ -11,7 +11,7 @@ object ParamsTestServlet {
 }
 
 class ParamsTestServlet extends ScalatraServlet {
-  import org.scalatra.ParamsTestServlet._
+  import org.scalatra.ParamsTestServlet.*
 
   get("/multiParams/:key") {
     multiParams(params("key")).mkString("[", ",", "]")

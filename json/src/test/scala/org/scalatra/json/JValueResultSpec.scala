@@ -1,7 +1,7 @@
 package org.scalatra
 package json
 
-import org.json4s._
+import org.json4s.*
 import org.json4s.jackson.JsonMethods.parse
 import org.scalatra.test.specs2.MutableScalatraSpec
 

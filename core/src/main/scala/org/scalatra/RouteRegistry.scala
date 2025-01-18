@@ -3,8 +3,8 @@ package org.scalatra
 import java.util.concurrent.ConcurrentHashMap
 
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
-import scala.collection.concurrent.{Map => ConcurrentMap}
+import scala.jdk.CollectionConverters.*
+import scala.collection.concurrent.Map as ConcurrentMap
 
 class RouteRegistry {
 

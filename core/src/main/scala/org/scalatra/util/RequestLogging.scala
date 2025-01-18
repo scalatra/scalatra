@@ -3,10 +3,10 @@ package util
 
 import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 import org.slf4j.{LoggerFactory, MDC}
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object RequestLogging {
 
@@ -25,7 +25,7 @@ object RequestLogging {
 trait RequestLogging extends ScalatraBase with Handler {
 
   private[this] val logger = LoggerFactory.getLogger("REQUEST")
-  import org.scalatra.util.RequestLogging._
+  import org.scalatra.util.RequestLogging.*
 
   abstract override def handle(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     val realMultiParams = req.getParameterMap.asScala.toMap transform { (k, v) => v.toIndexedSeq }

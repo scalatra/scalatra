@@ -6,7 +6,7 @@ import java.util.Locale
 
 import org.scalatra.ServletCompat.http.HttpServletRequest
 import org.scalatra.ServletCompat.{ReadListener, ServletInputStream}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

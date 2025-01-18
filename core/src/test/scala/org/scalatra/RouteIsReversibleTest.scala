@@ -6,7 +6,7 @@ class RouteIsReversibleTest extends ScalatraFunSuite {
   addServlet(classOf[UrlGeneratorTestServlet], "/*")
 
   object TestServlet extends UrlGeneratorTestServlet
-  import TestServlet._
+  import TestServlet.*
 
   test("Urls can be generated from a string") {
     simpleString.isReversible should equal(true)

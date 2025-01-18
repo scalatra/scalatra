@@ -4,7 +4,7 @@ package strategy
 
 import org.scalatra.ServletCompat.http.HttpServletRequest
 import org.mockito.Mockito
-import org.scalatra.test.specs2._
+import org.scalatra.test.specs2.*
 
 class BasicAuthStrategySpec extends MutableScalatraSpec {
   "params on a request with no auth headers" should {

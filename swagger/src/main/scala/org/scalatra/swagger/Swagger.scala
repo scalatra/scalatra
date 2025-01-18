@@ -3,14 +3,14 @@ package swagger
 
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
-import java.util.{Date => JDate}
+import java.util.Date as JDate
 
 import org.json4s.JsonAST.JValue
-import org.scalatra.swagger.reflect._
+import org.scalatra.swagger.reflect.*
 import org.scalatra.swagger.runtime.annotations.{ApiModel, ApiModelProperty}
 import org.slf4j.LoggerFactory
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 trait SwaggerEngine {
   def swaggerVersion: String
@@ -121,7 +121,7 @@ object Swagger {
     }
   }
 
-  import org.scalatra.util.RicherString._
+  import org.scalatra.util.RicherString.*
   def modelToSwagger[T](implicit mf: Manifest[T]): Option[Model] = modelToSwagger(Reflector.scalaTypeOf[T])
 
   private[this] def toModelProperty(

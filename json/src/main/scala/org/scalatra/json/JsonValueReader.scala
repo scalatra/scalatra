@@ -1,8 +1,8 @@
 package org.scalatra
 package json
 
-import org.json4s._
-import org.scalatra.util.RicherString._
+import org.json4s.*
+import org.scalatra.util.RicherString.*
 import org.scalatra.util.ValueReader
 
 import scala.util.control.Exception.allCatch
@@ -14,7 +14,7 @@ object JsonValueReader {
 
 class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
   //  type I = T
-  import JsonValueReader._
+  import JsonValueReader.*
 
   def read(key: String): Either[String, Option[JValue]] =
     allCatch.withApply(t => Left(t.getMessage)) { Right(readPath(key)) }

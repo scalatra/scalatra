@@ -37,7 +37,7 @@ object ModelCollectionSpec {
 }
 
 class ModelCollectionSpec extends Specification {
-  import org.scalatra.swagger.ModelCollectionSpec._
+  import org.scalatra.swagger.ModelCollectionSpec.*
 
   "Collect models" should {
 

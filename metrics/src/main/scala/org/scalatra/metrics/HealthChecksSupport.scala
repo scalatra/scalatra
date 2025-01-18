@@ -1,6 +1,6 @@
 package org.scalatra.metrics
 
-import nl.grons.metrics4.scala._
+import nl.grons.metrics4.scala.*
 
 trait HealthChecksSupport extends CheckedBuilder with MetricsBootstrap {
   val registry = healthCheckRegistry

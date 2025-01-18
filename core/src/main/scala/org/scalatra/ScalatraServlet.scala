@@ -1,11 +1,11 @@
 package org.scalatra
 
-import org.scalatra.ServletCompat._
-import org.scalatra.ServletCompat.http._
+import org.scalatra.ServletCompat.*
+import org.scalatra.ServletCompat.http.*
 
 import org.apache.commons.text.StringEscapeUtils
 import org.scalatra.servlet.ServletBase
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 
 import scala.util.control.Exception.catching
 

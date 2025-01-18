@@ -3,25 +3,25 @@ package org.scalatra
 import java.io.{File, FileInputStream, OutputStreamWriter, PrintWriter}
 import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 import org.scalatra.ServletCompat.{ServletContext, ServletRegistration}
-import org.scalatra.ScalatraBase._
+import org.scalatra.ScalatraBase.*
 import org.scalatra.servlet.ServletApiImplicits
-import org.scalatra.util.RicherString._
-import org.scalatra.util._
-import org.scalatra.util.io._
+import org.scalatra.util.RicherString.*
+import org.scalatra.util.*
+import org.scalatra.util.io.*
 import org.scalatra.util.conversion.DefaultImplicitConversions
 
 import java.nio.charset.StandardCharsets
 import scala.annotation.tailrec
-import scala.util.control.Exception._
+import scala.util.control.Exception.*
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
-import scala.collection.compat.immutable._
+import scala.collection.compat.immutable.*
 
 object ScalatraBase {
 
-  import org.scalatra.servlet.ServletApiImplicits._
-  import scala.jdk.CollectionConverters._
+  import org.scalatra.servlet.ServletApiImplicits.*
+  import scala.jdk.CollectionConverters.*
 
   /** A key for request attribute that contains any exception that might have occured before the handling has been
     * propagated to ScalatraBase#handle (such as in FileUploadSupport)

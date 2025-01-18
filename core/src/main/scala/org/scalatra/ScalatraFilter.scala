@@ -1,10 +1,10 @@
 package org.scalatra
 
-import org.scalatra.ServletCompat._
+import org.scalatra.ServletCompat.*
 import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
 import org.scalatra.servlet.ServletBase
-import org.scalatra.util.RicherString._
+import org.scalatra.util.RicherString.*
 
 import scala.util.control.Exception.catching
 import scala.util.DynamicVariable

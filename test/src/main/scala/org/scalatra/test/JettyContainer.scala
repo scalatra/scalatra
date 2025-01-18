@@ -15,7 +15,7 @@ object JettyContainer {
 }
 
 trait JettyContainer extends Container {
-  import org.scalatra.test.JettyContainer._
+  import org.scalatra.test.JettyContainer.*
 
   def servletContextHandler: ServletContextHandler
   def skipDefaultServlet: Boolean = false

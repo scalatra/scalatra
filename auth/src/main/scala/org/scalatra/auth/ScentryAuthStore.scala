@@ -3,7 +3,7 @@ package auth
 
 import org.scalatra.ServletCompat.http.{HttpServletRequest, HttpServletResponse}
 
-import org.scalatra.servlet.ServletApiImplicits._
+import org.scalatra.servlet.ServletApiImplicits.*
 
 object ScentryAuthStore {
 
