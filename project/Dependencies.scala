@@ -4,7 +4,7 @@ import sbt.Keys.*
 object Dependencies {
   lazy val parserCombinators   = "org.scala-lang.modules"           %% "scala-parser-combinators" % "2.4.0"
   lazy val xml                 = "org.scala-lang.modules"           %% "scala-xml"                % "2.3.0"
-  lazy val collectionCompact   = "org.scala-lang.modules"           %% "scala-collection-compat"  % "2.12.0"
+  lazy val collectionCompact   = "org.scala-lang.modules"           %% "scala-collection-compat"  % "2.13.0"
   lazy val commonsText         = "org.apache.commons"                % "commons-text"             % "1.13.0"
   lazy val httpclient          = "org.apache.httpcomponents.client5" % "httpclient5"              % "5.4.1"
   lazy val jettyServletJavax   = "org.eclipse.jetty"                 % "jetty-servlet"            % "10.0.21"
