@@ -11,6 +11,7 @@ import scala.io.Source
 import org.scalatest.wordspec.AnyWordSpec
 
 import java.nio.file.Path
+import scala.jdk.CollectionConverters.*
 
 object JettyServerSpec {
   class HelloServlet extends ScalatraServlet {
@@ -30,9 +31,15 @@ class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
+    val urls = getClass.getClassLoader.getResources("").asScala.toSeq
+    val fileUrl = urls
+      .find(_.getProtocol == "file")
+      .getOrElse(
+        throw new IllegalStateException("No file URL found in class loader resources")
+      )
     jetty = new JettyServer(
       InetSocketAddress.createUnresolved("localhost", 0),
-      Path.of(getClass.getClassLoader.getResource("").toURI)
+      Path.of(fileUrl.toURI)
     )
     jetty.context.setInitParameter(ScalatraListener.LifeCycleKey, classOf[JettyServerSpec.ScalatraBootstrap].getName)
     jetty.start()
