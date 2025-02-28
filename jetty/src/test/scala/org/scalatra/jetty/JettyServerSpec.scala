@@ -32,9 +32,11 @@ class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
   override protected def beforeAll(): Unit = {
     super.beforeAll()
     val urls = getClass.getClassLoader.getResources("").asScala.toSeq
-    val fileUrl = urls.find(_.getProtocol == "file").getOrElse(
-      throw new IllegalStateException("No file URL found in class loader resources")
-    )
+    val fileUrl = urls
+      .find(_.getProtocol == "file")
+      .getOrElse(
+        throw new IllegalStateException("No file URL found in class loader resources")
+      )
     jetty = new JettyServer(
       InetSocketAddress.createUnresolved("localhost", 0),
       Path.of(fileUrl.toURI)
