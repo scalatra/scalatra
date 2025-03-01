@@ -42,7 +42,7 @@ object Dependencies {
   lazy val metricsServletsJakarta = "io.dropwizard.metrics"    % "metrics-jakarta-servlets" % "4.2.30"
   lazy val metricsServletJakarta  = "io.dropwizard.metrics"    % "metrics-jakarta-servlet"  % "4.2.30"
   lazy val googleGuava            = "com.google.guava"         % "guava"                    % "33.4.0-jre"
-  lazy val twirlApi               = "org.playframework.twirl" %% "twirl-api"                % "2.0.7"
+  lazy val twirlApi               = "org.playframework.twirl" %% "twirl-api"                % "2.0.8"
 
   private val json4sVersion    = "4.0.7"
   private val specs2Version    = "4.20.9"
