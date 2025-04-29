@@ -72,8 +72,8 @@ trait HttpComponentsClient extends Client {
         s"${buildUrl(baseUrl, path)}?$queryString"
 
     val req = createMethod(method.toUpperCase, url)
-    attachBody(req, body)
     attachHeaders(req, headers)
+    attachBody(req, body)
 
     val handler: HttpClientResponseHandler[A] = res => withResponse(HttpComponentsClientResponse(res))(f)
     client.execute[A](req, handler)
