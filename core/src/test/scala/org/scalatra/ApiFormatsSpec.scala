@@ -102,7 +102,7 @@ class ApiFormatsSpec extends MutableScalatraSpec {
         }
       }
 
-      "should use Content-Type is when defined" in {
+      "should use Content-Type when it's defined" in {
         submit("POST", "/mime", body="[]", headers=Seq(("Content-Type", "text/html"))) {
           response.getHeader("Request-Mime") must equalTo("html")
         }

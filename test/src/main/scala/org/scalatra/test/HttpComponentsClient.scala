@@ -140,7 +140,7 @@ trait HttpComponentsClient extends Client {
           if (req.containsHeader("Content-Type"))
             ContentType.parse(req.getHeader("Content-Type").getValue)
           else
-            ContentType.TEXT_PLAIN
+            null
 
         req.setEntity(new ByteArrayEntity(body, contentType))
       }
