@@ -97,13 +97,13 @@ class ApiFormatsSpec extends MutableScalatraSpec {
       }
 
       "should use default format when Content-Type is undefined" in {
-        submit("POST", "/mime", body="[]") {
+        submit("POST", "/mime", body = "[]") {
           response.getHeader("Request-Mime") must equalTo("application/json")
         }
       }
 
       "should use Content-Type when it's defined" in {
-        submit("POST", "/mime", body="[]", headers=Seq(("Content-Type", "text/html"))) {
+        submit("POST", "/mime", body = "[]", headers = Seq(("Content-Type", "text/html"))) {
           response.getHeader("Request-Mime") must equalTo("html")
         }
       }
