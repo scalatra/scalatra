@@ -13,6 +13,10 @@ class ApiFormatsServlet extends ScalatraServlet with ApiFormats {
     format
   }
 
+  post("/mime") {
+    format = formats("json")
+    response.setHeader("Request-Mime", requestFormat)
+  }
 }
 
 class ApiFormatsSpec extends MutableScalatraSpec {
@@ -89,6 +93,18 @@ class ApiFormatsSpec extends MutableScalatraSpec {
         get("/hello", headers = Map("Accept" -> "application/json; q=0.8 oops, text/plain, */*")) {
           response.getContentType() must startWith("text/plain")
           body must_== "txt"
+        }
+      }
+
+      "should use default format when Content-Type is undefined" in {
+        submit("POST", "/mime", body = "[]") {
+          response.getHeader("Request-Mime") must equalTo("application/json")
+        }
+      }
+
+      "should use Content-Type when it's defined" in {
+        submit("POST", "/mime", body = "[]", headers = Seq(("Content-Type", "text/html"))) {
+          response.getHeader("Request-Mime") must equalTo("html")
         }
       }
     }

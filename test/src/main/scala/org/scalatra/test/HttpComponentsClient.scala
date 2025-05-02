@@ -72,8 +72,8 @@ trait HttpComponentsClient extends Client {
         s"${buildUrl(baseUrl, path)}?$queryString"
 
     val req = createMethod(method.toUpperCase, url)
-    attachBody(req, body)
     attachHeaders(req, headers)
+    attachBody(req, body)
 
     val handler: HttpClientResponseHandler[A] = res => withResponse(HttpComponentsClientResponse(res))(f)
     client.execute[A](req, handler)
@@ -140,7 +140,7 @@ trait HttpComponentsClient extends Client {
           if (req.containsHeader("Content-Type"))
             ContentType.parse(req.getHeader("Content-Type").getValue)
           else
-            ContentType.TEXT_PLAIN
+            null
 
         req.setEntity(new ByteArrayEntity(body, contentType))
       }
