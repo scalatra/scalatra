@@ -1,4 +1,4 @@
-## Scalatra ![Scala CI](https://github.com/scalatra/scalatra/workflows/build/badge.svg?branch=main)
+## Scalatra [![build](https://github.com/scalatra/scalatra/actions/workflows/scala.yml/badge.svg)](https://github.com/scalatra/scalatra/actions/workflows/scala.yml)
 
 [![Join the chat at https://gitter.im/scalatra/scalatra](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scalatra/scalatra?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![scalatra Scala version support](https://index.scala-lang.org/scalatra/scalatra/scalatra-jakarta/latest-by-scala-version.svg?platform=jvm)](https://index.scala-lang.org/scalatra/scalatra/artifacts/scalatra-jakarta)
