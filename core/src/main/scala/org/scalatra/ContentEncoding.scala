@@ -2,6 +2,7 @@ package org.scalatra
 
 import java.io.*
 import java.nio.charset.Charset
+import java.util.Locale.ENGLISH
 import java.util.zip.{DeflaterOutputStream, GZIPInputStream, GZIPOutputStream, InflaterInputStream}
 import org.scalatra.ServletCompat.http.{
   HttpServletRequest,
@@ -135,6 +136,11 @@ private class EncodedServletResponse(res: HttpServletResponse, enc: ContentEncod
   // Encoded responses do not have a content length.
   override def setContentLength(i: Int)              = {}
   override def setContentLengthLong(len: Long): Unit = {}
+  override def addHeader(name: String, value: String): Unit = {
+    if (name.toUpperCase(ENGLISH) != "CONTENT-LENGTH") {
+      super.addHeader(name, value)
+    }
+  }
 
 }
 
