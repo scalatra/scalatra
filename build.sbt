@@ -24,7 +24,7 @@ val scalaVersions = Seq("2.12.20", Scala213, "3.3.6")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
-  mimaPreviousArtifacts ++= Set("3.1.1").map(
+  mimaPreviousArtifacts ++= Set("3.1.2").map(
     organization.value %% moduleName.value % _
   ),
   Test / fork          := true,
