@@ -107,7 +107,7 @@ trait RequestLogging extends ScalatraBase with Handler {
       catch { case _: Throwable => }
       action
     }
-    val route = Route(transformers, newAction, (req: HttpServletRequest) => routeBasePath(req))
+    val route = Route(transformers, newAction, (req: HttpServletRequest) => routeBasePath(using req))
     routes.prependRoute(method, route)
     route
   }

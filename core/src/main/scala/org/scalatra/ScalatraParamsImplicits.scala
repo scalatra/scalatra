@@ -24,7 +24,7 @@ object ScalatraParamsImplicits extends ScalatraParamsImplicits with DefaultImpli
       params.get(name).flatMap(tc(_))
 
     def getAs[T <: Date](nameAndFormat: (String, String)): Option[Date] =
-      getAs(nameAndFormat._1)(stringToDate(nameAndFormat._2))
+      getAs(nameAndFormat._1)(using stringToDate(nameAndFormat._2))
 
     def as[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): T =
       getAs[T](name) getOrElse (throw new ScalatraException("Key %s could not be found.".format(name)))
@@ -51,7 +51,7 @@ object ScalatraParamsImplicits extends ScalatraParamsImplicits with DefaultImpli
     }
 
     def getAs[T <: Date](nameAndFormat: (String, String)): Option[Seq[Date]] = {
-      getAs(nameAndFormat._1)(stringToDate(nameAndFormat._2))
+      getAs(nameAndFormat._1)(using stringToDate(nameAndFormat._2))
     }
 
     def as[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Seq[T] =

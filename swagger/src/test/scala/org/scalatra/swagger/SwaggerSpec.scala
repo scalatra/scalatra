@@ -350,7 +350,7 @@ class SwaggerTestServlet(protected val swagger: Swagger)
   protected val applicationDescription        = "Operations about pets"
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat: JsonFormat[String] =
-    JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+    JsonFormat.GenericFormat(using DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
   protected override val swaggerProduces: List[String] =
     "application/json" :: "application/xml" :: "text/plain" :: "text/html" :: Nil
@@ -446,7 +446,7 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
   protected val applicationDescription        = "Operations about store"
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat: JsonFormat[String] =
-    JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+    JsonFormat.GenericFormat(using DefaultReaders.StringReader, DefaultWriters.StringWriter)
   protected override val swaggerProduces: List[String] = "application/json" :: "application/xml" :: Nil
 
   protected override val swaggerConsumes: List[String] = Nil
@@ -493,7 +493,7 @@ class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSuppo
   protected val applicationDescription        = "Operations about user"
   protected implicit val jsonFormats: Formats = DefaultFormats
   implicit val StringFormat: JsonFormat[String] =
-    JsonFormat.GenericFormat(DefaultReaders.StringReader, DefaultWriters.StringWriter)
+    JsonFormat.GenericFormat(using DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
   override protected def swaggerTag: Option[String] = Some("User")
 
