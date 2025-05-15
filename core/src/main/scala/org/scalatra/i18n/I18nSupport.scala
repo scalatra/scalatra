@@ -43,7 +43,7 @@ trait I18nSupport { this: ScalatraBase =>
     }
   }
 
-  def messages(key: String)(implicit request: HttpServletRequest): String = messages(request)(key)
+  def messages(key: String)(implicit request: HttpServletRequest): String = messages(using request)(key)
 
   def messages(implicit request: HttpServletRequest): Messages = {
     if (request == null) {

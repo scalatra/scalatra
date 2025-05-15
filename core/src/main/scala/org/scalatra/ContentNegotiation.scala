@@ -99,7 +99,7 @@ object ContentNegotiation {
 
   /** Retrieves the preferred supported value for the specified content-negotiation header. */
   def preferredValue[T](name: String)(implicit req: HttpServletRequest, format: Format[T]): Option[T] = {
-    val all = values(name)(implicitly, format)
+    val all = values(name)(using implicitly, format)
 
     if (all.isEmpty) None
     else Some(all.reduce { (a, b) => if (a.q < b.q) b else a }.value)

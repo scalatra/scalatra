@@ -55,7 +55,7 @@ trait ScalatraContext extends ServletApiImplicits with SessionSupport with Cooki
   }
 
   protected[this] implicit def scalatraContext: ScalatraContext = {
-    new StableValuesContext()(HttpServletRequestReadOnly(request), response, servletContext)
+    new StableValuesContext()(using HttpServletRequestReadOnly(request), response, servletContext)
   }
 
 }

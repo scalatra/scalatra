@@ -12,7 +12,7 @@ trait SessionSupport { self: ServletApiImplicits =>
     */
   implicit def session(implicit request: HttpServletRequest): HttpSession = request.getSession
 
-  def session(key: String)(implicit request: HttpServletRequest): Any = session(request)(key)
+  def session(key: String)(implicit request: HttpServletRequest): Any = session(using request)(key)
 
   /** The current session. If none exists, None is returned.
     */

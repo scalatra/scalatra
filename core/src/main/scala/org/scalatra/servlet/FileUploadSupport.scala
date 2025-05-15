@@ -192,18 +192,18 @@ trait FileUploadSupport extends ServletBase with HasMultipartConfig {
   }
 
   def fileMultiParams(key: String)(implicit request: HttpServletRequest): Seq[FileItem] = {
-    fileMultiParams(request)(key)
+    fileMultiParams(using request)(key)
   }
 
   /** @return
     *   a Map, keyed on the names of multipart file upload parameters, of all multipart files submitted with the request
     */
   def fileParams(implicit request: HttpServletRequest): FileSingleParams = {
-    new FileSingleParams(fileMultiParams(request))
+    new FileSingleParams(fileMultiParams(using request))
   }
 
   def fileParams(key: String)(implicit request: HttpServletRequest): FileItem = {
-    fileParams(request)(key)
+    fileParams(using request)(key)
   }
 }
 

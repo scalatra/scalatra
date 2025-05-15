@@ -392,7 +392,7 @@ object DataType {
 
   def apply(name: String, format: Option[String] = None, qualifiedName: Option[String] = None) =
     new ValueDataType(name, format, qualifiedName)
-  def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](mf)
+  def apply[T](implicit mf: Manifest[T]): DataType = fromManifest[T](using mf)
 
   private[this] val StringTypes               = Set[Class[?]](classOf[String], classOf[java.lang.String])
   private[this] def isString(klass: Class[?]) = StringTypes contains klass
