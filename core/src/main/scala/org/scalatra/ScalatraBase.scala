@@ -363,10 +363,10 @@ trait ScalatraBase
     *   $ - "text/plain" for String $ - "application/octet-stream" for a byte array $ - "text/html" for any other result
     */
   protected def contentTypeInferrer: ContentTypeInferrer = {
-    case s: String               => "text/plain"
-    case bytes: Array[Byte]      => MimeTypes(bytes)
-    case is: java.io.InputStream => MimeTypes(is)
-    case file: File              => MimeTypes(file)
+    case s: String                  => "text/plain"
+    case bytes: Array[Byte]         => MimeTypes(bytes)
+    case is: java.io.InputStream    => MimeTypes(is)
+    case file: File                 => MimeTypes(file)
     case actionResult: ActionResult =>
       actionResult.headers
         .find { case (name, value) =>
@@ -432,7 +432,7 @@ trait ScalatraBase
     case _: Unit | null =>
     // If an action returns Unit, it assumes responsibility for the response
     case ActionResult(404, _: Unit, _) => doNotFound()
-    case actionResult: ActionResult =>
+    case actionResult: ActionResult    =>
       response.status = actionResult.status
       actionResult.headers.foreach { case (name, value) =>
         response.addHeader(name, value)
@@ -770,7 +770,7 @@ trait ScalatraBase
     * unknown param is the empty sequence. Invalid outside `handle`.
     */
   def multiParams(implicit request: HttpServletRequest): MultiParams = {
-    val read = request.contains("MultiParamsRead")
+    val read  = request.contains("MultiParamsRead")
     val found = request.get(MultiParamsKey) map (_.asInstanceOf[MultiParams] ++ (if (read) Map.empty
                                                                                  else request.multiParameters))
     val multi = found getOrElse request.multiParameters

@@ -3,7 +3,7 @@ package org.scalatra.swagger.reflect
 import java.util.concurrent.ConcurrentHashMap
 
 private[reflect] class Memo[A, R] {
-  private[this] val cache = new ConcurrentHashMap[A, R](1500, 1, 1)
+  private[this] val cache       = new ConcurrentHashMap[A, R](1500, 1, 1)
   def apply(x: A, f: A => R): R = {
     if (cache.containsKey(x))
       cache.get(x)

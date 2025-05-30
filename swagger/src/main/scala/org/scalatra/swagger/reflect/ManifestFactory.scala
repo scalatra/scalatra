@@ -52,7 +52,7 @@ private[swagger] object ManifestFactory {
 
   def manifestOf(st: ScalaType): Manifest[?] = st match {
     case t: ManifestScalaType => t.manifest
-    case _ =>
+    case _                    =>
       val typeArgs = st.typeArgs map manifestOf
       manifestOf(st.erasure, typeArgs)
   }

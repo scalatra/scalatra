@@ -30,7 +30,7 @@ object ModelSpec {
 
   def swaggerProperties[T](implicit mf: Manifest[T])             = swaggerProperty[T]("id")
   def swaggerProperty[T](name: String)(implicit mf: Manifest[T]) = allSwaggerProperties[T].find(_._1 == name).get._2
-  def allSwaggerProperties[T](implicit mf: Manifest[T]) =
+  def allSwaggerProperties[T](implicit mf: Manifest[T])          =
     Swagger.modelToSwagger(Reflector.scalaTypeOf[T]).get.properties
 
 }

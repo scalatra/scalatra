@@ -114,10 +114,10 @@ trait ApiFormats extends ScalatraBase {
     }
 
     request.headers.get("Accept") map { s =>
-      val fmts = s.split(",").map(_.trim)
+      val fmts     = s.split(",").map(_.trim)
       val accepted = fmts.foldLeft(Map.empty[Int, List[String]]) { (acc, f) =>
         val parts = f.split(";").map(_.trim)
-        val i = if (parts.size > 1) {
+        val i     = if (parts.size > 1) {
           val pars = parts(1).split("=").map(_.trim).grouped(2).find(isValidQPair).getOrElse(Array("q", "0"))
           (pars(1).toDouble * 10).ceil.toInt
         } else 10
@@ -128,7 +128,7 @@ trait ApiFormats extends ScalatraBase {
   }
 
   protected def formatForMimeTypes(mimeTypes: String*): Option[String] = {
-    val defaultMimeType = formats(defaultFormat.name)
+    val defaultMimeType                      = formats(defaultFormat.name)
     def matchMimeType(tm: String, f: String) = {
       tm.toLowerCase(ENGLISH).startsWith(f) || (defaultMimeType == f && tm.contains(defaultMimeType))
     }

@@ -55,7 +55,7 @@ trait FutureSupport extends AsyncSupport {
         // Loop until we have a non-future result
         case Success(f2: Future[?])  => renderFutureResult(f2)
         case Success(r: AsyncResult) => renderFutureResult(r.is)
-        case t => {
+        case t                       => {
 
           if (gotResponseAlready.compareAndSet(false, true)) {
             withinAsyncContext(context) {
@@ -104,7 +104,7 @@ trait FutureSupport extends AsyncSupport {
           if (gotResponseAlready.compareAndSet(false, true)) {
             event.getThrowable match {
               case e: HaltException => renderHaltException(e)
-              case e =>
+              case e                =>
                 try {
                   renderResponse(errorHandler(e))
                 } catch {

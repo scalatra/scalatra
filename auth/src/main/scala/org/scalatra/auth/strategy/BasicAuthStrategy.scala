@@ -57,7 +57,7 @@ object BasicAuthStrategy {
     def providesAuth = authorizationKey.isDefined
 
     private[this] var _credentials: Option[(String, String)] = None
-    def credentials = {
+    def credentials                                          = {
       if (_credentials.isEmpty)
         _credentials = params map { p =>
           new String(Base64.getDecoder.decode(p), Codec.UTF8.charSet).split(":", 2).foldLeft(null: (String, String)) {

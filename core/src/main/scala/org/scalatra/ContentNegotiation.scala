@@ -25,11 +25,11 @@ object ContentNegotiation {
 
     // - Base elements -------------------------------------------------------------------------------------------------
     // -----------------------------------------------------------------------------------------------------------------
-    def token: Parser[String]        = ("[" + "\u0020" + "-" + "\u007E" + """&&[^ \t()<>@,;:\"/\[\]?={}]]+""").r
-    def quotedPair: Parser[String]   = "\\" ~> ("[" + "\u0000" + "-" + "\u007F" + "]").r
-    def qdtext: Parser[String]       = ("[" + "\u0000" + "-" + "\u007f" + """&&[^\"\\]]+""").r
-    def quotedString: Parser[String] = "\"" ~> (rep(quotedPair | qdtext) ^^ (_.mkString)) <~ "\""
-    def content: Parser[String]      = quotedString | token
+    def token: Parser[String]          = ("[" + "\u0020" + "-" + "\u007E" + """&&[^ \t()<>@,;:\"/\[\]?={}]]+""").r
+    def quotedPair: Parser[String]     = "\\" ~> ("[" + "\u0000" + "-" + "\u007F" + "]").r
+    def qdtext: Parser[String]         = ("[" + "\u0000" + "-" + "\u007f" + """&&[^\"\\]]+""").r
+    def quotedString: Parser[String]   = "\"" ~> (rep(quotedPair | qdtext) ^^ (_.mkString)) <~ "\""
+    def content: Parser[String]        = quotedString | token
     def content(value: String): String =
       if (value.exists(mustEscape)) "\"%s\"" format value.replace("\\", "\\\\").replace("\"", "\\\"")
       else value

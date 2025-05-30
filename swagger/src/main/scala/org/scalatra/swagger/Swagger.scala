@@ -104,7 +104,7 @@ object Swagger {
             val ctorModels = descriptor.mostComprehensive.filterNot(_.isPrimitive).toVector
             val propModels = descriptor.properties.filterNot(p => p.isPrimitive || ctorModels.exists(_.name == p.name))
             val subModels  = (ctorModels.map(_.argType) ++ propModels.map(_.returnType)).toSet -- known
-            val topLevel = for {
+            val topLevel   = for {
               tl <- subModels + descriptor.erasure
               if !(tl.isCollection || tl.isMap || tl.isOption)
               m <- modelToSwagger(tl)
@@ -137,7 +137,7 @@ object Swagger {
       hidden: Boolean = false
   )(prop: PropertyDescriptor) = {
     val ctorParam = descriptor.mostComprehensive.find(_.name == prop.name)
-    val mp = ModelProperty(
+    val mp        = ModelProperty(
       `type` = DataType.fromScalaType(
         if (prop.returnType.isOption) ctorParam.map(_.argType.typeArgs.head).getOrElse(prop.returnType.typeArgs.head)
         else ctorParam.map(_.argType).getOrElse(prop.returnType)
@@ -166,10 +166,10 @@ object Swagger {
 
       val fields = klass.erasure.getDeclaredFields.toList collect {
         case f: Field if f.getAnnotation(classOf[ApiModelProperty]) != null =>
-          val annotation   = f.getAnnotation(classOf[ApiModelProperty])
-          val position     = if (annotation.position() == Integer.MAX_VALUE) None else Some(annotation.position())
-          val minimumValue = if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue())
-          val maximumValue = if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue())
+          val annotation      = f.getAnnotation(classOf[ApiModelProperty])
+          val position        = if (annotation.position() == Integer.MAX_VALUE) None else Some(annotation.position())
+          val minimumValue    = if (annotation.minimumValue().isNaN) None else Option(annotation.minimumValue())
+          val maximumValue    = if (annotation.maximumValue().isNaN) None else Option(annotation.maximumValue())
           val asModelProperty = toModelProperty(
             descriptor,
             position,
@@ -402,7 +402,7 @@ object DataType {
   private[swagger] def fromManifest[T](implicit mf: Manifest[T]): DataType = {
     fromScalaType(Reflector.scalaTypeOf[T])
   }
-  private[swagger] def fromClass(klass: Class[?]): DataType = fromScalaType(Reflector.scalaTypeOf(klass))
+  private[swagger] def fromClass(klass: Class[?]): DataType   = fromScalaType(Reflector.scalaTypeOf(klass))
   private[swagger] def fromScalaType(st: ScalaType): DataType = {
     val klass = if (st.isOption && st.typeArgs.nonEmpty) st.typeArgs.head.erasure else st.erasure
     if (classOf[Unit].isAssignableFrom(klass) || classOf[Void].isAssignableFrom(klass)) this.Void
@@ -455,7 +455,7 @@ object DataType {
   private[this] val DateTypes =
     Set[Class[?]](classOf[java.time.LocalDate])
   private[this] def isDate(klass: Class[?]) = DateTypes.exists(_.isAssignableFrom(klass))
-  private[this] val DateTimeTypes =
+  private[this] val DateTimeTypes           =
     Set[Class[?]](
       classOf[JDate],
       classOf[java.time.LocalDateTime],

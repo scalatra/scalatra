@@ -22,7 +22,7 @@ object ScentrySpec extends Specification {
   "The scentry" should {
 
     var invalidateCalled = false
-    val context = new ScalatraFilter {
+    val context          = new ScalatraFilter {
       private[this] val sessionMap = scala.collection.mutable.HashMap[String, Any](Scentry.scentryAuthKey -> "6789")
       val mockSession              = mock[HttpSession]
       override def session(implicit request: HttpServletRequest) = mockSession
@@ -65,7 +65,7 @@ object ScentrySpec extends Specification {
     }
 
     val s = new ScentryStrategy[User] {
-      protected val app: ScalatraBase = context
+      protected val app: ScalatraBase                                                                       = context
       def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[User] = {
         successStrategyCalled = true
         Some(User("12345"))
@@ -96,7 +96,7 @@ object ScentrySpec extends Specification {
     }
 
     val sUnsuccess = new ScentryStrategy[User] {
-      protected val app: ScalatraBase = context
+      protected val app: ScalatraBase                                                                       = context
       def authenticate()(implicit request: HttpServletRequest, response: HttpServletResponse): Option[User] = {
         failingStrategyCalled = true
         None

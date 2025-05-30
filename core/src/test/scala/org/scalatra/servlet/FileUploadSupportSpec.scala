@@ -124,7 +124,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
 
   def postExample[A](f: => A): A = {
     val params = Map("param1" -> "one", "param2" -> "two")
-    val files = Map(
+    val files  = Map(
       "text"   -> new File("core/src/test/resources/org/scalatra/servlet/lorem_ipsum.txt"),
       "binary" -> new File("core/src/test/resources/org/scalatra/servlet/smiley.png")
     )
@@ -240,7 +240,7 @@ class FileUploadSupportSpec extends MutableScalatraSpec {
 
     "use default charset (UTF-8) for decoding form params if not excplicitly set to something else" in {
       val boundary = "XyXyXy"
-      val reqBody = ("--{boundary}\r\n" +
+      val reqBody  = ("--{boundary}\r\n" +
         "Content-Disposition: form-data; name=\"utf8-string\"\r\n" +
         "Content-Type: text/plain\r\n" +
         "\r\n" +

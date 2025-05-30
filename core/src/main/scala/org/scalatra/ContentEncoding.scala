@@ -134,8 +134,8 @@ private class EncodedServletResponse(res: HttpServletResponse, enc: ContentEncod
   }
 
   // Encoded responses do not have a content length.
-  override def setContentLength(i: Int)              = {}
-  override def setContentLengthLong(len: Long): Unit = {}
+  override def setContentLength(i: Int)                     = {}
+  override def setContentLengthLong(len: Long): Unit        = {}
   override def addHeader(name: String, value: String): Unit = {
     if (name.toUpperCase(ENGLISH) != "CONTENT-LENGTH") {
       super.addHeader(name, value)

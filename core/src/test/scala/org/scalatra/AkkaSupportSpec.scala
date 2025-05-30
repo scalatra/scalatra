@@ -171,7 +171,7 @@ class AkkaSupportSpec extends MutableScalatraSpec {
       implicit val multiClentEc = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(50))
       val ids                   = (1 to 50).map(_ => scala.util.Random.nextInt())
       val serverBaseUrl         = baseUrl
-      val idsToResponseFs = ids.map { id =>
+      val idsToResponseFs       = ids.map { id =>
         val client = new HttpComponentsClient {
           override val baseUrl: String = serverBaseUrl
         }

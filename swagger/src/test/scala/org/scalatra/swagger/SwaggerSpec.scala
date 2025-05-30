@@ -110,7 +110,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
 
   def verifyPaths(j: JValue) = {
     val JObject(paths) = j
-    val expectations = mutable.HashMap(
+    val expectations   = mutable.HashMap(
       ("/pet/findByTags", "get")           -> "findPetsByTags",
       ("/pet/{petId}", "delete")           -> "deletePet",
       ("/pet/{petId}", "get")              -> "getPetById",
@@ -231,7 +231,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
             case _            => Nil
           }
           val JObject(ef) = exp \ fn
-          val r = af map { case (af_code, af_value) =>
+          val r           = af map { case (af_code, af_value) =>
             val mm = verifyFields(
               af_value,
               ef collectFirst { case (ef_code, ef_value) if ef_code == af_code => ef_value } getOrElse JNothing,
@@ -246,7 +246,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
         case "parameters" =>
           val JArray(af) = act \ fn
           val JArray(ef) = exp \ fn
-          val r = af map { v =>
+          val r          = af map { v =>
             val mm = verifyFields(
               v,
               ef.find(_ \ "name" == v \ "name").get,
@@ -347,8 +347,8 @@ class SwaggerTestServlet(protected val swagger: Swagger)
     with NativeJsonSupport
     with SwaggerSupport {
 
-  protected val applicationDescription        = "Operations about pets"
-  protected implicit val jsonFormats: Formats = DefaultFormats
+  protected val applicationDescription          = "Operations about pets"
+  protected implicit val jsonFormats: Formats   = DefaultFormats
   implicit val StringFormat: JsonFormat[String] =
     JsonFormat.GenericFormat(using DefaultReaders.StringReader, DefaultWriters.StringWriter)
 
@@ -443,8 +443,8 @@ class SwaggerTestServlet(protected val swagger: Swagger)
 }
 
 class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
-  protected val applicationDescription        = "Operations about store"
-  protected implicit val jsonFormats: Formats = DefaultFormats
+  protected val applicationDescription          = "Operations about store"
+  protected implicit val jsonFormats: Formats   = DefaultFormats
   implicit val StringFormat: JsonFormat[String] =
     JsonFormat.GenericFormat(using DefaultReaders.StringReader, DefaultWriters.StringWriter)
   protected override val swaggerProduces: List[String] = "application/json" :: "application/xml" :: Nil
@@ -490,8 +490,8 @@ class StoreApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupp
 }
 
 class UserApi(val swagger: Swagger) extends ScalatraServlet with NativeJsonSupport with SwaggerSupport {
-  protected val applicationDescription        = "Operations about user"
-  protected implicit val jsonFormats: Formats = DefaultFormats
+  protected val applicationDescription          = "Operations about user"
+  protected implicit val jsonFormats: Formats   = DefaultFormats
   implicit val StringFormat: JsonFormat[String] =
     JsonFormat.GenericFormat(using DefaultReaders.StringReader, DefaultWriters.StringWriter)
 

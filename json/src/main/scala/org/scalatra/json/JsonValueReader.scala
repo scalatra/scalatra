@@ -22,7 +22,7 @@ class JsonValueReader(val data: JValue) extends ValueReader[JValue, JValue] {
   protected def readPath(path: String, subj: JValue = data): Option[JValue] = {
     val partIndex    = path.indexOf(separatorBeginning)
     val (part, rest) = if (path.indexOf(separatorBeginning) > -1) path.splitAt(partIndex) else (path, "")
-    val realRest = if (rest.nonEmpty) {
+    val realRest     = if (rest.nonEmpty) {
       if (separatorEnd.nonBlank) {
         if (rest.size > 1) rest.substring(2) else rest.substring(1)
       } else rest.substring(1)

@@ -90,20 +90,20 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?]
   }
 
   protected def renderSwagger2(docs: List[Api]): JValue = {
-    ("swagger" -> "2.0") ~
-      ("basePath" -> bathPath) ~
-      ("host"     -> { if (swagger.host.isEmpty) JNothing else JString(swagger.host) }) ~
-      ("info" ->
-        ("title"        -> swagger.apiInfo.title) ~
-        ("version"        -> swagger.apiVersion) ~
-        ("description"    -> swagger.apiInfo.description) ~
-        ("termsOfService" -> swagger.apiInfo.termsOfServiceUrl) ~
-        ("contact" -> (("name" -> swagger.apiInfo.contact.name) ~
+    ("swagger"          -> "2.0") ~
+      ("basePath"          -> bathPath) ~
+      ("host"              -> { if (swagger.host.isEmpty) JNothing else JString(swagger.host) }) ~
+      ("info"              ->
+        ("title"           -> swagger.apiInfo.title) ~
+        ("version"          -> swagger.apiVersion) ~
+        ("description"      -> swagger.apiInfo.description) ~
+        ("termsOfService"   -> swagger.apiInfo.termsOfServiceUrl) ~
+        ("contact"          -> (("name" -> swagger.apiInfo.contact.name) ~
           ("url"   -> swagger.apiInfo.contact.url) ~
           ("email" -> swagger.apiInfo.contact.email))) ~
-        ("license" -> (("name" -> swagger.apiInfo.license.name) ~
-          ("url" -> swagger.apiInfo.license.url)))) ~
-      ("paths" ->
+        ("license"          -> (("name" -> swagger.apiInfo.license.name) ~
+          ("url"   -> swagger.apiInfo.license.url)))) ~
+      ("paths"             ->
         ListMap(docs.filter(_.apis.nonEmpty).flatMap { doc =>
           doc.apis.collect { case api: Endpoint =>
             (api.path -> api.operations.sortBy(_.position).map { operation =>
@@ -116,7 +116,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?]
                     }
                     .getOrElse(Nil))
               }.toMap
-              (operation.method.toString.toLowerCase -> (("operationId" -> operation.operationId) ~
+              (operation.method.toString.toLowerCase     -> (("operationId" -> operation.operationId) ~
                 ("summary"     -> operation.summary) ~!
                 ("description" -> operation.description) ~!
                 ("schemes"     -> operation.schemes) ~!
@@ -124,7 +124,7 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?]
                 ("produces"    -> operation.produces) ~!
                 ("tags"        -> operation.tags) ~
                 ("deprecated"  -> operation.deprecated) ~
-                ("parameters" -> operation.getVisibleParameters.sortBy(_.position).map { parameter =>
+                ("parameters"  -> operation.getVisibleParameters.sortBy(_.position).map { parameter =>
                   ("name" -> parameter.name) ~
                     ("description" -> parameter.description) ~
                     ("default"     -> parameter.defaultValue) ~
@@ -164,12 +164,12 @@ trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?]
         }*)) ~
       ("definitions" -> docs.flatMap { doc =>
         doc.models.map { case (name, model) =>
-          (name ->
+          (name       ->
             ("type"   -> "object") ~
             ("description"   -> model.description) ~
             ("discriminator" -> model.discriminator) ~
-            ("properties" -> ListMap(model.getVisibleProperties.sortBy(_._2.position).map { case (name, property) =>
-              (name ->
+            ("properties"    -> ListMap(model.getVisibleProperties.sortBy(_._2.position).map { case (name, property) =>
+              (name        ->
                 ("example" -> toTypedAst(property.example, property.`type`)) ~
                 ("description" -> property.description) ~~
                 generateAllowableValues(property.allowableValues, property.minimumValue, property.maximumValue) ~

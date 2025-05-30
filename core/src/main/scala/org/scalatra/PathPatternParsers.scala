@@ -103,7 +103,7 @@ class RailsPathPatternParser extends RegexPathPatternParser {
   def apply(pattern: String): PathPattern =
     parseAll(target, pattern) match {
       case Success(target, _) => target
-      case _ =>
+      case _                  =>
         throw new IllegalArgumentException("Invalid path pattern: " + pattern)
     }
 

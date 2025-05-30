@@ -51,19 +51,19 @@ object Reflector {
   def scalaTypeOf(clazz: Class[?]): ScalaType             = ManifestScalaType(ManifestFactory.manifestOf(clazz))
   def scalaTypeOf(t: Type): ScalaType                     = ManifestScalaType(ManifestFactory.manifestOf(t))
 
-  private[this] val stringTypes = new Memo[String, Option[ScalaType]]
+  private[this] val stringTypes                    = new Memo[String, Option[ScalaType]]
   def scalaTypeOf(name: String): Option[ScalaType] =
     stringTypes(name, resolveClass[AnyRef](_, ClassLoaders) map (c => scalaTypeOf(c)))
 
   def describe[T](implicit mf: Manifest[T]): ObjectDescriptor = describe(scalaTypeOf[T])
   def describe(clazz: Class[?]): ObjectDescriptor             = describe(scalaTypeOf(clazz))
-  def describe(fqn: String): Option[ObjectDescriptor] =
+  def describe(fqn: String): Option[ObjectDescriptor]         =
     scalaTypeOf(fqn) map (describe(_))
   def describe(st: ScalaType, paranamer: ParameterNameReader = ParanamerReader): ObjectDescriptor =
     descriptors(st, createDescriptor(_, paranamer))
 
   def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = classLoaders match {
-    case Nil => sys.error("resolveClass: expected 1+ classloaders but received empty list")
+    case Nil  => sys.error("resolveClass: expected 1+ classloaders but received empty list")
     case many => {
       try {
         var clazz: Class[?] = null
@@ -91,8 +91,8 @@ object Reflector {
       PrimitiveDescriptor(tpe.simpleName, tpe.fullName, tpe)
     } else {
 
-      val path = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
-      val c    = resolveClass(path, Vector(getClass.getClassLoader))
+      val path      = if (tpe.rawFullName.endsWith("$")) tpe.rawFullName else "%s$".format(tpe.rawFullName)
+      val c         = resolveClass(path, Vector(getClass.getClassLoader))
       val companion = c flatMap { cl =>
         allCatch opt {
           SingletonDescriptor(
@@ -153,7 +153,7 @@ object Reflector {
               scalaTypeOf(r)
             } else a
           case v: ParameterizedType =>
-            val st = scalaTypeOf(v)
+            val st         = scalaTypeOf(v)
             val actualArgs = v.getActualTypeArguments.toList.zipWithIndex map { case (ct, idx) =>
               val prev = container.map(_._2).getOrElse(Nil)
               ctorParamType(name, index, owner, ctorParameterNames, ct, Some((st, idx :: prev)))
@@ -178,7 +178,7 @@ object Reflector {
               allCatch opt { paramNameReader.lookupParameterNames(ctor) } getOrElse Nil
             else
               Nil
-          val genParams = ctor.getGenericParameterTypes
+          val genParams  = ctor.getGenericParameterTypes
           val ctorParams = ctorParameterNames.zipWithIndex map { case (paramName, index) =>
             val decoded = unmangleName(paramName)
             val default = companion flatMap { comp =>

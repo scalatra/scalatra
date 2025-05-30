@@ -19,7 +19,7 @@ object CorsSupport {
   val AccessControlMaxAgeHeader: String           = "Access-Control-Max-Age"
   val AccessControlAllowCredentialsHeader: String = "Access-Control-Allow-Credentials"
 
-  private val AnyOrigin: String = "*"
+  private val AnyOrigin: String          = "*"
   private val SimpleHeaders: Seq[String] =
     List(OriginHeader.toUpperCase(ENGLISH), "ACCEPT", "ACCEPT-LANGUAGE", "CONTENT-LANGUAGE")
   private val SimpleContentTypes: Seq[String] =
@@ -135,7 +135,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
 
   protected def augmentSimpleRequest(): Unit = {
     val anyOriginAllowed: Boolean = corsConfig.allowedOrigins.contains(AnyOrigin)
-    val hdr =
+    val hdr                       =
       if (anyOriginAllowed && !corsConfig.allowCredentials)
         Some(AnyOrigin)
       else
@@ -159,7 +159,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
       "WebSocket".equalsIgnoreCase(request.headers.getOrElse("Upgrade", ""))) &&
       !requestPath.contains("eb_ping") // don't do anything for the ping endpoint
 
-  private[this] def isValidRoute: Boolean = routes.matchingMethods(requestPath).nonEmpty
+  private[this] def isValidRoute: Boolean       = routes.matchingMethods(requestPath).nonEmpty
   private[this] def isPreflightRequest: Boolean = {
     val isCors        = isCORSRequest
     val validRoute    = isValidRoute
@@ -214,7 +214,7 @@ trait CorsSupport extends Handler with Initializable { self: ScalatraBase =>
   }
 
   private[this] def headersAreAllowed: Boolean = { // 5.2.4 and 5.2.6
-    val allowedHeaders = corsConfig.allowedHeaders.map(_.trim.toUpperCase(ENGLISH))
+    val allowedHeaders   = corsConfig.allowedHeaders.map(_.trim.toUpperCase(ENGLISH))
     val requestedHeaders =
       for (header <- request.headers.getMulti(AccessControlRequestHeadersHeader) if header.nonBlank)
         yield header.toUpperCase(ENGLISH)

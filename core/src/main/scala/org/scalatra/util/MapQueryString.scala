@@ -30,7 +30,7 @@ object MapQueryString {
         ""
       }
     } match {
-      case item :: Nil => current + (item -> List[String]())
+      case item :: Nil  => current + (item -> List[String]())
       case item :: rest =>
         if (!current.contains(item)) current + (item -> rest) else current + (item -> (rest ::: current(item)).distinct)
       case _ => current

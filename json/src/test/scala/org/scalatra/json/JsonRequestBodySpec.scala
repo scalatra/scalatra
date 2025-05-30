@@ -9,7 +9,7 @@ trait JsonSupportServlet[T] extends ScalatraBase with JsonSupport[T] with JValue
 
   post("/json") {
     parsedBody match {
-      case JNothing => halt(400, "invalid json")
+      case JNothing      => halt(400, "invalid json")
       case json: JObject => {
         (json \ "name").extract[String]
       }

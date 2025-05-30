@@ -13,7 +13,7 @@ package object swagger {
     val Description   = Symbol("swagger.description")
     val Produces      = Symbol("swagger.produces")
     val Consumes      = Symbol("swagger.consumes")
-    val AllSymbols = Set(
+    val AllSymbols    = Set(
       Summary,
       OperationId,
       ResponseClass,

@@ -143,10 +143,10 @@ object SwaggerSupportSyntax {
     private[this] var _paramAccess: Option[String]      = None
     private[this] var _position: Option[Int]            = None
 
-    def dataType: DataType                          = _dataType
-    def dataType(dataType: DataType): this.type     = { _dataType = dataType; this }
-    def name(name: String): this.type               = { _name = name; this }
-    def description(description: String): this.type = { _description = description.blankOption; this }
+    def dataType: DataType                                  = _dataType
+    def dataType(dataType: DataType): this.type             = { _dataType = dataType; this }
+    def name(name: String): this.type                       = { _name = name; this }
+    def description(description: String): this.type         = { _description = description.blankOption; this }
     def description(description: Option[String]): this.type = {
       _description = description.flatMap(_.blankOption); this
     }
@@ -224,7 +224,7 @@ object SwaggerSupportSyntax {
     dataType(initialDataType)
     private[this] var _defaultValue: Option[String] = None
     override def defaultValue                       = _defaultValue
-    def defaultValue(value: T): this.type = {
+    def defaultValue(value: T): this.type           = {
       if (_required.isEmpty) optional
       _defaultValue = allCatch.withApply(_ => None) { value.toString.blankOption }
       this
@@ -232,21 +232,21 @@ object SwaggerSupportSyntax {
 
     private[this] var _minimumValue: Option[Double] = None
     override def minimumValue                       = _minimumValue
-    def minimumValue(value: Double): this.type = {
+    def minimumValue(value: Double): this.type      = {
       _minimumValue = Option(value)
       this
     }
 
     private[this] var _maximumValue: Option[Double] = None
     override def maximumValue                       = _maximumValue
-    def maximumValue(value: Double): this.type = {
+    def maximumValue(value: Double): this.type      = {
       _maximumValue = Option(value)
       this
     }
 
     private[this] var _example: Option[String] = None
     override def example                       = _example
-    def example(value: String): this.type = {
+    def example(value: String): this.type      = {
       _example = Option(value)
       this
     }
@@ -529,7 +529,7 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
 
   import org.scalatra.swagger.SwaggerSupportSyntax.*
 
-  protected implicit def operationBuilder2operation[T](bldr: OperationBuilder): Operation = bldr.result
+  protected implicit def operationBuilder2operation[T](bldr: OperationBuilder): Operation    = bldr.result
   protected def apiOperation[T: Manifest: NotNothing](operationId: String): OperationBuilder = {
     registerModel[T]()
     makeOperationBuilder(operationId, DataType[T])
@@ -563,8 +563,8 @@ trait SwaggerSupport extends ScalatraBase with SwaggerSupportBase with SwaggerSu
   protected def extractOperation(route: Route, method: HttpMethod): Operation = {
     val op = route.metadata.get(Symbols.Operation) map (_.asInstanceOf[Operation])
     op map (_.copy(method = method)) getOrElse {
-      val theParams = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
-      val errors    = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
+      val theParams     = route.metadata.get(Symbols.Parameters) map (_.asInstanceOf[List[Parameter]]) getOrElse Nil
+      val errors        = route.metadata.get(Symbols.Errors) map (_.asInstanceOf[List[ResponseMessage]]) getOrElse Nil
       val responseClass =
         route.metadata.get(Symbols.ResponseClass) map (_.asInstanceOf[DataType]) getOrElse DataType.Void
       val summary     = (route.metadata.get(Symbols.Summary) map (_.asInstanceOf[String])).orNull
