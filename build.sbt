@@ -108,7 +108,7 @@ mimaFailOnNoPrevious  := false
 artifacts             := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value
 packagedArtifacts     := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value
 description           := "A tiny, Sinatra-like web framework for Scala"
-shellPrompt := { state =>
+shellPrompt           := { state =>
   s"sbt:${Project.extract(state).currentProject.id}" + Def.withColor("> ", Option(scala.Console.CYAN))
 }
 Defaults.packageTaskSettings(
@@ -513,7 +513,7 @@ lazy val mavenCentralFrouFrou = Seq(
   homepage  := Some(url("https://www.scalatra.org/")),
   startYear := Some(2009),
   licenses  := Seq(("BSD", url("https://github.com/scalatra/scalatra/raw/HEAD/LICENSE"))),
-  pomExtra := pomExtra.value ++ Group(
+  pomExtra  := pomExtra.value ++ Group(
     <scm>
       <url>https://github.com/scalatra/scalatra</url>
       <connection>scm:git:git://github.com/scalatra/scalatra.git</connection>

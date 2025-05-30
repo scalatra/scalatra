@@ -14,14 +14,14 @@ package object RicherString {
 
     def urlEncode: String  = UrlCodingUtils.urlEncode(orig)
     def formEncode: String = UrlCodingUtils.urlEncode(orig, spaceIsPlus = true)
-    def urlDecode: String =
+    def urlDecode: String  =
       UrlCodingUtils.urlDecode(orig, charset = StandardCharsets.UTF_8, plusIsSpace = false, skip = emptyCharSet)
     def formDecode: String =
       UrlCodingUtils.urlDecode(orig, charset = StandardCharsets.UTF_8, plusIsSpace = true, skip = emptyCharSet)
 
     def urlEncode(charset: Charset): String  = UrlCodingUtils.urlEncode(orig, charset)
     def formEncode(charset: Charset): String = UrlCodingUtils.urlEncode(orig, charset, spaceIsPlus = true)
-    def urlDecode(charset: Charset): String =
+    def urlDecode(charset: Charset): String  =
       UrlCodingUtils.urlDecode(orig, charset, plusIsSpace = false, skip = emptyCharSet)
     def formDecode(charset: Charset): String =
       UrlCodingUtils.urlDecode(orig, charset, plusIsSpace = true, skip = emptyCharSet)

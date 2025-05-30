@@ -4,7 +4,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatra.test.scalatest.ScalatraFunSuite
 
 class ScalatraExpectedFilterException extends RuntimeException
-class FilterTestServlet extends ScalatraServlet {
+class FilterTestServlet               extends ScalatraServlet {
   var beforeCount = 0
   var afterCount  = 0
 

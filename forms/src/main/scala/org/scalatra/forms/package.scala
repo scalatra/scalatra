@@ -144,7 +144,7 @@ package object forms {
   }
 
   def mapping[T, P1](f1: (String, ValueType[P1]))(factory: (P1) => T): MappingValueType[T] = new MappingValueType[T] {
-    def fields: Seq[(String, ValueType[?])] = Seq(f1)
+    def fields: Seq[(String, ValueType[?])]                                         = Seq(f1)
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages) = factory(
       p(f1, name, params, messages)
     )
@@ -153,7 +153,7 @@ package object forms {
   def mapping[T, P1, P2](f1: (String, ValueType[P1]), f2: (String, ValueType[P2]))(
       factory: (P1, P2) => T
   ): MappingValueType[T] = new MappingValueType[T] {
-    def fields: Seq[(String, ValueType[?])] = Seq(f1, f2)
+    def fields: Seq[(String, ValueType[?])]                                         = Seq(f1, f2)
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages) =
       factory(p(f1, name, params, messages), p(f2, name, params, messages))
   }
@@ -161,7 +161,7 @@ package object forms {
   def mapping[T, P1, P2, P3](f1: (String, ValueType[P1]), f2: (String, ValueType[P2]), f3: (String, ValueType[P3]))(
       factory: (P1, P2, P3) => T
   ): MappingValueType[T] = new MappingValueType[T] {
-    def fields: Seq[(String, ValueType[?])] = Seq(f1, f2, f3)
+    def fields: Seq[(String, ValueType[?])]                                         = Seq(f1, f2, f3)
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages) =
       factory(p(f1, name, params, messages), p(f2, name, params, messages), p(f3, name, params, messages))
   }
@@ -172,7 +172,7 @@ package object forms {
       f3: (String, ValueType[P3]),
       f4: (String, ValueType[P4])
   )(factory: (P1, P2, P3, P4) => T): MappingValueType[T] = new MappingValueType[T] {
-    def fields: Seq[(String, ValueType[?])] = Seq(f1, f2, f3, f4)
+    def fields: Seq[(String, ValueType[?])]                                         = Seq(f1, f2, f3, f4)
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages) = factory(
       p(f1, name, params, messages),
       p(f2, name, params, messages),
@@ -188,7 +188,7 @@ package object forms {
       f4: (String, ValueType[P4]),
       f5: (String, ValueType[P5])
   )(factory: (P1, P2, P3, P4, P5) => T): MappingValueType[T] = new MappingValueType[T] {
-    def fields: Seq[(String, ValueType[?])] = Seq(f1, f2, f3, f4, f5)
+    def fields: Seq[(String, ValueType[?])]                                         = Seq(f1, f2, f3, f4, f5)
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages) = factory(
       p(f1, name, params, messages),
       p(f2, name, params, messages),
@@ -206,7 +206,7 @@ package object forms {
       f5: (String, ValueType[P5]),
       f6: (String, ValueType[P6])
   )(factory: (P1, P2, P3, P4, P5, P6) => T): MappingValueType[T] = new MappingValueType[T] {
-    def fields: Seq[(String, ValueType[?])] = Seq(f1, f2, f3, f4, f5, f6)
+    def fields: Seq[(String, ValueType[?])]                                         = Seq(f1, f2, f3, f4, f5, f6)
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages) = factory(
       p(f1, name, params, messages),
       p(f2, name, params, messages),
@@ -226,7 +226,7 @@ package object forms {
       f6: (String, ValueType[P6]),
       f7: (String, ValueType[P7])
   )(factory: (P1, P2, P3, P4, P5, P6, P7) => T): MappingValueType[T] = new MappingValueType[T] {
-    def fields: Seq[(String, ValueType[?])] = Seq(f1, f2, f3, f4, f5, f6, f7)
+    def fields: Seq[(String, ValueType[?])]                                         = Seq(f1, f2, f3, f4, f5, f6, f7)
     def convert(name: String, params: Map[String, Seq[String]], messages: Messages) = factory(
       p(f1, name, params, messages),
       p(f2, name, params, messages),

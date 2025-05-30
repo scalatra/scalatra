@@ -31,7 +31,7 @@ class JettyServerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-    val urls = getClass.getClassLoader.getResources("").asScala.toSeq
+    val urls    = getClass.getClassLoader.getResources("").asScala.toSeq
     val fileUrl = urls
       .find(_.getProtocol == "file")
       .getOrElse(

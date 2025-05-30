@@ -8,7 +8,7 @@ trait Container {
   protected def start(): Unit
   protected def stop(): Unit
   var resourceBasePath: Path = {
-    val urls = getClass.getClassLoader.getResources("").asScala.toSeq
+    val urls    = getClass.getClassLoader.getResources("").asScala.toSeq
     val fileUrl = urls
       .find(_.getProtocol == "file")
       .getOrElse(

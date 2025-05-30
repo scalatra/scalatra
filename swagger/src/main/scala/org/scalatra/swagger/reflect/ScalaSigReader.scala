@@ -95,7 +95,7 @@ private[reflect] object ScalaSigReader {
         case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol)   => symbol
         case TypeRefType(_, _, TypeRefType(ThisType(_), symbol, _) :: xs) => symbol
         case TypeRefType(_, symbol, Nil)                                  => symbol
-        case TypeRefType(_, _, args) if typeArgIndex >= args.length =>
+        case TypeRefType(_, _, args) if typeArgIndex >= args.length       =>
           findPrimitive(args(0))
         case TypeRefType(_, _, args) =>
           val ta = args(typeArgIndex)
@@ -113,8 +113,8 @@ private[reflect] object ScalaSigReader {
     @tailrec def findPrimitive(t: Type, curr: Int): Symbol = {
       val ii = (typeArgIndexes.length - 1) min curr
       t match {
-        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol) => symbol
-        case TypeRefType(_, symbol, Nil)                                => symbol
+        case TypeRefType(ThisType(_), symbol, _) if isPrimitive(symbol)   => symbol
+        case TypeRefType(_, symbol, Nil)                                  => symbol
         case TypeRefType(_, _, args) if typeArgIndexes(ii) >= args.length =>
           findPrimitive(args(0 max args.length - 1), curr + 1)
         case TypeRefType(_, _, args) =>
@@ -185,7 +185,7 @@ private[reflect] object ScalaSigReader {
   }
 
   def resolveClass[X <: AnyRef](c: String, classLoaders: Iterable[ClassLoader]): Option[Class[X]] = classLoaders match {
-    case Nil => sys.error("resolveClass: expected 1+ classloaders but received empty list")
+    case Nil  => sys.error("resolveClass: expected 1+ classloaders but received empty list")
     case many => {
       try {
         var clazz: Class[?] = null

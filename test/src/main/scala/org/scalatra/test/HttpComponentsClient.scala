@@ -65,7 +65,7 @@ trait HttpComponentsClient extends Client {
   )(f: => A): A = {
     val client      = createClient
     val queryString = toQueryString(queryParams)
-    val url =
+    val url         =
       if (queryString == "")
         buildUrl(baseUrl, path)
       else

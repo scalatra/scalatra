@@ -44,7 +44,7 @@ class Scentry[UserType <: AnyRef](
   private[this] def _user(implicit request: HttpServletRequest): UserType =
     request.get(scentryAuthKey).orNull.asInstanceOf[UserType]
 
-  def store = _store
+  def store                                     = _store
   def store_=(newStore: ScentryAuthStore): Unit = {
     _store = newStore
   }
@@ -132,7 +132,7 @@ class Scentry[UserType <: AnyRef](
         runCallbacks(_.isValid) { _.beforeAuthenticate }
         strat.authenticate() match {
           case Some(usr) => Some(strat.name -> usr)
-          case _ =>
+          case _         =>
             strat.unauthenticated()
             None
         }

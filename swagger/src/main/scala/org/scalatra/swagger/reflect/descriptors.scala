@@ -107,7 +107,7 @@ class ManifestScalaType(val manifest: Manifest[?]) extends ScalaType {
                                                     else Nil)
 
   private[this] var _typeVars: Map[TypeVariable[?], ScalaType] = null
-  def typeVars = {
+  def typeVars                                                 = {
     if (_typeVars == null)
       _typeVars = Map.empty ++
         erasure.getTypeParameters
@@ -120,14 +120,14 @@ class ManifestScalaType(val manifest: Manifest[?]) extends ScalaType {
   val isArray: Boolean = erasure.isArray
 
   private[this] var _rawFullName: String = null
-  def rawFullName: String = {
+  def rawFullName: String                = {
     if (_rawFullName == null)
       _rawFullName = erasure.getName
     _rawFullName
   }
 
   private[this] var _rawSimpleName: String = null
-  def rawSimpleName: String = {
+  def rawSimpleName: String                = {
     if (_rawSimpleName == null)
       _rawSimpleName = erasure.getSimpleName
     _rawSimpleName

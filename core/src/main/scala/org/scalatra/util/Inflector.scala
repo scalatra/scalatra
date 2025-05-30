@@ -35,8 +35,8 @@ trait Inflector {
     word.substring(0, 1).toUpperCase(ENGLISH) + word.substring(1).toLowerCase(ENGLISH)
   def uncapitalize(word: String): String =
     word.substring(0, 1).toLowerCase(ENGLISH) + word.substring(1)
-  def ordinalize(word: String): String = ordanize(word.toInt, word)
-  def ordinalize(number: Int): String  = ordanize(number, number.toString)
+  def ordinalize(word: String): String                    = ordanize(word.toInt, word)
+  def ordinalize(number: Int): String                     = ordanize(number, number.toString)
   private def ordanize(number: Int, numberString: String) = {
     val nMod100 = number % 100
     if (nMod100 >= 11 && nMod100 <= 13) numberString + "th"
@@ -90,7 +90,7 @@ trait Inflector {
 
   def addPlural(pattern: String, replacement: String): Unit   = { plurals ::= pattern -> replacement }
   def addSingular(pattern: String, replacement: String): Unit = { singulars ::= pattern -> replacement }
-  def addIrregular(singular: String, plural: String): Unit = {
+  def addIrregular(singular: String, plural: String): Unit    = {
     plurals ::= (("(" + singular(0) + ")" + singular.substring(1) + "$") -> ("$1" + plural.substring(1)))
     singulars ::= (("(" + plural(0) + ")" + plural.substring(1) + "$")   -> ("$1" + singular.substring(1)))
   }
