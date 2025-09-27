@@ -6,7 +6,7 @@ object Dependencies {
   lazy val xml                 = "org.scala-lang.modules"           %% "scala-xml"                % "2.4.0"
   lazy val collectionCompact   = "org.scala-lang.modules"           %% "scala-collection-compat"  % "2.13.0"
   lazy val commonsText         = "org.apache.commons"                % "commons-text"             % "1.14.0"
-  lazy val httpclient          = "org.apache.httpcomponents.client5" % "httpclient5"              % "5.5"
+  lazy val httpclient          = "org.apache.httpcomponents.client5" % "httpclient5"              % "5.5.1"
   lazy val jettyServletJavax   = "org.eclipse.jetty"                 % "jetty-servlet"            % "10.0.21"
   lazy val jettyWebappJavax    = "org.eclipse.jetty"                 % "jetty-webapp"             % "10.0.26"
   lazy val jettyServletJakarta = "org.eclipse.jetty.ee10"            % "jetty-ee10-servlet"       % "12.0.9"
