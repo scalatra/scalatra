@@ -45,6 +45,6 @@ object Dependencies {
   lazy val twirlApi               = "org.playframework.twirl" %% "twirl-api"                % "2.0.9"
 
   private val json4sVersion    = "4.0.7"
-  private val specs2Version    = "4.21.0"
+  private val specs2Version    = "4.22.0"
   private val scalatestVersion = "3.2.19"
 }
