@@ -131,7 +131,7 @@ ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
     `scalatra-metrics`,
     `scalatra-cache`,
     `scalatra-compat`,
-  ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference): _*
+  ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference) *
 )
 enablePlugins(ScalaUnidocPlugin)
 
