@@ -19,7 +19,7 @@ val scala3migration = Def.settings(
   }
 )
 
-def Scala213      = "2.13.16"
+def Scala213      = "2.13.17"
 val scalaVersions = Seq("2.12.20", Scala213, "3.3.7")
 
 lazy val scalatraSettings = Seq(
@@ -131,7 +131,7 @@ ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
     `scalatra-metrics`,
     `scalatra-cache`,
     `scalatra-compat`,
-  ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference): _*
+  ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference) *
 )
 enablePlugins(ScalaUnidocPlugin)
 
