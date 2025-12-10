@@ -8,6 +8,7 @@ private[scalatra] object ServletCompat {
   type Filter                 = jakarta.servlet.Filter
   type FilterChain            = jakarta.servlet.FilterChain
   type FilterConfig           = jakarta.servlet.FilterConfig
+  type HttpServlet            = jakarta.servlet.http.HttpServlet
   type MultipartConfigElement = jakarta.servlet.MultipartConfigElement
   type ReadListener           = jakarta.servlet.ReadListener
   type Servlet                = jakarta.servlet.Servlet
