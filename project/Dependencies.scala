@@ -5,7 +5,7 @@ object Dependencies {
   lazy val parserCombinators   = "org.scala-lang.modules"           %% "scala-parser-combinators" % "2.4.0"
   lazy val xml                 = "org.scala-lang.modules"           %% "scala-xml"                % "2.4.0"
   lazy val collectionCompact   = "org.scala-lang.modules"           %% "scala-collection-compat"  % "2.14.0"
-  lazy val commonsText         = "org.apache.commons"                % "commons-text"             % "1.14.0"
+  lazy val commonsText         = "org.apache.commons"                % "commons-text"             % "1.15.0"
   lazy val httpclient          = "org.apache.httpcomponents.client5" % "httpclient5"              % "5.5.1"
   lazy val jettyServletJavax   = "org.eclipse.jetty"                 % "jetty-servlet"            % "10.0.21"
   lazy val jettyWebappJavax    = "org.eclipse.jetty"                 % "jetty-webapp"             % "10.0.26"
@@ -18,7 +18,7 @@ object Dependencies {
   lazy val scalatestJunit      = "org.scalatestplus"                %% "junit-4-13"               % "3.2.19.1"
   lazy val jUniversalChardet   = "com.github.albfernandez"           % "juniversalchardet"        % "2.4.0"
   lazy val mockitoAll          = "org.mockito"                       % "mockito-core"             % "5.21.0"
-  lazy val logbackClassic      = "ch.qos.logback"                    % "logback-classic"          % "1.5.21"
+  lazy val logbackClassic      = "ch.qos.logback"                    % "logback-classic"          % "1.5.22"
   lazy val scalatest           = Seq(
     "funspec",
     "wordspec",
