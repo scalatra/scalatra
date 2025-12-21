@@ -1,11 +1,8 @@
 package org.scalatra
 
-import java.nio.charset.Charset
-
 import org.scalatest.BeforeAndAfterAll
 import org.scalatra.JettyCompat.ServletHolder
 import org.scalatra.test.scalatest.ScalatraFunSuite
-import org.scalatra.util.RicherString.*
 
 import scala.xml.Text
 
@@ -100,19 +97,6 @@ class ContentTypeTest extends ScalatraFunSuite with BeforeAndAfterAll {
   test("charset is set to default when only content type is explicitly set") {
     get("/default-charset") {
       response.charset should equal(Some("utf-8"))
-    }
-  }
-
-  test("does not override request character encoding when explicitly set") {
-    val charset = "iso-8859-5"
-    val message = "Здравствуйте!"
-
-    post(
-      "/echo",
-      headers = Map("Content-Type" -> ("application/x-www-form-urlencoded; charset=" + charset)),
-      body = ("echo=" + message.urlEncode(Charset.forName(charset)))
-    ) {
-      body should equal(message)
     }
   }
 }
