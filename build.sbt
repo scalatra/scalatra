@@ -27,6 +27,17 @@ lazy val scalatraSettings = Seq(
   mimaPreviousArtifacts ++= Set("3.1.2").map(
     organization.value %% moduleName.value % _
   ),
+  mimaBinaryIssueFilters ++= Seq(
+    ProblemFilters.exclude[DirectMissingMethodProblem](
+      "org.scalatra.test.EmbeddedJettyContainer.servletContextHandler"
+    ),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addServlet"),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addFilter"),
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.mount"),
+    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.jetty.JettyServer.context"),
+    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.test.JettyContainer.servletContextHandler"),
+    ProblemFilters.exclude[ReversedMissingMethodProblem]("org.scalatra.test.JettyContainer.servletContextHandler")
+  ),
   Test / fork          := true,
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
   Test / testOptions ++= {
