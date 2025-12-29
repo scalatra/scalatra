@@ -20,7 +20,7 @@ val scala3migration = Def.settings(
 )
 
 def Scala213      = "2.13.18"
-val scalaVersions = Seq("2.12.21", Scala213, "3.3.7")
+val scalaVersions = Seq(Scala213, "3.3.7")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
@@ -69,8 +69,6 @@ lazy val scalatraSettings = Seq(
   },
   scalacOptions ++= {
     scalaBinaryVersion.value match {
-      case "2.12" =>
-        Seq("-Xsource:3")
       case "2.13" =>
         Seq("-Xsource:3-cross")
       case _ =>
