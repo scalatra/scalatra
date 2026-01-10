@@ -255,7 +255,8 @@ lazy val `scalatra-json` = projectMatrix
       json4sJackson % "provided",
       json4sNative  % "provided",
       json4sCore,
-      json4sXml
+      json4sXml,
+      json4sScalap,
     )
   )
   .jvmPlatform(

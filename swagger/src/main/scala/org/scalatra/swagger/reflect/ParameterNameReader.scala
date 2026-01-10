@@ -1,14 +1,20 @@
 package org.scalatra.swagger.reflect
 
+import scala.collection.immutable.ArraySeq
 import java.lang.reflect.Constructor as JConstructor
-import com.thoughtworks.paranamer.{BytecodeReadingParanamer, CachingParanamer}
 
 trait ParameterNameReader {
   def lookupParameterNames(constructor: JConstructor[?]): Seq[String]
 }
 
 object ParanamerReader extends ParameterNameReader {
-  private[this] val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
   def lookupParameterNames(constructor: JConstructor[?]): Seq[String] =
-    paranamer.lookupParameterNames(constructor).toIndexedSeq
+    constructor match {
+      case c: JConstructor[?] =>
+        ArraySeq.unsafeWrapArray(
+          c.getParameters().map(_.getName())
+        )
+      case _ =>
+        Nil
+    }
 }

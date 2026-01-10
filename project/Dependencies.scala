@@ -11,10 +11,11 @@ object Dependencies {
   lazy val jettyWebappJavax    = "org.eclipse.jetty"                 % "jetty-webapp"             % "10.0.26"
   lazy val jettyServletJakarta = "org.eclipse.jetty.ee11"            % "jetty-ee11-servlet"       % "12.1.5"
   lazy val jettyWebappJakarta  = "org.eclipse.jetty.ee11"            % "jetty-ee11-webapp"        % "12.1.5"
-  lazy val json4sCore          = "org.json4s"                       %% "json4s-core"              % json4sVersion
-  lazy val json4sJackson       = "org.json4s"                       %% "json4s-jackson"           % json4sVersion
-  lazy val json4sNative        = "org.json4s"                       %% "json4s-native"            % json4sVersion
-  lazy val json4sXml           = "org.json4s"                       %% "json4s-xml"               % json4sVersion
+  lazy val json4sCore          = "io.github.json4s"                 %% "json4s-core"              % json4sVersion
+  lazy val json4sJackson       = "io.github.json4s"                 %% "json4s-jackson"           % json4sVersion
+  lazy val json4sNative        = "io.github.json4s"                 %% "json4s-native"            % json4sVersion
+  lazy val json4sXml           = "io.github.json4s"                 %% "json4s-xml"               % json4sVersion
+  lazy val json4sScalap        = "io.github.json4s"                 %% "json4s-scalap"            % json4sVersion
   lazy val scalatestJunit      = "org.scalatestplus"                %% "junit-4-13"               % "3.2.19.1"
   lazy val jUniversalChardet   = "com.github.albfernandez"           % "juniversalchardet"        % "2.4.0"
   lazy val mockitoAll          = "org.mockito"                       % "mockito-core"             % "5.21.0"
@@ -44,7 +45,7 @@ object Dependencies {
   lazy val googleGuava            = "com.google.guava"         % "guava"                    % "33.4.7-jre"
   lazy val twirlApi               = "org.playframework.twirl" %% "twirl-api"                % "2.0.9"
 
-  private val json4sVersion    = "4.0.7"
+  private val json4sVersion    = "4.1.0"
   private val specs2Version    = "4.23.0"
   private val scalatestVersion = "3.2.19"
 }
