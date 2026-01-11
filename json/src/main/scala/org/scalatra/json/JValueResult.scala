@@ -43,8 +43,8 @@ trait JValueResult extends ScalatraBase { self: JsonSupport[?] =>
       response.writer.write(x.toString)
     case x: NodeSeq =>
       response.writer.write(x.toString)
-    case p: Product if isJValueResponse            => Extraction.decompose(p)
-    case p: TraversableOnce[?] if isJValueResponse => Extraction.decompose(p)
+    case p: Product if isJValueResponse         => Extraction.decompose(p)
+    case p: IterableOnce[?] if isJValueResponse => Extraction.decompose(p)
   }
 
 }

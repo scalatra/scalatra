@@ -124,7 +124,7 @@ class Scentry[UserType <: AnyRef](
   private[this] def runAuthentication(
       names: String*
   )(implicit request: HttpServletRequest, response: HttpServletResponse) = {
-    val subset = if (names.isEmpty) strategies.values else strategies.filterKeys(names.contains).values
+    val subset = if (names.isEmpty) strategies.values else strategies.view.filterKeys(names.contains).values
     subset
       .withFilter(_.isValid)
       .flatMap { strat =>
