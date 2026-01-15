@@ -466,7 +466,7 @@ object DataType {
   private[this] def isDateTime(klass: Class[?]) = DateTimeTypes.exists(_.isAssignableFrom(klass))
 
   private[this] def isCollection(klass: Class[?]) =
-    classOf[collection.Traversable[?]].isAssignableFrom(klass) ||
+    classOf[collection.Iterable[?]].isAssignableFrom(klass) ||
       classOf[java.util.Collection[?]].isAssignableFrom(klass)
 
 }

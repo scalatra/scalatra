@@ -68,7 +68,7 @@ class DataTypeSpec extends Specification {
     //    }
 
     "return a correct Collection datatype" in {
-      DataType[Traversable[String]] must_== DataType.GenArray(DataType.String)
+      DataType[Iterable[String]] must_== DataType.GenArray(DataType.String)
       DataType[Array[String]] must_== DataType.GenArray(DataType.String)
       DataType[java.util.List[String]] must_== DataType.GenList(DataType.String)
       DataType[java.util.Collection[String]] must_== DataType.GenArray(DataType.String)
