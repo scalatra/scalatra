@@ -3,8 +3,6 @@ package org.scalatra.swagger.reflect
 import scala.annotation.tailrec
 import org.json4s.scalap.scalasig.*
 
-import scala.collection.compat.immutable.*
-
 private[reflect] object ScalaSigReader {
   def readConstructor(argName: String, clazz: Class[?], typeArgIndex: Int, argNames: List[String]): Class[?] = {
     val cl = findClass(clazz).getOrElse(
