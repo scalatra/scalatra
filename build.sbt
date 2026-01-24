@@ -175,7 +175,6 @@ lazy val scalatra = projectMatrix
       commonsText,
       parserCombinators,
       xml,
-      collectionCompact,
     ),
     description := "The core Scalatra framework"
   )
@@ -330,7 +329,6 @@ lazy val `scalatra-test` = projectMatrix
     libraryDependencies ++= Seq(
       mockitoAll,
       httpclient,
-      collectionCompact
     ) ++ specs2.map(_ % "test"),
     description := "The abstract Scalatra test framework"
   )

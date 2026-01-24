@@ -16,8 +16,6 @@ import scala.util.control.Exception.*
 import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
-import scala.collection.compat.immutable.*
-
 object ScalatraBase {
 
   import org.scalatra.servlet.ServletApiImplicits.*
