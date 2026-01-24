@@ -23,7 +23,7 @@ trait RemoteAddress { self: ScentryStrategy[?] =>
   *
   * for more details on usage check: https://gist.github.com/732347
   */
-trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraBase with ScentrySupport[UserType]) =>
+trait BasicAuthSupport[UserType <: AnyRef] { self: (ScalatraBase & ScentrySupport[UserType]) =>
 
   def realm: String
 
