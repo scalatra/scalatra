@@ -22,20 +22,20 @@ package object scalatra {
 
   val MultiParamsKey = "org.scalatra.MultiParams"
 
-  type CoreStackNoFlash         = CorsSupport with FutureSupport
-  type CoreStackNoFlashWithCsrf = CoreStackNoFlash with CsrfTokenSupport
-  type CoreStackNoFlashWithXsrf = CoreStackNoFlash with XsrfTokenSupport
+  type CoreStackNoFlash         = CorsSupport & FutureSupport
+  type CoreStackNoFlashWithCsrf = CoreStackNoFlash & CsrfTokenSupport
+  type CoreStackNoFlashWithXsrf = CoreStackNoFlash & XsrfTokenSupport
 
-  type FuturesAndFlashStack         = FutureSupport with FlashMapSupport
-  type FuturesAndFlashStackWithCsrf = FuturesAndFlashStack with CsrfTokenSupport
-  type FuturesAndFlashStackWithXsrf = FuturesAndFlashStack with XsrfTokenSupport
+  type FuturesAndFlashStack         = FutureSupport & FlashMapSupport
+  type FuturesAndFlashStackWithCsrf = FuturesAndFlashStack & CsrfTokenSupport
+  type FuturesAndFlashStackWithXsrf = FuturesAndFlashStack & XsrfTokenSupport
 
-  type CoreStack         = CorsSupport with FutureSupport with FlashMapSupport
-  type CoreStackWithCsrf = CoreStack with CsrfTokenSupport
-  type CoreStackWithXsrf = CoreStack with XsrfTokenSupport
+  type CoreStack         = CorsSupport & FutureSupport & FlashMapSupport
+  type CoreStackWithCsrf = CoreStack & CsrfTokenSupport
+  type CoreStackWithXsrf = CoreStack & XsrfTokenSupport
 
-  type FullCoreStack   = CoreStack with FileUploadSupport
-  type FileUploadStack = FutureSupport with FlashMapSupport with FileUploadSupport
+  type FullCoreStack   = CoreStack & FileUploadSupport
+  type FileUploadStack = FutureSupport & FlashMapSupport & FileUploadSupport
 
   /** Immediately halts processing of a request. Can be called from either a before filter or a route.
     *

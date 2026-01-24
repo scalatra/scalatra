@@ -12,7 +12,7 @@ import scala.collection.immutable.ListMap
 
 /** Trait that serves the resource and operation listings, as specified by the Swagger specification.
   */
-trait SwaggerBase extends Initializable { self: ScalatraBase with JsonSupport[?] with CorsSupport =>
+trait SwaggerBase extends Initializable { self: ScalatraBase & JsonSupport[?] & CorsSupport =>
 
   private lazy val logger = LoggerFactory.getLogger(getClass)
 
