@@ -2,7 +2,7 @@ import scala.xml._
 import Dependencies._
 import com.typesafe.tools.mima.core._
 
-val unusedOptions = Seq("-Ywarn-unused:imports")
+val unusedOptions = Seq("-Wunused:import")
 
 val javax   = ServletCross("-javax", "-javax")
 val jakarta = ServletCross("-jakarta", "-jakarta")
