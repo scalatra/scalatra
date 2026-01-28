@@ -3,8 +3,6 @@ package org.scalatra.util
 import java.io.*
 import java.nio.channels.Channels
 
-import scala.annotation.tailrec
-
 /** A collection of I/O utility methods.
   */
 package object io {
@@ -40,18 +38,7 @@ package object io {
     *   the size of buffer to use for each read
     */
   def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
-    using(in) { in =>
-      val buf = new Array[Byte](bufferSize)
-      @tailrec
-      def loop(): Unit = {
-        val n = in.read(buf)
-        if (n >= 0) {
-          out.write(buf, 0, n)
-          loop()
-        }
-      }
-      loop()
-    }
+    using(in)(_.transferTo(out))
   }
 
   def zeroCopy(in: FileInputStream, out: OutputStream): Unit = {
