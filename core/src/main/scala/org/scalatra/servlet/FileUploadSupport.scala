@@ -298,7 +298,7 @@ case class FileItem(part: Part) {
     part.write(fileName)
   }
 
-  def get(): Array[Byte] = org.scalatra.util.io.readBytes(getInputStream)
+  def get(): Array[Byte] = getInputStream.readAllBytes()
 
   def isFormField: Boolean = (name == null)
 
