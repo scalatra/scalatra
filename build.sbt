@@ -254,7 +254,6 @@ lazy val `scalatra-json` = projectMatrix
       json4sNative  % "provided",
       json4sCore,
       json4sXml,
-      json4sScalap,
     )
   )
   .jvmPlatform(
@@ -397,6 +396,7 @@ lazy val `scalatra-swagger` = projectMatrix
     scalatraSettings,
     libraryDependencies ++= Seq(
       parserCombinators,
+      json4sScalap,
       logbackClassic % "provided"
     ),
     description := "Scalatra integration with Swagger"
