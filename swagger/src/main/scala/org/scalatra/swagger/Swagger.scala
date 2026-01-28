@@ -181,12 +181,12 @@ object Swagger {
             maximumValue,
             annotation.defaultValue().blankOption,
             annotation.hidden()
-          ) _
+          )
 
           descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
         case f: Field =>
-          val asModelProperty = toModelProperty(descriptor) _
+          val asModelProperty = toModelProperty(descriptor)
           descriptor.properties.find(_.mangledName == f.getName) map asModelProperty
 
       }

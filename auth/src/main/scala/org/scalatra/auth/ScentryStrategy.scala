@@ -11,7 +11,7 @@ trait ScentryStrategy[UserType <: AnyRef] {
 
   def registerWith(registrar: Scentry[UserType]): Unit = {
     if (name == "NameMe") throwOverrideException
-    else registrar.register(name, createStrategy _)
+    else registrar.register(name, createStrategy)
   }
 
   def createStrategy(app: ScalatraBase): this.type = {

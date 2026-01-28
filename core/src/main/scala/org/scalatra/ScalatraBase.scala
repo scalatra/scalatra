@@ -642,7 +642,7 @@ trait ScalatraBase
   }
 
   private[this] def ensureContextPathsStripped(path: String)(implicit request: HttpServletRequest): String = {
-    ((ensureContextPathStripped _) andThen (ensureServletPathStripped _))(path)
+    (ensureContextPathStripped andThen ensureServletPathStripped)(path)
   }
 
   private[this] def ensureServletPathStripped(path: String)(implicit request: HttpServletRequest): String = {
