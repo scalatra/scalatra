@@ -63,6 +63,7 @@ package object io {
     }
   }
 
+  @deprecated("Use InputStream#readAllBytes", "3.2.0")
   def readBytes(in: InputStream): Array[Byte] = {
     val out = new ByteArrayOutputStream()
     copy(in, out)
