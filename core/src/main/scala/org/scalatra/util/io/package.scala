@@ -2,6 +2,7 @@ package org.scalatra.util
 
 import java.io.*
 import java.nio.channels.Channels
+import scala.util.Using
 
 /** A collection of I/O utility methods.
   */
@@ -18,6 +19,7 @@ package object io {
     * @param f
     *   the block
     */
+  @deprecated("Use scala.util.Using", "3.2.0")
   def using[A, B <: AutoCloseable](closeable: B)(f: B => A): A = {
     try {
       f(closeable)
@@ -38,11 +40,11 @@ package object io {
     *   the size of buffer to use for each read
     */
   def copy(in: InputStream, out: OutputStream, bufferSize: Int = 4096): Unit = {
-    using(in)(_.transferTo(out))
+    Using.resource(in)(_.transferTo(out))
   }
 
   def zeroCopy(in: FileInputStream, out: OutputStream): Unit = {
-    using(in.getChannel) { ch =>
+    Using.resource(in.getChannel) { ch =>
       var start = 0L
       while (start < ch.size) {
         start += ch.transferTo(start, ch.size, Channels.newChannel(out))
@@ -83,7 +85,7 @@ package object io {
   )(f: File => A): A = {
     val tmp = File.createTempFile(prefix, suffix, directory.orNull)
     try {
-      using(new BufferedWriter(new FileWriter(tmp))) { out =>
+      Using.resource(new BufferedWriter(new FileWriter(tmp))) { out =>
         out.write(content)
         out.flush()
       }
