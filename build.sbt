@@ -173,7 +173,7 @@ lazy val scalatra = projectMatrix
       jUniversalChardet,
       commonsText,
       parserCombinators,
-      xml,
+      xml % Test,
     ),
     description := "The core Scalatra framework"
   )
