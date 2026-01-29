@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets
 import scala.annotation.tailrec
 import scala.util.control.Exception.*
 import scala.util.matching.Regex
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success, Try, Using}
 
 object ScalatraBase {
 
@@ -418,12 +418,12 @@ trait ScalatraBase
       if (contentType != null && contentType.startsWith("text")) response.setCharacterEncoding(FileCharset(bytes).name)
       response.outputStream.write(bytes)
     case is: java.io.InputStream =>
-      using(is) {
+      Using.resource(is) {
         util.io.copy(_, response.outputStream)
       }
     case file: File =>
       if (contentType startsWith "text") response.setCharacterEncoding(FileCharset(file).name)
-      using(new FileInputStream(file)) { in =>
+      Using.resource(new FileInputStream(file)) { in =>
         zeroCopy(in, response.outputStream)
       }
     // If an action returns Unit, it assumes responsibility for the response

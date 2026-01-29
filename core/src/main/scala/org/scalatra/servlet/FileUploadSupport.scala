@@ -8,9 +8,9 @@ import org.scalatra.ServletCompat.http.*
 import org.scalatra.ScalatraBase
 import org.scalatra.util.RicherString.*
 import org.scalatra.util.*
-import org.scalatra.util.io.*
 
 import scala.jdk.CollectionConverters.*
+import scala.util.Using
 
 /** FileUploadSupport can be mixed into a [[org.scalatra.ScalatraFilter]] or [[org.scalatra.ScalatraServlet]] to provide
   * easy access to data submitted as part of a multipart HTTP request. Commonly this is used for retrieving uploaded
@@ -289,7 +289,7 @@ case class FileItem(part: Part) {
   def getCharset: Option[String] = charset.orElse(null)
 
   def write(file: File): Unit = {
-    using(new FileOutputStream(file)) { out =>
+    Using.resource(new FileOutputStream(file)) { out =>
       io.copy(getInputStream, out)
     }
   }
