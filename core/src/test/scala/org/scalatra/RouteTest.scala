@@ -96,7 +96,7 @@ class RouteTestServlet extends ScalatraServlet {
     "/fail",
     false,
     new RouteMatcher {
-      def apply(requestPath: String): Option[MultiParams] = { throw new RuntimeException("shouldn't execute"); None }
+      def apply(requestPath: String): Option[MultiParams] = { throw new RuntimeException("shouldn't execute") }
     }
   ) {
     "shouldn't return"
