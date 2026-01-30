@@ -40,7 +40,7 @@ trait RequestLogging extends ScalatraBase with Handler {
 
   protected def logRequest(): Unit = {
     logger.info(
-      MDC.getCopyOfContextMap.asScala.map(kv => kv._1.toString + ": " + kv._2.toString).mkString("{", ", ", " }")
+      MDC.getCopyOfContextMap.asScala.map(kv => kv._1 + ": " + kv._2).mkString("{", ", ", " }")
     )
   }
 
