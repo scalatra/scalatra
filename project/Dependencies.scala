@@ -9,7 +9,7 @@ object Dependencies {
   lazy val jettyServletJavax   = "org.eclipse.jetty"                 % "jetty-servlet"            % "10.0.21"
   lazy val jettyWebappJavax    = "org.eclipse.jetty"                 % "jetty-webapp"             % "10.0.26"
   lazy val jettyServletJakarta = "org.eclipse.jetty.ee11"            % "jetty-ee11-servlet"       % "12.1.5"
-  lazy val jettyWebappJakarta  = "org.eclipse.jetty.ee11"            % "jetty-ee11-webapp"        % "12.1.5"
+  lazy val jettyWebappJakarta  = "org.eclipse.jetty.ee11"            % "jetty-ee11-webapp"        % "12.1.6"
   lazy val json4sCore          = "io.github.json4s"                 %% "json4s-core"              % json4sVersion
   lazy val json4sJackson       = "io.github.json4s"                 %% "json4s-jackson"           % json4sVersion
   lazy val json4sNative        = "io.github.json4s"                 %% "json4s-native"            % json4sVersion
