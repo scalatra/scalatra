@@ -92,7 +92,8 @@ class SinatraPathPatternParser extends RegexPathPatternParser {
 
 object SinatraPathPatternParser {
 
-  def apply(pattern: String): PathPattern = new SinatraPathPatternParser().apply(pattern)
+  private val parser                      = new SinatraPathPatternParser()
+  def apply(pattern: String): PathPattern = parser.apply(pattern)
 
 }
 
@@ -140,6 +141,7 @@ class RailsPathPatternParser extends RegexPathPatternParser {
 
 object RailsPathPatternParser {
 
-  def apply(pattern: String): PathPattern = new RailsPathPatternParser().apply(pattern)
+  private final val parser                = new RailsPathPatternParser()
+  def apply(pattern: String): PathPattern = parser.apply(pattern)
 
 }
