@@ -8,6 +8,16 @@ import scala.collection.immutable.BitSet
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
+object UrlCodingTable {
+  private val table = Array.tabulate[Boolean](256)(c =>
+    (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+      ".-_~:/?#[]@!$&'()*+,;=".contains(c.toChar)
+  )
+
+  @inline def containsInvalidUriCharsTable(string: String): Boolean =
+    string.exists(c => c >= 256 || !table(c.toInt))
+}
+
 trait UrlCodingUtils {
 
   private val toSkip = BitSet(
@@ -18,7 +28,6 @@ trait UrlCodingUtils {
   private val space               = ' '.toInt
   private val PctEncoded          = """%([0-9a-fA-F][0-9a-fA-F])""".r
   private val LowerPctEncoded     = """%([0-9a-f][0-9a-f])""".r
-  private val InvalidChars        = "[^\\.a-zA-Z0-9!$&'()*+,;=:/?#\\[\\]@-_~]".r
 
   private val HexUpperCaseChars = (0 until 16) map { i => Character.toUpperCase(Character.forDigit(i, 16)) }
 
@@ -26,9 +35,7 @@ trait UrlCodingUtils {
     PctEncoded.findFirstIn(string).isDefined
   }
 
-  def containsInvalidUriChars(string: String): Boolean = {
-    InvalidChars.findFirstIn(string).isDefined
-  }
+  def containsInvalidUriChars(string: String): Boolean = UrlCodingTable.containsInvalidUriCharsTable(string)
 
   def needsUrlEncoding(string: String): Boolean = {
     !isUrlEncoded(string) && containsInvalidUriChars(string)
