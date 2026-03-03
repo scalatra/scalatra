@@ -9,17 +9,16 @@ trait Container {
   protected def stop(): Unit
   var resourceBasePath: Path = {
     val urls    = getClass.getClassLoader.getResources("").asScala.toSeq
-    val fileUrl = urls
-      .find(_.getProtocol == "file")
-      .getOrElse(
-        throw new IllegalStateException("No file URL found in class loader resources")
-      )
-    val projectPath = Paths.get(fileUrl.toURI).resolve("../../..")
-    val webAppPath  = projectPath.resolve("src/main/webapp")
-    if (webAppPath.toFile.isDirectory) {
-      webAppPath
-    } else {
-      projectPath
+    val fileUrl = urls.find(_.getProtocol == "file")
+
+    fileUrl match {
+      case Some(url) =>
+        val projectPath = Paths.get(url.toURI).resolve("../../..")
+        val webAppPath  = projectPath.resolve("src/main/webapp")
+        if (webAppPath.toFile.isDirectory) webAppPath else projectPath
+      case None =>
+        // Fallback for JMH/JAR contexts where file URLs aren't available
+        Paths.get(System.getProperty("user.dir"))
     }
   }
 }

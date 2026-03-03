@@ -36,10 +36,11 @@ trait ReversibleRouteMatcher {
 /** An implementation of Sinatra's path pattern syntax.
   */
 final class SinatraRouteMatcher(pattern: String) extends RouteMatcher with ReversibleRouteMatcher {
+  private val parser = SinatraPathPatternParser(pattern)
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
-  def apply(requestPath: String): Option[MultiParams] = SinatraPathPatternParser(pattern)(requestPath)
+  def apply(requestPath: String): Option[MultiParams] = parser(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
     generator(Builder("", params, splats)).get
@@ -106,10 +107,11 @@ final class SinatraRouteMatcher(pattern: String) extends RouteMatcher with Rever
 /** An implementation of Rails' path pattern syntax
   */
 final class RailsRouteMatcher(pattern: String) extends RouteMatcher with ReversibleRouteMatcher {
+  private val parser = RailsPathPatternParser(pattern)
 
   lazy val generator: (Builder => Builder) = BuilderGeneratorParser(pattern)
 
-  def apply(requestPath: String): Option[MultiParams] = RailsPathPatternParser(pattern)(requestPath)
+  def apply(requestPath: String): Option[MultiParams] = parser(requestPath)
 
   def reverse(params: Map[String, String], splats: List[String]): String =
     generator(Builder("", params)).get
