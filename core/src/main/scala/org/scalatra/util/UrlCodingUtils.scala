@@ -8,7 +8,7 @@ import scala.collection.immutable.BitSet
 import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
-object UrlCodingTable {
+private[util] object UrlCodingTable {
   private val table = Array.tabulate[Boolean](256)(c =>
     (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
       ".-_~:/?#[]@!$&'()*+,;=".contains(c.toChar)
