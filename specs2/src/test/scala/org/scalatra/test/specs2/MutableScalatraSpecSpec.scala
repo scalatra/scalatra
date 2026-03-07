@@ -10,7 +10,7 @@ class MutableScalatraSpecSpec extends MutableScalatraSpec {
   addServlet(
     new HttpServlet {
       override def doGet(req: HttpServletRequest, res: HttpServletResponse): Unit = {
-        res.getWriter.write("Hello, world.");
+        res.getWriter.write("Hello, world.")
       }
     },
     "/*"

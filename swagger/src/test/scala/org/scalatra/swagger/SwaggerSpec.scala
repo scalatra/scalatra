@@ -74,7 +74,7 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
   /** Sets the port to listen on. 0 means listen on any available port.
     */
   override lazy val port: Int = {
-    val s = new ServerSocket(0);
+    val s = new ServerSocket(0)
     try { s.getLocalPort }
     finally { s.close() }
   } // 58468
@@ -297,7 +297,7 @@ class SwaggerSpecWithoutCustom2 extends ScalatraSpec with JsonMatchers {
   /** Sets the port to listen on. 0 means listen on any available port.
     */
   override lazy val port: Int = {
-    val s = new ServerSocket(0);
+    val s = new ServerSocket(0)
     try { s.getLocalPort }
     finally { s.close() }
   } // 58468
