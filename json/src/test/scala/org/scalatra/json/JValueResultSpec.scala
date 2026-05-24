@@ -83,12 +83,12 @@ class JValueResultSpec extends MutableScalatraSpec {
 
       get("/mixed-list") {
         contentType = formats("json")
-        List(new Bottle("rum"), NamedThing())
+        List[AnyRef](new Bottle("rum"), NamedThing())
       }
 
       get("/map") {
         contentType = formats("json")
-        Map("rum" -> new Bottle("rum"), "thing" -> NamedThing())
+        Map[String, AnyRef]("rum" -> new Bottle("rum"), "thing" -> NamedThing())
       }
 
       error { case t: Throwable =>
