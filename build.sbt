@@ -40,22 +40,7 @@ lazy val scalatraSettings = Seq(
   ),
   Test / fork          := true,
   Test / baseDirectory := (ThisBuild / baseDirectory).value,
-  Test / testOptions ++= {
-    if (scalaBinaryVersion.value == "3") {
-      Seq(
-        Tests.Exclude(
-          Set(
-            "org.scalatra.swagger.ModelSpec",
-            "org.scalatra.swagger.SwaggerSpec2",
-            "org.scalatra.swagger.ModelCollectionSpec",
-          )
-        ),
-      )
-    } else {
-      Nil
-    }
-  },
-  name := {
+  name                 := {
     if (baseDirectory.value == (LocalRootProject / baseDirectory).value) {
       name.value
     } else {
@@ -405,9 +390,21 @@ lazy val `scalatra-swagger` = projectMatrix
   .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
+    libraryDependencies ++= {
+      scalaBinaryVersion.value match {
+        case "3" =>
+          Seq(
+            "org.scala-lang" %% "scala3-staging" % scalaVersion.value,
+            json4sCore,
+          )
+        case "2.13" =>
+          Seq(
+            json4sScalap,
+          )
+      }
+    },
     libraryDependencies ++= Seq(
       parserCombinators,
-      json4sScalap,
       logbackClassic % "provided"
     ),
     description := "Scalatra integration with Swagger"
