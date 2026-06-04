@@ -145,6 +145,7 @@ enablePlugins(ScalaUnidocPlugin)
 
 lazy val `scalatra-common` = projectMatrix
   .in(file("common"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings
   )
@@ -166,6 +167,7 @@ lazy val `scalatra-common` = projectMatrix
 
 lazy val scalatra = projectMatrix
   .in(file("core"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -200,6 +202,7 @@ lazy val scalatra = projectMatrix
 
 lazy val `scalatra-auth` = projectMatrix
   .in(file("auth"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     description := "Scalatra authentication module",
@@ -223,6 +226,7 @@ lazy val `scalatra-auth` = projectMatrix
 
 lazy val `scalatra-twirl` = projectMatrix
   .in(file("twirl"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     libraryDependencies += twirlApi,
@@ -246,6 +250,7 @@ lazy val `scalatra-twirl` = projectMatrix
 
 lazy val `scalatra-json` = projectMatrix
   .in(file("json"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     description := "JSON support for Scalatra",
@@ -272,6 +277,7 @@ lazy val `scalatra-json` = projectMatrix
 
 lazy val `scalatra-forms` = projectMatrix
   .in(file("forms"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     description := "Data binding and validation for Scalatra"
@@ -292,6 +298,7 @@ lazy val `scalatra-forms` = projectMatrix
 
 lazy val `scalatra-jetty` = projectMatrix
   .in(file("jetty"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     description := "Embedded Jetty server for Scalatra apps"
@@ -322,6 +329,7 @@ lazy val `scalatra-jetty` = projectMatrix
 
 lazy val `scalatra-test` = projectMatrix
   .in(file("test"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -347,6 +355,7 @@ lazy val `scalatra-test` = projectMatrix
 
 lazy val `scalatra-scalatest` = projectMatrix
   .in(file("scalatest"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     libraryDependencies ++= scalatest,
@@ -371,6 +380,7 @@ lazy val `scalatra-scalatest` = projectMatrix
 
 lazy val `scalatra-specs2` = projectMatrix
   .in(file("specs2"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     libraryDependencies ++= specs2,
@@ -392,6 +402,7 @@ lazy val `scalatra-specs2` = projectMatrix
 
 lazy val `scalatra-swagger` = projectMatrix
   .in(file("swagger"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -421,6 +432,7 @@ lazy val `scalatra-swagger` = projectMatrix
 
 lazy val `scalatra-metrics` = projectMatrix
   .in(file("metrics"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     description := "Scalatra integration with Metrics",
@@ -452,6 +464,7 @@ lazy val `scalatra-metrics` = projectMatrix
 
 lazy val `scalatra-cache` = projectMatrix
   .in(file("cache"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     libraryDependencies ++= Seq(
@@ -475,6 +488,7 @@ lazy val `scalatra-cache` = projectMatrix
 
 lazy val `scalatra-compat` = projectMatrix
   .in(file("compat"))
+  .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
     description := "Scalatra Compatibility module"
