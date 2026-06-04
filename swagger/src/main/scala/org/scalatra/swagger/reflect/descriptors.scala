@@ -76,7 +76,7 @@ object ManifestScalaType {
   }
 }
 
-trait ScalaType extends Equals {
+sealed trait ScalaType extends Equals {
   def erasure: Class[?]
   def typeArgs: Seq[ScalaType]
   def typeVars: Map[TypeVariable[?], ScalaType]
