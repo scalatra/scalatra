@@ -101,13 +101,6 @@ class SwaggerSpec2 extends ScalatraSpec with JsonMatchers {
     }
   }
 
-  def parseInt(i: String): Option[Int] =
-    try {
-      Some(Integer.parseInt(i))
-    } catch {
-      case _: Throwable => None
-    }
-
   def verifyPaths(j: JValue) = {
     val JObject(paths) = j
     val expectations   = mutable.HashMap(
@@ -320,13 +313,6 @@ class SwaggerSpecWithoutCustom2 extends ScalatraSpec with JsonMatchers {
       }
     }
   }
-
-  def parseInt(i: String): Option[Int] =
-    try {
-      Some(Integer.parseInt(i))
-    } catch {
-      case _: Throwable => None
-    }
 
   def verifyInfo(j: JValue) = {
     val info = swaggerJsonJValue \ "info"
