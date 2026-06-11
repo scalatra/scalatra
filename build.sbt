@@ -28,6 +28,7 @@ lazy val scalatraSettings = Seq(
     organization.value %% moduleName.value % _
   ),
   mimaBinaryIssueFilters ++= Seq(
+    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.util.Inflector.<clinit>"),
     ProblemFilters.exclude[DirectMissingMethodProblem](
       "org.scalatra.test.EmbeddedJettyContainer.servletContextHandler"
     ),
@@ -56,8 +57,8 @@ lazy val scalatraSettings = Seq(
     scalaBinaryVersion.value match {
       case "2.13" =>
         Seq("-Xsource:3-cross")
-      case _ =>
-        Nil
+      case "3" =>
+        Seq("-Yfuture-lazy-vals")
     }
   },
   scalacOptions ++= {
