@@ -44,7 +44,7 @@ object Dependencies {
   lazy val googleGuava            = "com.google.guava"         % "guava"                    % "33.4.7-jre"
   lazy val twirlApi               = "org.playframework.twirl" %% "twirl-api"                % "2.0.9"
 
-  private val json4sVersion    = "4.1.0"
+  private val json4sVersion    = "4.1.1"
   private val specs2Version    = "4.23.0"
   private val scalatestVersion = "3.2.20"
 }
