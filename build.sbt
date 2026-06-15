@@ -39,9 +39,11 @@ lazy val scalatraSettings = Seq(
     ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.test.JettyContainer.servletContextHandler"),
     ProblemFilters.exclude[ReversedMissingMethodProblem]("org.scalatra.test.JettyContainer.servletContextHandler")
   ),
-  Test / fork          := true,
-  Test / baseDirectory := (ThisBuild / baseDirectory).value,
-  name                 := {
+  exportJars                         := false,
+  Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Raw,
+  Test / fork                        := true,
+  Test / baseDirectory               := (ThisBuild / baseDirectory).value,
+  name                               := {
     if (baseDirectory.value == (LocalRootProject / baseDirectory).value) {
       name.value
     } else {
@@ -94,40 +96,46 @@ lazy val scalatraSettings = Seq(
   publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
 ) ++ mavenCentralFrouFrou ++ Seq(Compile, Test).flatMap(c => c / console / scalacOptions --= unusedOptions)
 
-scalatraSettings
-scalaVersion          := Scala213
-name                  := "scalatra-unidoc"
-mimaPreviousArtifacts := Set.empty
-mimaFailOnNoPrevious  := false
-artifacts             := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value
-packagedArtifacts     := Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value
-description           := "A tiny, Sinatra-like web framework for Scala"
-shellPrompt           := { state =>
-  s"sbt:${Project.extract(state).currentProject.id}" + Def.withColor("> ", Option(scala.Console.CYAN))
-}
-Defaults.packageTaskSettings(
-  Compile / packageDoc,
-  (Compile / unidoc).map(_.flatMap(Path.allSubpaths))
-)
-ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
-  Seq(
-    scalatra,
-    `scalatra-auth`,
-    `scalatra-forms`,
-    `scalatra-twirl`,
-    `scalatra-json`,
-    `scalatra-test`,
-    `scalatra-scalatest`,
-    `scalatra-specs2`,
-    `scalatra-swagger`,
-    `scalatra-jetty`,
-    `scalatra-common`,
-    `scalatra-metrics`,
-    `scalatra-cache`,
-    `scalatra-compat`,
-  ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference) *
-)
-enablePlugins(ScalaUnidocPlugin)
+val scalatraRoot = rootProject.autoAggregate
+  .settings(
+    scalatraSettings,
+    scalaVersion          := Scala213,
+    name                  := "scalatra-unidoc",
+    mimaPreviousArtifacts := Set.empty,
+    mimaFailOnNoPrevious  := false,
+    artifacts             := Classpaths.artifactDefs(Seq(Compile / packageDoc, Compile / makePom)).value,
+    packagedArtifacts     := Def.uncached(Classpaths.packaged(Seq(Compile / packageDoc, Compile / makePom)).value),
+    description           := "A tiny, Sinatra-like web framework for Scala",
+    shellPrompt           := { state =>
+      s"sbt:${Project.extract(state).currentProject.id}" + Def.withColor("> ", Option(scala.Console.CYAN))
+    },
+    Defaults.packageTaskSettings(
+      Compile / packageDoc,
+      Def.task {
+        given FileConverter = fileConverter.value
+        (Compile / unidoc).value.flatMap(Mapper.allSubpaths)
+      }
+    ),
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(
+      Seq(
+        scalatra,
+        `scalatra-auth`,
+        `scalatra-forms`,
+        `scalatra-twirl`,
+        `scalatra-json`,
+        `scalatra-test`,
+        `scalatra-scalatest`,
+        `scalatra-specs2`,
+        `scalatra-swagger`,
+        `scalatra-jetty`,
+        `scalatra-common`,
+        `scalatra-metrics`,
+        `scalatra-cache`,
+        `scalatra-compat`,
+      ).map(_.finder(jakarta, VirtualAxis.jvm)(Scala213): ProjectReference) *
+    ),
+  )
+  .enablePlugins(ScalaUnidocPlugin)
 
 lazy val `scalatra-common` = projectMatrix
   .in(file("common"))
@@ -266,6 +274,7 @@ lazy val `scalatra-forms` = projectMatrix
   .defaultAxes(VirtualAxis.jvm)
   .settings(
     scalatraSettings,
+    libraryDependencies ++= scalatest.map(_ % Test),
     description := "Data binding and validation for Scalatra"
   )
   .jvmPlatform(
@@ -280,7 +289,7 @@ lazy val `scalatra-forms` = projectMatrix
     settings = Def.settings(
     ),
   )
-  .dependsOn(scalatra % "compile;test->test;provided->provided")
+  .dependsOn(scalatra % "compile;provided->provided")
 
 lazy val `scalatra-jetty` = projectMatrix
   .in(file("jetty"))
