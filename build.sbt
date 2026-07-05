@@ -24,20 +24,10 @@ val scalaVersions = Seq(Scala213, "3.3.8")
 
 lazy val scalatraSettings = Seq(
   organization := "org.scalatra",
-  mimaPreviousArtifacts ++= Set("3.1.2").map(
+  mimaPreviousArtifacts ++= Set("3.2.0").map(
     organization.value %% moduleName.value % _
   ),
   mimaBinaryIssueFilters ++= Seq(
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.util.Inflector.<clinit>"),
-    ProblemFilters.exclude[DirectMissingMethodProblem](
-      "org.scalatra.test.EmbeddedJettyContainer.servletContextHandler"
-    ),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addServlet"),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.addFilter"),
-    ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalatra.test.JettyContainer.mount"),
-    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.jetty.JettyServer.context"),
-    ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalatra.test.JettyContainer.servletContextHandler"),
-    ProblemFilters.exclude[ReversedMissingMethodProblem]("org.scalatra.test.JettyContainer.servletContextHandler")
   ),
   exportJars                         := false,
   Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Raw,
