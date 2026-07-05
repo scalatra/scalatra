@@ -172,7 +172,7 @@ private[reflect] object ScalaSigReader {
   def companionClass(clazz: Class[?], classLoaders: Iterable[ClassLoader]) = {
     val path = if (clazz.getName.endsWith("$")) clazz.getName else "%s$".format(clazz.getName)
     val c    = resolveClass(path, classLoaders)
-    if (c.isDefined) c.get else sys.error("Could not resolve clazz='%s'".format(path))
+    if (c.isDefined) c.get else sys.error(s"Could not resolve clazz='${path}'")
   }
 
   def companionObject(clazz: Class[?], classLoaders: Iterable[ClassLoader]) =

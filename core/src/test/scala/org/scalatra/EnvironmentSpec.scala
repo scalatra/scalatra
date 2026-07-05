@@ -28,12 +28,12 @@ class EnvironmentFilterSpec extends ScalatraSpec {
   prodFilterHolder.setInitParameter(EnvironmentKey, "production")
 
   def env(environment: String, expected: String) =
-    get("/%s/environment".format(environment)) {
+    get(s"/${environment}/environment") {
       body must be equalTo (expected)
     }
 
   def isDevMode(environment: String, expected: Boolean) =
-    get("/%s/is-development-mode".format(environment)) {
+    get(s"/${environment}/is-development-mode") {
       body must be equalTo (expected.toString)
     }
 }

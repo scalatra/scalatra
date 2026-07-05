@@ -37,11 +37,11 @@ class HttpComponentsClientSpec
         resp.setHeader("Request-Method", req.getMethod.toUpperCase)
         resp.setHeader("Request-URI", req.getRequestURI)
         req.getHeaderNames.asScala.foreach(headerName =>
-          resp.setHeader("Request-Header-%s".format(headerName), req.getHeader(headerName))
+          resp.setHeader(s"Request-Header-${headerName}", req.getHeader(headerName))
         )
 
         req.getParameterMap.asScala.foreach { case (name, values) =>
-          resp.setHeader("Request-Param-%s".format(name), values.mkString(", "))
+          resp.setHeader(s"Request-Param-${name}", values.mkString(", "))
         }
 
         resp.getOutputStream.write("received: ".getBytes)

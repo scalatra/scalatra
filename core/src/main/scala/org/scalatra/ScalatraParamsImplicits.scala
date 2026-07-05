@@ -27,11 +27,11 @@ object ScalatraParamsImplicits extends ScalatraParamsImplicits with DefaultImpli
       getAs(nameAndFormat._1)(using stringToDate(nameAndFormat._2))
 
     def as[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): T =
-      getAs[T](name) getOrElse (throw new ScalatraException("Key %s could not be found.".format(name)))
+      getAs[T](name) getOrElse (throw new ScalatraException(s"Key ${name} could not be found."))
 
     def as[T <: Date](nameAndFormat: (String, String)): Date =
       getAs[T](nameAndFormat) getOrElse (throw new ScalatraException(
-        "Key %s could not be found.".format(nameAndFormat._1)
+        s"Key ${nameAndFormat._1} could not be found."
       ))
 
     def getAsOrElse[T <: Any](name: String, default: => T)(implicit tc: TypeConverter[String, T]): T =
@@ -55,11 +55,11 @@ object ScalatraParamsImplicits extends ScalatraParamsImplicits with DefaultImpli
     }
 
     def as[T <: Any](name: String)(implicit tc: TypeConverter[String, T]): Seq[T] =
-      getAs[T](name) getOrElse (throw new ScalatraException("Key %s could not be found.".format(name)))
+      getAs[T](name) getOrElse (throw new ScalatraException(s"Key ${name} could not be found."))
 
     def as[T <: Date](nameAndFormat: (String, String)): Seq[Date] =
       getAs[T](nameAndFormat) getOrElse (throw new ScalatraException(
-        "Key %s could not be found.".format(nameAndFormat._1)
+        s"Key ${nameAndFormat._1} could not be found."
       ))
 
     def getAsOrElse[T <: Any](name: String, default: => Seq[T])(implicit tc: TypeConverter[String, T]): Seq[T] =

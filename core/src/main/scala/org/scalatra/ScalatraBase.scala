@@ -713,7 +713,7 @@ trait ScalatraBase
   }
 
   private[this] def buildBaseUrl(implicit request: HttpServletRequest): String = {
-    "%s://%s".format(if (needsHttps || isHttps) "https" else "http", serverAuthority)
+    s"${if (needsHttps || isHttps) "https" else "http"}://${serverAuthority}"
   }
 
   private[this] def serverAuthority(implicit request: HttpServletRequest): String = {

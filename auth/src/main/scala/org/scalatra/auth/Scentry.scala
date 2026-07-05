@@ -128,7 +128,7 @@ class Scentry[UserType <: AnyRef](
     subset
       .withFilter(_.isValid)
       .flatMap { strat =>
-        logger.debug("Authenticating with: %s" format strat.name)
+        logger.debug(s"Authenticating with: ${strat.name}")
         runCallbacks(_.isValid) { _.beforeAuthenticate }
         strat.authenticate() match {
           case Some(usr) => Some(strat.name -> usr)

@@ -58,7 +58,7 @@ trait Inflector {
   }
   private class Rule(pattern: String, replacement: String) {
 
-    private val regex = ("""(?i)%s""" format pattern).r
+    private val regex = (s"""(?i)${pattern}""").r
 
     def apply(word: String) = {
       if (regex.findFirstIn(word).isEmpty) {
