@@ -29,7 +29,7 @@ class ScalatraListener extends ServletContextListener {
 
   override def contextDestroyed(sce: ServletContextEvent): Unit = {
     if (cycle != null) {
-      logger.info("Destroying life cycle class: %s".format(cycle.getClass.getName))
+      logger.info(s"Destroying life cycle class: ${cycle.getClass.getName}")
       cycle.destroy(servletContext)
     }
   }
@@ -50,7 +50,7 @@ class ScalatraListener extends ServletContextListener {
 
     assert(cycleClass != null, "No lifecycle class found!")
     assert(classOf[LifeCycle].isAssignableFrom(cycleClass), "This is no lifecycle class.")
-    logger debug "Loaded lifecycle class: %s".format(cycleClass)
+    logger debug s"Loaded lifecycle class: ${cycleClass}"
 
     if (cycleClass.getName == OldDefaultLifeCycle)
       logger.warn(
@@ -66,7 +66,7 @@ class ScalatraListener extends ServletContextListener {
   protected def configureCycleClass(classLoader: ClassLoader): Unit = {
     val (cycleClassName, cycleClass) = probeForCycleClass(classLoader)
     cycle = cycleClass
-    logger.info("Initializing life cycle class: %s".format(cycleClassName))
+    logger.info(s"Initializing life cycle class: ${cycleClassName}")
     cycle.init(servletContext)
   }
 }

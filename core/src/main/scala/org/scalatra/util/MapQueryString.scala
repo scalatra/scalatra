@@ -54,7 +54,7 @@ case class MapQueryString(initialValues: Seq[(String, Seq[String])], rawValue: S
   )
 
   private def mkString(values: Value = value) = values map { case (k, v) =>
-    v.map(s => "%s=%s".format(UrlCodingUtils.queryPartEncode(k), UrlCodingUtils.queryPartEncode(s))).mkString("&")
+    v.map(s => s"${UrlCodingUtils.queryPartEncode(k)}=${UrlCodingUtils.queryPartEncode(s)}").mkString("&")
   } mkString "&"
 
   type Value = immutable.Map[String, Seq[String]]
