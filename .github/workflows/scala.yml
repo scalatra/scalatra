@@ -21,6 +21,6 @@ jobs:
         distribution: "temurin"
         java-version: ${{ matrix.java }}
     - name: Setup SBT
-      uses: sbt/setup-sbt@v1
+      uses: sbt/setup-sbt@v1.5.5
     - name: Run tests
       run: sbt --server -v scalafmtCheckAll scalafmtSbtCheck mimaReportBinaryIssues test unidoc
