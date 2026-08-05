@@ -502,7 +502,8 @@ case class Order(
     @ApiModelProperty(position = 4, allowableValues = "range[0,10]", defaultValue = "1", example = "1") quantity: Int,
     @ApiModelProperty(position = 5) shipDate: OffsetDateTime,
     @ApiModelProperty(hidden = true, required = true) shipped: Boolean,
-    @ApiModelProperty(position = 6, minimumValue = 0, defaultValue = "1", example = "2.99") price: Double
+    @ApiModelProperty(position = 6, minimumValue = 0, defaultValue = "1", example = "2.99") price: Double,
+    @ApiModelProperty(position = 7) createdAt: org.joda.time.DateTime,
 )
 case class User(
     id: Long,
