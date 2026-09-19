@@ -15,7 +15,7 @@ object Dependencies {
   lazy val json4sNative        = "io.github.json4s"                 %% "json4s-native"            % json4sVersion
   lazy val json4sXml           = "io.github.json4s"                 %% "json4s-xml"               % json4sVersion
   lazy val json4sScalap        = "io.github.json4s"                 %% "json4s-scalap"            % json4sVersion
-  lazy val joda                = "joda-time"                         % "joda-time"                % "2.14.3"
+  lazy val joda                = "joda-time"                         % "joda-time"                % "2.14.4"
   lazy val paranamer           = "com.thoughtworks.paranamer"        % "paranamer"                % "2.8.3"
   lazy val scalatestJunit      = "org.scalatestplus"                %% "junit-4-13"               % "3.2.20.0"
   lazy val jUniversalChardet   = "com.github.albfernandez"           % "juniversalchardet"        % "2.4.0"
