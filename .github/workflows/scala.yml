@@ -14,13 +14,18 @@ jobs:
       JAVA_OPTS: -Xmx2048M
 
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v7.0.1
+    - run: |
+        gh extension install github/gh-actions-lock
+        gh actions-lock --verify
+      env:
+        GH_TOKEN: ${{ github.token }}
     - name: Set up JDK
-      uses: actions/setup-java@v6
+      uses: actions/setup-java@v6.3.0
       with:
         distribution: "temurin"
         java-version: ${{ matrix.java }}
     - name: Setup SBT
-      uses: sbt/setup-sbt@v1
+      uses: sbt/setup-sbt@v1.5.15
     - name: Run tests
       run: sbt --server -v scalafmtCheckAll scalafmtSbtCheck mimaReportBinaryIssues testFull unidoc
